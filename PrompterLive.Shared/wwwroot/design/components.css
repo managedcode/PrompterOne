@@ -1,0 +1,216 @@
+/* ============================================
+   REUSABLE COMPONENTS — Teleprompter Design System
+   Utility classes built on tokens.css
+   ============================================ */
+
+/* ---- Global App Header ---- */
+.app-header {
+    display: flex;
+    align-items: stretch;
+    height: 52px;
+    padding: 0;
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    box-shadow: 0 1px 0 var(--border-subtle);
+    flex-shrink: 0;
+    z-index: 100;
+    gap: 0;
+    font-size: 14px;
+    line-height: 1;
+}
+.app-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+    width: var(--sidebar-width);
+    padding: 0 20px;
+    border-right: var(--glass-border-light);
+}
+.app-logo-text {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -.2px;
+    line-height: 1;
+    background: var(--gold-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.app-header-center {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    padding: 0 20px 0 48px;
+}
+.app-header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+    margin-left: auto;
+    padding: 0 20px;
+}
+
+/* ---- Unified Top Bar (all screens) ---- */
+.top-bar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 0 24px;
+    height: 52px;
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--border-subtle);
+}
+.top-bar-title {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -.2px;
+    background: var(--gold-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.top-bar-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* ---- Title with gold gradient text ---- */
+.title-gold {
+    background: var(--gold-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ---- Glass Panel ---- */
+.glass-panel {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: var(--glass-border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--glass-shadow), var(--glass-inset);
+}
+
+.glass-panel-light {
+    background: var(--glass-bg-light);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: var(--glass-border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--glass-shadow), var(--glass-inset);
+}
+
+/* ---- Sidebar base ---- */
+.sidebar-base {
+    width: var(--sidebar-width);
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border-right: var(--glass-border-light);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+}
+
+/* ---- Back button ---- */
+.btn-back {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-md);
+    background: var(--gold-07);
+    color: var(--text-3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+}
+.btn-back:hover {
+    background: var(--gold-10);
+    color: var(--text-1);
+}
+
+/* ---- Section label (uppercase small text) ---- */
+.section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--text-4);
+    padding: 0 12px;
+    margin-bottom: 10px;
+}
+
+/* ---- Sidebar header row (back + title) ---- */
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+}
+
+/* ---- Gold pill button ---- */
+.btn-gold {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: var(--radius-md);
+    color: var(--gold-text);
+    background: var(--gold-10);
+    border: 1px solid var(--gold-20);
+    cursor: pointer;
+    font-family: var(--font-sans);
+}
+.btn-gold:hover {
+    background: var(--gold-16);
+    border-color: var(--gold-30);
+}
+
+/* ---- Ghost button ---- */
+.btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: var(--radius-md);
+    color: var(--text-2);
+    background: var(--gold-05);
+    border: 1px solid var(--gold-08);
+    cursor: pointer;
+    font-family: var(--font-sans);
+}
+.btn-ghost:hover {
+    background: var(--gold-09);
+    color: var(--text-1);
+}
+
+/* ---- Divider line ---- */
+.divider {
+    height: 1px;
+    background: var(--border-subtle);
+    margin: 0;
+}
+
+/* ---- Stat row ---- */
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    padding: 5px 0;
+}
+.stat-row span { color: var(--text-3); }
+.stat-row b { color: var(--text-1); font-family: var(--font-mono); font-size: 13px; }

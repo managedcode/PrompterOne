@@ -1,0 +1,229 @@
+@page "/teleprompter"
+@implements IDisposable
+@inject AppBootstrapper Bootstrapper
+@inject IScriptSessionService Session
+@inject IScriptRepository Repository
+@inject BrowserSettingsStore SettingsStore
+@inject IJSRuntime JSRuntime
+@inject IMediaSceneService SceneService
+
+<section class="view-shell teleprompter-shell" data-testid="teleprompter-page">
+    <div class="section-header">
+        <div>
+            <p class="eyebrow">Reader Surface</p>
+            <h1>Teleprompter</h1>
+            <p class="section-copy">Full-screen reading surface with persistent font, width, countdown, and live camera overlays.</p>
+        </div>
+        <div class="hero-actions">
+            <button class="action-btn" data-testid="teleprompter-start" @onclick="StartReadingAsync">@(_isReading ? "Restart" : "Start")</button>
+            <button class="action-btn" data-testid="teleprompter-stop" @onclick="StopReadingAsync">Stop</button>
+        </div>
+    </div>
+
+    <div class="glass-card reader-toolbar">
+        <label class="inline-field">
+            <span>Font</span>
+            <input type="range" min="0.7" max="1.8" step="0.05" value="@Session.State.ReaderSettings.FontScale" @oninput="OnFontScaleChanged" />
+        </label>
+        <label class="inline-field">
+            <span>Text width</span>
+            <input type="range" min="0.45" max="0.95" step="0.01" value="@Session.State.ReaderSettings.TextWidth" @oninput="OnTextWidthChanged" />
+        </label>
+        <label class="inline-field">
+            <span>Scroll</span>
+            <input type="range" min="0.4" max="3" step="0.1" value="@Session.State.ReaderSettings.ScrollSpeed" @oninput="OnScrollSpeedChanged" />
+        </label>
+        <label class="inline-field toggle-field">
+            <input type="checkbox" checked="@Session.State.ReaderSettings.ShowCameraScene" @onchange="OnShowCameraSceneChanged" />
+            <span>Show camera scene</span>
+        </label>
+    </div>
+
+    <div class="glass-card teleprompter-stage">
+        @if (_countdown > 0)
+        {
+            <div class="countdown-overlay">@_countdown</div>
+        }
+
+        @if (Session.State.ReaderSettings.ShowCameraScene)
+        {
+            <div class="camera-stage-layer">
+                @foreach (var camera in SceneService.State.Cameras)
+                {
+                    <CameraPreviewTile Camera="camera" />
+                }
+            </div>
+        }
+
+        @if (Session.State.ReaderSettings.ShowFocusLine)
+        {
+            <div class="focus-line"></div>
+        }
+
+        <div id="@_readerSurfaceId" class="reader-surface" data-testid="teleprompter-reader-surface" style="@ReaderSurfaceStyle">
+            @if (Session.State.ScriptData?.Segments is { Length: > 0 } segments)
+            {
+                @foreach (var segment in segments)
+                {
+                    <section class="reader-segment">
+                        <h2>@segment.Name</h2>
+                        @if (segment.Blocks is { Length: > 0 } blocks)
+                        {
+                            @foreach (var block in blocks)
+                            {
+                                <article class="reader-block">
+                                    <h3>@block.Name</h3>
+                                    <p>@block.Content</p>
+                                </article>
+                            }
+                        }
+                        else
+                        {
+                            <p>@segment.Content</p>
+                        }
+                    </section>
+                }
+            }
+            else
+            {
+                <p class="muted-copy">Open a script in the editor or library first.</p>
+            }
+        </div>
+    </div>
+</section>
+
+@code {
+    [SupplyParameterFromQuery]
+    public string? Id { get; set; }
+
+    private const string ReaderSettingsKey = "prompterlive.reader";
+    private readonly string _readerSurfaceId = $"reader-{Guid.NewGuid():N}";
+    private bool _ready;
+    private string? _loadedId;
+    private bool _isReading;
+    private int _countdown;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        await Bootstrapper.EnsureReadyAsync();
+        Session.StateChanged += OnStateChanged;
+        SceneService.Changed += OnStateChanged;
+        _ready = true;
+        await EnsureRequestedScriptLoadedAsync();
+        StateHasChanged();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (_ready)
+        {
+            await EnsureRequestedScriptLoadedAsync();
+        }
+    }
+
+    private async Task EnsureRequestedScriptLoadedAsync()
+    {
+        if (string.IsNullOrWhiteSpace(Id) || string.Equals(_loadedId, Id, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        var document = await Repository.GetAsync(Id);
+        if (document is null)
+        {
+            return;
+        }
+
+        _loadedId = document.Id;
+        await Session.OpenAsync(document);
+    }
+
+    private string ReaderSurfaceStyle =>
+        string.Create(System.Globalization.CultureInfo.InvariantCulture, $"""
+            --reader-scale:{Session.State.ReaderSettings.FontScale:0.##};
+            --reader-width:{Session.State.ReaderSettings.TextWidth * 100:0.##}%;
+            """);
+
+    private async Task StartReadingAsync()
+    {
+        await StopReadingAsync();
+
+        _countdown = Session.State.ReaderSettings.CountdownSeconds;
+        while (_countdown > 0)
+        {
+            StateHasChanged();
+            await Task.Delay(1000);
+            _countdown--;
+        }
+
+        _isReading = true;
+        await JSRuntime.InvokeVoidAsync("PrompterLive.reader.startAutoScroll", _readerSurfaceId, 28 * Session.State.ReaderSettings.ScrollSpeed);
+    }
+
+    private async Task StopReadingAsync()
+    {
+        _countdown = 0;
+        _isReading = false;
+        await JSRuntime.InvokeVoidAsync("PrompterLive.reader.stopAutoScroll", _readerSurfaceId);
+    }
+
+    private async Task OnFontScaleChanged(ChangeEventArgs args)
+    {
+        if (!double.TryParse(args.Value?.ToString(), out var value))
+        {
+            return;
+        }
+
+        var settings = Session.State.ReaderSettings with { FontScale = value };
+        await Session.UpdateReaderSettingsAsync(settings);
+        await SettingsStore.SaveAsync(ReaderSettingsKey, settings);
+    }
+
+    private async Task OnTextWidthChanged(ChangeEventArgs args)
+    {
+        if (!double.TryParse(args.Value?.ToString(), out var value))
+        {
+            return;
+        }
+
+        var settings = Session.State.ReaderSettings with { TextWidth = value };
+        await Session.UpdateReaderSettingsAsync(settings);
+        await SettingsStore.SaveAsync(ReaderSettingsKey, settings);
+    }
+
+    private async Task OnScrollSpeedChanged(ChangeEventArgs args)
+    {
+        if (!double.TryParse(args.Value?.ToString(), out var value))
+        {
+            return;
+        }
+
+        var settings = Session.State.ReaderSettings with { ScrollSpeed = value };
+        await Session.UpdateReaderSettingsAsync(settings);
+        await SettingsStore.SaveAsync(ReaderSettingsKey, settings);
+    }
+
+    private async Task OnShowCameraSceneChanged(ChangeEventArgs args)
+    {
+        var enabled = args.Value as bool? ?? false;
+        var settings = Session.State.ReaderSettings with { ShowCameraScene = enabled };
+        await Session.UpdateReaderSettingsAsync(settings);
+        await SettingsStore.SaveAsync(ReaderSettingsKey, settings);
+    }
+
+    private void OnStateChanged(object? sender, EventArgs args)
+    {
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        Session.StateChanged -= OnStateChanged;
+        SceneService.Changed -= OnStateChanged;
+    }
+}

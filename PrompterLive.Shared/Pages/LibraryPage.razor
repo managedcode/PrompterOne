@@ -1,0 +1,110 @@
+@page "/"
+@page "/library"
+@inject AppBootstrapper Bootstrapper
+@inject IScriptRepository Repository
+@inject IScriptSessionService Session
+@inject NavigationManager Navigation
+
+<section class="view-shell" data-testid="library-page">
+    <div class="hero-card">
+        <div>
+            <p class="eyebrow">Unified Script Workspace</p>
+            <h1>PrompterLive library</h1>
+            <p class="hero-copy">
+                One shared Blazor UI for writing TPS scripts, rehearsing with RSVP, and reading against a live camera scene.
+            </p>
+        </div>
+        <div class="hero-actions">
+            <button class="action-btn action-btn-primary" data-testid="library-new-script" @onclick="CreateNewAsync">New Script</button>
+            <button class="action-btn" data-testid="library-load-demo" @onclick="LoadDemoAsync">Load Demo</button>
+        </div>
+    </div>
+
+    <div class="stats-row">
+        <div class="stat-card">
+            <span class="stat-label">Scripts</span>
+            <strong>@_scripts.Count</strong>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Words</span>
+            <strong>@_scripts.Sum(script => script.WordCount)</strong>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Current draft</span>
+            <strong>@Session.State.Title</strong>
+        </div>
+    </div>
+
+    @if (_isLoading)
+    {
+        <div class="empty-state">
+            <h2>Loading library…</h2>
+        </div>
+    }
+    else
+    {
+        <div class="card-grid">
+            <article class="glass-card create-card" data-testid="library-create-card" @onclick="CreateNewAsync">
+                <div class="create-card-mark">+</div>
+                <h3>Start a fresh script</h3>
+                <p>Open the TPS editor with the shared starter template.</p>
+            </article>
+
+            @foreach (var script in _scripts)
+            {
+                <LibraryCard Summary="script"
+                             OnOpen="OpenAsync"
+                             OnLearn="LearnAsync"
+                             OnRead="ReadAsync"
+                             OnDelete="DeleteAsync" />
+            }
+        </div>
+    }
+</section>
+
+@code {
+    private IReadOnlyList<StoredScriptSummary> _scripts = Array.Empty<StoredScriptSummary>();
+    private bool _isLoading = true;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        await Bootstrapper.EnsureReadyAsync();
+        await RefreshAsync();
+        _isLoading = false;
+        StateHasChanged();
+    }
+
+    private async Task RefreshAsync()
+    {
+        _scripts = await Repository.ListAsync();
+    }
+
+    private async Task CreateNewAsync()
+    {
+        await Session.NewAsync();
+        Navigation.NavigateTo("/editor");
+    }
+
+    private async Task LoadDemoAsync()
+    {
+        await Session.LoadSampleAsync(PrompterLive.Core.Services.Samples.SampleScriptCatalog.DemoSampleId);
+        Navigation.NavigateTo("/editor");
+    }
+
+    private void OpenAsync(string id) => Navigation.NavigateTo($"/editor?id={Uri.EscapeDataString(id)}");
+
+    private void LearnAsync(string id) => Navigation.NavigateTo($"/learn?id={Uri.EscapeDataString(id)}");
+
+    private void ReadAsync(string id) => Navigation.NavigateTo($"/teleprompter?id={Uri.EscapeDataString(id)}");
+
+    private async Task DeleteAsync(string id)
+    {
+        await Repository.DeleteAsync(id);
+        await RefreshAsync();
+    }
+}

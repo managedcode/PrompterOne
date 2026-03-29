@@ -1,0 +1,308 @@
+@page "/settings"
+@inject AppBootstrapper Bootstrapper
+@inject IMediaPermissionService PermissionService
+@inject IMediaDeviceService DeviceService
+@inject IMediaSceneService SceneService
+@inject BrowserSettingsStore SettingsStore
+@inject IEnumerable<IStreamingOutputProvider> OutputProviders
+
+<section class="view-shell" data-testid="settings-page">
+    <div class="section-header">
+        <div>
+            <p class="eyebrow">Control Room</p>
+            <h1>Settings</h1>
+            <p class="section-copy">Choose cameras, tune microphone delay, and configure LiveKit, VDO.Ninja, or RTMP relay outputs.</p>
+        </div>
+        <div class="hero-actions">
+            <button class="action-btn action-btn-primary" data-testid="settings-grant-media" @onclick="RequestPermissionsAsync">Grant media access</button>
+        </div>
+    </div>
+
+    <div class="settings-grid">
+        <section class="glass-card settings-card">
+            <div class="panel-header">
+                <h2>Cameras</h2>
+                <span>@_permissions.CameraGranted</span>
+            </div>
+
+            @foreach (var camera in _devices.Where(device => device.Kind == MediaDeviceKind.Camera))
+            {
+                <div class="device-row">
+                    <div>
+                        <strong>@camera.Label</strong>
+                        <p>@camera.DeviceId</p>
+                    </div>
+                    <button class="action-btn" data-testid="@($"settings-add-camera-{camera.DeviceId}")" @onclick="@(() => AddCamera(camera))">Add to scene</button>
+                </div>
+            }
+
+            @if (SceneService.State.Cameras.Count > 0)
+            {
+                <div class="stack-list">
+                    @foreach (var camera in SceneService.State.Cameras)
+                    {
+                        <div class="device-editor">
+                            <div class="device-row">
+                                <strong>@camera.Label</strong>
+                                <button class="icon-btn" data-testid="@($"settings-remove-camera-{camera.SourceId}")" @onclick="@(() => RemoveCamera(camera.SourceId))">×</button>
+                            </div>
+
+                            <label class="inline-field">
+                                <span>Horizontal</span>
+                                <input type="range" min="0" max="100" value="@((int)(camera.Transform.X * 100))" @oninput="args => UpdateTransform(camera, camera.Transform with { X = ParsePercent(args) })" />
+                            </label>
+                            <label class="inline-field">
+                                <span>Vertical</span>
+                                <input type="range" min="0" max="100" value="@((int)(camera.Transform.Y * 100))" @oninput="args => UpdateTransform(camera, camera.Transform with { Y = ParsePercent(args) })" />
+                            </label>
+                            <label class="inline-field">
+                                <span>Size</span>
+                                <input type="range" min="18" max="45" value="@((int)(camera.Transform.Width * 100))" @oninput="args => UpdateTransform(camera, camera.Transform with { Width = ParsePercent(args), Height = ParsePercent(args) })" />
+                            </label>
+                            <div class="toggle-row">
+                                <label><input type="checkbox" checked="@camera.Transform.MirrorHorizontal" @onchange="args => UpdateTransform(camera, camera.Transform with { MirrorHorizontal = ParseBool(args) })" /> Mirror</label>
+                                <label><input type="checkbox" checked="@camera.Transform.MirrorVertical" @onchange="args => UpdateTransform(camera, camera.Transform with { MirrorVertical = ParseBool(args) })" /> Flip</label>
+                                <label><input type="checkbox" checked="@camera.Transform.IncludeInOutput" @onchange="args => UpdateTransform(camera, camera.Transform with { IncludeInOutput = ParseBool(args) })" /> Include in output</label>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </section>
+
+        <section class="glass-card settings-card">
+            <div class="panel-header">
+                <h2>Microphones</h2>
+                <span>@_permissions.MicrophoneGranted</span>
+            </div>
+
+            @foreach (var microphone in _devices.Where(device => device.Kind == MediaDeviceKind.Microphone))
+            {
+                var inputState = GetInputState(microphone);
+                <div class="device-editor">
+                    <div class="device-row">
+                        <div>
+                            <strong>@microphone.Label</strong>
+                            <p>@microphone.DeviceId</p>
+                        </div>
+                        <button class="action-btn" data-testid="@($"settings-primary-mic-{microphone.DeviceId}")" @onclick="@(() => SetPrimaryMicrophone(microphone))">Primary</button>
+                    </div>
+
+                    <label class="inline-field">
+                        <span>Delay</span>
+                        <input type="range" min="0" max="1500" step="10" value="@inputState.DelayMs" @oninput="args => UpdateAudioInput(microphone, inputState with { DelayMs = ParseInt(args) })" />
+                        <strong>@inputState.DelayMs ms</strong>
+                    </label>
+                    <label class="inline-field">
+                        <span>Gain</span>
+                        <input type="range" min="0" max="2" step="0.05" value="@inputState.Gain" @oninput="args => UpdateAudioInput(microphone, inputState with { Gain = ParseDouble(args) })" />
+                    </label>
+                    <div class="toggle-row">
+                        <label><input type="checkbox" checked="@inputState.IsMuted" @onchange="args => UpdateAudioInput(microphone, inputState with { IsMuted = ParseBool(args) })" /> Mute</label>
+                    </div>
+                </div>
+            }
+        </section>
+
+        <section class="glass-card settings-card">
+            <div class="panel-header">
+                <h2>Streaming</h2>
+                <span>Provider adapters</span>
+            </div>
+
+            <div class="streaming-stack">
+                @foreach (var provider in OutputProviders)
+                {
+                    var profile = _profiles[provider.Kind];
+                    var descriptor = provider.Describe(profile);
+
+                    <article class="preview-card">
+                        <div class="preview-card-head">
+                            <strong>@provider.DisplayName</strong>
+                            <span>@(descriptor.IsReady ? "Ready" : "Needs config")</span>
+                        </div>
+
+                        <label class="field">
+                            <span>Name</span>
+                            <input class="text-input" value="@profile.Name" @oninput="args => UpdateProfileName(provider.Kind, args)" />
+                        </label>
+
+                        <label class="field">
+                            <span>Server / publish URL</span>
+                            <input class="text-input" value="@(profile.ServerUrl ?? profile.PublishUrl ?? string.Empty)" @oninput="args => UpdateProfileEndpoint(provider.Kind, args)" />
+                        </label>
+
+                        @if (provider.Kind != StreamingProviderKind.Rtmp)
+                        {
+                            <label class="field">
+                                <span>Room</span>
+                                <input class="text-input" value="@(profile.RoomName ?? string.Empty)" @oninput="args => UpdateProfileRoom(provider.Kind, args)" />
+                            </label>
+                        }
+
+                        @if (provider.Kind == StreamingProviderKind.LiveKit)
+                        {
+                            <label class="field">
+                                <span>Token</span>
+                                <input class="text-input" value="@(profile.Token ?? string.Empty)" @oninput="args => UpdateProfileToken(args)" />
+                            </label>
+                        }
+
+                        <p class="muted-copy">@descriptor.Summary</p>
+                    </article>
+                }
+            </div>
+        </section>
+
+        <section class="glass-card settings-card">
+            <div class="panel-header">
+                <h2>Cloud Sync</h2>
+                <span>Placeholder</span>
+            </div>
+            <p class="muted-copy">Cloud sync UI is rendered for the new design, but backend sync is intentionally left out of this stage.</p>
+        </section>
+
+        <section class="glass-card settings-card">
+            <div class="panel-header">
+                <h2>AI Assistant</h2>
+                <span>Placeholder</span>
+            </div>
+            <p class="muted-copy">AI rewrite and script coaching surfaces are reserved in the UI and not wired to a model in this repo yet.</p>
+        </section>
+    </div>
+</section>
+
+@code {
+    private IReadOnlyList<MediaDeviceInfo> _devices = Array.Empty<MediaDeviceInfo>();
+    private MediaPermissionsState _permissions = new(false, false);
+    private Dictionary<StreamingProviderKind, StreamingProfile> _profiles = new()
+    {
+        [StreamingProviderKind.LiveKit] = StreamingProfile.CreateDefault(StreamingProviderKind.LiveKit),
+        [StreamingProviderKind.VdoNinja] = StreamingProfile.CreateDefault(StreamingProviderKind.VdoNinja),
+        [StreamingProviderKind.Rtmp] = StreamingProfile.CreateDefault(StreamingProviderKind.Rtmp)
+    };
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        await Bootstrapper.EnsureReadyAsync();
+        _permissions = await PermissionService.QueryAsync();
+        _devices = await DeviceService.GetDevicesAsync();
+
+        foreach (var providerKind in _profiles.Keys.ToList())
+        {
+            var profile = await SettingsStore.LoadAsync<StreamingProfile>($"prompterlive.stream.{providerKind.ToString().ToLowerInvariant()}");
+            if (profile is not null)
+            {
+                _profiles[providerKind] = profile;
+            }
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task RequestPermissionsAsync()
+    {
+        _permissions = await PermissionService.RequestAsync();
+        _devices = await DeviceService.GetDevicesAsync();
+    }
+
+    private void AddCamera(MediaDeviceInfo device)
+    {
+        SceneService.AddCamera(device.DeviceId, device.Label);
+        PersistSceneAsync();
+    }
+
+    private void RemoveCamera(string sourceId)
+    {
+        SceneService.RemoveCamera(sourceId);
+        PersistSceneAsync();
+    }
+
+    private void UpdateTransform(SceneCameraSource camera, MediaSourceTransform transform)
+    {
+        SceneService.UpdateTransform(camera.SourceId, transform);
+        PersistSceneAsync();
+    }
+
+    private void SetPrimaryMicrophone(MediaDeviceInfo device)
+    {
+        SceneService.SetPrimaryMicrophone(device.DeviceId, device.Label);
+        SceneService.UpsertAudioInput(GetInputState(device));
+        PersistSceneAsync();
+    }
+
+    private AudioInputState GetInputState(MediaDeviceInfo device)
+    {
+        return SceneService.State.AudioBus.Inputs.FirstOrDefault(input => input.DeviceId == device.DeviceId)
+            ?? new AudioInputState(device.DeviceId, device.Label);
+    }
+
+    private void UpdateAudioInput(MediaDeviceInfo device, AudioInputState state)
+    {
+        SceneService.UpsertAudioInput(state with { Label = device.Label });
+        PersistSceneAsync();
+    }
+
+    private async void PersistSceneAsync()
+    {
+        await SettingsStore.SaveAsync("prompterlive.scene", SceneService.State);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task UpdateProfile(StreamingProviderKind providerKind, StreamingProfile profile)
+    {
+        _profiles[providerKind] = profile;
+        await SettingsStore.SaveAsync($"prompterlive.stream.{providerKind.ToString().ToLowerInvariant()}", profile);
+        StateHasChanged();
+    }
+
+    private Task UpdateProfileName(StreamingProviderKind providerKind, ChangeEventArgs args)
+    {
+        var profile = _profiles[providerKind] with { Name = args.Value?.ToString() ?? _profiles[providerKind].Name };
+        return UpdateProfile(providerKind, profile);
+    }
+
+    private Task UpdateProfileEndpoint(StreamingProviderKind providerKind, ChangeEventArgs args)
+    {
+        var value = args.Value?.ToString() ?? string.Empty;
+        var current = _profiles[providerKind];
+
+        var profile = providerKind switch
+        {
+            StreamingProviderKind.LiveKit => current with { ServerUrl = value },
+            StreamingProviderKind.VdoNinja => current with { PublishUrl = value },
+            _ => current with { Destinations = new[] { new StreamingDestination("Primary RTMP", value, null, true) } }
+        };
+
+        return UpdateProfile(providerKind, profile);
+    }
+
+    private Task UpdateProfileRoom(StreamingProviderKind providerKind, ChangeEventArgs args)
+    {
+        var profile = _profiles[providerKind] with { RoomName = args.Value?.ToString() };
+        return UpdateProfile(providerKind, profile);
+    }
+
+    private Task UpdateProfileToken(ChangeEventArgs args)
+    {
+        var profile = _profiles[StreamingProviderKind.LiveKit] with { Token = args.Value?.ToString() };
+        return UpdateProfile(StreamingProviderKind.LiveKit, profile);
+    }
+
+    private static double ParsePercent(ChangeEventArgs args) =>
+        Math.Clamp(ParseInt(args) / 100d, 0, 1);
+
+    private static bool ParseBool(ChangeEventArgs args) =>
+        args.Value as bool? ?? false;
+
+    private static int ParseInt(ChangeEventArgs args) =>
+        int.TryParse(args.Value?.ToString(), out var value) ? value : 0;
+
+    private static double ParseDouble(ChangeEventArgs args) =>
+        double.TryParse(args.Value?.ToString(), out var value) ? value : 0;
+}

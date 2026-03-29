@@ -1,0 +1,28 @@
+﻿@inherits LayoutComponentBase
+
+<div class="app-shell">
+    <header class="app-header">
+        <NavLink href="/library" class="brand-link">
+            <span class="brand-mark"></span>
+            <span class="brand-text">Prompter.live</span>
+        </NavLink>
+
+        <nav class="shell-nav">
+            <NavLink href="/library" Match="NavLinkMatch.Prefix">Library</NavLink>
+            <NavLink href="/editor" Match="NavLinkMatch.Prefix">Editor</NavLink>
+            <NavLink href="/learn" Match="NavLinkMatch.Prefix">Learn</NavLink>
+            <NavLink href="/teleprompter" Match="NavLinkMatch.Prefix">Reader</NavLink>
+            <NavLink href="/settings" Match="NavLinkMatch.Prefix">Settings</NavLink>
+        </nav>
+    </header>
+
+    <main class="app-main">
+        @Body
+    </main>
+</div>
+
+<div id="blazor-error-ui" data-nosnippet>
+    PrompterLive hit an unexpected error.
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">×</span>
+</div>

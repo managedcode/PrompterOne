@@ -1,0 +1,23 @@
+using Microsoft.JSInterop;
+
+namespace PrompterLive.Shared.Services;
+
+public sealed class CameraPreviewInterop
+{
+    private readonly IJSRuntime _jsRuntime;
+
+    public CameraPreviewInterop(IJSRuntime jsRuntime)
+    {
+        _jsRuntime = jsRuntime;
+    }
+
+    public Task AttachCameraAsync(string elementId, string deviceId, bool muted = true)
+    {
+        return _jsRuntime.InvokeVoidAsync("PrompterLive.media.attachCamera", elementId, deviceId, muted).AsTask();
+    }
+
+    public Task DetachCameraAsync(string elementId)
+    {
+        return _jsRuntime.InvokeVoidAsync("PrompterLive.media.detachCamera", elementId).AsTask();
+    }
+}
