@@ -7,8 +7,18 @@
         <div class="tb-section">
             <div class="tb-label">History</div>
             <div class="tb-row">
-                <button class="tb-btn tb-tip" type="button" data-tip="Undo last action (Ctrl+Z)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1,4 1,10 7,10" /><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" /></svg></button>
-                <button class="tb-btn tb-tip" type="button" data-tip="Redo last undone action (Ctrl+Y)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23,4 23,10 17,10" /><path d="M20.49 15a9 9 0 1 1-2.13-9.36L23 10" /></svg></button>
+                <button class="tb-btn tb-tip"
+                        type="button"
+                        data-testid="editor-undo"
+                        data-tip="Undo last action (Ctrl+Z)"
+                        disabled="@(!CanUndo)"
+                        @onclick='() => RequestHistoryAsync(EditorHistoryCommand.Undo)'><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1,4 1,10 7,10" /><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" /></svg></button>
+                <button class="tb-btn tb-tip"
+                        type="button"
+                        data-testid="editor-redo"
+                        data-tip="Redo last undone action (Ctrl+Y)"
+                        disabled="@(!CanRedo)"
+                        @onclick='() => RequestHistoryAsync(EditorHistoryCommand.Redo)'><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23,4 23,10 17,10" /><path d="M20.49 15a9 9 0 1 1-2.13-9.36L23 10" /></svg></button>
             </div>
         </div>
         <span class="tb-div"></span>
@@ -241,6 +251,6 @@
         <span>@Status.SegmentCount Segments</span>
         <span>~@Status.WordCount Words</span>
         <span>~@Status.Duration</span>
-        <span>TPS v@Status.Version</span>
+        <span>@($"TPS v{Status.Version}")</span>
     </div>
 </div>

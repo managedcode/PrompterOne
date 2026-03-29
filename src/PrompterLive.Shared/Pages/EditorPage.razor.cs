@@ -12,6 +12,7 @@ namespace PrompterLive.Shared.Pages;
 
 public partial class EditorPage
 {
+    private readonly EditorDocumentHistory _history = new();
     private readonly TpsFrontMatterDocumentService _frontMatterService = new();
     private bool _loadState = true;
     private int? _activeBlockIndex;
@@ -52,7 +53,7 @@ public partial class EditorPage
             _loadState = false;
             await Bootstrapper.EnsureReadyAsync();
             await EnsureSessionLoadedAsync();
-            PopulateEditorState();
+            PopulateEditorState(resetHistory: true);
             StateHasChanged();
         }
     }
@@ -112,7 +113,13 @@ public partial class EditorPage
         };
 
         _selection = _selection with { Range = mutation.Selection };
+        _history.TryRecord(mutation.Text, mutation.Selection);
         await PersistDraftAsync(mutation.Text);
+
+        if (_sourcePanel is not null)
+        {
+            await _sourcePanel.FocusRangeAsync(mutation.Selection.Start, mutation.Selection.End);
+        }
     }
 
     private async Task OnCreatedDateChangedAsync(string value)
@@ -138,6 +145,27 @@ public partial class EditorPage
         await InvokeAsync(StateHasChanged);
     }
 
+    private async Task OnHistoryRequestedAsync(EditorHistoryCommand command)
+    {
+        EditorHistorySnapshot snapshot;
+        var hasSnapshot = command == EditorHistoryCommand.Redo
+            ? _history.TryRedo(out snapshot)
+            : _history.TryUndo(out snapshot);
+
+        if (!hasSnapshot)
+        {
+            return;
+        }
+
+        _selection = _selection with { Range = snapshot.Selection };
+        await PersistDraftAsync(snapshot.Text);
+
+        if (_sourcePanel is not null)
+        {
+            await _sourcePanel.FocusRangeAsync(snapshot.Selection.Start, snapshot.Selection.End);
+        }
+    }
+
     private async Task OnProfileChangedAsync(string value)
     {
         _profile = string.Equals(value, "RSVP", StringComparison.Ordinal) ? "RSVP" : "Actor";
@@ -147,6 +175,7 @@ public partial class EditorPage
     private Task OnSelectionChangedAsync(EditorSelectionViewModel selection)
     {
         _selection = selection;
+        _history.UpdateSelection(selection.Range);
         UpdateActiveOutlineSelection();
         UpdateStatus(SessionService.State);
         StateHasChanged();
@@ -156,6 +185,7 @@ public partial class EditorPage
     private async Task OnSourceChangedAsync(string text)
     {
         _sourceText = text ?? string.Empty;
+        _history.TryRecord(_sourceText, _selection.Range);
         await PersistDraftAsync(_sourceText);
     }
 
@@ -165,7 +195,7 @@ public partial class EditorPage
         await PersistMetadataAsync();
     }
 
-    private void PopulateEditorState()
+    private void PopulateEditorState(bool resetHistory = false)
     {
         var state = SessionService.State;
         var document = _frontMatterService.Parse(state.Text);
@@ -180,6 +210,11 @@ public partial class EditorPage
         _createdDate = GetMetadata(metadata, TpsFrontMatterDocumentService.MetadataKeys.Created, _createdDate);
         _segments = OutlineBuilder.Build(state.ScriptData, document.Body, document.BodyStartIndex);
         _errorMessage = state.ErrorMessage;
+        if (resetHistory || !_history.IsInitialized)
+        {
+            _history.Reset(_sourceText, _selection.Range);
+        }
+
         UpdateActiveOutlineSelection();
         UpdateStatus(state);
     }
@@ -217,6 +252,7 @@ public partial class EditorPage
                 [TpsFrontMatterDocumentService.MetadataKeys.Created] = string.IsNullOrWhiteSpace(_createdDate) ? null : _createdDate
             });
 
+        _history.TryRecord(updatedText, _selection.Range);
         await PersistDraftAsync(updatedText);
     }
 

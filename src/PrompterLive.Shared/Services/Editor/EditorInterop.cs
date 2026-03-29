@@ -12,6 +12,12 @@ public sealed class EditorInterop(IJSRuntime jsRuntime)
     public ValueTask SyncScrollAsync(ElementReference textarea, ElementReference overlay) =>
         _jsRuntime.InvokeVoidAsync("PrompterLive.editor.syncScroll", textarea, overlay);
 
+    public ValueTask BindHistoryShortcutsAsync<TValue>(
+        ElementReference textarea,
+        DotNetObjectReference<TValue> callbackReference)
+        where TValue : class =>
+        _jsRuntime.InvokeVoidAsync("PrompterLive.editor.bindHistoryShortcuts", textarea, callbackReference);
+
     public async Task<EditorSelectionViewModel> GetSelectionAsync(ElementReference textarea)
     {
         var result = await _jsRuntime.InvokeAsync<EditorSelectionInteropResult?>(
@@ -51,6 +57,9 @@ public sealed class EditorInterop(IJSRuntime jsRuntime)
             result.ToolbarTop,
             result.ToolbarLeft);
     }
+
+    public ValueTask UnbindHistoryShortcutsAsync(ElementReference textarea) =>
+        _jsRuntime.InvokeVoidAsync("PrompterLive.editor.unbindHistoryShortcuts", textarea);
 
     private sealed record EditorSelectionInteropResult(
         int Start,

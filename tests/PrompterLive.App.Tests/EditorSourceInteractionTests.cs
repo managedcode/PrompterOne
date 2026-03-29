@@ -1,4 +1,6 @@
 using Bunit;
+using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.DependencyInjection;
 using PrompterLive.Shared.Pages;
 using PrompterLive.Shared.Tests;
 
@@ -73,6 +75,45 @@ public sealed class EditorSourceInteractionTests : BunitContext
             Assert.Contains("author: \"Test Speaker\"", source);
             Assert.Contains("created: \"2026-03-26\"", source);
             Assert.Contains("version: \"2.0\"", source);
+        });
+    }
+
+    [Fact]
+    public void EditorPage_HistoryButtonsReplaySourceChanges()
+    {
+        Services.GetRequiredService<NavigationManager>()
+            .NavigateTo("http://localhost/editor?id=rsvp-tech-demo");
+        var cut = Render<EditorPage>();
+
+        cut.WaitForAssertion(() =>
+        {
+            var source = cut.Find("[data-testid='editor-source-input']");
+            Assert.Contains("## [Intro|140WPM|warm]", source.GetAttribute("value"));
+        });
+
+        var sourceEditor = cut.Find("[data-testid='editor-source-input']");
+        var initialSource = sourceEditor.GetAttribute("value")!;
+        var updatedSource = $"{initialSource}\n[edit_point]";
+
+        sourceEditor.Input(updatedSource);
+
+        cut.WaitForAssertion(() =>
+        {
+            Assert.Equal(updatedSource, cut.Find("[data-testid='editor-source-input']").GetAttribute("value"));
+        });
+
+        cut.Find("[data-testid='editor-undo']").Click();
+
+        cut.WaitForAssertion(() =>
+        {
+            Assert.Equal(initialSource, cut.Find("[data-testid='editor-source-input']").GetAttribute("value"));
+        });
+
+        cut.Find("[data-testid='editor-redo']").Click();
+
+        cut.WaitForAssertion(() =>
+        {
+            Assert.Equal(updatedSource, cut.Find("[data-testid='editor-source-input']").GetAttribute("value"));
         });
     }
 }

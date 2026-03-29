@@ -74,3 +74,9 @@ public sealed record EditorCommandRequest(
     string? SecondaryToken = null,
     string PlaceholderText = "",
     int? CaretOffset = null);
+
+public enum EditorHistoryCommand
+{
+    Undo,
+    Redo
+}

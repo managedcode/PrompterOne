@@ -15,9 +15,12 @@
                            Text="@_sourceText"
                            Selection="@_selection"
                            Status="@_status"
+                           CanUndo="@_history.CanUndo"
+                           CanRedo="@_history.CanRedo"
                            ErrorMessage="@_errorMessage"
                            OnTextChanged="OnSourceChangedAsync"
                            OnSelectionChanged="OnSelectionChangedAsync"
+                           OnHistoryRequested="OnHistoryRequestedAsync"
                            OnCommandRequested="OnCommandRequestedAsync" />
 
         <EditorMetadataRail Profile="@_profile"

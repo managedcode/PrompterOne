@@ -1,17 +1,25 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 using PrompterLive.Shared.Rendering;
 
 namespace PrompterLive.Shared.Components.Editor;
 
-public partial class EditorSourcePanel
+public partial class EditorSourcePanel : IAsyncDisposable
 {
     private ElementReference _overlayRef;
+    private DotNetObjectReference<EditorSourcePanel>? _shortcutReference;
     private ElementReference _textareaRef;
     private EditorSelectionViewModel _domSelection = EditorSelectionViewModel.Empty;
+
+    [Parameter] public bool CanRedo { get; set; }
+
+    [Parameter] public bool CanUndo { get; set; }
 
     [Parameter] public string? ErrorMessage { get; set; }
 
     [Parameter] public EventCallback<EditorCommandRequest> OnCommandRequested { get; set; }
+
+    [Parameter] public EventCallback<EditorHistoryCommand> OnHistoryRequested { get; set; }
 
     [Parameter] public EventCallback<EditorSelectionViewModel> OnSelectionChanged { get; set; }
 
@@ -29,6 +37,12 @@ public partial class EditorSourcePanel
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (firstRender)
+        {
+            _shortcutReference = DotNetObjectReference.Create(this);
+            await SafeBindHistoryShortcutsAsync();
+        }
+
         await SafeSyncScrollAsync();
 
         if (Selection.Range != _domSelection.Range)
@@ -57,11 +71,30 @@ public partial class EditorSourcePanel
         }
     }
 
+    public async ValueTask DisposeAsync()
+    {
+        await SafeUnbindHistoryShortcutsAsync();
+        _shortcutReference?.Dispose();
+    }
+
     protected Task RequestInsertAsync(string token, int? caretOffset = null) =>
         OnCommandRequested.InvokeAsync(new EditorCommandRequest(EditorCommandKind.Insert, token, CaretOffset: caretOffset));
 
+    protected Task RequestHistoryAsync(EditorHistoryCommand command) =>
+        OnHistoryRequested.InvokeAsync(command);
+
     protected Task RequestWrapAsync(string openingToken, string closingToken, string placeholder = "text") =>
         OnCommandRequested.InvokeAsync(new EditorCommandRequest(EditorCommandKind.Wrap, openingToken, closingToken, placeholder));
+
+    [JSInvokable]
+    public Task HandleHistoryShortcut(string command)
+    {
+        var historyCommand = string.Equals(command, "redo", StringComparison.OrdinalIgnoreCase)
+            ? EditorHistoryCommand.Redo
+            : EditorHistoryCommand.Undo;
+
+        return RequestHistoryAsync(historyCommand);
+    }
 
     private async Task OnScrollAsync()
     {
@@ -98,6 +131,33 @@ public partial class EditorSourcePanel
         try
         {
             await Interop.SyncScrollAsync(_textareaRef, _overlayRef);
+        }
+        catch
+        {
+        }
+    }
+
+    private async Task SafeBindHistoryShortcutsAsync()
+    {
+        if (_shortcutReference is null)
+        {
+            return;
+        }
+
+        try
+        {
+            await Interop.BindHistoryShortcutsAsync(_textareaRef, _shortcutReference);
+        }
+        catch
+        {
+        }
+    }
+
+    private async Task SafeUnbindHistoryShortcutsAsync()
+    {
+        try
+        {
+            await Interop.UnbindHistoryShortcutsAsync(_textareaRef);
         }
         catch
         {
