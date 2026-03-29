@@ -1,4 +1,6 @@
 using Bunit;
+using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.DependencyInjection;
 using PrompterLive.Shared.Pages;
 using PrompterLive.Shared.Tests;
 
@@ -10,11 +12,14 @@ public sealed class TeleprompterFidelityTests : BunitContext
     public void TeleprompterPage_UsesReferenceSizedReaderGroupsForSecurityIncident()
     {
         var harness = TestHarnessFactory.Create(this);
-        var cut = Render<TeleprompterPage>(parameters => parameters.Add(page => page.ScriptId, "security-incident"));
+        Services.GetRequiredService<NavigationManager>()
+            .NavigateTo("http://localhost/teleprompter?id=security-incident");
+        var cut = Render<TeleprompterPage>();
 
         cut.WaitForAssertion(() =>
         {
             var groups = cut.FindAll(".rd-card-active .rd-g");
+            var groupTexts = groups.Select(group => group.TextContent).ToArray();
 
             Assert.NotEmpty(groups);
             Assert.True(groups.Count >= 4);
@@ -23,10 +28,13 @@ public sealed class TeleprompterFidelityTests : BunitContext
                 var wordCount = group.QuerySelectorAll(".rd-w").Length;
                 Assert.InRange(wordCount, 1, 5);
             });
-
-            var clusterText = cut.Find(".rd-card-active .rd-cluster-text").TextContent;
-            Assert.Contains("At 04:12 this morning", clusterText, StringComparison.Ordinal);
-            Assert.DoesNotContain("At 04:12 this morning, our monitoring systems detected unauthorized activity in a production environment", clusterText, StringComparison.Ordinal);
+            Assert.Contains(groupTexts, text => text.Contains("At 04:12 this morning", StringComparison.Ordinal));
+            Assert.DoesNotContain(
+                groupTexts,
+                text => text.Contains(
+                    "At 04:12 this morning, our monitoring systems detected unauthorized activity in a production environment",
+                    StringComparison.Ordinal));
+            Assert.DoesNotContain("rd-camera-overlay-", cut.Markup, StringComparison.Ordinal);
         });
     }
 }

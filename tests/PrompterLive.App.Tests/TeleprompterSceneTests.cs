@@ -9,7 +9,7 @@ namespace PrompterLive.App.Tests;
 public sealed class TeleprompterSceneTests : BunitContext
 {
     [Fact]
-    public void TeleprompterPage_RendersPrimaryAndOverlayCameraLayers()
+    public void TeleprompterPage_UsesSingleBackgroundCameraLayer()
     {
         var harness = TestHarnessFactory.Create(this,
         [
@@ -46,12 +46,10 @@ public sealed class TeleprompterSceneTests : BunitContext
         cut.WaitForAssertion(() =>
         {
             Assert.Contains("id=\"rd-camera\"", cut.Markup);
-            Assert.Contains("id=\"rd-camera-overlay-1\"", cut.Markup);
             Assert.Contains("data-testid=\"teleprompter-camera-layer-primary\"", cut.Markup);
-            Assert.Contains("data-testid=\"teleprompter-camera-layer-overlay-1\"", cut.Markup);
             Assert.Contains("data-camera-device-id=\"cam-2\"", cut.Markup);
-            Assert.Contains("data-camera-device-id=\"cam-1\"", cut.Markup);
-            Assert.Contains("data-camera-role=\"overlay\"", cut.Markup);
+            Assert.DoesNotContain("rd-camera-overlay-", cut.Markup, StringComparison.Ordinal);
+            Assert.DoesNotContain("data-camera-role=\"overlay\"", cut.Markup, StringComparison.Ordinal);
         });
     }
 

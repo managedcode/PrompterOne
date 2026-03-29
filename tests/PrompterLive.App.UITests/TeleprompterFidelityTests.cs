@@ -1,4 +1,5 @@
 using Microsoft.Playwright;
+using static Microsoft.Playwright.Assertions;
 
 namespace PrompterLive.App.UITests;
 
@@ -14,6 +15,7 @@ public sealed class TeleprompterFidelityTests(StandaloneAppFixture fixture)
         {
             await page.GotoAsync("/teleprompter?id=security-incident");
             await Expect(page.GetByTestId("teleprompter-page")).ToBeVisibleAsync(new() { Timeout = 15000 });
+            await Expect(page.Locator("#rd-camera-overlay-1")).ToHaveCountAsync(0);
 
             var wordCounts = await page.Locator(".rd-card-active .rd-g").EvaluateAllAsync<int[]>(
                 "elements => elements.map(element => element.querySelectorAll('.rd-w').length)");

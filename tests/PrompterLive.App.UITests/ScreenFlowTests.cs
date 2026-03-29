@@ -163,6 +163,7 @@ public sealed class ScreenFlowTests(StandaloneAppFixture fixture)
             await Expect(page.Locator(".rd-card-active .rd-cluster-text")).ToContainTextAsync("Good morning everyone");
             await Expect(page.Locator(".rd-card-active .rd-cluster-text")).Not.ToContainTextAsync("Goodmorningeveryone");
             await Expect(page.Locator("#rd-camera")).ToHaveAttributeAsync("data-camera-autostart", new Regex("true|false"));
+            await Expect(page.Locator("#rd-camera-overlay-1")).ToHaveCountAsync(0);
 
             await page.GetByTestId("teleprompter-font-up").ClickAsync();
             await Expect(page.Locator("#rd-font-label")).ToHaveTextAsync("40");
