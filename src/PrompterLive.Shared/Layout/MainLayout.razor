@@ -1,0 +1,69 @@
+@implements IDisposable
+@inherits LayoutComponentBase
+@inject AppBootstrapper Bootstrapper
+@inject IJSRuntime JS
+@inject NavigationManager Navigation
+
+<header class="app-header">
+    <div class="app-header-left" onclick="navigateTo('library')" style="cursor:pointer" data-testid="header-home">
+        <div class="logo-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M4 6h16M4 12h12M4 18h14" stroke="url(#glogo)" stroke-width="2.5" stroke-linecap="round" />
+                <defs>
+                    <linearGradient id="glogo" x1="4" y1="6" x2="20" y2="18">
+                        <stop stop-color="#F5E6D0" />
+                        <stop offset="1" stop-color="#C4A882" />
+                    </linearGradient>
+                </defs>
+            </svg>
+        </div>
+        <span class="app-logo-text">Prompter.live</span>
+    </div>
+    <div class="app-header-center" id="app-header-center"></div>
+    <div class="app-header-right" id="app-header-right"></div>
+</header>
+
+@Body
+
+@code {
+    protected override void OnInitialized()
+    {
+        Navigation.LocationChanged += HandleLocationChanged;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await Bootstrapper.EnsureReadyAsync();
+        }
+
+        await JS.InvokeVoidAsync("PrompterLiveDesign.initialize", ResolveScreenId(Navigation.Uri));
+    }
+
+    private void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        StateHasChanged();
+    }
+
+    private static string ResolveScreenId(string uri)
+    {
+        var path = new Uri(uri).AbsolutePath.TrimEnd('/');
+
+        return path switch
+        {
+            "" or "/" => "library",
+            "/library" => "library",
+            "/editor" => "editor",
+            "/learn" => "rsvp",
+            "/teleprompter" => "teleprompter",
+            "/settings" => "settings",
+            _ => "library"
+        };
+    }
+
+    public void Dispose()
+    {
+        Navigation.LocationChanged -= HandleLocationChanged;
+    }
+}

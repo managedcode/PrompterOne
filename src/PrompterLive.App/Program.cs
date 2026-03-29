@@ -1,0 +1,15 @@
+using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using PrompterLive.Shared.Services;
+using PrompterLive.App;
+using PrompterLive.App.Services;
+
+var builder = WebAssemblyHostBuilder.CreateDefault(args);
+
+builder.RootComponents.Add<App>("#app");
+builder.RootComponents.Add<HeadOutlet>("head::after");
+
+builder.Services.AddSingleton<IFormFactor, FormFactor>();
+builder.Services.AddPrompterLiveShared();
+
+await builder.Build().RunAsync();

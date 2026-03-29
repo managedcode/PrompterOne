@@ -1,0 +1,342 @@
+@page "/settings"
+
+<div id="screen-settings" class="screen active" data-testid="settings-page">
+    <div class="set-layout">
+        <div class="set-sidebar">
+            <div class="set-back-row">
+                <h2 class="set-title">Settings</h2>
+            </div>
+            <nav class="set-nav">
+                <a class="set-nav-item active" onclick="showSetSection('cloud', event)" data-testid="settings-nav-cloud">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" /></svg>
+                    Cloud Sync
+                </a>
+                <a class="set-nav-item" onclick="showSetSection('files', event)" data-testid="settings-nav-files">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" /></svg>
+                    File Storage
+                </a>
+                <a class="set-nav-item" onclick="showSetSection('cameras', event)" data-testid="settings-nav-cameras">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" /><circle cx="12" cy="13" r="4" /></svg>
+                    Cameras
+                </a>
+                <a class="set-nav-item" onclick="showSetSection('mics', event)" data-testid="settings-nav-mics">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" /><path d="M19 10v2a7 7 0 0 1-14 0v-2" /><line x1="12" y1="19" x2="12" y2="23" /><line x1="8" y1="23" x2="16" y2="23" /></svg>
+                    Microphones
+                </a>
+                <a class="set-nav-item" onclick="showSetSection('streaming', event)" data-testid="settings-nav-streaming">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 16.1A5 5 0 0 1 5.9 20M2 12.05A9 9 0 0 1 9.95 20M2 8V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-6" /><line x1="2" y1="20" x2="2.01" y2="20" /></svg>
+                    Streaming
+                </a>
+                <a class="set-nav-item" onclick="showSetSection('ai', event)" data-testid="settings-nav-ai">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L9 9 2 12l7 3 3 7 3-7 7-3-7-3z" /></svg>
+                    AI Provider
+                </a>
+                <a class="set-nav-item" onclick="showSetSection('appearance', event)">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" /></svg>
+                    Appearance
+                </a>
+                <a class="set-nav-item" onclick="showSetSection('about', event)">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></svg>
+                    About
+                </a>
+            </nav>
+        </div>
+
+        <div class="set-main">
+            <section class="set-section set-panel" id="set-cloud">
+                <h3 class="set-section-title">Cloud Storage</h3>
+                <p class="set-section-desc">Connect cloud accounts to sync your scripts across devices.</p>
+
+                <div class="set-accounts">
+                    <div class="set-account">
+                        <div class="set-account-icon set-icon-onedrive">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12.5 6c-1.8 0-3.4.8-4.5 2.1C7.3 7.4 6.2 7 5 7 2.2 7 0 9.2 0 12s2.2 5 5 5h14c2.8 0 5-2.2 5-5 0-2.5-1.8-4.5-4.2-4.9C18.7 5.2 16.8 4 14.5 4c-.7 0-1.4.1-2 .3V6z" /></svg>
+                        </div>
+                        <div class="set-account-info">
+                            <span class="set-account-name">OneDrive</span>
+                            <span class="set-account-status set-connected">Connected &middot; user@@outlook.com</span>
+                        </div>
+                        <button class="set-btn-outline">Disconnect</button>
+                    </div>
+
+                    <div class="set-account">
+                        <div class="set-account-icon set-icon-gdrive">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M7.71 3.5L1.15 15l3.43 5.96h6.86L18 15 11.44 3.5H7.71zm.86 1.73L13 13.5H4.59l4-8.27z" /><path d="M22.85 15L16.29 3.5h-3.43L19.43 15l-3.43 5.96h6.86L22.85 15z" opacity=".6" /></svg>
+                        </div>
+                        <div class="set-account-info">
+                            <span class="set-account-name">Google Drive</span>
+                            <span class="set-account-status set-disconnected">Not connected</span>
+                        </div>
+                        <button class="set-btn-golden">Connect</button>
+                    </div>
+
+                    <div class="set-account">
+                        <div class="set-account-icon set-icon-dropbox">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L6 6.5 12 11l-6 4.5L12 20l6-4.5L12 11l6-4.5L12 2z" /></svg>
+                        </div>
+                        <div class="set-account-info">
+                            <span class="set-account-name">Dropbox</span>
+                            <span class="set-account-status set-disconnected">Not connected</span>
+                        </div>
+                        <button class="set-btn-golden">Connect</button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="set-section set-panel" id="set-files" style="display:none">
+                <h3 class="set-section-title">File Storage</h3>
+                <p class="set-section-desc">Where scripts, recordings, and exports are saved locally.</p>
+
+                <div class="set-devices">
+                    <div class="set-field">
+                        <label>Scripts Location</label>
+                        <div class="set-path-field">
+                            <input type="text" class="set-input" value="/Users/you/Documents/Prompter/Scripts" readonly />
+                            <button class="set-btn-outline">Browse</button>
+                        </div>
+                    </div>
+                    <div class="set-field">
+                        <label>Recordings Location</label>
+                        <div class="set-path-field">
+                            <input type="text" class="set-input" value="/Users/you/Documents/Prompter/Recordings" readonly />
+                            <button class="set-btn-outline">Browse</button>
+                        </div>
+                    </div>
+                    <div class="set-field">
+                        <label>Export Format</label>
+                        <select class="set-select">
+                            <option>TPS (Native)</option>
+                            <option>Markdown</option>
+                            <option>Plain Text</option>
+                            <option>PDF</option>
+                        </select>
+                    </div>
+                    <div class="set-field set-field-toggle">
+                        <label>Auto-save every 30 seconds</label>
+                        <div class="set-toggle on"><div class="set-toggle-thumb"></div></div>
+                    </div>
+                    <div class="set-field set-field-toggle">
+                        <label>Keep backup copies</label>
+                        <div class="set-toggle on"><div class="set-toggle-thumb"></div></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="set-section set-panel" id="set-cameras" style="display:none">
+                <h3 class="set-section-title">Cameras</h3>
+                <p class="set-section-desc">Configure cameras for teleprompter overlay and recording.</p>
+
+                <div class="set-devices">
+                    <div class="set-field">
+                        <label>Default Camera</label>
+                        <select class="set-select">
+                            <option>Logitech C920 HD Pro</option>
+                            <option>FaceTime HD Camera</option>
+                            <option>OBS Virtual Camera</option>
+                        </select>
+                    </div>
+                    <div class="set-field">
+                        <label>Resolution</label>
+                        <select class="set-select">
+                            <option>1920 x 1080 (Full HD)</option>
+                            <option>1280 x 720 (HD)</option>
+                            <option>3840 x 2160 (4K)</option>
+                            <option>640 x 480 (SD)</option>
+                        </select>
+                    </div>
+                    <div class="set-field set-field-toggle">
+                        <label>Mirror Camera (Flip Horizontal)</label>
+                        <div class="set-toggle on"><div class="set-toggle-thumb"></div></div>
+                    </div>
+                    <div class="set-field set-field-toggle">
+                        <label>Auto-start Camera on Read</label>
+                        <div class="set-toggle"><div class="set-toggle-thumb"></div></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="set-section set-panel" id="set-mics" style="display:none">
+                <h3 class="set-section-title">Microphones</h3>
+                <p class="set-section-desc">Audio input for recording and streaming.</p>
+
+                <div class="set-devices">
+                    <div class="set-field">
+                        <label>Default Microphone</label>
+                        <select class="set-select">
+                            <option>Blue Yeti USB</option>
+                            <option>MacBook Pro Microphone</option>
+                            <option>AirPods Pro</option>
+                        </select>
+                    </div>
+                    <div class="set-field">
+                        <label>Input Level</label>
+                        <div class="set-level-bar">
+                            <div class="set-level-fill" style="width:65%"></div>
+                            <div class="set-level-thumb" style="left:65%"></div>
+                        </div>
+                    </div>
+                    <div class="set-field set-field-toggle">
+                        <label>Noise Suppression</label>
+                        <div class="set-toggle on"><div class="set-toggle-thumb"></div></div>
+                    </div>
+                    <div class="set-field set-field-toggle">
+                        <label>Echo Cancellation</label>
+                        <div class="set-toggle on"><div class="set-toggle-thumb"></div></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="set-section set-panel" id="set-streaming" style="display:none">
+                <h3 class="set-section-title">Streaming</h3>
+                <p class="set-section-desc">Configure output for live streaming and recording.</p>
+
+                <div class="set-devices">
+                    <div class="set-field">
+                        <label>Output Mode</label>
+                        <select class="set-select">
+                            <option>Virtual Camera (OBS/Zoom)</option>
+                            <option>NDI Output</option>
+                            <option>Direct RTMP</option>
+                            <option>Local Recording</option>
+                        </select>
+                    </div>
+                    <div class="set-field">
+                        <label>Output Resolution</label>
+                        <select class="set-select">
+                            <option>1920 x 1080 @@ 30fps</option>
+                            <option>1920 x 1080 @@ 60fps</option>
+                            <option>1280 x 720 @@ 30fps</option>
+                            <option>3840 x 2160 @@ 30fps</option>
+                        </select>
+                    </div>
+                    <div class="set-field">
+                        <label>Bitrate (kbps)</label>
+                        <input type="number" class="set-input" value="6000" />
+                    </div>
+                    <div class="set-field set-field-toggle">
+                        <label>Show Text Overlay on Stream</label>
+                        <div class="set-toggle on"><div class="set-toggle-thumb"></div></div>
+                    </div>
+                    <div class="set-field set-field-toggle">
+                        <label>Include Camera in Output</label>
+                        <div class="set-toggle on"><div class="set-toggle-thumb"></div></div>
+                    </div>
+                    <div class="set-field">
+                        <label>RTMP URL</label>
+                        <input type="text" class="set-input" placeholder="rtmp://live.example.com/stream" />
+                    </div>
+                    <div class="set-field">
+                        <label>Stream Key</label>
+                        <input type="password" class="set-input" value="sk-xxxxxxxxxxxx" />
+                    </div>
+                </div>
+            </section>
+
+            <section class="set-section set-panel" id="set-ai" style="display:none">
+                <h3 class="set-section-title">AI Provider</h3>
+                <p class="set-section-desc">Connect an AI provider to enable rewriting, expanding, and formatting scripts with AI assistance.</p>
+
+                <div class="set-subsection">
+                    <h4 class="set-sub-title">Provider</h4>
+                    <div class="set-ai-providers">
+                        <label class="set-ai-provider active">
+                            <input type="radio" name="ai-provider" checked />
+                            <div class="set-ai-provider-inner">
+                                <div class="set-ai-logo" style="background:rgba(196,160,96,.12); color:#E8D5B0;">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L9 9 2 12l7 3 3 7 3-7 7-3-7-3z" /></svg>
+                                </div>
+                                <div>
+                                    <span class="set-ai-name">Claude API</span>
+                                    <span class="set-ai-desc">Anthropic</span>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="set-ai-provider">
+                            <input type="radio" name="ai-provider" />
+                            <div class="set-ai-provider-inner">
+                                <div class="set-ai-logo" style="background:rgba(16,163,127,.12); color:#34D399;">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3" /><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83" /></svg>
+                                </div>
+                                <div>
+                                    <span class="set-ai-name">OpenAI</span>
+                                    <span class="set-ai-desc">GPT-4o, o1</span>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="set-ai-provider">
+                            <input type="radio" name="ai-provider" />
+                            <div class="set-ai-provider-inner">
+                                <div class="set-ai-logo" style="background:rgba(99,102,241,.12); color:#818CF8;">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="12" y1="17" x2="12" y2="21" /></svg>
+                                </div>
+                                <div>
+                                    <span class="set-ai-name">Local / Ollama</span>
+                                    <span class="set-ai-desc">Self-hosted models</span>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="set-ai-provider">
+                            <input type="radio" name="ai-provider" />
+                            <div class="set-ai-provider-inner">
+                                <div class="set-ai-logo" style="background:rgba(236,72,153,.12); color:#F472B6;">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16,18 22,12 16,6" /><polyline points="8,6 2,12 8,18" /></svg>
+                                </div>
+                                <div>
+                                    <span class="set-ai-name">Claude Code</span>
+                                    <span class="set-ai-desc">CLI agent</span>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="set-ai-provider">
+                            <input type="radio" name="ai-provider" />
+                            <div class="set-ai-provider-inner">
+                                <div class="set-ai-logo" style="background:rgba(59,130,246,.12); color:#60A5FA;">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3" /></svg>
+                                </div>
+                                <div>
+                                    <span class="set-ai-name">Copilot</span>
+                                    <span class="set-ai-desc">GitHub / Microsoft</span>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="set-ai-provider">
+                            <input type="radio" name="ai-provider" />
+                            <div class="set-ai-provider-inner">
+                                <div class="set-ai-logo" style="background:rgba(234,179,8,.12); color:#FBBF24;">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10" /></svg>
+                                </div>
+                                <div>
+                                    <span class="set-ai-name">Codex</span>
+                                    <span class="set-ai-desc">OpenAI Codex</span>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="set-subsection">
+                    <h4 class="set-sub-title">Configuration</h4>
+                    <div class="set-devices">
+                        <div class="set-field">
+                            <label>API Key</label>
+                            <input type="password" class="set-input" placeholder="sk-ant-..." value="" />
+                        </div>
+                        <div class="set-field">
+                            <label>Model</label>
+                            <select class="set-select">
+                                <option>claude-sonnet-4-6</option>
+                                <option>claude-opus-4-6</option>
+                                <option>claude-haiku-4-5</option>
+                            </select>
+                        </div>
+                        <div class="set-field">
+                            <label>Base URL (optional)</label>
+                            <input type="text" class="set-input" placeholder="https://api.anthropic.com" />
+                        </div>
+                    </div>
+                    <button class="set-btn-golden" style="margin-top:16px" data-testid="settings-test-connection">Test Connection</button>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>

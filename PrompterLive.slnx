@@ -1,21 +1,12 @@
 <Solution>
-  <Configurations>
-    <Platform Name="Any CPU" />
-    <Platform Name="x64" />
-    <Platform Name="x86" />
-  </Configurations>
-  <Project Path="PrompterLive.Core.Tests/PrompterLive.Core.Tests.csproj" />
-  <Project Path="PrompterLive.Core/PrompterLive.Core.csproj" />
-  <Project Path="PrompterLive.Maui.DeviceTests/PrompterLive.Maui.DeviceTests.csproj" />
-  <Project Path="PrompterLive.Maui.UITests/PrompterLive.Maui.UITests.csproj" />
-  <Project Path="PrompterLive.Maui/PrompterLive.Maui.csproj" />
-  <Project Path="PrompterLive.Shared.Tests/PrompterLive.Shared.Tests.csproj" />
-  <Project Path="PrompterLive.Shared/PrompterLive.Shared.csproj" />
-  <Project Path="PrompterLive.Web.Client/PrompterLive.Web.Client.csproj">
-    <Deploy Solution="*|Any CPU" />
-  </Project>
-  <Project Path="PrompterLive.Web.E2E.Tests/PrompterLive.Web.E2E.Tests.csproj" />
-  <Project Path="PrompterLive.Web/PrompterLive.Web.csproj">
-    <Deploy Solution="*|Any CPU" />
-  </Project>
+  <Folder Name="/src/">
+    <Project Path="src/PrompterLive.App/PrompterLive.App.csproj" />
+    <Project Path="src/PrompterLive.Core/PrompterLive.Core.csproj" />
+    <Project Path="src/PrompterLive.Shared/PrompterLive.Shared.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/PrompterLive.App.Tests/PrompterLive.App.Tests.csproj" />
+    <Project Path="tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj" />
+    <Project Path="tests/PrompterLive.Core.Tests/PrompterLive.Core.Tests.csproj" />
+  </Folder>
 </Solution>

@@ -1,0 +1,61 @@
+@import url("design/tokens.css");
+@import url("design/components.css");
+@import url("design/styles.css");
+
+html,
+body {
+    margin: 0;
+    min-height: 100%;
+}
+
+body {
+    min-height: 100vh;
+}
+
+#app {
+    min-height: 100vh;
+}
+
+.app-loading-shell {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    gap: 1rem;
+    background: var(--bg-0);
+    color: var(--text-2);
+    font-family: var(--font-sans);
+}
+
+.app-loading-mark {
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    background: radial-gradient(circle at 35% 35%, #F5E6D0, #C4A882 65%, #8A6C4A 100%);
+    box-shadow: 0 0 24px rgba(196, 168, 130, 0.32);
+}
+
+#blazor-error-ui {
+    display: none;
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    left: 16px;
+    z-index: 1000;
+    padding: 12px 16px;
+    border: 1px solid rgba(196, 168, 130, 0.18);
+    border-radius: 14px;
+    background: rgba(12, 16, 24, 0.92);
+    color: var(--text-1);
+    font-family: var(--font-sans);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+}
+
+#blazor-error-ui .reload {
+    color: inherit;
+    margin-left: 8px;
+}
+
+#blazor-error-ui .dismiss {
+    cursor: pointer;
+    float: right;
+}
