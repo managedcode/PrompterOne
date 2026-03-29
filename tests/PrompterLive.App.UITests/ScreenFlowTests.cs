@@ -283,7 +283,7 @@ public sealed class ScreenFlowTests(StandaloneAppFixture fixture)
     }
 
     [Fact]
-    public async Task Teleprompter_RendersStoredMultiCameraSceneLayers()
+    public async Task Teleprompter_UsesStoredPrimaryCameraAsBackgroundLayer()
     {
         var page = await _fixture.NewPageAsync();
 
@@ -394,11 +394,10 @@ public sealed class ScreenFlowTests(StandaloneAppFixture fixture)
 
             await page.GotoAsync("/teleprompter?id=rsvp-tech-demo");
             await Expect(page.GetByTestId("teleprompter-page")).ToBeVisibleAsync(new() { Timeout = 15000 });
-            await Expect(page.Locator(".rd-camera")).ToHaveCountAsync(2);
-            await Expect(page.GetByTestId("teleprompter-camera-layer-overlay-1")).ToBeVisibleAsync();
+            await Expect(page.Locator(".rd-camera")).ToHaveCountAsync(1);
             await Expect(page.Locator("#rd-camera")).ToHaveAttributeAsync("data-camera-role", "primary");
-            await Expect(page.Locator("#rd-camera-overlay-1")).ToHaveAttributeAsync("data-camera-role", "overlay");
-            await Expect(page.Locator("#rd-camera-overlay-1")).ToHaveAttributeAsync("style", new Regex("left:(18|82)%"));
+            await Expect(page.Locator("#rd-camera")).ToHaveAttributeAsync("data-camera-device-id", cameraDeviceId);
+            await Expect(page.Locator("#rd-camera-overlay-1")).ToHaveCountAsync(0);
         }
         finally
         {

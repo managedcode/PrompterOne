@@ -16,6 +16,8 @@
 - The fixture self-hosts the built WASM assets on a stable local origin for Playwright.
 - Verify routed flows in a real browser.
 - Click real controls instead of only checking static HTML.
+- This suite is intentionally non-parallel and owns `http://localhost:5051` while it runs.
+- Do not keep separate concurrent `dotnet build` or `dotnet test` processes alive against the same test assets.
 
 ## Project-Local Commands
 

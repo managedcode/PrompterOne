@@ -6,7 +6,7 @@
 
 ## Entry Points
 
-- `PageSmokeTests.cs`
+- `ScreenShellContractTests.cs`
 - `SettingsInteractionTests.cs`
 - `EditorMetadataInteractionTests.cs`
 - `EditorMarkupRendererTests.cs`
@@ -17,6 +17,7 @@
 
 - Cover rendered UI structure and meaningful user-visible interactions.
 - Keep the harness close to the real shared-service registration shape.
+- Do not add smoke-only placeholders; every test here must assert a meaningful UI contract.
 - Do not replace browser acceptance tests; this project complements them.
 
 ## Project-Local Commands

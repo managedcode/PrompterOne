@@ -39,6 +39,13 @@ Useful focused commands:
 - ui tests: `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj`
 - playwright browser install: `node /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/bin/Debug/net10.0/.playwright/package/cli.js install chromium`
 
+Browser test execution rules:
+
+- Use one `dotnet test` process at a time for the browser suite.
+- The browser suite self-hosts the built WASM assets on `http://localhost:5051`.
+- Do not run `PrompterLive.App.UITests` in parallel with another `dotnet build` or `dotnet test` command.
+- If a prior build already ran, prefer `dotnet test ... --no-build` for the browser suite.
+
 Do not override the app URL with `--urls` or random ports. Media permissions are origin-bound, so local development must stay on the stable launch-settings origin.
 
 ### Project AGENTS Policy
@@ -86,13 +93,9 @@ Local `AGENTS.md` files may tighten these values, but they must not loosen them 
   - current state
   - required change
   - constraints and risks
-- For non-trivial work, create a root-level `<slug>.brainstorm.md` file before making code or doc changes.
-- Use `<slug>.brainstorm.md` to capture the problem framing, options, trade-offs, risks, open questions, and the recommended direction.
-- Think through the task in the brainstorm before committing to implementation details.
-- After the brainstorm direction is chosen, create a root-level `<slug>.plan.md` file.
+- For non-trivial work, create a root-level `<slug>.plan.md` file before making code or doc changes.
 - Keep the `<slug>.plan.md` file as the working plan for the task until completion.
 - The plan file MUST contain:
-  - a link or reference to the chosen brainstorm
   - task goal and scope
   - a detailed implementation plan with detailed ordered steps
   - constraints and risks
@@ -104,10 +107,9 @@ Local `AGENTS.md` files may tighten these values, but they must not loosen them 
   - root-cause notes and intended fix path for each failing test that must be addressed
   - a checklist with explicit done criteria for each step
   - ordered final validation skills and commands, with reason for each
-- Use the Ralph Loop for every non-trivial task:
-  - brainstorm in `<slug>.brainstorm.md` before coding or document edits
-  - think through options and choose the intended direction before planning
-  - turn the chosen direction into a detailed `<slug>.plan.md`
+- Use the plan loop for every non-trivial task:
+  - define the intended direction before implementation
+  - turn that direction into a detailed `<slug>.plan.md`
   - include test creation, test updates, and verification work in the ordered steps from the start
   - once the initial plan is ready, run the full relevant test suite to establish the real baseline
   - if tests are already failing, add each failing test back into `<slug>.plan.md` as a tracked item with its failure symptom, suspected cause, and fix status

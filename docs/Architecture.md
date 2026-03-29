@@ -169,6 +169,10 @@ If a native embedded browser host returns later, media access must not rely on s
 - dynamic library folder components and folder/document browser storage adapters
 - UI diagnostics banner and global error boundary
 - debounced editor autosave and body-only TPS source authoring
+- centered RSVP ORP playback in `learn`
+- single background camera layer under text in `teleprompter`
+- centered RSVP ORP playback in `learn`
+- single background camera layer under text in `teleprompter`
 
 Rules:
 
@@ -250,4 +254,6 @@ flowchart LR
 - Visual fidelity should prefer copying the exact design classes and structure over inventing replacements.
 - Browser tests require Playwright Chromium to be installed locally.
 - Editor metadata belongs in the right metadata rail and must not be rendered as visible front matter in the source editor.
+- `learn` must keep the ORP letter aligned to the center guide while stepping words.
+- `teleprompter` must render camera only as a background layer; overlay camera boxes are not part of the current reference UI.
 - If macOS embedding returns later, use a persistent `WKWebView` data store, a stable trusted origin, and explicit `requestMediaCapturePermissionFor` handling so camera and microphone prompts are not repeated on every launch.

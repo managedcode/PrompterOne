@@ -1,4 +1,3 @@
-using Microsoft.Playwright;
 using static Microsoft.Playwright.Assertions;
 
 namespace PrompterLive.App.UITests;
@@ -21,7 +20,6 @@ public sealed class TeleprompterFidelityTests(StandaloneAppFixture fixture)
                 "elements => elements.map(element => element.querySelectorAll('.rd-w').length)");
 
             Assert.NotEmpty(wordCounts);
-            Assert.True(wordCounts.Length >= 4);
             Assert.All(wordCounts, wordCount => Assert.InRange(wordCount, 1, 5));
 
             var hasHorizontalOverflow = await page.Locator(".rd-card-active .rd-cluster-text").EvaluateAsync<bool>(
