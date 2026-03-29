@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../../src/PrompterLive.App/PrompterLive.App.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="../../src/PrompterLive.Shared/PrompterLive.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>

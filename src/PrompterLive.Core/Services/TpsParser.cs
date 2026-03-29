@@ -1025,11 +1025,6 @@ public partial class TpsParser
         return 0; // No emphasis
     }
 
-    private static bool IsValidColor(string color)
-    {
-        return InlineColors.Contains(color, StringComparer.OrdinalIgnoreCase);
-    }
-
     private static int? ExtractPause(string token)
     {
         var match = PauseMarker().Match(token);

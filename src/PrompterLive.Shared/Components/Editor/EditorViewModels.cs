@@ -78,7 +78,8 @@ public sealed record EditorSelectionViewModel(
 public enum EditorCommandKind
 {
     Wrap,
-    Insert
+    Insert,
+    ClearColor
 }
 
 public sealed record EditorCommandRequest(

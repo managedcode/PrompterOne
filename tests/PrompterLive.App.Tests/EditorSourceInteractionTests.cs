@@ -113,4 +113,21 @@ public sealed class EditorSourceInteractionTests : BunitContext
             Assert.Equal(updatedSource, cut.Find("[data-testid='editor-source-input']").GetAttribute("value"));
         });
     }
+
+    [Fact]
+    public void EditorPage_ColorMenuIncludesClearAction()
+    {
+        Services.GetRequiredService<NavigationManager>()
+            .NavigateTo("http://localhost/editor?id=rsvp-tech-demo");
+        var cut = Render<EditorPage>();
+
+        cut.WaitForAssertion(() =>
+        {
+            var source = cut.Find("[data-testid='editor-source-input']");
+            Assert.Contains("## [Intro|140WPM|warm]", source.GetAttribute("value"));
+        });
+
+        cut.Find("[data-testid='editor-color-trigger']").Click();
+        cut.WaitForAssertion(() => Assert.NotNull(cut.Find("[data-testid='editor-color-clear']")));
+    }
 }

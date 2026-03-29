@@ -76,19 +76,23 @@ flowchart LR
 ```mermaid
 flowchart LR
     SourcePanel["EditorSourcePanel<br/>body-only source textarea + highlight overlay"]
+    ToolbarCatalog["EditorToolbarCatalog<br/>descriptor-driven toolbar + floating bar"]
     StructureSidebar["EditorStructureSidebar<br/>tree + structure inspector"]
     MetadataRail["EditorMetadataRail<br/>front matter + speed offsets"]
     LocalAi["EditorLocalAssistant<br/>local rewrite helpers"]
     Page["EditorPage"]
     FrontMatter["TpsFrontMatterDocumentService"]
+    TextEditor["TpsTextEditor<br/>wrap / insert / clear-color"]
     StructureEditor["TpsStructureEditor"]
     Session["IScriptSessionService"]
 
+    ToolbarCatalog --> SourcePanel
     SourcePanel --> Page
     StructureSidebar --> Page
     MetadataRail --> Page
     Page --> LocalAi
     Page --> FrontMatter
+    Page --> TextEditor
     Page --> StructureEditor
     Page --> Session
 ```

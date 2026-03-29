@@ -56,6 +56,20 @@ public sealed class TpsEditorServicesTests
     }
 
     [Fact]
+    public void ClearColorFormatting_RemovesEnclosingColorTagsFromSelection()
+    {
+        const string source = "Hello [green]welcome[/green] friend";
+        var start = source.IndexOf("welcome", StringComparison.Ordinal);
+        var end = start + "welcome".Length;
+
+        var result = _textEditor.ClearColorFormatting(source, new EditorSelectionRange(start, end));
+
+        Assert.Equal("Hello welcome friend", result.Text);
+        Assert.Equal(start - "[green]".Length, result.Selection.Start);
+        Assert.Equal(result.Selection.Start + "welcome".Length, result.Selection.End);
+    }
+
+    [Fact]
     public void Upsert_RewritesFrontMatterAndPreservesBody()
     {
         var source =

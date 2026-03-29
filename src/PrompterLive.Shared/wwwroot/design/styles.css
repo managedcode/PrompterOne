@@ -1590,6 +1590,8 @@ button {
 /* ---- Editor Sidebar: glassmorphism, structure only ---- */
 
 .ed-sidebar {
+    position: relative;
+    z-index: 1;
     width: var(--sidebar-width);
     background: var(--glass-bg);
     backdrop-filter: var(--glass-blur);
@@ -2257,6 +2259,8 @@ button {
 /* Editor Content — full width, no max-width constraint */
 .ed-content {
     flex: 1;
+    position: relative;
+    z-index: 2;
     overflow-y: auto;
     padding: 40px 48px;
     width: 100%;
@@ -2554,6 +2558,7 @@ button {
 }
 
 .ed-source-stage {
+    --ed-floatbar-edge: 240px;
     position: relative;
     min-height: 100%;
 }
@@ -4227,7 +4232,7 @@ body::before {
     bottom: calc(100% + 8px);
     left: 50%;
     transform: translateX(-50%);
-    z-index: 50;
+    z-index: 300;
     display: inline-flex;
     align-items: center;
     gap: 3px;

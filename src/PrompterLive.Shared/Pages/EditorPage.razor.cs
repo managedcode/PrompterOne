@@ -107,6 +107,9 @@ public partial class EditorPage
                 request.PrimaryToken,
                 request.SecondaryToken ?? string.Empty,
                 request.PlaceholderText),
+            EditorCommandKind.ClearColor => TextEditor.ClearColorFormatting(
+                _sourceText,
+                _selection.Range),
             _ => TextEditor.InsertAtSelection(
                 _sourceText,
                 _selection.Range,

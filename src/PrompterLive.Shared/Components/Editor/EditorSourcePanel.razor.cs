@@ -7,6 +7,7 @@ namespace PrompterLive.Shared.Components.Editor;
 
 public partial class EditorSourcePanel : IAsyncDisposable
 {
+    private const string FloatingBarEdgePaddingVariable = "var(--ed-floatbar-edge)";
     private ElementReference _overlayRef;
     private DotNetObjectReference<EditorSourcePanel>? _shortcutReference;
     private ElementReference _textareaRef;
@@ -36,7 +37,8 @@ public partial class EditorSourcePanel : IAsyncDisposable
 
     protected MarkupString HighlightMarkup => TpsSourceHighlighter.Render(Text);
 
-    protected string FloatingBarStyle => $"left:{Selection.ToolbarLeft}px; top:{Selection.ToolbarTop}px;";
+    protected string FloatingBarStyle =>
+        $"left:clamp({FloatingBarEdgePaddingVariable}, {Selection.ToolbarLeft}px, calc(100% - {FloatingBarEdgePaddingVariable})); top:{Selection.ToolbarTop}px;";
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -107,7 +109,11 @@ public partial class EditorSourcePanel : IAsyncDisposable
 
     private async Task OnSelectionInteractionAsync()
     {
-        CloseToolbarPanels();
+        if (!TryConsumeSelectionCloseSuppression())
+        {
+            CloseToolbarPanels();
+        }
+
         await RefreshSelectionAsync();
     }
 

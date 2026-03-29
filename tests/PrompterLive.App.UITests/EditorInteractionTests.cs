@@ -244,4 +244,88 @@ public sealed class EditorInteractionTests(StandaloneAppFixture fixture)
             await page.CloseAsync();
         }
     }
+
+    [Fact]
+    public async Task EditorScreen_FullToolbarSurfaceSupportsExtendedCommands()
+    {
+        var page = await _fixture.NewPageAsync();
+
+        try
+        {
+            await page.GotoAsync("/editor?id=rsvp-tech-demo");
+            await Expect(page.GetByTestId("editor-source-input")).ToBeVisibleAsync();
+
+            await page.GetByTestId("editor-source-input").EvaluateAsync(
+                """
+                element => {
+                    const text = element.value;
+                    const target = "welcome";
+                    const start = text.indexOf(target);
+                    element.focus();
+                    element.setSelectionRange(start, start + target.length);
+                    element.dispatchEvent(new Event("select", { bubbles: true }));
+                    element.dispatchEvent(new Event("keyup", { bubbles: true }));
+                }
+                """);
+
+            await page.GetByTestId("editor-color-trigger").ClickAsync();
+            await Expect(page.GetByTestId("editor-menu-color")).ToBeVisibleAsync();
+            await page.GetByTestId("editor-color-green").ClickAsync();
+            await Expect(page.GetByTestId("editor-source-input")).ToHaveValueAsync(
+                new Regex(@"\[green\]welcome\[/green\]"));
+
+            await page.GetByTestId("editor-source-input").EvaluateAsync(
+                """
+                element => {
+                    const text = element.value;
+                    const target = "[green]welcome[/green]";
+                    const start = text.indexOf(target);
+                    element.focus();
+                    element.setSelectionRange(start, start + target.length);
+                    element.dispatchEvent(new Event("select", { bubbles: true }));
+                    element.dispatchEvent(new Event("keyup", { bubbles: true }));
+                }
+                """);
+
+            await page.GetByTestId("editor-color-trigger").ClickAsync();
+            await page.GetByTestId("editor-color-clear").ClickAsync();
+            await Expect(page.GetByTestId("editor-source-input")).Not.ToHaveValueAsync(
+                new Regex(@"\[green\]welcome\[/green\]"));
+
+            await page.GetByTestId("editor-source-input").EvaluateAsync(
+                """
+                element => {
+                    const text = element.value;
+                    const target = "transformative moment";
+                    const start = text.indexOf(target);
+                    element.focus();
+                    element.setSelectionRange(start, start + target.length);
+                    element.dispatchEvent(new Event("select", { bubbles: true }));
+                    element.dispatchEvent(new Event("keyup", { bubbles: true }));
+                }
+                """);
+
+            await page.GetByTestId("editor-emotion-trigger").ClickAsync();
+            await Expect(page.GetByTestId("editor-menu-emotion")).ToBeVisibleAsync();
+            await page.GetByTestId("editor-emotion-professional").ClickAsync();
+            await Expect(page.GetByTestId("editor-source-input")).ToHaveValueAsync(
+                new Regex(@"\[professional\]transformative moment\[/professional\]"));
+
+            await page.GetByTestId("editor-speed-trigger").ClickAsync();
+            await Expect(page.GetByTestId("editor-menu-speed")).ToBeVisibleAsync();
+            await page.GetByTestId("editor-speed-custom-wpm").ClickAsync();
+            await Expect(page.GetByTestId("editor-source-input")).ToHaveValueAsync(
+                new Regex(@"\[180WPM\].+\[/180WPM\]"));
+
+            await page.GetByTestId("editor-insert-trigger").ClickAsync();
+            await Expect(page.GetByTestId("editor-menu-insert")).ToBeVisibleAsync();
+            await page.GetByTestId("editor-insert-pronunciation").ClickAsync();
+            await Expect(page.GetByTestId("editor-source-input")).ToHaveValueAsync(
+                new Regex(@"\[pronunciation:guide\].+\[/pronunciation\]"));
+        }
+        finally
+        {
+            await page.CloseAsync();
+        }
+    }
 }
