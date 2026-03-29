@@ -59,14 +59,14 @@ and a [green][emphasis]30% increase[/emphasis][/green] in engagement. //
 
 [edit_point:medium]
 
-## [Call to Action|130WPM|motivational]
+## [Call to Action|140WPM|motivational|8:00-10:00]
 
-### [Inspiration Block|130WPM|motivational]
+### [Inspiration Block|130WPM]
 
-This is not just about better technology. / It's about creating experiences /
-that respect people's time, attention, and energy. //
+[warm]Let me share something personal.[/warm] //
 
-[purple]Let's build tools that feel human, useful, and memorable.[/purple] //
+When we started this journey, / our [phonetic:ˈviʒən]vision[/phonetic] was simple: /
+make technology [emphasis]disappear[/emphasis] / so people can [purple]focus on what matters[/purple]. //
 
 [slow]I want each of you to [emphasis]imagine[/emphasis] a world[/slow] /
 where [cyan]every interaction is intuitive[/cyan], /

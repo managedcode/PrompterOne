@@ -1,6 +1,7 @@
 @page "/editor"
 @using PrompterLive.Core.Models.Documents
 @using PrompterLive.Core.Services.Samples
+@using PrompterLive.Shared.Rendering
 
 @inject AppBootstrapper Bootstrapper
 @inject IScriptRepository ScriptRepository
@@ -466,141 +467,10 @@
                                 ? string.Empty
                                 : FormatEmotionLabel(ResolveEmotionKey(block.Emotion)),
                             TargetWpm: block.WpmOverride ?? segment.WpmOverride ?? 140,
-                            Content: FormatEditorContent(block.Content)))
+                            Content: EditorMarkupRenderer.Render(block.Content)))
                         .ToList());
             })
             .ToList();
-    }
-
-    private static MarkupString FormatEditorContent(string? content)
-    {
-        if (string.IsNullOrWhiteSpace(content))
-        {
-            return (MarkupString)"<span class=\"mk-color-gray\">Add script content here.</span>";
-        }
-
-        var html = System.Net.WebUtility.HtmlEncode(content).Replace("\r\n", "\n", StringComparison.Ordinal).Trim();
-
-        html = ReplaceTaggedContent(html, "emphasis", "mk-em");
-        html = ReplaceTaggedContent(html, "strong", "mk-em");
-        html = ReplaceTaggedContent(html, "highlight", "mk-hl");
-        html = ReplaceTaggedContent(html, "red", "mk-color-red");
-        html = ReplaceTaggedContent(html, "green", "mk-color-green");
-        html = ReplaceTaggedContent(html, "blue", "mk-color-blue");
-        html = ReplaceTaggedContent(html, "yellow", "mk-color-yellow");
-        html = ReplaceTaggedContent(html, "orange", "mk-color-orange");
-        html = ReplaceTaggedContent(html, "purple", "mk-color-purple");
-        html = ReplaceTaggedContent(html, "cyan", "mk-color-cyan");
-        html = ReplaceTaggedContent(html, "magenta", "mk-color-magenta");
-        html = ReplaceTaggedContent(html, "pink", "mk-color-pink");
-        html = ReplaceTaggedContent(html, "teal", "mk-color-teal");
-        html = ReplaceTaggedContent(html, "gray", "mk-color-gray");
-        html = ReplaceTaggedContent(html, "white", "mk-color-white");
-        html = ReplaceTaggedContent(html, "warm", "mk-emo-warm");
-        html = ReplaceTaggedContent(html, "concerned", "mk-emo-concerned");
-        html = ReplaceTaggedContent(html, "focused", "mk-emo-focused");
-        html = ReplaceTaggedContent(html, "motivational", "mk-emo-motivational");
-        html = ReplaceTaggedContent(html, "neutral", "mk-emo-neutral");
-        html = ReplaceTaggedContent(html, "urgent", "mk-emo-urgent");
-        html = ReplaceTaggedContent(html, "happy", "mk-emo-happy");
-        html = ReplaceTaggedContent(html, "excited", "mk-emo-excited");
-        html = ReplaceTaggedContent(html, "sad", "mk-emo-sad");
-        html = ReplaceTaggedContent(html, "calm", "mk-emo-calm");
-        html = ReplaceTaggedContent(html, "energetic", "mk-emo-energetic");
-        html = ReplaceTaggedContent(html, "professional", "mk-emo-professional");
-        html = ReplaceTaggedContent(html, "slow", "mk-slow");
-        html = ReplaceTaggedContent(html, "xslow", "mk-xslow");
-        html = ReplaceTaggedContent(html, "fast", "mk-fast");
-        html = ReplaceTaggedContent(html, "xfast", "mk-xfast");
-
-        html = System.Text.RegularExpressions.Regex.Replace(
-            html,
-            @"\*\*([^*]+)\*\*",
-            match => $"<span class=\"mk-tag\">[emphasis]</span><span class=\"mk-em\">{match.Groups[1].Value}</span><span class=\"mk-tag\">[/emphasis]</span>",
-            System.Text.RegularExpressions.RegexOptions.Singleline);
-
-        html = System.Text.RegularExpressions.Regex.Replace(
-            html,
-            @"&lt;/?emphasis&gt;",
-            match => match.Value.Contains("/emphasis", StringComparison.OrdinalIgnoreCase)
-                ? "<span class=\"mk-tag\">[/emphasis]</span>"
-                : "<span class=\"mk-tag\">[emphasis]</span>",
-            System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-
-        html = System.Text.RegularExpressions.Regex.Replace(
-            html,
-            @"\[(phonetic|pronunciation):([^\]]+)\](.*?)\[/\1\]",
-            match => $"<span class=\"mk-tag\">[{match.Groups[1].Value}:{match.Groups[2].Value}]</span><span class=\"mk-phonetic\">{match.Groups[2].Value}</span> <span class=\"mk-phonetic-word\">{match.Groups[3].Value}</span><span class=\"mk-tag\">[/{match.Groups[1].Value}]</span>",
-            System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Singleline);
-
-        html = System.Text.RegularExpressions.Regex.Replace(
-            html,
-            @"\[(\d+)WPM\](.*?)\[/\1WPM\]",
-            match => $"<span class=\"mk-tag\">[{match.Groups[1].Value}WPM]</span><span class=\"mk-wpm-badge\">{match.Groups[1].Value}WPM</span> {match.Groups[2].Value}<span class=\"mk-tag\">[/{match.Groups[1].Value}WPM]</span>",
-            System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Singleline);
-
-        html = System.Text.RegularExpressions.Regex.Replace(
-            html,
-            @"\{highlight,([a-z]+)\}(.*?)\{/\}",
-            match =>
-            {
-                var colorClass = match.Groups[1].Value.ToLowerInvariant() switch
-                {
-                    "red" => "mk-color-red",
-                    "green" => "mk-color-green",
-                    "blue" => "mk-color-blue",
-                    "yellow" => "mk-color-yellow",
-                    "orange" => "mk-color-orange",
-                    "purple" => "mk-color-purple",
-                    "cyan" => "mk-color-cyan",
-                    "magenta" => "mk-color-magenta",
-                    "pink" => "mk-color-pink",
-                    "teal" => "mk-color-teal",
-                    "gray" => "mk-color-gray",
-                    "white" => "mk-color-white",
-                    _ => string.Empty
-                };
-                return $"<span class=\"mk-tag\">{{highlight,{match.Groups[1].Value}}}</span><span class=\"mk-hl {colorClass}\">{match.Groups[2].Value}</span><span class=\"mk-tag\">{{/}}</span>";
-            },
-            System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Singleline);
-
-        html = System.Text.RegularExpressions.Regex.Replace(
-            html,
-            @"(?<=^|\s)/(?!/)(?=\s|<br>|$)",
-            "<span class=\"mk-pause\">/</span>",
-            System.Text.RegularExpressions.RegexOptions.Multiline);
-
-        html = System.Text.RegularExpressions.Regex.Replace(
-            html,
-            @"(?<=^|\s)//(?=\s|<br>|$)",
-            "<span class=\"mk-pause\">//</span>",
-            System.Text.RegularExpressions.RegexOptions.Multiline);
-
-        html = System.Text.RegularExpressions.Regex.Replace(
-            html,
-            @"\[(pause:[^\]]+)\]",
-            match => $"<span class=\"mk-special\">[{match.Groups[1].Value}]</span>",
-            System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-
-        html = System.Text.RegularExpressions.Regex.Replace(
-            html,
-            @"\[(edit_point(?::[^\]]+)?)\]",
-            match => $"<span class=\"mk-edit\">[{match.Groups[1].Value}]</span>",
-            System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-
-        html = html.Replace("\n\n", "<br><br>", StringComparison.Ordinal)
-            .Replace("\n", "<br>", StringComparison.Ordinal);
-
-        return (MarkupString)html;
-    }
-
-    private static string ReplaceTaggedContent(string html, string tag, string cssClass)
-    {
-        return System.Text.RegularExpressions.Regex.Replace(
-            html,
-            $@"\[{tag}\](.*?)\[/\s*{tag}\]",
-            match => $"<span class=\"mk-tag\">[{tag}]</span><span class=\"{cssClass}\">{match.Groups[1].Value}</span><span class=\"mk-tag\">[/{tag}]</span>",
-            System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Singleline);
     }
 
     private static string BuildDurationLabel(string? startTime, string? endTime) =>
