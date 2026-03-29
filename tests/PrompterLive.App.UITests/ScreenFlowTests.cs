@@ -23,7 +23,7 @@ public sealed class ScreenFlowTests
         {
             await page.GotoAsync("/library");
             await Expect(page.GetByTestId("library-page")).ToBeVisibleAsync();
-            await Expect(page.GetByText("Product Launch")).ToBeVisibleAsync();
+            await Expect(page.GetByText("RSVP Technology Demo")).ToBeVisibleAsync();
             await page.GetByRole(AriaRole.Button, new() { Name = "Date" }).ClickAsync();
             await Expect(page.GetByRole(AriaRole.Button, new() { Name = "Date" })).ToHaveClassAsync(new Regex("active"));
             var tedTalksFolder = page.Locator(".folder-item").Filter(new() { HasText = "TED Talks" });
@@ -62,7 +62,7 @@ public sealed class ScreenFlowTests
 
         try
         {
-            await page.GotoAsync("/editor");
+            await page.GotoAsync("/editor?id=rsvp-tech-demo");
             await Expect(page.GetByTestId("editor-page")).ToBeVisibleAsync();
             await page.Locator(".tb-dropdown-wrap").Nth(0).HoverAsync();
             await Expect(page.Locator(".tb-dropdown").Nth(0)).ToBeVisibleAsync();
@@ -73,6 +73,7 @@ public sealed class ScreenFlowTests
             await page.Locator("[data-nav='blk-2-1']").ClickAsync();
             await Expect(page.Locator("[data-nav='blk-2-1']")).ToHaveClassAsync(new Regex("active"));
             await Expect(page.Locator("[data-nav='seg-2']")).ToHaveClassAsync(new Regex("active"));
+            await Expect(page.Locator(".ed-content")).ToContainTextAsync("Benefits Block");
 
             await Expect(page.GetByRole(AriaRole.Button, new() { Name = "Learn" })).ToBeVisibleAsync();
             await page.GetByRole(AriaRole.Button, new() { Name = "Learn" }).ClickAsync();
@@ -104,8 +105,9 @@ public sealed class ScreenFlowTests
 
         try
         {
-            await page.GotoAsync("/teleprompter");
+            await page.GotoAsync("/teleprompter?id=rsvp-tech-demo");
             await Expect(page.GetByTestId("teleprompter-page")).ToBeVisibleAsync();
+            await Expect(page.Locator(".rd-edge-section")).ToContainTextAsync("Opening Block");
 
             await page.GetByTestId("teleprompter-font-up").ClickAsync();
             await Expect(page.Locator("#rd-font-label")).ToHaveTextAsync("40");

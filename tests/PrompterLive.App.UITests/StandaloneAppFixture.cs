@@ -66,7 +66,7 @@ public sealed class StandaloneAppFixture : IAsyncLifetime
             StartInfo = new ProcessStartInfo
             {
                 FileName = "dotnet",
-                Arguments = $"run --project \"{projectPath}\" --urls {BaseAddressValue}",
+                Arguments = $"run --no-build --project \"{projectPath}\" --urls {BaseAddressValue}",
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = false,

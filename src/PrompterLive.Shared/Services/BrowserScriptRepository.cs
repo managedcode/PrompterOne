@@ -21,7 +21,7 @@ public sealed class BrowserScriptRepository : IScriptRepository
 
     public Task InitializeAsync(IEnumerable<StoredScriptDocument> seedDocuments, CancellationToken cancellationToken = default)
     {
-        return _jsRuntime.InvokeVoidAsync("PrompterLive.storage.ensureSeedData", cancellationToken, seedDocuments.ToArray()).AsTask();
+        return InitializeSeedDataAsync(seedDocuments, cancellationToken);
     }
 
     public async Task<IReadOnlyList<StoredScriptSummary>> ListAsync(CancellationToken cancellationToken = default)
@@ -92,6 +92,29 @@ public sealed class BrowserScriptRepository : IScriptRepository
         var json = await _jsRuntime.InvokeAsync<string>("PrompterLive.storage.getDocumentJson", cancellationToken, id);
         var dto = JsonSerializer.Deserialize<BrowserStoredScriptDocumentDto?>(json, JsonOptions);
         return dto is null ? null : ToDocument(dto);
+    }
+
+    private async Task InitializeSeedDataAsync(IEnumerable<StoredScriptDocument> seedDocuments, CancellationToken cancellationToken)
+    {
+        var existing = await ListAsync(cancellationToken);
+        var existingIds = existing
+            .Select(document => document.Id)
+            .ToHashSet(StringComparer.Ordinal);
+
+        foreach (var document in seedDocuments)
+        {
+            if (existingIds.Contains(document.Id))
+            {
+                continue;
+            }
+
+            await _jsRuntime.InvokeAsync<string>(
+                "PrompterLive.storage.saveDocumentJson",
+                cancellationToken,
+                ToDto(document));
+
+            existingIds.Add(document.Id);
+        }
     }
 
     private static string Slugify(string value)

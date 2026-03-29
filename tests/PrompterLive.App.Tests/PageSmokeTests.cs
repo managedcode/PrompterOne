@@ -16,10 +16,13 @@ public sealed class PageSmokeTests : BunitContext
     {
         var cut = Render<LibraryPage>();
 
-        Assert.Contains("screen-library", cut.Markup);
-        Assert.Contains("Product Launch", cut.Markup);
-        Assert.Contains("Quantum Computing", cut.Markup);
-        Assert.Contains("New Script", cut.Markup);
+        cut.WaitForAssertion(() =>
+        {
+            Assert.Contains("screen-library", cut.Markup);
+            Assert.Contains("RSVP Technology Demo", cut.Markup);
+            Assert.Contains("Comprehensive RSVP Demo", cut.Markup);
+            Assert.Contains("New Script", cut.Markup);
+        });
     }
 
     [Fact]
@@ -27,10 +30,13 @@ public sealed class PageSmokeTests : BunitContext
     {
         var cut = Render<EditorPage>();
 
-        Assert.Contains("STRUCTURE", cut.Markup);
-        Assert.Contains("TPS Emotions", cut.Markup);
-        Assert.Contains("Call to Action", cut.Markup);
-        Assert.Contains("METADATA", cut.Markup);
+        cut.WaitForAssertion(() =>
+        {
+            Assert.Contains("STRUCTURE", cut.Markup);
+            Assert.Contains("TPS Emotions", cut.Markup);
+            Assert.Contains("Call to Action", cut.Markup);
+            Assert.Contains("METADATA", cut.Markup);
+        });
     }
 
     [Fact]
@@ -38,9 +44,12 @@ public sealed class PageSmokeTests : BunitContext
     {
         var cut = Render<LearnPage>();
 
-        Assert.Contains("screen-rsvp", cut.Markup);
-        Assert.Contains("rsvp-speed", cut.Markup);
-        Assert.Contains("rsvp-progress-label", cut.Markup);
+        cut.WaitForAssertion(() =>
+        {
+            Assert.Contains("screen-rsvp", cut.Markup);
+            Assert.Contains("rsvp-speed", cut.Markup);
+            Assert.Contains("rsvp-progress-label", cut.Markup);
+        });
     }
 
     [Fact]
@@ -48,9 +57,13 @@ public sealed class PageSmokeTests : BunitContext
     {
         var cut = Render<TeleprompterPage>();
 
-        Assert.Contains("screen-teleprompter", cut.Markup);
-        Assert.Contains("rd-countdown", cut.Markup);
-        Assert.Contains("rd-block-indicator", cut.Markup);
+        cut.WaitForAssertion(() =>
+        {
+            Assert.Contains("screen-teleprompter", cut.Markup);
+            Assert.Contains("rd-countdown", cut.Markup);
+            Assert.Contains("rd-block-indicator", cut.Markup);
+            Assert.Contains("Opening Block", cut.Markup);
+        });
     }
 
     [Fact]

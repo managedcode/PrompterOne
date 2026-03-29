@@ -1,53 +1,42 @@
 @page "/editor"
+@using PrompterLive.Core.Models.Documents
+@using PrompterLive.Core.Services.Samples
+
+@inject AppBootstrapper Bootstrapper
+@inject IScriptRepository ScriptRepository
+@inject IScriptSessionService SessionService
 
 <div id="screen-editor"
      class="screen active"
      data-testid="editor-page"
-     data-screen-title="Product Launch">
+     data-screen-title="@_screenTitle">
     <div class="ed-layout">
         <div class="ed-sidebar">
             <div class="ed-structure">
                 <div class="ed-section-label">STRUCTURE</div>
                 <div class="ed-tree">
-                    <div class="ed-tree-seg active" style="--sc:#F59E0B" data-nav="seg-0" onclick="edNavTo(this)">
-                        <div class="ed-tree-dot"></div>
-                        <span>Intro</span>
-                        <small>Warm</small>
-                    </div>
-                    <div class="ed-tree-children">
-                        <div class="ed-tree-block" data-nav="blk-0-0" onclick="edNavTo(this)"><span>Opening Block</span><code>140</code></div>
-                        <div class="ed-tree-block" data-nav="blk-0-1" onclick="edNavTo(this)"><span>Purpose Block</span><code>150</code></div>
-                    </div>
-
-                    <div class="ed-tree-seg" style="--sc:#EF4444" data-nav="seg-1" onclick="edNavTo(this)">
-                        <div class="ed-tree-dot"></div>
-                        <span>Problem</span>
-                        <small>Concerned</small>
-                    </div>
-                    <div class="ed-tree-children">
-                        <div class="ed-tree-block" data-nav="blk-1-0" onclick="edNavTo(this)"><span>Statistics</span><code>150</code></div>
-                        <div class="ed-tree-block" data-nav="blk-1-1" onclick="edNavTo(this)"><span>Impact</span><code>140</code></div>
-                    </div>
-
-                    <div class="ed-tree-seg" style="--sc:#10B981" data-nav="seg-2" onclick="edNavTo(this)">
-                        <div class="ed-tree-dot"></div>
-                        <span>Solution</span>
-                        <small>Focused</small>
-                    </div>
-                    <div class="ed-tree-children">
-                        <div class="ed-tree-block" data-nav="blk-2-0" onclick="edNavTo(this)"><span>Introduction</span><code>150</code></div>
-                        <div class="ed-tree-block" data-nav="blk-2-1" onclick="edNavTo(this)"><span>Benefits</span><code>160</code></div>
-                    </div>
-
-                    <div class="ed-tree-seg" style="--sc:#A855F7" data-nav="seg-3" onclick="edNavTo(this)">
-                        <div class="ed-tree-dot"></div>
-                        <span>Call to Action</span>
-                        <small>Motivational</small>
-                    </div>
-                    <div class="ed-tree-children">
-                        <div class="ed-tree-block" data-nav="blk-3-0" onclick="edNavTo(this)"><span>Inspiration</span><code>130</code></div>
-                        <div class="ed-tree-block" data-nav="blk-3-1" onclick="edNavTo(this)"><span>Closing</span><code>140</code></div>
-                    </div>
+                    @foreach (var segment in _segments)
+                    {
+                        <div class="ed-tree-seg @(segment.Index == 0 ? "active" : null)"
+                             style="--sc:@segment.AccentColor"
+                             data-nav="seg-@segment.Index"
+                             onclick="edNavTo(this)">
+                            <div class="ed-tree-dot"></div>
+                            <span>@segment.Name</span>
+                            <small>@segment.EmotionLabel</small>
+                        </div>
+                        <div class="ed-tree-children">
+                            @foreach (var block in segment.Blocks)
+                            {
+                                <div class="ed-tree-block"
+                                     data-nav="blk-@segment.Index-@block.Index"
+                                     onclick="edNavTo(this)">
+                                    <span>@block.Name</span>
+                                    <code>@block.TargetWpm</code>
+                                </div>
+                            }
+                        </div>
+                    }
                 </div>
             </div>
         </div>
@@ -241,130 +230,56 @@
             </div>
 
             <div class="ed-content">
-                <div class="ed-seg" data-e="warm">
-                    <h2 class="ed-seg-h"><span class="h-mark">## </span><span class="h-br">[</span><span class="h-name">Intro</span><span class="h-sep">|</span><span class="h-wpm">140WPM</span><span class="h-sep">|</span><span class="h-emo">Warm</span><span class="h-br">]</span></h2>
-                    <div class="ed-blk">
-                        <h3 class="ed-blk-h"><span class="h-mark">### </span><span class="h-br">[</span><span class="h-name">Opening Block</span><span class="h-sep">|</span><span class="h-wpm">140WPM</span><span class="h-br">]</span></h3>
-                        <p class="ed-p" style="position:relative">
-                            Good morning everyone, <span class="mk-pause">/</span> and <span class="mk-tag">[emphasis]</span><span class="mk-em">welcome</span><span class="mk-tag">[/emphasis]</span> to what I believe <span class="mk-pause">/</span><br>
-                            will be a <span class="mk-tag">[green]</span><span class="mk-color-green ed-text-selected" style="position:relative"><span class="ed-float-bar">
-                                <button class="efb-btn" title="Bold"><b>B</b></button>
-                                <button class="efb-btn" title="Italic"><i>I</i></button>
-                                <button class="efb-btn" title="Emphasis [emphasis]">Em</button>
-                                <button class="efb-btn" title="Highlight [highlight]"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#FFE066" stroke-width="2"><rect x="3" y="14" width="18" height="6" rx="2" /><path d="M8 14V8a4 4 0 0 1 8 0v6" /></svg></button>
-                                <span class="efb-sep"></span>
-                                <button class="efb-btn" title="Text Color"><span class="cdot" style="background:#FF8A8A"></span></button>
-                                <button class="efb-btn" title="Emotion"><span class="cdot" style="background:#FFB840"></span></button>
-                                <span class="efb-sep"></span>
-                                <button class="efb-btn" title="Slow [slow]">.8×</button>
-                                <button class="efb-btn" title="Fast [fast]">1.25×</button>
-                                <button class="efb-btn" title="Pause [pause]"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16" /><rect x="14" y="4" width="4" height="16" /></svg></button>
-                                <span class="efb-sep"></span>
-                                <button class="efb-btn efb-ai" title="AI — rewrite, expand, simplify">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L9 9 2 12l7 3 3 7 3-7 7-3-7-3z" /></svg>
-                                    AI
-                                </button>
-                            </span>transformative moment</span><span class="mk-tag">[/green]</span> for our company. <span class="mk-pause">//</span><br><br>
-                            <span class="mk-special">[pause:2s]</span>
-                        </p>
+                @if (_segments.Count == 0)
+                {
+                    <div class="ed-seg" data-e="neutral">
+                        <h2 class="ed-seg-h"><span class="h-mark">## </span><span class="h-br">[</span><span class="h-name">Opening</span><span class="h-sep">|</span><span class="h-wpm">140WPM</span><span class="h-sep">|</span><span class="h-emo">Neutral</span><span class="h-br">]</span></h2>
+                        <div class="ed-blk">
+                            <h3 class="ed-blk-h"><span class="h-mark">### </span><span class="h-br">[</span><span class="h-name">Draft Block</span><span class="h-sep">|</span><span class="h-wpm">140WPM</span><span class="h-br">]</span></h3>
+                            <p class="ed-p"><span class="mk-color-gray">Start writing in the shared TPS draft to see structure, metadata, and playback timing here.</span></p>
+                        </div>
                     </div>
-
-                    <div class="ed-blk">
-                        <h3 class="ed-blk-h"><span class="h-mark">### </span><span class="h-br">[</span><span class="h-name">Purpose Block</span><span class="h-sep">|</span><span class="h-wpm">150WPM</span><span class="h-br">]</span></h3>
-                        <p class="ed-p">
-                            <span class="mk-tag">[emphasis]</span><span class="mk-em">Today</span><span class="mk-tag">[/emphasis]</span>, <span class="mk-pause">/</span> we're not just launching a product &mdash; <span class="mk-pause">/</span><br>
-                            we're introducing a <span class="mk-tag">[highlight]</span><span class="mk-hl">solution</span><span class="mk-tag">[/highlight]</span> that will <span class="mk-tag">[emphasis]</span><span class="mk-em">revolutionize</span><span class="mk-tag">[/emphasis]</span> <span class="mk-pause">/</span><br>
-                            how our customers interact with technology. <span class="mk-pause">//</span>
-                        </p>
-                    </div>
-                </div>
-
-                <div class="ed-seg" data-e="concerned">
-                    <h2 class="ed-seg-h"><span class="h-mark">## </span><span class="h-br">[</span><span class="h-name">Problem</span><span class="h-sep">|</span><span class="h-wpm">150WPM</span><span class="h-sep">|</span><span class="h-emo">Concerned</span><span class="h-br">]</span></h2>
-                    <div class="ed-blk">
-                        <h3 class="ed-blk-h"><span class="h-mark">### </span><span class="h-br">[</span><span class="h-name">Statistics Block</span><span class="h-sep">|</span><span class="h-wpm">150WPM</span><span class="h-sep">|</span><span class="h-emo">Neutral</span><span class="h-br">]</span></h3>
-                        <p class="ed-p">
-                            But first, <span class="mk-pause">/</span> let's address the <span class="mk-tag">[xslow]</span><span class="mk-tag">[red]</span><span class="mk-color-red mk-xslow">elephant in the room</span><span class="mk-tag">[/red]</span><span class="mk-tag">[/xslow]</span>. <span class="mk-pause">/</span><br>
-                            Our industry has been <span class="mk-tag">[emphasis]</span><span class="mk-em">struggling</span><span class="mk-tag">[/emphasis]</span> with a fundamental problem. <span class="mk-pause">//</span><br><br>
-                            <span class="mk-edit">[edit_point:high]</span><br><br>
-                            According to recent studies, <span class="mk-pause">/</span><br>
-                            <span class="mk-tag">[slow]</span><span class="mk-tag">[emphasis]</span><span class="mk-em mk-slow">73% of users abandon</span><span class="mk-tag">[/emphasis]</span> applications within the first three interactions<span class="mk-tag">[/slow]</span> <span class="mk-pause">/</span><br>
-                            due to <span class="mk-tag">[highlight]</span><span class="mk-hl">complexity and poor user experience</span><span class="mk-tag">[/highlight]</span>. <span class="mk-pause">//</span>
-                        </p>
-                    </div>
-
-                    <div class="ed-blk">
-                        <h3 class="ed-blk-h"><span class="h-mark">### </span><span class="h-br">[</span><span class="h-name">Impact Block</span><span class="h-sep">|</span><span class="h-wpm">140WPM</span><span class="h-br">]</span></h3>
-                        <p class="ed-p">
-                            This affects <span class="mk-tag">[emphasis]</span><span class="mk-em">millions</span><span class="mk-tag">[/emphasis]</span> of people worldwide, <span class="mk-pause">/</span><br>
-                            costing businesses <span class="mk-tag">[red]</span><span class="mk-color-red">billions in revenue</span><span class="mk-tag">[/red]</span> annually. <span class="mk-pause">//</span>
-                        </p>
-                    </div>
-                </div>
-
-                <div class="ed-seg" data-e="focused">
-                    <h2 class="ed-seg-h"><span class="h-mark">## </span><span class="h-br">[</span><span class="h-name">Solution</span><span class="h-sep">|</span><span class="h-wpm">160WPM</span><span class="h-sep">|</span><span class="h-emo">Focused</span><span class="h-br">]</span></h2>
-                    <div class="ed-blk">
-                        <h3 class="ed-blk-h"><span class="h-mark">### </span><span class="h-br">[</span><span class="h-name">Introduction Block</span><span class="h-sep">|</span><span class="h-wpm">150WPM</span><span class="h-br">]</span></h3>
-                        <p class="ed-p">
-                            That's where our <span class="mk-tag">[blue]</span><span class="mk-tag">[emphasis]</span><span class="mk-em mk-color-blue">new platform</span><span class="mk-tag">[/emphasis]</span><span class="mk-tag">[/blue]</span> comes in. <span class="mk-pause">/</span><br>
-                            We've developed a <span class="mk-tag">[green]</span><span class="mk-color-green">local-first teleprompter workflow</span><span class="mk-tag">[/green]</span> that <span class="mk-pause">/</span><br>
-                            <span class="mk-tag">[highlight]</span><span class="mk-hl">simplifies complex processes</span><span class="mk-tag">[/highlight]</span> and <span class="mk-tag">[emphasis]</span><span class="mk-em">enhances user experience</span><span class="mk-tag">[/emphasis]</span>. <span class="mk-pause">//</span>
-                        </p>
-                    </div>
-
-                    <div class="ed-blk">
-                        <h3 class="ed-blk-h"><span class="h-mark">### </span><span class="h-br">[</span><span class="h-name">Benefits Block</span><span class="h-sep">|</span><span class="h-wpm">160WPM</span><span class="h-sep">|</span><span class="h-emo">Excited</span><span class="h-br">]</span></h3>
-                        <p class="ed-p">
-                            With our solution, <span class="mk-pause">/</span> you can expect a <span class="mk-tag">[green]</span><span class="mk-tag">[emphasis]</span><span class="mk-em mk-color-green">50% reduction</span><span class="mk-tag">[/emphasis]</span><span class="mk-tag">[/green]</span> in user abandonment <span class="mk-pause">/</span><br>
-                            and a <span class="mk-tag">[green]</span><span class="mk-tag">[emphasis]</span><span class="mk-em mk-color-green">30% increase</span><span class="mk-tag">[/emphasis]</span><span class="mk-tag">[/green]</span> in engagement. <span class="mk-pause">//</span><br><br>
-                            <span class="mk-special">[pause:1s]</span><br><br>
-                            <span class="mk-tag">[xfast]</span><span class="mk-xfast">Full details are available in the handout.</span><span class="mk-tag">[/xfast]</span> <span class="mk-pause">/</span><br>
-                            <span class="mk-tag">[highlight]</span><span class="mk-hl">Thank you</span><span class="mk-tag">[/highlight]</span> for your time. <span class="mk-pause">//</span><br><br>
-                            <span class="mk-edit">[edit_point:medium]</span>
-                        </p>
-                    </div>
-                </div>
-
-                <div class="ed-seg" data-e="motivational">
-                    <h2 class="ed-seg-h"><span class="h-mark">## </span><span class="h-br">[</span><span class="h-name">Call to Action</span><span class="h-sep">|</span><span class="h-wpm">140WPM</span><span class="h-sep">|</span><span class="h-emo">Motivational</span><span class="h-sep">|</span><span class="h-wpm">8:00-10:00</span><span class="h-br">]</span></h2>
-                    <div class="ed-blk">
-                        <h3 class="ed-blk-h"><span class="h-mark">### </span><span class="h-br">[</span><span class="h-name">Inspiration Block</span><span class="h-sep">|</span><span class="h-wpm">130WPM</span><span class="h-br">]</span></h3>
-                        <p class="ed-p">
-                            <span class="mk-tag">[warm]</span><span class="mk-emo-warm">Let me share something personal.</span><span class="mk-tag">[/warm]</span> <span class="mk-pause">//</span><br><br>
-                            When we started this journey, <span class="mk-pause">/</span> our <span class="mk-tag">[phonetic:ˈviʒən]</span><span class="mk-phonetic">ˈviʒən</span> <span class="mk-phonetic-word">vision</span><span class="mk-tag">[/phonetic]</span> was simple: <span class="mk-pause">/</span><br>
-                            make technology <span class="mk-tag">[emphasis]</span><span class="mk-em">disappear</span><span class="mk-tag">[/emphasis]</span> <span class="mk-pause">/</span> so people can <span class="mk-tag">[purple]</span><span class="mk-color-purple">focus on what matters</span><span class="mk-tag">[/purple]</span>. <span class="mk-pause">//</span><br><br>
-                            <span class="mk-tag">[slow]</span><span class="mk-slow">I want each of you to <span class="mk-tag">[emphasis]</span><span class="mk-em">imagine</span><span class="mk-tag">[/emphasis]</span> a world</span><span class="mk-tag">[/slow]</span> <span class="mk-pause">/</span><br>
-                            where <span class="mk-tag">[cyan]</span><span class="mk-color-cyan">every interaction is intuitive</span><span class="mk-tag">[/cyan]</span>, <span class="mk-pause">/</span><br>
-                            every workflow is <span class="mk-tag">[teal]</span><span class="mk-color-teal">seamless</span><span class="mk-tag">[/teal]</span>, <span class="mk-pause">/</span><br>
-                            and every user feels <span class="mk-tag">[orange]</span><span class="mk-color-orange">empowered</span><span class="mk-tag">[/orange]</span>. <span class="mk-pause">//</span><br><br>
-                            <span class="mk-special">[pause:3s]</span>
-                        </p>
-                    </div>
-
-                    <div class="ed-blk">
-                        <h3 class="ed-blk-h"><span class="h-mark">### </span><span class="h-br">[</span><span class="h-name">Closing Block</span><span class="h-sep">|</span><span class="h-wpm">140WPM</span><span class="h-sep">|</span><span class="h-emo">Energetic</span><span class="h-br">]</span></h3>
-                        <p class="ed-p">
-                            <span class="mk-tag">[urgent]</span><span class="mk-emo-urgent">The time to act is now.</span><span class="mk-tag">[/urgent]</span> <span class="mk-pause">//</span><br><br>
-                            <span class="mk-tag">[180WPM]</span><span class="mk-wpm-badge">180WPM</span> Join us in building the future of <span class="mk-tag">[pronunciation:TELE-promp-ter]</span><span class="mk-phonetic">TELE-promp-ter</span> <span class="mk-phonetic-word">teleprompter</span><span class="mk-tag">[/pronunciation]</span> technology.<span class="mk-tag">[/180WPM]</span> <span class="mk-pause">/</span><br><br>
-                            <span class="mk-tag">[fast]</span><span class="mk-fast">Visit our booth in the exhibition hall for live demos.</span><span class="mk-tag">[/fast]</span> <span class="mk-pause">/</span><br><br>
-                            <span class="mk-tag">[motivational]</span><span class="mk-emo-motivational">Together, we will change how the world communicates.</span><span class="mk-tag">[/motivational]</span> <span class="mk-pause">//</span><br><br>
-                            <span class="mk-tag">[yellow]</span><span class="mk-color-yellow">**Thank you**</span><span class="mk-tag">[/yellow]</span> — <span class="mk-pause">/</span>
-                            <span class="mk-tag">[magenta]</span><span class="mk-color-magenta">you are the future</span><span class="mk-tag">[/magenta]</span>. <span class="mk-pause">//</span><br><br>
-                            <span class="mk-edit">[edit_point:high]</span>
-                        </p>
-                    </div>
-                </div>
+                }
+                else
+                {
+                    @foreach (var segment in _segments)
+                    {
+                        <div class="ed-seg" data-e="@segment.EmotionKey">
+                            <h2 class="ed-seg-h">
+                                <span class="h-mark">## </span><span class="h-br">[</span><span class="h-name">@segment.Name</span><span class="h-sep">|</span><span class="h-wpm">@segment.TargetWpmWpm</span><span class="h-sep">|</span><span class="h-emo">@segment.EmotionLabel</span>
+                                @if (!string.IsNullOrWhiteSpace(segment.DurationLabel))
+                                {
+                                    <span class="h-sep">|</span><span class="h-wpm">@segment.DurationLabel</span>
+                                }
+                                <span class="h-br">]</span>
+                            </h2>
+                            @foreach (var block in segment.Blocks)
+                            {
+                                <div class="ed-blk">
+                                    <h3 class="ed-blk-h">
+                                        <span class="h-mark">### </span><span class="h-br">[</span><span class="h-name">@block.Name</span><span class="h-sep">|</span><span class="h-wpm">@block.TargetWpmWpm</span>
+                                        @if (!string.IsNullOrWhiteSpace(block.EmotionLabel))
+                                        {
+                                            <span class="h-sep">|</span><span class="h-emo">@block.EmotionLabel</span>
+                                        }
+                                        <span class="h-br">]</span>
+                                    </h3>
+                                    <p class="ed-p">@block.Content</p>
+                                </div>
+                            }
+                        </div>
+                    }
+                }
             </div>
 
             <div class="ed-statusbar">
-                <span>Ln 48, Col 12</span>
-                <span>Actor</span>
-                <span>140 WPM</span>
-                <span>4 Segments</span>
-                <span>~480 Words</span>
-                <span>~3:26</span>
-                <span>TPS v1.0</span>
+                <span>Ln 1, Col 1</span>
+                <span>@_profile</span>
+                <span>@_baseWpm WPM</span>
+                <span>@_segmentCount Segments</span>
+                <span>~@_wordCount Words</span>
+                <span>~@_duration</span>
+                <span>TPS v@_version</span>
             </div>
         </div>
 
@@ -373,29 +288,29 @@
             <div class="ed-meta-field">
                 <label>Profile</label>
                 <select class="ed-meta-select">
-                    <option selected>Actor</option>
-                    <option>RSVP</option>
+                    <option selected="@(_profile == "Actor")">Actor</option>
+                    <option selected="@(_profile == "RSVP")">RSVP</option>
                 </select>
             </div>
             <div class="ed-meta-field">
                 <label>Base WPM</label>
-                <input type="number" class="ed-meta-input" value="140" min="80" max="600" />
+                <input type="number" class="ed-meta-input" value="@_baseWpm" min="80" max="600" />
             </div>
             <div class="ed-meta-field">
                 <label>Duration</label>
-                <input type="text" class="ed-meta-input" value="10:00" placeholder="MM:SS" />
+                <input type="text" class="ed-meta-input" value="@_duration" placeholder="MM:SS" />
             </div>
             <div class="ed-meta-field">
                 <label>Author</label>
-                <input type="text" class="ed-meta-input" value="Jane Doe" />
+                <input type="text" class="ed-meta-input" value="@_author" />
             </div>
             <div class="ed-meta-field">
                 <label>Created</label>
-                <input type="date" class="ed-meta-input" value="2024-01-01" />
+                <input type="date" class="ed-meta-input" value="@_createdDate" />
             </div>
             <div class="ed-meta-field">
                 <label>Version</label>
-                <input type="text" class="ed-meta-input" value="1.0" />
+                <input type="text" class="ed-meta-input" value="@_version" />
             </div>
 
             <div class="ed-section-label" style="margin-top:18px">SPEED OFFSETS</div>
@@ -429,10 +344,355 @@
             </div>
 
             <div class="ed-section-label" style="margin-top:18px">STATS</div>
-            <div class="ed-stat"><span>Words</span><b>~480</b></div>
-            <div class="ed-stat"><span>Est. Time</span><b>3:26</b></div>
-            <div class="ed-stat"><span>Segments</span><b>4</b></div>
-            <div class="ed-stat"><span>Blocks</span><b>8</b></div>
+            <div class="ed-stat"><span>Words</span><b>~@_wordCount</b></div>
+            <div class="ed-stat"><span>Est. Time</span><b>@_duration</b></div>
+            <div class="ed-stat"><span>Segments</span><b>@_segmentCount</b></div>
+            <div class="ed-stat"><span>Blocks</span><b>@_blockCount</b></div>
         </div>
     </div>
 </div>
+
+@code {
+    [SupplyParameterFromQuery(Name = "id")]
+    public string? ScriptId { get; set; }
+
+    private bool _loadState = true;
+    private string _screenTitle = "RSVP Technology Demo";
+    private string _profile = "Actor";
+    private string _author = "PrompterLive";
+    private string _version = "1.0";
+    private string _createdDate = DateTime.UtcNow.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+    private string _duration = "0:00";
+    private int _baseWpm = 140;
+    private int _segmentCount;
+    private int _blockCount;
+    private int _wordCount;
+    private IReadOnlyList<EditorSegmentViewModel> _segments = [];
+
+    protected override Task OnParametersSetAsync()
+    {
+        _loadState = true;
+        return Task.CompletedTask;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_loadState)
+        {
+            _loadState = false;
+            await Bootstrapper.EnsureReadyAsync();
+            await EnsureSessionLoadedAsync();
+            PopulateEditorState();
+            StateHasChanged();
+        }
+    }
+
+    private async Task EnsureSessionLoadedAsync()
+    {
+        if (!string.IsNullOrWhiteSpace(ScriptId))
+        {
+            var document = await ScriptRepository.GetAsync(ScriptId);
+            if (document is not null &&
+                !string.Equals(SessionService.State.ScriptId, document.Id, StringComparison.Ordinal))
+            {
+                await SessionService.OpenAsync(document);
+            }
+
+            if (document is not null)
+            {
+                _createdDate = document.UpdatedAt.LocalDateTime.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+            }
+
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(SessionService.State.ScriptId))
+        {
+            await SessionService.LoadSampleAsync(SampleScriptCatalog.DemoSampleId);
+        }
+    }
+
+    private void PopulateEditorState()
+    {
+        var state = SessionService.State;
+        var metadata = state.CompiledScript?.Metadata ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        _screenTitle = state.Title;
+        _wordCount = state.WordCount;
+        _duration = FormatDuration(state.EstimatedDuration);
+        _baseWpm = TryGetInt(metadata, "base_wpm", state.ScriptData?.TargetWpm ?? 140);
+        _author = GetMetadata(metadata, "author", "PrompterLive");
+        _version = GetMetadata(metadata, "version", "1.0");
+        _profile = _baseWpm >= 250 ? "RSVP" : "Actor";
+
+        _segments = BuildEditorSegments(state.ScriptData?.Segments);
+        _segmentCount = _segments.Count;
+        _blockCount = _segments.Sum(segment => segment.Blocks.Count);
+    }
+
+    private static IReadOnlyList<EditorSegmentViewModel> BuildEditorSegments(ScriptSegment[]? segments)
+    {
+        if (segments is not { Length: > 0 })
+        {
+            return [];
+        }
+
+        return segments
+            .Select((segment, segmentIndex) =>
+            {
+                var emotionKey = ResolveEmotionKey(segment.Emotion);
+                var blocks = segment.Blocks is { Length: > 0 }
+                    ? segment.Blocks
+                    : [new ScriptBlock
+                    {
+                        Name = string.IsNullOrWhiteSpace(segment.Name) ? $"Block {segmentIndex + 1}" : $"{segment.Name} Block",
+                        Emotion = segment.Emotion,
+                        WpmOverride = segment.WpmOverride,
+                        Content = segment.Content
+                    }];
+
+                return new EditorSegmentViewModel(
+                    Index: segmentIndex,
+                    Name: string.IsNullOrWhiteSpace(segment.Name) ? $"Segment {segmentIndex + 1}" : segment.Name,
+                    EmotionKey: emotionKey,
+                    EmotionLabel: FormatEmotionLabel(emotionKey),
+                    AccentColor: ResolveAccentColor(emotionKey),
+                    TargetWpm: segment.WpmOverride ?? 140,
+                    DurationLabel: BuildDurationLabel(segment.StartTime, segment.EndTime),
+                    Blocks: blocks
+                        .Select((block, blockIndex) => new EditorBlockViewModel(
+                            Index: blockIndex,
+                            Name: string.IsNullOrWhiteSpace(block.Name) ? $"Block {blockIndex + 1}" : block.Name,
+                            EmotionLabel: block.Emotion is null || string.Equals(block.Emotion, segment.Emotion, StringComparison.OrdinalIgnoreCase)
+                                ? string.Empty
+                                : FormatEmotionLabel(ResolveEmotionKey(block.Emotion)),
+                            TargetWpm: block.WpmOverride ?? segment.WpmOverride ?? 140,
+                            Content: FormatEditorContent(block.Content)))
+                        .ToList());
+            })
+            .ToList();
+    }
+
+    private static MarkupString FormatEditorContent(string? content)
+    {
+        if (string.IsNullOrWhiteSpace(content))
+        {
+            return (MarkupString)"<span class=\"mk-color-gray\">Add script content here.</span>";
+        }
+
+        var html = System.Net.WebUtility.HtmlEncode(content).Replace("\r\n", "\n", StringComparison.Ordinal).Trim();
+
+        html = ReplaceTaggedContent(html, "emphasis", "mk-em");
+        html = ReplaceTaggedContent(html, "strong", "mk-em");
+        html = ReplaceTaggedContent(html, "highlight", "mk-hl");
+        html = ReplaceTaggedContent(html, "red", "mk-color-red");
+        html = ReplaceTaggedContent(html, "green", "mk-color-green");
+        html = ReplaceTaggedContent(html, "blue", "mk-color-blue");
+        html = ReplaceTaggedContent(html, "yellow", "mk-color-yellow");
+        html = ReplaceTaggedContent(html, "orange", "mk-color-orange");
+        html = ReplaceTaggedContent(html, "purple", "mk-color-purple");
+        html = ReplaceTaggedContent(html, "cyan", "mk-color-cyan");
+        html = ReplaceTaggedContent(html, "magenta", "mk-color-magenta");
+        html = ReplaceTaggedContent(html, "pink", "mk-color-pink");
+        html = ReplaceTaggedContent(html, "teal", "mk-color-teal");
+        html = ReplaceTaggedContent(html, "gray", "mk-color-gray");
+        html = ReplaceTaggedContent(html, "white", "mk-color-white");
+        html = ReplaceTaggedContent(html, "warm", "mk-emo-warm");
+        html = ReplaceTaggedContent(html, "concerned", "mk-emo-concerned");
+        html = ReplaceTaggedContent(html, "focused", "mk-emo-focused");
+        html = ReplaceTaggedContent(html, "motivational", "mk-emo-motivational");
+        html = ReplaceTaggedContent(html, "neutral", "mk-emo-neutral");
+        html = ReplaceTaggedContent(html, "urgent", "mk-emo-urgent");
+        html = ReplaceTaggedContent(html, "happy", "mk-emo-happy");
+        html = ReplaceTaggedContent(html, "excited", "mk-emo-excited");
+        html = ReplaceTaggedContent(html, "sad", "mk-emo-sad");
+        html = ReplaceTaggedContent(html, "calm", "mk-emo-calm");
+        html = ReplaceTaggedContent(html, "energetic", "mk-emo-energetic");
+        html = ReplaceTaggedContent(html, "professional", "mk-emo-professional");
+        html = ReplaceTaggedContent(html, "slow", "mk-slow");
+        html = ReplaceTaggedContent(html, "xslow", "mk-xslow");
+        html = ReplaceTaggedContent(html, "fast", "mk-fast");
+        html = ReplaceTaggedContent(html, "xfast", "mk-xfast");
+
+        html = System.Text.RegularExpressions.Regex.Replace(
+            html,
+            @"\*\*([^*]+)\*\*",
+            match => $"<span class=\"mk-tag\">[emphasis]</span><span class=\"mk-em\">{match.Groups[1].Value}</span><span class=\"mk-tag\">[/emphasis]</span>",
+            System.Text.RegularExpressions.RegexOptions.Singleline);
+
+        html = System.Text.RegularExpressions.Regex.Replace(
+            html,
+            @"&lt;/?emphasis&gt;",
+            match => match.Value.Contains("/emphasis", StringComparison.OrdinalIgnoreCase)
+                ? "<span class=\"mk-tag\">[/emphasis]</span>"
+                : "<span class=\"mk-tag\">[emphasis]</span>",
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+        html = System.Text.RegularExpressions.Regex.Replace(
+            html,
+            @"\[(phonetic|pronunciation):([^\]]+)\](.*?)\[/\1\]",
+            match => $"<span class=\"mk-tag\">[{match.Groups[1].Value}:{match.Groups[2].Value}]</span><span class=\"mk-phonetic\">{match.Groups[2].Value}</span> <span class=\"mk-phonetic-word\">{match.Groups[3].Value}</span><span class=\"mk-tag\">[/{match.Groups[1].Value}]</span>",
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Singleline);
+
+        html = System.Text.RegularExpressions.Regex.Replace(
+            html,
+            @"\[(\d+)WPM\](.*?)\[/\1WPM\]",
+            match => $"<span class=\"mk-tag\">[{match.Groups[1].Value}WPM]</span><span class=\"mk-wpm-badge\">{match.Groups[1].Value}WPM</span> {match.Groups[2].Value}<span class=\"mk-tag\">[/{match.Groups[1].Value}WPM]</span>",
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Singleline);
+
+        html = System.Text.RegularExpressions.Regex.Replace(
+            html,
+            @"\{highlight,([a-z]+)\}(.*?)\{/\}",
+            match =>
+            {
+                var colorClass = match.Groups[1].Value.ToLowerInvariant() switch
+                {
+                    "red" => "mk-color-red",
+                    "green" => "mk-color-green",
+                    "blue" => "mk-color-blue",
+                    "yellow" => "mk-color-yellow",
+                    "orange" => "mk-color-orange",
+                    "purple" => "mk-color-purple",
+                    "cyan" => "mk-color-cyan",
+                    "magenta" => "mk-color-magenta",
+                    "pink" => "mk-color-pink",
+                    "teal" => "mk-color-teal",
+                    "gray" => "mk-color-gray",
+                    "white" => "mk-color-white",
+                    _ => string.Empty
+                };
+                return $"<span class=\"mk-tag\">{{highlight,{match.Groups[1].Value}}}</span><span class=\"mk-hl {colorClass}\">{match.Groups[2].Value}</span><span class=\"mk-tag\">{{/}}</span>";
+            },
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Singleline);
+
+        html = System.Text.RegularExpressions.Regex.Replace(
+            html,
+            @"\[(pause:[^\]]+)\]",
+            match => $"<span class=\"mk-special\">[{match.Groups[1].Value}]</span>",
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+        html = System.Text.RegularExpressions.Regex.Replace(
+            html,
+            @"\[(edit_point(?::[^\]]+)?)\]",
+            match => $"<span class=\"mk-edit\">[{match.Groups[1].Value}]</span>",
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+        html = html.Replace("\n\n", "<br><br>", StringComparison.Ordinal)
+            .Replace("\n", "<br>", StringComparison.Ordinal);
+
+        return (MarkupString)html;
+    }
+
+    private static string ReplaceTaggedContent(string html, string tag, string cssClass)
+    {
+        return System.Text.RegularExpressions.Regex.Replace(
+            html,
+            $@"\[{tag}\](.*?)\[/\s*{tag}\]",
+            match => $"<span class=\"mk-tag\">[{tag}]</span><span class=\"{cssClass}\">{match.Groups[1].Value}</span><span class=\"mk-tag\">[/{tag}]</span>",
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Singleline);
+    }
+
+    private static string BuildDurationLabel(string? startTime, string? endTime) =>
+        !string.IsNullOrWhiteSpace(startTime) && !string.IsNullOrWhiteSpace(endTime)
+            ? $"{startTime}-{endTime}"
+            : string.Empty;
+
+    private static string ResolveEmotionKey(string? emotion)
+    {
+        var normalized = string.IsNullOrWhiteSpace(emotion)
+            ? "neutral"
+            : emotion.Trim().ToLowerInvariant();
+
+        return normalized switch
+        {
+            "worried" or "serious" or "frustrated" or "empathetic" => "concerned",
+            "determined" or "innovative" or "analytical" or "precise" or "stable" or "methodical" => "focused",
+            "supportive" or "helpful" or "encouraging" or "inspiring" => "motivational",
+            "thoughtful" or "confident" or "satisfied" => "professional",
+            "artistic" or "creative" or "amazed" or "impressed" or "passionate" => "excited",
+            "grateful" => "warm",
+            _ => normalized switch
+            {
+                "warm" or "concerned" or "focused" or "motivational" or "neutral" or "urgent" or
+                "happy" or "excited" or "sad" or "calm" or "energetic" or "professional" => normalized,
+                _ => "neutral"
+            }
+        };
+    }
+
+    private static string FormatEmotionLabel(string emotionKey) =>
+        emotionKey switch
+        {
+            "concerned" => "Concerned",
+            "motivational" => "Motivational",
+            "professional" => "Professional",
+            "energetic" => "Energetic",
+            _ when string.IsNullOrWhiteSpace(emotionKey) => "Neutral",
+            _ => char.ToUpperInvariant(emotionKey[0]) + emotionKey[1..]
+        };
+
+    private static string ResolveAccentColor(string emotionKey) =>
+        emotionKey switch
+        {
+            "warm" => "#E97F00",
+            "concerned" => "#B91C1C",
+            "focused" => "#16A34A",
+            "motivational" => "#7C3AED",
+            "urgent" => "#DC2626",
+            "happy" => "#D97706",
+            "excited" => "#DB2777",
+            "sad" => "#4F46E5",
+            "calm" => "#0D9488",
+            "energetic" => "#EA580C",
+            "professional" => "#1D4ED8",
+            _ => "#2563EB"
+        };
+
+    private static int TryGetInt(IReadOnlyDictionary<string, string> metadata, string key, int fallback)
+    {
+        if (metadata.TryGetValue(key, out var value) && int.TryParse(value, out var parsed))
+        {
+            return parsed;
+        }
+
+        return fallback;
+    }
+
+    private static string GetMetadata(IReadOnlyDictionary<string, string> metadata, string key, string fallback)
+    {
+        if (metadata.TryGetValue(key, out var value) && !string.IsNullOrWhiteSpace(value))
+        {
+            return value.Trim().Trim('"');
+        }
+
+        return fallback;
+    }
+
+    private static string FormatDuration(TimeSpan duration)
+    {
+        var safeDuration = duration <= TimeSpan.Zero ? TimeSpan.FromSeconds(1) : duration;
+        return $"{(int)safeDuration.TotalMinutes}:{safeDuration.Seconds:00}";
+    }
+
+    private sealed record EditorSegmentViewModel(
+        int Index,
+        string Name,
+        string EmotionKey,
+        string EmotionLabel,
+        string AccentColor,
+        int TargetWpm,
+        string DurationLabel,
+        IReadOnlyList<EditorBlockViewModel> Blocks)
+    {
+        public string TargetWpmWpm => $"{TargetWpm}WPM";
+    }
+
+    private sealed record EditorBlockViewModel(
+        int Index,
+        string Name,
+        string EmotionLabel,
+        int TargetWpm,
+        MarkupString Content)
+    {
+        public string TargetWpmWpm => $"{TargetWpm}WPM";
+    }
+}

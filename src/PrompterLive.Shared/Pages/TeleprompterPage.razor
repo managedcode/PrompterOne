@@ -1,12 +1,21 @@
 @page "/teleprompter"
+@using PrompterLive.Core.Models.CompiledScript
+@using PrompterLive.Core.Models.Tps
+@using PrompterLive.Core.Services.Samples
+
+@inject AppBootstrapper Bootstrapper
+@inject ScriptCompiler Compiler
+@inject IJSRuntime JS
+@inject IScriptRepository ScriptRepository
+@inject IScriptSessionService SessionService
 
 <div id="screen-teleprompter"
      class="screen active"
      data-testid="teleprompter-page"
-     data-screen-title="Product Launch"
-     data-screen-subtitle="Intro · Opening Block">
+     data-screen-title="@_screenTitle"
+     data-screen-subtitle="@_screenSubtitle">
     <div class="rd">
-        <div class="rd-gradient warm" id="rd-gradient"></div>
+        <div class="rd-gradient @_gradientClass" id="rd-gradient"></div>
         <div class="rd-camera" id="rd-camera"></div>
         <div class="rd-camera-tint" id="rd-camera-tint"></div>
 
@@ -37,67 +46,42 @@
                 <div class="rd-guide-v rd-guide-v-r" id="rd-guide-v-r"></div>
 
                 <div class="rd-cluster-wrap" id="rd-cluster-wrap">
-                    <div class="rd-card rd-card-active" data-card="0">
-                        <div class="rd-cluster rd-cluster-active">
-                            <div class="rd-cluster-emotion">
-                                <span class="rd-emo-dot" style="background:#F59E0B"></span>
-                                <span class="rd-emo-name">Warm</span>
-                                <span class="rd-emo-wpm">140 <small>WPM</small></span>
+                    @foreach (var entry in _cards.Select((card, index) => (card, index)))
+                    {
+                        <div class="rd-card @(entry.index == 0 ? "rd-card-active" : "rd-card-next")"
+                             data-card="@entry.index"
+                             data-segment-name="@entry.card.DisplayName"
+                             data-segment-emotion="@entry.card.EmotionKey"
+                             data-segment-bg="@entry.card.BackgroundClass"
+                             data-testid="@entry.card.TestId">
+                            <div class="rd-cluster rd-cluster-active">
+                                <div class="rd-cluster-emotion">
+                                    <span class="rd-emo-dot" style="background:@entry.card.AccentColor"></span>
+                                    <span class="rd-emo-name">@entry.card.EmotionLabel</span>
+                                    <span class="rd-emo-wpm">@entry.card.TargetWpm <small>WPM</small></span>
+                                </div>
+                                <p class="rd-cluster-text">
+                                    @foreach (var chunk in entry.card.Chunks)
+                                    {
+                                        if (chunk is ReaderGroupViewModel group)
+                                        {
+                                            <span class="rd-g">
+                                                @foreach (var word in group.Words)
+                                                {
+                                                    <span class="rd-w @word.CssClass">@word.Text</span>
+                                                    <text> </text>
+                                                }
+                                            </span>
+                                        }
+                                        else if (chunk is ReaderPauseViewModel pause)
+                                        {
+                                            <span class="@pause.CssClass" data-ms="@pause.DurationMs"></span>
+                                        }
+                                    }
+                                </p>
                             </div>
-                            <p class="rd-cluster-text">
-                                <span class="rd-g"><span class="rd-w">Good</span> <span class="rd-w">morning</span> <span class="rd-w">everyone,</span></span><span class="rd-pause" data-ms="300"></span>
-                                <span class="rd-g"><span class="rd-w">and</span> <span class="rd-w tps-emphasis">welcome</span></span> <span class="rd-g"><span class="rd-w">to</span> <span class="rd-w">what</span> <span class="rd-w">I</span> <span class="rd-w">believe</span></span><span class="rd-pause" data-ms="300"></span>
-                                <span class="rd-g"><span class="rd-w">will</span> <span class="rd-w">be</span> <span class="rd-w">a</span> <span class="rd-w tps-green">transformative</span> <span class="rd-w tps-green">moment</span></span>
-                                <span class="rd-g"><span class="rd-w">for</span> <span class="rd-w">our</span> <span class="rd-w">company.</span></span><span class="rd-pause rd-pause-med" data-ms="600"></span>
-                                <span class="rd-g"><span class="rd-w tps-emphasis">Today,</span></span><span class="rd-pause" data-ms="300"></span>
-                                <span class="rd-g"><span class="rd-w">we're</span> <span class="rd-w">not</span> <span class="rd-w">just</span> <span class="rd-w">launching</span></span> <span class="rd-g"><span class="rd-w">a</span> <span class="rd-w">product</span> <span class="rd-w">&mdash;</span></span><span class="rd-pause" data-ms="300"></span>
-                                <span class="rd-g"><span class="rd-w">we're</span> <span class="rd-w">introducing</span> <span class="rd-w">a</span> <span class="rd-w tps-highlight">solution</span></span>
-                                <span class="rd-g"><span class="rd-w">that</span> <span class="rd-w">will</span> <span class="rd-w tps-emphasis">revolutionize</span></span><span class="rd-pause" data-ms="300"></span>
-                                <span class="rd-g"><span class="rd-w">how</span> <span class="rd-w">our</span> <span class="rd-w">customers</span> <span class="rd-w">interact</span></span>
-                                <span class="rd-g"><span class="rd-w">with</span> <span class="rd-w">technology.</span></span><span class="rd-pause rd-pause-med" data-ms="600"></span>
-                            </p>
                         </div>
-                    </div>
-
-                    <div class="rd-card rd-card-next" data-card="1">
-                        <div class="rd-cluster rd-cluster-active">
-                            <div class="rd-cluster-emotion">
-                                <span class="rd-emo-dot" style="background:#EF4444"></span>
-                                <span class="rd-emo-name">Concerned</span>
-                                <span class="rd-emo-wpm">150 <small>WPM</small></span>
-                            </div>
-                            <p class="rd-cluster-text">
-                                <span class="rd-g"><span class="rd-w">But</span> <span class="rd-w">first,</span></span><span class="rd-pause" data-ms="300"></span>
-                                <span class="rd-g"><span class="rd-w">let's</span> <span class="rd-w">address</span> <span class="rd-w">the</span></span> <span class="rd-g"><span class="rd-w tps-xslow tps-red">elephant</span> <span class="rd-w tps-xslow tps-red">in</span> <span class="rd-w tps-xslow tps-red">the</span> <span class="rd-w tps-xslow tps-red">room.</span></span><span class="rd-pause rd-pause-med" data-ms="600"></span>
-                                <span class="rd-g"><span class="rd-w">Our</span> <span class="rd-w">industry</span> <span class="rd-w">has</span> <span class="rd-w">been</span> <span class="rd-w tps-emphasis">struggling</span></span>
-                                <span class="rd-g"><span class="rd-w">with</span> <span class="rd-w">a</span> <span class="rd-w">fundamental</span> <span class="rd-w">problem.</span></span><span class="rd-pause rd-pause-med" data-ms="600"></span>
-                                <span class="rd-g"><span class="rd-w">According</span> <span class="rd-w">to</span> <span class="rd-w">recent</span> <span class="rd-w">studies,</span></span><span class="rd-pause" data-ms="300"></span>
-                                <span class="rd-g"><span class="rd-w tps-slow tps-emphasis tps-red">73%</span> <span class="rd-w tps-slow tps-emphasis">of</span> <span class="rd-w tps-slow tps-emphasis">users</span> <span class="rd-w tps-slow tps-emphasis">abandon</span></span> <span class="rd-g"><span class="rd-w tps-slow">applications</span></span><span class="rd-pause" data-ms="300"></span>
-                                <span class="rd-g"><span class="rd-w">within</span> <span class="rd-w">the</span> <span class="rd-w">first</span></span> <span class="rd-g"><span class="rd-w">three</span> <span class="rd-w">interactions</span></span><span class="rd-pause" data-ms="300"></span>
-                                <span class="rd-g"><span class="rd-w">due</span> <span class="rd-w">to</span> <span class="rd-w tps-highlight">complexity</span></span>
-                                <span class="rd-g"><span class="rd-w">and</span> <span class="rd-w tps-highlight">poor</span> <span class="rd-w tps-highlight">user</span> <span class="rd-w tps-highlight">experience.</span></span><span class="rd-pause rd-pause-med" data-ms="600"></span>
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="rd-card rd-card-next" data-card="2">
-                        <div class="rd-cluster rd-cluster-active">
-                            <div class="rd-cluster-emotion">
-                                <span class="rd-emo-dot" style="background:#10B981"></span>
-                                <span class="rd-emo-name">Focused</span>
-                                <span class="rd-emo-wpm">160 <small>WPM</small></span>
-                            </div>
-                            <p class="rd-cluster-text">
-                                <span class="rd-g"><span class="rd-w">That's</span> <span class="rd-w">where</span> <span class="rd-w">our</span></span> <span class="rd-g"><span class="rd-w tps-blue tps-emphasis">new</span> <span class="rd-w tps-blue tps-emphasis">platform</span> <span class="rd-w">comes</span> <span class="rd-w">in.</span></span><span class="rd-pause" data-ms="300"></span>
-                                <span class="rd-g"><span class="rd-w">With</span> <span class="rd-w">our</span> <span class="rd-w">solution,</span></span><span class="rd-pause" data-ms="300"></span>
-                                <span class="rd-g"><span class="rd-w">you</span> <span class="rd-w">can</span> <span class="rd-w">expect</span></span> <span class="rd-g"><span class="rd-w">a</span> <span class="rd-w tps-green tps-emphasis">50%</span> <span class="rd-w tps-green tps-emphasis">reduction</span></span>
-                                <span class="rd-g"><span class="rd-w">in</span> <span class="rd-w">user</span> <span class="rd-w">abandonment</span></span><span class="rd-pause" data-ms="300"></span>
-                                <span class="rd-g"><span class="rd-w">and</span> <span class="rd-w">a</span> <span class="rd-w tps-green tps-emphasis">30%</span> <span class="rd-w tps-green tps-emphasis">increase</span></span> <span class="rd-g"><span class="rd-w">in</span> <span class="rd-w">engagement.</span></span><span class="rd-pause rd-pause-med" data-ms="600"></span>
-                                <span class="rd-g"><span class="rd-w tps-xfast">Full</span> <span class="rd-w tps-xfast">details</span> <span class="rd-w tps-xfast">are</span> <span class="rd-w tps-xfast">available</span></span> <span class="rd-g"><span class="rd-w tps-xfast">in</span> <span class="rd-w tps-xfast">the</span> <span class="rd-w tps-xfast">handout.</span></span><span class="rd-pause" data-ms="300"></span>
-                                <span class="rd-g"><span class="rd-w tps-highlight">Thank</span> <span class="rd-w tps-highlight">you</span> <span class="rd-w">for</span> <span class="rd-w">your</span> <span class="rd-w">time.</span></span><span class="rd-pause rd-pause-med" data-ms="600"></span>
-                            </p>
-                        </div>
-                    </div>
+                    }
                 </div>
 
                 <div class="rd-pause-indicator" id="rd-pause-bar">
@@ -106,16 +90,17 @@
             </div>
 
             <div class="rd-edge-progress">
-                <div class="rd-edge-fill" id="rd-progress-fill" style="width:23%"></div>
+                <div class="rd-edge-fill" id="rd-progress-fill" style="width:0%"></div>
                 <div class="rd-edge-segs">
-                    <div style="width:33%;--sc:rgba(245,158,11,.35)"></div>
-                    <div style="width:40%;--sc:rgba(239,68,68,.35)"></div>
-                    <div style="width:27%;--sc:rgba(16,185,129,.35)"></div>
+                    @foreach (var card in _cards)
+                    {
+                        <div style="width:@card.WidthPercentString;--sc:@card.EdgeColor"></div>
+                    }
                 </div>
             </div>
             <div class="rd-edge-info">
-                <span class="rd-edge-section">Intro</span>
-                <span class="rd-time">0:00 / 2:27</span>
+                <span class="rd-edge-section">@_edgeSectionLabel</span>
+                <span class="rd-time" data-total-seconds="@_totalSeconds">0:00 / @_durationLabel</span>
             </div>
 
             <div class="rd-controls">
@@ -140,7 +125,7 @@
                 </div>
 
                 <div class="rd-ctrl-group">
-                    <span class="rd-ctrl-label rd-block-indicator" id="rd-block-indicator">1 / 3</span>
+                    <span class="rd-ctrl-label rd-block-indicator" id="rd-block-indicator">1 / @_cards.Count</span>
                     <button class="rd-ctrl-btn" id="rd-cam-btn" onclick="toggleReaderCamera()" title="Camera" data-testid="teleprompter-camera-toggle">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" /><circle cx="12" cy="13" r="4" /></svg>
                     </button>
@@ -149,3 +134,463 @@
         </div>
     </div>
 </div>
+
+@code {
+    [SupplyParameterFromQuery(Name = "id")]
+    public string? ScriptId { get; set; }
+
+    private bool _loadState = true;
+    private string _screenTitle = "RSVP Technology Demo";
+    private string _screenSubtitle = "Introduction · Opening Block";
+    private string _gradientClass = "warm";
+    private string _edgeSectionLabel = "Opening Block";
+    private string _durationLabel = "0:00";
+    private int _totalSeconds = 1;
+    private bool _syncReader;
+    private IReadOnlyList<ReaderCardViewModel> _cards = [ReaderCardViewModel.Empty];
+
+    protected override Task OnParametersSetAsync()
+    {
+        _loadState = true;
+        return Task.CompletedTask;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_loadState)
+        {
+            _loadState = false;
+            await Bootstrapper.EnsureReadyAsync();
+            await EnsureSessionLoadedAsync();
+            await PopulateReaderStateAsync();
+            StateHasChanged();
+            return;
+        }
+
+        if (_syncReader)
+        {
+            _syncReader = false;
+            await JS.InvokeVoidAsync("PrompterLiveDesign.initialize", "teleprompter");
+        }
+    }
+
+    private async Task EnsureSessionLoadedAsync()
+    {
+        if (!string.IsNullOrWhiteSpace(ScriptId))
+        {
+            var document = await ScriptRepository.GetAsync(ScriptId);
+            if (document is not null &&
+                !string.Equals(SessionService.State.ScriptId, document.Id, StringComparison.Ordinal))
+            {
+                await SessionService.OpenAsync(document);
+            }
+
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(SessionService.State.ScriptId))
+        {
+            await SessionService.LoadSampleAsync(SampleScriptCatalog.DemoSampleId);
+        }
+    }
+
+    private async Task PopulateReaderStateAsync()
+    {
+        var nextCards = await BuildReaderCardsAsync();
+        _cards = nextCards.Count > 0 ? nextCards : [ReaderCardViewModel.Empty];
+        _screenTitle = SessionService.State.Title;
+
+        var firstCard = _cards[0];
+        _gradientClass = firstCard.BackgroundClass;
+        _edgeSectionLabel = firstCard.DisplayName;
+        _screenSubtitle = string.Equals(firstCard.SectionName, firstCard.DisplayName, StringComparison.Ordinal)
+            ? $"{firstCard.DisplayName} · {firstCard.EmotionLabel}"
+            : $"{firstCard.SectionName} · {firstCard.DisplayName}";
+
+        _totalSeconds = Math.Max(1, _cards.Sum(card => card.DurationSeconds));
+        _durationLabel = FormatDuration(_totalSeconds);
+        _syncReader = true;
+    }
+
+    private async Task<List<ReaderCardViewModel>> BuildReaderCardsAsync()
+    {
+        var scriptData = SessionService.State.ScriptData;
+        if (scriptData?.Segments is not { Length: > 0 })
+        {
+            return [];
+        }
+
+        var seeds = new List<ReaderCardSeed>();
+
+        foreach (var segment in scriptData.Segments)
+        {
+            var segmentEmotion = ResolveEmotionKey(segment.Emotion);
+            var segmentAccent = ResolveAccentColor(segment.AccentColor, segmentEmotion);
+            var blocks = segment.Blocks is { Length: > 0 }
+                ? segment.Blocks
+                : [new ScriptBlock
+                {
+                    Name = string.IsNullOrWhiteSpace(segment.Name) ? "Reader Block" : segment.Name,
+                    Emotion = segment.Emotion,
+                    WpmOverride = segment.WpmOverride,
+                    Content = segment.Content
+                }];
+
+            foreach (var block in blocks)
+            {
+                var words = await CompileBlockWordsAsync(scriptData.TargetWpm, segment, block);
+                if (words.Count == 0)
+                {
+                    continue;
+                }
+
+                var emotionKey = ResolveEmotionKey(block.Emotion ?? segment.Emotion);
+                var targetWpm = block.WpmOverride ?? segment.WpmOverride ?? scriptData.TargetWpm;
+                var wordCount = CountReadableWords(words);
+                if (wordCount == 0)
+                {
+                    continue;
+                }
+
+                seeds.Add(new ReaderCardSeed(
+                    SectionName: string.IsNullOrWhiteSpace(segment.Name) ? "Section" : segment.Name,
+                    DisplayName: string.IsNullOrWhiteSpace(block.Name) ? segment.Name : block.Name,
+                    EmotionKey: emotionKey,
+                    EmotionLabel: FormatEmotionLabel(emotionKey),
+                    BackgroundClass: emotionKey,
+                    AccentColor: segmentAccent,
+                    TargetWpm: targetWpm,
+                    WordCount: wordCount,
+                    DurationSeconds: Math.Max(1, (int)Math.Ceiling(words.Sum(word => word.DisplayDuration.TotalSeconds))),
+                    Chunks: BuildReaderChunks(words)));
+            }
+        }
+
+        if (seeds.Count == 0)
+        {
+            return [];
+        }
+
+        var totalWords = Math.Max(1, seeds.Sum(seed => seed.WordCount));
+        return seeds
+            .Select((seed, index) => new ReaderCardViewModel(
+                seed.SectionName,
+                seed.DisplayName,
+                seed.EmotionKey,
+                seed.EmotionLabel,
+                seed.BackgroundClass,
+                seed.AccentColor,
+                seed.TargetWpm,
+                seed.WordCount,
+                seed.DurationSeconds,
+                $"{Math.Max(8d, seed.WordCount * 100d / totalWords):0.##}%",
+                ToAlphaColor(seed.AccentColor, 0.35),
+                seed.Chunks,
+                $"teleprompter-card-{index}"))
+            .ToList();
+    }
+
+    private async Task<IReadOnlyList<CompiledWord>> CompileBlockWordsAsync(int baseWpm, ScriptSegment segment, ScriptBlock block)
+    {
+        var document = new TpsDocument
+        {
+            Metadata = new Dictionary<string, string>
+            {
+                ["base_wpm"] = Math.Max(80, baseWpm).ToString(System.Globalization.CultureInfo.InvariantCulture)
+            },
+            Segments =
+            [
+                new TpsSegment
+                {
+                    Name = string.IsNullOrWhiteSpace(segment.Name) ? "Reader Segment" : segment.Name,
+                    Emotion = segment.Emotion,
+                    AccentColor = segment.AccentColor,
+                    BackgroundColor = segment.BackgroundColor,
+                    TextColor = segment.TextColor,
+                    TargetWPM = segment.WpmOverride ?? baseWpm,
+                    Blocks =
+                    [
+                        new TpsBlock
+                        {
+                            Name = string.IsNullOrWhiteSpace(block.Name) ? "Reader Block" : block.Name,
+                            Emotion = block.Emotion,
+                            TargetWPM = block.WpmOverride ?? segment.WpmOverride ?? baseWpm,
+                            Content = block.Content
+                        }
+                    ]
+                }
+            ]
+        };
+
+        var compiled = await Compiler.CompileAsync(document);
+        var compiledSegment = compiled.Segments.FirstOrDefault();
+        var compiledBlock = compiledSegment?.Blocks.FirstOrDefault();
+        return compiledBlock?.Words ?? compiledSegment?.Words ?? [];
+    }
+
+    private static IReadOnlyList<ReaderChunkViewModel> BuildReaderChunks(IEnumerable<CompiledWord> words)
+    {
+        var chunks = new List<ReaderChunkViewModel>();
+        var currentGroup = new List<ReaderWordViewModel>();
+
+        foreach (var word in words)
+        {
+            if (word.Metadata?.IsPause == true)
+            {
+                FlushGroup(chunks, currentGroup);
+                var pauseDuration = Math.Max(250, word.Metadata.PauseDuration ?? 500);
+                chunks.Add(new ReaderPauseViewModel(
+                    pauseDuration,
+                    pauseDuration >= 600 ? "rd-pause rd-pause-med" : "rd-pause"));
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(word.CleanText))
+            {
+                continue;
+            }
+
+            currentGroup.Add(new ReaderWordViewModel(
+                word.CleanText,
+                BuildReaderWordClass(word.Metadata)));
+        }
+
+        FlushGroup(chunks, currentGroup);
+        return chunks;
+    }
+
+    private static void FlushGroup(List<ReaderChunkViewModel> chunks, List<ReaderWordViewModel> currentGroup)
+    {
+        if (currentGroup.Count == 0)
+        {
+            return;
+        }
+
+        chunks.Add(new ReaderGroupViewModel(currentGroup.ToArray()));
+        currentGroup.Clear();
+    }
+
+    private static string BuildReaderWordClass(WordMetadata? metadata)
+    {
+        if (metadata is null)
+        {
+            return string.Empty;
+        }
+
+        var classes = new List<string>();
+        if (metadata.IsEmphasis)
+        {
+            classes.Add("tps-emphasis");
+        }
+
+        var colorClass = ResolveColorClass(metadata.Color, prefix: "tps");
+        if (!string.IsNullOrWhiteSpace(colorClass))
+        {
+            classes.Add(colorClass);
+        }
+
+        var emotionClass = ResolveEmotionWordClass(metadata.EmotionHint, prefix: "tps");
+        if (!string.IsNullOrWhiteSpace(emotionClass))
+        {
+            classes.Add(emotionClass);
+        }
+
+        if (metadata.SpeedOverride.HasValue)
+        {
+            classes.Add(metadata.SpeedOverride.Value >= 175 ? "tps-fast" : "tps-slow");
+        }
+        else if (metadata.SpeedMultiplier.HasValue)
+        {
+            if (metadata.SpeedMultiplier <= 0.65f)
+            {
+                classes.Add("tps-xslow");
+            }
+            else if (metadata.SpeedMultiplier < 1f)
+            {
+                classes.Add("tps-slow");
+            }
+            else if (metadata.SpeedMultiplier >= 1.45f)
+            {
+                classes.Add("tps-xfast");
+            }
+            else if (metadata.SpeedMultiplier > 1f)
+            {
+                classes.Add("tps-fast");
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(metadata.PronunciationGuide))
+        {
+            classes.Add("tps-phonetic");
+        }
+
+        return string.Join(" ", classes);
+    }
+
+    private static int CountReadableWords(IEnumerable<CompiledWord> words) =>
+        words.Count(word => word.Metadata?.IsPause != true && !string.IsNullOrWhiteSpace(word.CleanText));
+
+    private static string ResolveAccentColor(string? accentColor, string emotionKey)
+    {
+        if (!string.IsNullOrWhiteSpace(accentColor))
+        {
+            return accentColor;
+        }
+
+        return emotionKey switch
+        {
+            "warm" => "#E97F00",
+            "concerned" => "#B91C1C",
+            "focused" => "#16A34A",
+            "motivational" => "#7C3AED",
+            "urgent" => "#DC2626",
+            "happy" => "#D97706",
+            "excited" => "#DB2777",
+            "sad" => "#4F46E5",
+            "calm" => "#0D9488",
+            "energetic" => "#EA580C",
+            "professional" => "#1D4ED8",
+            _ => "#2563EB"
+        };
+    }
+
+    private static string ResolveEmotionKey(string? emotion)
+    {
+        var normalized = string.IsNullOrWhiteSpace(emotion)
+            ? "neutral"
+            : emotion.Trim().ToLowerInvariant();
+
+        return normalized switch
+        {
+            "worried" or "serious" or "frustrated" or "empathetic" => "concerned",
+            "determined" or "innovative" or "analytical" or "precise" or "stable" or "methodical" => "focused",
+            "supportive" or "helpful" or "encouraging" or "inspiring" => "motivational",
+            "thoughtful" or "confident" or "satisfied" => "professional",
+            "artistic" or "creative" or "amazed" or "impressed" or "passionate" => "excited",
+            "grateful" => "warm",
+            _ => normalized switch
+            {
+                "warm" or "concerned" or "focused" or "motivational" or "neutral" or "urgent" or
+                "happy" or "excited" or "sad" or "calm" or "energetic" or "professional" => normalized,
+                _ => "neutral"
+            }
+        };
+    }
+
+    private static string ResolveColorClass(string? color, string prefix)
+    {
+        if (string.IsNullOrWhiteSpace(color))
+        {
+            return string.Empty;
+        }
+
+        var normalized = color.Trim().ToLowerInvariant();
+        return normalized switch
+        {
+            "#ff5252" or "red" => $"{prefix}-red",
+            "#4caf50" or "green" => $"{prefix}-green",
+            "#2196f3" or "blue" => $"{prefix}-blue",
+            "#ffd700" or "yellow" => $"{prefix}-yellow",
+            "#ff9800" or "orange" => $"{prefix}-orange",
+            "#9c27b0" or "purple" => $"{prefix}-purple",
+            "#00bcd4" or "cyan" => $"{prefix}-cyan",
+            "#ff00ff" or "magenta" => $"{prefix}-magenta",
+            "#ec4899" or "pink" => $"{prefix}-pink",
+            "#14b8a6" or "teal" => $"{prefix}-teal",
+            "#ffffff" or "white" => $"{prefix}-white",
+            "#6b7280" or "gray" => $"{prefix}-gray",
+            "#ffeb3b" or "highlight" => $"{prefix}-highlight",
+            _ => string.Empty
+        };
+    }
+
+    private static string ResolveEmotionWordClass(string? emotion, string prefix)
+    {
+        var emotionKey = ResolveEmotionKey(emotion);
+        return string.IsNullOrWhiteSpace(emotionKey) ? string.Empty : $"{prefix}-{emotionKey}";
+    }
+
+    private static string FormatEmotionLabel(string emotionKey) =>
+        emotionKey switch
+        {
+            "concerned" => "Concerned",
+            "motivational" => "Motivational",
+            "professional" => "Professional",
+            "energetic" => "Energetic",
+            _ when string.IsNullOrWhiteSpace(emotionKey) => "Neutral",
+            _ => char.ToUpperInvariant(emotionKey[0]) + emotionKey[1..]
+        };
+
+    private static string FormatDuration(int totalSeconds) =>
+        $"{totalSeconds / 60}:{totalSeconds % 60:00}";
+
+    private static string ToAlphaColor(string color, double opacity)
+    {
+        var hex = color.Trim().TrimStart('#');
+        if (hex.Length == 8)
+        {
+            hex = hex[2..];
+        }
+
+        if (hex.Length != 6 ||
+            !int.TryParse(hex[..2], System.Globalization.NumberStyles.HexNumber, null, out var red) ||
+            !int.TryParse(hex.Substring(2, 2), System.Globalization.NumberStyles.HexNumber, null, out var green) ||
+            !int.TryParse(hex.Substring(4, 2), System.Globalization.NumberStyles.HexNumber, null, out var blue))
+        {
+            return color;
+        }
+
+        return $"rgba({red}, {green}, {blue}, {opacity.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)})";
+    }
+
+    private sealed record ReaderCardSeed(
+        string SectionName,
+        string DisplayName,
+        string EmotionKey,
+        string EmotionLabel,
+        string BackgroundClass,
+        string AccentColor,
+        int TargetWpm,
+        int WordCount,
+        int DurationSeconds,
+        IReadOnlyList<ReaderChunkViewModel> Chunks);
+
+    private sealed record ReaderCardViewModel(
+        string SectionName,
+        string DisplayName,
+        string EmotionKey,
+        string EmotionLabel,
+        string BackgroundClass,
+        string AccentColor,
+        int TargetWpm,
+        int WordCount,
+        int DurationSeconds,
+        string WidthPercentString,
+        string EdgeColor,
+        IReadOnlyList<ReaderChunkViewModel> Chunks,
+        string TestId)
+    {
+        public static ReaderCardViewModel Empty { get; } = new(
+            "Introduction",
+            "Opening Block",
+            "warm",
+            "Warm",
+            "warm",
+            "#E97F00",
+            140,
+            1,
+            1,
+            "100%",
+            "rgba(233, 127, 0, 0.35)",
+            [new ReaderGroupViewModel([new ReaderWordViewModel("Ready", "tps-warm")])],
+            "teleprompter-card-fallback");
+    }
+
+    private abstract record ReaderChunkViewModel;
+
+    private sealed record ReaderGroupViewModel(IReadOnlyList<ReaderWordViewModel> Words) : ReaderChunkViewModel;
+
+    private sealed record ReaderPauseViewModel(int DurationMs, string CssClass) : ReaderChunkViewModel;
+
+    private sealed record ReaderWordViewModel(string Text, string CssClass);
+}
