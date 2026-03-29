@@ -297,7 +297,7 @@ public class ScriptCompiler
         }
     }
 
-    private bool TryHandleTagToken(string token, Stack<ScopeFrame> scopeStack, List<CompiledWord> words)
+    private static bool TryHandleTagToken(string token, Stack<ScopeFrame> scopeStack, List<CompiledWord> words)
     {
         if (!IsTagToken(token))
         {

@@ -66,10 +66,17 @@ public sealed class ScreenFlowTests(StandaloneAppFixture fixture)
             await page.GotoAsync("/library");
             await Expect(page.GetByTestId("library-page")).ToBeVisibleAsync();
             await page.GetByTestId("library-folder-create-tile").ClickAsync();
+            await Expect(page.GetByTestId("library-new-folder-overlay")).ToBeVisibleAsync();
             await Expect(page.GetByTestId("library-new-folder-card")).ToBeVisibleAsync();
+            await page.GetByTestId("library-new-folder-cancel").ClickAsync();
+            await Expect(page.GetByTestId("library-new-folder-overlay")).ToBeHiddenAsync();
+
+            await page.GetByTestId("library-folder-create-start").ClickAsync();
+            await Expect(page.GetByTestId("library-new-folder-overlay")).ToBeVisibleAsync();
             await page.GetByTestId("library-new-folder-name").FillAsync("Roadshows");
             await page.GetByTestId("library-new-folder-parent").SelectOptionAsync(new[] { "presentations" });
             await page.GetByTestId("library-new-folder-submit").ClickAsync();
+            await Expect(page.GetByTestId("library-new-folder-overlay")).ToBeHiddenAsync();
             await Expect(page.GetByTestId("library-folder-roadshows")).ToBeVisibleAsync();
             await Expect(page.Locator(".bc-current")).ToHaveTextAsync("Roadshows");
 

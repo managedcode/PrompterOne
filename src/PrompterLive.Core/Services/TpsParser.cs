@@ -568,7 +568,7 @@ public partial class TpsParser
     /// <summary>
     /// Parse blocks with inline formatting tags
     /// </summary>
-    private List<ScriptBlock> ParseInlineBlocks(string content, string defaultEmotion, int defaultSpeed)
+    private static List<ScriptBlock> ParseInlineBlocks(string content, string defaultEmotion, int defaultSpeed)
     {
         var blocks = new List<ScriptBlock>();
 
@@ -647,7 +647,7 @@ public partial class TpsParser
     /// <summary>
     /// Parse blocks within a segment
     /// </summary>
-    private List<ScriptBlock> ParseBlocks(string segmentContent)
+    private static List<ScriptBlock> ParseBlocks(string segmentContent)
     {
         var blocks = new List<ScriptBlock>();
         var blockMatches = BlockHeader().Matches(segmentContent);

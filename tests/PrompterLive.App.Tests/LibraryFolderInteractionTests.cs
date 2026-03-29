@@ -24,6 +24,11 @@ public sealed class LibraryFolderInteractionTests : BunitContext
         cut.WaitForAssertion(() => Assert.Contains("Product Launch", cut.Markup));
 
         cut.Find("[data-testid='library-folder-create-tile']").Click();
+        cut.WaitForAssertion(() =>
+        {
+            Assert.Contains("library-new-folder-overlay", cut.Markup);
+            Assert.Contains("library-new-folder-card", cut.Markup);
+        });
         cut.Find("[data-testid='library-new-folder-name']").Input("Roadshows");
         cut.Find("[data-testid='library-new-folder-parent']").Change(SampleLibraryFolderCatalog.PresentationsFolderId);
         cut.Find("[data-testid='library-new-folder-submit']").Click();
@@ -38,6 +43,28 @@ public sealed class LibraryFolderInteractionTests : BunitContext
             .Single(folder => folder.Name == "Roadshows");
 
         Assert.Equal(SampleLibraryFolderCatalog.PresentationsFolderId, createdFolder.ParentId);
+    }
+
+    [Fact]
+    public async Task LibraryPage_CancelsFolderOverlay_WithoutCreatingFolder()
+    {
+        var cut = Render<LibraryPage>();
+
+        cut.WaitForAssertion(() => Assert.Contains("Product Launch", cut.Markup));
+
+        cut.Find("[data-testid='library-folder-create-start']").Click();
+        cut.WaitForAssertion(() => Assert.Contains("library-new-folder-overlay", cut.Markup));
+
+        cut.Find("[data-testid='library-new-folder-cancel']").Click();
+
+        cut.WaitForAssertion(() =>
+        {
+            Assert.DoesNotContain("library-new-folder-overlay", cut.Markup);
+            Assert.DoesNotContain("library-new-folder-card", cut.Markup);
+        });
+
+        var folders = await _harness.FolderRepository.ListAsync();
+        Assert.DoesNotContain(folders, folder => folder.Name == "Roadshows");
     }
 
     [Fact]

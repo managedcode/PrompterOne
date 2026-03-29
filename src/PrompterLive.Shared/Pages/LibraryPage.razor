@@ -28,9 +28,6 @@
 
             <LibraryCardsGrid Cards="_cards"
                               FolderOptions="_folderOptions"
-                              IsCreatingFolder="_isCreatingFolder"
-                              FolderDraftName="_folderDraftName"
-                              FolderDraftParentId="_folderDraftParentId"
                               OnOpenScript="OpenScriptAsync"
                               OnDuplicateScript="DuplicateScriptAsync"
                               OnMoveScript="MoveScriptAsync"
@@ -38,11 +35,18 @@
                               OnLearnScript="LearnScriptAsync"
                               OnReadScript="ReadScriptAsync"
                               OnCreateScript="CreateScriptAsync"
-                              OnStartCreateFolder="StartCreateFolder"
+                              OnStartCreateFolder="StartCreateFolder" />
+        </div>
+    </main>
+</div>
+
+@if (_isCreatingFolder)
+{
+    <LibraryFolderCreateModal FolderOptions="_folderOptions"
+                              FolderDraftName="_folderDraftName"
+                              FolderDraftParentId="_folderDraftParentId"
                               OnCancelCreateFolder="CancelCreateFolder"
                               OnSubmitCreateFolder="SubmitCreateFolderAsync"
                               OnFolderDraftNameChanged="UpdateFolderDraftName"
                               OnFolderDraftParentChanged="UpdateFolderDraftParent" />
-        </div>
-    </main>
-</div>
+}
