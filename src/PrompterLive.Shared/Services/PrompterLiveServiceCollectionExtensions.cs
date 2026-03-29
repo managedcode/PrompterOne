@@ -20,6 +20,7 @@ public static class PrompterLiveServiceCollectionExtensions
         services.AddScoped<TpsExporter>();
         services.AddScoped<TpsFrontMatterDocumentService>();
         services.AddScoped<TpsTextEditor>();
+        services.AddScoped<TpsStructureEditor>();
         services.AddScoped<RsvpOrpCalculator>();
         services.AddScoped<RsvpEmotionAnalyzer>();
         services.AddScoped<RsvpTextProcessor>();

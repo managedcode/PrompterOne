@@ -9,6 +9,10 @@
         <EditorStructureSidebar Segments="@_segments"
                                 ActiveSegmentIndex="@_activeSegmentIndex"
                                 ActiveBlockIndex="@_activeBlockIndex"
+                                ActiveSegment="@_activeSegmentEditor"
+                                ActiveBlock="@_activeBlockEditor"
+                                OnActiveSegmentChanged="OnActiveSegmentChangedAsync"
+                                OnActiveBlockChanged="OnActiveBlockChangedAsync"
                                 OnNavigate="OnNavigateAsync" />
 
         <EditorSourcePanel @ref="_sourcePanel"
@@ -25,12 +29,20 @@
 
         <EditorMetadataRail Profile="@_profile"
                             BaseWpm="@_baseWpm"
+                            XslowOffset="@_xslowOffset"
+                            SlowOffset="@_slowOffset"
+                            FastOffset="@_fastOffset"
+                            XfastOffset="@_xfastOffset"
                             Author="@_author"
                             CreatedDate="@_createdDate"
                             Version="@_version"
                             Status="@_status"
                             ProfileChanged="OnProfileChangedAsync"
                             BaseWpmChanged="OnBaseWpmChangedAsync"
+                            XslowOffsetChanged="OnXslowOffsetChangedAsync"
+                            SlowOffsetChanged="OnSlowOffsetChangedAsync"
+                            FastOffsetChanged="OnFastOffsetChangedAsync"
+                            XfastOffsetChanged="OnXfastOffsetChangedAsync"
                             AuthorChanged="OnAuthorChangedAsync"
                             CreatedDateChanged="OnCreatedDateChangedAsync"
                             VersionChanged="OnVersionChangedAsync" />

@@ -45,6 +45,19 @@ public sealed record EditorNavigationTarget(
     int StartIndex,
     int EndIndex);
 
+public sealed record EditorStructureHeaderEditorViewModel(
+    string Label,
+    int StartIndex,
+    string Name,
+    int? TargetWpm,
+    string EmotionLabel,
+    string Timing,
+    bool SupportsTiming)
+{
+    public static EditorStructureHeaderEditorViewModel Empty(string label, bool supportsTiming) =>
+        new(label, 0, string.Empty, null, string.Empty, string.Empty, supportsTiming);
+}
+
 public sealed record EditorSelectionViewModel(
     EditorSelectionRange Range,
     int Line,

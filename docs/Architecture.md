@@ -71,6 +71,26 @@ flowchart LR
     FolderRepo --> LocalStorage
 ```
 
+## Editor Authoring Contracts
+
+```mermaid
+flowchart LR
+    SourcePanel["EditorSourcePanel<br/>raw TPS textarea + highlight overlay"]
+    StructureSidebar["EditorStructureSidebar<br/>tree + structure inspector"]
+    MetadataRail["EditorMetadataRail<br/>front matter + speed offsets"]
+    Page["EditorPage"]
+    FrontMatter["TpsFrontMatterDocumentService"]
+    StructureEditor["TpsStructureEditor"]
+    Session["IScriptSessionService"]
+
+    SourcePanel --> Page
+    StructureSidebar --> Page
+    MetadataRail --> Page
+    Page --> FrontMatter
+    Page --> StructureEditor
+    Page --> Session
+```
+
 ## Media Permission Model
 
 - Browser-first WASM is the only active runtime today, so media access comes from browser origin permissions.

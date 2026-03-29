@@ -1709,6 +1709,14 @@ button {
     border-radius: 4px;
 }
 
+.ed-structure-inspector {
+    border-top: 1px solid var(--gold-06);
+    padding: 16px 12px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
 /* Navigation flash when clicking structure item */
 .ed-nav-flash {
     animation: navFlash 1.2s ease-out;

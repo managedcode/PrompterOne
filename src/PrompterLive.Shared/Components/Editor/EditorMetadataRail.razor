@@ -55,6 +55,52 @@
                data-testid="editor-version" />
     </div>
 
+    <div class="ed-section-label" style="margin-top:18px">SPEED OFFSETS</div>
+    <div class="ed-meta-field">
+        <label>xslow</label>
+        <div class="ed-meta-row">
+            <input type="number"
+                   class="ed-meta-input ed-meta-num"
+                   value="@XslowOffset"
+                   @onchange="OnXslowOffsetChange"
+                   data-testid="editor-speed-xslow" />
+            <span class="ed-meta-unit" style="color:#FF8A8A">%</span>
+        </div>
+    </div>
+    <div class="ed-meta-field">
+        <label>slow</label>
+        <div class="ed-meta-row">
+            <input type="number"
+                   class="ed-meta-input ed-meta-num"
+                   value="@SlowOffset"
+                   @onchange="OnSlowOffsetChange"
+                   data-testid="editor-speed-slow" />
+            <span class="ed-meta-unit" style="color:#FFB86A">%</span>
+        </div>
+    </div>
+    <div class="ed-meta-field">
+        <label>fast</label>
+        <div class="ed-meta-row">
+            <input type="number"
+                   class="ed-meta-input ed-meta-num"
+                   value="@FastOffset"
+                   @onchange="OnFastOffsetChange"
+                   data-testid="editor-speed-fast" />
+            <span class="ed-meta-unit" style="color:#8ECFFF">%</span>
+        </div>
+    </div>
+    <div class="ed-meta-field">
+        <label>xfast</label>
+        <div class="ed-meta-row">
+            <input type="number"
+                   class="ed-meta-input ed-meta-num"
+                   value="@XfastOffset"
+                   @onchange="OnXfastOffsetChange"
+                   data-testid="editor-speed-xfast" />
+            <span class="ed-meta-unit" style="color:#80B8FF">%</span>
+        </div>
+    </div>
+
     <div class="ed-section-label" style="margin-top:18px">STATS</div>
     <div class="ed-stat"><span>Words</span><b>~@Status.WordCount</b></div>
     <div class="ed-stat"><span>Est. Time</span><b>@Status.Duration</b></div>
@@ -69,6 +115,8 @@
 
     [Parameter] public string CreatedDate { get; set; } = string.Empty;
 
+    [Parameter] public int FastOffset { get; set; }
+
     [Parameter] public EventCallback<string> ProfileChanged { get; set; }
 
     [Parameter] public string Profile { get; set; } = string.Empty;
@@ -77,13 +125,27 @@
 
     [Parameter] public string Version { get; set; } = string.Empty;
 
+    [Parameter] public int XfastOffset { get; set; }
+
+    [Parameter] public int XslowOffset { get; set; }
+
+    [Parameter] public int SlowOffset { get; set; }
+
     [Parameter] public EventCallback<string> AuthorChanged { get; set; }
 
     [Parameter] public EventCallback<int> BaseWpmChanged { get; set; }
 
     [Parameter] public EventCallback<string> CreatedDateChanged { get; set; }
 
+    [Parameter] public EventCallback<int> FastOffsetChanged { get; set; }
+
+    [Parameter] public EventCallback<int> SlowOffsetChanged { get; set; }
+
     [Parameter] public EventCallback<string> VersionChanged { get; set; }
+
+    [Parameter] public EventCallback<int> XfastOffsetChanged { get; set; }
+
+    [Parameter] public EventCallback<int> XslowOffsetChanged { get; set; }
 
     private Task OnAuthorChange(ChangeEventArgs args) =>
         AuthorChanged.InvokeAsync(args.Value?.ToString() ?? string.Empty);
@@ -97,9 +159,23 @@
     private Task OnVersionChange(ChangeEventArgs args) =>
         VersionChanged.InvokeAsync(args.Value?.ToString() ?? string.Empty);
 
+    private Task OnFastOffsetChange(ChangeEventArgs args) =>
+        FastOffsetChanged.InvokeAsync(ParseInt(args.Value?.ToString(), FastOffset));
+
+    private Task OnSlowOffsetChange(ChangeEventArgs args) =>
+        SlowOffsetChanged.InvokeAsync(ParseInt(args.Value?.ToString(), SlowOffset));
+
     private Task OnBaseWpmChange(ChangeEventArgs args)
     {
-        var parsed = int.TryParse(args.Value?.ToString(), out var value) ? value : BaseWpm;
-        return BaseWpmChanged.InvokeAsync(parsed);
+        return BaseWpmChanged.InvokeAsync(ParseInt(args.Value?.ToString(), BaseWpm));
     }
+
+    private Task OnXfastOffsetChange(ChangeEventArgs args) =>
+        XfastOffsetChanged.InvokeAsync(ParseInt(args.Value?.ToString(), XfastOffset));
+
+    private Task OnXslowOffsetChange(ChangeEventArgs args) =>
+        XslowOffsetChanged.InvokeAsync(ParseInt(args.Value?.ToString(), XslowOffset));
+
+    private static int ParseInt(string? value, int fallback) =>
+        int.TryParse(value, out var parsed) ? parsed : fallback;
 }

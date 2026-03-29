@@ -16,6 +16,10 @@ public sealed class TpsFrontMatterDocumentService
         MetadataKeys.Author,
         MetadataKeys.Profile,
         MetadataKeys.BaseWpm,
+        MetadataKeys.XslowOffset,
+        MetadataKeys.SlowOffset,
+        MetadataKeys.FastOffset,
+        MetadataKeys.XfastOffset,
         MetadataKeys.Version,
         MetadataKeys.Created
     ];
@@ -128,8 +132,7 @@ public sealed class TpsFrontMatterDocumentService
     {
         value ??= string.Empty;
 
-        if (string.Equals(key, MetadataKeys.BaseWpm, StringComparison.OrdinalIgnoreCase) &&
-            int.TryParse(value, out _))
+        if (IsNumericMetadataKey(key) && int.TryParse(value, out _))
         {
             return value;
         }
@@ -142,10 +145,21 @@ public sealed class TpsFrontMatterDocumentService
         public const string Author = "author";
         public const string BaseWpm = "base_wpm";
         public const string Created = "created";
+        public const string FastOffset = "fast_offset";
         public const string Profile = "profile";
+        public const string SlowOffset = "slow_offset";
         public const string Title = "title";
         public const string Version = "version";
+        public const string XfastOffset = "xfast_offset";
+        public const string XslowOffset = "xslow_offset";
     }
+
+    private static bool IsNumericMetadataKey(string key) =>
+        string.Equals(key, MetadataKeys.BaseWpm, StringComparison.OrdinalIgnoreCase) ||
+        string.Equals(key, MetadataKeys.XslowOffset, StringComparison.OrdinalIgnoreCase) ||
+        string.Equals(key, MetadataKeys.SlowOffset, StringComparison.OrdinalIgnoreCase) ||
+        string.Equals(key, MetadataKeys.FastOffset, StringComparison.OrdinalIgnoreCase) ||
+        string.Equals(key, MetadataKeys.XfastOffset, StringComparison.OrdinalIgnoreCase);
 
     private static class MetadataTokens
     {

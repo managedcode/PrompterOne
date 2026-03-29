@@ -231,9 +231,14 @@
                     <button class="efb-btn" type="button" title="Text Color" @onmousedown:preventDefault="true" @onclick='() => RequestWrapAsync("[red]", "[/red]")'><span class="cdot" style="background:#FF8A8A"></span></button>
                     <button class="efb-btn" type="button" title="Emotion" @onmousedown:preventDefault="true" @onclick='() => RequestWrapAsync("[warm]", "[/warm]")'><span class="cdot" style="background:#FFB840"></span></button>
                     <span class="efb-sep"></span>
-                    <button class="efb-btn" type="button" title="Slow [slow]" @onmousedown:preventDefault="true" @onclick='() => RequestWrapAsync("[slow]", "[/slow]")'>.8×</button>
+                    <button class="efb-btn" type="button" title="Slow [slow]" data-testid="editor-floating-slow" @onmousedown:preventDefault="true" @onclick='() => RequestWrapAsync("[slow]", "[/slow]")'>.8×</button>
                     <button class="efb-btn" type="button" title="Fast [fast]" @onmousedown:preventDefault="true" @onclick='() => RequestWrapAsync("[fast]", "[/fast]")'>1.25×</button>
                     <button class="efb-btn" type="button" title="Pause [pause]" @onmousedown:preventDefault="true" @onclick='() => RequestInsertAsync("[pause:1s]")'><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg></button>
+                    <span class="efb-sep"></span>
+                    <button class="efb-btn efb-ai" type="button" title="AI — rewrite, expand, simplify" data-testid="editor-floating-ai" @onmousedown:preventDefault="true">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L9 9 2 12l7 3 3 7 3-7 7-3-7-3z"></path></svg>
+                        AI
+                    </button>
                 </span>
             }
         </div>

@@ -35,6 +35,7 @@ public partial class EditorPage
     [Inject] private EditorOutlineBuilder OutlineBuilder { get; set; } = null!;
     [Inject] private IScriptRepository ScriptRepository { get; set; } = null!;
     [Inject] private IScriptSessionService SessionService { get; set; } = null!;
+    [Inject] private TpsStructureEditor StructureEditor { get; set; } = null!;
     [Inject] private TpsTextEditor TextEditor { get; set; } = null!;
 
     [SupplyParameterFromQuery(Name = "id")]
@@ -141,6 +142,7 @@ public partial class EditorPage
         }
 
         UpdateActiveOutlineSelection();
+        RefreshStructureAuthoringState();
         UpdateStatus(SessionService.State);
         await InvokeAsync(StateHasChanged);
     }
@@ -177,6 +179,7 @@ public partial class EditorPage
         _selection = selection;
         _history.UpdateSelection(selection.Range);
         UpdateActiveOutlineSelection();
+        RefreshStructureAuthoringState();
         UpdateStatus(SessionService.State);
         StateHasChanged();
         return Task.CompletedTask;
@@ -208,6 +211,10 @@ public partial class EditorPage
         _profile = GetMetadata(metadata, TpsFrontMatterDocumentService.MetadataKeys.Profile, _baseWpm >= 250 ? "RSVP" : "Actor");
         _version = GetMetadata(metadata, TpsFrontMatterDocumentService.MetadataKeys.Version, "1.0");
         _createdDate = GetMetadata(metadata, TpsFrontMatterDocumentService.MetadataKeys.Created, _createdDate);
+        _xslowOffset = TryGetInt(metadata, TpsFrontMatterDocumentService.MetadataKeys.XslowOffset, DefaultXslowOffset);
+        _slowOffset = TryGetInt(metadata, TpsFrontMatterDocumentService.MetadataKeys.SlowOffset, DefaultSlowOffset);
+        _fastOffset = TryGetInt(metadata, TpsFrontMatterDocumentService.MetadataKeys.FastOffset, DefaultFastOffset);
+        _xfastOffset = TryGetInt(metadata, TpsFrontMatterDocumentService.MetadataKeys.XfastOffset, DefaultXfastOffset);
         _segments = OutlineBuilder.Build(state.ScriptData, document.Body, document.BodyStartIndex);
         _errorMessage = state.ErrorMessage;
         if (resetHistory || !_history.IsInitialized)
@@ -216,6 +223,7 @@ public partial class EditorPage
         }
 
         UpdateActiveOutlineSelection();
+        RefreshStructureAuthoringState();
         UpdateStatus(state);
     }
 
@@ -248,6 +256,10 @@ public partial class EditorPage
                 [TpsFrontMatterDocumentService.MetadataKeys.Author] = string.IsNullOrWhiteSpace(_author) ? "PrompterLive" : _author,
                 [TpsFrontMatterDocumentService.MetadataKeys.Profile] = _profile,
                 [TpsFrontMatterDocumentService.MetadataKeys.BaseWpm] = _baseWpm.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                [TpsFrontMatterDocumentService.MetadataKeys.XslowOffset] = _xslowOffset.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                [TpsFrontMatterDocumentService.MetadataKeys.SlowOffset] = _slowOffset.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                [TpsFrontMatterDocumentService.MetadataKeys.FastOffset] = _fastOffset.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                [TpsFrontMatterDocumentService.MetadataKeys.XfastOffset] = _xfastOffset.ToString(System.Globalization.CultureInfo.InvariantCulture),
                 [TpsFrontMatterDocumentService.MetadataKeys.Version] = string.IsNullOrWhiteSpace(_version) ? "1.0" : _version,
                 [TpsFrontMatterDocumentService.MetadataKeys.Created] = string.IsNullOrWhiteSpace(_createdDate) ? null : _createdDate
             });

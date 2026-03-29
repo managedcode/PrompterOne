@@ -88,4 +88,73 @@ public sealed class EditorInteractionTests(StandaloneAppFixture fixture)
             await page.CloseAsync();
         }
     }
+
+    [Fact]
+    public async Task EditorScreen_FloatingToolbarShowsAiAndPersistsSelectionFormatting()
+    {
+        var page = await _fixture.NewPageAsync();
+
+        try
+        {
+            await page.GotoAsync("/editor?id=rsvp-tech-demo");
+            await Expect(page.GetByTestId("editor-source-input")).ToBeVisibleAsync();
+
+            await page.GetByTestId("editor-source-input").EvaluateAsync(
+                """
+                element => {
+                    const text = element.value;
+                    const target = "transformative moment";
+                    const start = text.indexOf(target);
+                    element.focus();
+                    element.setSelectionRange(start, start + target.length);
+                    element.dispatchEvent(new Event("select", { bubbles: true }));
+                    element.dispatchEvent(new Event("keyup", { bubbles: true }));
+                }
+                """);
+
+            await Expect(page.GetByTestId("editor-floating-bar")).ToBeVisibleAsync();
+            await Expect(page.GetByTestId("editor-floating-ai")).ToBeVisibleAsync();
+
+            await page.GetByTestId("editor-floating-slow").ClickAsync();
+            await Expect(page.GetByTestId("editor-source-input")).ToHaveValueAsync(
+                new Regex(@"\[slow\]transformative moment\[/slow\]"));
+
+            await page.ReloadAsync();
+            await Expect(page.GetByTestId("editor-source-input")).ToHaveValueAsync(
+                new Regex(@"\[slow\]transformative moment\[/slow\]"));
+        }
+        finally
+        {
+            await page.CloseAsync();
+        }
+    }
+
+    [Fact]
+    public async Task EditorScreen_StructureInspectorEditsRewriteHeaders()
+    {
+        var page = await _fixture.NewPageAsync();
+
+        try
+        {
+            await page.GotoAsync("/editor?id=quantum-computing");
+
+            await Expect(page.GetByTestId("editor-active-segment-name")).ToBeVisibleAsync();
+            await page.GetByTestId("editor-active-segment-name").FillAsync("Introduction");
+            await page.GetByTestId("editor-active-segment-wpm").FillAsync("280");
+            await page.GetByTestId("editor-active-segment-emotion").SelectOptionAsync(new[] { "Neutral" });
+            await page.GetByTestId("editor-active-segment-timing").FillAsync("0:00-0:00");
+            await page.GetByTestId("editor-active-block-name").FillAsync("Overview Block");
+            await page.GetByTestId("editor-active-block-wpm").FillAsync("280");
+            await page.GetByTestId("editor-active-block-emotion").SelectOptionAsync(new[] { "Neutral" });
+
+            await Expect(page.GetByTestId("editor-source-input")).ToHaveValueAsync(
+                new Regex(@"## \[Introduction\|280WPM\|neutral\|0:00-0:00\]"));
+            await Expect(page.GetByTestId("editor-source-input")).ToHaveValueAsync(
+                new Regex(@"### \[Overview Block\|280WPM\|neutral\]"));
+        }
+        finally
+        {
+            await page.CloseAsync();
+        }
+    }
 }
