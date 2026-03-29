@@ -12,7 +12,7 @@ public sealed class StandaloneAppCollection : ICollectionFixture<StandaloneAppFi
 
 public sealed class StandaloneAppFixture : IAsyncLifetime
 {
-    private const string BaseAddressValue = "http://127.0.0.1:5187";
+    private const string BaseAddressValue = "http://localhost:5040";
     private Process? _process;
 
     public string BaseAddress => BaseAddressValue;
@@ -21,8 +21,11 @@ public sealed class StandaloneAppFixture : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        _process = StartAppProcess();
-        await WaitForServerAsync();
+        if (!await IsServerAvailableAsync())
+        {
+            _process = StartAppProcess();
+            await WaitForServerAsync();
+        }
 
         Playwright = await Microsoft.Playwright.Playwright.CreateAsync();
         Browser = await Playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
@@ -57,16 +60,17 @@ public sealed class StandaloneAppFixture : IAsyncLifetime
 
     private static Process StartAppProcess()
     {
-        var projectPath = Path.GetFullPath(Path.Combine(
+        var projectDirectory = Path.GetFullPath(Path.Combine(
             AppContext.BaseDirectory,
-            "../../../../../src/PrompterLive.App/PrompterLive.App.csproj"));
+            "../../../../../src/PrompterLive.App"));
 
         var process = new Process
         {
             StartInfo = new ProcessStartInfo
             {
                 FileName = "dotnet",
-                Arguments = $"run --no-build --project \"{projectPath}\" --urls {BaseAddressValue}",
+                Arguments = "run",
+                WorkingDirectory = projectDirectory,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = false,
@@ -89,29 +93,41 @@ public sealed class StandaloneAppFixture : IAsyncLifetime
 
     private static async Task WaitForServerAsync()
     {
-        using var client = new HttpClient
-        {
-            Timeout = TimeSpan.FromSeconds(2)
-        };
-
         var deadline = DateTimeOffset.UtcNow.AddSeconds(60);
         while (DateTimeOffset.UtcNow < deadline)
         {
-            try
+            if (await IsServerAvailableAsync())
             {
-                using var response = await client.GetAsync(BaseAddressValue);
-                if (response.StatusCode is HttpStatusCode.OK)
-                {
-                    return;
-                }
-            }
-            catch
-            {
+                return;
             }
 
             await Task.Delay(500);
         }
 
         throw new TimeoutException($"PrompterLive.App did not start listening on {BaseAddressValue} within the timeout.");
+    }
+
+    private static async Task<bool> IsServerAvailableAsync()
+    {
+        using var client = new HttpClient
+        {
+            Timeout = TimeSpan.FromSeconds(2)
+        };
+
+        try
+        {
+            using var response = await client.GetAsync(BaseAddressValue);
+            if (response.StatusCode is not HttpStatusCode.OK)
+            {
+                return false;
+            }
+
+            var body = await response.Content.ReadAsStringAsync();
+            return body.Contains("Prompter.live", StringComparison.Ordinal);
+        }
+        catch
+        {
+            return false;
+        }
     }
 }
