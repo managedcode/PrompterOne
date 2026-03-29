@@ -1,17 +1,19 @@
+using Bunit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
-using Bunit;
 using PrompterLive.Core.Abstractions;
 using PrompterLive.Core.Models.Documents;
 using PrompterLive.Core.Models.Library;
 using PrompterLive.Core.Models.Media;
 using PrompterLive.Core.Services;
+using PrompterLive.Core.Services.Editor;
 using PrompterLive.Core.Services.Media;
 using PrompterLive.Core.Services.Preview;
 using PrompterLive.Core.Services.Rsvp;
 using PrompterLive.Core.Services.Streaming;
 using PrompterLive.Core.Services.Workspace;
 using PrompterLive.Shared.Services;
+using PrompterLive.Shared.Services.Editor;
 
 namespace PrompterLive.Shared.Tests;
 
@@ -24,6 +26,8 @@ internal static class TestHarnessFactory
         var folderRepository = new InMemoryLibraryFolderRepository();
         var parser = new TpsParser();
         var compiler = new ScriptCompiler();
+        var frontMatter = new TpsFrontMatterDocumentService();
+        var textEditor = new TpsTextEditor();
         var previewService = new ScriptPreviewService(parser, compiler);
         var session = new ScriptSessionService(repository, parser, compiler, previewService);
         var sceneService = new MediaSceneService();
@@ -36,7 +40,11 @@ internal static class TestHarnessFactory
         context.Services.AddSingleton<IScriptSessionService>(session);
         context.Services.AddSingleton(parser);
         context.Services.AddSingleton(compiler);
+        context.Services.AddSingleton(frontMatter);
+        context.Services.AddSingleton(textEditor);
         context.Services.AddSingleton<IScriptPreviewService>(previewService);
+        context.Services.AddSingleton<EditorOutlineBuilder>();
+        context.Services.AddSingleton<EditorInterop>();
         context.Services.AddSingleton<IMediaSceneService>(sceneService);
         context.Services.AddSingleton<IMediaPermissionService>(permissionService);
         context.Services.AddSingleton<IMediaDeviceService>(deviceService);
@@ -83,7 +91,7 @@ internal sealed class TestJsRuntime : IJSRuntime
     {
         Invocations.Add(identifier);
 
-        object? result = identifier switch
+        var result = identifier switch
         {
             "PrompterLive.settings.load" => Load(args),
             "PrompterLive.settings.save" => Save(args),
@@ -134,14 +142,9 @@ internal sealed class FakeMediaPermissionService : IMediaPermissionService
     }
 }
 
-internal sealed class FakeMediaDeviceService : IMediaDeviceService
+internal sealed class FakeMediaDeviceService(IReadOnlyList<MediaDeviceInfo> devices) : IMediaDeviceService
 {
-    private readonly IReadOnlyList<MediaDeviceInfo> _devices;
-
-    public FakeMediaDeviceService(IReadOnlyList<MediaDeviceInfo> devices)
-    {
-        _devices = devices;
-    }
+    private readonly IReadOnlyList<MediaDeviceInfo> _devices = devices;
 
     public Task<IReadOnlyList<MediaDeviceInfo>> GetDevicesAsync(CancellationToken cancellationToken = default) =>
         Task.FromResult(_devices);

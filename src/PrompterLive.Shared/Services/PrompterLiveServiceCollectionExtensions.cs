@@ -1,11 +1,13 @@
 using Microsoft.Extensions.DependencyInjection;
 using PrompterLive.Core.Abstractions;
 using PrompterLive.Core.Services;
+using PrompterLive.Core.Services.Editor;
 using PrompterLive.Core.Services.Media;
 using PrompterLive.Core.Services.Preview;
 using PrompterLive.Core.Services.Rsvp;
 using PrompterLive.Core.Services.Streaming;
 using PrompterLive.Core.Services.Workspace;
+using PrompterLive.Shared.Services.Editor;
 
 namespace PrompterLive.Shared.Services;
 
@@ -16,11 +18,15 @@ public static class PrompterLiveServiceCollectionExtensions
         services.AddScoped<TpsParser>();
         services.AddScoped<ScriptCompiler>();
         services.AddScoped<TpsExporter>();
+        services.AddScoped<TpsFrontMatterDocumentService>();
+        services.AddScoped<TpsTextEditor>();
         services.AddScoped<RsvpOrpCalculator>();
         services.AddScoped<RsvpEmotionAnalyzer>();
         services.AddScoped<RsvpTextProcessor>();
         services.AddScoped<RsvpPlaybackEngine>();
         services.AddScoped<IScriptPreviewService, ScriptPreviewService>();
+        services.AddScoped<EditorOutlineBuilder>();
+        services.AddScoped<EditorInterop>();
 
         services.AddScoped<ILibraryFolderRepository, BrowserLibraryFolderRepository>();
         services.AddScoped<IScriptRepository, BrowserScriptRepository>();

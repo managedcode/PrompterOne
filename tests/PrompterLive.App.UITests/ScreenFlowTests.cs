@@ -5,14 +5,9 @@ using static Microsoft.Playwright.Assertions;
 namespace PrompterLive.App.UITests;
 
 [Collection(StandaloneAppCollection.Name)]
-public sealed class ScreenFlowTests
+public sealed class ScreenFlowTests(StandaloneAppFixture fixture)
 {
-    private readonly StandaloneAppFixture _fixture;
-
-    public ScreenFlowTests(StandaloneAppFixture fixture)
-    {
-        _fixture = fixture;
-    }
+    private readonly StandaloneAppFixture _fixture = fixture;
 
     [Fact]
     public async Task LibraryScreen_NavigatesIntoEditorAndSettings()
@@ -109,9 +104,10 @@ public sealed class ScreenFlowTests
         {
             await page.GotoAsync("/editor?id=rsvp-tech-demo");
             await Expect(page.GetByTestId("editor-page")).ToBeVisibleAsync(new() { Timeout = 15000 });
-            await Expect(page.Locator(".ed-content")).ToContainTextAsync("## [Intro|140WPM|Warm");
-            await Expect(page.Locator(".ed-content")).ToContainTextAsync("Opening Block");
-            await Expect(page.Locator(".ed-content")).ToContainTextAsync("Purpose Block");
+            await Expect(page.GetByTestId("editor-source-input")).ToBeVisibleAsync();
+            await Expect(page.GetByTestId("editor-source-highlight")).ToContainTextAsync("## [Intro|140WPM|warm]");
+            await Expect(page.GetByTestId("editor-source-highlight")).ToContainTextAsync("Opening Block");
+            await Expect(page.GetByTestId("editor-source-highlight")).ToContainTextAsync("Purpose Block");
             await page.Locator(".tb-dropdown-wrap").Nth(0).HoverAsync();
             await Expect(page.Locator(".tb-dropdown").Nth(0)).ToBeVisibleAsync();
             await page.Locator(".tb-dropdown-wrap").Nth(1).HoverAsync();
@@ -121,7 +117,7 @@ public sealed class ScreenFlowTests
             await page.Locator("[data-nav='blk-2-1']").ClickAsync();
             await Expect(page.Locator("[data-nav='blk-2-1']")).ToHaveClassAsync(new Regex("active"));
             await Expect(page.Locator("[data-nav='seg-2']")).ToHaveClassAsync(new Regex("active"));
-            await Expect(page.Locator(".ed-content")).ToContainTextAsync("Benefits Block");
+            await Expect(page.GetByTestId("editor-source-highlight")).ToContainTextAsync("Benefits Block");
 
             await Expect(page.GetByRole(AriaRole.Button, new() { Name = "Learn" })).ToBeVisibleAsync();
             await page.GetByRole(AriaRole.Button, new() { Name = "Learn" }).ClickAsync();

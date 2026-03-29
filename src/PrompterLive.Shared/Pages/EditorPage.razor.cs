@@ -1,0 +1,278 @@
+using Microsoft.AspNetCore.Components;
+using PrompterLive.Core.Abstractions;
+using PrompterLive.Core.Models.Editor;
+using PrompterLive.Core.Models.Workspace;
+using PrompterLive.Core.Services.Editor;
+using PrompterLive.Core.Services.Samples;
+using PrompterLive.Shared.Components.Editor;
+using PrompterLive.Shared.Services;
+using PrompterLive.Shared.Services.Editor;
+
+namespace PrompterLive.Shared.Pages;
+
+public partial class EditorPage
+{
+    private readonly TpsFrontMatterDocumentService _frontMatterService = new();
+    private bool _loadState = true;
+    private int? _activeBlockIndex;
+    private int _activeSegmentIndex;
+    private string _author = "PrompterLive";
+    private int _baseWpm = 140;
+    private string _createdDate = DateTime.UtcNow.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+    private string? _errorMessage;
+    private string _profile = "Actor";
+    private string _screenTitle = "Product Launch";
+    private EditorSelectionViewModel _selection = EditorSelectionViewModel.Empty;
+    private IReadOnlyList<EditorOutlineSegmentViewModel> _segments = [];
+    private EditorSourcePanel? _sourcePanel;
+    private string _sourceText = string.Empty;
+    private EditorStatusViewModel _status = new(1, 1, "Actor", 140, 0, 0, 0, "0:00", "1.0");
+    private string _version = "1.0";
+
+    [Inject] private AppBootstrapper Bootstrapper { get; set; } = null!;
+    [Inject] private NavigationManager Navigation { get; set; } = null!;
+    [Inject] private EditorOutlineBuilder OutlineBuilder { get; set; } = null!;
+    [Inject] private IScriptRepository ScriptRepository { get; set; } = null!;
+    [Inject] private IScriptSessionService SessionService { get; set; } = null!;
+    [Inject] private TpsTextEditor TextEditor { get; set; } = null!;
+
+    [SupplyParameterFromQuery(Name = "id")]
+    public string? ScriptId { get; set; }
+
+    protected override Task OnParametersSetAsync()
+    {
+        _loadState = true;
+        return Task.CompletedTask;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_loadState)
+        {
+            _loadState = false;
+            await Bootstrapper.EnsureReadyAsync();
+            await EnsureSessionLoadedAsync();
+            PopulateEditorState();
+            StateHasChanged();
+        }
+    }
+
+    private async Task EnsureSessionLoadedAsync()
+    {
+        if (!string.IsNullOrWhiteSpace(ScriptId))
+        {
+            var document = await ScriptRepository.GetAsync(ScriptId);
+            if (document is not null &&
+                !string.Equals(SessionService.State.ScriptId, document.Id, StringComparison.Ordinal))
+            {
+                await SessionService.OpenAsync(document);
+            }
+
+            if (document is not null)
+            {
+                _createdDate = document.UpdatedAt.LocalDateTime.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+            }
+
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(SessionService.State.ScriptId))
+        {
+            await SessionService.LoadSampleAsync(SampleScriptCatalog.DemoSampleId);
+        }
+    }
+
+    private async Task OnAuthorChangedAsync(string value)
+    {
+        _author = value.Trim();
+        await PersistMetadataAsync();
+    }
+
+    private async Task OnBaseWpmChangedAsync(int value)
+    {
+        _baseWpm = Math.Clamp(value, 80, 600);
+        await PersistMetadataAsync();
+    }
+
+    private async Task OnCommandRequestedAsync(EditorCommandRequest request)
+    {
+        var mutation = request.Kind switch
+        {
+            EditorCommandKind.Wrap => TextEditor.WrapSelection(
+                _sourceText,
+                _selection.Range,
+                request.PrimaryToken,
+                request.SecondaryToken ?? string.Empty,
+                request.PlaceholderText),
+            _ => TextEditor.InsertAtSelection(
+                _sourceText,
+                _selection.Range,
+                request.PrimaryToken,
+                request.CaretOffset)
+        };
+
+        _selection = _selection with { Range = mutation.Selection };
+        await PersistDraftAsync(mutation.Text);
+    }
+
+    private async Task OnCreatedDateChangedAsync(string value)
+    {
+        _createdDate = value.Trim();
+        await PersistMetadataAsync();
+    }
+
+    private async Task OnNavigateAsync(EditorNavigationTarget target)
+    {
+        _activeSegmentIndex = target.SegmentIndex;
+        _activeBlockIndex = target.BlockIndex;
+        _selection = _selection with { Range = new EditorSelectionRange(target.StartIndex, target.StartIndex) };
+        await InvokeAsync(StateHasChanged);
+
+        if (_sourcePanel is not null)
+        {
+            await _sourcePanel.FocusRangeAsync(target.StartIndex, target.StartIndex);
+        }
+
+        UpdateActiveOutlineSelection();
+        UpdateStatus(SessionService.State);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task OnProfileChangedAsync(string value)
+    {
+        _profile = string.Equals(value, "RSVP", StringComparison.Ordinal) ? "RSVP" : "Actor";
+        await PersistMetadataAsync();
+    }
+
+    private Task OnSelectionChangedAsync(EditorSelectionViewModel selection)
+    {
+        _selection = selection;
+        UpdateActiveOutlineSelection();
+        UpdateStatus(SessionService.State);
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private async Task OnSourceChangedAsync(string text)
+    {
+        _sourceText = text ?? string.Empty;
+        await PersistDraftAsync(_sourceText);
+    }
+
+    private async Task OnVersionChangedAsync(string value)
+    {
+        _version = value.Trim();
+        await PersistMetadataAsync();
+    }
+
+    private void PopulateEditorState()
+    {
+        var state = SessionService.State;
+        var document = _frontMatterService.Parse(state.Text);
+        var metadata = document.Metadata;
+
+        _sourceText = state.Text;
+        _screenTitle = _frontMatterService.ResolveTitle(_sourceText, state.Title);
+        _author = GetMetadata(metadata, TpsFrontMatterDocumentService.MetadataKeys.Author, "PrompterLive");
+        _baseWpm = TryGetInt(metadata, TpsFrontMatterDocumentService.MetadataKeys.BaseWpm, state.ScriptData?.TargetWpm ?? 140);
+        _profile = GetMetadata(metadata, TpsFrontMatterDocumentService.MetadataKeys.Profile, _baseWpm >= 250 ? "RSVP" : "Actor");
+        _version = GetMetadata(metadata, TpsFrontMatterDocumentService.MetadataKeys.Version, "1.0");
+        _createdDate = GetMetadata(metadata, TpsFrontMatterDocumentService.MetadataKeys.Created, _createdDate);
+        _segments = OutlineBuilder.Build(state.ScriptData, document.Body, document.BodyStartIndex);
+        _errorMessage = state.ErrorMessage;
+        UpdateActiveOutlineSelection();
+        UpdateStatus(state);
+    }
+
+    private async Task PersistDraftAsync(string text)
+    {
+        var title = _frontMatterService.ResolveTitle(text, _screenTitle);
+        await SessionService.UpdateDraftAsync(
+            title,
+            text,
+            SessionService.State.DocumentName,
+            SessionService.State.ScriptId);
+
+        var savedDocument = await SessionService.SaveAsync();
+        if (string.IsNullOrWhiteSpace(ScriptId))
+        {
+            ScriptId = savedDocument.Id;
+            Navigation.NavigateTo($"/editor?id={Uri.EscapeDataString(savedDocument.Id)}", replace: true);
+        }
+
+        PopulateEditorState();
+    }
+
+    private async Task PersistMetadataAsync()
+    {
+        var updatedText = _frontMatterService.Upsert(
+            _sourceText,
+            new Dictionary<string, string?>
+            {
+                [TpsFrontMatterDocumentService.MetadataKeys.Title] = _screenTitle,
+                [TpsFrontMatterDocumentService.MetadataKeys.Author] = string.IsNullOrWhiteSpace(_author) ? "PrompterLive" : _author,
+                [TpsFrontMatterDocumentService.MetadataKeys.Profile] = _profile,
+                [TpsFrontMatterDocumentService.MetadataKeys.BaseWpm] = _baseWpm.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                [TpsFrontMatterDocumentService.MetadataKeys.Version] = string.IsNullOrWhiteSpace(_version) ? "1.0" : _version,
+                [TpsFrontMatterDocumentService.MetadataKeys.Created] = string.IsNullOrWhiteSpace(_createdDate) ? null : _createdDate
+            });
+
+        await PersistDraftAsync(updatedText);
+    }
+
+    private void UpdateActiveOutlineSelection()
+    {
+        if (_segments.Count == 0)
+        {
+            _activeSegmentIndex = 0;
+            _activeBlockIndex = null;
+            return;
+        }
+
+        var caretIndex = _selection.Range.OrderedStart;
+        var activeSegment = _segments.FirstOrDefault(segment => caretIndex >= segment.StartIndex && caretIndex <= segment.EndIndex)
+                            ?? _segments[0];
+
+        _activeSegmentIndex = activeSegment.Index;
+        _activeBlockIndex = activeSegment.Blocks
+            .FirstOrDefault(block => caretIndex >= block.StartIndex && caretIndex <= block.EndIndex)
+            ?.Index;
+    }
+
+    private void UpdateStatus(ScriptWorkspaceState state)
+    {
+        _status = new EditorStatusViewModel(
+            _selection.Line,
+            _selection.Column,
+            _profile,
+            _baseWpm,
+            _segments.Count,
+            _segments.Sum(segment => segment.Blocks.Count),
+            state.WordCount,
+            FormatDuration(state.EstimatedDuration),
+            _version);
+    }
+
+    private static string FormatDuration(TimeSpan duration)
+    {
+        var safeDuration = duration <= TimeSpan.Zero ? TimeSpan.FromSeconds(1) : duration;
+        return $"{(int)safeDuration.TotalMinutes}:{safeDuration.Seconds:00}";
+    }
+
+    private static string GetMetadata(IReadOnlyDictionary<string, string> metadata, string key, string fallback)
+    {
+        if (metadata.TryGetValue(key, out var value) && !string.IsNullOrWhiteSpace(value))
+        {
+            return value.Trim();
+        }
+
+        return fallback;
+    }
+
+    private static int TryGetInt(IReadOnlyDictionary<string, string> metadata, string key, int fallback)
+    {
+        return metadata.TryGetValue(key, out var value) && int.TryParse(value, out var parsed)
+            ? parsed
+            : fallback;
+    }
+}

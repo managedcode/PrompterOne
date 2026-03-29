@@ -29,6 +29,7 @@ public sealed class EditorMetadataInteractionTests : BunitContext
         cut.WaitForAssertion(() =>
         {
             var metadata = _harness.Session.State.CompiledScript?.Metadata;
+            var source = cut.Find("[data-testid='editor-source-input']").GetAttribute("value");
 
             Assert.NotNull(metadata);
             Assert.Equal("RSVP", metadata!["profile"]);
@@ -37,8 +38,8 @@ public sealed class EditorMetadataInteractionTests : BunitContext
             Assert.Equal("2026-03-26", metadata["created"]);
             Assert.Equal("2.0", metadata["version"]);
             Assert.Contains("210 WPM", cut.Markup);
-            Assert.Contains("Test Speaker", cut.Markup);
-            Assert.Contains("TPS v2.0", cut.Markup);
+            Assert.Contains("author: \"Test Speaker\"", source);
+            Assert.Contains("version: \"2.0\"", source);
         });
     }
 }

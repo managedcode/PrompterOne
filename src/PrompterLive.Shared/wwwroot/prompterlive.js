@@ -345,6 +345,31 @@
             }
         },
 
+        editor: {
+            syncScroll(textarea, overlay) {
+                if (!textarea || !overlay) {
+                    return;
+                }
+
+                overlay.scrollTop = textarea.scrollTop;
+                overlay.scrollLeft = textarea.scrollLeft;
+            },
+
+            getSelectionState(textarea) {
+                return createEditorSelectionState(textarea);
+            },
+
+            setSelection(textarea, start, end) {
+                if (!textarea) {
+                    return createEmptyEditorSelectionState();
+                }
+
+                textarea.focus();
+                textarea.setSelectionRange(start, end);
+                return createEditorSelectionState(textarea);
+            }
+        },
+
         reader: {
             startAutoScroll(elementId, pixelsPerSecond) {
                 const element = document.getElementById(elementId);
@@ -388,4 +413,76 @@
             }
         }
     };
+
+    function createEmptyEditorSelectionState() {
+        return {
+            start: 0,
+            end: 0,
+            line: 1,
+            column: 1,
+            toolbarTop: 0,
+            toolbarLeft: 0
+        };
+    }
+
+    function createEditorSelectionState(textarea) {
+        if (!textarea) {
+            return createEmptyEditorSelectionState();
+        }
+
+        const start = textarea.selectionStart || 0;
+        const end = textarea.selectionEnd || start;
+        const prefix = textarea.value.slice(0, start);
+        const prefixLines = prefix.split("\n");
+        const line = prefixLines.length;
+        const column = (prefixLines[prefixLines.length - 1] || "").length + 1;
+        const coords = measureTextareaPosition(textarea, end);
+
+        return {
+            start,
+            end,
+            line,
+            column,
+            toolbarTop: Math.max(12, coords.top - 42),
+            toolbarLeft: coords.left
+        };
+    }
+
+    function measureTextareaPosition(textarea, index) {
+        const style = window.getComputedStyle(textarea);
+        const mirror = document.createElement("div");
+        const span = document.createElement("span");
+        const value = textarea.value;
+
+        mirror.style.position = "absolute";
+        mirror.style.visibility = "hidden";
+        mirror.style.whiteSpace = "pre-wrap";
+        mirror.style.wordBreak = "break-word";
+        mirror.style.overflowWrap = "break-word";
+        mirror.style.fontFamily = style.fontFamily;
+        mirror.style.fontSize = style.fontSize;
+        mirror.style.fontWeight = style.fontWeight;
+        mirror.style.lineHeight = style.lineHeight;
+        mirror.style.letterSpacing = style.letterSpacing;
+        mirror.style.padding = style.padding;
+        mirror.style.border = style.border;
+        mirror.style.boxSizing = style.boxSizing;
+        mirror.style.width = `${textarea.clientWidth}px`;
+        mirror.style.left = "-99999px";
+        mirror.style.top = "0";
+
+        mirror.textContent = value.slice(0, index);
+        span.textContent = value.slice(index, index + 1) || " ";
+        mirror.appendChild(span);
+        document.body.appendChild(mirror);
+
+        const top = textarea.offsetTop + span.offsetTop - textarea.scrollTop;
+        const left = textarea.offsetLeft + span.offsetLeft - textarea.scrollLeft;
+        document.body.removeChild(mirror);
+
+        return {
+            top,
+            left
+        };
+    }
 })();
