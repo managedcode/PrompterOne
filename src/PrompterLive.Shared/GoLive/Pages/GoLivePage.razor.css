@@ -1,0 +1,31 @@
+.live-grid-studio {
+    grid-template-columns: minmax(320px, .78fr) minmax(0, 1.22fr);
+    align-items: start;
+}
+
+.live-provider-heading {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 0 4px;
+}
+
+.live-provider-title {
+    margin: 0;
+    color: var(--t1);
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.live-provider-desc {
+    margin: 0;
+    color: var(--t3);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+@media (max-width: 1240px) {
+    .live-grid-studio {
+        grid-template-columns: 1fr;
+    }
+}

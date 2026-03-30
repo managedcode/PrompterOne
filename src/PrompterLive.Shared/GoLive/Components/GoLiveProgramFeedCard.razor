@@ -1,18 +1,79 @@
 @namespace PrompterLive.Shared.Components.GoLive
+@using Microsoft.AspNetCore.Components
+@using PrompterLive.Core.Models.Workspace
 
-<section class="live-card" data-testid="@UiTestIds.GoLive.ProgramCard">
+<section class="live-card go-live-session-card" data-live-state="@LiveState" data-testid="@UiTestIds.GoLive.ProgramCard">
     <div class="live-card-header">
         <div>
             <h3 class="live-card-title">@Title</h3>
             <p class="live-card-desc">@Description</p>
         </div>
-        <span class="live-status @(IsArmed ? ReadyCssClass : PendingCssClass)">@StatusLabel</span>
+        <span class="live-status @(IsArmed ? ReadyCssClass : PendingCssClass)">@ActiveSessionLabel</span>
     </div>
 
-    @if (PreviewContent is not null)
-    {
-        @PreviewContent
-    }
+    <div class="go-live-session-layout">
+        @if (PreviewContent is not null)
+        {
+            <div class="go-live-session-preview">
+                @PreviewContent
+            </div>
+        }
+
+        <div class="go-live-session-side">
+            <div class="go-live-session-actions">
+                <button type="button"
+                        class="set-btn-golden"
+                        @onclick="ToggleStreamSession"
+                        disabled="@(!CanControlProgram)"
+                        data-testid="@UiTestIds.GoLive.StartStream">@StreamActionLabel</button>
+                <button type="button"
+                        class="go-live-record-button"
+                        @onclick="ToggleRecordingSession"
+                        disabled="@(!CanControlProgram)"
+                        data-testid="@UiTestIds.GoLive.StartRecording">@RecordingActionLabel</button>
+                <button type="button"
+                        class="set-btn-outline"
+                        @onclick="SwitchSelectedSource"
+                        disabled="@(!CanControlProgram)"
+                        data-testid="@UiTestIds.GoLive.SwitchSelectedSource">@SwitchActionLabel</button>
+            </div>
+
+            <div class="go-live-session-sources">
+                <div class="go-live-session-source">
+                    <span class="set-section-label">SELECTED</span>
+                    <div class="set-account-name" data-testid="@UiTestIds.GoLive.SelectedSourceLabel">@SelectedSourceLabel</div>
+                </div>
+                <div class="go-live-session-source">
+                    <span class="set-section-label">PROGRAM</span>
+                    <div class="set-account-name" data-testid="@UiTestIds.GoLive.ActiveSourceLabel">@ActiveSourceLabel</div>
+                </div>
+            </div>
+
+            @if (ActionContent is not null)
+            {
+                @ActionContent
+            }
+        </div>
+    </div>
+
+    <div class="go-live-telemetry-grid">
+        <article class="go-live-telemetry-card">
+            <span class="set-section-label">VIDEO</span>
+            <strong>@VideoTelemetry</strong>
+        </article>
+        <article class="go-live-telemetry-card">
+            <span class="set-section-label">AUDIO</span>
+            <strong>@AudioTelemetry</strong>
+        </article>
+        <article class="go-live-telemetry-card">
+            <span class="set-section-label">BITRATE</span>
+            <strong>@BitrateTelemetry</strong>
+        </article>
+        <article class="go-live-telemetry-card">
+            <span class="set-section-label">DESTINATIONS</span>
+            <strong>@OutputDestinationsTelemetry</strong>
+        </article>
+    </div>
 
     <div class="set-devices">
         <div class="set-field">
@@ -60,42 +121,52 @@
 
 @code {
     private const string BitrateLabel = "Bitrate (kbps)";
-    private const string DefaultDescription = "Global quality and overlay settings shared by every enabled destination.";
-    private const string DefaultTitle = "Program Feed";
+    private const string DefaultDescription = "Launch stream or recording, then keep source switching and telemetry in one place.";
+    private const string DefaultTitle = "Go Live Console";
     private const string IncludeCameraLabel = "Include Camera in Output";
+    private const string IdleStateCss = "idle";
     private const string PendingCssClass = "pending";
     private const string ReadyCssClass = "ready";
-    private const string StandbyLabel = "Standby";
+    private const string RecordingStateCss = "recording";
+    private const string StreamingStateCss = "streaming";
     private const string TextOverlayLabel = "Show Text Overlay on Stream";
     private const string ToggleOnCssClass = "on";
-    private const string ArmedLabel = "Armed";
     private const string OutputResolutionLabel = "Output Resolution";
 
+    [Parameter] public string ActiveSessionLabel { get; set; } = string.Empty;
+    [Parameter] public string ActiveSourceLabel { get; set; } = string.Empty;
+    [Parameter] public RenderFragment? ActionContent { get; set; }
+    [Parameter] public string AudioTelemetry { get; set; } = string.Empty;
     [Parameter] public int BitrateKbps { get; set; }
-
     [Parameter] public EventCallback<ChangeEventArgs> BitrateChanged { get; set; }
-
+    [Parameter] public string BitrateTelemetry { get; set; } = string.Empty;
+    [Parameter] public bool CanControlProgram { get; set; }
     [Parameter] public RenderFragment? ChildContent { get; set; }
-
     [Parameter] public string Description { get; set; } = DefaultDescription;
-
     [Parameter] public bool IncludeCameraInOutput { get; set; }
-
     [Parameter] public bool IsArmed { get; set; }
-
+    [Parameter] public bool IsRecordingActive { get; set; }
+    [Parameter] public bool IsStreamActive { get; set; }
     [Parameter] public EventCallback<ChangeEventArgs> OutputResolutionChanged { get; set; }
-
+    [Parameter] public string OutputDestinationsTelemetry { get; set; } = string.Empty;
     [Parameter] public StreamingResolutionPreset OutputResolution { get; set; }
-
     [Parameter] public RenderFragment? PreviewContent { get; set; }
-
+    [Parameter] public string RecordingActionLabel { get; set; } = string.Empty;
+    [Parameter] public string SelectedSourceLabel { get; set; } = string.Empty;
     [Parameter] public bool ShowTextOverlay { get; set; }
-
+    [Parameter] public string StreamActionLabel { get; set; } = string.Empty;
+    [Parameter] public EventCallback SwitchSelectedSource { get; set; }
+    [Parameter] public string SwitchActionLabel { get; set; } = string.Empty;
     [Parameter] public EventCallback ToggleIncludeCamera { get; set; }
-
+    [Parameter] public EventCallback ToggleRecordingSession { get; set; }
+    [Parameter] public EventCallback ToggleStreamSession { get; set; }
     [Parameter] public EventCallback ToggleTextOverlay { get; set; }
-
     [Parameter] public string Title { get; set; } = DefaultTitle;
+    [Parameter] public string VideoTelemetry { get; set; } = string.Empty;
 
-    private string StatusLabel => IsArmed ? ArmedLabel : StandbyLabel;
+    private string LiveState => IsRecordingActive
+        ? RecordingStateCss
+        : IsStreamActive
+            ? StreamingStateCss
+            : IdleStateCss;
 }

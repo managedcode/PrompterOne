@@ -13,6 +13,7 @@ public static class UiTestIds
         public const string LibraryBreadcrumbCurrent = "header-library-breadcrumb-current";
         public const string LibraryNewScript = "header-library-new-script";
         public const string LibrarySearch = "library-search";
+        public const string LiveWidget = "header-go-live-widget";
         public const string Subtitle = "header-subtitle";
         public const string Title = "header-title";
         public const string Wpm = "header-wpm";
@@ -242,6 +243,7 @@ public static class UiTestIds
 
     public static class GoLive
     {
+        public const string ActiveSourceLabel = "go-live-active-source-label";
         public const string Bitrate = "go-live-bitrate";
         public const string CustomRtmpKey = "go-live-custom-rtmp-key";
         public const string CustomRtmpName = "go-live-custom-rtmp-name";
@@ -264,8 +266,12 @@ public static class UiTestIds
         public const string PreviewSourceLabel = "go-live-preview-source-label";
         public const string PreviewVideo = "go-live-preview-video";
         public const string RecordingToggle = "go-live-recording-toggle";
+        public const string SelectedSourceLabel = "go-live-selected-source-label";
         public const string SourcesCard = "go-live-sources-card";
+        public const string StartRecording = "go-live-start-recording";
+        public const string StartStream = "go-live-start-stream";
         public const string SourcePickerEmpty = "go-live-source-picker-empty";
+        public const string SwitchSelectedSource = "go-live-switch-selected-source";
         public const string StreamIncludeCamera = "go-live-stream-include-camera";
         public const string StreamTextOverlay = "go-live-stream-text-overlay";
         public const string TwitchKey = "go-live-twitch-key";
@@ -278,6 +284,7 @@ public static class UiTestIds
         public const string YoutubeToggle = "go-live-youtube-toggle";
         public const string YoutubeUrl = "go-live-youtube-url";
 
+        public static string SourceCameraSelect(string sourceId) => $"go-live-source-select-{sourceId}";
         public static string ProviderCard(string providerId) => $"go-live-provider-{providerId}";
         public static string ProviderSourcePicker(string providerId) => $"go-live-provider-sources-{providerId}";
         public static string ProviderSourceSummary(string providerId) => $"go-live-provider-source-summary-{providerId}";

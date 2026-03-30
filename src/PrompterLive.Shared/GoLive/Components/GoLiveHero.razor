@@ -1,40 +1,50 @@
 @namespace PrompterLive.Shared.Components.GoLive
+@using PrompterLive.Shared.Localization
 
 <section class="live-hero">
     <div class="live-hero-copy">
-        <div class="set-section-label">@Eyebrow</div>
-        <h2 class="set-section-title">@Title</h2>
-        <p class="set-section-desc">@Description</p>
+        <div class="set-section-label">@EffectiveEyebrow</div>
+        <h2 class="set-section-title">@EffectiveTitle</h2>
+        <p class="set-section-desc">@EffectiveDescription</p>
     </div>
     @if (HasScriptContext)
     {
         <div class="live-hero-actions">
-            <a class="set-btn-outline" href="@LearnRoute" data-testid="@UiTestIds.GoLive.OpenLearn">@LearnLabel</a>
-            <a class="set-btn-golden" href="@ReadRoute" data-testid="@UiTestIds.GoLive.OpenRead">@ReadLabel</a>
+            <a class="set-btn-outline" href="@LearnRoute" data-testid="@UiTestIds.GoLive.OpenLearn">@EffectiveLearnLabel</a>
+            <a class="set-btn-golden" href="@ReadRoute" data-testid="@UiTestIds.GoLive.OpenRead">@EffectiveReadLabel</a>
         </div>
     }
 </section>
 
 @code {
-    private const string DefaultDescription = "Arm destinations for the current program feed while leaving teleprompter and RSVP ready in separate tabs.";
-    private const string DefaultEyebrow = "LIVE ROUTING";
-    private const string DefaultLearnLabel = "Open Learn";
-    private const string DefaultReadLabel = "Open Read";
-    private const string DefaultTitle = "Go Live";
+    [Parameter] public string Description { get; set; } = string.Empty;
 
-    [Parameter] public string Description { get; set; } = DefaultDescription;
-
-    [Parameter] public string Eyebrow { get; set; } = DefaultEyebrow;
+    [Parameter] public string Eyebrow { get; set; } = string.Empty;
 
     [Parameter] public bool HasScriptContext { get; set; }
 
-    [Parameter] public string LearnLabel { get; set; } = DefaultLearnLabel;
+    [Parameter] public string LearnLabel { get; set; } = string.Empty;
 
     [Parameter] public string LearnRoute { get; set; } = AppRoutes.Learn;
 
-    [Parameter] public string ReadLabel { get; set; } = DefaultReadLabel;
+    [Parameter] public string ReadLabel { get; set; } = string.Empty;
 
     [Parameter] public string ReadRoute { get; set; } = AppRoutes.Teleprompter;
 
-    [Parameter] public string Title { get; set; } = DefaultTitle;
+    [Parameter] public string Title { get; set; } = string.Empty;
+
+    private string EffectiveDescription => ResolveText(Description, UiTextKey.GoLiveHeroDescription);
+
+    private string EffectiveEyebrow => ResolveText(Eyebrow, UiTextKey.GoLiveHeroEyebrow);
+
+    private string EffectiveLearnLabel => ResolveText(LearnLabel, UiTextKey.HeaderLearn);
+
+    private string EffectiveReadLabel => ResolveText(ReadLabel, UiTextKey.HeaderRead);
+
+    private string EffectiveTitle => ResolveText(Title, UiTextKey.HeaderGoLive);
+
+    private static string ResolveText(string? parameterValue, UiTextKey defaultKey) =>
+        string.IsNullOrWhiteSpace(parameterValue)
+            ? UiTextCatalog.Get(defaultKey)
+            : parameterValue;
 }

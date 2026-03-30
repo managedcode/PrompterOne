@@ -27,6 +27,8 @@ public enum UiTextKey
     HeaderRead,
     HeaderGoLive,
     HeaderSettings,
+    GoLiveHeroEyebrow,
+    GoLiveHeroDescription,
     CommonName,
     CommonParent,
     CommonTopLevel,

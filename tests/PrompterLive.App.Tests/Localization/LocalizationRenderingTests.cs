@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.Extensions.DependencyInjection;
 using PrompterLive.Core.Localization;
 using PrompterLive.Shared.Components.Diagnostics;
+using PrompterLive.Shared.Components.GoLive;
 using PrompterLive.Shared.Components.Library;
 using PrompterLive.Shared.Localization;
 using PrompterLive.Shared.Tests;
@@ -76,6 +77,20 @@ public sealed class LocalizationRenderingTests : BunitContext
         Assert.Contains(UiTextCatalog.Get(UiTextKey.DiagnosticsRetry), cut.Markup);
         Assert.Contains(UiTextCatalog.Get(UiTextKey.DiagnosticsLibrary), cut.Markup);
         Assert.Contains(UiTextCatalog.Get(UiTextKey.DiagnosticsFatalTitle), cut.Markup);
+    }
+
+    [Fact]
+    public void GoLiveHero_RendersLocalizedDefaults_WhenCurrentCultureIsUkrainian()
+    {
+        using var _ = new CultureScope(AppCultureCatalog.UkrainianCultureName);
+
+        var cut = Render<GoLiveHero>(parameters => parameters
+            .Add(component => component.HasScriptContext, true));
+
+        Assert.Contains(UiTextCatalog.Get(UiTextKey.GoLiveHeroEyebrow), cut.Markup);
+        Assert.Contains(UiTextCatalog.Get(UiTextKey.GoLiveHeroDescription), cut.Markup);
+        Assert.Contains(UiTextCatalog.Get(UiTextKey.HeaderLearn), cut.Markup);
+        Assert.Contains(UiTextCatalog.Get(UiTextKey.HeaderRead), cut.Markup);
     }
 
     private sealed class ThrowingLocalizationDiagnosticsComponent : ComponentBase

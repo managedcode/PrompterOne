@@ -80,6 +80,7 @@ flowchart LR
 - `Go Live` must reuse the browser-composed scene and not invent a separate media graph.
 - `Go Live` must show a live camera preview inside the program feed area, using the first included scene camera and falling back to the first visible scene camera.
 - `Go Live` must show a stable empty preview state instead of mounting camera interop when the current scene has no cameras.
+- `GoLiveHero` default eyebrow, title, description, and CTA labels must come from `PrompterLive.Shared.Localization.UiTextCatalog`, so supported browser cultures localize the screen without feature-local string copies.
 - each live destination must persist its own selected scene cameras, independent of the shared program feed source list
 - legacy streaming settings must normalize to the current included program cameras so existing browser storage keeps working
 - Camera source inclusion is persisted through `MediaSceneState`.

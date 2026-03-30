@@ -95,6 +95,7 @@ public partial class GoLivePage
         _screenSubtitle = SessionService.State.PreviewSegments.Count > 0
             ? SessionService.State.PreviewSegments[0].Title
             : StreamingSubtitle;
+        SyncGoLiveSessionState();
         Shell.ShowGoLive(_screenTitle, _screenSubtitle, SessionService.State.ScriptId);
     }
 
@@ -104,13 +105,17 @@ public partial class GoLivePage
             GoLiveSceneOperation,
             GoLiveSceneMessage,
             () => SettingsStore.SaveAsync(SceneSettingsKey, MediaSceneService.State));
+        SyncGoLiveSessionState();
     }
 
-    private Task PersistStudioSettingsAsync() =>
-        Diagnostics.RunAsync(
+    private async Task PersistStudioSettingsAsync()
+    {
+        await Diagnostics.RunAsync(
             GoLiveStudioOperation,
             GoLiveStudioMessage,
             () => StudioSettingsStore.SaveAsync(_studioSettings));
+        SyncGoLiveSessionState();
+    }
 
     private StudioSettings NormalizeLegacyStreamingSettings(StudioSettings settings)
     {

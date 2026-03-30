@@ -92,6 +92,7 @@ internal static class TestHarnessFactory
         context.Services.AddSingleton<CameraPreviewInterop>();
         context.Services.AddSingleton<MicrophoneLevelInterop>();
         context.Services.AddSingleton(bootstrapper);
+        context.Services.AddSingleton<GoLiveSessionService>();
         context.Services.AddSingleton<UiDiagnosticsService>();
         context.Services.AddSingleton<IStreamingOutputProvider, LiveKitOutputProvider>();
         context.Services.AddSingleton<IStreamingOutputProvider, VdoNinjaOutputProvider>();

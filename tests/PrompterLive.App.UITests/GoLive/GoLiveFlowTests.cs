@@ -15,7 +15,7 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture) : IClassFixtur
 
         try
         {
-            await SeedGoLiveSceneAsync(page);
+            await SeedGoLiveSceneForReuseAsync(page);
             await page.GotoAsync(BrowserTestConstants.Routes.GoLiveDemo);
             await Expect(page.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
             await Expect(page.GetByTestId(UiTestIds.GoLive.ProgramCard)).ToBeVisibleAsync();
@@ -72,12 +72,12 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture) : IClassFixtur
 
         try
         {
-            await SeedGoLiveSceneAsync(page);
+            await SeedGoLiveSceneForReuseAsync(page);
             await page.GotoAsync(BrowserTestConstants.Routes.GoLiveDemo);
             await Expect(page.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
 
             var sourceCamera = page.Locator($"[data-testid^='{UiTestIds.GoLive.SourceCamera(string.Empty)}']").First;
-            var sourceButton = sourceCamera.GetByRole(Microsoft.Playwright.AriaRole.Button);
+            var sourceButton = sourceCamera.Locator($"[data-testid^='{UiTestIds.GoLive.SourceCameraAction(string.Empty)}']").First;
             await Expect(sourceButton).ToContainTextAsync("Remove From Live Feed");
             await sourceButton.ClickAsync();
             await Expect(sourceButton).ToContainTextAsync("Add To Live Feed");
@@ -101,7 +101,7 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture) : IClassFixtur
 
         try
         {
-            await SeedGoLiveSceneAsync(page);
+            await SeedGoLiveSceneForReuseAsync(page);
             await page.GotoAsync(BrowserTestConstants.Routes.GoLiveDemo);
             await Expect(page.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
 
@@ -152,7 +152,7 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture) : IClassFixtur
         }
     }
 
-    private static async Task SeedGoLiveSceneAsync(Microsoft.Playwright.IPage page)
+    internal static async Task SeedGoLiveSceneForReuseAsync(Microsoft.Playwright.IPage page)
     {
         await page.GotoAsync(BrowserTestConstants.Routes.Library);
         await Expect(page.GetByTestId(UiTestIds.Library.Page)).ToBeVisibleAsync();

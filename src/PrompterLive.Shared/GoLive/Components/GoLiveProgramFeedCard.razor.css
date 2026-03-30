@@ -1,0 +1,97 @@
+.go-live-session-card[data-live-state="recording"] {
+    border-color: rgba(248, 113, 113, .24);
+}
+
+.go-live-session-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(280px, .8fr);
+    gap: 20px;
+    align-items: start;
+}
+
+.go-live-session-preview {
+    min-width: 0;
+}
+
+.go-live-session-side {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.go-live-session-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.go-live-session-actions > button {
+    min-height: 40px;
+}
+
+.go-live-record-button {
+    padding: 8px 20px;
+    border: 1px solid rgba(248, 113, 113, .32);
+    border-radius: 10px;
+    background: rgba(127, 29, 29, .14);
+    color: #FCA5A5;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.go-live-record-button:hover:not(:disabled) {
+    background: rgba(127, 29, 29, .2);
+}
+
+.go-live-record-button:disabled {
+    opacity: .45;
+}
+
+.go-live-session-sources {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.go-live-session-source {
+    padding: 14px 16px;
+    border: 1px solid var(--gold-08);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, .02);
+}
+
+.go-live-telemetry-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.go-live-telemetry-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+    padding: 14px 16px;
+    border: 1px solid var(--gold-08);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, .02);
+}
+
+.go-live-telemetry-card strong {
+    color: var(--t1);
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.live-session-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+@media (max-width: 1180px) {
+    .go-live-session-layout,
+    .go-live-telemetry-grid {
+        grid-template-columns: 1fr;
+    }
+}

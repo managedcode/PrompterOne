@@ -126,11 +126,15 @@ internal static partial class BrowserTestConstants
     public static class GoLive
     {
         public const string FirstSourceId = "scene-cam-a";
+        public const string FrontCameraLabel = "Front camera";
         public const string LiveKitRoom = "launch-room";
         public const string LiveKitServer = "wss://livekit.example.com";
         public const string LiveKitToken = "lk-test-token";
+        public const string RecordingStateValue = "recording";
         public const string SceneStorageKey = "prompterlive.settings.prompterlive.scene";
         public const string SecondSourceId = "scene-cam-b";
+        public const string SideCameraLabel = "Side camera";
+        public const string WidgetReturnScreenshotPath = "output/playwright/go-live-widget-return.png";
         public const string ResolveCameraDeviceScript = """
             async () => {
                 const mediaDevices = navigator.mediaDevices;

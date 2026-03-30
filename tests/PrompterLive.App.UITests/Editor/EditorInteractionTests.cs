@@ -345,4 +345,49 @@ public sealed class EditorInteractionTests(StandaloneAppFixture fixture) : IClas
             await page.Context.CloseAsync();
         }
     }
+
+    [Fact]
+    public async Task EditorScreen_ToolbarDropdownsCloseCentrallyAcrossCommandsAndOutsideClicks()
+    {
+        var page = await _fixture.NewPageAsync();
+
+        try
+        {
+            await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
+            var sourceInput = page.GetByTestId(UiTestIds.Editor.SourceInput);
+            await Expect(sourceInput).ToBeVisibleAsync();
+            await sourceInput.EvaluateAsync(
+                "(element, target) => { const start = element.value.indexOf(target); element.focus(); element.setSelectionRange(start, start + target.length); element.dispatchEvent(new Event('select', { bubbles: true })); element.dispatchEvent(new Event('keyup', { bubbles: true })); }",
+                BrowserTestConstants.Editor.Welcome);
+
+            var formatMenu = page.GetByTestId(UiTestIds.Editor.MenuFormat);
+            var colorMenu = page.GetByTestId(UiTestIds.Editor.MenuColor);
+            var pauseMenu = page.GetByTestId(UiTestIds.Editor.MenuPause);
+
+            await page.GetByTestId(UiTestIds.Editor.FormatTrigger).ClickAsync();
+            await Expect(formatMenu).ToBeVisibleAsync();
+
+            await page.GetByTestId(UiTestIds.Editor.ColorTrigger).ClickAsync();
+            await Expect(colorMenu).ToBeVisibleAsync();
+            await Expect(formatMenu).ToBeHiddenAsync();
+
+            await page.GetByTestId(UiTestIds.Editor.PauseTrigger).ClickAsync();
+            await Expect(pauseMenu).ToBeVisibleAsync();
+            await Expect(colorMenu).ToBeHiddenAsync();
+
+            await page.GetByTestId(UiTestIds.Editor.PauseTwoSeconds).ClickAsync();
+            await Expect(pauseMenu).ToBeHiddenAsync();
+            await Expect(sourceInput).ToHaveValueAsync(new Regex(Regex.Escape(BrowserTestConstants.Editor.PauseFragment)));
+
+            await page.GetByTestId(UiTestIds.Editor.ColorTrigger).ClickAsync();
+            await Expect(colorMenu).ToBeVisibleAsync();
+
+            await sourceInput.ClickAsync();
+            await Expect(colorMenu).ToBeHiddenAsync();
+        }
+        finally
+        {
+            await page.Context.CloseAsync();
+        }
+    }
 }

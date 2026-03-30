@@ -79,10 +79,10 @@
                       @oninput="OnSourceInputAsync"
                       @onkeyup="OnSelectionInteractionAsync"
                       @onmouseup="OnSelectionInteractionAsync"
-                      @onselect="OnSelectionInteractionAsync"
+                      @onselect="OnSourceSelectAsync"
                       @onscroll="OnScrollAsync"></textarea>
 
-            @if (Selection.HasSelection)
+            @if (ShouldRenderFloatingBar)
             {
                 <span class="ed-float-bar"
                       data-testid="@UiTestIds.Editor.FloatingBar"

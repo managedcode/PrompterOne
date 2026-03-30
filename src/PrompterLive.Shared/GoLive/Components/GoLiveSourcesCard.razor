@@ -1,6 +1,6 @@
 @namespace PrompterLive.Shared.Components.GoLive
 
-<section class="live-card" data-testid="@UiTestIds.GoLive.SourcesCard">
+<section class="live-card go-live-sources-card" data-testid="@UiTestIds.GoLive.SourcesCard">
     <div class="live-card-header">
         <div>
             <h3 class="live-card-title">@Title</h3>
@@ -18,11 +18,28 @@
         {
             @foreach (var source in Sources)
             {
-                <article class="live-source-item" data-testid="@UiTestIds.GoLive.SourceCamera(source.SourceId)">
-                    <div>
-                        <div class="set-account-name">@source.Label</div>
-                        <div class="set-account-status @(source.Transform.IncludeInOutput ? ConnectedCssClass : DisconnectedCssClass)">@GetSourceStatus(source)</div>
-                    </div>
+                <article class="live-source-item go-live-source-item" data-testid="@UiTestIds.GoLive.SourceCamera(source.SourceId)">
+                    <button type="button"
+                            class="go-live-source-select"
+                            data-active="@IsActive(source)"
+                            data-selected="@IsSelected(source)"
+                            @onclick="() => SelectSource.InvokeAsync(source.SourceId)"
+                            data-testid="@UiTestIds.GoLive.SourceCameraSelect(source.SourceId)">
+                        <div>
+                            <div class="set-account-name">@source.Label</div>
+                            <div class="set-account-status @(source.Transform.IncludeInOutput ? ConnectedCssClass : DisconnectedCssClass)">@GetSourceStatus(source)</div>
+                        </div>
+                        <div class="go-live-source-flags">
+                            @if (IsSelected(source))
+                            {
+                                <span class="live-status pending">Selected</span>
+                            }
+                            @if (IsActive(source))
+                            {
+                                <span class="live-status ready">Program</span>
+                            }
+                        </div>
+                    </button>
                     <button class="@(source.Transform.IncludeInOutput ? OutlineButtonCssClass : GoldenButtonCssClass)"
                             @onclick="() => ToggleSource.InvokeAsync(source.SourceId)"
                             data-testid="@UiTestIds.GoLive.SourceCameraAction(source.DeviceId)">
@@ -45,8 +62,8 @@
 @code {
     private const string AddLabel = "Add To Live Feed";
     private const string ConnectedCssClass = "set-connected";
-    private const string DefaultDescription = "Choose which scene cameras participate in the broadcast feed. Device setup stays in Settings.";
-    private const string DefaultTitle = "Program Sources";
+    private const string DefaultDescription = "Pick the camera that should be ready for the next switch, while keeping inclusion controls nearby.";
+    private const string DefaultTitle = "Live Cameras";
     private const string DisconnectedCssClass = "set-disconnected";
     private const string EmptyStateMessage = "No scene cameras are configured yet. Add them in Settings first.";
     private const string GoldenButtonCssClass = "set-btn-golden";
@@ -59,21 +76,23 @@
     private const string SourceIncludedLabel = "Included in program output";
     private const string SourceSceneOnlyLabel = "Available in scene only";
 
+    [Parameter] public string? ActiveSourceId { get; set; }
     [Parameter] public string Description { get; set; } = DefaultDescription;
-
     [Parameter] public bool HasPrimaryMicrophone { get; set; }
-
     [Parameter] public string MicrophoneName { get; set; } = string.Empty;
-
     [Parameter] public string MicrophoneRouteLabel { get; set; } = string.Empty;
-
+    [Parameter] public EventCallback<string> SelectSource { get; set; }
+    [Parameter] public string? SelectedSourceId { get; set; }
     [Parameter] public string SettingsRoute { get; set; } = AppRoutes.Settings;
-
     [Parameter] public IReadOnlyList<SceneCameraSource> Sources { get; set; } = [];
-
     [Parameter] public string Title { get; set; } = DefaultTitle;
-
     [Parameter] public EventCallback<string> ToggleSource { get; set; }
+
+    private bool IsActive(SceneCameraSource source) =>
+        string.Equals(source.SourceId, ActiveSourceId, StringComparison.Ordinal);
+
+    private bool IsSelected(SceneCameraSource source) =>
+        string.Equals(source.SourceId, SelectedSourceId, StringComparison.Ordinal);
 
     private static string GetSourceStatus(SceneCameraSource source) =>
         source.Transform.IncludeInOutput ? SourceIncludedLabel : SourceSceneOnlyLabel;

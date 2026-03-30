@@ -36,6 +36,7 @@ public partial class GoLivePage : ComponentBase
 
     [Inject] private AppBootstrapper Bootstrapper { get; set; } = null!;
     [Inject] private AppShellService Shell { get; set; } = null!;
+    [Inject] private GoLiveSessionService GoLiveSession { get; set; } = null!;
     [Inject] private UiDiagnosticsService Diagnostics { get; set; } = null!;
     [Inject] private IMediaDeviceService MediaDeviceService { get; set; } = null!;
     [Inject] private IMediaSceneService MediaSceneService { get; set; } = null!;

@@ -20,12 +20,15 @@ public partial class MainLayout : LayoutComponentBase, IDisposable
 
     [Inject] private AppBootstrapper Bootstrapper { get; set; } = null!;
     [Inject] private AppShellService Shell { get; set; } = null!;
+    [Inject] private GoLiveSessionService GoLiveSession { get; set; } = null!;
     [Inject] private IScriptSessionService SessionService { get; set; } = null!;
     [Inject] private ILogger<MainLayout> Logger { get; set; } = null!;
     [Inject] private IJSRuntime JS { get; set; } = null!;
     [Inject] private NavigationManager Navigation { get; set; } = null!;
 
     private AppShellState ShellState => Shell.State;
+
+    private GoLiveSessionState GoLiveSessionState => GoLiveSession.State;
 
     private bool IsLibraryScreen => ShellState.Screen == AppShellScreen.Library;
 
@@ -34,8 +37,6 @@ public partial class MainLayout : LayoutComponentBase, IDisposable
     private bool ShowLibraryActions => ShellState.Screen == AppShellScreen.Library;
 
     private bool ShowLearnAction => ShellState.Screen == AppShellScreen.Editor;
-
-    private bool ShowGoLiveAction => ShellState.Screen != AppShellScreen.GoLive;
 
     private bool ShowLearnWpmBadge => ShellState.Screen == AppShellScreen.Learn;
 
@@ -58,10 +59,42 @@ public partial class MainLayout : LayoutComponentBase, IDisposable
         _ => ShellState.Title
     };
 
+    private string GoLiveIndicatorCopy => GoLiveIndicatorState switch
+    {
+        RecordingStateValue => "Recording active",
+        StreamingStateValue => "Stream active",
+        _ => "Ready"
+    };
+
+    private string GoLiveIndicatorState => GoLiveSessionState.IsRecordingActive
+        ? RecordingStateValue
+        : GoLiveSessionState.IsStreamActive
+            ? StreamingStateValue
+            : IdleStateValue;
+
+    private string GoLiveWidgetDetail => string.IsNullOrWhiteSpace(GoLiveSessionState.ScriptSubtitle)
+        ? GoLiveSessionState.PrimaryMicrophoneLabel
+        : GoLiveSessionState.ScriptSubtitle;
+
+    private string GoLiveWidgetTitle => string.IsNullOrWhiteSpace(GoLiveSessionState.ActiveSourceLabel)
+        ? GoLiveSessionState.ScriptTitle
+        : GoLiveSessionState.ActiveSourceLabel;
+
+    private bool ShowGoLiveWidget => GoLiveSessionState.HasActiveSession && ShellState.Screen != AppShellScreen.GoLive;
+
+    private string GoLiveRoute => !string.IsNullOrWhiteSpace(GoLiveSessionState.ScriptId)
+        ? AppRoutes.GoLiveWithId(GoLiveSessionState.ScriptId)
+        : Shell.GetGoLiveRoute();
+
+    private const string IdleStateValue = "idle";
+    private const string RecordingStateValue = "recording";
+    private const string StreamingStateValue = "streaming";
+
     protected override void OnInitialized()
     {
         Navigation.LocationChanged += HandleLocationChanged;
         Shell.StateChanged += HandleShellStateChanged;
+        GoLiveSession.StateChanged += HandleGoLiveSessionChanged;
         SyncShellStateWithCurrentRoute(Navigation.Uri);
     }
 
@@ -93,6 +126,8 @@ public partial class MainLayout : LayoutComponentBase, IDisposable
     }
 
     private void HandleShellStateChanged() => InvokeAsync(StateHasChanged);
+
+    private void HandleGoLiveSessionChanged() => InvokeAsync(StateHasChanged);
 
     private void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
     {
@@ -190,7 +225,7 @@ public partial class MainLayout : LayoutComponentBase, IDisposable
 
     private Task HandleOpenGoLiveClickAsync()
     {
-        Navigation.NavigateTo(Shell.GetGoLiveRoute());
+        Navigation.NavigateTo(GoLiveRoute);
         return Task.CompletedTask;
     }
 
@@ -210,6 +245,7 @@ public partial class MainLayout : LayoutComponentBase, IDisposable
     {
         Navigation.LocationChanged -= HandleLocationChanged;
         Shell.StateChanged -= HandleShellStateChanged;
+        GoLiveSession.StateChanged -= HandleGoLiveSessionChanged;
         _navigationBridge?.Dispose();
     }
 }

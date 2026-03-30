@@ -6,22 +6,57 @@
      class="screen active"
      data-testid="@UiTestIds.GoLive.Page">
     <div class="live-layout">
-        <GoLiveHero HasScriptContext="@HasScriptContext"
-                    LearnRoute="@LearnRoute"
-                    ReadRoute="@ReadRoute" />
+        <div class="live-grid live-grid-studio">
+            <GoLiveSourcesCard Sources="@SceneCameras"
+                               ActiveSourceId="@ActiveCamera?.SourceId"
+                               SelectedSourceId="@SelectedCamera?.SourceId"
+                               SettingsRoute="@AppRoutes.Settings"
+                               HasPrimaryMicrophone="@HasPrimaryMicrophone"
+                               MicrophoneName="@PrimaryMicrophoneLabel"
+                               MicrophoneRouteLabel="@(HasPrimaryMicrophone ? PrimaryMicrophoneRoute : NoMicrophoneLabel)"
+                               SelectSource="SelectSourceAsync"
+                               ToggleSource="ToggleSceneOutputAsync" />
 
-        <div class="live-grid">
-            <GoLiveProgramFeedCard BitrateKbps="@_studioSettings.Streaming.BitrateKbps"
-                                   OutputResolution="@_studioSettings.Streaming.OutputResolution"
-                                   ShowTextOverlay="@_studioSettings.Streaming.ShowTextOverlay"
+            <GoLiveProgramFeedCard ActiveSourceLabel="@ActiveSourceLabel"
+                                   ActiveSessionLabel="@ActiveSessionLabel"
+                                   AudioTelemetry="@AudioTelemetry"
+                                   BitrateKbps="@_studioSettings.Streaming.BitrateKbps"
+                                   BitrateTelemetry="@BitrateTelemetry"
+                                   CanControlProgram="@CanControlProgram"
                                    IncludeCameraInOutput="@_studioSettings.Streaming.IncludeCameraInOutput"
                                    IsArmed="@HasAnyLiveOutput"
+                                   IsRecordingActive="@GoLiveSession.State.IsRecordingActive"
+                                   IsStreamActive="@GoLiveSession.State.IsStreamActive"
+                                   OutputDestinationsTelemetry="@ActiveDestinationsTelemetry"
+                                   OutputResolution="@_studioSettings.Streaming.OutputResolution"
+                                   RecordingActionLabel="@RecordingActionLabel"
+                                   SelectedSourceLabel="@SelectedSourceLabel"
+                                   ShowTextOverlay="@_studioSettings.Streaming.ShowTextOverlay"
+                                   StreamActionLabel="@StreamActionLabel"
+                                   SwitchActionLabel="@SwitchActionLabel"
+                                   VideoTelemetry="@VideoTelemetry"
                                    OutputResolutionChanged="OnOutputResolutionChanged"
-                                    BitrateChanged="UpdateStreamingBitrateAsync"
-                                    ToggleTextOverlay="ToggleStreamTextOverlayAsync"
-                                    ToggleIncludeCamera="ToggleStreamIncludeCameraAsync">
+                                   BitrateChanged="UpdateStreamingBitrateAsync"
+                                   ToggleTextOverlay="ToggleStreamTextOverlayAsync"
+                                   ToggleIncludeCamera="ToggleStreamIncludeCameraAsync"
+                                   ToggleStreamSession="ToggleStreamSessionAsync"
+                                   ToggleRecordingSession="ToggleRecordingSessionAsync"
+                                   SwitchSelectedSource="SwitchSelectedSourceAsync">
+                <ActionContent>
+                    @if (HasScriptContext)
+                    {
+                        <div class="live-session-links">
+                            <a class="set-btn-outline"
+                               href="@LearnRoute"
+                               data-testid="@UiTestIds.GoLive.OpenLearn">Open Learn</a>
+                            <a class="set-btn-golden"
+                               href="@ReadRoute"
+                               data-testid="@UiTestIds.GoLive.OpenRead">Open Read</a>
+                        </div>
+                    }
+                </ActionContent>
                 <PreviewContent>
-                    <GoLiveCameraPreviewCard Camera="@PreviewCamera" />
+                    <GoLiveCameraPreviewCard Camera="@ActiveCamera" />
                 </PreviewContent>
                 <ChildContent>
                     <GoLiveDestinationCard Title="OBS Studio"
@@ -68,14 +103,13 @@
                     </GoLiveDestinationCard>
                 </ChildContent>
             </GoLiveProgramFeedCard>
-
-            <GoLiveSourcesCard Sources="@SceneCameras"
-                               SettingsRoute="@AppRoutes.Settings"
-                               HasPrimaryMicrophone="@HasPrimaryMicrophone"
-                               MicrophoneName="@PrimaryMicrophoneLabel"
-                               MicrophoneRouteLabel="@(HasPrimaryMicrophone ? PrimaryMicrophoneRoute : NoMicrophoneLabel)"
-                               ToggleSource="ToggleSceneOutputAsync" />
         </div>
+
+        <section class="live-provider-heading">
+            <div class="set-section-label">ADVANCED DESTINATIONS</div>
+            <h3 class="live-provider-title">Destination routing</h3>
+            <p class="live-provider-desc">Arm and configure the endpoints that the active session can publish to.</p>
+        </section>
 
         <section class="live-targets-grid">
             <GoLiveDestinationCard Title="LiveKit"

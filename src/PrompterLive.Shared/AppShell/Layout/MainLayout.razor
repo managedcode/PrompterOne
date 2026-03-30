@@ -94,12 +94,12 @@
             </button>
         }
 
-        @if (ShowGoLiveAction)
-        {
-            <button type="button"
-                    class="btn-ghost"
-                    @onclick="HandleOpenGoLiveClickAsync"
-                    data-testid="@UiTestIds.Header.GoLive">
+        <button type="button"
+                class="btn-live-shell"
+                @onclick="HandleOpenGoLiveClickAsync"
+                data-live-state="@GoLiveIndicatorState"
+                data-testid="@UiTestIds.Header.GoLive">
+            <span class="btn-live-shell-icon" aria-hidden="true">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M4 12a8 8 0 0 1 8-8" />
                     <path d="M20 12a8 8 0 0 0-8-8" />
@@ -107,9 +107,15 @@
                     <path d="M20 12a8 8 0 0 1-8 8" />
                     <circle cx="12" cy="12" r="2.5" />
                 </svg>
-                @UiTextCatalog.Get(UiTextKey.HeaderGoLive)
-            </button>
-        }
+            </span>
+            <span class="btn-live-shell-copy">
+                <span class="btn-live-shell-label">@UiTextCatalog.Get(UiTextKey.HeaderGoLive)</span>
+                @if (GoLiveSessionState.HasActiveSession)
+                {
+                    <span class="btn-live-shell-status">@GoLiveIndicatorCopy</span>
+                }
+            </span>
+        </button>
 
         @if (ShowLearnWpmBadge)
         {
@@ -136,3 +142,16 @@
 <PrompterLive.Shared.Components.Diagnostics.DiagnosticsBanner />
 
 @Body
+
+@if (ShowGoLiveWidget)
+{
+    <button type="button"
+            class="app-live-widget"
+            @onclick="HandleOpenGoLiveClickAsync"
+            data-live-state="@GoLiveIndicatorState"
+            data-testid="@UiTestIds.Header.LiveWidget">
+        <span class="app-live-widget-eyebrow">@GoLiveIndicatorCopy</span>
+        <strong class="app-live-widget-title">@GoLiveWidgetTitle</strong>
+        <span class="app-live-widget-detail">@GoLiveWidgetDetail</span>
+    </button>
+}

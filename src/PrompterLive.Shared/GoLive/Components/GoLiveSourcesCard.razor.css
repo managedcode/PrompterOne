@@ -1,0 +1,45 @@
+.go-live-sources-card {
+    min-height: 100%;
+}
+
+.go-live-source-item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+}
+
+.go-live-source-select {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    min-width: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    color: inherit;
+    text-align: left;
+}
+
+.go-live-source-select[data-selected="True"] .set-account-name {
+    color: #F5E6D0;
+}
+
+.go-live-source-select[data-active="True"] {
+    text-shadow: 0 0 18px rgba(196, 168, 130, .12);
+}
+
+.go-live-source-flags {
+    display: inline-flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+@media (max-width: 900px) {
+    .go-live-source-item {
+        grid-template-columns: 1fr;
+    }
+}

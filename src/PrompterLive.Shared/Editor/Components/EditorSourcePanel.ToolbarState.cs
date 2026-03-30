@@ -77,6 +77,10 @@ public partial class EditorSourcePanel
             ? "tb-color-grid"
             : "tb-emo-list";
 
+    private bool HasOpenToolbarMenu => !string.IsNullOrWhiteSpace(_openMenuId);
+
+    private bool ShouldRenderFloatingBar => Selection.HasSelection && !HasOpenToolbarMenu;
+
     private bool GetActionDisabled(EditorToolbarActionDescriptor action) =>
         action.HistoryCommand switch
         {

@@ -101,6 +101,11 @@ public partial class EditorSourcePanel : IAsyncDisposable
         await RefreshSelectionAsync();
     }
 
+    // A late textarea select event can arrive after a toolbar click and should
+    // refresh selection state without dismissing the menu the user just opened.
+    private Task OnSourceSelectAsync() =>
+        RefreshSelectionAsync();
+
     private async Task OnSourceInputAsync(ChangeEventArgs args)
     {
         CloseToolbarPanels();
