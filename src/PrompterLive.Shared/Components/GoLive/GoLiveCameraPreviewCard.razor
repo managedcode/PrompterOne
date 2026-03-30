@@ -1,0 +1,159 @@
+@implements IAsyncDisposable
+@namespace PrompterLive.Shared.Components.GoLive
+@inject CameraPreviewInterop CameraPreviewInterop
+@inject Microsoft.Extensions.Logging.ILogger<GoLiveCameraPreviewCard> Logger
+
+<section id="@UiDomIds.GoLive.PreviewCard"
+         class="live-card live-preview-card"
+         data-testid="@UiTestIds.GoLive.PreviewCard">
+    <div class="live-card-header">
+        <div>
+            <h3 class="live-card-title">@Title</h3>
+            <p class="live-card-desc">@Description</p>
+        </div>
+        <span class="live-status @(HasCamera ? ReadyStatusCssClass : PendingStatusCssClass)">
+            @(HasCamera ? LiveStatusLabel : EmptyStatusLabel)
+        </span>
+    </div>
+
+    <div class="live-preview-stage">
+        @if (HasCamera)
+        {
+            <video id="@UiDomIds.GoLive.PreviewVideo"
+                   class="live-preview-video"
+                   style="@PreviewVideoStyle"
+                   autoplay
+                   playsinline
+                   muted
+                   data-testid="@UiTestIds.GoLive.PreviewVideo"></video>
+            <div class="live-preview-overlay">
+                <span class="set-section-label">@PreviewEyebrow</span>
+                <div class="set-account-name" data-testid="@UiTestIds.GoLive.PreviewSourceLabel">@Camera!.Label</div>
+                <div class="live-card-desc">@PreviewDescription</div>
+            </div>
+        }
+        else
+        {
+            <div id="@UiDomIds.GoLive.PreviewEmpty"
+                 class="set-empty-card live-preview-empty"
+                 data-testid="@UiTestIds.GoLive.PreviewEmpty">
+                <div class="set-account-name">@EmptyTitle</div>
+                <div class="live-card-desc">@EmptyDescription</div>
+            </div>
+        }
+    </div>
+</section>
+
+@code {
+    private const string DefaultDescription = "Preview the current live scene camera before arming or switching destinations.";
+    private const string DefaultTitle = "Camera Preview";
+    private const string EmptyDescription = "Add a scene camera in Settings or include one in the live output to preview it here.";
+    private const string EmptyStatusLabel = "No camera";
+    private const string EmptyTitle = "No live camera selected";
+    private const string LiveStatusLabel = "Live preview";
+    private const string PendingStatusCssClass = "pending";
+    private const string PreviewEyebrow = "PROGRAM CAMERA";
+    private const string ReadyStatusCssClass = "ready";
+    private const string PreviewAttachFailureMessage = "Failed to attach Go Live preview camera for device {DeviceId}.";
+    private const string PreviewDetachFailureMessage = "Failed to detach Go Live preview camera.";
+
+    [Parameter] public SceneCameraSource? Camera { get; set; }
+
+    [Parameter] public string Description { get; set; } = DefaultDescription;
+
+    [Parameter] public string Title { get; set; } = DefaultTitle;
+
+    private bool HasCamera => Camera is not null;
+
+    private string? _attachedDeviceId;
+
+    private string PreviewDescription =>
+        Camera?.Transform.IncludeInOutput is true
+            ? IncludedPreviewDescription
+            : ScenePreviewDescription;
+
+    private string PreviewVideoStyle =>
+        Camera is null
+            ? string.Empty
+            : BuildPreviewVideoStyle(Camera.Transform);
+
+    private const string IncludedPreviewDescription = "This camera is currently included in the armed program feed.";
+    private const string ScenePreviewDescription = "This camera stays in the scene and can be added to live output at any time.";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        var nextDeviceId = Camera?.DeviceId;
+
+        try
+        {
+            if (string.IsNullOrWhiteSpace(nextDeviceId))
+            {
+                if (!string.IsNullOrWhiteSpace(_attachedDeviceId))
+                {
+                    await CameraPreviewInterop.DetachCameraAsync(UiDomIds.GoLive.PreviewVideo);
+                    _attachedDeviceId = null;
+                }
+
+                return;
+            }
+
+            if (string.Equals(_attachedDeviceId, nextDeviceId, StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            _attachedDeviceId = nextDeviceId;
+            await CameraPreviewInterop.AttachCameraAsync(UiDomIds.GoLive.PreviewVideo, nextDeviceId);
+        }
+        catch (Exception exception)
+        {
+            Microsoft.Extensions.Logging.LoggerExtensions.LogWarning(Logger, exception, PreviewAttachFailureMessage, nextDeviceId);
+            _attachedDeviceId = null;
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_attachedDeviceId))
+        {
+            return;
+        }
+
+        try
+        {
+            await CameraPreviewInterop.DetachCameraAsync(UiDomIds.GoLive.PreviewVideo);
+            _attachedDeviceId = null;
+        }
+        catch (Exception exception)
+        {
+            Microsoft.Extensions.Logging.LoggerExtensions.LogWarning(Logger, exception, PreviewDetachFailureMessage);
+            _attachedDeviceId = null;
+        }
+    }
+
+    private static string BuildPreviewVideoStyle(MediaSourceTransform transform)
+    {
+        var transforms = new List<string>();
+        if (Math.Abs(transform.Rotation) > 0.01)
+        {
+            transforms.Add($"rotate({transform.Rotation.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)}deg)");
+        }
+
+        if (transform.MirrorHorizontal)
+        {
+            transforms.Add("scaleX(-1)");
+        }
+
+        if (transform.MirrorVertical)
+        {
+            transforms.Add("scaleY(-1)");
+        }
+
+        if (transforms.Count == 0)
+        {
+            return string.Empty;
+        }
+
+        return string.Concat("transform:", string.Join(' ', transforms), ";");
+    }
+}

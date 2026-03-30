@@ -1015,6 +1015,7 @@ public class RsvpTextProcessor
             });
         }
 
+        FinalizeProcessedScript(result);
         return result;
     }
 

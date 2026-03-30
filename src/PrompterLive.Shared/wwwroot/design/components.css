@@ -28,6 +28,12 @@
     padding: 0 20px;
     border-right: var(--glass-border-light);
 }
+.app-header-home {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+}
 .app-logo-text {
     font-size: 15px;
     font-weight: 700;
@@ -53,6 +59,13 @@
     flex-shrink: 0;
     margin-left: auto;
     padding: 0 20px;
+}
+.app-header-subtitle {
+    color: var(--text-4);
+    font-size: 12px;
+}
+.app-header-wpm {
+    font-size: 13px;
 }
 
 .diag-banner {

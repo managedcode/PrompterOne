@@ -1,4 +1,7 @@
 using Bunit;
+using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.DependencyInjection;
+using PrompterLive.Core.Models.Workspace;
 using PrompterLive.Shared.Contracts;
 using PrompterLive.Shared.Pages;
 using PrompterLive.Shared.Tests;
@@ -87,10 +90,30 @@ public sealed class ScreenShellContractTests : BunitContext
         {
             Assert.NotNull(cut.FindByTestId(UiTestIds.Settings.Page));
             Assert.Contains("Cloud Storage", cut.Markup);
-            Assert.Contains("Streaming", cut.Markup);
             Assert.Contains("Audio Sync + Routing", cut.Markup);
+            Assert.Contains("Frame Rate", cut.Markup);
             Assert.Contains("Default Camera", cut.Markup);
             Assert.Contains(AppTestData.Scripts.BroadcastMic, cut.Markup);
+            Assert.NotNull(cut.FindByTestId(UiTestIds.Settings.CameraRoutingCta));
+        });
+    }
+
+    [Fact]
+    public void GoLivePage_RendersDedicatedLiveRoutingSurface()
+    {
+        Services.GetRequiredService<NavigationManager>()
+            .NavigateTo(AppTestData.Routes.GoLiveDemo);
+
+        var cut = Render<GoLivePage>();
+
+        cut.WaitForAssertion(() =>
+        {
+            Assert.NotNull(cut.FindByTestId(UiTestIds.GoLive.Page));
+            Assert.NotNull(cut.FindByTestId(UiTestIds.GoLive.ProgramCard));
+            Assert.NotNull(cut.FindByTestId(UiTestIds.GoLive.SourcesCard));
+            Assert.NotNull(cut.FindByTestId(UiTestIds.GoLive.OpenSettings));
+            Assert.NotNull(cut.FindByTestId(UiTestIds.GoLive.ProviderCard(GoLiveTargetCatalog.TargetIds.LiveKit)));
+            Assert.NotNull(cut.FindByTestId(UiTestIds.GoLive.ProviderCard(GoLiveTargetCatalog.TargetIds.Youtube)));
         });
     }
 }

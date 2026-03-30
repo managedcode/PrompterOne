@@ -1,0 +1,49 @@
+@page "/editor"
+@namespace PrompterLive.Shared.Pages
+@using PrompterLive.Shared.Components.Editor
+
+<div id="screen-editor"
+     class="screen active"
+     data-testid="@UiTestIds.Editor.Page">
+    <div class="ed-layout">
+        <EditorStructureSidebar Segments="@_segments"
+                                ActiveSegmentIndex="@_activeSegmentIndex"
+                                ActiveBlockIndex="@_activeBlockIndex"
+                                OnNavigate="OnNavigateAsync" />
+
+        <EditorSourcePanel @ref="_sourcePanel"
+                           Text="@_sourceText"
+                           Selection="@_selection"
+                           Status="@_status"
+                           CanUndo="@_history.CanUndo"
+                           CanRedo="@_history.CanRedo"
+                           ErrorMessage="@_errorMessage"
+                           OnTextChanged="OnSourceChangedAsync"
+                           OnSelectionChanged="OnSelectionChangedAsync"
+                           OnHistoryRequested="OnHistoryRequestedAsync"
+                           OnCommandRequested="OnCommandRequestedAsync"
+                           OnAiActionRequested="OnAiActionRequestedAsync" />
+
+        <EditorMetadataRail Profile="@_profile"
+                            BaseWpm="@_baseWpm"
+                            Duration="@_displayDuration"
+                            XslowOffset="@_xslowOffset"
+                            SlowOffset="@_slowOffset"
+                            FastOffset="@_fastOffset"
+                            XfastOffset="@_xfastOffset"
+                            Author="@_author"
+                            CreatedDate="@_createdDate"
+                            Version="@_version"
+                            Status="@_status"
+                            ProfileChanged="OnProfileChangedAsync"
+                            BaseWpmChanged="OnBaseWpmChangedAsync"
+                            DurationChanged="OnDurationChangedAsync"
+                            XslowOffsetChanged="OnXslowOffsetChangedAsync"
+                            SlowOffsetChanged="OnSlowOffsetChangedAsync"
+                            FastOffsetChanged="OnFastOffsetChangedAsync"
+                            XfastOffsetChanged="OnXfastOffsetChangedAsync"
+                            AuthorChanged="OnAuthorChangedAsync"
+                            CreatedDateChanged="OnCreatedDateChangedAsync"
+                            VersionChanged="OnVersionChangedAsync" />
+    </div>
+</div>

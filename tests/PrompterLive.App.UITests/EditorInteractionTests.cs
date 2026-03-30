@@ -4,8 +4,7 @@ using static Microsoft.Playwright.Assertions;
 
 namespace PrompterLive.App.UITests;
 
-[Collection(StandaloneAppCollection.Name)]
-public sealed class EditorInteractionTests(StandaloneAppFixture fixture)
+public sealed class EditorInteractionTests(StandaloneAppFixture fixture) : IClassFixture<StandaloneAppFixture>
 {
     private readonly StandaloneAppFixture _fixture = fixture;
 
@@ -172,7 +171,33 @@ public sealed class EditorInteractionTests(StandaloneAppFixture fixture)
     }
 
     [Fact]
-    public async Task EditorScreen_ClickableMenusAndAiPanelApplyCommands()
+    public async Task EditorScreen_MetadataDurationPersistsAfterReload()
+    {
+        var page = await _fixture.NewPageAsync();
+
+        try
+        {
+            await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
+            await Expect(page.GetByTestId(UiTestIds.Editor.Duration)).ToBeVisibleAsync();
+
+            await page.GetByTestId(UiTestIds.Editor.Duration).FillAsync(BrowserTestConstants.Editor.DisplayDuration);
+            await page.GetByTestId(UiTestIds.Editor.Version).ClickAsync();
+
+            await Expect(page.GetByTestId(UiTestIds.Editor.Duration)).ToHaveValueAsync(BrowserTestConstants.Editor.DisplayDuration);
+            await page.ReloadAsync();
+            await Expect(page.GetByTestId(UiTestIds.Editor.Duration)).ToHaveValueAsync(BrowserTestConstants.Editor.DisplayDuration);
+
+            var visibleSource = await page.GetByTestId(UiTestIds.Editor.SourceInput).InputValueAsync();
+            Assert.DoesNotContain(BrowserTestConstants.Editor.DurationField, visibleSource, StringComparison.Ordinal);
+        }
+        finally
+        {
+            await page.Context.CloseAsync();
+        }
+    }
+
+    [Fact]
+    public async Task EditorScreen_ClickableMenusAndAiButtonsApplyCommands()
     {
         var page = await _fixture.NewPageAsync();
 
@@ -211,13 +236,25 @@ public sealed class EditorInteractionTests(StandaloneAppFixture fixture)
             await Expect(page.GetByTestId(UiTestIds.Editor.SourceInput)).ToHaveValueAsync(
                 new Regex(@"### \[Block Name\|140WPM\]"));
 
+            await page.GetByTestId(UiTestIds.Editor.SourceInput).EvaluateAsync(
+                """
+                element => {
+                    const text = element.value;
+                    const target = "transformative moment";
+                    const start = text.indexOf(target);
+                    element.focus();
+                    element.setSelectionRange(start, start + target.length);
+                    element.dispatchEvent(new Event("select", { bubbles: true }));
+                    element.dispatchEvent(new Event("keyup", { bubbles: true }));
+                }
+                """);
+
             var valueBeforeAi = await page.GetByTestId(UiTestIds.Editor.SourceInput).InputValueAsync();
             await page.GetByTestId(UiTestIds.Editor.Ai).ClickAsync();
-            await Expect(page.GetByTestId(UiTestIds.Editor.AiPanel)).ToBeVisibleAsync();
-            await page.GetByTestId(UiTestIds.Editor.AiActionSimplify).ClickAsync();
 
             var valueAfterAi = await page.GetByTestId(UiTestIds.Editor.SourceInput).InputValueAsync();
             Assert.NotEqual(valueBeforeAi, valueAfterAi);
+            Assert.Contains(BrowserTestConstants.Editor.SimplifiedMoment, valueAfterAi, StringComparison.Ordinal);
         }
         finally
         {

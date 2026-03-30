@@ -5,13 +5,12 @@ using static Microsoft.Playwright.Assertions;
 
 namespace PrompterLive.App.UITests;
 
-[Collection(StandaloneAppCollection.Name)]
-public sealed class EditorToolbarCoverageTests(StandaloneAppFixture fixture)
+public sealed class EditorToolbarCoverageTests(StandaloneAppFixture fixture) : IClassFixture<StandaloneAppFixture>
 {
     private readonly StandaloneAppFixture _fixture = fixture;
 
     [Fact]
-    public async Task EditorToolbar_AllMenuTriggersAndAiButtonsOpenExpectedPanels()
+    public async Task EditorToolbar_AllMenuTriggersAndAiButtonsExposeExpectedBehavior()
     {
         var page = await _fixture.NewPageAsync();
 
@@ -30,13 +29,16 @@ public sealed class EditorToolbarCoverageTests(StandaloneAppFixture fixture)
                 await OpenEditorAsync(page);
                 if (scenario.RequiresSelection)
                 {
-                    await SetSourceTextAndSelectAlphaAsync(page, BrowserTestSource.AlphaSource);
+                    await SetSourceTextAndSelectPhraseAsync(page, scenario.SourceText, BrowserTestConstants.Editor.TransformativeMoment);
                     await page.WaitForTimeoutAsync(BrowserTestConstants.Timing.FloatingToolbarSettleDelayMs);
                 }
 
+                var beforeValue = await page.GetByTestId(UiTestIds.Editor.SourceInput).InputValueAsync();
                 await page.GetByTestId(scenario.TestId).ClickAsync();
-                await Expect(page.GetByTestId(UiTestIds.Editor.AiPanel))
-                    .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.FastVisibleTimeoutMs });
+                var afterValue = await page.GetByTestId(UiTestIds.Editor.SourceInput).InputValueAsync();
+
+                Assert.NotEqual(beforeValue, afterValue);
+                Assert.Contains(scenario.ExpectedFragment, afterValue, StringComparison.Ordinal);
             }
         }
         finally
@@ -148,21 +150,24 @@ public sealed class EditorToolbarCoverageTests(StandaloneAppFixture fixture)
         };
 
     private static Task SetSourceTextAndSelectAlphaAsync(IPage page, string text) =>
+        SetSourceTextAndSelectPhraseAsync(page, text, BrowserTestSource.AlphaToken);
+
+    private static Task SetSourceTextAndSelectPhraseAsync(IPage page, string text, string targetPhrase) =>
         page.GetByTestId(UiTestIds.Editor.SourceInput).EvaluateAsync(
             """
-            (element, value) => {
+            (element, args) => {
                 element.focus();
-                element.value = value;
+                element.value = args.text;
                 element.dispatchEvent(new Event("input", { bubbles: true }));
 
-                const target = "Alpha";
+                const target = args.target;
                 const start = element.value.indexOf(target);
                 element.setSelectionRange(start, start + target.length);
                 element.dispatchEvent(new Event("select", { bubbles: true }));
                 element.dispatchEvent(new Event("keyup", { bubbles: true }));
             }
             """,
-            text);
+            new { text, target = targetPhrase });
 
     private static Task SetSourceTextAndSelectColoredAlphaAsync(IPage page) =>
         page.GetByTestId(UiTestIds.Editor.SourceInput).EvaluateAsync(

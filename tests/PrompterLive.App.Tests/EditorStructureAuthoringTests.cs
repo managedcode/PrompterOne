@@ -25,7 +25,8 @@ public sealed class EditorStructureAuthoringTests : BunitContext
 
         cut.WaitForAssertion(() =>
         {
-            Assert.Contains("Quantum Computing", cut.Markup);
+            var source = cut.FindByTestId(UiTestIds.Editor.SourceInput);
+            Assert.Contains(EditorStructureAuthoringTestSource.InitialSegmentHeading, source.GetAttribute("value"));
             Assert.Contains("Introduction", cut.Markup);
             Assert.DoesNotContain("ACTIVE SEGMENT", cut.Markup, StringComparison.Ordinal);
             Assert.DoesNotContain("ACTIVE BLOCK", cut.Markup, StringComparison.Ordinal);
@@ -57,7 +58,8 @@ public sealed class EditorStructureAuthoringTests : BunitContext
 
         cut.WaitForAssertion(() =>
         {
-            Assert.Contains("Product Launch", cut.Markup);
+            var source = cut.FindByTestId(UiTestIds.Editor.SourceInput);
+            Assert.Contains(AppTestData.Editor.BodyHeading, source.GetAttribute("value"));
             Assert.Equal(EditorStructureAuthoringTestSource.DefaultXslowOffset, cut.FindByTestId(UiTestIds.Editor.SpeedXslow).GetAttribute("value"));
         });
 
@@ -82,6 +84,7 @@ public sealed class EditorStructureAuthoringTests : BunitContext
     private static class EditorStructureAuthoringTestSource
     {
         public const string DefaultXslowOffset = "-40";
+        public const string InitialSegmentHeading = "## [Introduction|280WPM|neutral|0:00-1:10]";
         public const string UpdatedFastOffset = "30";
         public const string UpdatedFastPersistence = "fast_offset: 30";
         public const string UpdatedSlowOffset = "-15";

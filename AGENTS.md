@@ -19,7 +19,7 @@ There is no backend in the runtime shape. The app must boot directly in the brow
 
 ### Commands
 
-- `build`: `dotnet build /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx`
+- `build`: `dotnet build /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx -warnaserror`
 - `test`: `dotnet test /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx`
 - `format`: `dotnet format /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx`
 - `coverage`: `dotnet test /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx --collect:"XPlat Code Coverage"`
@@ -43,8 +43,12 @@ Browser test execution rules:
 
 - Use one `dotnet test` process at a time for the browser suite.
 - The browser suite self-hosts the built WASM assets on `http://localhost:5051`.
+- Inside that single process, the browser suite may run up to `4` parallel xUnit workers.
 - Do not run `PrompterLive.App.UITests` in parallel with another `dotnet build` or `dotnet test` command.
 - If a prior build already ran, prefer `dotnet test ... --no-build` for the browser suite.
+- Browser UI scenarios are the primary acceptance gate for this repo. Component and core tests are supporting layers, not the release bar.
+- Major user flows MUST be covered by long Playwright scenarios that execute real browser interactions end to end.
+- Major browser scenarios MUST capture screenshot artifacts under `output/playwright/`.
 
 Do not override the app URL with `--urls` or random ports. Media permissions are origin-bound, so local development must stay on the stable launch-settings origin.
 
@@ -57,6 +61,7 @@ Selector and constant rules:
 - URLs in tests MUST come from shared route helpers or constants, never inline literals.
 - Magic numbers in tests are forbidden. Put timeouts, delays, counts, percentages, and seeded numeric inputs behind named constants.
 - Prefer production-owned UI contract constants in `PrompterLive.Shared.Contracts` over duplicating selector strings in test projects.
+- Browser-localization storage keys, JS interop identifiers, and culture names MUST come from named constants.
 
 ### Project AGENTS Policy
 
@@ -171,6 +176,7 @@ Local `AGENTS.md` files may tighten these values, but they must not loosen them 
 - Tests should be as realistic as possible and exercise the system through real flows, contracts, and dependencies.
 - Tests must cover positive flows, negative flows, edge cases, and unexpected paths from multiple relevant angles when the behaviour can fail in different ways.
 - Prefer integration/API/UI tests over isolated unit tests when behaviour crosses boundaries.
+- For `PrompterLive`, prioritize browser UI tests first, then supporting component/core tests only where they help isolate failures.
 - Do not use mocks, fakes, stubs, or service doubles in verification.
 - Exercise internal and external dependencies through real containers, test instances, or sandbox environments that match the real contract.
 - Flaky tests are failures. Fix the cause.
@@ -193,6 +199,7 @@ Local `AGENTS.md` files may tighten these values, but they must not loosen them 
 - Hardcoded values are forbidden.
 - String literals are forbidden in implementation code. Declare them once as named constants, enums, configuration entries, or dedicated value objects, then reuse those symbols.
 - Avoid magic literals. Extract shared values into constants, enums, configuration, or dedicated types.
+- URLs, storage keys, JS interop identifiers, route fragments, and user-visible fallback strings are implementation literals too. They MUST live behind named constants or localized catalogs.
 - Design boundaries so real behaviour can be tested through public interfaces.
 - The repo-root `.editorconfig` is the source of truth for formatting, naming, style, and analyzer severity. Use nested `.editorconfig` files only when they clearly serve a subtree-specific purpose.
 
@@ -209,6 +216,10 @@ Repo-specific design rules:
 - Do not introduce a server host for the app runtime.
 - Preserve stable `data-testid` selectors on core flows because the Playwright suite depends on them.
 - Keep UI routes in shared route constants and keep `data-testid` names in shared UI contract constants.
+- Build quality gates must stay green under `-warnaserror`.
+- The runtime must negotiate browser language from supported cultures and default to English.
+- Supported runtime cultures are English, Ukrainian, French, Spanish, Portuguese, and Italian.
+- Russian must never be added as a supported runtime culture.
 
 ### Critical
 

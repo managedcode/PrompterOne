@@ -21,6 +21,7 @@ bower_components/
 .sass-cache/
 connect.lock/
 coverage/
+output/playwright/
 libpeerconnection.log/
 npm-debug.log
 testem.log

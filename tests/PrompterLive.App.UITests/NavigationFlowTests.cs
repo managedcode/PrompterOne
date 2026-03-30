@@ -3,8 +3,7 @@ using static Microsoft.Playwright.Assertions;
 
 namespace PrompterLive.App.UITests;
 
-[Collection(StandaloneAppCollection.Name)]
-public sealed class NavigationFlowTests(StandaloneAppFixture fixture)
+public sealed class NavigationFlowTests(StandaloneAppFixture fixture) : IClassFixture<StandaloneAppFixture>
 {
     private readonly StandaloneAppFixture _fixture = fixture;
 

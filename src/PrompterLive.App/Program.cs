@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.JSInterop;
 using PrompterLive.App;
 using PrompterLive.App.Services;
 using PrompterLive.Shared.Services;
@@ -17,4 +18,6 @@ builder.Logging.AddFilter("Microsoft.AspNetCore.Components.WebAssembly.Rendering
 builder.Services.AddSingleton<IFormFactor, FormFactor>();
 builder.Services.AddPrompterLiveShared();
 
-await builder.Build().RunAsync();
+var host = builder.Build();
+await BrowserCultureRuntime.ApplyPreferredCultureAsync(host.Services.GetRequiredService<IJSRuntime>());
+await host.RunAsync();

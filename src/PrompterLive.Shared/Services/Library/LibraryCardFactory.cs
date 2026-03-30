@@ -1,19 +1,21 @@
+using System.Globalization;
 using PrompterLive.Core.Abstractions;
 using PrompterLive.Core.Models.Documents;
 using PrompterLive.Core.Services;
 using PrompterLive.Core.Services.Preview;
 using PrompterLive.Shared.Components.Library;
-
 using PrompterLive.Shared.Contracts;
 
 namespace PrompterLive.Shared.Services.Library;
 
 internal static class LibraryCardFactory
 {
+    private const int FirstPreviewSegmentIndex = 0;
     private const string DefaultAuthor = "You";
     private const string DefaultEmotion = "Neutral";
     private const string DefaultModeLabel = "Actor";
     private const string FallbackAccentColor = "#2563EB";
+    private const string UpdatedLabelFormat = "MMM dd";
 
     public static async Task<IReadOnlyList<LibraryCardViewModel>> BuildAsync(
         IReadOnlyList<StoredScriptSummary> summaries,
@@ -58,7 +60,7 @@ internal static class LibraryCardFactory
 
         var previewSegments = await previewService.BuildPreviewAsync(document.Text, cancellationToken);
         var parsed = await parser.ParseAsync(document.Text);
-        var firstSegment = previewSegments.FirstOrDefault();
+        var firstSegment = previewSegments.Count > 0 ? previewSegments[FirstPreviewSegmentIndex] : null;
         var averageWpm = ResolveAverageWpm(previewSegments, parsed.Metadata);
         var duration = ResolveDuration(parsed.Metadata, summary.WordCount, averageWpm);
 
@@ -73,7 +75,7 @@ internal static class LibraryCardFactory
             SegmentCount: ResolveDisplayInt(parsed.Metadata, "display_segment_count", previewSegments.Count > 0 ? previewSegments.Count : 1),
             Author: ResolveAuthor(parsed.Metadata),
             UpdatedAt: summary.UpdatedAt,
-            UpdatedLabel: summary.UpdatedAt.ToLocalTime().ToString("MMM dd"),
+            UpdatedLabel: summary.UpdatedAt.ToLocalTime().ToString(UpdatedLabelFormat, CultureInfo.CurrentCulture),
             ModeLabel: ResolveModeLabel(parsed.Metadata, averageWpm),
             Duration: duration,
             DurationLabel: $"{(int)Math.Max(duration.TotalMinutes, 0)}:{duration.Seconds:00}",

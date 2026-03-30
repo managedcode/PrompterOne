@@ -3,12 +3,16 @@ using PrompterLive.Core.Models.Media;
 using PrompterLive.Core.Models.Workspace;
 using PrompterLive.Shared.Contracts;
 using PrompterLive.Shared.Pages;
+using PrompterLive.Shared.Services;
 using PrompterLive.Shared.Tests;
 
 namespace PrompterLive.App.Tests;
 
 public sealed class SettingsInteractionTests : BunitContext
 {
+    private const string ReaderSettingsKey = "prompterlive.reader";
+    private const string SceneSettingsKey = "prompterlive.scene";
+
     private readonly AppHarness _harness;
 
     public SettingsInteractionTests()
@@ -28,7 +32,8 @@ public sealed class SettingsInteractionTests : BunitContext
         cut.FindByTestId(UiTestIds.Settings.ReaderCameraToggle).Click();
 
         Assert.Equal(!initialValue, _harness.Session.State.ReaderSettings.ShowCameraScene);
-        Assert.True(_harness.JsRuntime.SavedValues.ContainsKey("prompterlive.reader"));
+        var readerSettings = _harness.JsRuntime.GetSavedValue<ReaderSettings>(ReaderSettingsKey);
+        Assert.Equal(!initialValue, readerSettings.ShowCameraScene);
     }
 
     [Fact]
@@ -45,7 +50,8 @@ public sealed class SettingsInteractionTests : BunitContext
 
         Assert.Equal(320, audioInput.DelayMs);
         Assert.Equal(AudioRouteTarget.Both, audioInput.RouteTarget);
-        Assert.True(_harness.JsRuntime.SavedValues.ContainsKey("prompterlive.scene"));
+        var savedScene = _harness.JsRuntime.GetSavedValue<MediaSceneState>(SceneSettingsKey);
+        Assert.Contains(savedScene.AudioBus.Inputs, input => input.DeviceId == "mic-1" && input.DelayMs == 320);
     }
 
     [Fact]
@@ -56,22 +62,16 @@ public sealed class SettingsInteractionTests : BunitContext
         cut.WaitForAssertion(() => Assert.Contains(UiTestIds.Settings.DefaultCamera, cut.Markup, StringComparison.Ordinal));
 
         cut.FindByTestId(UiTestIds.Settings.CameraResolution).Change(CameraResolutionPreset.Hd720.ToString());
+        cut.FindByTestId(UiTestIds.Settings.CameraFrameRate).Change(AppTestData.Camera.FrameRateFps24);
         cut.FindByTestId(UiTestIds.Settings.CameraMirrorToggle).Click();
         cut.FindByTestId(UiTestIds.Settings.MicLevel).Input(82);
         cut.FindByTestId(UiTestIds.Settings.NoiseSuppression).Click();
-        cut.FindByTestId(UiTestIds.Settings.OutputMode).Change(StreamingOutputMode.DirectRtmp.ToString());
-        cut.FindByTestId(UiTestIds.Settings.Bitrate).Input(AppTestData.Streaming.BitrateKbps);
-        cut.FindByTestId(UiTestIds.Settings.RtmpUrl).Input(AppTestData.Streaming.RtmpUrl);
-        cut.FindByTestId(UiTestIds.Settings.StreamKey).Input(AppTestData.Streaming.StreamKey);
 
-        var settings = Assert.IsType<StudioSettings>(_harness.JsRuntime.SavedValues["prompterlive.studio"]);
+        var settings = _harness.JsRuntime.GetSavedValue<StudioSettings>(StudioSettingsStore.StorageKey);
         Assert.Equal(CameraResolutionPreset.Hd720, settings.Camera.Resolution);
+        Assert.Equal(CameraFrameRatePreset.Fps24, settings.Camera.FrameRate);
         Assert.False(settings.Camera.MirrorCamera);
         Assert.Equal(82, settings.Microphone.InputLevelPercent);
         Assert.False(settings.Microphone.NoiseSuppression);
-        Assert.Equal(StreamingOutputMode.DirectRtmp, settings.Streaming.OutputMode);
-        Assert.Equal(AppTestData.Streaming.BitrateKbps, settings.Streaming.BitrateKbps);
-        Assert.Equal(AppTestData.Streaming.RtmpUrl, settings.Streaming.RtmpUrl);
-        Assert.Equal(AppTestData.Streaming.StreamKey, settings.Streaming.StreamKey);
     }
 }

@@ -8,7 +8,7 @@
 
 - `Routes.razor`
 - `Layout/MainLayout.razor`
-- `Pages/*`
+- `Pages/<ScreenName>/*`
 - `Services/PrompterLiveServiceCollectionExtensions.cs`
 - `wwwroot/design/*`
 - `wwwroot/prompterlive.js`
@@ -33,5 +33,5 @@
 ## Local Risks Or Protected Areas
 
 - Small class-name changes can break design fidelity badly because the CSS comes from `new-design`.
-- Header behavior is driven by `wwwroot/design/app.js`; keep route mapping consistent with page ids there.
+- Routed shell and page navigation belong in Blazor; keep `wwwroot/design/app.js` limited to browser/runtime interop.
 - JS interop and saved browser state are part of the real runtime contract; do not treat them as decorative.

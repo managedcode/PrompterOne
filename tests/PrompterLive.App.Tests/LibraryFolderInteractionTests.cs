@@ -98,6 +98,24 @@ public sealed class LibraryFolderInteractionTests : BunitContext
     }
 
     [Fact]
+    public void LibraryPage_SelectsFolderChip_AndFiltersCards()
+    {
+        var cut = Render<LibraryPage>();
+
+        cut.WaitForAssertion(() => Assert.Contains(AppTestData.Scripts.DemoTitle, cut.Markup));
+
+        var tedTalksChip = cut.FindByTestId(UiTestIds.Library.FolderChip(SampleLibraryFolderCatalog.TedTalksFolderId));
+        tedTalksChip.Click();
+
+        cut.WaitForAssertion(() =>
+        {
+            Assert.Contains(AppTestData.Scripts.TedLeadershipTitle, cut.Markup);
+            Assert.DoesNotContain(AppTestData.Scripts.DemoTitle, cut.Markup);
+            Assert.Contains("active", tedTalksChip.ClassName, StringComparison.Ordinal);
+        });
+    }
+
+    [Fact]
     public async Task LibraryPage_RestoresPersistedFolderSelectionAfterReload()
     {
         await _harness.FolderRepository.InitializeAsync(SampleLibraryFolderCatalog.CreateSeedFolders());

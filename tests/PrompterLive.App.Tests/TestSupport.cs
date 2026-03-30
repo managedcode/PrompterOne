@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Bunit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -24,9 +25,10 @@ internal static class TestHarnessFactory
     public static AppHarness Create(
         BunitContext context,
         IReadOnlyList<MediaDeviceInfo>? devices = null,
-        Action<ILoggingBuilder>? configureLogging = null)
+        Action<ILoggingBuilder>? configureLogging = null,
+        TimeSpan? jsInvocationDelay = null)
     {
-        var jsRuntime = new TestJsRuntime();
+        var jsRuntime = new TestJsRuntime(jsInvocationDelay);
         var repository = new InMemoryScriptRepository();
         var folderRepository = new InMemoryLibraryFolderRepository();
         var loggerFactory = LoggerFactory.Create(builder =>
@@ -54,6 +56,7 @@ internal static class TestHarnessFactory
         var settingsStore = new BrowserSettingsStore(
             jsRuntime,
             loggerFactory.CreateLogger<BrowserSettingsStore>());
+        var shell = new AppShellService();
         var bootstrapper = new AppBootstrapper(
             session,
             folderRepository,
@@ -84,6 +87,7 @@ internal static class TestHarnessFactory
         context.Services.AddSingleton<RsvpEmotionAnalyzer>();
         context.Services.AddSingleton<RsvpPlaybackEngine>();
         context.Services.AddSingleton(settingsStore);
+        context.Services.AddSingleton(shell);
         context.Services.AddSingleton<StudioSettingsStore>();
         context.Services.AddSingleton<CameraPreviewInterop>();
         context.Services.AddSingleton(bootstrapper);
@@ -120,9 +124,19 @@ internal sealed record AppHarness(
     FakeMediaDeviceService DeviceService,
     ILoggerFactory LoggerFactory);
 
-internal sealed class TestJsRuntime : IJSRuntime
+internal sealed class TestJsRuntime(TimeSpan? invocationDelay = null) : IJSRuntime
 {
+    private const string LoadSettingJsonIdentifier = "PrompterLive.settings.loadJson";
+    private const string SaveSettingJsonIdentifier = "PrompterLive.settings.saveJson";
+
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
+
+    private readonly TimeSpan _invocationDelay = invocationDelay ?? TimeSpan.Zero;
     public Dictionary<string, object?> SavedValues { get; } = new(StringComparer.Ordinal);
+    public Dictionary<string, string> SavedJsonValues { get; } = new(StringComparer.Ordinal);
     public List<string> Invocations { get; } = [];
 
     public ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args) =>
@@ -130,26 +144,44 @@ internal sealed class TestJsRuntime : IJSRuntime
 
     public ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
     {
+        if (_invocationDelay > TimeSpan.Zero)
+        {
+            return new ValueTask<TValue>(InvokeDelayedAsync<TValue>(identifier, cancellationToken, args));
+        }
+
+        return ValueTask.FromResult(GetResult<TValue>(identifier, args));
+    }
+
+    private async Task<TValue> InvokeDelayedAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
+    {
+        await Task.Delay(_invocationDelay, cancellationToken);
+        return GetResult<TValue>(identifier, args);
+    }
+
+    private TValue GetResult<TValue>(string identifier, object?[]? args)
+    {
         Invocations.Add(identifier);
 
         var result = identifier switch
         {
+            LoadSettingJsonIdentifier => LoadJson(args),
             "PrompterLive.settings.load" => Load(args),
+            SaveSettingJsonIdentifier => SaveJson(args),
             "PrompterLive.settings.save" => Save(args),
             _ => null
         };
 
         if (result is null)
         {
-            return ValueTask.FromResult(default(TValue)!);
+            return default!;
         }
 
         if (result is TValue typed)
         {
-            return ValueTask.FromResult(typed);
+            return typed;
         }
 
-        return ValueTask.FromResult((TValue)result);
+        return (TValue)result;
     }
 
     private object? Load(object?[]? args)
@@ -158,10 +190,47 @@ internal sealed class TestJsRuntime : IJSRuntime
         return SavedValues.TryGetValue(key, out var value) ? value : null;
     }
 
+    public T GetSavedValue<T>(string key)
+    {
+        if (SavedValues.TryGetValue(key, out var value) && value is T typedValue)
+        {
+            return typedValue;
+        }
+
+        if (SavedJsonValues.TryGetValue(key, out var json))
+        {
+            return JsonSerializer.Deserialize<T>(json, JsonOptions)
+                ?? throw new InvalidOperationException($"Saved JSON for '{key}' could not be deserialized as {typeof(T).Name}.");
+        }
+
+        throw new KeyNotFoundException($"No saved value was found for '{key}'.");
+    }
+
     private object? Save(object?[]? args)
     {
         var key = args?.FirstOrDefault()?.ToString() ?? string.Empty;
         SavedValues[key] = args?.Skip(1).FirstOrDefault();
+        return null;
+    }
+
+    private object? LoadJson(object?[]? args)
+    {
+        var key = args?.FirstOrDefault()?.ToString() ?? string.Empty;
+        if (SavedJsonValues.TryGetValue(key, out var savedJson))
+        {
+            return savedJson;
+        }
+
+        return SavedValues.TryGetValue(key, out var value)
+            ? JsonSerializer.Serialize(value, JsonOptions)
+            : null;
+    }
+
+    private object? SaveJson(object?[]? args)
+    {
+        var key = args?.FirstOrDefault()?.ToString() ?? string.Empty;
+        var json = args?.Skip(1).FirstOrDefault()?.ToString() ?? string.Empty;
+        SavedJsonValues[key] = json;
         return null;
     }
 }

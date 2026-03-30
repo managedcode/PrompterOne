@@ -26,8 +26,8 @@
         <label>Duration</label>
         <input type="text"
                class="ed-meta-input"
-               value="@Status.Duration"
-               readonly
+               value="@Duration"
+               @onchange="OnDurationChange"
                data-testid="@UiTestIds.Editor.Duration" />
     </div>
     <div class="ed-meta-field">
@@ -115,6 +115,8 @@
 
     [Parameter] public string CreatedDate { get; set; } = string.Empty;
 
+    [Parameter] public string Duration { get; set; } = string.Empty;
+
     [Parameter] public int FastOffset { get; set; }
 
     [Parameter] public EventCallback<string> ProfileChanged { get; set; }
@@ -137,6 +139,8 @@
 
     [Parameter] public EventCallback<string> CreatedDateChanged { get; set; }
 
+    [Parameter] public EventCallback<string> DurationChanged { get; set; }
+
     [Parameter] public EventCallback<int> FastOffsetChanged { get; set; }
 
     [Parameter] public EventCallback<int> SlowOffsetChanged { get; set; }
@@ -152,6 +156,9 @@
 
     private Task OnCreatedDateChange(ChangeEventArgs args) =>
         CreatedDateChanged.InvokeAsync(args.Value?.ToString() ?? string.Empty);
+
+    private Task OnDurationChange(ChangeEventArgs args) =>
+        DurationChanged.InvokeAsync(args.Value?.ToString() ?? string.Empty);
 
     private Task OnProfileChange(ChangeEventArgs args) =>
         ProfileChanged.InvokeAsync(args.Value?.ToString() ?? "Actor");

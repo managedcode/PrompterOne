@@ -2,172 +2,89 @@
 // NAVIGATION
 // ============================================
 
-const routeMap = {
-    library: '/library',
-    editor: '/editor',
-    rsvp: '/learn',
-    teleprompter: '/teleprompter',
-    settings: '/settings'
-};
-const testIds = {
-    header: {
-        editorLearn: 'header-editor-learn',
-        editorRead: 'header-editor-read',
-        libraryBreadcrumbCurrent: 'header-library-breadcrumb-current',
-        libraryNewScript: 'header-library-new-script',
-        librarySearch: 'library-search'
-    }
-};
-const scriptScopedScreens = new Set(['editor', 'rsvp', 'teleprompter']);
+const NAVIGATE_EDITOR_METHOD = 'NavigateEditorClient';
+const NAVIGATE_HOME_METHOD = 'NavigateHomeClient';
+const ROUTE_LIBRARY_PATH = '/library';
+const ROUTE_LEARN_PATH = '/learn';
+const ROUTE_TELEPROMPTER_PATH = '/teleprompter';
+const SCREEN_LIBRARY_ID = 'screen-library';
+const SCREEN_RSVP_ID = 'screen-rsvp';
+const SCREEN_TELEPROMPTER_ID = 'screen-teleprompter';
+const ACTIVE_CLASS_NAME = 'active';
+const READER_FOCUS_BUTTON_ID = 'rd-focus-btn';
+const READER_GRADIENT_ID = 'rd-gradient';
+const READER_GRADIENT_CLASS_NAME = 'rd-gradient';
+const READER_HEADER_SEGMENT_ID = 'rd-header-segment';
+const READER_PLAY_BUTTON_ID = 'tp-play-btn';
+const READER_PROGRESS_FILL_ID = 'rd-progress-fill';
+const READER_TIME_SELECTOR = '.rd-time';
+const READER_CAMERA_SELECTOR = '.rd-camera[data-camera-role]';
+const READER_ACTIVE_WORD_SELECTOR = '.rd-card-active .rd-w.rd-now';
+const READER_EDGE_SECTION_SELECTOR = '.rd-edge-section';
+const READER_EDGE_SEGMENT_SELECTOR = '.rd-edge-segs > div';
+const INTERACTIVE_INPUT_SELECTOR = 'input, [contenteditable]';
+const RSVP_PLAY_BUTTON_ID = 'rsvp-play-btn';
+const RSVP_SPEED_ID = 'rsvp-speed';
+const RSVP_WPM_BADGE_ID = 'rsvp-wpm-badge';
+const DEFAULT_SEGMENT_NAME = 'Intro';
+const DEFAULT_SEGMENT_EMOTION = 'warm';
+const DEFAULT_SEGMENT_BACKGROUND = 'warm';
+const KEY_ESCAPE = 'Escape';
+const KEY_SPACE = ' ';
+const KEY_ARROW_RIGHT = 'ArrowRight';
+const KEY_ARROW_LEFT = 'ArrowLeft';
+const KEY_PAGE_DOWN = 'PageDown';
+const KEY_PAGE_UP = 'PageUp';
+const KEY_ARROW_UP = 'ArrowUp';
+const KEY_ARROW_DOWN = 'ArrowDown';
+const KEY_CAMERA_LOWER = 'c';
+const KEY_CAMERA_UPPER = 'C';
+const KEY_FOCUS_LOWER = 'f';
+const KEY_FOCUS_UPPER = 'F';
 let blazorNavigator = null;
 
-function getScreenElement(screenId) {
-    const elementId = screenId === 'rsvp'
-        ? 'screen-rsvp'
-        : `screen-${screenId}`;
-
-    return document.getElementById(elementId);
-}
-
-function getScreenMeta(screenId) {
-    const screen = getScreenElement(screenId);
-    return {
-        title: screen?.dataset?.screenTitle || 'Product Launch',
-        subtitle: screen?.dataset?.screenSubtitle || 'Intro / Opening Block',
-        wpm: screen?.dataset?.screenWpm || `${rsvpSpeed} WPM`
-    };
-}
-
-function getCurrentScreenId() {
-    const path = window.location.pathname.replace(/\/+$/, '') || '/';
-    switch (path) {
-        case '/':
-        case '/library':
-            return 'library';
-        case '/editor':
-            return 'editor';
-        case '/learn':
-            return 'rsvp';
-        case '/teleprompter':
-            return 'teleprompter';
-        case '/settings':
-            return 'settings';
-        default:
-            return 'library';
+function requestEditorNavigation() {
+    if (blazorNavigator) {
+        void blazorNavigator.invokeMethodAsync(NAVIGATE_EDITOR_METHOD);
     }
 }
 
-function buildRoute(screenId) {
-    const targetPath = routeMap[screenId] || routeMap.library;
-    const targetUrl = new URL(targetPath, window.location.origin);
-    const currentUrl = new URL(window.location.href);
-    const currentScriptId = currentUrl.searchParams.get('id');
-
-    if (scriptScopedScreens.has(screenId) && currentScriptId) {
-        targetUrl.searchParams.set('id', currentScriptId);
-    }
-
-    return `${targetUrl.pathname}${targetUrl.search}`;
-}
-
-async function navigateTo(screenId) {
-    const targetRoute = buildRoute(screenId);
-    const currentRoute = `${window.location.pathname}${window.location.search}`;
-    if (currentRoute !== targetRoute) {
-        if (blazorNavigator) {
-            await blazorNavigator.invokeMethodAsync('NavigateClient', targetRoute);
-        } else {
-            window.location.assign(targetRoute);
-        }
-        return;
-    }
-
-    if (screenId === 'teleprompter') {
-        resetReader();
-    }
-
-    updateAppHeader(screenId);
-}
-
-function updateAppHeader(screenId) {
-    const center = document.getElementById('app-header-center');
-    const right = document.getElementById('app-header-right');
-    if (!center || !right) return;
-
-    const backBtn = `<button class="btn-back" onclick="navigateTo('library')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15,18 9,12 15,6"/></svg></button>`;
-
-    switch (screenId) {
-        case 'library':
-            center.innerHTML = `
-                <div class="lib-breadcrumb">
-                    <span class="bc-item">All Scripts</span>
-                    <span class="bc-sep">/</span>
-                    <span class="bc-item bc-current" data-testid="${testIds.header.libraryBreadcrumbCurrent}">Presentations</span>
-                </div>`;
-            right.innerHTML = `
-                <div class="lib-search">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-                    <input type="text" placeholder="Search..." data-testid="${testIds.header.librarySearch}" oninput="filterLibraryCards(this.value)" />
-                </div>
-                <button class="btn-create" onclick="navigateTo('editor')" data-testid="${testIds.header.libraryNewScript}">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                    New Script
-                </button>`;
-            break;
-        case 'editor':
-        {
-            const meta = getScreenMeta(screenId);
-            center.innerHTML = `${backBtn}<span class="top-bar-title">${meta.title}</span>`;
-            right.innerHTML = `
-                <button class="btn-ghost" onclick="navigateTo('rsvp')" data-testid="${testIds.header.editorLearn}">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-                    Learn
-                </button>
-                <button class="btn-gold" onclick="navigateTo('teleprompter')" data-testid="${testIds.header.editorRead}">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5,3 19,12 5,21"/></svg>
-                    Read
-                </button>`;
-            break;
-        }
-        case 'settings':
-            center.innerHTML = `${backBtn}<span class="top-bar-title">Settings</span>`;
-            right.innerHTML = '';
-            break;
-        case 'rsvp':
-        {
-            const meta = getScreenMeta(screenId);
-            center.innerHTML = `${backBtn}<span class="top-bar-title">${meta.title}</span><span style="color:var(--text-4);font-size:12px">${meta.subtitle}</span>`;
-            right.innerHTML = `<span class="top-bar-title" id="rsvp-wpm-badge" style="font-size:13px">${meta.wpm}</span>`;
-            break;
-        }
-        case 'teleprompter':
-        {
-            const meta = getScreenMeta(screenId);
-            center.innerHTML = `${backBtn}<span class="top-bar-title">${meta.title}</span><span style="color:var(--text-4);font-size:12px" id="rd-header-segment">${meta.subtitle}</span>`;
-            right.innerHTML = '';
-            break;
-        }
-        default:
-            center.innerHTML = '';
-            right.innerHTML = '';
+function requestHomeNavigation() {
+    if (blazorNavigator) {
+        void blazorNavigator.invokeMethodAsync(NAVIGATE_HOME_METHOD);
     }
 }
 
-function filterLibraryCards(rawQuery) {
-    const query = (rawQuery || '').trim().toLowerCase();
-    const cards = document.querySelectorAll('.dcards-grid .dcard:not(.dcard-create)');
+function getCurrentPathName() {
+    return (window.location.pathname || '').toLowerCase();
+}
 
-    cards.forEach(card => {
-        const title = card.querySelector('.dcard-title')?.textContent?.trim().toLowerCase() || '';
-        const author = card.querySelector('.ddata-foot span')?.textContent?.trim().toLowerCase() || '';
-        const matches = !query || title.includes(query) || author.includes(query);
-        card.style.display = matches ? '' : 'none';
-    });
+function isCurrentPath(path) {
+    return getCurrentPathName() === path;
+}
+
+function isTeleprompterRuntimeActive() {
+    return isCurrentPath(ROUTE_TELEPROMPTER_PATH) && document.getElementById(SCREEN_TELEPROMPTER_ID) !== null;
+}
+
+function isRsvpRuntimeActive() {
+    return isCurrentPath(ROUTE_LEARN_PATH) && document.getElementById(SCREEN_RSVP_ID) !== null;
+}
+
+function isLibraryRuntimeActive() {
+    return isCurrentPath(ROUTE_LIBRARY_PATH) && document.getElementById(SCREEN_LIBRARY_ID) !== null;
 }
 
 // ============================================
 // RSVP (Learn mode — simple word-by-word)
 // ============================================
+
+const RSVP_CONTEXT_WORD_COUNT = 5;
+const RSVP_END_OF_SCRIPT = 'End of script.';
+const RSVP_MAX_SPEED = 600;
+const RSVP_MIN_SPEED = 100;
+const RSVP_MIN_WORD_DURATION_MS = 120;
+const RSVP_NEUTRAL_EMOTION = 'neutral';
 
 let rsvpSpeed = 300;
 let rsvpPlaying = false;
@@ -175,10 +92,10 @@ let rsvpTimeline = [];
 let rsvpTimer = null;
 
 function changeRsvpSpeed(delta) {
-    rsvpSpeed = Math.max(100, Math.min(600, rsvpSpeed + delta));
-    const el = document.getElementById('rsvp-speed');
+    rsvpSpeed = Math.max(RSVP_MIN_SPEED, Math.min(RSVP_MAX_SPEED, rsvpSpeed + delta));
+    const el = document.getElementById(RSVP_SPEED_ID);
     if (el) el.textContent = rsvpSpeed;
-    const badge = document.getElementById('rsvp-wpm-badge');
+    const badge = document.getElementById(RSVP_WPM_BADGE_ID);
     if (badge) badge.textContent = rsvpSpeed + ' WPM';
 
     updateRsvpProgress();
@@ -189,7 +106,7 @@ function changeRsvpSpeed(delta) {
 
 function toggleRsvp() {
     rsvpPlaying = !rsvpPlaying;
-    const btn = document.getElementById('rsvp-play-btn');
+    const btn = document.getElementById(RSVP_PLAY_BUTTON_ID);
     if (!btn) {
         return;
     }
@@ -224,7 +141,7 @@ function getRsvpEntries() {
         pauseAfterMs: 0,
         baseWpm: rsvpSpeed,
         nextPhrase: '',
-        emotion: 'neutral'
+        emotion: RSVP_NEUTRAL_EMOTION
     }));
 }
 
@@ -261,7 +178,7 @@ function renderRsvpWord() {
     // Position the word so the ORP letter aligns with the center vertical line
     const orpEl = container.querySelector('.orp');
     if (orpEl) {
-        const containerRect = container.getBoundingClientRect();
+        const containerRect = container.parentElement.getBoundingClientRect();
         const orpRect = orpEl.getBoundingClientRect();
         const containerCenter = containerRect.left + containerRect.width / 2;
         const orpCenter = orpRect.left + orpRect.width / 2;
@@ -272,14 +189,18 @@ function renderRsvpWord() {
     // Left context (5 words)
     const leftEl = document.getElementById('rsvp-ctx-l');
     if (leftEl) {
-        const leftWords = entries.slice(Math.max(0, safeIndex - 3), safeIndex).map(item => item.word);
+        const leftWords = entries
+            .slice(Math.max(0, safeIndex - RSVP_CONTEXT_WORD_COUNT), safeIndex)
+            .map(item => item.word);
         leftEl.innerHTML = leftWords.map(w => `<span>${w}</span>`).join('');
     }
 
     // Right context (5 words)
     const rightEl = document.getElementById('rsvp-ctx-r');
     if (rightEl) {
-        const rightWords = entries.slice(safeIndex + 1, safeIndex + 4).map(item => item.word);
+        const rightWords = entries
+            .slice(safeIndex + 1, safeIndex + RSVP_CONTEXT_WORD_COUNT + 1)
+            .map(item => item.word);
         rightEl.innerHTML = rightWords.map(w => `<span>${w}</span>`).join('');
     }
 
@@ -291,7 +212,7 @@ function renderRsvpWord() {
         phrase.textContent = entry.nextPhrase || entries
             .slice(safeIndex + 1, Math.min(safeIndex + 10, entries.length))
             .map(item => item.word)
-            .join(' ') || 'End of script.';
+            .join(' ') || RSVP_END_OF_SCRIPT;
     }
 
     updateRsvpProgress();
@@ -303,7 +224,7 @@ function getScaledRsvpDuration(entry, key) {
     const baseValue = Number(entry?.baseWpm) || rsvpSpeed;
     const scaled = (Number.isFinite(sourceValue) ? sourceValue : Math.round(60000 / Math.max(baseValue, 1)))
         * (baseValue / Math.max(rsvpSpeed, 1));
-    return Math.max(key === 'pauseAfterMs' ? 0 : 120, Math.round(scaled));
+    return Math.max(key === 'pauseAfterMs' ? 0 : RSVP_MIN_WORD_DURATION_MS, Math.round(scaled));
 }
 
 function updateRsvpProgress() {
@@ -385,6 +306,9 @@ let tpPlaying = false; // Start paused — user presses play
 let readerWordIndex = -1;
 let readerCardIndex = 0;
 let countdownActive = false;
+const READER_DEFAULT_WORD_DELAY_MS = 600;
+const READER_MIN_WORD_DELAY_MS = 120;
+const READER_CARD_TRANSITION_DELAY_MS = 850;
 
 function getReaderWordDuration(word) {
     const duration = Number.parseInt(word?.dataset?.ms || '600', 10);
@@ -469,19 +393,15 @@ function highlightFirstWord() {
     const cards = getReaderCards();
     const card = cards[readerCardIndex];
     if (!card) return;
-    const words = card.querySelectorAll('.rd-w');
-    if (!words.length) return;
     readerWordIndex = 0;
-    words[0].classList.add('rd-now');
-    const g = words[0].closest('.rd-g');
-    if (g) g.classList.add('rd-g-active');
+    setActiveReaderWord(card, readerWordIndex);
     updateReaderProgress();
 }
 
 function startPlaying() {
     tpPlaying = true;
     countdownActive = false;
-    const btn = document.getElementById('tp-play-btn');
+    const btn = document.getElementById(READER_PLAY_BUTTON_ID);
     if (btn) btn.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';
     scheduleNextWord();
 }
@@ -638,6 +558,53 @@ function preCenterCard(card) {
     text.style.transition = '';
 }
 
+function setActiveReaderWord(card, activeIndex) {
+    if (!card) return null;
+
+    const words = card.querySelectorAll('.rd-w');
+    if (!words.length || activeIndex < 0 || activeIndex >= words.length) {
+        return null;
+    }
+
+    words.forEach((word, index) => {
+        word.classList.remove('rd-now');
+        if (index < activeIndex) {
+            word.classList.add('rd-read');
+            return;
+        }
+
+        word.classList.remove('rd-read');
+        if (index === activeIndex) {
+            word.classList.add('rd-now');
+        }
+    });
+
+    card.querySelectorAll('.rd-g').forEach(group => group.classList.remove('rd-g-active'));
+    const currentWord = words[activeIndex];
+    const currentGroup = currentWord.closest('.rd-g');
+    if (currentGroup) {
+        currentGroup.classList.add('rd-g-active');
+    }
+
+    return currentWord;
+}
+
+function pauseReaderPlaybackForTransition() {
+    const shouldResume = tpPlaying;
+    tpPlaying = false;
+    clearTimeout(readerTimer);
+    return shouldResume;
+}
+
+function resumeReaderPlaybackAfterTransition(shouldResume) {
+    if (!shouldResume) {
+        return;
+    }
+
+    tpPlaying = true;
+    scheduleNextWord();
+}
+
 function advanceReaderWord() {
     const cards = getReaderCards();
     if (!cards.length) return;
@@ -667,47 +634,20 @@ function advanceReaderWord() {
         const nextCard = cards[readerCardIndex];
         if (nextCard) preCenterCard(nextCard);
 
-        const wasPaused = !tpPlaying;
-        tpPlaying = false;
+        const shouldResume = pauseReaderPlaybackForTransition();
         showCard(readerCardIndex);
 
         // Wait for slide transition, then resume
         setTimeout(() => {
             readerWordIndex = 0;
-            const firstWord = cards[readerCardIndex]?.querySelector('.rd-w');
-            const firstGroup = firstWord?.closest('.rd-g');
-            cards[readerCardIndex]?.querySelectorAll('.rd-g').forEach(g => g.classList.remove('rd-g-active'));
-            if (firstGroup) {
-                firstGroup.classList.add('rd-g-active');
-            }
+            setActiveReaderWord(cards[readerCardIndex], readerWordIndex);
             updateReaderProgress();
-            if (!wasPaused) tpPlaying = true;
-        }, 850);
+            resumeReaderPlaybackAfterTransition(shouldResume);
+        }, READER_CARD_TRANSITION_DELAY_MS);
         return;
     }
 
-    words.forEach((w, i) => {
-        w.classList.remove('rd-now');
-        if (i < readerWordIndex) {
-            w.classList.add('rd-read');
-        } else if (i === readerWordIndex) {
-            w.classList.add('rd-now');
-            w.classList.remove('rd-read');
-        } else {
-            w.classList.remove('rd-read');
-        }
-    });
-
-    // Phrase-group highlighting: elevate the entire thought-group
-    // containing the current word so peripheral vision can preview
-    // upcoming words within the same semantic unit
-    activeCard.querySelectorAll('.rd-g').forEach(g => g.classList.remove('rd-g-active'));
-    const currentWord = words[readerWordIndex];
-    if (currentWord) {
-        const parentGroup = currentWord.closest('.rd-g');
-        if (parentGroup) parentGroup.classList.add('rd-g-active');
-    }
-
+    setActiveReaderWord(activeCard, readerWordIndex);
     // Center the active line on screen (smooth scroll)
     centerActiveLine(true);
     updateReaderProgress();
@@ -861,8 +801,7 @@ function jumpCard(direction) {
         targetCard.querySelectorAll('.rd-w').forEach(w => w.classList.remove('rd-now'));
     }
 
-    const wasPaused = !tpPlaying;
-    tpPlaying = false;
+    const shouldResume = pauseReaderPlaybackForTransition();
     readerCardIndex = newIndex;
     readerWordIndex = 0;
     showCard(readerCardIndex);
@@ -870,8 +809,10 @@ function jumpCard(direction) {
 
     // Wait for slide transition, then resume
     setTimeout(() => {
-        if (!wasPaused) tpPlaying = true;
-    }, 850);
+        setActiveReaderWord(cards[readerCardIndex], readerWordIndex);
+        updateReaderProgress();
+        resumeReaderPlaybackAfterTransition(shouldResume);
+    }, READER_CARD_TRANSITION_DELAY_MS);
 }
 
 // Update block indicator
@@ -886,6 +827,7 @@ function resetReader() {
     readerCardIndex = 0;
     tpPlaying = false; // Start paused
     countdownActive = false;
+    clearTimeout(readerTimer);
     const cards = getReaderCards();
     cards.forEach(c => {
         c.querySelectorAll('.rd-w').forEach(w => w.classList.remove('rd-read', 'rd-now'));
@@ -908,9 +850,9 @@ function resetReader() {
     const btn = document.getElementById('tp-play-btn');
     if (btn) btn.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5,3 19,12 5,21"/></svg>';
     // Reset progress
-    const fill = document.getElementById('rd-progress-fill');
+    const fill = document.getElementById(READER_PROGRESS_FILL_ID);
     if (fill) fill.style.width = '0%';
-    const timeEl = document.querySelector('.rd-time');
+    const timeEl = document.querySelector(READER_TIME_SELECTOR);
     if (timeEl) {
         timeEl.textContent = `0:00 / ${formatSeconds(getReaderTotalSeconds())}`;
     }
@@ -927,21 +869,27 @@ function scheduleNextWord() {
         return;
     }
 
-    const currentWord = document.querySelector('.rd-card-active .rd-w.rd-now');
+    const currentWord = document.querySelector(READER_ACTIVE_WORD_SELECTOR);
     const delay = currentWord
         ? getReaderWordDuration(currentWord) + getReaderWordPause(currentWord)
-        : 600;
+        : READER_DEFAULT_WORD_DELAY_MS;
 
     readerTimer = setTimeout(() => {
-        if (tpPlaying && document.getElementById('screen-teleprompter')?.classList.contains('active')) {
+        if (tpPlaying && isTeleprompterRuntimeActive()) {
             advanceReaderWord();
         }
         if (tpPlaying) scheduleNextWord();
-    }, Math.max(120, delay));
+    }, Math.max(READER_MIN_WORD_DELAY_MS, delay));
 }
 
 function getReaderCameraElements() {
-    return Array.from(document.querySelectorAll('.rd-camera[data-camera-role]'));
+    return Array.from(document.querySelectorAll(READER_CAMERA_SELECTOR));
+}
+
+function applyReaderCameraVisualState(cameras, tint, btn, nextActive) {
+    cameras.forEach(camera => camera.classList.toggle('active', nextActive));
+    tint.classList.toggle('active', nextActive);
+    btn.classList.toggle('active', nextActive);
 }
 
 // Camera toggle
@@ -959,6 +907,8 @@ async function setReaderCameraActive(nextActive) {
     const targetCameras = attachableCameras.length > 0
         ? attachableCameras
         : cameras.slice(0, 1);
+
+    applyReaderCameraVisualState(cameras, tint, btn, nextActive);
 
     if (nextActive) {
         await Promise.all(targetCameras.map(async camera => {
@@ -981,9 +931,7 @@ async function setReaderCameraActive(nextActive) {
         return;
     }
 
-    cameras.forEach(camera => camera.classList.toggle('active', nextActive));
-    tint.classList.toggle('active', nextActive);
-    btn.classList.toggle('active', nextActive);
+    applyReaderCameraVisualState(cameras, tint, btn, nextActive);
 }
 
 async function toggleReaderCamera() {
@@ -1009,8 +957,12 @@ async function initializeReaderCamera() {
 
 // Focus mode toggle
 function toggleFocusMode() {
-    const btn = document.getElementById('rd-focus-btn');
-    btn.classList.toggle('active');
+    const btn = document.getElementById(READER_FOCUS_BUTTON_ID);
+    if (!btn) {
+        return;
+    }
+
+    btn.classList.toggle(ACTIVE_CLASS_NAME);
     // Could hide header/footer for immersive mode
 }
 
@@ -1025,9 +977,9 @@ function getReaderSegmentMeta(index) {
     const card = cards[index];
     if (!card) {
         return {
-            name: 'Intro',
-            emotion: 'warm',
-            bg: 'warm'
+            name: DEFAULT_SEGMENT_NAME,
+            emotion: DEFAULT_SEGMENT_EMOTION,
+            bg: DEFAULT_SEGMENT_BACKGROUND
         };
     }
 
@@ -1048,22 +1000,22 @@ function goToSegment(index) {
     const seg = getReaderSegmentMeta(index);
 
     // Update gradient background with smooth transition
-    const gradient = document.getElementById('rd-gradient');
+    const gradient = document.getElementById(READER_GRADIENT_ID);
     if (gradient) {
-        gradient.className = 'rd-gradient';
+        gradient.className = READER_GRADIENT_CLASS_NAME;
         if (seg.bg) gradient.classList.add(seg.bg);
     }
 
     // Update edge section label
-    const sectionEl = document.querySelector('.rd-edge-section');
+    const sectionEl = document.querySelector(READER_EDGE_SECTION_SELECTOR);
     if (sectionEl) sectionEl.textContent = seg.name;
 
     // Update header subtitle
-    const headerSeg = document.getElementById('rd-header-segment');
+    const headerSeg = document.getElementById(READER_HEADER_SEGMENT_ID);
     if (headerSeg) headerSeg.textContent = seg.name + ' · ' + seg.emotion.charAt(0).toUpperCase() + seg.emotion.slice(1);
 
     // Update segment indicator colors
-    const segs = document.querySelectorAll('.rd-edge-segs > div');
+    const segs = document.querySelectorAll(READER_EDGE_SEGMENT_SELECTOR);
     segs.forEach((s, i) => {
         s.style.opacity = i === index ? '1' : '0.4';
     });
@@ -1074,16 +1026,15 @@ function prevSegment() { goToSegment(currentSegmentIndex - 1); }
 
 // ── Keyboard shortcuts ──
 document.addEventListener('keydown', (e) => {
-    const isTp = document.getElementById('screen-teleprompter')?.classList.contains('active');
-    const isRsvp = document.getElementById('screen-rsvp')?.classList.contains('active');
+    const isTp = isTeleprompterRuntimeActive();
+    const isRsvp = isRsvpRuntimeActive();
 
-    if (e.key === 'Escape') {
-        const active = document.querySelector('.screen.active');
-        if (active && active.id !== 'screen-library') {
+    if (e.key === KEY_ESCAPE) {
+        if (!isLibraryRuntimeActive()) {
             if (isTp || isRsvp) {
-                navigateTo('editor');
+                requestEditorNavigation();
             } else {
-                navigateTo('library');
+                requestHomeNavigation();
             }
         }
         return;
@@ -1091,145 +1042,53 @@ document.addEventListener('keydown', (e) => {
 
     // Only process shortcuts when in teleprompter or RSVP mode
     if (!isTp && !isRsvp) return;
-    if (e.target.matches('input, [contenteditable]')) return;
+    if (e.target.matches(INTERACTIVE_INPUT_SELECTOR)) return;
 
     switch (e.key) {
         // ── Play / Pause ──
-        case ' ':
+        case KEY_SPACE:
             e.preventDefault();
             if (isRsvp) toggleRsvp();
             if (isTp) toggleTp();
             break;
 
         // ── Segment navigation ──
-        case 'ArrowRight':
-        case 'PageDown':
+        case KEY_ARROW_RIGHT:
+        case KEY_PAGE_DOWN:
             e.preventDefault();
             if (isTp) nextSegment();
             break;
-        case 'ArrowLeft':
-        case 'PageUp':
+        case KEY_ARROW_LEFT:
+        case KEY_PAGE_UP:
             e.preventDefault();
             if (isTp) prevSegment();
             break;
 
         // ── Speed ──
-        case 'ArrowUp':
+        case KEY_ARROW_UP:
             e.preventDefault();
             if (isTp) changeTpSpeed(10);
             if (isRsvp) changeRsvpSpeed(10);
             break;
-        case 'ArrowDown':
+        case KEY_ARROW_DOWN:
             e.preventDefault();
             if (isTp) changeTpSpeed(-10);
             if (isRsvp) changeRsvpSpeed(-10);
             break;
 
         // ── Camera toggle ──
-        case 'c':
-        case 'C':
+        case KEY_CAMERA_LOWER:
+        case KEY_CAMERA_UPPER:
             if (isTp) toggleReaderCamera();
             break;
 
         // ── Focus mode ──
-        case 'f':
-        case 'F':
+        case KEY_FOCUS_LOWER:
+        case KEY_FOCUS_UPPER:
             if (isTp) toggleFocusMode();
             break;
     }
 });
-
-document.addEventListener('click', event => {
-    const sortButton = event.target.closest('.sort-btn');
-    if (sortButton) {
-        sortButton.parentElement?.querySelectorAll('.sort-btn').forEach(button => button.classList.remove('active'));
-        sortButton.classList.add('active');
-    }
-
-    const folderItem = event.target.closest('.folder-item');
-    if (folderItem) {
-        document.querySelectorAll('.folder-item').forEach(item => item.classList.remove('active'));
-        folderItem.classList.add('active');
-        const breadcrumbCurrent = document.querySelector('.bc-current');
-        const label = folderItem.querySelector('span')?.textContent?.trim();
-        if (breadcrumbCurrent && label) {
-            breadcrumbCurrent.textContent = label;
-        }
-    }
-
-    const toggle = event.target.closest('.set-toggle');
-    if (toggle) {
-        toggle.classList.toggle('on');
-    }
-
-    const provider = event.target.closest('.set-ai-provider');
-    if (provider) {
-        provider.parentElement?.querySelectorAll('.set-ai-provider').forEach(item => item.classList.remove('active'));
-        provider.classList.add('active');
-        const radio = provider.querySelector('input[type="radio"]');
-        if (radio) {
-            radio.checked = true;
-        }
-    }
-});
-
-// ============================================
-// SETTINGS — section switching
-// ============================================
-
-function showSetSection(id, sourceEvent) {
-    document.querySelectorAll('.set-panel').forEach(p => p.style.display = 'none');
-    const target = document.getElementById('set-' + id);
-    if (target) target.style.display = '';
-
-    document.querySelectorAll('.set-nav-item').forEach(n => n.classList.remove('active'));
-    const currentEvent = sourceEvent || window.event;
-    currentEvent?.currentTarget?.classList?.add('active');
-}
-
-// ============================================
-// EDITOR — Structure navigation
-// ============================================
-
-function edNavTo(el) {
-    const nav = el.dataset.nav;
-    if (!nav) return;
-    const parts = nav.split('-');
-    const segs = document.querySelectorAll('.ed-content .ed-seg');
-    let target = null;
-
-    if (parts[0] === 'seg') {
-        const segIdx = parseInt(parts[1]);
-        target = segs[segIdx];
-    } else if (parts[0] === 'blk') {
-        const segIdx = parseInt(parts[1]);
-        const blkIdx = parseInt(parts[2]);
-        if (segs[segIdx]) {
-            const blocks = segs[segIdx].querySelectorAll('.ed-blk');
-            target = blocks[blkIdx];
-        }
-    }
-
-    if (target) {
-        const container = document.querySelector('.ed-content');
-        if (container) {
-            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-        // Flash highlight
-        target.classList.add('ed-nav-flash');
-        setTimeout(() => target.classList.remove('ed-nav-flash'), 1200);
-    }
-
-    // Update active state in tree
-    document.querySelectorAll('.ed-tree-seg').forEach(s => s.classList.remove('active'));
-    document.querySelectorAll('.ed-tree-block').forEach(b => b.classList.remove('active'));
-    el.classList.add('active');
-    // If clicked on a block, also activate its parent segment
-    if (parts[0] === 'blk') {
-        const parentSeg = document.querySelector(`[data-nav="seg-${parts[1]}"]`);
-        if (parentSeg) parentSeg.classList.add('active');
-    }
-}
 
 // ============================================
 // INIT
@@ -1240,8 +1099,7 @@ window.PrompterLiveDesign = {
         blazorNavigator = dotNetRef || null;
     },
     initialize(screenId) {
-        const resolvedScreenId = screenId || getCurrentScreenId();
-        updateAppHeader(resolvedScreenId);
+        const resolvedScreenId = screenId || '';
 
         if (resolvedScreenId === 'rsvp') {
             renderRsvpWord();
@@ -1250,12 +1108,6 @@ window.PrompterLiveDesign = {
         if (resolvedScreenId === 'teleprompter') {
             resetReader();
             void initializeReaderCamera();
-        }
-    },
-    setLibraryBreadcrumb(label) {
-        const breadcrumbCurrent = document.querySelector('.bc-current');
-        if (breadcrumbCurrent && typeof label === 'string' && label.trim().length > 0) {
-            breadcrumbCurrent.textContent = label;
         }
     },
     setRsvpTimeline(entries, options) {
@@ -1268,7 +1120,7 @@ window.PrompterLiveDesign = {
                     pauseAfterMs: Number.isFinite(entry.pauseAfterMs) ? entry.pauseAfterMs : 0,
                     baseWpm: Number.isFinite(entry.baseWpm) ? entry.baseWpm : rsvpSpeed,
                     nextPhrase: typeof entry.nextPhrase === 'string' ? entry.nextPhrase : '',
-                    emotion: typeof entry.emotion === 'string' ? entry.emotion : 'neutral'
+                    emotion: typeof entry.emotion === 'string' ? entry.emotion : RSVP_NEUTRAL_EMOTION
                 }))
             : [];
 
@@ -1282,22 +1134,21 @@ window.PrompterLiveDesign = {
         rsvpIndex = Math.max(0, Math.min(options?.index ?? 0, rsvpTimeline.length - 1));
 
         if (typeof options?.speed === 'number' && Number.isFinite(options.speed)) {
-            rsvpSpeed = Math.max(100, Math.min(600, Math.round(options.speed)));
-            const speedLabel = document.getElementById('rsvp-speed');
+            rsvpSpeed = Math.max(RSVP_MIN_SPEED, Math.min(RSVP_MAX_SPEED, Math.round(options.speed)));
+            const speedLabel = document.getElementById(RSVP_SPEED_ID);
             if (speedLabel) {
                 speedLabel.textContent = String(rsvpSpeed);
             }
         }
 
         rsvpPlaying = options?.autoPlay === true;
-        const btn = document.getElementById('rsvp-play-btn');
+        const btn = document.getElementById(RSVP_PLAY_BUTTON_ID);
         if (btn) {
             btn.innerHTML = rsvpPlaying
                 ? '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>'
                 : '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5,3 19,12 5,21"/></svg>';
         }
 
-        updateAppHeader('rsvp');
         renderRsvpWord();
         if (rsvpPlaying) {
             scheduleRsvpAdvance();
@@ -1318,7 +1169,7 @@ window.PrompterLiveDesign = {
             pauseAfterMs: 0,
             baseWpm: options?.speed || rsvpSpeed,
             nextPhrase: '',
-            emotion: 'neutral'
+            emotion: RSVP_NEUTRAL_EMOTION
         })), options);
     }
 };

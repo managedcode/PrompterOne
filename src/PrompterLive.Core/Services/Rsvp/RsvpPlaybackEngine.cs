@@ -5,14 +5,15 @@ namespace PrompterLive.Core.Services.Rsvp;
 /// Handles WPM settings, word timing, and playback state
 /// Based on proven RSVP algorithms from Squirt/Spritz implementations
 /// </summary>
-public class RsvpPlaybackEngine(RsvpTextProcessor textProcessor)
+public class RsvpPlaybackEngine
 {
-    private int _wpm = 120; // Default comfortable reading speed
-    private const int MIN_WPM = 50;
-    private const int MAX_WPM = 1000;
+    private const int DefaultWordsPerMinute = 120;
+    private const int MinimumWordsPerMinute = 50;
+    private const int MaximumWordsPerMinute = 1000;
     private const int MinimumWordDisplayMs = 150;
     private const int MaximumWordDisplayMs = 3200;
     private const int DefaultPauseMs = 400;
+    private int _wpm = DefaultWordsPerMinute;
     private RsvpTextProcessor.ProcessedScript? _processedScript;
     private readonly Dictionary<int, int> _wordDurationsMs = new();
     private readonly Dictionary<int, int> _baselineWpmByWord = new();
@@ -103,7 +104,7 @@ public class RsvpPlaybackEngine(RsvpTextProcessor textProcessor)
     public int WordsPerMinute
     {
         get => _wpm;
-        set => _wpm = Math.Max(MIN_WPM, Math.Min(MAX_WPM, value));
+        set => _wpm = Math.Max(MinimumWordsPerMinute, Math.Min(MaximumWordsPerMinute, value));
     }
 
     /// <summary>
@@ -198,18 +199,20 @@ public class RsvpPlaybackEngine(RsvpTextProcessor textProcessor)
         if (wordIndex >= 0 && _wordDurationsMs.TryGetValue(wordIndex, out var scriptedDuration))
         {
             var baselineWpm = _baselineWpmByWord.TryGetValue(wordIndex, out var baseWpm) ? baseWpm : _wpm;
-            var scale = baselineWpm > 0 ? baselineWpm / (double)Math.Max(MIN_WPM, Math.Min(MAX_WPM, _wpm)) : 1.0;
+            var scale = baselineWpm > 0
+                ? baselineWpm / (double)Math.Max(MinimumWordsPerMinute, Math.Min(MaximumWordsPerMinute, _wpm))
+                : 1.0;
             var adjusted = scriptedDuration * scale;
             return ClampDuration(adjusted);
         }
 
         if (string.IsNullOrEmpty(word))
         {
-            return ClampDuration(60000.0 / Math.Max(MIN_WPM, Math.Min(MAX_WPM, _wpm)) * WaitAfterParagraph);
+            return ClampDuration(60000.0 / Math.Max(MinimumWordsPerMinute, Math.Min(MaximumWordsPerMinute, _wpm)) * WaitAfterParagraph);
         }
 
         var effectiveWpm = wordIndex >= 0 ? ResolveCurrentWpm(wordIndex) : _wpm;
-        var baseMs = 60000.0 / Math.Max(MIN_WPM, Math.Min(MAX_WPM, effectiveWpm));
+        var baseMs = 60000.0 / Math.Max(MinimumWordsPerMinute, Math.Min(MaximumWordsPerMinute, effectiveWpm));
         var delayMultiplier = GetDelayMultiplier(word);
         var finalTime = baseMs * delayMultiplier;
         return ClampDuration(finalTime);
@@ -280,7 +283,7 @@ public class RsvpPlaybackEngine(RsvpTextProcessor textProcessor)
         }
 
         var baselineWpm = ResolveBaselineWpm(wordIndex);
-        var baseMs = 60000.0 / Math.Max(MIN_WPM, Math.Min(MAX_WPM, baselineWpm));
+        var baseMs = 60000.0 / Math.Max(MinimumWordsPerMinute, Math.Min(MaximumWordsPerMinute, baselineWpm));
         var delayMultiplier = GetDelayMultiplier(word);
         return ClampDuration(baseMs * delayMultiplier);
     }
@@ -406,7 +409,9 @@ public class RsvpPlaybackEngine(RsvpTextProcessor textProcessor)
         if (_pauseAfterMs.TryGetValue(wordIndex, out var duration))
         {
             var baselineWpm = _baselineWpmByWord.TryGetValue(wordIndex, out var baseWpm) ? baseWpm : _wpm;
-            var scale = baselineWpm > 0 ? baselineWpm / (double)Math.Max(MIN_WPM, Math.Min(MAX_WPM, _wpm)) : 1.0;
+            var scale = baselineWpm > 0
+                ? baselineWpm / (double)Math.Max(MinimumWordsPerMinute, Math.Min(MaximumWordsPerMinute, _wpm))
+                : 1.0;
             var adjusted = duration * scale;
             return (int)Math.Round(ClampDuration(adjusted));
         }

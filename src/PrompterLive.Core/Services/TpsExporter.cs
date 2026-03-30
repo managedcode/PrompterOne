@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 using PrompterLive.Core.Models.Tps;
 
@@ -5,6 +6,9 @@ namespace PrompterLive.Core.Services;
 
 public class TpsExporter
 {
+    private const char HeaderDelimiterCharacter = '-';
+    private const int HeaderDelimiterLength = 3;
+
     public Task<string> ExportAsync(TpsDocument document)
     {
         var sb = new StringBuilder();
@@ -12,18 +16,20 @@ public class TpsExporter
         // Export metadata as YAML front matter
         if (document.Metadata != null && document.Metadata.Any())
         {
-            sb.AppendLine("---");
+            sb.AppendLine(CreateHeaderDelimiter());
             foreach (var kvp in document.Metadata)
             {
                 // Quote string values that contain spaces or special characters
                 var value = kvp.Value;
                 if (value.Contains(' ') || value.Contains(':') || value.Contains('-'))
                 {
-                    value = $"\"{value}\"";
+                    value = FormattableString.Invariant($"\"{value}\"");
                 }
-                sb.AppendLine($"{kvp.Key}: {value}");
+
+                sb.Append(CultureInfo.InvariantCulture, $"{kvp.Key}: {value}");
+                sb.AppendLine();
             }
-            sb.AppendLine("---");
+            sb.AppendLine(CreateHeaderDelimiter());
             sb.AppendLine();
         }
 
@@ -32,22 +38,22 @@ public class TpsExporter
         {
             // Build segment header
             var segmentHeader = new StringBuilder();
-            segmentHeader.Append($"## [{segment.Name}");
+            segmentHeader.Append(CultureInfo.InvariantCulture, $"## [{segment.Name}");
 
             if (segment.TargetWPM.HasValue)
             {
-                segmentHeader.Append($"|{segment.TargetWPM}WPM");
+                segmentHeader.Append(CultureInfo.InvariantCulture, $"|{segment.TargetWPM}WPM");
             }
 
             if (!string.IsNullOrEmpty(segment.Emotion))
             {
-                segmentHeader.Append($"|{segment.Emotion}");
+                segmentHeader.Append(CultureInfo.InvariantCulture, $"|{segment.Emotion}");
             }
 
             if (segment.Duration.HasValue)
             {
                 var duration = segment.Duration.Value;
-                segmentHeader.Append($"|{duration.Minutes:D2}:{duration.Seconds:D2}");
+                segmentHeader.Append(CultureInfo.InvariantCulture, $"|{duration.Minutes:D2}:{duration.Seconds:D2}");
             }
 
             segmentHeader.Append(']');
@@ -61,16 +67,16 @@ public class TpsExporter
                 {
                     // Build block header
                     var blockHeader = new StringBuilder();
-                    blockHeader.Append($"### [{block.Name}");
+                    blockHeader.Append(CultureInfo.InvariantCulture, $"### [{block.Name}");
 
                     if (block.TargetWPM.HasValue)
                     {
-                        blockHeader.Append($"|{block.TargetWPM}WPM");
+                        blockHeader.Append(CultureInfo.InvariantCulture, $"|{block.TargetWPM}WPM");
                     }
 
                     if (!string.IsNullOrEmpty(block.Emotion))
                     {
-                        blockHeader.Append($"|{block.Emotion}");
+                        blockHeader.Append(CultureInfo.InvariantCulture, $"|{block.Emotion}");
                     }
 
                     blockHeader.Append(']');
@@ -112,4 +118,6 @@ public class TpsExporter
         var content = await ExportAsync(document);
         await File.WriteAllTextAsync(filePath, content);
     }
+
+    private static string CreateHeaderDelimiter() => new(HeaderDelimiterCharacter, HeaderDelimiterLength);
 }

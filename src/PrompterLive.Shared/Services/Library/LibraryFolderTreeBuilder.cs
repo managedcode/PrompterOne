@@ -11,14 +11,8 @@ internal static class LibraryFolderTreeBuilder
         string selectedFolderId,
         ISet<string> expandedFolderIds)
     {
-        var cardCountByFolder = cards
-            .Where(card => !string.IsNullOrWhiteSpace(card.FolderId))
-            .GroupBy(card => card.FolderId!, StringComparer.Ordinal)
-            .ToDictionary(group => group.Key, group => group.Count(), StringComparer.Ordinal);
-        var childrenByParent = folders
-            .OrderBy(folder => folder.DisplayOrder)
-            .ThenBy(folder => folder.Name, StringComparer.OrdinalIgnoreCase)
-            .ToLookup(folder => folder.ParentId, StringComparer.Ordinal);
+        var totalCountByFolder = BuildTotalCountByFolder(folders, cards);
+        var childrenByParent = BuildChildrenLookup(folders);
 
         return BuildNodes(parentId: null, depth: 0).ToList();
 
@@ -38,8 +32,7 @@ internal static class LibraryFolderTreeBuilder
         LibraryFolderNodeViewModel BuildNode(StoredLibraryFolder folder, int depth)
         {
             var childNodes = BuildNodes(folder.Id, depth + 1);
-            var descendantCount = childNodes.Sum(child => child.TotalCount);
-            var totalCount = cardCountByFolder.GetValueOrDefault(folder.Id) + descendantCount;
+            var totalCount = totalCountByFolder.GetValueOrDefault(folder.Id);
             var hasSelectedDescendant = ContainsSelection(childNodes, selectedFolderId);
             var isExpanded = childNodes.Count > 0
                 && (expandedFolderIds.Contains(folder.Id) || hasSelectedDescendant || depth == 0);
@@ -56,12 +49,28 @@ internal static class LibraryFolderTreeBuilder
         }
     }
 
+    public static IReadOnlyList<LibraryFolderChipViewModel> BuildChips(
+        IReadOnlyList<StoredLibraryFolder> folders,
+        IReadOnlyCollection<LibraryCardViewModel> cards,
+        string selectedFolderId)
+    {
+        var childrenByParent = BuildChildrenLookup(folders);
+        var totalCountByFolder = BuildTotalCountByFolder(folders, cards);
+        var foldersById = folders.ToDictionary(folder => folder.Id, StringComparer.Ordinal);
+        var chipParentId = ResolveChipParentId(selectedFolderId, foldersById);
+
+        return childrenByParent[chipParentId]
+            .Select(folder => new LibraryFolderChipViewModel(
+                Id: folder.Id,
+                Name: folder.Name,
+                TotalCount: totalCountByFolder.GetValueOrDefault(folder.Id),
+                IsSelected: string.Equals(folder.Id, selectedFolderId, StringComparison.Ordinal)))
+            .ToList();
+    }
+
     public static IReadOnlyList<LibraryFolderOptionViewModel> BuildOptions(IReadOnlyList<StoredLibraryFolder> folders)
     {
-        var childrenByParent = folders
-            .OrderBy(folder => folder.DisplayOrder)
-            .ThenBy(folder => folder.Name, StringComparer.OrdinalIgnoreCase)
-            .ToLookup(folder => folder.ParentId, StringComparer.Ordinal);
+        var childrenByParent = BuildChildrenLookup(folders);
         var options = new List<LibraryFolderOptionViewModel>();
 
         AppendOptions(parentId: null, prefix: string.Empty);
@@ -90,4 +99,56 @@ internal static class LibraryFolderTreeBuilder
         nodes.Any(node =>
             string.Equals(node.Id, selectedFolderId, StringComparison.Ordinal)
             || ContainsSelection(node.Children, selectedFolderId));
+
+    private static Dictionary<string, int> BuildTotalCountByFolder(
+        IReadOnlyList<StoredLibraryFolder> folders,
+        IReadOnlyCollection<LibraryCardViewModel> cards)
+    {
+        var directCountByFolder = cards
+            .Where(card => !string.IsNullOrWhiteSpace(card.FolderId))
+            .GroupBy(card => card.FolderId!, StringComparer.Ordinal)
+            .ToDictionary(group => group.Key, group => group.Count(), StringComparer.Ordinal);
+        var childrenByParent = BuildChildrenLookup(folders);
+        var totalCountByFolder = new Dictionary<string, int>(StringComparer.Ordinal);
+
+        foreach (var folder in folders)
+        {
+            ComputeTotalCount(folder.Id);
+        }
+
+        return totalCountByFolder;
+
+        int ComputeTotalCount(string folderId)
+        {
+            if (totalCountByFolder.TryGetValue(folderId, out var existingCount))
+            {
+                return existingCount;
+            }
+
+            var childCount = childrenByParent[folderId].Sum(child => ComputeTotalCount(child.Id));
+            var totalCount = directCountByFolder.GetValueOrDefault(folderId) + childCount;
+            totalCountByFolder[folderId] = totalCount;
+            return totalCount;
+        }
+    }
+
+    private static ILookup<string?, StoredLibraryFolder> BuildChildrenLookup(IReadOnlyList<StoredLibraryFolder> folders) =>
+        folders
+            .OrderBy(folder => folder.DisplayOrder)
+            .ThenBy(folder => folder.Name, StringComparer.OrdinalIgnoreCase)
+            .ToLookup(folder => folder.ParentId, StringComparer.Ordinal);
+
+    private static string? ResolveChipParentId(
+        string selectedFolderId,
+        IReadOnlyDictionary<string, StoredLibraryFolder> foldersById)
+    {
+        if (string.Equals(selectedFolderId, LibrarySelectionKeys.All, StringComparison.Ordinal))
+        {
+            return null;
+        }
+
+        return foldersById.TryGetValue(selectedFolderId, out var folder)
+            ? folder.ParentId
+            : null;
+    }
 }

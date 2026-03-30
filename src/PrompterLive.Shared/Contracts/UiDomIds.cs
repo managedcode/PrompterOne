@@ -2,6 +2,13 @@ namespace PrompterLive.Shared.Contracts;
 
 public static class UiDomIds
 {
+    public static class GoLive
+    {
+        public const string PreviewCard = "go-live-preview-card";
+        public const string PreviewEmpty = "go-live-preview-empty";
+        public const string PreviewVideo = "go-live-preview-video";
+    }
+
     public static class Learn
     {
         public const string HeaderWpmBadge = "rsvp-wpm-badge";
@@ -14,6 +21,7 @@ public static class UiDomIds
 
     public static class Teleprompter
     {
+        public const string BlockIndicator = "rd-block-indicator";
         public const string Camera = "rd-camera";
         public const string FontLabel = "rd-font-label";
         public const string HeaderSegment = "rd-header-segment";

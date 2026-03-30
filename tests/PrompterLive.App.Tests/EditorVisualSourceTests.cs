@@ -38,7 +38,11 @@ public sealed class EditorVisualSourceTests : BunitContext
     {
         var cut = Render<EditorPage>();
 
-        cut.WaitForAssertion(() => Assert.Contains("Product Launch", cut.Markup));
+        cut.WaitForAssertion(() =>
+        {
+            var source = cut.FindByTestId(UiTestIds.Editor.SourceInput);
+            Assert.Contains(AppTestData.Editor.BodyHeading, source.GetAttribute("value"));
+        });
 
         cut.FindByTestId(UiTestIds.Editor.Author).Change(AppTestData.Editor.TestSpeaker);
         cut.FindByTestId(UiTestIds.Editor.SourceInput).Input(EditorVisualTestSource.RewrittenBody);
@@ -56,11 +60,23 @@ public sealed class EditorVisualSourceTests : BunitContext
         });
     }
 
+    [Fact]
+    public void EditorPage_DoesNotRenderInventedAiPanelSurface()
+    {
+        var cut = Render<EditorPage>();
+
+        cut.WaitForAssertion(() =>
+        {
+            Assert.DoesNotContain(EditorVisualTestSource.LegacyAiPanelClass, cut.Markup, StringComparison.Ordinal);
+        });
+    }
+
     private static class EditorVisualTestSource
     {
         public const string AuthorFieldPrefix = "author:";
         public const string TitleFieldPrefix = "title:";
         public const string FrontMatterFence = "---";
+        public const string LegacyAiPanelClass = "ed-ai-panel";
         public const string AuthorPersistenceLine = "author: \"Test Speaker\"";
         public const string HighlightedLine = "[highlight]Stay with us[/highlight]";
         public const string CallToActionHeading = "## [Call to Action|150WPM|motivational]";

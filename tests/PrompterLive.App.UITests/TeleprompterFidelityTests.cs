@@ -3,36 +3,54 @@ using static Microsoft.Playwright.Assertions;
 
 namespace PrompterLive.App.UITests;
 
-[Collection(StandaloneAppCollection.Name)]
-public sealed class TeleprompterFidelityTests(StandaloneAppFixture fixture)
+public sealed class TeleprompterFidelityTests(StandaloneAppFixture fixture) : IClassFixture<StandaloneAppFixture>
 {
     [Fact]
-    public async Task Teleprompter_UsesReferenceSizedReaderGroupsForSecurityIncident()
+    public async Task TeleprompterScreen_UsesSingleFullBleedBackgroundCameraLayer()
     {
         var page = await fixture.NewPageAsync();
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.TeleprompterSecurityIncident);
+            await page.GotoAsync(BrowserTestConstants.Routes.TeleprompterDemo);
             await Expect(page.GetByTestId(UiTestIds.Teleprompter.Page))
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
-            await Expect(page.Locator($"#{UiDomIds.Teleprompter.CameraOverlay(1)}")).ToHaveCountAsync(0);
-            var firstCard = page.GetByTestId(UiTestIds.Teleprompter.Card(0));
-            await Expect(firstCard).ToBeVisibleAsync();
 
-            var wordCounts = await firstCard.Locator($"[data-testid^='{UiTestIds.Teleprompter.CardGroupPrefix(0)}']").EvaluateAllAsync<int[]>(
-                "elements => elements.map(element => element.querySelectorAll('.rd-w').length)");
+            await Expect(page.Locator(BrowserTestConstants.Elements.CameraOverlaySelector)).ToHaveCountAsync(0);
+            await EnsureCameraLayerIsActiveAsync(page);
 
-            Assert.NotEmpty(wordCounts);
-            Assert.All(wordCounts, wordCount => Assert.InRange(wordCount, 1, 5));
+            var isFullBleed = await page.EvaluateAsync<bool>(
+                $$"""
+                () => {
+                    const camera = document.querySelector('[data-testid="teleprompter-camera-layer-primary"]');
+                    const shell = document.querySelector('{{BrowserTestConstants.Elements.TeleprompterShellSelector}}');
+                    if (!(camera instanceof HTMLElement) || !(shell instanceof HTMLElement)) {
+                        return false;
+                    }
 
-            var hasHorizontalOverflow = await page.GetByTestId(UiTestIds.Teleprompter.CardText(0)).EvaluateAsync<bool>(
-                "element => element.scrollWidth > element.clientWidth + 8");
-            Assert.False(hasHorizontalOverflow);
+                    const cameraRect = camera.getBoundingClientRect();
+                    const shellRect = shell.getBoundingClientRect();
+                    return cameraRect.width >= shellRect.width * 0.95 && cameraRect.height >= shellRect.height * 0.95;
+                }
+                """);
+
+            Assert.True(isFullBleed);
         }
         finally
         {
             await page.Context.CloseAsync();
         }
+    }
+
+    private static async Task EnsureCameraLayerIsActiveAsync(Microsoft.Playwright.IPage page)
+    {
+        var cameraLayer = page.GetByTestId(UiTestIds.Teleprompter.CameraBackground);
+        var isActive = await cameraLayer.EvaluateAsync<bool>("element => element.classList.contains('active')");
+        if (!isActive)
+        {
+            await page.GetByTestId(UiTestIds.Teleprompter.CameraToggle).ClickAsync();
+        }
+
+        await Expect(cameraLayer).ToHaveClassAsync(BrowserTestConstants.Regexes.ActiveClass);
     }
 }

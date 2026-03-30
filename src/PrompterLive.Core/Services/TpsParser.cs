@@ -344,7 +344,7 @@ public partial class TpsParser
         tpsContent = ProcessEscapeSequences(tpsContent);
 
         var (frontMatter, content) = ExtractFrontMatter(tpsContent);
-        var segments = ParseSegments(content, frontMatter);
+        var segments = ParseSegments(content);
 
         return new ScriptData
         {
@@ -392,7 +392,7 @@ public partial class TpsParser
     /// <summary>
     /// Parse segments from content
     /// </summary>
-    private static List<ScriptSegment> ParseSegments(string content, Dictionary<string, string> frontMatter)
+    private static List<ScriptSegment> ParseSegments(string content)
     {
         var segments = new List<ScriptSegment>();
 

@@ -53,7 +53,11 @@ public sealed class EditorSourceInteractionTests : BunitContext
     {
         var cut = Render<EditorPage>();
 
-        cut.WaitForAssertion(() => Assert.Contains("Product Launch", cut.Markup));
+        cut.WaitForAssertion(() =>
+        {
+            var source = cut.FindByTestId(UiTestIds.Editor.SourceInput);
+            Assert.Contains(AppTestData.Editor.BodyHeading, source.GetAttribute("value"));
+        });
 
         cut.FindByTestId(UiTestIds.Editor.Profile).Change(EditorSourceInteractionTestSource.ProfileRsvp);
         cut.FindByTestId(UiTestIds.Editor.BaseWpm).Change(EditorSourceInteractionTestSource.BaseWpm210);

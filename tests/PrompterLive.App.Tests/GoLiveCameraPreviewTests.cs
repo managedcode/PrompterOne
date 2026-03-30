@@ -1,0 +1,77 @@
+using System.Text.Json;
+using Bunit;
+using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.DependencyInjection;
+using PrompterLive.Core.Models.Media;
+using PrompterLive.Shared.Contracts;
+using PrompterLive.Shared.Pages;
+using PrompterLive.Shared.Tests;
+
+namespace PrompterLive.App.Tests;
+
+public sealed class GoLiveCameraPreviewTests : BunitContext
+{
+    private const string SceneSettingsStorageKey = "prompterlive.scene";
+
+    [Fact]
+    public void GoLivePage_RendersLiveCameraPreviewForSelectedSceneCamera()
+    {
+        var harness = TestHarnessFactory.Create(this);
+        harness.JsRuntime.SavedJsonValues[SceneSettingsStorageKey] = JsonSerializer.Serialize(CreateSingleCameraScene());
+
+        Services.GetRequiredService<NavigationManager>()
+            .NavigateTo(AppTestData.Routes.GoLiveDemo);
+
+        var cut = Render<GoLivePage>();
+
+        cut.WaitForAssertion(() =>
+        {
+            Assert.NotNull(cut.FindByTestId(UiTestIds.GoLive.PreviewCard));
+            Assert.NotNull(cut.FindByTestId(UiTestIds.GoLive.PreviewVideo));
+            Assert.Equal(
+                AppTestData.Camera.FrontCamera,
+                cut.FindByTestId(UiTestIds.GoLive.PreviewSourceLabel).TextContent.Trim());
+            Assert.Contains(AppTestData.Camera.AttachCameraInvocation, harness.JsRuntime.Invocations, StringComparer.Ordinal);
+        });
+    }
+
+    [Fact]
+    public void GoLivePage_RendersEmptyPreviewStateWhenNoSceneCameraExists()
+    {
+        TestHarnessFactory.Create(
+            this,
+            devices:
+            [
+                new MediaDeviceInfo(
+                    AppTestData.Camera.MicrophoneOnlyId,
+                    AppTestData.Camera.MicrophoneOnlyLabel,
+                    MediaDeviceKind.Microphone,
+                    true)
+            ]);
+
+        Services.GetRequiredService<NavigationManager>()
+            .NavigateTo(AppTestData.Routes.GoLiveDemo);
+
+        var cut = Render<GoLivePage>();
+
+        cut.WaitForAssertion(() =>
+        {
+            Assert.NotNull(cut.FindByTestId(UiTestIds.GoLive.PreviewCard));
+            Assert.NotNull(cut.FindByTestId(UiTestIds.GoLive.PreviewEmpty));
+            Assert.Empty(cut.FindAll(BunitTestSelectors.BuildTestIdSelector(UiTestIds.GoLive.PreviewVideo)));
+        });
+    }
+
+    private static MediaSceneState CreateSingleCameraScene() =>
+        new(
+            [
+                new SceneCameraSource(
+                    AppTestData.Camera.FirstSourceId,
+                    AppTestData.Camera.FirstDeviceId,
+                    AppTestData.Camera.FrontCamera,
+                    new MediaSourceTransform(IncludeInOutput: true))
+            ],
+            null,
+            null,
+            AudioBusState.Empty);
+}

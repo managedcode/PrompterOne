@@ -3,8 +3,7 @@ using static Microsoft.Playwright.Assertions;
 
 namespace PrompterLive.App.UITests;
 
-[Collection(StandaloneAppCollection.Name)]
-public sealed class DiagnosticsUiTests(StandaloneAppFixture fixture)
+public sealed class DiagnosticsUiTests(StandaloneAppFixture fixture) : IClassFixture<StandaloneAppFixture>
 {
     private readonly StandaloneAppFixture _fixture = fixture;
 
@@ -47,6 +46,58 @@ public sealed class DiagnosticsUiTests(StandaloneAppFixture fixture)
                 .ToContainTextAsync(BrowserTestConstants.Diagnostics.CreateFolderFailure);
             await Expect(page.GetByTestId(UiTestIds.Diagnostics.Banner))
                 .ToContainTextAsync(BrowserTestConstants.Diagnostics.ForcedFailureDetail);
+        }
+        finally
+        {
+            await page.Context.CloseAsync();
+        }
+    }
+
+    [Fact]
+    public async Task AppShell_ShowsStyledBootstrapErrorOverlay()
+    {
+        var page = await _fixture.NewPageAsync();
+
+        try
+        {
+            await page.GotoAsync(BrowserTestConstants.Routes.Library);
+            await page.EvaluateAsync(
+                BrowserTestConstants.Diagnostics.ShowBootstrapErrorScript,
+                BrowserTestConstants.Diagnostics.BootstrapDetail);
+
+            await Expect(page.GetByTestId(UiTestIds.Diagnostics.Bootstrap)).ToBeVisibleAsync();
+            await Expect(page.GetByTestId(UiTestIds.Diagnostics.Bootstrap))
+                .ToContainTextAsync(BrowserTestConstants.Diagnostics.BootstrapDetail);
+            await Expect(page.GetByTestId(UiTestIds.Diagnostics.BootstrapReload)).ToBeVisibleAsync();
+            await page.GetByTestId(UiTestIds.Diagnostics.BootstrapDismiss).ClickAsync();
+            await Expect(page.GetByTestId(UiTestIds.Diagnostics.Bootstrap)).ToBeHiddenAsync();
+        }
+        finally
+        {
+            await page.Context.CloseAsync();
+        }
+    }
+
+    [Fact]
+    public async Task AppShell_ShowsConnectivityOverlayForOfflineAndOnlineStates()
+    {
+        var page = await _fixture.NewPageAsync();
+
+        try
+        {
+            await page.GotoAsync(BrowserTestConstants.Routes.Library);
+
+            await page.EvaluateAsync(BrowserTestConstants.Diagnostics.ShowConnectivityOfflineScript);
+            await Expect(page.GetByTestId(UiTestIds.Diagnostics.Connectivity)).ToBeVisibleAsync();
+            await Expect(page.GetByTestId(UiTestIds.Diagnostics.Connectivity))
+                .ToContainTextAsync(BrowserTestConstants.Diagnostics.ConnectivityOfflineTitle);
+
+            await page.EvaluateAsync(BrowserTestConstants.Diagnostics.ShowConnectivityOnlineScript);
+            await Expect(page.GetByTestId(UiTestIds.Diagnostics.Connectivity))
+                .ToContainTextAsync(BrowserTestConstants.Diagnostics.ConnectivityOnlineTitle);
+
+            await page.GetByTestId(UiTestIds.Diagnostics.ConnectivityDismiss).ClickAsync();
+            await Expect(page.GetByTestId(UiTestIds.Diagnostics.Connectivity)).ToBeHiddenAsync();
         }
         finally
         {

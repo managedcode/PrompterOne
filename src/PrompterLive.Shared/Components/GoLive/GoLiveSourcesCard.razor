@@ -1,0 +1,80 @@
+@namespace PrompterLive.Shared.Components.GoLive
+
+<section class="live-card" data-testid="@UiTestIds.GoLive.SourcesCard">
+    <div class="live-card-header">
+        <div>
+            <h3 class="live-card-title">@Title</h3>
+            <p class="live-card-desc">@Description</p>
+        </div>
+        <a class="set-btn-outline" href="@SettingsRoute" data-testid="@UiTestIds.GoLive.OpenSettings">@SettingsLabel</a>
+    </div>
+
+    <div class="live-source-stack">
+        @if (Sources.Count == 0)
+        {
+            <div class="set-empty-card">@EmptyStateMessage</div>
+        }
+        else
+        {
+            @foreach (var source in Sources)
+            {
+                <article class="live-source-item" data-testid="@UiTestIds.GoLive.SourceCamera(source.SourceId)">
+                    <div>
+                        <div class="set-account-name">@source.Label</div>
+                        <div class="set-account-status @(source.Transform.IncludeInOutput ? ConnectedCssClass : DisconnectedCssClass)">@GetSourceStatus(source)</div>
+                    </div>
+                    <button class="@(source.Transform.IncludeInOutput ? OutlineButtonCssClass : GoldenButtonCssClass)"
+                            @onclick="() => ToggleSource.InvokeAsync(source.SourceId)"
+                            data-testid="@UiTestIds.GoLive.SourceCameraAction(source.DeviceId)">
+                        @(source.Transform.IncludeInOutput ? RemoveLabel : AddLabel)
+                    </button>
+                </article>
+            }
+        }
+    </div>
+
+    <div class="live-mic-summary">
+        <div>
+            <span class="set-section-label">@PrimaryMicLabel</span>
+            <div class="set-account-name">@MicrophoneName</div>
+        </div>
+        <span class="live-status @(HasPrimaryMicrophone ? ReadyCssClass : PendingCssClass)">@MicrophoneRouteLabel</span>
+    </div>
+</section>
+
+@code {
+    private const string AddLabel = "Add To Live Feed";
+    private const string ConnectedCssClass = "set-connected";
+    private const string DefaultDescription = "Choose which scene cameras participate in the broadcast feed. Device setup stays in Settings.";
+    private const string DefaultTitle = "Program Sources";
+    private const string DisconnectedCssClass = "set-disconnected";
+    private const string EmptyStateMessage = "No scene cameras are configured yet. Add them in Settings first.";
+    private const string GoldenButtonCssClass = "set-btn-golden";
+    private const string OutlineButtonCssClass = "set-btn-outline";
+    private const string PendingCssClass = "pending";
+    private const string PrimaryMicLabel = "PRIMARY MIC";
+    private const string ReadyCssClass = "ready";
+    private const string RemoveLabel = "Remove From Live Feed";
+    private const string SettingsLabel = "Camera Settings";
+    private const string SourceIncludedLabel = "Included in program output";
+    private const string SourceSceneOnlyLabel = "Available in scene only";
+
+    [Parameter] public string Description { get; set; } = DefaultDescription;
+
+    [Parameter] public bool HasPrimaryMicrophone { get; set; }
+
+    [Parameter] public string MicrophoneName { get; set; } = string.Empty;
+
+    [Parameter] public string MicrophoneRouteLabel { get; set; } = string.Empty;
+
+    [Parameter] public string SettingsRoute { get; set; } = AppRoutes.Settings;
+
+    [Parameter] public IReadOnlyList<SceneCameraSource> Sources { get; set; } = [];
+
+    [Parameter] public string Title { get; set; } = DefaultTitle;
+
+    [Parameter] public EventCallback<string> ToggleSource { get; set; }
+
+    private static string GetSourceStatus(SceneCameraSource source) =>
+        source.Transform.IncludeInOutput ? SourceIncludedLabel : SourceSceneOnlyLabel;
+}

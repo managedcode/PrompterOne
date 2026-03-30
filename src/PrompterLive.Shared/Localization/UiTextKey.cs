@@ -1,0 +1,36 @@
+namespace PrompterLive.Shared.Localization;
+
+public enum UiTextKey
+{
+    DiagnosticsDismiss,
+    DiagnosticsRetry,
+    DiagnosticsLibrary,
+    DiagnosticsFatalTitle,
+    DiagnosticsFatalMessage,
+    DiagnosticsRecoverableTitle,
+    LibraryAllScripts,
+    LibraryRecent,
+    LibraryFavorites,
+    LibraryFolders,
+    LibraryNewFolder,
+    LibrarySettings,
+    LibrarySortBy,
+    LibrarySortName,
+    LibrarySortDate,
+    LibrarySortDuration,
+    LibrarySortWpm,
+    LibraryCreateFolderTitle,
+    LibraryCreateFolderDescription,
+    HeaderSearchPlaceholder,
+    HeaderNewScript,
+    HeaderLearn,
+    HeaderRead,
+    HeaderGoLive,
+    HeaderSettings,
+    CommonName,
+    CommonParent,
+    CommonTopLevel,
+    CommonCancel,
+    CommonCreate,
+    LibraryFolderPlaceholder
+}

@@ -1,0 +1,101 @@
+@namespace PrompterLive.Shared.Components.GoLive
+
+<section class="live-card" data-testid="@UiTestIds.GoLive.ProgramCard">
+    <div class="live-card-header">
+        <div>
+            <h3 class="live-card-title">@Title</h3>
+            <p class="live-card-desc">@Description</p>
+        </div>
+        <span class="live-status @(IsArmed ? ReadyCssClass : PendingCssClass)">@StatusLabel</span>
+    </div>
+
+    @if (PreviewContent is not null)
+    {
+        @PreviewContent
+    }
+
+    <div class="set-devices">
+        <div class="set-field">
+            <label>@OutputResolutionLabel</label>
+            <select class="set-select"
+                    value="@OutputResolution"
+                    @onchange="OutputResolutionChanged"
+                    data-testid="@UiTestIds.GoLive.OutputResolution">
+                <option value="@StreamingResolutionPreset.FullHd1080p30">1920 x 1080 @@ 30fps</option>
+                <option value="@StreamingResolutionPreset.FullHd1080p60">1920 x 1080 @@ 60fps</option>
+                <option value="@StreamingResolutionPreset.Hd720p30">1280 x 720 @@ 30fps</option>
+                <option value="@StreamingResolutionPreset.UltraHd2160p30">3840 x 2160 @@ 30fps</option>
+            </select>
+        </div>
+        <div class="set-field">
+            <label>@BitrateLabel</label>
+            <input type="number"
+                   class="set-input"
+                   value="@BitrateKbps"
+                   @oninput="BitrateChanged"
+                   data-testid="@UiTestIds.GoLive.Bitrate" />
+        </div>
+        <div class="set-field set-field-toggle">
+            <label>@TextOverlayLabel</label>
+            <div class="set-toggle @(ShowTextOverlay ? ToggleOnCssClass : null)"
+                 @onclick="ToggleTextOverlay"
+                 data-testid="@UiTestIds.GoLive.StreamTextOverlay">
+                <div class="set-toggle-thumb"></div>
+            </div>
+        </div>
+        <div class="set-field set-field-toggle">
+            <label>@IncludeCameraLabel</label>
+            <div class="set-toggle @(IncludeCameraInOutput ? ToggleOnCssClass : null)"
+                 @onclick="ToggleIncludeCamera"
+                 data-testid="@UiTestIds.GoLive.StreamIncludeCamera">
+                <div class="set-toggle-thumb"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="live-local-grid">
+        @ChildContent
+    </div>
+</section>
+
+@code {
+    private const string BitrateLabel = "Bitrate (kbps)";
+    private const string DefaultDescription = "Global quality and overlay settings shared by every enabled destination.";
+    private const string DefaultTitle = "Program Feed";
+    private const string IncludeCameraLabel = "Include Camera in Output";
+    private const string PendingCssClass = "pending";
+    private const string ReadyCssClass = "ready";
+    private const string StandbyLabel = "Standby";
+    private const string TextOverlayLabel = "Show Text Overlay on Stream";
+    private const string ToggleOnCssClass = "on";
+    private const string ArmedLabel = "Armed";
+    private const string OutputResolutionLabel = "Output Resolution";
+
+    [Parameter] public int BitrateKbps { get; set; }
+
+    [Parameter] public EventCallback<ChangeEventArgs> BitrateChanged { get; set; }
+
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    [Parameter] public string Description { get; set; } = DefaultDescription;
+
+    [Parameter] public bool IncludeCameraInOutput { get; set; }
+
+    [Parameter] public bool IsArmed { get; set; }
+
+    [Parameter] public EventCallback<ChangeEventArgs> OutputResolutionChanged { get; set; }
+
+    [Parameter] public StreamingResolutionPreset OutputResolution { get; set; }
+
+    [Parameter] public RenderFragment? PreviewContent { get; set; }
+
+    [Parameter] public bool ShowTextOverlay { get; set; }
+
+    [Parameter] public EventCallback ToggleIncludeCamera { get; set; }
+
+    [Parameter] public EventCallback ToggleTextOverlay { get; set; }
+
+    [Parameter] public string Title { get; set; } = DefaultTitle;
+
+    private string StatusLabel => IsArmed ? ArmedLabel : StandbyLabel;
+}

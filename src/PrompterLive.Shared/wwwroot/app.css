@@ -1,7 +1,3 @@
-@import url("design/tokens.css");
-@import url("design/components.css");
-@import url("design/styles.css");
-
 html,
 body {
     margin: 0;
@@ -21,41 +17,340 @@ body {
     display: grid;
     place-items: center;
     gap: 1rem;
-    background: var(--bg-0);
+    padding: 2rem;
+    background:
+        radial-gradient(circle at 18% 18%, rgba(54, 112, 120, 0.16), transparent 26%),
+        radial-gradient(circle at 82% 16%, rgba(196, 168, 130, 0.12), transparent 24%),
+        linear-gradient(180deg, rgba(10, 13, 20, 0.96), rgba(8, 11, 18, 0.98));
     color: var(--text-2);
     font-family: var(--font-sans);
+    text-align: center;
+}
+
+.app-loading-shell p {
+    margin: 0;
+    font-size: 0.95rem;
+    letter-spacing: 0.04em;
 }
 
 .app-loading-mark {
-    width: 40px;
-    height: 40px;
+    width: 56px;
+    height: 56px;
     border-radius: 999px;
-    background: radial-gradient(circle at 35% 35%, #F5E6D0, #C4A882 65%, #8A6C4A 100%);
-    box-shadow: 0 0 24px rgba(196, 168, 130, 0.32);
+    background: radial-gradient(circle at 35% 35%, #f5e6d0, #c4a882 65%, #8a6c4a 100%);
+    box-shadow:
+        0 0 0 10px rgba(196, 168, 130, 0.08),
+        0 0 32px rgba(196, 168, 130, 0.28);
+}
+
+.app-shell-overlay,
+#components-reconnect-modal.components-reconnect-show,
+#components-reconnect-modal.components-reconnect-failed,
+#components-reconnect-modal.components-reconnect-rejected {
+    position: fixed;
+    inset: 0;
+    z-index: 1400;
+    display: grid;
+    place-items: center;
+    padding: clamp(1rem, 3vw, 2rem);
+    background:
+        radial-gradient(circle at top, rgba(48, 91, 103, 0.18), transparent 34%),
+        rgba(4, 6, 12, 0.66);
+    backdrop-filter: blur(14px);
 }
 
 #blazor-error-ui {
     display: none;
-    position: fixed;
-    right: 16px;
-    bottom: 16px;
-    left: 16px;
-    z-index: 1000;
-    padding: 12px 16px;
-    border: 1px solid rgba(196, 168, 130, 0.18);
-    border-radius: 14px;
-    background: rgba(12, 16, 24, 0.92);
+}
+
+.app-shell-overlay[hidden],
+#components-reconnect-modal.components-reconnect-hide {
+    display: none;
+}
+
+.app-shell-card,
+#components-reconnect-modal {
+    width: min(540px, calc(100vw - 2rem));
+    border: 1px solid rgba(103, 221, 218, 0.16);
+    border-radius: 28px;
+    padding: clamp(1.25rem, 3vw, 2rem);
+    background:
+        linear-gradient(180deg, rgba(12, 18, 30, 0.96), rgba(7, 12, 22, 0.98)),
+        rgba(9, 13, 22, 0.92);
+    box-shadow:
+        0 40px 80px rgba(0, 0, 0, 0.42),
+        inset 0 1px 0 rgba(255, 255, 255, 0.04);
     color: var(--text-1);
     font-family: var(--font-sans);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
 }
 
-#blazor-error-ui .reload {
-    color: inherit;
-    margin-left: 8px;
+.app-shell-card-error {
+    border-color: rgba(255, 144, 144, 0.24);
 }
 
-#blazor-error-ui .dismiss {
+.app-shell-card-status[data-state='online'],
+.app-shell-overlay-status[data-state='online'] .app-shell-card {
+    border-color: rgba(103, 221, 173, 0.22);
+}
+
+.app-shell-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.9rem;
+    color: var(--accent-2);
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.app-shell-card h2,
+#components-reconnect-modal h5 {
+    margin: 0;
+    color: var(--text-1);
+    font-size: clamp(1.55rem, 3vw, 2.05rem);
+    line-height: 1.08;
+    font-weight: 700;
+}
+
+.app-shell-card p,
+#components-reconnect-modal p {
+    margin: 0.85rem 0 0;
+    color: var(--text-3);
+    font-size: 0.98rem;
+    line-height: 1.6;
+}
+
+.app-shell-detail {
+    margin-top: 1rem;
+    padding: 0.95rem 1rem;
+    border: 1px solid rgba(103, 221, 218, 0.12);
+    border-radius: 18px;
+    background: rgba(14, 19, 31, 0.92);
+    color: var(--text-4);
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.app-shell-actions,
+#components-reconnect-modal .components-reconnect-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.35rem;
+}
+
+.app-shell-btn,
+#components-reconnect-modal button,
+#components-reconnect-modal a {
+    appearance: none;
+    border: 1px solid rgba(196, 168, 130, 0.22);
+    border-radius: 16px;
+    background: rgba(18, 23, 36, 0.92);
+    color: var(--text-1);
+    font: inherit;
+    font-weight: 600;
+    text-decoration: none;
     cursor: pointer;
-    float: right;
+    padding: 0.9rem 1.2rem;
+    transition:
+        transform 160ms ease,
+        border-color 160ms ease,
+        background 160ms ease,
+        box-shadow 160ms ease;
+}
+
+.app-shell-btn:hover,
+.app-shell-btn:focus-visible,
+#components-reconnect-modal button:hover,
+#components-reconnect-modal button:focus-visible,
+#components-reconnect-modal a:hover,
+#components-reconnect-modal a:focus-visible {
+    transform: translateY(-1px);
+    border-color: rgba(103, 221, 218, 0.36);
+    background: rgba(24, 31, 47, 0.96);
+    box-shadow: 0 16px 28px rgba(0, 0, 0, 0.22);
+    outline: none;
+}
+
+.app-shell-btn-primary {
+    border-color: rgba(196, 168, 130, 0.34);
+    background: linear-gradient(180deg, rgba(196, 168, 130, 0.18), rgba(196, 168, 130, 0.1));
+}
+
+.diag-banner {
+    position: fixed;
+    top: 84px;
+    right: 20px;
+    z-index: 1250;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    width: min(460px, calc(100vw - 40px));
+    padding: 1rem 1.1rem;
+    border: 1px solid rgba(255, 176, 112, 0.22);
+    border-radius: 22px;
+    background:
+        radial-gradient(circle at top right, rgba(196, 168, 130, 0.12), transparent 38%),
+        rgba(10, 15, 24, 0.96);
+    box-shadow: 0 22px 44px rgba(0, 0, 0, 0.32);
+    font-family: var(--font-sans);
+}
+
+.diag-banner-copy {
+    display: grid;
+    gap: 0.35rem;
+    min-width: 0;
+}
+
+.diag-banner-title {
+    color: var(--accent-2);
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.diag-banner-message {
+    margin: 0;
+    color: var(--text-1);
+    font-size: 0.97rem;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.diag-banner-detail {
+    color: var(--text-4);
+    font-size: 0.84rem;
+    line-height: 1.5;
+    word-break: break-word;
+}
+
+.diag-banner-dismiss {
+    flex: 0 0 auto;
+    appearance: none;
+    border: 1px solid rgba(196, 168, 130, 0.2);
+    border-radius: 14px;
+    background: rgba(18, 23, 36, 0.9);
+    color: var(--text-1);
+    cursor: pointer;
+    font: inherit;
+    font-weight: 600;
+    padding: 0.78rem 1rem;
+}
+
+.diag-fatal-shell {
+    position: fixed;
+    inset: 0;
+    z-index: 1300;
+    display: grid;
+    place-items: center;
+    padding: clamp(1rem, 3vw, 2rem);
+    background:
+        radial-gradient(circle at 20% 0%, rgba(255, 141, 141, 0.12), transparent 28%),
+        radial-gradient(circle at 82% 14%, rgba(196, 168, 130, 0.14), transparent 26%),
+        rgba(4, 6, 12, 0.7);
+    backdrop-filter: blur(16px);
+}
+
+.diag-fatal-card {
+    width: min(580px, calc(100vw - 2rem));
+    border: 1px solid rgba(255, 144, 144, 0.22);
+    border-radius: 28px;
+    padding: clamp(1.35rem, 3vw, 2rem);
+    background:
+        linear-gradient(180deg, rgba(13, 17, 28, 0.98), rgba(8, 12, 22, 0.99)),
+        rgba(10, 13, 22, 0.96);
+    box-shadow: 0 40px 80px rgba(0, 0, 0, 0.44);
+    font-family: var(--font-sans);
+}
+
+.diag-fatal-eyebrow {
+    display: inline-flex;
+    margin-bottom: 0.9rem;
+    color: #ff9a8f;
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.diag-fatal-card h1 {
+    margin: 0;
+    color: var(--text-1);
+    font-size: clamp(1.7rem, 3vw, 2.15rem);
+    line-height: 1.1;
+}
+
+.diag-fatal-card p {
+    margin: 0.9rem 0 0;
+    color: var(--text-3);
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+.diag-fatal-detail {
+    margin-top: 1rem;
+    padding: 0.95rem 1rem;
+    border: 1px solid rgba(103, 221, 218, 0.12);
+    border-radius: 18px;
+    background: rgba(14, 19, 31, 0.92);
+    color: var(--text-4);
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.diag-fatal-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.2rem;
+}
+
+.diag-fatal-btn {
+    appearance: none;
+    border: 1px solid rgba(196, 168, 130, 0.22);
+    border-radius: 16px;
+    background: rgba(18, 23, 36, 0.92);
+    color: var(--text-1);
+    cursor: pointer;
+    font: inherit;
+    font-weight: 600;
+    padding: 0.9rem 1.2rem;
+}
+
+.diag-fatal-btn-primary {
+    border-color: rgba(196, 168, 130, 0.34);
+    background: linear-gradient(180deg, rgba(196, 168, 130, 0.18), rgba(196, 168, 130, 0.1));
+}
+
+@media (max-width: 720px) {
+    .diag-banner {
+        top: auto;
+        right: 12px;
+        bottom: 12px;
+        left: 12px;
+        width: auto;
+        flex-direction: column;
+    }
+
+    .diag-banner-dismiss,
+    .diag-fatal-btn,
+    .app-shell-btn {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .app-shell-actions,
+    .diag-fatal-actions {
+        flex-direction: column;
+    }
 }

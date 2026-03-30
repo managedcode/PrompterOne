@@ -1,14 +1,11 @@
-@using Microsoft.JSInterop
-@using Microsoft.Extensions.Logging
-@implements IDisposable
 @inherits LayoutComponentBase
-@inject AppBootstrapper Bootstrapper
-@inject ILogger<MainLayout> Logger
-@inject IJSRuntime JS
-@inject NavigationManager Navigation
+@using PrompterLive.Shared.Localization
 
 <header class="app-header">
-    <div class="app-header-left" onclick="navigateTo('library')" style="cursor:pointer" data-testid="@UiTestIds.Header.Home">
+    <button type="button"
+            class="app-header-left app-header-home"
+            @onclick="HandleHomeClickAsync"
+            data-testid="@UiTestIds.Header.Home">
         <div class="logo-icon">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                 <path d="M4 6h16M4 12h12M4 18h14" stroke="url(#glogo)" stroke-width="2.5" stroke-linecap="round" />
@@ -21,77 +18,149 @@
             </svg>
         </div>
         <span class="app-logo-text">Prompter.live</span>
+    </button>
+    <div class="app-header-center" data-testid="@UiTestIds.Header.Center">
+        @if (IsLibraryScreen)
+        {
+            <div class="lib-breadcrumb">
+                <span class="bc-item">@UiTextCatalog.Get(UiTextKey.LibraryAllScripts)</span>
+                <span class="bc-sep">/</span>
+                <span class="bc-item bc-current"
+                      data-testid="@UiTestIds.Header.LibraryBreadcrumbCurrent">@ShellState.BreadcrumbLabel</span>
+            </div>
+        }
+        else
+        {
+            @if (ShowBackButton)
+            {
+                <button type="button"
+                        class="btn-back"
+                        @onclick="HandleBackClickAsync"
+                        data-testid="@UiTestIds.Header.Back">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15,18 9,12 15,6" />
+                    </svg>
+                </button>
+            }
+
+            <span class="top-bar-title" data-testid="@UiTestIds.Header.Title">@HeaderTitle</span>
+
+            @if (ShowHeaderSubtitle)
+            {
+                <span id="@(ShellState.Screen == AppShellScreen.Teleprompter ? UiDomIds.Teleprompter.HeaderSegment : null)"
+                      class="app-header-subtitle"
+                      data-testid="@UiTestIds.Header.Subtitle">@HeaderSubtitle</span>
+            }
+        }
     </div>
-    <div class="app-header-center" id="app-header-center" data-testid="@UiTestIds.Header.Center"></div>
-    <div class="app-header-right" id="app-header-right"></div>
+    <div class="app-header-right">
+        @switch (ShellState.Screen)
+        {
+            case AppShellScreen.Library:
+                <div class="lib-search">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8" />
+                        <path d="m21 21-4.35-4.35" />
+                    </svg>
+                    <input type="text"
+                           value="@ShellState.SearchText"
+                           placeholder="@UiTextCatalog.Get(UiTextKey.HeaderSearchPlaceholder)"
+                           @oninput="HandleLibrarySearchInputAsync"
+                           data-testid="@UiTestIds.Header.LibrarySearch" />
+                </div>
+                <button type="button"
+                        class="btn-create"
+                        @onclick="HandleCreateScriptClickAsync"
+                        data-testid="@UiTestIds.Header.LibraryNewScript">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <line x1="12" y1="5" x2="12" y2="19" />
+                        <line x1="5" y1="12" x2="19" y2="12" />
+                    </svg>
+                    @UiTextCatalog.Get(UiTextKey.HeaderNewScript)
+                </button>
+                break;
+            case AppShellScreen.Editor:
+                <button type="button"
+                        class="btn-ghost"
+                        @onclick="HandleOpenLearnClickAsync"
+                        data-testid="@UiTestIds.Header.EditorLearn">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+                    </svg>
+                    @UiTextCatalog.Get(UiTextKey.HeaderLearn)
+                </button>
+                <button type="button"
+                        class="btn-ghost"
+                        @onclick="HandleOpenGoLiveClickAsync"
+                        data-testid="@UiTestIds.Header.GoLive">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 12a8 8 0 0 1 8-8" />
+                        <path d="M20 12a8 8 0 0 0-8-8" />
+                        <path d="M4 12a8 8 0 0 0 8 8" />
+                        <path d="M20 12a8 8 0 0 1-8 8" />
+                        <circle cx="12" cy="12" r="2.5" />
+                    </svg>
+                    @UiTextCatalog.Get(UiTextKey.HeaderGoLive)
+                </button>
+                <button type="button"
+                        class="btn-gold"
+                        @onclick="HandleOpenReadClickAsync"
+                        data-testid="@UiTestIds.Header.EditorRead">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="5,3 19,12 5,21" />
+                    </svg>
+                    @UiTextCatalog.Get(UiTextKey.HeaderRead)
+                </button>
+                break;
+            case AppShellScreen.Learn:
+                <button type="button"
+                        class="btn-ghost"
+                        @onclick="HandleOpenGoLiveClickAsync"
+                        data-testid="@UiTestIds.Header.GoLive">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 12a8 8 0 0 1 8-8" />
+                        <path d="M20 12a8 8 0 0 0-8-8" />
+                        <path d="M4 12a8 8 0 0 0 8 8" />
+                        <path d="M20 12a8 8 0 0 1-8 8" />
+                        <circle cx="12" cy="12" r="2.5" />
+                    </svg>
+                    @UiTextCatalog.Get(UiTextKey.HeaderGoLive)
+                </button>
+                <span id="@UiDomIds.Learn.HeaderWpmBadge"
+                      class="top-bar-title app-header-wpm"
+                      data-testid="@UiTestIds.Header.Wpm">@ShellState.WpmLabel</span>
+                break;
+            case AppShellScreen.Teleprompter:
+                <button type="button"
+                        class="btn-ghost"
+                        @onclick="HandleOpenGoLiveClickAsync"
+                        data-testid="@UiTestIds.Header.GoLive">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 12a8 8 0 0 1 8-8" />
+                        <path d="M20 12a8 8 0 0 0-8-8" />
+                        <path d="M4 12a8 8 0 0 0 8 8" />
+                        <path d="M20 12a8 8 0 0 1-8 8" />
+                        <circle cx="12" cy="12" r="2.5" />
+                    </svg>
+                    @UiTextCatalog.Get(UiTextKey.HeaderGoLive)
+                </button>
+                break;
+            case AppShellScreen.GoLive:
+                <button type="button"
+                        class="btn-gold"
+                        @onclick="HandleOpenReadClickAsync"
+                        data-testid="@UiTestIds.Header.EditorRead">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="5,3 19,12 5,21" />
+                    </svg>
+                    @UiTextCatalog.Get(UiTextKey.HeaderRead)
+                </button>
+                break;
+        }
+    </div>
 </header>
 
 <PrompterLive.Shared.Components.Diagnostics.DiagnosticsBanner />
 
 @Body
-
-@code {
-    private const string AttachNavigatorLogMessage = "Attached SPA navigator bridge.";
-    private const string ClientNavigationLogTemplate = "Client navigation requested for {Route}.";
-    private const string RouteChangedLogTemplate = "Route changed to {Location}.";
-
-    private DotNetObjectReference<MainLayout>? _navigationBridge;
-
-    protected override void OnInitialized()
-    {
-        Navigation.LocationChanged += HandleLocationChanged;
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            await Bootstrapper.EnsureReadyAsync();
-            _navigationBridge = DotNetObjectReference.Create(this);
-            await JS.InvokeVoidAsync("PrompterLiveDesign.attachNavigator", _navigationBridge);
-            Logger.LogInformation(AttachNavigatorLogMessage);
-        }
-
-        await JS.InvokeVoidAsync("PrompterLiveDesign.initialize", ResolveScreenId(Navigation.Uri));
-    }
-
-    [JSInvokable]
-    public void NavigateClient(string route)
-    {
-        if (string.IsNullOrWhiteSpace(route))
-        {
-            return;
-        }
-
-        Logger.LogInformation(ClientNavigationLogTemplate, route);
-        Navigation.NavigateTo(route);
-    }
-
-    private void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
-    {
-        Logger.LogInformation(RouteChangedLogTemplate, e.Location);
-        StateHasChanged();
-    }
-
-    private static string ResolveScreenId(string uri)
-    {
-        var path = new Uri(uri).AbsolutePath.TrimEnd('/');
-
-        return path switch
-        {
-            "" or "/" => "library",
-            "/library" => "library",
-            "/editor" => "editor",
-            "/learn" => "rsvp",
-            "/teleprompter" => "teleprompter",
-            "/settings" => "settings",
-            _ => "library"
-        };
-    }
-
-    public void Dispose()
-    {
-        Navigation.LocationChanged -= HandleLocationChanged;
-        _navigationBridge?.Dispose();
-    }
-}

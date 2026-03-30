@@ -21,7 +21,9 @@ internal sealed record EditorMenuScenario(
 
 internal sealed record EditorAiScenario(
     string TestId,
-    bool RequiresSelection);
+    bool RequiresSelection,
+    string SourceText,
+    string ExpectedFragment);
 
 internal static class EditorToolbarCoverageScenarios
 {
@@ -41,13 +43,21 @@ internal static class EditorToolbarCoverageScenarios
             EditorToolbarCatalog.Sections
                 .SelectMany(section => section.MainActions)
                 .Where(action => action.ActionType == EditorToolbarActionType.Ai && !string.IsNullOrWhiteSpace(action.TestId))
-                .Select(action => new EditorAiScenario(action.TestId!, RequiresSelection: false)));
+                .Select(action => new EditorAiScenario(
+                    action.TestId!,
+                    RequiresSelection: true,
+                    BrowserTestSource.SimplifySource,
+                    BrowserTestSource.SimplifiedToken)));
 
         scenarios.AddRange(
             EditorToolbarCatalog.FloatingActionGroups
                 .SelectMany(group => group)
                 .Where(action => action.ActionType == EditorToolbarActionType.Ai && !string.IsNullOrWhiteSpace(action.TestId))
-                .Select(action => new EditorAiScenario(action.TestId!, RequiresSelection: true)));
+                .Select(action => new EditorAiScenario(
+                    action.TestId!,
+                    RequiresSelection: true,
+                    BrowserTestSource.SimplifySource,
+                    BrowserTestSource.SimplifiedToken)));
 
         return scenarios;
     }
@@ -113,4 +123,14 @@ internal static class EditorToolbarCoverageScenarios
             EditorCommandKind.ClearColor => EditorScenarioSelectionMode.ClearColorSelection,
             _ => EditorScenarioSelectionMode.InsertAtCaret
         };
+
+    private static class BrowserTestSource
+    {
+        public const string SimplifiedToken = "clear moment";
+        public const string SimplifySource = """
+            ## [Intro|140WPM|warm]
+            ### [Opening Block|140WPM]
+            transformative moment
+            """;
+    }
 }

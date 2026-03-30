@@ -1,65 +1,46 @@
-using System.Diagnostics;
+using System.Collections.Concurrent;
 using System.Net;
 using Microsoft.Playwright;
 
 namespace PrompterLive.App.UITests;
 
-[CollectionDefinition(Name)]
-public sealed class StandaloneAppCollection : ICollectionFixture<StandaloneAppFixture>
+public sealed partial class StandaloneAppFixture : IAsyncLifetime
 {
-    public const string Name = "standalone-app";
-}
-
-public sealed class StandaloneAppFixture : IAsyncLifetime
-{
+    private const int BaseAddressPort = 5051;
     private const string BaseAddressValue = "http://localhost:5051";
-    private readonly List<IBrowserContext> _contexts = [];
-    private StaticSpaServer? _server;
+    private const int CrossProcessMutexTimeoutSeconds = 300;
+    private const string CrossProcessMutexName = "PrompterLive.App.UITests.Runtime.5051";
+    private const int ServerStartupTimeoutSeconds = 60;
+    private const int ServerProbeDelayMilliseconds = 500;
+    private readonly ConcurrentBag<IBrowserContext> _contexts = [];
+    private SharedRuntimeHandle? _runtimeHandle;
 
     public string BaseAddress => BaseAddressValue;
-    public IPlaywright Playwright { get; private set; } = null!;
-    public IBrowser Browser { get; private set; } = null!;
+    public IPlaywright Playwright => _runtimeHandle?.Playwright ?? throw new InvalidOperationException("UI test runtime is not initialized.");
+    public IBrowser Browser => _runtimeHandle?.Browser ?? throw new InvalidOperationException("UI test runtime is not initialized.");
 
     public async Task InitializeAsync()
     {
-        await StopListeningProcessAsync();
-        _server = new StaticSpaServer(
-            GetAppWwwrootDirectory(),
-            GetFrameworkDirectory(),
-            GetSharedWwwrootDirectory(),
-            GetHotReloadStaticAssetsDirectory(),
-            BaseAddressValue);
-        await _server.StartAsync();
-        await WaitForServerAsync();
-
-        Playwright = await Microsoft.Playwright.Playwright.CreateAsync();
-        Browser = await Playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
-        {
-            Headless = true,
-            Args =
-            [
-                "--use-fake-ui-for-media-stream",
-                "--use-fake-device-for-media-stream"
-            ]
-        });
+        _runtimeHandle = await SharedRuntime.AcquireAsync();
     }
 
     public async Task DisposeAsync()
     {
-        foreach (var context in _contexts)
+        while (_contexts.TryTake(out var context))
         {
-            await context.DisposeAsync();
+            try
+            {
+                await context.DisposeAsync();
+            }
+            catch
+            {
+            }
         }
 
-        if (Browser is not null)
+        if (_runtimeHandle is not null)
         {
-            await Browser.DisposeAsync();
-        }
-
-        Playwright?.Dispose();
-        if (_server is not null)
-        {
-            await _server.DisposeAsync();
+            await SharedRuntime.ReleaseAsync();
+            _runtimeHandle = null;
         }
     }
 
@@ -73,13 +54,151 @@ public sealed class StandaloneAppFixture : IAsyncLifetime
         {
             Origin = BaseAddress
         });
+        await ConfigureMediaHarnessAsync(context);
         _contexts.Add(context);
         return await context.NewPageAsync();
     }
 
+    private static class SharedRuntime
+    {
+        private static readonly SemaphoreSlim LifecycleGate = new(1, 1);
+        private static IBrowser? _browser;
+        private static Mutex? _crossProcessMutex;
+        private static bool _ownsCrossProcessMutex;
+        private static IPlaywright? _playwright;
+        private static StaticSpaServer? _server;
+
+        public static async Task<SharedRuntimeHandle> AcquireAsync()
+        {
+            await LifecycleGate.WaitAsync();
+            try
+            {
+                if (_server is null || _playwright is null || _browser is null)
+                {
+                    AcquireCrossProcessMutex();
+
+                    try
+                    {
+                        await EnsureBaseAddressIsAvailableAsync();
+                        _server = new StaticSpaServer(
+                            GetAppWwwrootDirectory(),
+                            GetFrameworkDirectory(),
+                            GetSharedWwwrootDirectory(),
+                            GetAppScopedStylesheetPath(),
+                            GetSharedScopedStylesheetPath(),
+                            GetHotReloadStaticAssetsDirectory(),
+                            BaseAddressValue);
+                        await _server.StartAsync();
+                        await WaitForServerAsync();
+
+                        _playwright = await Microsoft.Playwright.Playwright.CreateAsync();
+                        _browser = await _playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+                        {
+                            Headless = true,
+                            Args =
+                            [
+                                "--use-fake-ui-for-media-stream",
+                                "--use-fake-device-for-media-stream"
+                            ]
+                        });
+                    }
+                    catch
+                    {
+                        await DisposeRuntimeAsync();
+                        ReleaseCrossProcessMutex();
+                        throw;
+                    }
+                }
+
+                return new SharedRuntimeHandle(_playwright!, _browser!);
+            }
+            finally
+            {
+                LifecycleGate.Release();
+            }
+        }
+
+        public static Task ReleaseAsync() => Task.CompletedTask;
+
+        private static void AcquireCrossProcessMutex()
+        {
+            if (_ownsCrossProcessMutex)
+            {
+                return;
+            }
+
+            var mutex = new Mutex(false, CrossProcessMutexName);
+
+            try
+            {
+                try
+                {
+                    if (!mutex.WaitOne(TimeSpan.FromSeconds(CrossProcessMutexTimeoutSeconds)))
+                    {
+                        throw new TimeoutException(
+                            $"PrompterLive.App.UITests could not acquire exclusive runtime access to {BaseAddressValue} within {CrossProcessMutexTimeoutSeconds} seconds.");
+                    }
+                }
+                catch (AbandonedMutexException)
+                {
+                }
+
+                _crossProcessMutex = mutex;
+                _ownsCrossProcessMutex = true;
+            }
+            catch
+            {
+                mutex.Dispose();
+                throw;
+            }
+        }
+
+        private static void ReleaseCrossProcessMutex()
+        {
+            if (!_ownsCrossProcessMutex || _crossProcessMutex is null)
+            {
+                return;
+            }
+
+            try
+            {
+                _crossProcessMutex.ReleaseMutex();
+            }
+            catch (ApplicationException)
+            {
+            }
+            finally
+            {
+                _crossProcessMutex.Dispose();
+                _crossProcessMutex = null;
+                _ownsCrossProcessMutex = false;
+            }
+        }
+
+        private static async Task DisposeRuntimeAsync()
+        {
+            if (_browser is not null)
+            {
+                await _browser.DisposeAsync();
+                _browser = null;
+            }
+
+            _playwright?.Dispose();
+            _playwright = null;
+
+            if (_server is not null)
+            {
+                await _server.DisposeAsync();
+                _server = null;
+            }
+        }
+    }
+
+    private sealed record SharedRuntimeHandle(IPlaywright Playwright, IBrowser Browser);
+
     private static async Task WaitForServerAsync()
     {
-        var deadline = DateTimeOffset.UtcNow.AddSeconds(60);
+        var deadline = DateTimeOffset.UtcNow.AddSeconds(ServerStartupTimeoutSeconds);
         while (DateTimeOffset.UtcNow < deadline)
         {
             if (await GetServerStateAsync() == ServerState.Valid)
@@ -87,7 +206,7 @@ public sealed class StandaloneAppFixture : IAsyncLifetime
                 return;
             }
 
-            await Task.Delay(500);
+            await Task.Delay(ServerProbeDelayMilliseconds);
         }
 
         throw new TimeoutException($"PrompterLive.App did not start listening on {BaseAddressValue} within the timeout.");
@@ -147,31 +266,33 @@ public sealed class StandaloneAppFixture : IAsyncLifetime
             .FirstOrDefault();
     }
 
-    private static async Task StopListeningProcessAsync()
+    private static async Task EnsureBaseAddressIsAvailableAsync()
     {
         var listenerPids = await GetListeningPidsAsync();
-        foreach (var pid in listenerPids.Distinct())
+
+        var conflictingPids = listenerPids
+            .Distinct()
+            .ToArray();
+
+        if (conflictingPids.Length > 0)
         {
-            try
-            {
-                using var process = Process.GetProcessById(pid);
-                process.Kill(entireProcessTree: true);
-                await process.WaitForExitAsync();
-            }
-            catch
-            {
-            }
+            throw new InvalidOperationException(CreatePortConflictMessage(conflictingPids));
         }
     }
 
-    private static async Task<IReadOnlyList<int>> GetListeningPidsAsync()
+    private static string CreatePortConflictMessage(IReadOnlyCollection<int> conflictingPids) =>
+        $"PrompterLive.App.UITests requires exclusive access to {BaseAddressValue}, but it is already in use by process ID(s): {string.Join(", ", conflictingPids.Order())}. Stop the other browser suite or manual host before running this test project.";
+
+    private static string GetListeningProcessArguments() => $"-t -iTCP:{BaseAddressPort} -sTCP:LISTEN";
+
+    private static async Task<int[]> GetListeningPidsAsync()
     {
         using var process = new System.Diagnostics.Process
         {
             StartInfo = new System.Diagnostics.ProcessStartInfo
             {
                 FileName = "lsof",
-                Arguments = "-t -iTCP:5051 -sTCP:LISTEN",
+                Arguments = GetListeningProcessArguments(),
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = false,
@@ -208,6 +329,16 @@ public sealed class StandaloneAppFixture : IAsyncLifetime
         Path.GetFullPath(Path.Combine(
             AppContext.BaseDirectory,
             "../../../../../src/PrompterLive.Shared/wwwroot"));
+
+    private static string GetAppScopedStylesheetPath() =>
+        Path.GetFullPath(Path.Combine(
+            AppContext.BaseDirectory,
+            "../../../../../src/PrompterLive.App/obj/Debug/net10.0/scopedcss/bundle/PrompterLive.App.styles.css"));
+
+    private static string GetSharedScopedStylesheetPath() =>
+        Path.GetFullPath(Path.Combine(
+            AppContext.BaseDirectory,
+            "../../../../../src/PrompterLive.Shared/obj/Debug/net10.0/scopedcss/projectbundle/PrompterLive.Shared.bundle.scp.css"));
 
     private static string? GetHotReloadStaticAssetsDirectory()
     {

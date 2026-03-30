@@ -3,10 +3,337 @@
     const documentSeedVersionKey = "prompterlive.library.seed-version";
     const folderStorageKey = "prompterlive.folders.v1";
     const folderSeedVersionKey = "prompterlive.folders.seed-version";
-    const historyBindings = new WeakMap();
     const settingsPrefix = "prompterlive.settings.";
+    const cultureSettingKey = settingsPrefix + "culture";
+    const defaultCultureName = "en";
+    const blockedCulturePrefix = "ru";
+    const cultureSeparator = "-";
+    const alternateCultureSeparator = "_";
+    const supportedCultures = new Set(["en", "uk", "fr", "es", "pt", "it"]);
     const streamMap = new Map();
     const readerAnimations = new Map();
+    const shellAutoHideDelayMs = 2400;
+    const shellStateOffline = "offline";
+    const shellStateOnline = "online";
+    const shellErrorUiId = "blazor-error-ui";
+    const shellErrorEyebrowId = "app-shell-error-eyebrow";
+    const shellErrorTitleId = "app-shell-error-title";
+    const shellErrorMessageId = "app-shell-error-message";
+    const shellErrorDetailId = "app-shell-error-detail";
+    const shellConnectivityUiId = "app-connectivity-ui";
+    const shellConnectivityEyebrowId = "app-connectivity-eyebrow";
+    const shellConnectivityTitleId = "app-connectivity-title";
+    const shellConnectivityMessageId = "app-connectivity-message";
+    const shellConnectivityRetryId = "app-connectivity-retry";
+    const shellConnectivityDismissId = "app-connectivity-dismiss";
+    const shellBootstrapReloadSelector = "[data-testid='diagnostics-bootstrap-reload']";
+    const shellBootstrapDismissSelector = "[data-testid='diagnostics-bootstrap-dismiss']";
+    const shellText = {
+        en: {
+            errorEyebrow: "Diagnostics",
+            errorTitle: "Prompter.live hit a shell error",
+            errorMessage: "The app shell could not recover automatically. Reload the app to restore editing, reading, and live tools.",
+            reload: "Reload App",
+            dismiss: "Dismiss",
+            connectivityEyebrow: "Connection",
+            offlineTitle: "Connection lost",
+            offlineMessage: "Prompter.live is offline. Live routing, cloud sync, and remote publishing will resume when the browser reconnects.",
+            onlineTitle: "Connection restored",
+            onlineMessage: "The browser connection is back. Continue working or reload if anything still looks stale.",
+            retry: "Retry Now"
+        },
+        uk: {
+            errorEyebrow: "Діагностика",
+            errorTitle: "У Prompter.live сталася помилка оболонки",
+            errorMessage: "Оболонка застосунку не змогла відновитися автоматично. Перезавантажте застосунок, щоб повернути редагування, читання і live-інструменти.",
+            reload: "Перезавантажити",
+            dismiss: "Закрити",
+            connectivityEyebrow: "Зʼєднання",
+            offlineTitle: "Зʼєднання втрачено",
+            offlineMessage: "Prompter.live офлайн. Live routing, хмарна синхронізація та віддалена публікація відновляться, коли браузер перепідключиться.",
+            onlineTitle: "Зʼєднання відновлено",
+            onlineMessage: "Браузер знову онлайн. Можна продовжувати роботу або перезавантажити застосунок, якщо щось усе ще виглядає застарілим.",
+            retry: "Спробувати знову"
+        },
+        fr: {
+            errorEyebrow: "Diagnostic",
+            errorTitle: "Prompter.live a rencontré une erreur de shell",
+            errorMessage: "Le shell de l’application n’a pas pu se rétablir automatiquement. Rechargez l’application pour retrouver l’édition, la lecture et le live.",
+            reload: "Recharger",
+            dismiss: "Fermer",
+            connectivityEyebrow: "Connexion",
+            offlineTitle: "Connexion perdue",
+            offlineMessage: "Prompter.live est hors ligne. Le routage live, la synchronisation cloud et la publication distante reprendront quand le navigateur se reconnectera.",
+            onlineTitle: "Connexion rétablie",
+            onlineMessage: "La connexion du navigateur est de retour. Continuez à travailler ou rechargez si quelque chose semble encore obsolète.",
+            retry: "Réessayer"
+        },
+        es: {
+            errorEyebrow: "Diagnóstico",
+            errorTitle: "Prompter.live encontró un error del shell",
+            errorMessage: "El shell de la aplicación no pudo recuperarse automáticamente. Recarga la aplicación para restaurar edición, lectura y herramientas en vivo.",
+            reload: "Recargar",
+            dismiss: "Cerrar",
+            connectivityEyebrow: "Conexión",
+            offlineTitle: "Conexión perdida",
+            offlineMessage: "Prompter.live está sin conexión. El enrutado en vivo, la sincronización en la nube y la publicación remota se reanudarán cuando el navegador vuelva a conectarse.",
+            onlineTitle: "Conexión restaurada",
+            onlineMessage: "La conexión del navegador volvió. Sigue trabajando o recarga si algo aún se ve desactualizado.",
+            retry: "Reintentar"
+        },
+        pt: {
+            errorEyebrow: "Diagnóstico",
+            errorTitle: "O Prompter.live encontrou um erro de shell",
+            errorMessage: "O shell do app não conseguiu se recuperar automaticamente. Recarregue o app para restaurar edição, leitura e ferramentas ao vivo.",
+            reload: "Recarregar",
+            dismiss: "Fechar",
+            connectivityEyebrow: "Conexão",
+            offlineTitle: "Conexão perdida",
+            offlineMessage: "O Prompter.live está offline. O roteamento ao vivo, a sincronização em nuvem e a publicação remota voltarão quando o navegador reconectar.",
+            onlineTitle: "Conexão restaurada",
+            onlineMessage: "A conexão do navegador voltou. Continue trabalhando ou recarregue se algo ainda parecer desatualizado.",
+            retry: "Tentar novamente"
+        },
+        it: {
+            errorEyebrow: "Diagnostica",
+            errorTitle: "Prompter.live ha rilevato un errore della shell",
+            errorMessage: "La shell dell’app non è riuscita a riprendersi automaticamente. Ricarica l’app per ripristinare modifica, lettura e strumenti live.",
+            reload: "Ricarica",
+            dismiss: "Chiudi",
+            connectivityEyebrow: "Connessione",
+            offlineTitle: "Connessione persa",
+            offlineMessage: "Prompter.live è offline. Il routing live, la sincronizzazione cloud e la pubblicazione remota riprenderanno quando il browser si riconnetterà.",
+            onlineTitle: "Connessione ripristinata",
+            onlineMessage: "La connessione del browser è tornata. Continua a lavorare oppure ricarica se qualcosa sembra ancora non aggiornato.",
+            retry: "Riprova"
+        }
+    };
+    let connectivityHideTimer = 0;
+
+    function normalizeCultureName(cultureName) {
+        if (!cultureName || typeof cultureName !== "string") {
+            return "";
+        }
+
+        return cultureName
+            .trim()
+            .replaceAll(alternateCultureSeparator, cultureSeparator)
+            .toLowerCase();
+    }
+
+    function resolveSupportedCulture(cultureName) {
+        const normalizedCulture = normalizeCultureName(cultureName);
+        if (!normalizedCulture) {
+            return "";
+        }
+
+        const languageName = normalizedCulture.split(cultureSeparator)[0];
+        if (languageName === blockedCulturePrefix) {
+            return defaultCultureName;
+        }
+
+        return supportedCultures.has(languageName)
+            ? languageName
+            : "";
+    }
+
+    function getBrowserCultures() {
+        if (Array.isArray(window.navigator.languages) && window.navigator.languages.length > 0) {
+            return window.navigator.languages;
+        }
+
+        return [window.navigator.language || defaultCultureName];
+    }
+
+    function getPreferredCulture() {
+        const storedCulture = resolveSupportedCulture(window.localStorage.getItem(cultureSettingKey));
+        if (storedCulture) {
+            return storedCulture;
+        }
+
+        for (const browserCulture of getBrowserCultures()) {
+            const supportedCulture = resolveSupportedCulture(browserCulture);
+            if (supportedCulture) {
+                return supportedCulture;
+            }
+        }
+
+        return defaultCultureName;
+    }
+
+    function applyDocumentCulture(cultureName) {
+        const normalizedCulture = resolveSupportedCulture(cultureName) || defaultCultureName;
+        if (document && document.documentElement) {
+            document.documentElement.lang = normalizedCulture;
+        }
+
+        return normalizedCulture;
+    }
+
+    function getShellStrings() {
+        const cultureName = resolveSupportedCulture(document?.documentElement?.lang) || defaultCultureName;
+        return shellText[cultureName] || shellText[defaultCultureName];
+    }
+
+    function setShellText(elementId, value) {
+        const element = document.getElementById(elementId);
+        if (element) {
+            element.textContent = value;
+        }
+    }
+
+    function showShellDetail(detail) {
+        const detailElement = document.getElementById(shellErrorDetailId);
+        if (!detailElement) {
+            return;
+        }
+
+        if (!detail) {
+            detailElement.hidden = true;
+            detailElement.textContent = "";
+            return;
+        }
+
+        detailElement.hidden = false;
+        detailElement.textContent = detail;
+    }
+
+    function hideBootstrapError() {
+        const errorUi = document.getElementById(shellErrorUiId);
+        if (errorUi) {
+            errorUi.style.display = "none";
+        }
+    }
+
+    function updateShellCopy() {
+        const strings = getShellStrings();
+        setShellText(shellErrorEyebrowId, strings.errorEyebrow);
+        setShellText(shellErrorTitleId, strings.errorTitle);
+        setShellText(shellErrorMessageId, strings.errorMessage);
+        setShellText(shellConnectivityEyebrowId, strings.connectivityEyebrow);
+
+        const reloadButton = document.querySelector(shellBootstrapReloadSelector);
+        if (reloadButton) {
+            reloadButton.textContent = strings.reload;
+        }
+
+        const bootstrapDismissButton = document.querySelector(shellBootstrapDismissSelector);
+        if (bootstrapDismissButton) {
+            bootstrapDismissButton.textContent = strings.dismiss;
+        }
+
+        const retryButton = document.getElementById(shellConnectivityRetryId);
+        if (retryButton) {
+            retryButton.textContent = strings.retry;
+        }
+
+        const connectivityDismissButton = document.getElementById(shellConnectivityDismissId);
+        if (connectivityDismissButton) {
+            connectivityDismissButton.textContent = strings.dismiss;
+        }
+    }
+
+    function hideConnectivityStatus() {
+        const connectivityUi = document.getElementById(shellConnectivityUiId);
+        if (!connectivityUi) {
+            return;
+        }
+
+        window.clearTimeout(connectivityHideTimer);
+        connectivityHideTimer = 0;
+        connectivityUi.hidden = true;
+        delete connectivityUi.dataset.state;
+    }
+
+    function showConnectivityStatus(state) {
+        const connectivityUi = document.getElementById(shellConnectivityUiId);
+        if (!connectivityUi) {
+            return;
+        }
+
+        const strings = getShellStrings();
+        const isOnline = state === shellStateOnline;
+        setShellText(
+            shellConnectivityTitleId,
+            isOnline ? strings.onlineTitle : strings.offlineTitle);
+        setShellText(
+            shellConnectivityMessageId,
+            isOnline ? strings.onlineMessage : strings.offlineMessage);
+
+        connectivityUi.hidden = false;
+        connectivityUi.dataset.state = state;
+
+        window.clearTimeout(connectivityHideTimer);
+        connectivityHideTimer = 0;
+
+        if (isOnline) {
+            connectivityHideTimer = window.setTimeout(hideConnectivityStatus, shellAutoHideDelayMs);
+        }
+    }
+
+    function showBootstrapError(detail) {
+        const errorUi = document.getElementById(shellErrorUiId);
+        if (!errorUi) {
+            return;
+        }
+
+        updateShellCopy();
+        showShellDetail(detail);
+        errorUi.style.display = "grid";
+    }
+
+    function initializeAppShell() {
+        updateShellCopy();
+
+        const errorUi = document.getElementById(shellErrorUiId);
+        if (errorUi) {
+            const errorUiObserver = new MutationObserver(() => {
+                if (errorUi.style.display && errorUi.style.display !== "none") {
+                    errorUi.style.display = "grid";
+                }
+            });
+
+            errorUiObserver.observe(errorUi, {
+                attributes: true,
+                attributeFilter: ["style"]
+            });
+        }
+
+        const bootstrapDismissButton = document.querySelector(shellBootstrapDismissSelector);
+        if (bootstrapDismissButton) {
+            bootstrapDismissButton.addEventListener("click", hideBootstrapError);
+        }
+
+        const connectivityRetryButton = document.getElementById(shellConnectivityRetryId);
+        if (connectivityRetryButton) {
+            connectivityRetryButton.addEventListener("click", () => window.location.reload());
+        }
+
+        const connectivityDismissButton = document.getElementById(shellConnectivityDismissId);
+        if (connectivityDismissButton) {
+            connectivityDismissButton.addEventListener("click", hideConnectivityStatus);
+        }
+
+        window.addEventListener("offline", () => showConnectivityStatus(shellStateOffline));
+        window.addEventListener("online", () => showConnectivityStatus(shellStateOnline));
+        window.addEventListener("error", event => {
+            if (event?.message) {
+                showBootstrapError(event.message);
+            }
+        });
+        window.addEventListener("unhandledrejection", event => {
+            const reason = event?.reason;
+            const detail = typeof reason === "string"
+                ? reason
+                : reason?.message || "";
+
+            showBootstrapError(detail);
+        });
+
+        if (window.navigator && window.navigator.onLine === false) {
+            showConnectivityStatus(shellStateOffline);
+        }
+    }
 
     function normalizeDocument(document) {
         if (!document) {
@@ -133,7 +460,32 @@
         stream.getTracks().forEach(track => track.stop());
     }
 
+    applyDocumentCulture(getPreferredCulture());
+    initializeAppShell();
+
     window.PrompterLive = {
+        localization: {
+            getPreferredCulture() {
+                return applyDocumentCulture(getPreferredCulture());
+            },
+            setPreferredCulture(cultureName) {
+                const normalizedCulture = applyDocumentCulture(cultureName);
+                window.localStorage.setItem(cultureSettingKey, normalizedCulture);
+                updateShellCopy();
+                return normalizedCulture;
+            }
+        },
+        shell: {
+            hideBootstrapError,
+            hideConnectivityStatus,
+            showBootstrapError,
+            showConnectivityOffline() {
+                showConnectivityStatus(shellStateOffline);
+            },
+            showConnectivityOnline() {
+                showConnectivityStatus(shellStateOnline);
+            }
+        },
         storage: {
             ensureSeedData(seedDocuments) {
                 const current = readDocuments();
@@ -238,6 +590,9 @@
         },
 
         settings: {
+            loadJson(key) {
+                return window.localStorage.getItem(settingsPrefix + key);
+            },
             load(key) {
                 try {
                     const raw = window.localStorage.getItem(settingsPrefix + key);
@@ -245,6 +600,14 @@
                 } catch {
                     return null;
                 }
+            },
+            saveJson(key, json) {
+                if (typeof json !== "string") {
+                    window.localStorage.removeItem(settingsPrefix + key);
+                    return;
+                }
+
+                window.localStorage.setItem(settingsPrefix + key, json);
             },
             save(key, value) {
                 window.localStorage.setItem(settingsPrefix + key, JSON.stringify(value));
@@ -346,70 +709,6 @@
             }
         },
 
-        editor: {
-            bindHistoryShortcuts(textarea, dotNetRef) {
-                if (!textarea || !dotNetRef) {
-                    return;
-                }
-
-                window.PrompterLive.editor.unbindHistoryShortcuts(textarea);
-
-                const handler = event => {
-                    const key = (event.key || "").toLowerCase();
-                    const hasModifier = event.metaKey || event.ctrlKey;
-                    const isUndo = hasModifier && !event.shiftKey && key === "z";
-                    const isRedo = hasModifier && (key === "y" || (event.shiftKey && key === "z"));
-
-                    if (!isUndo && !isRedo) {
-                        return;
-                    }
-
-                    event.preventDefault();
-                    dotNetRef.invokeMethodAsync("HandleHistoryShortcut", isRedo ? "redo" : "undo");
-                };
-
-                textarea.addEventListener("keydown", handler);
-                historyBindings.set(textarea, handler);
-            },
-
-            syncScroll(textarea, overlay) {
-                if (!textarea || !overlay) {
-                    return;
-                }
-
-                overlay.scrollTop = textarea.scrollTop;
-                overlay.scrollLeft = textarea.scrollLeft;
-            },
-
-            getSelectionState(textarea) {
-                return createEditorSelectionState(textarea);
-            },
-
-            setSelection(textarea, start, end) {
-                if (!textarea) {
-                    return createEmptyEditorSelectionState();
-                }
-
-                textarea.focus();
-                textarea.setSelectionRange(start, end);
-                return createEditorSelectionState(textarea);
-            },
-
-            unbindHistoryShortcuts(textarea) {
-                if (!textarea) {
-                    return;
-                }
-
-                const handler = historyBindings.get(textarea);
-                if (!handler) {
-                    return;
-                }
-
-                textarea.removeEventListener("keydown", handler);
-                historyBindings.delete(textarea);
-            }
-        },
-
         reader: {
             startAutoScroll(elementId, pixelsPerSecond) {
                 const element = document.getElementById(elementId);
@@ -454,75 +753,4 @@
         }
     };
 
-    function createEmptyEditorSelectionState() {
-        return {
-            start: 0,
-            end: 0,
-            line: 1,
-            column: 1,
-            toolbarTop: 0,
-            toolbarLeft: 0
-        };
-    }
-
-    function createEditorSelectionState(textarea) {
-        if (!textarea) {
-            return createEmptyEditorSelectionState();
-        }
-
-        const start = textarea.selectionStart || 0;
-        const end = textarea.selectionEnd || start;
-        const prefix = textarea.value.slice(0, start);
-        const prefixLines = prefix.split("\n");
-        const line = prefixLines.length;
-        const column = (prefixLines[prefixLines.length - 1] || "").length + 1;
-        const coords = measureTextareaPosition(textarea, end);
-
-        return {
-            start,
-            end,
-            line,
-            column,
-            toolbarTop: Math.max(12, coords.top - 42),
-            toolbarLeft: coords.left
-        };
-    }
-
-    function measureTextareaPosition(textarea, index) {
-        const style = window.getComputedStyle(textarea);
-        const mirror = document.createElement("div");
-        const span = document.createElement("span");
-        const value = textarea.value;
-
-        mirror.style.position = "absolute";
-        mirror.style.visibility = "hidden";
-        mirror.style.whiteSpace = "pre-wrap";
-        mirror.style.wordBreak = "break-word";
-        mirror.style.overflowWrap = "break-word";
-        mirror.style.fontFamily = style.fontFamily;
-        mirror.style.fontSize = style.fontSize;
-        mirror.style.fontWeight = style.fontWeight;
-        mirror.style.lineHeight = style.lineHeight;
-        mirror.style.letterSpacing = style.letterSpacing;
-        mirror.style.padding = style.padding;
-        mirror.style.border = style.border;
-        mirror.style.boxSizing = style.boxSizing;
-        mirror.style.width = `${textarea.clientWidth}px`;
-        mirror.style.left = "-99999px";
-        mirror.style.top = "0";
-
-        mirror.textContent = value.slice(0, index);
-        span.textContent = value.slice(index, index + 1) || " ";
-        mirror.appendChild(span);
-        document.body.appendChild(mirror);
-
-        const top = textarea.offsetTop + span.offsetTop - textarea.scrollTop;
-        const left = textarea.offsetLeft + span.offsetLeft - textarea.scrollLeft;
-        document.body.removeChild(mirror);
-
-        return {
-            top,
-            left
-        };
-    }
 })();

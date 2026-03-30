@@ -1,12 +1,10 @@
 using Microsoft.Extensions.Logging;
+using PrompterLive.Shared.Localization;
 
 namespace PrompterLive.Shared.Services.Diagnostics;
 
 public sealed class UiDiagnosticsService(ILogger<UiDiagnosticsService> logger)
 {
-    private const string FatalTitle = "Unexpected Error";
-    private const string FatalMessage = "PrompterLive hit an unexpected error. Try the screen again or return to the library.";
-    private const string RecoverableTitle = "Action Failed";
     private const string FailureLogTemplate = "UI operation {Operation} failed.";
     private const string StartLogTemplate = "Starting UI operation {Operation}.";
     private const string SuccessLogTemplate = "Completed UI operation {Operation}.";
@@ -59,7 +57,7 @@ public sealed class UiDiagnosticsService(ILogger<UiDiagnosticsService> logger)
 
         SetCurrent(
             new UiDiagnosticEntry(
-                Title: RecoverableTitle,
+                Title: UiTextCatalog.Get(UiTextKey.DiagnosticsRecoverableTitle),
                 Message: message,
                 Operation: operation,
                 Detail: exception.Message,
@@ -72,7 +70,7 @@ public sealed class UiDiagnosticsService(ILogger<UiDiagnosticsService> logger)
         _logger.LogWarning("Recoverable UI issue in {Operation}: {Detail}", operation, detail);
         SetCurrent(
             new UiDiagnosticEntry(
-                Title: RecoverableTitle,
+                Title: UiTextCatalog.Get(UiTextKey.DiagnosticsRecoverableTitle),
                 Message: message,
                 Operation: operation,
                 Detail: detail,
@@ -85,8 +83,8 @@ public sealed class UiDiagnosticsService(ILogger<UiDiagnosticsService> logger)
         _logger.LogCritical(exception, FatalLogTemplate, operation);
         SetCurrent(
             new UiDiagnosticEntry(
-                Title: FatalTitle,
-                Message: FatalMessage,
+                Title: UiTextCatalog.Get(UiTextKey.DiagnosticsFatalTitle),
+                Message: UiTextCatalog.Get(UiTextKey.DiagnosticsFatalMessage),
                 Operation: operation,
                 Detail: exception.Message,
                 IsFatal: true,

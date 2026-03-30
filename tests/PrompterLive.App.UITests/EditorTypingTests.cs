@@ -3,8 +3,7 @@ using static Microsoft.Playwright.Assertions;
 
 namespace PrompterLive.App.UITests;
 
-[Collection(StandaloneAppCollection.Name)]
-public sealed class EditorTypingTests(StandaloneAppFixture fixture)
+public sealed class EditorTypingTests(StandaloneAppFixture fixture) : IClassFixture<StandaloneAppFixture>
 {
     private readonly StandaloneAppFixture _fixture = fixture;
 
@@ -42,5 +41,60 @@ public sealed class EditorTypingTests(StandaloneAppFixture fixture)
         {
             await page.Context.CloseAsync();
         }
+    }
+
+    [Fact]
+    public async Task EditorScreen_KeepsStyledOverlayVisibleAndPreservesClickCaretPlacement()
+    {
+        var page = await _fixture.NewPageAsync();
+
+        try
+        {
+            await page.GotoAsync(BrowserTestConstants.Routes.EditorQuantum);
+            await Expect(page.GetByTestId(UiTestIds.Editor.SourceInput))
+                .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
+
+            await page.GetByTestId(UiTestIds.Editor.SourceInput).ClickAsync(new()
+            {
+                Position = new()
+                {
+                    X = BrowserTestConstants.Editor.ClickNearStartOffsetX,
+                    Y = BrowserTestConstants.Editor.ClickNearStartOffsetY
+                }
+            });
+
+            var editorSurfaceState = await page.EvaluateAsync<EditorSurfaceState>(
+                """
+                () => {
+                    const input = document.querySelector('[data-testid="editor-source-input"]');
+                    const highlight = document.querySelector('[data-testid="editor-source-highlight"]');
+                    const inputStyle = input ? getComputedStyle(input) : null;
+                    const highlightStyle = highlight ? getComputedStyle(highlight) : null;
+                    return {
+                        selectionStart: input ? input.selectionStart ?? -1 : -1,
+                        inputColor: inputStyle ? inputStyle.color : '',
+                        highlightOpacity: highlightStyle ? highlightStyle.opacity : ''
+                    };
+                }
+                """);
+
+            Assert.NotNull(editorSurfaceState);
+            Assert.InRange(editorSurfaceState!.SelectionStart, 0, BrowserTestConstants.Editor.ClickCaretThreshold);
+            Assert.Equal(BrowserTestConstants.Editor.TransparentInputColor, editorSurfaceState.InputColor);
+            Assert.Equal(BrowserTestConstants.Editor.VisibleOverlayOpacity, editorSurfaceState.HighlightOpacity);
+        }
+        finally
+        {
+            await page.Context.CloseAsync();
+        }
+    }
+
+    private sealed class EditorSurfaceState
+    {
+        public string HighlightOpacity { get; set; } = string.Empty;
+
+        public string InputColor { get; set; } = string.Empty;
+
+        public int SelectionStart { get; set; }
     }
 }

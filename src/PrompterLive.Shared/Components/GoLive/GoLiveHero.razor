@@ -1,0 +1,40 @@
+@namespace PrompterLive.Shared.Components.GoLive
+
+<section class="live-hero">
+    <div class="live-hero-copy">
+        <div class="set-section-label">@Eyebrow</div>
+        <h2 class="set-section-title">@Title</h2>
+        <p class="set-section-desc">@Description</p>
+    </div>
+    @if (HasScriptContext)
+    {
+        <div class="live-hero-actions">
+            <a class="set-btn-outline" href="@LearnRoute" data-testid="@UiTestIds.GoLive.OpenLearn">@LearnLabel</a>
+            <a class="set-btn-golden" href="@ReadRoute" data-testid="@UiTestIds.GoLive.OpenRead">@ReadLabel</a>
+        </div>
+    }
+</section>
+
+@code {
+    private const string DefaultDescription = "Arm destinations for the current program feed while leaving teleprompter and RSVP ready in separate tabs.";
+    private const string DefaultEyebrow = "LIVE ROUTING";
+    private const string DefaultLearnLabel = "Open Learn";
+    private const string DefaultReadLabel = "Open Read";
+    private const string DefaultTitle = "Go Live";
+
+    [Parameter] public string Description { get; set; } = DefaultDescription;
+
+    [Parameter] public string Eyebrow { get; set; } = DefaultEyebrow;
+
+    [Parameter] public bool HasScriptContext { get; set; }
+
+    [Parameter] public string LearnLabel { get; set; } = DefaultLearnLabel;
+
+    [Parameter] public string LearnRoute { get; set; } = AppRoutes.Learn;
+
+    [Parameter] public string ReadLabel { get; set; } = DefaultReadLabel;
+
+    [Parameter] public string ReadRoute { get; set; } = AppRoutes.Teleprompter;
+
+    [Parameter] public string Title { get; set; } = DefaultTitle;
+}

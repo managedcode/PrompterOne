@@ -16,6 +16,7 @@ public sealed class TpsFrontMatterDocumentService
         MetadataKeys.Author,
         MetadataKeys.Profile,
         MetadataKeys.BaseWpm,
+        MetadataKeys.DisplayDuration,
         MetadataKeys.XslowOffset,
         MetadataKeys.SlowOffset,
         MetadataKeys.FastOffset,
@@ -145,6 +146,7 @@ public sealed class TpsFrontMatterDocumentService
         public const string Author = "author";
         public const string BaseWpm = "base_wpm";
         public const string Created = "created";
+        public const string DisplayDuration = "display_duration";
         public const string FastOffset = "fast_offset";
         public const string Profile = "profile";
         public const string SlowOffset = "slow_offset";

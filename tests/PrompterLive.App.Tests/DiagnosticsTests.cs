@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PrompterLive.Shared.Components.Diagnostics;
 using PrompterLive.Shared.Contracts;
+using PrompterLive.Shared.Localization;
 using PrompterLive.Shared.Services.Diagnostics;
 using PrompterLive.Shared.Tests;
 
@@ -55,7 +56,7 @@ public sealed class DiagnosticsTests : BunitContext
 
         cut.WaitForAssertion(() =>
         {
-            Assert.Contains("Action Failed", cut.Markup);
+            Assert.Contains(UiTextCatalog.Get(UiTextKey.DiagnosticsRecoverableTitle), cut.Markup);
             Assert.Contains("Unable to save settings.", cut.Markup);
             Assert.Contains("Forced diagnostics failure.", cut.Markup);
         });
@@ -65,7 +66,7 @@ public sealed class DiagnosticsTests : BunitContext
         cut.WaitForAssertion(() =>
         {
             Assert.Null(diagnostics.Current);
-            Assert.DoesNotContain("Action Failed", cut.Markup);
+            Assert.DoesNotContain(UiTextCatalog.Get(UiTextKey.DiagnosticsRecoverableTitle), cut.Markup);
         });
         GC.KeepAlive(harness);
     }
@@ -83,9 +84,11 @@ public sealed class DiagnosticsTests : BunitContext
 
         cut.WaitForAssertion(() =>
         {
-            Assert.Contains("Unexpected Error", cut.Markup);
-            Assert.Contains("PrompterLive hit an unexpected error.", cut.Markup);
+            Assert.Contains(UiTextCatalog.Get(UiTextKey.DiagnosticsFatalTitle), cut.Markup);
+            Assert.Contains(UiTextCatalog.Get(UiTextKey.DiagnosticsFatalMessage), cut.Markup);
             Assert.Contains("Forced boundary failure.", cut.Markup);
+            Assert.Contains(UiTextCatalog.Get(UiTextKey.DiagnosticsRetry), cut.Markup);
+            Assert.Contains(UiTextCatalog.Get(UiTextKey.DiagnosticsLibrary), cut.Markup);
         });
 
         var diagnostics = Services.GetRequiredService<UiDiagnosticsService>();

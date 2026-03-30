@@ -4,9 +4,7 @@ namespace PrompterLive.Shared.Components.Editor;
 
 public partial class EditorSourcePanel
 {
-    private bool _isAiPanelOpen;
     private string? _openMenuId;
-    private bool _suppressNextSelectionPanelClose;
 
     private static IReadOnlyList<EditorToolbarSectionDescriptor> ToolbarSections => EditorToolbarCatalog.Sections;
 
@@ -34,7 +32,12 @@ public partial class EditorSourcePanel
 
                 break;
             case EditorToolbarActionType.Ai:
-                ToggleAiPanel();
+                CloseToolbarPanels();
+                if (action.AiAction is { } aiAction)
+                {
+                    await ExecuteAiActionAsync(aiAction);
+                }
+
                 break;
             default:
                 CloseToolbarPanels();
@@ -49,9 +52,7 @@ public partial class EditorSourcePanel
 
     private void CloseToolbarPanels()
     {
-        _isAiPanelOpen = false;
         _openMenuId = null;
-        _suppressNextSelectionPanelClose = false;
     }
 
     private string GetToolbarSectionCss(EditorToolbarSectionDescriptor section)
@@ -87,28 +88,8 @@ public partial class EditorSourcePanel
     private bool IsMenuOpen(string menuId) =>
         string.Equals(_openMenuId, menuId, StringComparison.Ordinal);
 
-    private void ToggleAiPanel()
-    {
-        _isAiPanelOpen = !_isAiPanelOpen;
-        _openMenuId = null;
-        _suppressNextSelectionPanelClose = _isAiPanelOpen;
-    }
-
     private void ToggleMenu(string menuId)
     {
-        _isAiPanelOpen = false;
-        _suppressNextSelectionPanelClose = false;
         _openMenuId = IsMenuOpen(menuId) ? null : menuId;
-    }
-
-    private bool TryConsumeSelectionCloseSuppression()
-    {
-        if (!_suppressNextSelectionPanelClose)
-        {
-            return false;
-        }
-
-        _suppressNextSelectionPanelClose = false;
-        return true;
     }
 }

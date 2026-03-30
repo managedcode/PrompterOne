@@ -41,6 +41,7 @@ public static class PrompterLiveServiceCollectionExtensions
         services.AddScoped<StudioSettingsStore>();
         services.AddScoped<CameraPreviewInterop>();
         services.AddScoped<AppBootstrapper>();
+        services.AddScoped<AppShellService>();
         services.AddScoped<UiDiagnosticsService>();
 
         services.AddSingleton<IStreamingOutputProvider, LiveKitOutputProvider>();

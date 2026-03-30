@@ -97,11 +97,7 @@ public partial class EditorSourcePanel : IAsyncDisposable
 
     private async Task OnSelectionInteractionAsync()
     {
-        if (!TryConsumeSelectionCloseSuppression())
-        {
-            CloseToolbarPanels();
-        }
-
+        CloseToolbarPanels();
         await RefreshSelectionAsync();
     }
 

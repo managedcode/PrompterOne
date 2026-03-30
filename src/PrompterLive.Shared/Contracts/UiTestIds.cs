@@ -4,18 +4,29 @@ public static class UiTestIds
 {
     public static class Header
     {
+        public const string Back = "header-back";
         public const string Center = "header-center";
+        public const string EditorLearn = "header-editor-learn";
+        public const string EditorRead = "header-editor-read";
+        public const string GoLive = "header-go-live";
         public const string Home = "header-home";
         public const string LibraryBreadcrumbCurrent = "header-library-breadcrumb-current";
         public const string LibraryNewScript = "header-library-new-script";
         public const string LibrarySearch = "library-search";
-        public const string EditorLearn = "header-editor-learn";
-        public const string EditorRead = "header-editor-read";
+        public const string Subtitle = "header-subtitle";
+        public const string Title = "header-title";
+        public const string Wpm = "header-wpm";
     }
 
     public static class Diagnostics
     {
         public const string Banner = "diagnostics-banner";
+        public const string Bootstrap = "diagnostics-bootstrap";
+        public const string BootstrapDismiss = "diagnostics-bootstrap-dismiss";
+        public const string BootstrapReload = "diagnostics-bootstrap-reload";
+        public const string Connectivity = "diagnostics-connectivity";
+        public const string ConnectivityDismiss = "diagnostics-connectivity-dismiss";
+        public const string ConnectivityRetry = "diagnostics-connectivity-retry";
         public const string Dismiss = "diagnostics-dismiss";
         public const string Fatal = "diagnostics-fatal";
         public const string Home = "diagnostics-home";
@@ -27,6 +38,7 @@ public static class UiTestIds
         public const string Page = "library-page";
         public const string CreateScript = "library-create-script";
         public const string FolderAll = "library-folder-all";
+        public const string FolderChips = "library-folder-chips";
         public const string FolderCreateStart = "library-folder-create-start";
         public const string FolderCreateTile = "library-folder-create-tile";
         public const string NewFolderCard = "library-new-folder-card";
@@ -35,7 +47,10 @@ public static class UiTestIds
         public const string NewFolderOverlay = "library-new-folder-overlay";
         public const string NewFolderParent = "library-new-folder-parent";
         public const string NewFolderSubmit = "library-new-folder-submit";
+        public const string NewFolderTitle = "library-new-folder-title";
         public const string OpenSettings = "library-open-settings";
+        public const string SectionFoldersTitle = "library-section-folders-title";
+        public const string SortLabel = "library-sort-label";
         public const string SortDate = "library-sort-date";
         public const string SortDuration = "library-sort-duration";
         public const string SortName = "library-sort-name";
@@ -55,6 +70,8 @@ public static class UiTestIds
 
         public static string Folder(string folderId) => $"library-folder-{folderId}";
 
+        public static string FolderChip(string folderId) => $"library-folder-chip-{folderId}";
+
         public static string Move(string scriptId, string folderId) => $"library-move-{scriptId}-{folderId}";
     }
 
@@ -68,10 +85,6 @@ public static class UiTestIds
         public const string ActiveSegmentTiming = "editor-active-segment-timing";
         public const string ActiveSegmentWpm = "editor-active-segment-wpm";
         public const string Ai = "editor-ai";
-        public const string AiPanel = "editor-ai-panel";
-        public const string AiActionExpand = "editor-ai-action-expand";
-        public const string AiActionPauses = "editor-ai-action-pauses";
-        public const string AiActionSimplify = "editor-ai-action-simplify";
         public const string Author = "editor-author";
         public const string BaseWpm = "editor-base-wpm";
         public const string Bold = "editor-bold";
@@ -106,6 +119,7 @@ public static class UiTestIds
         public const string Redo = "editor-redo";
         public const string SourceHighlight = "editor-source-highlight";
         public const string SourceInput = "editor-source-input";
+        public const string SourceStage = "editor-source-stage";
         public const string SpeedFast = "editor-speed-fast";
         public const string SpeedCustomWpm = "editor-speed-custom-wpm";
         public const string SpeedSlow = "editor-speed-slow";
@@ -168,9 +182,10 @@ public static class UiTestIds
         public const string AboutPanel = "settings-about-panel";
         public const string AppearancePanel = "settings-appearance-panel";
         public const string AiPanel = "settings-ai-panel";
+        public const string CameraFrameRate = "settings-camera-frame-rate";
+        public const string CameraRoutingCta = "settings-camera-routing-cta";
         public const string CameraMirrorToggle = "settings-camera-mirror-toggle";
         public const string CameraResolution = "settings-camera-resolution";
-        public const string Bitrate = "settings-bitrate";
         public const string CamerasPanel = "settings-cameras-panel";
         public const string CloudPanel = "settings-cloud-panel";
         public const string DefaultCamera = "settings-default-camera";
@@ -188,26 +203,20 @@ public static class UiTestIds
         public const string NavCloud = "settings-nav-cloud";
         public const string NavFiles = "settings-nav-files";
         public const string NavMics = "settings-nav-mics";
-        public const string NavStreaming = "settings-nav-streaming";
         public const string NoiseSuppression = "settings-noise-suppression";
-        public const string OutputMode = "settings-output-mode";
-        public const string OutputResolution = "settings-output-resolution";
         public const string Page = "settings-page";
         public const string PrimaryMic = "settings-primary-mic";
         public const string ReaderCameraToggle = "settings-reader-camera-toggle";
         public const string RequestMedia = "settings-request-media";
-        public const string RtmpUrl = "settings-rtmp-url";
         public const string NoCameras = "settings-no-cameras";
         public const string NoMics = "settings-no-mics";
-        public const string StreamingPanel = "settings-streaming-panel";
-        public const string StreamIncludeCamera = "settings-stream-include-camera";
-        public const string StreamKey = "settings-stream-key";
-        public const string StreamTextOverlay = "settings-stream-text-overlay";
         public const string TestConnection = "settings-test-connection";
 
         public static string AiProvider(string providerId) => $"settings-ai-provider-{providerId}";
 
         public static string CameraDevice(string deviceId) => $"settings-camera-device-{deviceId}";
+
+        public static string CameraDeviceAction(string deviceId) => $"settings-camera-device-action-{deviceId}";
 
         public static string MicDelay(string deviceId) => $"settings-mic-delay-{deviceId}";
 
@@ -218,7 +227,53 @@ public static class UiTestIds
         public static string SceneFlip(string sourceId) => $"settings-scene-flip-{sourceId}";
 
         public static string SceneMirror(string sourceId) => $"settings-scene-mirror-{sourceId}";
+    }
 
-        public static string StreamProvider(string providerId) => $"settings-stream-provider-{providerId}";
+    public static class GoLive
+    {
+        public const string Bitrate = "go-live-bitrate";
+        public const string CustomRtmpKey = "go-live-custom-rtmp-key";
+        public const string CustomRtmpName = "go-live-custom-rtmp-name";
+        public const string CustomRtmpToggle = "go-live-custom-rtmp-toggle";
+        public const string CustomRtmpUrl = "go-live-custom-rtmp-url";
+        public const string LiveKitRoom = "go-live-livekit-room";
+        public const string LiveKitServer = "go-live-livekit-server";
+        public const string LiveKitToggle = "go-live-livekit-toggle";
+        public const string LiveKitToken = "go-live-livekit-token";
+        public const string NdiToggle = "go-live-ndi-toggle";
+        public const string ObsToggle = "go-live-obs-toggle";
+        public const string OpenLearn = "go-live-open-learn";
+        public const string OpenRead = "go-live-open-read";
+        public const string OpenSettings = "go-live-open-settings";
+        public const string OutputResolution = "go-live-output-resolution";
+        public const string Page = "go-live-page";
+        public const string ProgramCard = "go-live-program-card";
+        public const string PreviewCard = "go-live-preview-card";
+        public const string PreviewEmpty = "go-live-preview-empty";
+        public const string PreviewSourceLabel = "go-live-preview-source-label";
+        public const string PreviewVideo = "go-live-preview-video";
+        public const string RecordingToggle = "go-live-recording-toggle";
+        public const string SourcesCard = "go-live-sources-card";
+        public const string SourcePickerEmpty = "go-live-source-picker-empty";
+        public const string StreamIncludeCamera = "go-live-stream-include-camera";
+        public const string StreamTextOverlay = "go-live-stream-text-overlay";
+        public const string TwitchKey = "go-live-twitch-key";
+        public const string TwitchToggle = "go-live-twitch-toggle";
+        public const string TwitchUrl = "go-live-twitch-url";
+        public const string VdoPublishUrl = "go-live-vdo-publish-url";
+        public const string VdoRoom = "go-live-vdo-room";
+        public const string VdoToggle = "go-live-vdo-toggle";
+        public const string YoutubeKey = "go-live-youtube-key";
+        public const string YoutubeToggle = "go-live-youtube-toggle";
+        public const string YoutubeUrl = "go-live-youtube-url";
+
+        public static string ProviderCard(string providerId) => $"go-live-provider-{providerId}";
+        public static string ProviderSourcePicker(string providerId) => $"go-live-provider-sources-{providerId}";
+        public static string ProviderSourceSummary(string providerId) => $"go-live-provider-source-summary-{providerId}";
+        public static string ProviderSourceToggle(string providerId, string sourceId) => $"go-live-provider-source-{providerId}-{sourceId}";
+
+        public static string SourceCamera(string sourceId) => $"go-live-source-camera-{sourceId}";
+
+        public static string SourceCameraAction(string deviceId) => $"go-live-source-camera-action-{deviceId}";
     }
 }

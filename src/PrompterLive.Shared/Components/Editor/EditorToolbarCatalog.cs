@@ -1,4 +1,5 @@
 using PrompterLive.Core.Models.Editor;
+using PrompterLive.Shared.Contracts;
 
 namespace PrompterLive.Shared.Components.Editor;
 
@@ -230,7 +231,13 @@ public static class EditorToolbarCatalog
             null,
             null,
             [
-                Ai("ai-panel", $"{SparkIcon} AI", "AI Assistant — rewrite, expand, simplify, or auto-format your script with AI", "editor-ai", "tb-btn tb-ai tb-tip")
+                Ai(
+                    "ai-simplify",
+                    $"{SparkIcon} AI",
+                    "AI Assistant — rewrite, expand, simplify, or auto-format your script with AI",
+                    UiTestIds.Editor.Ai,
+                    EditorAiAssistAction.Simplify,
+                    "tb-btn tb-ai tb-tip")
             ],
             [])
     ];
@@ -253,12 +260,23 @@ public static class EditorToolbarCatalog
             FloatingInsert("float-pause", PauseFloatIcon, "Pause [pause]", "editor-float-pause", "[pause:1s]")
         ],
         [
-            FloatingAi("float-ai", $"{SparkIcon}AI", "AI — rewrite, expand, simplify", "editor-floating-ai")
+            FloatingAi(
+                "float-ai",
+                $"{SparkIcon}AI",
+                "AI — rewrite, expand, simplify",
+                UiTestIds.Editor.FloatingAi,
+                EditorAiAssistAction.Simplify)
         ]
     ];
 
-    private static EditorToolbarActionDescriptor Ai(string key, string contentHtml, string tooltip, string testId, string cssClass) =>
-        new(key, EditorToolbarActionType.Ai, cssClass, contentHtml, tooltip, testId);
+    private static EditorToolbarActionDescriptor Ai(
+        string key,
+        string contentHtml,
+        string tooltip,
+        string testId,
+        EditorAiAssistAction aiAction,
+        string cssClass) =>
+        new(key, EditorToolbarActionType.Ai, cssClass, contentHtml, tooltip, testId, AiAction: aiAction);
 
     private static EditorToolbarActionDescriptor ClearColor(string key, string tooltip, string testId) =>
         new(
@@ -271,8 +289,21 @@ public static class EditorToolbarCatalog
             "background:transparent;border:1px dashed var(--gold-20)",
             Command: new EditorCommandRequest(EditorCommandKind.ClearColor, string.Empty));
 
-    private static EditorToolbarActionDescriptor FloatingAi(string key, string contentHtml, string tooltip, string testId) =>
-        new(key, EditorToolbarActionType.Ai, "efb-btn efb-ai", contentHtml, tooltip, testId, PreventMouseDown: true);
+    private static EditorToolbarActionDescriptor FloatingAi(
+        string key,
+        string contentHtml,
+        string tooltip,
+        string testId,
+        EditorAiAssistAction aiAction) =>
+        new(
+            key,
+            EditorToolbarActionType.Ai,
+            "efb-btn efb-ai",
+            contentHtml,
+            tooltip,
+            testId,
+            AiAction: aiAction,
+            PreventMouseDown: true);
 
     private static EditorToolbarActionDescriptor FloatingInsert(string key, string contentHtml, string tooltip, string testId, string token) =>
         new(

@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.JSInterop;
@@ -6,6 +7,11 @@ namespace PrompterLive.Shared.Services;
 
 public sealed class BrowserSettingsStore(IJSRuntime jsRuntime, ILogger<BrowserSettingsStore>? logger = null)
 {
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
+
     private readonly IJSRuntime _jsRuntime = jsRuntime;
     private readonly ILogger<BrowserSettingsStore> _logger = logger ?? NullLogger<BrowserSettingsStore>.Instance;
 
@@ -14,7 +20,14 @@ public sealed class BrowserSettingsStore(IJSRuntime jsRuntime, ILogger<BrowserSe
         try
         {
             _logger.LogDebug("Loading browser setting {Key}.", key);
-            return await _jsRuntime.InvokeAsync<T?>("PrompterLive.settings.load", cancellationToken, key);
+            var json = await _jsRuntime.InvokeAsync<string?>(
+                BrowserStorageMethodNames.LoadSettingJson,
+                cancellationToken,
+                key);
+
+            return string.IsNullOrWhiteSpace(json)
+                ? default
+                : JsonSerializer.Deserialize<T>(json, JsonOptions);
         }
         catch (Exception exception)
         {
@@ -28,7 +41,12 @@ public sealed class BrowserSettingsStore(IJSRuntime jsRuntime, ILogger<BrowserSe
         try
         {
             _logger.LogDebug("Saving browser setting {Key}.", key);
-            await _jsRuntime.InvokeVoidAsync("PrompterLive.settings.save", cancellationToken, key, value);
+            var json = JsonSerializer.Serialize(value, JsonOptions);
+            await _jsRuntime.InvokeVoidAsync(
+                BrowserStorageMethodNames.SaveSettingJson,
+                cancellationToken,
+                key,
+                json);
         }
         catch (Exception exception)
         {

@@ -13,7 +13,7 @@ flowchart LR
     Toolbar["Descriptor-driven toolbar catalog"]
     FrontMatter["Front-matter metadata rail"]
     Outline["Segment/block tree navigation"]
-    LocalAi["Local AI helper panel"]
+    LocalAi["Local AI helper actions"]
     Status["Status bar + outline state"]
     Highlight["Highlighted overlay"]
     TextMutations["TpsTextEditor mutations"]
@@ -60,12 +60,16 @@ sequenceDiagram
 - direct source header edits refresh the structure tree after reparse
 - toolbar dropdowns open explicitly by click and expose stable test selectors
 - color formatting includes a deterministic `remove color` action that strips TPS color tags from the selected region
-- local AI panel provides deterministic simplify, expand, and pause-format helpers without a backend
-- floating AI from the selection toolbar survives the immediate follow-up selection event instead of closing instantly
+- toolbar AI and floating AI buttons execute deterministic local rewrite helpers without opening a separate editor panel
 - speed-offset metadata fields persist into front matter during autosave
+- `Duration` in the metadata rail now edits `display_duration` in front matter, stays hidden from the visible body editor, and survives reloads
 - source edits refresh metadata, tree labels, preview overlay, and status
 - metadata edits rewrite the persisted TPS document without surfacing YAML in the editor body
 - typing stays local-first while autosave persists on a short debounce instead of every keystroke
+- the styled TPS overlay remains visible while the real textarea owns caret and selection, so editing stays inline instead of switching to a plain-text mode
+- the source highlight and textarea share the same wrapping metrics, preventing caret/text drift on multiline editing
+- native textarea clicks own caret placement; the stage shell no longer steals click-to-caret behavior
+- `EditorSourcePanel` owns its editor-only CSS and browser support script, so the shell keeps loading support assets but the active editor surface no longer depends on global stylesheet or shell-script rules
 
 ## Verification
 

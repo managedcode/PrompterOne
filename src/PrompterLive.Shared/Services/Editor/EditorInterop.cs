@@ -7,21 +7,31 @@ namespace PrompterLive.Shared.Services.Editor;
 
 public sealed class EditorInterop(IJSRuntime jsRuntime)
 {
+    private const string BindHistoryShortcutsMethod = EditorSurfaceNamespace + ".bindHistoryShortcuts";
+    private const string EditorSurfaceNamespace = "PrompterLive.editorSurface";
+    private const string FocusMethod = EditorSurfaceNamespace + ".focus";
+    private const string GetSelectionStateMethod = EditorSurfaceNamespace + ".getSelectionState";
+    private const string SetSelectionMethod = EditorSurfaceNamespace + ".setSelection";
+    private const string SyncScrollMethod = EditorSurfaceNamespace + ".syncScroll";
+    private const string UnbindHistoryShortcutsMethod = EditorSurfaceNamespace + ".unbindHistoryShortcuts";
     private readonly IJSRuntime _jsRuntime = jsRuntime;
 
     public ValueTask SyncScrollAsync(ElementReference textarea, ElementReference overlay) =>
-        _jsRuntime.InvokeVoidAsync("PrompterLive.editor.syncScroll", textarea, overlay);
+        _jsRuntime.InvokeVoidAsync(SyncScrollMethod, textarea, overlay);
+
+    public ValueTask FocusAsync(ElementReference textarea) =>
+        _jsRuntime.InvokeVoidAsync(FocusMethod, textarea);
 
     public ValueTask BindHistoryShortcutsAsync<TValue>(
         ElementReference textarea,
         DotNetObjectReference<TValue> callbackReference)
         where TValue : class =>
-        _jsRuntime.InvokeVoidAsync("PrompterLive.editor.bindHistoryShortcuts", textarea, callbackReference);
+        _jsRuntime.InvokeVoidAsync(BindHistoryShortcutsMethod, textarea, callbackReference);
 
     public async Task<EditorSelectionViewModel> GetSelectionAsync(ElementReference textarea)
     {
         var result = await _jsRuntime.InvokeAsync<EditorSelectionInteropResult?>(
-            "PrompterLive.editor.getSelectionState",
+            GetSelectionStateMethod,
             textarea);
 
         if (result is null)
@@ -40,7 +50,7 @@ public sealed class EditorInterop(IJSRuntime jsRuntime)
     public async Task<EditorSelectionViewModel> SetSelectionAsync(ElementReference textarea, int start, int end)
     {
         var result = await _jsRuntime.InvokeAsync<EditorSelectionInteropResult?>(
-            "PrompterLive.editor.setSelection",
+            SetSelectionMethod,
             textarea,
             start,
             end);
@@ -59,7 +69,7 @@ public sealed class EditorInterop(IJSRuntime jsRuntime)
     }
 
     public ValueTask UnbindHistoryShortcutsAsync(ElementReference textarea) =>
-        _jsRuntime.InvokeVoidAsync("PrompterLive.editor.unbindHistoryShortcuts", textarea);
+        _jsRuntime.InvokeVoidAsync(UnbindHistoryShortcutsMethod, textarea);
 
     private sealed record EditorSelectionInteropResult(
         int Start,
