@@ -75,6 +75,7 @@ flowchart LR
 
 - `Settings` must not own live destination routing anymore.
 - `Settings` must expose a visible CTA into `Go Live` so device setup and live routing stay discoverable as separate flows.
+- the shared header shell must keep `Go Live` reachable from every non-`Go Live` routed page because it is a primary studio action
 - `Go Live` may arm multiple destinations at the same time.
 - `Go Live` must reuse the browser-composed scene and not invent a separate media graph.
 - `Go Live` must show a live camera preview inside the program feed area, using the first included scene camera and falling back to the first visible scene camera.

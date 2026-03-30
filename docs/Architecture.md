@@ -162,6 +162,7 @@ sequenceDiagram
 
 - Browser-first WASM is the only active runtime today, so media access comes from browser origin permissions.
 - Keep local development on the stable launch-settings origin. Do not rotate ports randomly because camera and microphone permissions are origin-bound.
+- The Playwright browser-test harness is a separate synthetic environment. It may bind to a dynamic loopback origin, but it must pass the resolved origin into the Playwright browser context and permission grants.
 - There is no server backend in the runtime path. `getUserMedia()` and device enumeration must stay client-side.
 
 ## Browser Media Test Harness
@@ -171,7 +172,7 @@ flowchart LR
     UITests["PrompterLive.App.UITests"]
     Fixture["StandaloneAppFixture"]
     InitScript["synthetic-media-harness.js<br/>BrowserContext.addInitScript"]
-    Browser["Chromium context<br/>stable origin + granted permissions"]
+    Browser["Chromium context<br/>dynamic loopback origin + granted permissions"]
     MediaApis["navigator.mediaDevices<br/>enumerateDevices + getUserMedia"]
     Synthetic["Synthetic cameras + microphone<br/>canvas.captureStream + Web Audio"]
     Reader["Teleprompter runtime"]
@@ -187,6 +188,7 @@ flowchart LR
 ```
 
 - Browser acceptance now installs a deterministic synthetic media harness before page scripts run.
+- The static SPA host now binds to a dynamic loopback HTTP port and exposes the resolved origin through the fixture.
 - The harness overrides `enumerateDevices()` and `getUserMedia()` inside the Playwright browser context only.
 - Synthetic video comes from `canvas.captureStream()`.
 - Synthetic audio comes from `AudioContext.createMediaStreamDestination()`.

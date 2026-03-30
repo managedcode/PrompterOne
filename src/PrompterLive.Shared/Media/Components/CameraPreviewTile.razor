@@ -1,0 +1,52 @@
+@namespace PrompterLive.Shared.Components
+@implements IAsyncDisposable
+@inject CameraPreviewInterop CameraPreviewInterop
+
+<div class="camera-stage-tile" style="@TileStyle">
+    <video id="@_elementId" class="camera-stage-video" autoplay playsinline muted></video>
+    <div class="camera-stage-label">@Camera.Label</div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public SceneCameraSource Camera { get; set; } = default!;
+
+    private string _elementId = $"camera-{Guid.NewGuid():N}";
+    private string? _attachedDeviceId;
+
+    private string TileStyle
+    {
+        get
+        {
+            var transform = Camera.Transform;
+            var scaleX = transform.MirrorHorizontal ? -1 : 1;
+            var scaleY = transform.MirrorVertical ? -1 : 1;
+            var visibility = transform.Visible ? "block" : "none";
+
+            return string.Create(System.Globalization.CultureInfo.InvariantCulture, $"""
+                left:{transform.X * 100:0.##}%;
+                top:{transform.Y * 100:0.##}%;
+                width:{transform.Width * 100:0.##}%;
+                height:{transform.Height * 100:0.##}%;
+                opacity:{transform.Opacity:0.##};
+                z-index:{transform.ZIndex};
+                display:{visibility};
+                transform:translate(-50%, -50%) rotate({transform.Rotation:0.##}deg) scale({scaleX}, {scaleY});
+                """);
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender || !string.Equals(_attachedDeviceId, Camera.DeviceId, StringComparison.Ordinal))
+        {
+            _attachedDeviceId = Camera.DeviceId;
+            await CameraPreviewInterop.AttachCameraAsync(_elementId, Camera.DeviceId);
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await CameraPreviewInterop.DetachCameraAsync(_elementId);
+    }
+}

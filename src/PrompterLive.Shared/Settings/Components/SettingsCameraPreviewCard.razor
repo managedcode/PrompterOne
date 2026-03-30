@@ -1,0 +1,169 @@
+@implements IAsyncDisposable
+@namespace PrompterLive.Shared.Components
+@inject CameraPreviewInterop CameraPreviewInterop
+@inject Microsoft.Extensions.Logging.ILogger<SettingsCameraPreviewCard> Logger
+
+<section class="live-card live-preview-card set-media-feedback-card"
+         data-testid="@UiTestIds.Settings.CameraPreviewCard">
+    <div class="live-card-header">
+        <div>
+            <h4 class="live-card-title">@Title</h4>
+            <p class="live-card-desc">@Description</p>
+        </div>
+        <span class="live-status @(CanPreview ? ReadyStatusCssClass : PendingStatusCssClass)">
+            @(CanPreview ? ReadyStatusLabel : PendingStatusLabel)
+        </span>
+    </div>
+
+    <div class="live-preview-stage">
+        @if (CanPreview)
+        {
+            <video id="@UiDomIds.Settings.CameraPreviewVideo"
+                   class="live-preview-video"
+                   style="@PreviewVideoStyle"
+                   autoplay
+                   playsinline
+                   muted
+                   data-testid="@UiTestIds.Settings.CameraPreviewVideo"></video>
+            <div class="live-preview-overlay">
+                <span class="set-section-label">@PreviewEyebrow</span>
+                <div class="set-account-name"
+                     data-testid="@UiTestIds.Settings.CameraPreviewLabel">@CameraLabel</div>
+                <div class="live-card-desc">@PreviewDescription</div>
+            </div>
+        }
+        else
+        {
+            <div class="set-empty-card live-preview-empty"
+                 data-testid="@UiTestIds.Settings.CameraPreviewEmpty">
+                <div>
+                    <div class="set-account-name">@EmptyTitle</div>
+                    <div class="live-card-desc">@EmptyDescription</div>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+@code {
+    private const string DefaultDescription = "Preview the selected camera exactly where device setup happens, before going live or opening Reader.";
+    private const string DefaultTitle = "Camera Preview";
+    private const string NoCameraDescription = "Pick a default camera or add one to the scene to see a live preview here.";
+    private const string NoCameraTitle = "No camera selected";
+    private const string PendingStatusCssClass = "pending";
+    private const string PendingStatusLabel = "Waiting";
+    private const string PermissionDescription = "Enable camera access to confirm framing, mirror mode, and the active device before reading.";
+    private const string PermissionTitle = "Camera access required";
+    private const string PreviewAttachFailureMessage = "Failed to attach Settings camera preview for device {DeviceId}.";
+    private const string PreviewDetachFailureMessage = "Failed to detach Settings camera preview.";
+    private const string PreviewEyebrow = "SELECTED CAMERA";
+    private const string PreviewReadyDescription = "This preview follows the current default camera selection and mirror state.";
+    private const string ReadyStatusCssClass = "ready";
+    private const string ReadyStatusLabel = "Live preview";
+
+    [Parameter] public bool AccessGranted { get; set; }
+
+    [Parameter] public MediaDeviceInfo? Camera { get; set; }
+
+    [Parameter] public bool IsActive { get; set; }
+
+    [Parameter] public bool MirrorHorizontal { get; set; }
+
+    [Parameter] public bool MirrorVertical { get; set; }
+
+    [Parameter] public string Description { get; set; } = DefaultDescription;
+
+    [Parameter] public string Title { get; set; } = DefaultTitle;
+
+    private bool CanPreview => AccessGranted && !string.IsNullOrWhiteSpace(Camera?.DeviceId);
+
+    private string CameraLabel => Camera?.Label ?? string.Empty;
+
+    private string EmptyDescription =>
+        !AccessGranted
+            ? PermissionDescription
+            : NoCameraDescription;
+
+    private string EmptyTitle =>
+        !AccessGranted
+            ? PermissionTitle
+            : NoCameraTitle;
+
+    private string PreviewDescription => PreviewReadyDescription;
+
+    private string PreviewVideoStyle => BuildPreviewVideoStyle(MirrorHorizontal, MirrorVertical);
+
+    private string? _attachedDeviceId;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        try
+        {
+            if (!IsActive || !CanPreview)
+            {
+                await DetachAsync();
+                return;
+            }
+
+            var nextDeviceId = Camera!.DeviceId;
+            if (string.Equals(_attachedDeviceId, nextDeviceId, StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            await DetachAsync();
+            _attachedDeviceId = nextDeviceId;
+            await CameraPreviewInterop.AttachCameraAsync(UiDomIds.Settings.CameraPreviewVideo, nextDeviceId);
+        }
+        catch (Exception exception)
+        {
+            Microsoft.Extensions.Logging.LoggerExtensions.LogWarning(Logger, exception, PreviewAttachFailureMessage, Camera?.DeviceId);
+            _attachedDeviceId = null;
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await DetachAsync();
+    }
+
+    private async Task DetachAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_attachedDeviceId))
+        {
+            return;
+        }
+
+        try
+        {
+            await CameraPreviewInterop.DetachCameraAsync(UiDomIds.Settings.CameraPreviewVideo);
+        }
+        catch (Exception exception)
+        {
+            Microsoft.Extensions.Logging.LoggerExtensions.LogWarning(Logger, exception, PreviewDetachFailureMessage);
+        }
+        finally
+        {
+            _attachedDeviceId = null;
+        }
+    }
+
+    private static string BuildPreviewVideoStyle(bool mirrorHorizontal, bool mirrorVertical)
+    {
+        var transforms = new List<string>(capacity: 2);
+
+        if (mirrorHorizontal)
+        {
+            transforms.Add("scaleX(-1)");
+        }
+
+        if (mirrorVertical)
+        {
+            transforms.Add("scaleY(-1)");
+        }
+
+        return transforms.Count == 0
+            ? string.Empty
+            : string.Concat("transform:", string.Join(' ', transforms), ";");
+    }
+}

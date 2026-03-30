@@ -11,7 +11,13 @@
     const alternateCultureSeparator = "_";
     const supportedCultures = new Set(["en", "uk", "fr", "es", "pt", "it"]);
     const streamMap = new Map();
+    const audioMonitorMap = new Map();
     const readerAnimations = new Map();
+    const microphoneMonitorFillSelector = "[data-mic-role='fill']";
+    const microphoneMonitorValueSelector = "[data-mic-role='value']";
+    const microphoneMonitorActiveState = "active";
+    const microphoneMonitorIdleState = "idle";
+    const microphoneMonitorLevelMultiplier = 2800;
     const shellAutoHideDelayMs = 2400;
     const shellStateOffline = "offline";
     const shellStateOnline = "online";
@@ -460,6 +466,135 @@
         stream.getTracks().forEach(track => track.stop());
     }
 
+    function getMicrophoneMonitorElements(rootElementId) {
+        const root = document.getElementById(rootElementId);
+        if (!root) {
+            return null;
+        }
+
+        return {
+            root,
+            fill: root.querySelector(microphoneMonitorFillSelector),
+            value: root.querySelector(microphoneMonitorValueSelector)
+        };
+    }
+
+    function updateMicrophoneMonitorUi(rootElementId, levelPercent) {
+        const elements = getMicrophoneMonitorElements(rootElementId);
+        if (!elements) {
+            return;
+        }
+
+        const normalizedLevel = Number.isFinite(levelPercent)
+            ? Math.max(0, Math.min(100, Math.round(levelPercent)))
+            : 0;
+
+        elements.root.dataset.liveLevel = normalizedLevel.toString();
+        elements.root.dataset.liveState = normalizedLevel > 0
+            ? microphoneMonitorActiveState
+            : microphoneMonitorIdleState;
+
+        if (elements.fill) {
+            elements.fill.style.width = `${normalizedLevel}%`;
+        }
+
+        if (elements.value) {
+            elements.value.textContent = `${normalizedLevel}%`;
+        }
+    }
+
+    async function stopMicrophoneLevelMonitor(rootElementId) {
+        const monitor = audioMonitorMap.get(rootElementId);
+        if (!monitor) {
+            updateMicrophoneMonitorUi(rootElementId, 0);
+            return;
+        }
+
+        audioMonitorMap.delete(rootElementId);
+
+        if (monitor.frameHandle) {
+            window.cancelAnimationFrame(monitor.frameHandle);
+        }
+
+        monitor.sourceNode?.disconnect();
+        monitor.analyser?.disconnect();
+        await stopStream(monitor.stream);
+        if (monitor.audioContext) {
+            await monitor.audioContext.close().catch(() => {});
+        }
+        updateMicrophoneMonitorUi(rootElementId, 0);
+    }
+
+    async function startMicrophoneLevelMonitor(rootElementId, deviceId) {
+        const root = document.getElementById(rootElementId);
+        if (!root || !navigator.mediaDevices?.getUserMedia) {
+            return;
+        }
+
+        await stopMicrophoneLevelMonitor(rootElementId);
+        updateMicrophoneMonitorUi(rootElementId, 0);
+
+        let stream = null;
+        let audioContext = null;
+        let analyser = null;
+        let sourceNode = null;
+
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({
+                audio: deviceId ? { deviceId: { exact: deviceId } } : true,
+                video: false
+            });
+
+            audioContext = new AudioContext();
+            analyser = audioContext.createAnalyser();
+            analyser.fftSize = 1024;
+            analyser.smoothingTimeConstant = 0.82;
+
+            sourceNode = audioContext.createMediaStreamSource(stream);
+            sourceNode.connect(analyser);
+
+            const samples = new Uint8Array(analyser.fftSize);
+            const monitor = {
+                stream,
+                audioContext,
+                analyser,
+                sourceNode,
+                frameHandle: 0
+            };
+
+            const step = () => {
+                if (!audioMonitorMap.has(rootElementId)) {
+                    return;
+                }
+
+                analyser.getByteTimeDomainData(samples);
+
+                let sumSquares = 0;
+                for (let index = 0; index < samples.length; index += 1) {
+                    const normalizedSample = (samples[index] - 128) / 128;
+                    sumSquares += normalizedSample * normalizedSample;
+                }
+
+                const rms = Math.sqrt(sumSquares / samples.length);
+                updateMicrophoneMonitorUi(rootElementId, rms * microphoneMonitorLevelMultiplier);
+                monitor.frameHandle = window.requestAnimationFrame(step);
+            };
+
+            await audioContext.resume().catch(() => {});
+            audioMonitorMap.set(rootElementId, monitor);
+            step();
+        } catch (error) {
+            sourceNode?.disconnect();
+            analyser?.disconnect();
+            await stopStream(stream);
+            if (audioContext) {
+                await audioContext.close().catch(() => {});
+            }
+            updateMicrophoneMonitorUi(rootElementId, 0);
+            throw error;
+        }
+    }
+
     applyDocumentCulture(getPreferredCulture());
     initializeAppShell();
 
@@ -706,6 +841,14 @@
                 if (element) {
                     element.srcObject = null;
                 }
+            },
+
+            async startMicrophoneLevelMonitor(elementId, deviceId) {
+                await startMicrophoneLevelMonitor(elementId, deviceId);
+            },
+
+            async stopMicrophoneLevelMonitor(elementId) {
+                await stopMicrophoneLevelMonitor(elementId);
             }
         },
 

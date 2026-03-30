@@ -2,6 +2,12 @@ namespace PrompterLive.Shared.Contracts;
 
 public static class UiDomIds
 {
+    public static class Settings
+    {
+        public const string CameraPreviewVideo = "settings-camera-preview-video";
+        public const string MicrophoneLevelMonitor = "settings-microphone-level-monitor";
+    }
+
     public static class GoLive
     {
         public const string PreviewCard = "go-live-preview-card";

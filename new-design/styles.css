@@ -506,6 +506,7 @@ button {
         color-mix(in srgb, var(--emo) 18%, transparent) 0%,
         var(--gold-05) 40%,
         color-mix(in srgb, var(--emo) 10%, transparent) 100%);
+    box-shadow: 0 0 0 1px var(--gold-16);
 }
 /* Glow on hover */
 .dcard::after {
@@ -526,16 +527,31 @@ button {
     backdrop-filter: blur(24px) saturate(1.2);
     -webkit-backdrop-filter: blur(24px) saturate(1.2);
     border-radius: 15px;
+    position: relative;
     display: flex;
     flex-direction: column;
     flex: 1;
     overflow: hidden;
     box-shadow:
         inset 0 1px 0 var(--gold-10),
-        inset 0 -1px 0 rgba(0,0,0,.2),
+        inset 0 -1px 0 color-mix(in srgb, var(--gold-12) 45%, transparent),
         inset 0 0 0 1px var(--gold-06),
         0 20px 60px rgba(0,0,0,.4),
         0 4px 12px rgba(0,0,0,.25);
+}
+.dcard-inner::after,
+.dcard-create-inner::after {
+    content: '';
+    position: absolute;
+    left: 1px;
+    right: 1px;
+    bottom: 0;
+    height: 1px;
+    background: linear-gradient(90deg,
+        color-mix(in srgb, var(--gold-08) 20%, transparent) 0%,
+        color-mix(in srgb, var(--gold-16) 75%, transparent) 50%,
+        color-mix(in srgb, var(--gold-08) 20%, transparent) 100%);
+    pointer-events: none;
 }
 
 /* ---- Card cover art — surreal Dalí-inspired orbs ---- */
@@ -857,7 +873,10 @@ button {
     position: relative;
     overflow: hidden;
     gap: 14px;
-    box-shadow: inset 0 1px 0 var(--gold-06), inset 0 0 0 1px var(--gold-04);
+    box-shadow:
+        inset 0 1px 0 var(--gold-06),
+        inset 0 -1px 0 color-mix(in srgb, var(--gold-12) 40%, transparent),
+        inset 0 0 0 1px var(--gold-04);
 }
 /* Soft golden glow inside */
 .dcard-create-inner::before {
@@ -3548,10 +3567,14 @@ body::before {
     display: flex;
     align-items: center;
     gap: 10px;
+    box-sizing: border-box;
+    width: 100%;
     padding: 10px 14px;
     font-size: 13px;
     font-weight: 500;
     color: var(--t3);
+    background: transparent;
+    border: 1px solid transparent;
     border-radius: 10px;
     cursor: pointer;
     text-decoration: none;

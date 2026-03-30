@@ -80,11 +80,14 @@ function isLibraryRuntimeActive() {
 // ============================================
 
 const RSVP_CONTEXT_WORD_COUNT = 5;
+const RSVP_CONTEXT_SHIFT_PROPERTY = '--rsvp-context-word-shift';
 const RSVP_END_OF_SCRIPT = 'End of script.';
+const RSVP_FOCUS_MAX_CONTEXT_WORD_GAP_PX = 100;
 const RSVP_MAX_SPEED = 600;
 const RSVP_MIN_SPEED = 100;
 const RSVP_MIN_WORD_DURATION_MS = 120;
 const RSVP_NEUTRAL_EMOTION = 'neutral';
+const ZERO_PX = '0px';
 
 let rsvpSpeed = 300;
 let rsvpPlaying = false;
@@ -153,6 +156,49 @@ function getORP(word) {
     return 3;
 }
 
+function resetRsvpContextShift(element, propertyName) {
+    if (element) {
+        element.style.setProperty(propertyName, ZERO_PX);
+    }
+}
+
+function updateRsvpContext(element, words, propertyName) {
+    if (!element) {
+        return;
+    }
+
+    element.innerHTML = words.map(w => `<span>${w}</span>`).join('');
+    resetRsvpContextShift(element, propertyName);
+}
+
+function applyRsvpContextShift(element, propertyName, gap, direction) {
+    if (!element || gap <= RSVP_FOCUS_MAX_CONTEXT_WORD_GAP_PX) {
+        return;
+    }
+
+    element.style.setProperty(propertyName, `${(gap - RSVP_FOCUS_MAX_CONTEXT_WORD_GAP_PX) * direction}px`);
+}
+
+function tightenRsvpContextWordGaps(container, leftEl, rightEl) {
+    if (!container) {
+        return;
+    }
+
+    const focusRect = container.getBoundingClientRect();
+    const leftWord = leftEl?.lastElementChild;
+    const rightWord = rightEl?.firstElementChild;
+
+    if (leftWord) {
+        const leftGap = focusRect.left - leftWord.getBoundingClientRect().right;
+        applyRsvpContextShift(leftEl, RSVP_CONTEXT_SHIFT_PROPERTY, leftGap, 1);
+    }
+
+    if (rightWord) {
+        const rightGap = rightWord.getBoundingClientRect().left - focusRect.right;
+        applyRsvpContextShift(rightEl, RSVP_CONTEXT_SHIFT_PROPERTY, rightGap, -1);
+    }
+}
+
 function renderRsvpWord() {
     const entries = getRsvpEntries();
     if (!entries.length) {
@@ -188,21 +234,18 @@ function renderRsvpWord() {
 
     // Left context (5 words)
     const leftEl = document.getElementById('rsvp-ctx-l');
-    if (leftEl) {
-        const leftWords = entries
-            .slice(Math.max(0, safeIndex - RSVP_CONTEXT_WORD_COUNT), safeIndex)
-            .map(item => item.word);
-        leftEl.innerHTML = leftWords.map(w => `<span>${w}</span>`).join('');
-    }
+    const leftWords = entries
+        .slice(Math.max(0, safeIndex - RSVP_CONTEXT_WORD_COUNT), safeIndex)
+        .map(item => item.word);
+    updateRsvpContext(leftEl, leftWords, RSVP_CONTEXT_SHIFT_PROPERTY);
 
     // Right context (5 words)
     const rightEl = document.getElementById('rsvp-ctx-r');
-    if (rightEl) {
-        const rightWords = entries
-            .slice(safeIndex + 1, safeIndex + RSVP_CONTEXT_WORD_COUNT + 1)
-            .map(item => item.word);
-        rightEl.innerHTML = rightWords.map(w => `<span>${w}</span>`).join('');
-    }
+    const rightWords = entries
+        .slice(safeIndex + 1, safeIndex + RSVP_CONTEXT_WORD_COUNT + 1)
+        .map(item => item.word);
+    updateRsvpContext(rightEl, rightWords, RSVP_CONTEXT_SHIFT_PROPERTY);
+    tightenRsvpContextWordGaps(container, leftEl, rightEl);
 
     const fill = document.querySelector('.rsvp-progress-fill');
     if (fill) fill.style.width = ((safeIndex + 1) / entries.length * 100) + '%';

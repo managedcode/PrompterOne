@@ -183,6 +183,10 @@ public static class UiTestIds
         public const string AppearancePanel = "settings-appearance-panel";
         public const string AiPanel = "settings-ai-panel";
         public const string CameraFrameRate = "settings-camera-frame-rate";
+        public const string CameraPreviewCard = "settings-camera-preview-card";
+        public const string CameraPreviewEmpty = "settings-camera-preview-empty";
+        public const string CameraPreviewLabel = "settings-camera-preview-label";
+        public const string CameraPreviewVideo = "settings-camera-preview-video";
         public const string CameraRoutingCta = "settings-camera-routing-cta";
         public const string CameraMirrorToggle = "settings-camera-mirror-toggle";
         public const string CameraResolution = "settings-camera-resolution";
@@ -195,6 +199,11 @@ public static class UiTestIds
         public const string FilesPanel = "settings-files-panel";
         public const string MicLevel = "settings-mic-level";
         public const string MicLevelValue = "settings-mic-level-value";
+        public const string MicPreviewCard = "settings-mic-preview-card";
+        public const string MicPreviewEmpty = "settings-mic-preview-empty";
+        public const string MicPreviewLabel = "settings-mic-preview-label";
+        public const string MicPreviewMeter = "settings-mic-preview-meter";
+        public const string MicPreviewValue = "settings-mic-preview-value";
         public const string MicsPanel = "settings-mics-panel";
         public const string NavAbout = "settings-nav-about";
         public const string NavAi = "settings-nav-ai";

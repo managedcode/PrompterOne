@@ -1,0 +1,150 @@
+@implements IAsyncDisposable
+@namespace PrompterLive.Shared.Components
+@inject Microsoft.Extensions.Logging.ILogger<SettingsMicrophoneLevelCard> Logger
+@inject MicrophoneLevelInterop MicrophoneLevelInterop
+
+<section class="live-card set-media-feedback-card"
+         data-testid="@UiTestIds.Settings.MicPreviewCard">
+    <div class="live-card-header">
+        <div>
+            <h4 class="live-card-title">@Title</h4>
+            <p class="live-card-desc">@Description</p>
+        </div>
+        <span class="live-status @(CanMonitor ? ReadyStatusCssClass : PendingStatusCssClass)">
+            @(CanMonitor ? ReadyStatusLabel : PendingStatusLabel)
+        </span>
+    </div>
+
+    @if (CanRenderMonitor)
+    {
+        <div id="@UiDomIds.Settings.MicrophoneLevelMonitor"
+             class="set-mic-monitor"
+             data-live-level="0"
+             data-live-state="idle"
+             data-testid="@UiTestIds.Settings.MicPreviewMeter">
+            <div class="set-mic-monitor-track">
+                <div class="set-mic-monitor-fill" data-mic-role="fill"></div>
+            </div>
+            <div class="set-mic-monitor-readout"
+                 data-mic-role="value"
+                 data-testid="@UiTestIds.Settings.MicPreviewValue">0%</div>
+        </div>
+
+        <div class="set-mic-monitor-meta">
+            <div>
+                <span class="set-section-label">@PreviewEyebrow</span>
+                <div class="set-account-name"
+                     data-testid="@UiTestIds.Settings.MicPreviewLabel">@MicrophoneLabel</div>
+            </div>
+            <div class="live-card-desc">@PreviewDescription</div>
+        </div>
+    }
+    else
+    {
+        <div class="set-empty-card"
+             data-testid="@UiTestIds.Settings.MicPreviewEmpty">
+            <div>
+                <div class="set-account-name">@EmptyTitle</div>
+                <div class="live-card-desc">@EmptyDescription</div>
+            </div>
+        </div>
+    }
+</section>
+
+@code {
+    private const string DefaultDescription = "Speak into the selected microphone to confirm the browser sees a live signal before recording or streaming.";
+    private const string DefaultTitle = "Microphone Activity";
+    private const string NoMicrophoneDescription = "Pick a default microphone to see a live level meter here.";
+    private const string NoMicrophoneTitle = "No microphone selected";
+    private const string PendingStatusCssClass = "pending";
+    private const string PendingStatusLabel = "Waiting";
+    private const string PermissionDescription = "Enable microphone access in Cameras first, then return here to confirm live input activity.";
+    private const string PermissionTitle = "Microphone access required";
+    private const string PreviewDescription = "The live meter reflects real browser input, separate from the manual gain slider below.";
+    private const string PreviewEyebrow = "PRIMARY MICROPHONE";
+    private const string ReadyStatusCssClass = "ready";
+    private const string ReadyStatusLabel = "Live level";
+    private const string StartMonitorFailureMessage = "Failed to start Settings microphone monitor for device {DeviceId}.";
+    private const string StopMonitorFailureMessage = "Failed to stop Settings microphone monitor.";
+
+    [Parameter] public bool AccessGranted { get; set; }
+
+    [Parameter] public bool IsActive { get; set; }
+
+    [Parameter] public MediaDeviceInfo? Microphone { get; set; }
+
+    [Parameter] public string Description { get; set; } = DefaultDescription;
+
+    [Parameter] public string Title { get; set; } = DefaultTitle;
+
+    private bool CanMonitor => AccessGranted && IsActive && !string.IsNullOrWhiteSpace(Microphone?.DeviceId);
+
+    private bool CanRenderMonitor => AccessGranted && !string.IsNullOrWhiteSpace(Microphone?.DeviceId);
+
+    private string EmptyDescription =>
+        !AccessGranted
+            ? PermissionDescription
+            : NoMicrophoneDescription;
+
+    private string EmptyTitle =>
+        !AccessGranted
+            ? PermissionTitle
+            : NoMicrophoneTitle;
+
+    private string MicrophoneLabel => Microphone?.Label ?? string.Empty;
+
+    private string? _attachedDeviceId;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        try
+        {
+            if (!CanMonitor)
+            {
+                await StopMonitoringAsync();
+                return;
+            }
+
+            var nextDeviceId = Microphone!.DeviceId;
+            if (string.Equals(_attachedDeviceId, nextDeviceId, StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            await StopMonitoringAsync();
+            _attachedDeviceId = nextDeviceId;
+            await MicrophoneLevelInterop.StartAsync(UiDomIds.Settings.MicrophoneLevelMonitor, nextDeviceId);
+        }
+        catch (Exception exception)
+        {
+            Microsoft.Extensions.Logging.LoggerExtensions.LogWarning(Logger, exception, StartMonitorFailureMessage, Microphone?.DeviceId);
+            _attachedDeviceId = null;
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await StopMonitoringAsync();
+    }
+
+    private async Task StopMonitoringAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_attachedDeviceId))
+        {
+            return;
+        }
+
+        try
+        {
+            await MicrophoneLevelInterop.StopAsync(UiDomIds.Settings.MicrophoneLevelMonitor);
+        }
+        catch (Exception exception)
+        {
+            Microsoft.Extensions.Logging.LoggerExtensions.LogWarning(Logger, exception, StopMonitorFailureMessage);
+        }
+        finally
+        {
+            _attachedDeviceId = null;
+        }
+    }
+}

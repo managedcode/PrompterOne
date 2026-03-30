@@ -42,7 +42,8 @@ Useful focused commands:
 Browser test execution rules:
 
 - Use one `dotnet test` process at a time for the browser suite.
-- The browser suite self-hosts the built WASM assets on `http://localhost:5051`.
+- The browser suite self-hosts the built WASM assets on a dynamically assigned loopback HTTP origin.
+- Each browser-suite host startup MUST request a fresh OS-assigned loopback port via `http://127.0.0.1:0`. Never pin or reuse a fixed browser-test port across runs.
 - Inside that single process, the browser suite may run up to `4` parallel xUnit workers.
 - Do not run `PrompterLive.App.UITests` in parallel with another `dotnet build` or `dotnet test` command.
 - If a prior build already ran, prefer `dotnet test ... --no-build` for the browser suite.
@@ -50,7 +51,7 @@ Browser test execution rules:
 - Major user flows MUST be covered by long Playwright scenarios that execute real browser interactions end to end.
 - Major browser scenarios MUST capture screenshot artifacts under `output/playwright/`.
 
-Do not override the app URL with `--urls` or random ports. Media permissions are origin-bound, so local development must stay on the stable launch-settings origin.
+Do not override the production app runtime URL with `--urls` or random ports. Media permissions are origin-bound, so local development must stay on the stable launch-settings origin. If `dotnet run` fails because that port is already in use, stop the existing dev-server process instead of switching the app host to a new port. The browser-test harness is the exception: it must resolve a fresh dynamic loopback port and propagate the actual origin into Playwright `BaseURL` and permission grants.
 
 Selector and constant rules:
 

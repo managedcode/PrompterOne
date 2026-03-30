@@ -1,4 +1,6 @@
 (function () {
+    const floatingToolbarAnchorMinTopPx = 44;
+    const offscreenMirrorLeftPx = -99999;
     const editorSurfaceNamespace = "editorSurface";
     const historyBindings = new WeakMap();
     const prompterLive = window.PrompterLive || (window.PrompterLive = {});
@@ -97,19 +99,27 @@
         const prefixLines = prefix.split("\n");
         const line = prefixLines.length;
         const column = (prefixLines[prefixLines.length - 1] || "").length + 1;
-        const coords = measureTextareaPosition(textarea, end);
+        const coords = measureTextareaSelectionGeometry(textarea, start, end);
 
         return {
             start,
             end,
             line,
             column,
-            toolbarTop: Math.max(12, coords.top - 42),
+            toolbarTop: Math.max(floatingToolbarAnchorMinTopPx, coords.top),
             toolbarLeft: coords.left
         };
     }
 
-    function measureTextareaPosition(textarea, index) {
+    function measureTextareaSelectionGeometry(textarea, start, end) {
+        if (start === end) {
+            return measureTextareaCaretGeometry(textarea, end);
+        }
+
+        return measureTextareaRangeGeometry(textarea, start, end);
+    }
+
+    function measureTextareaCaretGeometry(textarea, index) {
         const style = window.getComputedStyle(textarea);
         const mirror = document.createElement("div");
         const span = document.createElement("span");
@@ -131,7 +141,7 @@
         mirror.style.border = style.border;
         mirror.style.boxSizing = style.boxSizing;
         mirror.style.width = `${textarea.clientWidth}px`;
-        mirror.style.left = "-99999px";
+        mirror.style.left = `${offscreenMirrorLeftPx}px`;
         mirror.style.top = "0";
 
         mirror.textContent = value.slice(0, index);
@@ -139,7 +149,7 @@
         mirror.appendChild(span);
         document.body.appendChild(mirror);
 
-        const top = textarea.offsetTop + span.offsetTop - textarea.scrollTop;
+        const top = textarea.offsetTop + span.offsetTop - textarea.scrollTop - getLineTopInsetPx(style);
         const left = textarea.offsetLeft + span.offsetLeft - textarea.scrollLeft;
         document.body.removeChild(mirror);
 
@@ -147,5 +157,60 @@
             top,
             left
         };
+    }
+
+    function measureTextareaRangeGeometry(textarea, start, end) {
+        const style = window.getComputedStyle(textarea);
+        const mirror = document.createElement("div");
+        const selection = document.createElement("span");
+        const value = textarea.value;
+
+        mirror.style.position = "absolute";
+        mirror.style.visibility = "hidden";
+        mirror.style.whiteSpace = style.whiteSpace;
+        mirror.style.wordBreak = style.wordBreak;
+        mirror.style.overflowWrap = style.overflowWrap;
+        mirror.style.fontFamily = style.fontFamily;
+        mirror.style.fontSize = style.fontSize;
+        mirror.style.fontWeight = style.fontWeight;
+        mirror.style.lineHeight = style.lineHeight;
+        mirror.style.letterSpacing = style.letterSpacing;
+        mirror.style.fontVariantLigatures = style.fontVariantLigatures;
+        mirror.style.tabSize = style.tabSize;
+        mirror.style.padding = style.padding;
+        mirror.style.border = style.border;
+        mirror.style.boxSizing = style.boxSizing;
+        mirror.style.width = `${textarea.clientWidth}px`;
+        mirror.style.left = `${offscreenMirrorLeftPx}px`;
+        mirror.style.top = "0";
+
+        mirror.textContent = value.slice(0, start);
+        selection.textContent = value.slice(start, end) || " ";
+        mirror.appendChild(selection);
+        document.body.appendChild(mirror);
+
+        const mirrorRect = mirror.getBoundingClientRect();
+        const selectionRect = selection.getBoundingClientRect();
+        const selectionRects = selection.getClientRects();
+        const firstRect = selectionRects[0] || selectionRect;
+        const top = textarea.offsetTop + firstRect.top - mirrorRect.top - textarea.scrollTop - getLineTopInsetPx(style);
+        const left = textarea.offsetLeft + selectionRect.left - mirrorRect.left - textarea.scrollLeft + (selectionRect.width / 2);
+
+        document.body.removeChild(mirror);
+
+        return {
+            top,
+            left
+        };
+    }
+
+    function getLineTopInsetPx(style) {
+        const lineHeight = Number.parseFloat(style.lineHeight);
+        const fontSize = Number.parseFloat(style.fontSize);
+        if (!Number.isFinite(lineHeight) || !Number.isFinite(fontSize)) {
+            return 0;
+        }
+
+        return Math.max(0, lineHeight - fontSize);
     }
 })();
