@@ -1,6 +1,5 @@
 using System.Globalization;
 using PrompterLive.Core.Services.Editor;
-using PrompterLive.Core.Samples;
 
 namespace PrompterLive.Shared.Pages;
 
@@ -37,12 +36,6 @@ public partial class EditorPage
         if (!string.IsNullOrWhiteSpace(ScriptId))
         {
             await LoadScriptFromQueryAsync();
-            return;
-        }
-
-        if (string.IsNullOrWhiteSpace(SessionService.State.ScriptId))
-        {
-            await SessionService.LoadSampleAsync(SampleScriptCatalog.DemoSampleId);
         }
     }
 

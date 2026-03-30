@@ -54,6 +54,8 @@ public sealed class EditorStructureAuthoringTests : BunitContext
     [Fact]
     public void EditorPage_ChangingSpeedOffsetsRewritesFrontMatter()
     {
+        Services.GetRequiredService<NavigationManager>()
+            .NavigateTo(AppTestData.Routes.EditorDemo);
         var cut = Render<EditorPage>();
 
         cut.WaitForAssertion(() =>

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
+using PrompterLive.Core.Abstractions;
 using PrompterLive.Shared.Contracts;
 using PrompterLive.Shared.Localization;
 using PrompterLive.Shared.Services;
@@ -19,6 +20,7 @@ public partial class MainLayout : LayoutComponentBase, IDisposable
 
     [Inject] private AppBootstrapper Bootstrapper { get; set; } = null!;
     [Inject] private AppShellService Shell { get; set; } = null!;
+    [Inject] private IScriptSessionService SessionService { get; set; } = null!;
     [Inject] private ILogger<MainLayout> Logger { get; set; } = null!;
     [Inject] private IJSRuntime JS { get; set; } = null!;
     [Inject] private NavigationManager Navigation { get; set; } = null!;
@@ -173,10 +175,11 @@ public partial class MainLayout : LayoutComponentBase, IDisposable
         return Task.CompletedTask;
     }
 
-    private Task HandleCreateScriptClickAsync()
+    private async Task HandleCreateScriptClickAsync()
     {
+        await Bootstrapper.EnsureReadyAsync();
+        await SessionService.NewAsync();
         Navigation.NavigateTo(AppRoutes.Editor);
-        return Task.CompletedTask;
     }
 
     private Task HandleOpenLearnClickAsync()

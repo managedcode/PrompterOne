@@ -17,13 +17,16 @@ public sealed record ScriptWorkspaceState(
     ReaderSettings ReaderSettings,
     LearnSettings LearnSettings)
 {
+    public const string UntitledScriptDocumentName = "untitled-script.tps";
+    public const string UntitledScriptTitle = "Untitled Script";
+
     public bool HasContent => WordCount > 0;
 
     public static ScriptWorkspaceState Empty { get; } = new(
         ScriptId: string.Empty,
-        Title: "Fresh Take",
+        Title: UntitledScriptTitle,
         Text: string.Empty,
-        DocumentName: "fresh-take.tps",
+        DocumentName: UntitledScriptDocumentName,
         ScriptData: null,
         CompiledScript: null,
         PreviewSegments: Array.Empty<SegmentPreviewModel>(),

@@ -32,6 +32,13 @@ internal static partial class BrowserTestConstants
         public const string TeleprompterFocal = "35";
     }
 
+    public static class NewScriptWorkflow
+    {
+        public const string Name = "new-script-workflow";
+        public const string LibraryInitialStep = "01-library-initial";
+        public const string EditorEmptyStep = "02-editor-empty";
+    }
+
     public static class LiveWorkflow
     {
         public const string Name = "live-workflow";

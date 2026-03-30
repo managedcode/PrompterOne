@@ -82,7 +82,7 @@ function isLibraryRuntimeActive() {
 const RSVP_CONTEXT_WORD_COUNT = 5;
 const RSVP_CONTEXT_SHIFT_PROPERTY = '--rsvp-context-word-shift';
 const RSVP_END_OF_SCRIPT = 'End of script.';
-const RSVP_FOCUS_MAX_CONTEXT_WORD_GAP_PX = 100;
+const RSVP_FOCUS_MAX_CONTEXT_WORD_GAP_PX = 72;
 const RSVP_MAX_SPEED = 600;
 const RSVP_MIN_SPEED = 100;
 const RSVP_MIN_WORD_DURATION_MS = 120;

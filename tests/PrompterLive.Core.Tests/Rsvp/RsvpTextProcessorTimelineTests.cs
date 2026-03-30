@@ -1,5 +1,5 @@
-using PrompterLive.Core.Services.Rsvp;
 using PrompterLive.Core.Samples;
+using PrompterLive.Core.Services.Rsvp;
 
 namespace PrompterLive.Core.Tests;
 

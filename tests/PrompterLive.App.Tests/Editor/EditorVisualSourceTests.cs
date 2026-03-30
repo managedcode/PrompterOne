@@ -1,4 +1,6 @@
 using Bunit;
+using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.DependencyInjection;
 using PrompterLive.Shared.Contracts;
 using PrompterLive.Shared.Pages;
 using PrompterLive.Shared.Tests;
@@ -17,6 +19,8 @@ public sealed class EditorVisualSourceTests : BunitContext
     [Fact]
     public void EditorPage_HidesFrontMatterFromVisibleSourceSurface()
     {
+        Services.GetRequiredService<NavigationManager>()
+            .NavigateTo(AppTestData.Routes.EditorDemo);
         var cut = Render<EditorPage>();
 
         cut.WaitForAssertion(() =>
@@ -36,6 +40,8 @@ public sealed class EditorVisualSourceTests : BunitContext
     [Fact]
     public void EditorPage_BodyEditsPreserveMetadataInPersistedDocument()
     {
+        Services.GetRequiredService<NavigationManager>()
+            .NavigateTo(AppTestData.Routes.EditorDemo);
         var cut = Render<EditorPage>();
 
         cut.WaitForAssertion(() =>
@@ -63,6 +69,8 @@ public sealed class EditorVisualSourceTests : BunitContext
     [Fact]
     public void EditorPage_DoesNotRenderInventedAiPanelSurface()
     {
+        Services.GetRequiredService<NavigationManager>()
+            .NavigateTo(AppTestData.Routes.EditorDemo);
         var cut = Render<EditorPage>();
 
         cut.WaitForAssertion(() =>

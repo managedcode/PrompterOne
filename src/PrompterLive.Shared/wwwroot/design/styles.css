@@ -2362,7 +2362,7 @@ button {
     font-weight: 400;
     color: rgba(232,213,176,.4);
     white-space: nowrap;
-    overflow: visible;
+    overflow: hidden;
     flex: 1;
     min-width: 0;
 }

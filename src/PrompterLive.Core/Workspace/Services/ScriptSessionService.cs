@@ -4,8 +4,8 @@ using PrompterLive.Core.Abstractions;
 using PrompterLive.Core.Models.CompiledScript;
 using PrompterLive.Core.Models.Documents;
 using PrompterLive.Core.Models.Workspace;
-using PrompterLive.Core.Services.Preview;
 using PrompterLive.Core.Samples;
+using PrompterLive.Core.Services.Preview;
 
 namespace PrompterLive.Core.Services.Workspace;
 
@@ -22,16 +22,13 @@ public sealed class ScriptSessionService(
     private readonly IScriptPreviewService _previewService = previewService;
     private readonly ILogger<ScriptSessionService> _logger = logger ?? NullLogger<ScriptSessionService>.Instance;
 
-    public ScriptWorkspaceState State { get; private set; } = ScriptWorkspaceState.Empty with
-    {
-        Text = BuildStarterScript()
-    };
+    public ScriptWorkspaceState State { get; private set; } = ScriptWorkspaceState.Empty;
 
     public event EventHandler? StateChanged;
 
     public async Task InitializeAsync(CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Initializing script session repository and starter document.");
+        _logger.LogInformation("Initializing script session repository and empty draft.");
         await _repository.InitializeAsync(SampleScriptCatalog.CreateSeedDocuments(), cancellationToken);
         await NewAsync(cancellationToken);
     }
@@ -39,9 +36,9 @@ public sealed class ScriptSessionService(
     public Task NewAsync(CancellationToken cancellationToken = default)
     {
         return UpdateDraftAsync(
-            title: "Fresh Take",
-            text: BuildStarterScript(),
-            documentName: "fresh-take.tps",
+            title: ScriptWorkspaceState.UntitledScriptTitle,
+            text: string.Empty,
+            documentName: ScriptWorkspaceState.UntitledScriptDocumentName,
             scriptId: string.Empty,
             cancellationToken: cancellationToken);
     }
@@ -71,7 +68,7 @@ public sealed class ScriptSessionService(
         string? scriptId = null,
         CancellationToken cancellationToken = default)
     {
-        title = string.IsNullOrWhiteSpace(title) ? "Untitled Script" : title.Trim();
+        title = string.IsNullOrWhiteSpace(title) ? ScriptWorkspaceState.UntitledScriptTitle : title.Trim();
         text ??= string.Empty;
         documentName = string.IsNullOrWhiteSpace(documentName) ? Slugify(title) : documentName;
         _logger.LogDebug("Updating draft for {Title}.", title);
@@ -153,7 +150,7 @@ public sealed class ScriptSessionService(
         string? scriptId = null,
         string? errorMessage = null)
     {
-        title = string.IsNullOrWhiteSpace(title) ? "Untitled Script" : title.Trim();
+        title = string.IsNullOrWhiteSpace(title) ? ScriptWorkspaceState.UntitledScriptTitle : title.Trim();
         text ??= string.Empty;
         documentName = string.IsNullOrWhiteSpace(documentName) ? Slugify(title) : documentName;
 
@@ -213,24 +210,6 @@ public sealed class ScriptSessionService(
 
         return TimeSpan.FromMilliseconds(totalMilliseconds);
     }
-
-    private static string BuildStarterScript() =>
-        """
-        ---
-        title: "Fresh Take"
-        author: "PrompterLive"
-        base_wpm: 150
-        ---
-
-        ## [Opening|140WPM|warm]
-        ### [Welcome Block|140WPM]
-        Welcome to PrompterLive. This shared draft is ready for editing, rehearsal, and live reading.
-
-        ## [Next Steps|150WPM|focused]
-        ### [Action Block|150WPM]
-        Add your own segments, tune the pace, and shape the camera scene before you go live.
-        """;
-
     private static string Slugify(string title)
     {
         var slug = new string(title

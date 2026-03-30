@@ -19,6 +19,8 @@ public sealed class EditorSourceInteractionTests : BunitContext
     [Fact]
     public void EditorPage_UsesVisibleBodyTextareaAndRebuildsStructureWhenSourceChanges()
     {
+        Services.GetRequiredService<NavigationManager>()
+            .NavigateTo(AppTestData.Routes.EditorDemo);
         var cut = Render<EditorPage>();
 
         cut.WaitForAssertion(() =>
@@ -51,6 +53,8 @@ public sealed class EditorSourceInteractionTests : BunitContext
     [Fact]
     public void EditorPage_MetadataChangesRewritePersistedFrontMatterWithoutLeakingIntoVisibleBody()
     {
+        Services.GetRequiredService<NavigationManager>()
+            .NavigateTo(AppTestData.Routes.EditorDemo);
         var cut = Render<EditorPage>();
 
         cut.WaitForAssertion(() =>

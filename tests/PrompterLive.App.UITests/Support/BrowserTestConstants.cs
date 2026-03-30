@@ -34,6 +34,11 @@ internal static partial class BrowserTestConstants
         public const string EndOfScriptText = "End of script.";
         public const string MidFlowWord = "this";
         public const string NextPhraseFragment = "our monitoring systems detected unauthorized";
+        public const string QuantumProbeWord = "intuition";
+        public const int QuantumProbeStepLimit = 12;
+        public const int QuantumViewportHeight = 882;
+        public const int QuantumViewportWidth = 1797;
+        public const int MaxQuantumVisibleContextWordGapPx = 72;
         public const string SecurityIncidentProbeWord = "unauthorized";
         public const int SecurityIncidentProbeStepLimit = 20;
         public const int SecurityIncidentViewportHeight = 882;

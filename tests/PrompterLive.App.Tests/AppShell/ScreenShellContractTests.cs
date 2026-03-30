@@ -39,7 +39,9 @@ public sealed class ScreenShellContractTests : BunitContext
         cut.WaitForAssertion(() =>
         {
             var sourceInput = cut.FindByTestId(UiTestIds.Editor.SourceInput);
+            var sourceValue = sourceInput.GetAttribute("value") ?? string.Empty;
 
+            Assert.Equal(string.Empty, sourceValue);
             Assert.DoesNotContain("profile:", sourceInput.GetAttribute("value"), StringComparison.Ordinal);
             Assert.DoesNotContain("author:", sourceInput.GetAttribute("value"), StringComparison.Ordinal);
             Assert.NotNull(cut.FindByTestId(UiTestIds.Editor.Profile));

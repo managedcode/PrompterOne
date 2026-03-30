@@ -49,6 +49,23 @@ public sealed class StudioWorkflowScenarioTests(StandaloneAppFixture fixture) : 
     }
 
     [Fact]
+    public async Task StudioWorkflow_NewScriptStartsEmpty_CapturesArtifacts()
+    {
+        var page = await _fixture.NewPageAsync();
+
+        try
+        {
+            UiScenarioArtifacts.ResetScenario(BrowserTestConstants.NewScriptWorkflow.Name);
+            await OpenLibraryForNewScriptAsync(page);
+            await OpenEmptyEditorDraftAsync(page);
+        }
+        finally
+        {
+            await page.Context.CloseAsync();
+        }
+    }
+
+    [Fact]
     public async Task StudioWorkflow_SettingsAndGoLiveStudio_CapturesArtifacts()
     {
         var page = await _fixture.NewPageAsync();
@@ -128,6 +145,22 @@ public sealed class StudioWorkflowScenarioTests(StandaloneAppFixture fixture) : 
         await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(BrowserTestConstants.Routes.LearnQuantum));
         await Expect(page.GetByTestId(UiTestIds.Learn.Page)).ToBeVisibleAsync();
         await UiScenarioArtifacts.CapturePageAsync(page, BrowserTestConstants.ReaderWorkflow.Name, BrowserTestConstants.ReaderWorkflow.LearnInitialStep);
+    }
+
+    private static async Task OpenLibraryForNewScriptAsync(IPage page)
+    {
+        await page.GotoAsync(BrowserTestConstants.Routes.Library);
+        await Expect(page.GetByTestId(UiTestIds.Library.Page)).ToBeVisibleAsync();
+        await UiScenarioArtifacts.CapturePageAsync(page, BrowserTestConstants.NewScriptWorkflow.Name, BrowserTestConstants.NewScriptWorkflow.LibraryInitialStep);
+    }
+
+    private static async Task OpenEmptyEditorDraftAsync(IPage page)
+    {
+        await page.GetByTestId(UiTestIds.Header.LibraryNewScript).ClickAsync();
+        await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(AppRoutes.Editor));
+        await Expect(page.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync();
+        await Expect(page.GetByTestId(UiTestIds.Editor.SourceInput)).ToHaveValueAsync(string.Empty);
+        await UiScenarioArtifacts.CapturePageAsync(page, BrowserTestConstants.NewScriptWorkflow.Name, BrowserTestConstants.NewScriptWorkflow.EditorEmptyStep);
     }
 
     private static async Task ExerciseLearnReaderAsync(IPage page)

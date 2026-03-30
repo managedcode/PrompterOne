@@ -1,6 +1,6 @@
+using PrompterLive.Core.Samples;
 using PrompterLive.Core.Services;
 using PrompterLive.Core.Services.Preview;
-using PrompterLive.Core.Samples;
 using PrompterLive.Core.Services.Workspace;
 
 namespace PrompterLive.Core.Tests;
@@ -11,7 +11,7 @@ public sealed class ScriptSessionServiceTests
     private const string UntitledScriptTitle = "Untitled Script";
 
     [Fact]
-    public async Task InitializeAsync_SeedsLibraryAndBuildsStarterDraft()
+    public async Task InitializeAsync_SeedsLibraryAndBuildsEmptyDraft()
     {
         var repository = new InMemoryScriptRepository();
         var session = CreateSession(repository);
@@ -21,10 +21,11 @@ public sealed class ScriptSessionServiceTests
         var library = await repository.ListAsync();
 
         Assert.Equal(5, library.Count);
-        Assert.Equal("Fresh Take", session.State.Title);
-        Assert.Equal("fresh-take.tps", session.State.DocumentName);
-        Assert.True(session.State.WordCount > 0);
-        Assert.NotEmpty(session.State.PreviewSegments);
+        Assert.Equal(UntitledScriptTitle, session.State.Title);
+        Assert.Equal(UntitledScriptDocumentName, session.State.DocumentName);
+        Assert.Equal(string.Empty, session.State.Text);
+        Assert.Equal(0, session.State.WordCount);
+        Assert.Empty(session.State.PreviewSegments);
         Assert.Null(session.State.ErrorMessage);
     }
 

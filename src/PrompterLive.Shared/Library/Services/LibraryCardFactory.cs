@@ -16,6 +16,10 @@ internal static class LibraryCardFactory
     private const string DefaultModeLabel = "Actor";
     private const string FallbackAccentColor = "#2563EB";
     private const string UpdatedLabelFormat = "MMM dd";
+    private const int CssRgbHexLength = 6;
+    private const int ArgbHexLength = 8;
+    private const int AlphaHexComponentLength = 2;
+    private const char HexPrefix = '#';
 
     public static async Task<IReadOnlyList<LibraryCardViewModel>> BuildAsync(
         IReadOnlyList<StoredScriptSummary> summaries,
@@ -146,10 +150,22 @@ internal static class LibraryCardFactory
 
     private static string ResolveAccentColor(string? accentColor, string? backgroundColor) =>
         !string.IsNullOrWhiteSpace(accentColor)
-            ? accentColor
+            ? NormalizeCssColor(accentColor)
             : !string.IsNullOrWhiteSpace(backgroundColor)
-                ? backgroundColor
+                ? NormalizeCssColor(backgroundColor)
                 : FallbackAccentColor;
+
+    private static string NormalizeCssColor(string color)
+    {
+        var normalized = color.Trim();
+        var hex = normalized.TrimStart(HexPrefix);
+        if (hex.Length != ArgbHexLength || !hex.All(Uri.IsHexDigit))
+        {
+            return normalized;
+        }
+
+        return string.Concat(HexPrefix, hex.Substring(AlphaHexComponentLength, CssRgbHexLength));
+    }
 
     private static string NormalizeEmotion(string? emotionKey) =>
         string.IsNullOrWhiteSpace(emotionKey)

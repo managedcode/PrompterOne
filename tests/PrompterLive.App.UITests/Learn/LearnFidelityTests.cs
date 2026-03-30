@@ -137,6 +137,40 @@ public sealed class LearnFidelityTests(StandaloneAppFixture fixture) : IClassFix
         }
     }
 
+    [Fact]
+    public async Task LearnScreen_KeepsQuantumContextWordsCloseToFocusedWord()
+    {
+        var page = await fixture.NewPageAsync();
+
+        try
+        {
+            await page.SetViewportSizeAsync(
+                BrowserTestConstants.Learn.QuantumViewportWidth,
+                BrowserTestConstants.Learn.QuantumViewportHeight);
+            await page.GotoAsync(BrowserTestConstants.Routes.LearnQuantum);
+            await Expect(page.GetByTestId(UiTestIds.Learn.Page))
+                .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
+
+            await StepUntilWordAsync(
+                page,
+                BrowserTestConstants.Learn.QuantumProbeWord,
+                BrowserTestConstants.Learn.QuantumProbeStepLimit);
+
+            var gaps = await MeasureVisibleContextWordGapsAsync(page);
+
+            Assert.True(
+                gaps.LeftWordGapPx <= BrowserTestConstants.Learn.MaxQuantumVisibleContextWordGapPx,
+                $"Expected the quantum left context word gap to stay within {BrowserTestConstants.Learn.MaxQuantumVisibleContextWordGapPx}px, but it was {gaps.LeftWordGapPx:0.##}px.");
+            Assert.True(
+                gaps.RightWordGapPx <= BrowserTestConstants.Learn.MaxQuantumVisibleContextWordGapPx,
+                $"Expected the quantum right context word gap to stay within {BrowserTestConstants.Learn.MaxQuantumVisibleContextWordGapPx}px, but it was {gaps.RightWordGapPx:0.##}px.");
+        }
+        finally
+        {
+            await page.Context.CloseAsync();
+        }
+    }
+
     private static Task<double> MeasureOrpDeltaAsync(Microsoft.Playwright.IPage page) =>
         page.EvaluateAsync<double>(
             """
