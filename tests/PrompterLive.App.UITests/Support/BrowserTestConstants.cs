@@ -80,10 +80,13 @@ internal static partial class BrowserTestConstants
         public const string NewDraftProbeText = "dc";
         public const string SecondProbeCharacter = "c";
         public const string BodyHeading = "## [Intro|140WPM|warm]";
+        public const string BlockLineCssClass = "ed-src-line ed-src-line-block";
         public const string DisplayDuration = "12:34";
+        public const string HeaderContinuationText = " B";
         public const string LegacyActiveBlockLabel = "ACTIVE BLOCK";
         public const string LegacyActiveSegmentLabel = "ACTIVE SEGMENT";
-        public const string SourceStageTypingClass = "ed-source-stage-typing";
+        public const string QuantumOverviewBlockHeader = "### [Overview Block|280WPM|neutral]";
+        public const string QuantumOverviewBlockLineText = QuantumOverviewBlockHeader + HeaderContinuationText;
         public const string TransparentInputColor = "rgba(0, 0, 0, 0)";
         public const string VisibleOverlayOpacity = "1";
         public const string Welcome = "welcome";

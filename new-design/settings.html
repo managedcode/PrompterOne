@@ -1,0 +1,1372 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompter.live — Settings</title>
+    <link rel="stylesheet" href="tokens.css">
+    <link rel="stylesheet" href="components.css">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles-settings.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@0,700;0,800;0,900;1,700;1,800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+        <!-- ==================== GLOBAL HEADER ==================== -->
+    <header class="app-header">
+        <div class="app-header-left" onclick="navigateTo('library')" style="cursor:pointer">
+            <div class="logo-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M4 6h16M4 12h12M4 18h14" stroke="url(#glogo)" stroke-width="2.5" stroke-linecap="round"/>
+                    <defs><linearGradient id="glogo" x1="4" y1="6" x2="20" y2="18"><stop stop-color="#F5E6D0"/><stop offset="1" stop-color="#C4A882"/></linearGradient></defs>
+                </svg>
+            </div>
+            <span class="app-logo-text">Prompter.live</span>
+        </div>
+        <div class="app-header-center" id="app-header-center">
+            <!-- Filled dynamically per screen -->
+        </div>
+        <div class="app-header-right" id="app-header-right">
+            <!-- Filled dynamically per screen -->
+        </div>
+    </header>
+
+    <div id="screen-settings" class="screen active">
+    <div class="set-layout">
+        <!-- Sidebar -->
+        <div class="set-sidebar">
+            <div class="set-back-row">
+                <h2 class="set-title">Settings</h2>
+            </div>
+            <nav class="set-nav">
+                <a class="set-nav-item active" onclick="showSetSection('cloud')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                    Cloud Sync
+                </a>
+                <a class="set-nav-item" onclick="showSetSection('files')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                    File Storage
+                </a>
+                <a class="set-nav-item" onclick="showSetSection('cameras')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                    Cameras
+                </a>
+                <a class="set-nav-item" onclick="showSetSection('mics')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                    Microphones
+                </a>
+                <a class="set-nav-item" onclick="showSetSection('streaming')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 16.1A5 5 0 0 1 5.9 20M2 12.05A9 9 0 0 1 9.95 20M2 8V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-6"/><line x1="2" y1="20" x2="2.01" y2="20"/></svg>
+                    Streaming
+                </a>
+                <a class="set-nav-item" onclick="showSetSection('recording')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>
+                    Recording
+                </a>
+                <a class="set-nav-item" onclick="showSetSection('ai')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L9 9 2 12l7 3 3 7 3-7 7-3-7-3z"/></svg>
+                    AI Provider
+                </a>
+                <a class="set-nav-item" onclick="showSetSection('appearance')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                    Appearance
+                </a>
+                <a class="set-nav-item" onclick="showSetSection('about')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                    About
+                </a>
+            </nav>
+        </div>
+
+        <!-- Content -->
+        <div class="set-main">
+            <!-- Cloud Storage -->
+            <section class="set-section set-panel" id="set-cloud">
+                <h3 class="set-section-title">Cloud Storage</h3>
+                <p class="set-section-desc">Connect cloud accounts to sync your scripts across devices.</p>
+
+                <div class="set-device-list">
+                    <!-- OneDrive — connected -->
+                    <div class="set-dest-card open" onclick="toggleDestCard(this)">
+                        <div class="set-dest-header">
+                            <div class="set-dest-icon" style="background:rgba(0,120,212,.15); color:#4BA3E3;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12.5 6c-1.8 0-3.4.8-4.5 2.1C7.3 7.4 6.2 7 5 7 2.2 7 0 9.2 0 12s2.2 5 5 5h14c2.8 0 5-2.2 5-5 0-2.5-1.8-4.5-4.2-4.9C18.7 5.2 16.8 4 14.5 4c-.7 0-1.4.1-2 .3V6z"/></svg>
+                            </div>
+                            <div class="set-dest-info">
+                                <span class="set-dest-name">OneDrive</span>
+                                <span class="set-dest-account">user@outlook.com</span>
+                            </div>
+                            <span class="set-dest-status set-dest-ok">Connected</span>
+                            <svg class="set-dest-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+                        </div>
+                        <div class="set-dest-body" onclick="event.stopPropagation()">
+                            <div class="set-device-fields">
+                                <div class="set-field">
+                                    <label>Sync Folder</label>
+                                    <div class="set-path-field">
+                                        <input type="text" class="set-input" value="/OneDrive/Prompter" readonly />
+                                        <button class="set-btn-outline set-btn-sm">Browse</button>
+                                    </div>
+                                </div>
+                                <div class="set-field set-field-toggle">
+                                    <label>Auto-sync on save</label>
+                                    <div class="set-toggle on"><div class="set-toggle-thumb"></div></div>
+                                </div>
+                                <div class="set-field set-field-toggle">
+                                    <label>Sync on startup</label>
+                                    <div class="set-toggle on"><div class="set-toggle-thumb"></div></div>
+                                </div>
+                            </div>
+                            <button class="set-btn-outline set-btn-sm" style="margin-top:12px; color:#FF8A8A; border-color:rgba(255,68,68,.2)">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                                Disconnect
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Google Drive — not connected -->
+                    <div class="set-dest-card" onclick="toggleDestCard(this)">
+                        <div class="set-dest-header">
+                            <div class="set-dest-icon" style="background:rgba(66,133,244,.12); color:#4285F4;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M7.71 3.5L1.15 15l3.43 5.96h6.86L18 15 11.44 3.5H7.71zm.86 1.73L13 13.5H4.59l4-8.27z"/><path d="M22.85 15L16.29 3.5h-3.43L19.43 15l-3.43 5.96h6.86L22.85 15z" opacity=".6"/></svg>
+                            </div>
+                            <div class="set-dest-info">
+                                <span class="set-dest-name">Google Drive</span>
+                                <span class="set-dest-account">Not connected</span>
+                            </div>
+                            <span class="set-dest-status" style="color:var(--t4)">Disconnected</span>
+                            <svg class="set-dest-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+                        </div>
+                        <div class="set-dest-body" onclick="event.stopPropagation()">
+                            <p style="font-size:13px; color:var(--t3); margin:12px 0 16px; line-height:1.5">Sign in with your Google account to sync scripts to Google Drive.</p>
+                            <button class="set-btn-golden" style="width:100%; justify-content:center">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="margin-right:6px"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                                Connect with Google
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Dropbox — not connected -->
+                    <div class="set-dest-card" onclick="toggleDestCard(this)">
+                        <div class="set-dest-header">
+                            <div class="set-dest-icon" style="background:rgba(0,97,255,.12); color:#0061FF;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L6 6.5 12 11l-6 4.5L12 20l6-4.5L12 11l6-4.5L12 2z"/></svg>
+                            </div>
+                            <div class="set-dest-info">
+                                <span class="set-dest-name">Dropbox</span>
+                                <span class="set-dest-account">Not connected</span>
+                            </div>
+                            <span class="set-dest-status" style="color:var(--t4)">Disconnected</span>
+                            <svg class="set-dest-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+                        </div>
+                        <div class="set-dest-body" onclick="event.stopPropagation()">
+                            <p style="font-size:13px; color:var(--t3); margin:12px 0 16px; line-height:1.5">Connect Dropbox to automatically back up and sync your scripts.</p>
+                            <button class="set-btn-golden" style="width:100%; justify-content:center">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="margin-right:6px"><path d="M12 2L6 6.5 12 11l-6 4.5L12 20l6-4.5L12 11l6-4.5L12 2z"/></svg>
+                                Connect with Dropbox
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- File Storage -->
+            <section class="set-section set-panel" id="set-files" style="display:none">
+                <h3 class="set-section-title">File Storage</h3>
+                <p class="set-section-desc">Where scripts, recordings, and exports are saved locally.</p>
+
+                <div class="set-device-list">
+                    <!-- Scripts folder -->
+                    <div class="set-dest-card open" onclick="toggleDestCard(this)">
+                        <div class="set-dest-header">
+                            <div class="set-dest-icon" style="background:rgba(196,160,96,.10); color:var(--gold);">
+                                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                            </div>
+                            <div class="set-dest-info">
+                                <span class="set-dest-name">Scripts</span>
+                                <span class="set-dest-account">/Users/you/Documents/Prompter/Scripts</span>
+                            </div>
+                            <svg class="set-dest-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+                        </div>
+                        <div class="set-dest-body" onclick="event.stopPropagation()">
+                            <div class="set-device-fields">
+                                <div class="set-field">
+                                    <label>Location</label>
+                                    <div class="set-path-field">
+                                        <input type="text" class="set-input" value="/Users/you/Documents/Prompter/Scripts" readonly oninput="markSettingsDirty()" />
+                                        <button class="set-btn-outline set-btn-sm">Browse</button>
+                                    </div>
+                                </div>
+                                <div class="set-field set-field-toggle">
+                                    <label>Auto-save every 30 seconds</label>
+                                    <div class="set-toggle on" onclick="toggleDeviceCard(this); markSettingsDirty()"><div class="set-toggle-thumb"></div></div>
+                                </div>
+                                <div class="set-field set-field-toggle">
+                                    <label>Keep backup copies</label>
+                                    <div class="set-toggle on" onclick="toggleDeviceCard(this); markSettingsDirty()"><div class="set-toggle-thumb"></div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recordings folder -->
+                    <div class="set-dest-card" onclick="toggleDestCard(this)">
+                        <div class="set-dest-header">
+                            <div class="set-dest-icon" style="background:rgba(239,68,68,.10); color:#F87171;">
+                                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/></svg>
+                            </div>
+                            <div class="set-dest-info">
+                                <span class="set-dest-name">Recordings</span>
+                                <span class="set-dest-account">/Users/you/Documents/Prompter/Recordings</span>
+                            </div>
+                            <svg class="set-dest-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+                        </div>
+                        <div class="set-dest-body" onclick="event.stopPropagation()">
+                            <div class="set-device-fields">
+                                <div class="set-field">
+                                    <label>Location</label>
+                                    <div class="set-path-field">
+                                        <input type="text" class="set-input" value="/Users/you/Documents/Prompter/Recordings" readonly oninput="markSettingsDirty()" />
+                                        <button class="set-btn-outline set-btn-sm">Browse</button>
+                                    </div>
+                                </div>
+                                <div class="set-field">
+                                    <label>Max Storage</label>
+                                    <select class="set-select" onchange="markSettingsDirty()">
+                                        <option>No limit</option>
+                                        <option>10 GB</option>
+                                        <option>50 GB</option>
+                                        <option>100 GB</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Export settings -->
+                    <div class="set-dest-card" onclick="toggleDestCard(this)">
+                        <div class="set-dest-header">
+                            <div class="set-dest-icon" style="background:rgba(99,102,241,.10); color:#818CF8;">
+                                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            </div>
+                            <div class="set-dest-info">
+                                <span class="set-dest-name">Exports</span>
+                                <span class="set-dest-account">TPS (Native) · PDF · Markdown</span>
+                            </div>
+                            <svg class="set-dest-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+                        </div>
+                        <div class="set-dest-body" onclick="event.stopPropagation()">
+                            <div class="set-device-fields">
+                                <div class="set-field">
+                                    <label>Default Export Format</label>
+                                    <select class="set-select" onchange="markSettingsDirty()">
+                                        <option>TPS (Native)</option>
+                                        <option>Markdown</option>
+                                        <option>Plain Text</option>
+                                        <option>PDF</option>
+                                    </select>
+                                </div>
+                                <div class="set-field">
+                                    <label>Export Location</label>
+                                    <div class="set-path-field">
+                                        <input type="text" class="set-input" value="/Users/you/Downloads" readonly />
+                                        <button class="set-btn-outline set-btn-sm">Browse</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Cameras -->
+            <section class="set-section set-panel" id="set-cameras" style="display:none">
+                <h3 class="set-section-title">Cameras</h3>
+                <p class="set-section-desc">Choose which cameras are available in GO LIVE and select the primary stream camera.</p>
+
+                <div class="set-cameras-layout">
+                    <!-- Left: Camera list -->
+                    <div class="set-cameras-list">
+
+                        <!-- Camera 1 — enabled, primary, selected -->
+                        <div class="set-device-card active set-cam-selected" data-cam="cam1" onclick="selectCamPreview(this)">
+                            <div class="set-device-header">
+                                <div class="set-device-preview set-cam-preview">
+                                    <div class="set-cam-feed cam1"></div>
+                                    <span class="set-device-badge set-badge-primary">
+                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                        Primary
+                                    </span>
+                                </div>
+                                <div class="set-device-info">
+                                    <span class="set-device-name">Logitech C920 HD Pro</span>
+                                    <span class="set-device-meta">USB &middot; 1920×1080 &middot; 30fps</span>
+                                </div>
+                                <div class="set-device-actions" onclick="event.stopPropagation()">
+                                    <div class="set-toggle on" onclick="toggleDeviceCard(this)"><div class="set-toggle-thumb"></div></div>
+                                </div>
+                            </div>
+                            <div class="set-device-body" onclick="event.stopPropagation()">
+                                <div class="set-device-fields">
+                                    <div class="set-field">
+                                        <label>Resolution</label>
+                                        <select class="set-select">
+                                            <option selected>1920 × 1080 (Full HD)</option>
+                                            <option>1280 × 720 (HD)</option>
+                                            <option>3840 × 2160 (4K)</option>
+                                            <option>640 × 480 (SD)</option>
+                                        </select>
+                                    </div>
+                                    <div class="set-field set-field-toggle">
+                                        <label>Mirror (Flip Horizontal)</label>
+                                        <div class="set-toggle on"><div class="set-toggle-thumb"></div></div>
+                                    </div>
+                                    <div class="set-field set-field-toggle">
+                                        <label>Auto-start on Read</label>
+                                        <div class="set-toggle"><div class="set-toggle-thumb"></div></div>
+                                    </div>
+                                </div>
+                                <button class="set-btn-golden set-btn-sm set-btn-primary-cam active" disabled>
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    Primary Camera
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Camera 2 — enabled, not primary -->
+                        <div class="set-device-card active" data-cam="cam2" onclick="selectCamPreview(this)">
+                            <div class="set-device-header">
+                                <div class="set-device-preview set-cam-preview">
+                                    <div class="set-cam-feed cam2"></div>
+                                </div>
+                                <div class="set-device-info">
+                                    <span class="set-device-name">FaceTime HD Camera</span>
+                                    <span class="set-device-meta">Built-in &middot; 1280×720 &middot; 30fps</span>
+                                </div>
+                                <div class="set-device-actions" onclick="event.stopPropagation()">
+                                    <div class="set-toggle on" onclick="toggleDeviceCard(this)"><div class="set-toggle-thumb"></div></div>
+                                </div>
+                            </div>
+                            <div class="set-device-body" onclick="event.stopPropagation()">
+                                <div class="set-device-fields">
+                                    <div class="set-field">
+                                        <label>Resolution</label>
+                                        <select class="set-select">
+                                            <option>1920 × 1080 (Full HD)</option>
+                                            <option selected>1280 × 720 (HD)</option>
+                                            <option>3840 × 2160 (4K)</option>
+                                            <option>640 × 480 (SD)</option>
+                                        </select>
+                                    </div>
+                                    <div class="set-field set-field-toggle">
+                                        <label>Mirror (Flip Horizontal)</label>
+                                        <div class="set-toggle"><div class="set-toggle-thumb"></div></div>
+                                    </div>
+                                    <div class="set-field set-field-toggle">
+                                        <label>Auto-start on Read</label>
+                                        <div class="set-toggle"><div class="set-toggle-thumb"></div></div>
+                                    </div>
+                                </div>
+                                <button class="set-btn-outline set-btn-sm set-btn-primary-cam" onclick="setPrimaryCam(this)">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    Set as Primary
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Camera 3 — disabled -->
+                        <div class="set-device-card" data-cam="cam3" onclick="selectCamPreview(this)">
+                            <div class="set-device-header">
+                                <div class="set-device-preview set-cam-preview">
+                                    <div class="set-cam-feed cam-off"></div>
+                                </div>
+                                <div class="set-device-info">
+                                    <span class="set-device-name">OBS Virtual Camera</span>
+                                    <span class="set-device-meta">Virtual &middot; 1920×1080</span>
+                                </div>
+                                <div class="set-device-actions" onclick="event.stopPropagation()">
+                                    <div class="set-toggle" onclick="toggleDeviceCard(this)"><div class="set-toggle-thumb"></div></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- General -->
+                        <div class="set-subsection" style="margin-top:12px">
+                            <h4 class="set-sub-title">General</h4>
+                            <div class="set-devices">
+                                <div class="set-field set-field-toggle">
+                                    <label>Auto-start all enabled cameras on GO LIVE</label>
+                                    <div class="set-toggle on"><div class="set-toggle-thumb"></div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Large camera preview -->
+                    <div class="set-camera-preview-panel" id="set-cam-preview-panel">
+                        <div class="set-camera-preview-feed">
+                            <div class="set-cam-feed-large" id="set-cam-preview-feed"></div>
+                            <span class="set-camera-preview-label">
+                                <span class="live-dot"></span>
+                                PREVIEW
+                            </span>
+                        </div>
+                        <div class="set-camera-preview-info">
+                            <span class="set-camera-preview-name" id="set-cam-preview-name">Logitech C920 HD Pro</span>
+                            <span class="set-camera-preview-meta" id="set-cam-preview-meta">USB &middot; 1920×1080 &middot; 30fps &middot; Primary</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Microphones -->
+            <section class="set-section set-panel" id="set-mics" style="display:none">
+                <h3 class="set-section-title">Microphones</h3>
+                <p class="set-section-desc">Choose which microphones are used in GO LIVE. Add audio delay to sync with video if needed.</p>
+
+                <!-- Microphone device cards -->
+                <div class="set-device-list">
+
+                    <!-- Mic 1 — enabled -->
+                    <div class="set-device-card active">
+                        <div class="set-device-header">
+                            <div class="set-device-preview set-mic-preview">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                                <div class="set-mic-level-indicator">
+                                    <div class="set-mic-bar" style="height:90%"></div>
+                                    <div class="set-mic-bar" style="height:65%"></div>
+                                    <div class="set-mic-bar" style="height:80%"></div>
+                                </div>
+                            </div>
+                            <div class="set-device-info">
+                                <span class="set-device-name">Blue Yeti USB</span>
+                                <span class="set-device-meta">USB &middot; 48 kHz &middot; Stereo</span>
+                            </div>
+                            <div class="set-device-actions">
+                                <div class="set-toggle on" onclick="toggleDeviceCard(this)"><div class="set-toggle-thumb"></div></div>
+                            </div>
+                        </div>
+                        <!-- VU meter -->
+                        <div class="set-vu-meter">
+                            <div class="set-vu-track">
+                                <div class="set-vu-fill set-vu-anim1"></div>
+                                <div class="set-vu-peak set-vu-peak1"></div>
+                            </div>
+                            <span class="set-vu-db">-12 dB</span>
+                        </div>
+                        <div class="set-device-body">
+                            <div class="set-device-fields">
+                                <div class="set-field">
+                                    <label>Input Level</label>
+                                    <div class="set-level-bar">
+                                        <div class="set-level-fill" style="width:65%"></div>
+                                        <div class="set-level-thumb" style="left:65%"></div>
+                                    </div>
+                                </div>
+                                <div class="set-field">
+                                    <label>Audio Delay (ms)</label>
+                                    <div class="set-delay-row">
+                                        <input type="number" class="set-input set-input-sm" value="0" min="0" max="5000" step="10" />
+                                        <span class="set-delay-hint">0 – 5000 ms</span>
+                                    </div>
+                                </div>
+                                <div class="set-field set-field-toggle">
+                                    <label>Noise Suppression</label>
+                                    <div class="set-toggle on"><div class="set-toggle-thumb"></div></div>
+                                </div>
+                                <div class="set-field set-field-toggle">
+                                    <label>Echo Cancellation</label>
+                                    <div class="set-toggle on"><div class="set-toggle-thumb"></div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mic 2 — enabled, with delay -->
+                    <div class="set-device-card active">
+                        <div class="set-device-header">
+                            <div class="set-device-preview set-mic-preview">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                                <div class="set-mic-level-indicator">
+                                    <div class="set-mic-bar" style="height:40%"></div>
+                                    <div class="set-mic-bar" style="height:55%"></div>
+                                    <div class="set-mic-bar" style="height:30%"></div>
+                                </div>
+                            </div>
+                            <div class="set-device-info">
+                                <span class="set-device-name">MacBook Pro Microphone</span>
+                                <span class="set-device-meta">Built-in &middot; 44.1 kHz &middot; Mono</span>
+                            </div>
+                            <div class="set-device-actions">
+                                <div class="set-toggle on" onclick="toggleDeviceCard(this)"><div class="set-toggle-thumb"></div></div>
+                            </div>
+                        </div>
+                        <!-- VU meter -->
+                        <div class="set-vu-meter">
+                            <div class="set-vu-track">
+                                <div class="set-vu-fill set-vu-anim2"></div>
+                                <div class="set-vu-peak set-vu-peak2"></div>
+                            </div>
+                            <span class="set-vu-db">-28 dB</span>
+                        </div>
+                        <div class="set-device-body">
+                            <div class="set-device-fields">
+                                <div class="set-field">
+                                    <label>Input Level</label>
+                                    <div class="set-level-bar">
+                                        <div class="set-level-fill" style="width:50%"></div>
+                                        <div class="set-level-thumb" style="left:50%"></div>
+                                    </div>
+                                </div>
+                                <div class="set-field">
+                                    <label>Audio Delay (ms)</label>
+                                    <div class="set-delay-row">
+                                        <input type="number" class="set-input set-input-sm" value="120" min="0" max="5000" step="10" />
+                                        <span class="set-delay-hint">0 – 5000 ms</span>
+                                    </div>
+                                </div>
+                                <div class="set-field set-field-toggle">
+                                    <label>Noise Suppression</label>
+                                    <div class="set-toggle on"><div class="set-toggle-thumb"></div></div>
+                                </div>
+                                <div class="set-field set-field-toggle">
+                                    <label>Echo Cancellation</label>
+                                    <div class="set-toggle"><div class="set-toggle-thumb"></div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mic 3 — disabled -->
+                    <div class="set-device-card">
+                        <div class="set-device-header">
+                            <div class="set-device-preview set-mic-preview set-mic-off">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                            </div>
+                            <div class="set-device-info">
+                                <span class="set-device-name">AirPods Pro</span>
+                                <span class="set-device-meta">Bluetooth &middot; 44.1 kHz &middot; Mono</span>
+                            </div>
+                            <div class="set-device-actions">
+                                <div class="set-toggle" onclick="toggleDeviceCard(this)"><div class="set-toggle-thumb"></div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Global mic settings -->
+                <div class="set-subsection" style="margin-top:28px">
+                    <h4 class="set-sub-title">General</h4>
+                    <div class="set-devices">
+                        <div class="set-field set-field-toggle">
+                            <label>Mute all microphones when not in GO LIVE</label>
+                            <div class="set-toggle on"><div class="set-toggle-thumb"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Streaming -->
+            <section class="set-section set-panel" id="set-streaming" style="display:none">
+                <h3 class="set-section-title">Streaming</h3>
+                <p class="set-section-desc">Connect platforms where you want to broadcast. In GO LIVE you choose which ones to stream to.</p>
+
+                <div class="set-sub-header" style="margin-bottom:14px">
+                    <h4 class="set-sub-title">Destinations</h4>
+                    <button class="set-btn-outline set-btn-sm" onclick="document.getElementById('set-add-dest-menu').classList.toggle('open')">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        Add Destination
+                    </button>
+                </div>
+
+                <!-- Add destination dropdown -->
+                <div class="set-add-source-menu" id="set-add-dest-menu">
+                    <button class="set-add-source-opt" onclick="document.getElementById('set-add-dest-menu').classList.remove('open')">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19.1c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.43z"/><polygon points="9.75,15.02 15.5,11.75 9.75,8.48"/></svg>
+                        YouTube Live
+                    </button>
+                    <button class="set-add-source-opt" onclick="document.getElementById('set-add-dest-menu').classList.remove('open')">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2H3v16h5v4l4-4h5l4-4V2z"/><path d="M11 11V7"/><path d="M16 11V7"/></svg>
+                        Twitch
+                    </button>
+                    <button class="set-add-source-opt" onclick="document.getElementById('set-add-dest-menu').classList.remove('open')">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 16.1A5 5 0 0 1 5.9 20M2 12.05A9 9 0 0 1 9.95 20M2 8V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-6"/><line x1="2" y1="20" x2="2.01" y2="20"/></svg>
+                        Custom RTMP
+                    </button>
+                </div>
+
+                <!-- Destination cards — collapsible -->
+                <div class="set-device-list">
+
+                    <!-- YouTube Live #1 -->
+                    <div class="set-dest-card" onclick="toggleDestCard(this)">
+                        <div class="set-dest-header">
+                            <div class="set-dest-icon set-dest-yt">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19.1c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.43z"/><polygon points="9.75,15.02 15.5,11.75 9.75,8.48"/></svg>
+                            </div>
+                            <div class="set-dest-info">
+                                <span class="set-dest-name">My Channel</span>
+                                <span class="set-dest-account">YouTube Live &middot; mychannel@gmail.com</span>
+                            </div>
+                            <span class="set-dest-status set-dest-ok">Connected</span>
+                            <svg class="set-dest-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+                        </div>
+                        <div class="set-dest-body" onclick="event.stopPropagation()">
+                            <div class="set-device-fields">
+                                <div class="set-field">
+                                    <label>Display Name</label>
+                                    <input type="text" class="set-input" value="My Channel" oninput="updateDestName(this)" />
+                                </div>
+                                <div class="set-field">
+                                    <label>Server</label>
+                                    <select class="set-select"><option>Primary Ingest (Auto)</option><option>Backup Ingest</option></select>
+                                </div>
+                                <div class="set-field">
+                                    <label>Stream Key</label>
+                                    <input type="password" class="set-input" value="xxxx-xxxx-xxxx-xxxx-xxxx" />
+                                </div>
+                                <div class="set-field">
+                                    <label>Bitrate (kbps)</label>
+                                    <input type="number" class="set-input" value="6000" />
+                                </div>
+                            </div>
+                            <button class="set-btn-outline set-btn-sm set-dest-remove" style="margin-top:12px; color:#FF8A8A; border-color:rgba(255,68,68,.2)">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                Remove
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- YouTube Live #2 -->
+                    <div class="set-dest-card" onclick="toggleDestCard(this)">
+                        <div class="set-dest-header">
+                            <div class="set-dest-icon set-dest-yt">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19.1c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.43z"/><polygon points="9.75,15.02 15.5,11.75 9.75,8.48"/></svg>
+                            </div>
+                            <div class="set-dest-info">
+                                <span class="set-dest-name">Work Channel</span>
+                                <span class="set-dest-account">YouTube Live &middot; work@company.com</span>
+                            </div>
+                            <span class="set-dest-status set-dest-ok">Connected</span>
+                            <svg class="set-dest-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+                        </div>
+                        <div class="set-dest-body" onclick="event.stopPropagation()">
+                            <div class="set-device-fields">
+                                <div class="set-field">
+                                    <label>Display Name</label>
+                                    <input type="text" class="set-input" value="Work Channel" oninput="updateDestName(this)" />
+                                </div>
+                                <div class="set-field">
+                                    <label>Server</label>
+                                    <select class="set-select"><option>Primary Ingest (Auto)</option><option>Backup Ingest</option></select>
+                                </div>
+                                <div class="set-field">
+                                    <label>Stream Key</label>
+                                    <input type="password" class="set-input" value="yyyy-yyyy-yyyy-yyyy" />
+                                </div>
+                                <div class="set-field">
+                                    <label>Bitrate (kbps)</label>
+                                    <input type="number" class="set-input" value="4500" />
+                                </div>
+                            </div>
+                            <button class="set-btn-outline set-btn-sm set-dest-remove" style="margin-top:12px; color:#FF8A8A; border-color:rgba(255,68,68,.2)">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                Remove
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Twitch -->
+                    <div class="set-dest-card" onclick="toggleDestCard(this)">
+                        <div class="set-dest-header">
+                            <div class="set-dest-icon set-dest-tw">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2H3v16h5v4l4-4h5l4-4V2z"/><path d="M11 11V7"/><path d="M16 11V7"/></svg>
+                            </div>
+                            <div class="set-dest-info">
+                                <span class="set-dest-name">Twitch Gaming</span>
+                                <span class="set-dest-account">Twitch &middot; mystreamer</span>
+                            </div>
+                            <span class="set-dest-status set-dest-ok">Connected</span>
+                            <svg class="set-dest-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+                        </div>
+                        <div class="set-dest-body" onclick="event.stopPropagation()">
+                            <div class="set-device-fields">
+                                <div class="set-field">
+                                    <label>Display Name</label>
+                                    <input type="text" class="set-input" value="Twitch Gaming" oninput="updateDestName(this)" />
+                                </div>
+                                <div class="set-field">
+                                    <label>Server</label>
+                                    <select class="set-select"><option>Auto (Recommended)</option><option>US East: New York</option><option>US West: San Francisco</option><option>EU West: Amsterdam</option><option>EU Central: Frankfurt</option></select>
+                                </div>
+                                <div class="set-field">
+                                    <label>Stream Key</label>
+                                    <input type="password" class="set-input" value="live_xxxxxxxxxxxxxxxxxxxx" />
+                                </div>
+                                <div class="set-field">
+                                    <label>Bitrate (kbps)</label>
+                                    <input type="number" class="set-input" value="6000" />
+                                </div>
+                            </div>
+                            <button class="set-btn-outline set-btn-sm set-dest-remove" style="margin-top:12px; color:#FF8A8A; border-color:rgba(255,68,68,.2)">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                Remove
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Custom RTMP -->
+                    <div class="set-dest-card" onclick="toggleDestCard(this)">
+                        <div class="set-dest-header">
+                            <div class="set-dest-icon set-dest-rtmp">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 16.1A5 5 0 0 1 5.9 20M2 12.05A9 9 0 0 1 9.95 20M2 8V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-6"/><line x1="2" y1="20" x2="2.01" y2="20"/></svg>
+                            </div>
+                            <div class="set-dest-info">
+                                <span class="set-dest-name">Studio Backup</span>
+                                <span class="set-dest-account">Custom RTMP</span>
+                            </div>
+                            <span class="set-dest-status" style="color:var(--t4)">Not configured</span>
+                            <svg class="set-dest-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+                        </div>
+                        <div class="set-dest-body" onclick="event.stopPropagation()">
+                            <div class="set-device-fields">
+                                <div class="set-field">
+                                    <label>Display Name</label>
+                                    <input type="text" class="set-input" value="Studio Backup" oninput="updateDestName(this)" />
+                                </div>
+                                <div class="set-field">
+                                    <label>RTMP URL</label>
+                                    <input type="text" class="set-input" placeholder="rtmp://live.example.com/stream" />
+                                </div>
+                                <div class="set-field">
+                                    <label>Stream Key</label>
+                                    <input type="password" class="set-input" placeholder="Your stream key" />
+                                </div>
+                                <div class="set-field">
+                                    <label>Bitrate (kbps)</label>
+                                    <input type="number" class="set-input" value="4000" />
+                                </div>
+                            </div>
+                            <button class="set-btn-outline set-btn-sm set-dest-remove" style="margin-top:12px; color:#FF8A8A; border-color:rgba(255,68,68,.2)">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                Remove
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Recording -->
+            <section class="set-section set-panel" id="set-recording" style="display:none">
+                <h3 class="set-section-title">Recording</h3>
+                <p class="set-section-desc">Configure how local recordings are saved during GO LIVE sessions.</p>
+
+                <div class="set-device-list">
+
+                    <!-- General card -->
+                    <div class="set-dest-card open" onclick="toggleDestCard(this)">
+                        <div class="set-dest-header">
+                            <div class="set-dest-icon" style="background:rgba(196,160,96,.10); color:var(--gold);">
+                                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                            </div>
+                            <div class="set-dest-info">
+                                <span class="set-dest-name">General</span>
+                                <span class="set-dest-account">Folder · File naming · Auto-record</span>
+                            </div>
+                            <svg class="set-dest-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+                        </div>
+                        <div class="set-dest-body" onclick="event.stopPropagation()">
+                            <div class="set-device-fields">
+                                <div class="set-field set-field-toggle">
+                                    <label>Auto-record when streaming</label>
+                                    <div class="set-toggle on" onclick="toggleDeviceCard(this); markSettingsDirty()"><div class="set-toggle-thumb"></div></div>
+                                </div>
+                                <div class="set-field set-field-toggle">
+                                    <label>Split recording every hour</label>
+                                    <div class="set-toggle" onclick="toggleDeviceCard(this); markSettingsDirty()"><div class="set-toggle-thumb"></div></div>
+                                </div>
+                                <div class="set-field">
+                                    <label>Recording Folder</label>
+                                    <div class="set-path-field">
+                                        <input type="text" class="set-input" value="/Users/you/Documents/Prompter/Recordings" readonly />
+                                        <button class="set-btn-outline set-btn-sm">Browse</button>
+                                    </div>
+                                </div>
+                                <div class="set-field">
+                                    <label>File Naming</label>
+                                    <select class="set-select" onchange="markSettingsDirty()">
+                                        <option>Script Name + Date</option>
+                                        <option>Date + Time</option>
+                                        <option>Custom Prefix</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Video card -->
+                    <div class="set-dest-card" onclick="toggleDestCard(this)">
+                        <div class="set-dest-header">
+                            <div class="set-dest-icon" style="background:rgba(59,130,246,.10); color:#60A5FA;">
+                                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23,7 16,12 23,17"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+                            </div>
+                            <div class="set-dest-info">
+                                <span class="set-dest-name">Video</span>
+                                <span class="set-dest-account">H.264 · 1920×1080 · 30 fps · 8000 kbps</span>
+                            </div>
+                            <svg class="set-dest-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+                        </div>
+                        <div class="set-dest-body" onclick="event.stopPropagation()">
+                            <div class="set-device-fields">
+                                <div class="set-rec-grid">
+                                    <div class="set-field">
+                                        <label>Container</label>
+                                        <select class="set-select" onchange="markSettingsDirty()">
+                                            <option>MP4</option>
+                                            <option>MOV</option>
+                                            <option>MKV</option>
+                                            <option>WebM</option>
+                                        </select>
+                                    </div>
+                                    <div class="set-field">
+                                        <label>Codec</label>
+                                        <select class="set-select" onchange="markSettingsDirty()">
+                                            <option>H.264 (AVC)</option>
+                                            <option>H.265 (HEVC)</option>
+                                            <option>ProRes 422</option>
+                                            <option>ProRes 422 HQ</option>
+                                            <option>VP9</option>
+                                            <option>AV1</option>
+                                        </select>
+                                    </div>
+                                    <div class="set-field">
+                                        <label>Resolution</label>
+                                        <select class="set-select" onchange="markSettingsDirty()">
+                                            <option>Same as source</option>
+                                            <option>3840 × 2160 (4K)</option>
+                                            <option>1920 × 1080 (FHD)</option>
+                                            <option>1280 × 720 (HD)</option>
+                                        </select>
+                                    </div>
+                                    <div class="set-field">
+                                        <label>Frame Rate</label>
+                                        <select class="set-select" onchange="markSettingsDirty()">
+                                            <option>30 fps</option>
+                                            <option>60 fps</option>
+                                            <option>24 fps</option>
+                                            <option>Same as source</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="set-field">
+                                    <label>Bitrate (kbps)</label>
+                                    <input type="number" class="set-input" value="8000" oninput="markSettingsDirty()" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Audio card -->
+                    <div class="set-dest-card" onclick="toggleDestCard(this)">
+                        <div class="set-dest-header">
+                            <div class="set-dest-icon" style="background:rgba(16,185,129,.10); color:#34D399;">
+                                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                            </div>
+                            <div class="set-dest-info">
+                                <span class="set-dest-name">Audio</span>
+                                <span class="set-dest-account">AAC · 48 kHz · 320 kbps · Stereo</span>
+                            </div>
+                            <svg class="set-dest-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+                        </div>
+                        <div class="set-dest-body" onclick="event.stopPropagation()">
+                            <div class="set-device-fields">
+                                <div class="set-rec-grid">
+                                    <div class="set-field">
+                                        <label>Codec</label>
+                                        <select class="set-select" onchange="markSettingsDirty()">
+                                            <option>AAC</option>
+                                            <option>PCM (Uncompressed)</option>
+                                            <option>FLAC</option>
+                                            <option>Opus</option>
+                                            <option>MP3</option>
+                                        </select>
+                                    </div>
+                                    <div class="set-field">
+                                        <label>Sample Rate</label>
+                                        <select class="set-select" onchange="markSettingsDirty()">
+                                            <option>48 kHz</option>
+                                            <option>44.1 kHz</option>
+                                            <option>96 kHz</option>
+                                        </select>
+                                    </div>
+                                    <div class="set-field">
+                                        <label>Bitrate (kbps)</label>
+                                        <input type="number" class="set-input" value="320" oninput="markSettingsDirty()" />
+                                    </div>
+                                    <div class="set-field">
+                                        <label>Channels</label>
+                                        <select class="set-select" onchange="markSettingsDirty()">
+                                            <option>Stereo</option>
+                                            <option>Mono</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- AI Provider -->
+            <section class="set-section set-panel" id="set-ai" style="display:none">
+                <h3 class="set-section-title">AI Provider</h3>
+                <p class="set-section-desc">Connect an AI provider to enable rewriting, expanding, and formatting scripts with AI.</p>
+
+                <div class="set-device-list">
+
+                    <!-- Claude API card -->
+                    <div class="set-dest-card open" onclick="toggleDestCard(this)">
+                        <div class="set-dest-header">
+                            <div class="set-dest-icon" style="background:rgba(196,160,96,.12); color:#E8D5B0;">
+                                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L9 9 2 12l7 3 3 7 3-7 7-3-7-3z"/></svg>
+                            </div>
+                            <div class="set-dest-info">
+                                <span class="set-dest-name">Claude API</span>
+                                <span class="set-dest-account">Anthropic · claude-sonnet-4-6</span>
+                            </div>
+                            <span class="set-dest-status set-dest-ok">Active</span>
+                            <svg class="set-dest-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+                        </div>
+                        <div class="set-dest-body" onclick="event.stopPropagation()">
+                            <div class="set-device-fields">
+                                <div class="set-field">
+                                    <label>API Key</label>
+                                    <input type="password" class="set-input" placeholder="sk-ant-..." value="sk-ant-xxxxxxxxxxxx" oninput="markSettingsDirty()" />
+                                </div>
+                                <div class="set-field">
+                                    <label>Model</label>
+                                    <select class="set-select" onchange="markSettingsDirty()">
+                                        <option>claude-sonnet-4-6</option>
+                                        <option>claude-opus-4-6</option>
+                                        <option>claude-haiku-4-5</option>
+                                    </select>
+                                </div>
+                                <div class="set-field">
+                                    <label>Base URL (optional)</label>
+                                    <input type="text" class="set-input" placeholder="https://api.anthropic.com" oninput="markSettingsDirty()" />
+                                </div>
+                            </div>
+                            <div class="set-ai-test-row">
+                                <button class="set-btn-golden set-btn-sm">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg>
+                                    Test Connection
+                                </button>
+                                <span class="set-ai-status-ok">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20,6 9,17 4,12"/></svg>
+                                    Connected
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- OpenAI card -->
+                    <div class="set-dest-card" onclick="toggleDestCard(this)">
+                        <div class="set-dest-header">
+                            <div class="set-dest-icon" style="background:rgba(16,163,127,.12); color:#34D399;">
+                                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+                            </div>
+                            <div class="set-dest-info">
+                                <span class="set-dest-name">OpenAI</span>
+                                <span class="set-dest-account">GPT-4o, o1, o3</span>
+                            </div>
+                            <span class="set-dest-status" style="color:var(--t4)">Not configured</span>
+                            <svg class="set-dest-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+                        </div>
+                        <div class="set-dest-body" onclick="event.stopPropagation()">
+                            <div class="set-device-fields">
+                                <div class="set-field">
+                                    <label>API Key</label>
+                                    <input type="password" class="set-input" placeholder="sk-..." oninput="markSettingsDirty()" />
+                                </div>
+                                <div class="set-field">
+                                    <label>Model</label>
+                                    <select class="set-select" onchange="markSettingsDirty()">
+                                        <option>gpt-4o</option>
+                                        <option>gpt-4o-mini</option>
+                                        <option>o1</option>
+                                        <option>o3-mini</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button class="set-btn-outline set-btn-sm" style="margin-top:12px">Test Connection</button>
+                        </div>
+                    </div>
+
+                    <!-- Local / Ollama card -->
+                    <div class="set-dest-card" onclick="toggleDestCard(this)">
+                        <div class="set-dest-header">
+                            <div class="set-dest-icon" style="background:rgba(99,102,241,.12); color:#818CF8;">
+                                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                            </div>
+                            <div class="set-dest-info">
+                                <span class="set-dest-name">Local / Ollama</span>
+                                <span class="set-dest-account">Self-hosted · localhost:11434</span>
+                            </div>
+                            <span class="set-dest-status" style="color:var(--t4)">Not configured</span>
+                            <svg class="set-dest-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+                        </div>
+                        <div class="set-dest-body" onclick="event.stopPropagation()">
+                            <div class="set-device-fields">
+                                <div class="set-field">
+                                    <label>Ollama URL</label>
+                                    <input type="text" class="set-input" placeholder="http://localhost:11434" oninput="markSettingsDirty()" />
+                                </div>
+                                <div class="set-field">
+                                    <label>Model</label>
+                                    <input type="text" class="set-input" placeholder="llama3, mistral, gemma..." oninput="markSettingsDirty()" />
+                                </div>
+                            </div>
+                            <button class="set-btn-outline set-btn-sm" style="margin-top:12px">Test Connection</button>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Appearance -->
+            <section class="set-section set-panel" id="set-appearance" style="display:none">
+                <h3 class="set-section-title">Appearance</h3>
+                <p class="set-section-desc">Customize the look and feel of the app and the teleprompter reader.</p>
+
+                <div class="set-device-list">
+
+                    <!-- Theme card -->
+                    <div class="set-dest-card open" onclick="toggleDestCard(this)">
+                        <div class="set-dest-header">
+                            <div class="set-dest-icon" style="background:rgba(196,160,96,.10); color:var(--gold);">
+                                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                            </div>
+                            <div class="set-dest-info">
+                                <span class="set-dest-name">Theme</span>
+                                <span class="set-dest-account">Dark · Gold accent</span>
+                            </div>
+                            <svg class="set-dest-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+                        </div>
+                        <div class="set-dest-body" onclick="event.stopPropagation()">
+                            <div class="set-device-fields">
+                                <div class="set-field">
+                                    <label>Color Scheme</label>
+                                    <div class="set-theme-options">
+                                        <label class="set-theme-opt active" onclick="setTheme('dark')">
+                                            <input type="radio" name="theme" checked />
+                                            <div class="set-theme-swatch" style="background:linear-gradient(135deg,#0a0e14,#141c28)">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:rgba(196,160,96,.7)"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                                            </div>
+                                            <span>Dark</span>
+                                        </label>
+                                        <label class="set-theme-opt" onclick="setTheme('light')">
+                                            <input type="radio" name="theme" />
+                                            <div class="set-theme-swatch" style="background:linear-gradient(135deg,#f0ebe4,#e0d8cc)">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8B7355" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/></svg>
+                                            </div>
+                                            <span>Light</span>
+                                        </label>
+                                        <label class="set-theme-opt" onclick="setTheme('system')">
+                                            <input type="radio" name="theme" />
+                                            <div class="set-theme-swatch" style="background:linear-gradient(135deg,#0a0e14 50%,#f0ebe4 50%)">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:rgba(196,160,96,.9)"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                                            </div>
+                                            <span>System</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="set-field">
+                                    <label>Accent Color</label>
+                                    <div class="set-accent-options">
+                                        <button class="set-accent-swatch active" style="background:#C4A060" title="Gold (default)" onclick="setAccent('#C4A060')"></button>
+                                        <button class="set-accent-swatch" style="background:#60A5FA" title="Blue" onclick="setAccent('#60A5FA')"></button>
+                                        <button class="set-accent-swatch" style="background:#34D399" title="Emerald" onclick="setAccent('#34D399')"></button>
+                                        <button class="set-accent-swatch" style="background:#F472B6" title="Pink" onclick="setAccent('#F472B6')"></button>
+                                        <button class="set-accent-swatch" style="background:#A78BFA" title="Purple" onclick="setAccent('#A78BFA')"></button>
+                                        <button class="set-accent-swatch" style="background:#FB923C" title="Orange" onclick="setAccent('#FB923C')"></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Teleprompter Display card -->
+                    <div class="set-dest-card" onclick="toggleDestCard(this)">
+                        <div class="set-dest-header">
+                            <div class="set-dest-icon" style="background:rgba(59,130,246,.10); color:#60A5FA;">
+                                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h12M4 18h14"/></svg>
+                            </div>
+                            <div class="set-dest-info">
+                                <span class="set-dest-name">Teleprompter Display</span>
+                                <span class="set-dest-account">Font · Size · Mirror · Background</span>
+                            </div>
+                            <svg class="set-dest-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+                        </div>
+                        <div class="set-dest-body" onclick="event.stopPropagation()">
+                            <div class="set-device-fields">
+                                <div class="set-field">
+                                    <label>Font</label>
+                                    <select class="set-select" onchange="markSettingsDirty()">
+                                        <option>Inter (Default)</option>
+                                        <option>Playfair Display</option>
+                                        <option>JetBrains Mono</option>
+                                        <option>Georgia</option>
+                                        <option>System Serif</option>
+                                    </select>
+                                </div>
+                                <div class="set-field">
+                                    <label>Default Font Size</label>
+                                    <div class="set-size-row">
+                                        <span class="set-size-label">A</span>
+                                        <input type="range" class="set-range" min="24" max="96" value="48" oninput="markSettingsDirty()" />
+                                        <span class="set-size-label" style="font-size:18px">A</span>
+                                    </div>
+                                </div>
+                                <div class="set-field">
+                                    <label>Text Color</label>
+                                    <div class="set-accent-options">
+                                        <button class="set-accent-swatch active" style="background:#FFFFFF" title="White"></button>
+                                        <button class="set-accent-swatch" style="background:#F5E6D0" title="Warm White"></button>
+                                        <button class="set-accent-swatch" style="background:#FDE68A" title="Amber"></button>
+                                        <button class="set-accent-swatch" style="background:#6EE7B7" title="Mint"></button>
+                                    </div>
+                                </div>
+                                <div class="set-field set-field-toggle">
+                                    <label>Mirror Text (Horizontal Flip)</label>
+                                    <div class="set-toggle" onclick="toggleDeviceCard(this); markSettingsDirty()"><div class="set-toggle-thumb"></div></div>
+                                </div>
+                                <div class="set-field set-field-toggle">
+                                    <label>Show Word Highlight</label>
+                                    <div class="set-toggle on" onclick="toggleDeviceCard(this); markSettingsDirty()"><div class="set-toggle-thumb"></div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Interface card -->
+                    <div class="set-dest-card" onclick="toggleDestCard(this)">
+                        <div class="set-dest-header">
+                            <div class="set-dest-icon" style="background:rgba(139,92,246,.10); color:#A78BFA;">
+                                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                            </div>
+                            <div class="set-dest-info">
+                                <span class="set-dest-name">Interface</span>
+                                <span class="set-dest-account">Density · Animations · Sidebar</span>
+                            </div>
+                            <svg class="set-dest-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+                        </div>
+                        <div class="set-dest-body" onclick="event.stopPropagation()">
+                            <div class="set-device-fields">
+                                <div class="set-field">
+                                    <label>UI Density</label>
+                                    <div class="set-theme-options">
+                                        <label class="set-theme-opt">
+                                            <input type="radio" name="density" />
+                                            <div class="set-theme-swatch" style="background:rgba(196,160,96,.08); display:flex; align-items:center; justify-content:center;">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--t3)"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+                                            </div>
+                                            <span>Compact</span>
+                                        </label>
+                                        <label class="set-theme-opt active">
+                                            <input type="radio" name="density" checked />
+                                            <div class="set-theme-swatch" style="background:rgba(196,160,96,.08); display:flex; align-items:center; justify-content:center;">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--gold)"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="14" x2="20" y2="14"/></svg>
+                                            </div>
+                                            <span>Default</span>
+                                        </label>
+                                        <label class="set-theme-opt">
+                                            <input type="radio" name="density" />
+                                            <div class="set-theme-swatch" style="background:rgba(196,160,96,.08); display:flex; align-items:center; justify-content:center;">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--t3)"><line x1="4" y1="8" x2="20" y2="8"/><line x1="4" y1="16" x2="20" y2="16"/></svg>
+                                            </div>
+                                            <span>Spacious</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="set-field set-field-toggle">
+                                    <label>Reduce Motion</label>
+                                    <div class="set-toggle" onclick="toggleDeviceCard(this); markSettingsDirty()"><div class="set-toggle-thumb"></div></div>
+                                </div>
+                                <div class="set-field set-field-toggle">
+                                    <label>Show keyboard shortcuts overlay</label>
+                                    <div class="set-toggle on" onclick="toggleDeviceCard(this); markSettingsDirty()"><div class="set-toggle-thumb"></div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- About -->
+            <section class="set-section set-panel" id="set-about" style="display:none">
+                <h3 class="set-section-title">About</h3>
+                <p class="set-section-desc">Prompter.live — professional teleprompter for creators, broadcasters, and public speakers.</p>
+
+                <div class="set-device-list">
+
+                    <!-- App Info -->
+                    <div class="set-dest-card open" onclick="toggleDestCard(this)">
+                        <div class="set-dest-header">
+                            <div class="set-dest-icon" style="background:rgba(196,160,96,.10); color:var(--gold);">
+                                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h12M4 18h14"/></svg>
+                            </div>
+                            <div class="set-dest-info">
+                                <span class="set-dest-name">Prompter.live</span>
+                                <span class="set-dest-account">Version 1.0.0 (Build 42) · March 2026</span>
+                            </div>
+                            <span class="set-dest-status set-dest-ok">Licensed</span>
+                            <svg class="set-dest-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+                        </div>
+                        <div class="set-dest-body" onclick="event.stopPropagation()">
+                            <div class="set-device-fields">
+                                <div class="set-field set-field-toggle">
+                                    <label>Software Updates</label>
+                                    <span class="set-dest-status set-dest-ok" style="font-size:12px;">Up to date</span>
+                                </div>
+                                <div class="set-field set-field-toggle">
+                                    <label>Check for updates automatically</label>
+                                    <div class="set-toggle on"><div class="set-toggle-thumb"></div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Team -->
+                    <div class="set-dest-card open" onclick="toggleDestCard(this)">
+                        <div class="set-dest-header">
+                            <div class="set-dest-icon" style="background:rgba(196,160,96,.10); color:var(--gold);">
+                                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>
+                            </div>
+                            <div class="set-dest-info">
+                                <span class="set-dest-name">Our Team</span>
+                                <span class="set-dest-account">Built with care from Kyiv 🇺🇦</span>
+                            </div>
+                            <svg class="set-dest-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+                        </div>
+                        <div class="set-dest-body" onclick="event.stopPropagation()">
+                            <div class="set-device-fields">
+                                <div class="set-field" style="flex-direction:row;align-items:center;gap:12px;padding:4px 0;">
+                                    <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#C4A060,#8B6A3A);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:white;flex-shrink:0;">M</div>
+                                    <div>
+                                        <div style="font-size:13px;font-weight:600;color:var(--t1);">Mykola Kovalenko</div>
+                                        <div style="font-size:11px;color:var(--t4);margin-top:1px;">Founder · Product &amp; Design</div>
+                                    </div>
+                                </div>
+                                <div class="set-field" style="flex-direction:row;align-items:center;gap:12px;padding:4px 0;">
+                                    <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#60A5FA,#2563EB);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:white;flex-shrink:0;">A</div>
+                                    <div>
+                                        <div style="font-size:13px;font-weight:600;color:var(--t1);">Anna Petrenko</div>
+                                        <div style="font-size:11px;color:var(--t4);margin-top:1px;">Lead Engineer</div>
+                                    </div>
+                                </div>
+                                <div class="set-field" style="flex-direction:row;align-items:center;gap:12px;padding:4px 0;">
+                                    <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#34D399,#059669);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:white;flex-shrink:0;">D</div>
+                                    <div>
+                                        <div style="font-size:13px;font-weight:600;color:var(--t1);">Dmytro Shevchenko</div>
+                                        <div style="font-size:11px;color:var(--t4);margin-top:1px;">Backend &amp; Infrastructure</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Open Source -->
+                    <div class="set-dest-card" onclick="toggleDestCard(this)">
+                        <div class="set-dest-header">
+                            <div class="set-dest-icon" style="background:rgba(99,102,241,.10); color:#818CF8;">
+                                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16,18 22,12 16,6"/><polyline points="8,6 2,12 8,18"/></svg>
+                            </div>
+                            <div class="set-dest-info">
+                                <span class="set-dest-name">Open Source</span>
+                                <span class="set-dest-account">Libraries &amp; licenses</span>
+                            </div>
+                            <svg class="set-dest-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+                        </div>
+                        <div class="set-dest-body" onclick="event.stopPropagation()">
+                            <div class="set-device-fields">
+                                <div class="set-field set-field-toggle">
+                                    <label>Inter <span style="font-weight:400;color:var(--t4);font-size:11px;">· UI typeface · Rasmus Andersson</span></label>
+                                    <span style="font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:rgba(196,160,96,.8);background:rgba(196,160,96,.08);border:1px solid rgba(196,160,96,.15);padding:2px 6px;border-radius:4px;">OFL</span>
+                                </div>
+                                <div class="set-field set-field-toggle">
+                                    <label>JetBrains Mono <span style="font-weight:400;color:var(--t4);font-size:11px;">· Monospace · JetBrains</span></label>
+                                    <span style="font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:rgba(196,160,96,.8);background:rgba(196,160,96,.08);border:1px solid rgba(196,160,96,.15);padding:2px 6px;border-radius:4px;">OFL</span>
+                                </div>
+                                <div class="set-field set-field-toggle">
+                                    <label>Playfair Display <span style="font-weight:400;color:var(--t4);font-size:11px;">· Display serif · Claus Eggers Sorensen</span></label>
+                                    <span style="font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:rgba(196,160,96,.8);background:rgba(196,160,96,.08);border:1px solid rgba(196,160,96,.15);padding:2px 6px;border-radius:4px;">OFL</span>
+                                </div>
+                                <div class="set-field set-field-toggle">
+                                    <label>Feather Icons <span style="font-weight:400;color:var(--t4);font-size:11px;">· Open source icon set</span></label>
+                                    <span style="font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:rgba(110,231,183,.8);background:rgba(110,231,183,.08);border:1px solid rgba(110,231,183,.15);padding:2px 6px;border-radius:4px;">MIT</span>
+                                </div>
+                                <div class="set-field set-field-toggle">
+                                    <label>WebRTC <span style="font-weight:400;color:var(--t4);font-size:11px;">· Real-time communication APIs</span></label>
+                                    <span style="font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:rgba(96,165,250,.8);background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.15);padding:2px 6px;border-radius:4px;">BSD</span>
+                                </div>
+                                <div class="set-field set-field-toggle">
+                                    <label>MediaRecorder API <span style="font-weight:400;color:var(--t4);font-size:11px;">· Browser media recording</span></label>
+                                    <span style="font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:rgba(129,140,248,.8);background:rgba(129,140,248,.08);border:1px solid rgba(129,140,248,.15);padding:2px 6px;border-radius:4px;">W3C</span>
+                                </div>
+                                <div class="set-field set-field-toggle">
+                                    <label>Web Audio API <span style="font-weight:400;color:var(--t4);font-size:11px;">· High-level audio processing</span></label>
+                                    <span style="font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:rgba(129,140,248,.8);background:rgba(129,140,248,.08);border:1px solid rgba(129,140,248,.15);padding:2px 6px;border-radius:4px;">W3C</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Links -->
+                    <div class="set-dest-card" onclick="toggleDestCard(this)">
+                        <div class="set-dest-header">
+                            <div class="set-dest-icon" style="background:rgba(59,130,246,.10); color:#60A5FA;">
+                                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                            </div>
+                            <div class="set-dest-info">
+                                <span class="set-dest-name">Help &amp; Resources</span>
+                                <span class="set-dest-account">Docs, changelog, feedback</span>
+                            </div>
+                            <svg class="set-dest-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+                        </div>
+                        <div class="set-dest-body" onclick="event.stopPropagation()">
+                            <div class="set-device-fields">
+                                <div class="set-field set-field-toggle" style="cursor:pointer;" onclick="event.preventDefault()">
+                                    <label style="cursor:pointer;">What's New</label>
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--t4)" stroke-width="2"><polyline points="9,18 15,12 9,6"/></svg>
+                                </div>
+                                <div class="set-field set-field-toggle" style="cursor:pointer;" onclick="event.preventDefault()">
+                                    <label style="cursor:pointer;">Help &amp; Documentation</label>
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--t4)" stroke-width="2"><polyline points="9,18 15,12 9,6"/></svg>
+                                </div>
+                                <div class="set-field set-field-toggle" style="cursor:pointer;" onclick="event.preventDefault()">
+                                    <label style="cursor:pointer;">Report a Bug</label>
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--t4)" stroke-width="2"><polyline points="9,18 15,12 9,6"/></svg>
+                                </div>
+                                <div class="set-field set-field-toggle" style="cursor:pointer;" onclick="event.preventDefault()">
+                                    <label style="cursor:pointer;">Privacy Policy</label>
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--t4)" stroke-width="2"><polyline points="9,18 15,12 9,6"/></svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div style="text-align:center;font-size:12px;color:var(--t4);padding:16px 0 8px;">
+                    Made with care in Ukraine 🇺🇦 · © 2026 Prompter.live
+                </div>
+
+    </div><!-- /screen -->
+
+    <script src="app.js"></script>
+</body>
+</html>

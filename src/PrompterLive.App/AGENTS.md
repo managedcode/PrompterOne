@@ -33,4 +33,5 @@
 - Keep static asset references aligned with `PrompterLive.Shared`.
 - Keep the launch-settings origin stable. Do not teach the repo to run on random ports because browser media permissions are bound to origin.
 - If the launch-settings port is already occupied, stop the stale dev-server process. Do not move the standalone app host to a new port as a workaround.
+- Keep browser WASM debugging opt-in. Default launch profiles must not inject `inspectUri`; add explicit debug-only profiles instead.
 - If a macOS embedded host returns later, it must use a persistent `WKWebViewConfiguration`, a stable trusted origin, and a `WKUIDelegate` that handles media-capture permission requests.

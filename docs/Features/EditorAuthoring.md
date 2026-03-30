@@ -66,12 +66,13 @@ sequenceDiagram
 - source edits refresh metadata, tree labels, preview overlay, and status
 - metadata edits rewrite the persisted TPS document without surfacing YAML in the editor body
 - typing stays local-first while autosave persists on a short debounce instead of every keystroke
-- active typing temporarily shows the native textarea text layer while the highlight overlay catches up after a short idle window, keeping keystrokes off the full highlight rebuild path
 - the styled TPS overlay remains visible while the real textarea owns caret and selection, so editing stays inline instead of switching to a plain-text mode
+- highlight overlay refresh is coalesced to the next animation frame, so typing stays immediate without dropping the editor into a plain-text fallback state
 - the highlight overlay subtree is JS-owned while Blazor keeps workflow state, preventing per-keystroke DOM diff churn and keeping browser typing responsive
 - plain `input` events no longer force a page-wide Blazor render; sidebar, metadata rail, and status refresh only after draft analysis or explicit selection/navigation interactions
 - selection interop stays off the keystroke path and runs only for caret/selection workflows that actually need toolbar anchoring or focus moves
 - the source highlight and textarea share the same wrapping metrics, preventing caret/text drift on multiline editing
+- segment and block header lines keep their styled header treatment even while the user is in a temporarily dirty edit state such as trailing text after `]` or an incomplete closing bracket
 - the authoring surface exposes a single vertical scroll container so the editor body does not fight a nested shell scrollbar
 - the floating selection toolbar emotion affordance opens a real TPS emotion picker instead of applying a single hardcoded wrap
 - the top toolbar shows direct TPS structure insert actions for `##` segments and `###` blocks, with the same actions still available from the insert dropdown
@@ -83,6 +84,7 @@ sequenceDiagram
 - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.Core.Tests/PrompterLive.Core.Tests.csproj`
 - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.Tests/PrompterLive.App.Tests.csproj`
 - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj`
+- `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj --no-build --filter "FullyQualifiedName~EditorTypingTests"`
 - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj --filter "FullyQualifiedName~EditorTypingTests|FullyQualifiedName~EditorSourceSyncTests|FullyQualifiedName~EditorInteractionTests"`
 - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.Tests/PrompterLive.App.Tests.csproj --filter "FullyQualifiedName~Editor"`
 - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj --no-build --filter "FullyQualifiedName~Editor"`

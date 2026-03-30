@@ -1,0 +1,864 @@
+/* ============================================
+   TELEPROMPTER — styles-teleprompter.css
+   Styles for teleprompter.html
+   ============================================ */
+
+/* ============================================
+   READER (RSVP Teleprompter)
+   ============================================ */
+
+.rd {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #080E12;
+}
+
+/* Emotion gradient — rich 4-stop vertical gradient, smooth transitions between emotions */
+.rd-gradient {
+    position: absolute;
+    inset: 0;
+    opacity: 1;
+    z-index: 0;
+    transition: background 3s ease;
+    background: linear-gradient(180deg, #0D2818 0%, #1A4D33 30%, #0F3025 70%, #0A1C15 100%);
+}
+/* Warm — golden amber */
+.rd-gradient.warm { background: linear-gradient(180deg, #1C1408 0%, #2E2210 30%, #1C1408 70%, #100E06 100%); }
+/* Concerned — deep red */
+.rd-gradient.concerned { background: linear-gradient(180deg, #1C0E0E 0%, #2E1616 30%, #1C0E0E 70%, #120808 100%); }
+/* Focused — emerald green */
+.rd-gradient.focused { background: linear-gradient(180deg, #0D2818 0%, #1A4D33 30%, #0F3025 70%, #0A1C15 100%); }
+/* Motivational — deep purple */
+.rd-gradient.motivational { background: linear-gradient(180deg, #150D1C 0%, #251640 30%, #1A0F2E 70%, #0E0818 100%); }
+/* Neutral — slate blue */
+.rd-gradient.neutral { background: linear-gradient(180deg, #0C0E18 0%, #141828 30%, #0E1020 70%, #080A14 100%); }
+/* Urgent — vivid red */
+.rd-gradient.urgent { background: linear-gradient(180deg, #1C0808 0%, #3E1010 30%, #2A0C0C 70%, #140606 100%); }
+/* Happy — warm yellow */
+.rd-gradient.happy { background: linear-gradient(180deg, #1C1808 0%, #2E2A10 30%, #1C1808 70%, #100E06 100%); }
+/* Excited — hot pink */
+.rd-gradient.excited { background: linear-gradient(180deg, #1C0C14 0%, #2E1224 30%, #1C0C14 70%, #12060C 100%); }
+/* Sad — deep indigo */
+.rd-gradient.sad { background: linear-gradient(180deg, #0C0C1C 0%, #121230 30%, #0C0C1C 70%, #060610 100%); }
+/* Calm — teal */
+.rd-gradient.calm { background: linear-gradient(180deg, #081C1C 0%, #0E2E2E 30%, #081C1C 70%, #041010 100%); }
+/* Energetic — orange-red */
+.rd-gradient.energetic { background: linear-gradient(180deg, #1C1008 0%, #2E1A0E 30%, #1C1008 70%, #100A04 100%); }
+/* Professional — navy */
+.rd-gradient.professional { background: linear-gradient(180deg, #08101C 0%, #0E1A2E 30%, #08101C 70%, #040A10 100%); }
+
+/* Camera */
+.rd-camera {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.rd-camera-off { color: var(--t4); }
+.rd-camera.active .rd-camera-off { display: none; }
+.rd-camera.active {
+    background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+}
+
+.rd-camera-tint {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background: rgba(5,5,8,.7);
+    pointer-events: none;
+    display: none;
+}
+.rd-camera-tint.active { display: block; }
+
+/* UI layer */
+.rd-ui {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header removed — immersive reading mode */
+
+.rd-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: var(--gold-06);
+    color: rgba(232,213,176,.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+}
+.rd-btn:hover { background: var(--gold-10); color: #E8D5B0; }
+.rd-btn.active { background: var(--accent-g); color: var(--accent); }
+
+/* Floating back button — immersive */
+.rd-back {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 10;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: transparent;
+    color: rgba(232,213,176,.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(232,213,176,.06);
+    cursor: pointer;
+    transition: all .3s;
+}
+.rd-back:hover {
+    color: rgba(232,213,176,.5);
+    background: var(--gold-06);
+    border-color: var(--gold-10);
+}
+
+/* Stage — active cluster always centered vertically */
+.rd-stage {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    /* Spotlight mask: fade text above reading zone and below */
+    -webkit-mask-image: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(0,0,0,.3) 8%,
+        black 22%,
+        black 75%,
+        rgba(0,0,0,.4) 90%,
+        transparent 100%
+    );
+    mask-image: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(0,0,0,.3) 8%,
+        black 22%,
+        black 75%,
+        rgba(0,0,0,.4) 90%,
+        transparent 100%
+    );
+}
+
+/* Cluster container — active cluster pinned to vertical center */
+.rd-cluster-wrap {
+    position: relative;
+    padding: 0 4%;
+    max-width: 750px;
+    margin: 0 auto;
+    width: 100%;
+    height: 100%;
+    --rd-font-size: 36px;
+}
+
+/* Clusters */
+.rd-cluster {
+    width: 100%;
+    text-align: left;
+}
+
+.rd-cluster p {
+    line-height: 1.6;
+    letter-spacing: -.2px;
+}
+.rd-cluster b { font-weight: 700; }
+
+/* ── TPS Inline Colors (per TPS_FORMAT.md dark-BG spec) ── */
+.tps-red { color: #FF6B6B; }
+.tps-green { color: #51CF66; }
+.tps-blue { color: #74C0FC; }
+.tps-yellow { color: #FFE066; }
+.tps-orange { color: #FFA94D; }
+.tps-purple { color: #CC5DE8; }
+.tps-cyan { color: #66D9E8; }
+.tps-magenta { color: #F783AC; }
+.tps-pink { color: #FAA2C1; }
+.tps-teal { color: #38D9A9; }
+.tps-white { color: #F8F9FA; }
+.tps-gray { color: #ADB5BD; }
+
+/* ── TPS Highlight — yellow background overlay ── */
+.tps-highlight {
+    background: rgba(255,224,102,.12);
+    border-radius: 4px;
+    padding: 1px 4px;
+    margin: 0 -2px;
+}
+
+/* ── TPS Emphasis ── */
+.tps-em { font-style: italic; }
+.tps-strong { font-weight: 900; }
+.tps-emphasis { text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 4px; text-decoration-thickness: 2px; }
+
+/* ── TPS Emotion Inline Colors ── */
+.tps-warm { color: #FFA94D; }
+.tps-concerned { color: #FF6B6B; }
+.tps-focused { color: #51CF66; }
+.tps-motivational { color: #CC5DE8; }
+.tps-neutral { color: #74C0FC; }
+.tps-urgent { color: #FF4444; font-weight: 900; }
+.tps-happy { color: #FFE066; }
+.tps-excited { color: #FAA2C1; }
+.tps-sad { color: #7B68EE; }
+.tps-calm { color: #38D9A9; }
+.tps-energetic { color: #FF6347; }
+.tps-professional { color: #5B7FFF; }
+
+/* ── TPS Speed Indicators (visual cue for speed tags) ── */
+.tps-xslow { letter-spacing: 1.5px; }
+.tps-slow { letter-spacing: 0.5px; }
+.tps-fast { letter-spacing: -0.3px; }
+.tps-xfast { letter-spacing: -0.5px; opacity: .7; }
+
+/* ── TPS Pronunciation guide (subtle tooltip-like) ── */
+.tps-phonetic {
+    border-bottom: 1px dotted rgba(232,213,176,.25);
+    cursor: help;
+}
+
+/* ── Card-based layout: cards slide up one by one ── */
+.rd-card {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform .8s cubic-bezier(.4,0,.2,1), opacity .8s ease;
+    will-change: transform, opacity;
+    overflow: visible;
+}
+.rd-card-active {
+    transform: translateY(0);
+    opacity: 1;
+    z-index: 2;
+}
+.rd-card-prev {
+    transform: translateY(-110%);
+    opacity: 0;
+    z-index: 1;
+    pointer-events: none;
+}
+.rd-card-next {
+    transform: translateY(110%);
+    opacity: 0;
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* Previous cluster (legacy, keep for non-card views) */
+.rd-cluster-prev {
+    opacity: .06;
+}
+.rd-cluster-prev p {
+    font-size: 22px;
+    color: var(--t3);
+}
+
+/* Active cluster — no visible border, text floats over gradient */
+.rd-cluster-active {
+    padding: 36px 48px;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    position: relative;
+    box-shadow: none;
+}
+
+.rd-cluster-emotion {
+    position: fixed;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 10;
+    opacity: .35;
+    transition: opacity .3s;
+}
+.rd-cluster-emotion:hover { opacity: .7; }
+.rd-emo-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+}
+.rd-emo-name {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--t4);
+}
+
+.rd-cluster-text {
+    font-size: var(--rd-font-size, 36px);
+    font-weight: 700;
+    line-height: 1.9;
+    color: rgba(232,213,176,.45);
+    letter-spacing: 0.01em;
+    word-spacing: 0.08em;
+    overflow-wrap: break-word;
+    hyphens: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Smooth line centering */
+    transition: transform 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
+    will-change: transform;
+}
+
+/* ── Semantic phrase groups ── */
+.rd-phrase {
+    display: inline;
+}
+
+/* ── Semantic word groups — prevent mid-phrase line breaks ──
+   Research: eyes read in 2-5 word "thought groups"; breaking mid-phrase
+   causes stumbling. white-space:nowrap keeps each group atomic so the
+   browser wraps BETWEEN groups (at pause points), never inside them.
+   If a single group exceeds container width, overflow-wrap on the parent
+   (.rd-cluster-text) allows it to break as a last resort. */
+.rd-g {
+    display: inline;
+    white-space: nowrap;
+}
+
+/* ── Pause markers — visual breathing points between phrases ──
+   Research: pauses at clause boundaries = breath groups. Short pauses
+   (/) stay inline with a subtle dot; sentence-ending pauses (//) force
+   a line break so the next thought starts on a fresh line — this gives
+   the eye a clear "restart" and matches natural speaking rhythm.  */
+/* Short pause — zero-width inline marker. The natural HTML whitespace
+   between elements provides word separation. The dot is purely decorative
+   and positioned absolutely so it cannot create leading indentation
+   when the pause wraps to the start of a new line. */
+.rd-pause {
+    display: inline;
+    width: 0;
+    height: 0;
+    position: relative;
+    user-select: none;
+    font-size: 0;
+    line-height: 0;
+}
+.rd-pause::after {
+    content: '';
+    position: absolute;
+    top: -0.3em;
+    left: 0;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: rgba(232,213,176,.08);
+}
+/* Medium pause — sentence boundary (//)
+   Forces a line break: next phrase starts on a fresh line.
+   Uses flex-basis:100% trick inside a flex-wrap parent to guarantee
+   the break regardless of remaining space on the current line. */
+span.rd-pause.rd-pause-med {
+    display: block;
+    width: 100%;
+    height: 12px;
+    font-size: inherit;
+    position: relative;
+}
+.rd-pause-med::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: rgba(232,213,176,.04);
+    transform: translateY(-50%);
+}
+/* Long explicit pauses [pause:2s] — even more prominent break */
+span.rd-pause.rd-pause-long {
+    display: block;
+    width: 100%;
+    height: 20px;
+    font-size: inherit;
+    position: relative;
+}
+.rd-pause-long::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: rgba(232,213,176,.06);
+    transform: translateY(-50%);
+}
+/* Prev/next cluster pauses — subtler */
+.rd-cluster-prev .rd-pause::after,
+.rd-cluster-next .rd-pause::after {
+    background: rgba(232,213,176,.06);
+}
+
+/* ── Speed-tagged text ── */
+.rd-xslow {
+    letter-spacing: 0.5px;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-decoration-color: rgba(232,213,176,.12);
+    text-underline-offset: 5px;
+    text-decoration-thickness: 1px;
+}
+
+
+/* ── WPM badge in emotion header ── */
+.rd-emo-wpm {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--t5);
+    margin-left: auto;
+    letter-spacing: 0.5px;
+    opacity: .5;
+}
+.rd-emo-wpm small {
+    font-size: 8px;
+    font-weight: 400;
+    letter-spacing: 1px;
+}
+
+/* ── Phrase-group highlighting ──
+   Research: single-word highlighting suppresses parafoveal preview and
+   hurts comprehension. Elevating the entire thought-group lets the eye
+   preview upcoming words within the phrase while the speaker reads.
+   4-level hierarchy: read (15%) → upcoming (40%) → active group (75%) → current word (100%) */
+.rd-g-active > .rd-w:not(.rd-now):not(.rd-read) {
+    color: rgba(232,213,176,.75);
+    transition: color .12s ease;
+}
+/* Preserve TPS colors inside active group */
+.rd-g-active > .rd-w.tps-red:not(.rd-now):not(.rd-read) { color: rgba(255,107,107,.75); }
+.rd-g-active > .rd-w.tps-green:not(.rd-now):not(.rd-read) { color: rgba(81,207,102,.75); }
+.rd-g-active > .rd-w.tps-blue:not(.rd-now):not(.rd-read) { color: rgba(116,192,252,.75); }
+.rd-g-active > .rd-w.tps-yellow:not(.rd-now):not(.rd-read) { color: rgba(255,224,102,.75); }
+.rd-g-active > .rd-w.tps-orange:not(.rd-now):not(.rd-read) { color: rgba(255,169,77,.75); }
+.rd-g-active > .rd-w.tps-purple:not(.rd-now):not(.rd-read) { color: rgba(204,93,232,.75); }
+.rd-g-active > .rd-w.tps-cyan:not(.rd-now):not(.rd-read) { color: rgba(102,217,232,.75); }
+.rd-g-active > .rd-w.tps-emphasis:not(.rd-now):not(.rd-read) { color: rgba(232,213,176,.80); }
+.rd-g-active > .rd-w.tps-highlight:not(.rd-now):not(.rd-read) { background: rgba(255,224,102,.18); }
+
+/* Word states — NO font-size changes to prevent layout jumping */
+.rd-w {
+    display: inline;
+    /* instant word state change — no animation */
+    position: relative;
+}
+
+/* Read words — flat dim, no decorations, no TPS color.
+   CRITICAL: do NOT reset letter-spacing or any property that changes
+   the computed width of the word — that shifts all subsequent words
+   and breaks the reader's positional memory. Only change visual
+   properties (color, shadow, decoration) that don't affect layout. */
+.rd-w.rd-read {
+    color: rgba(232,213,176,.15) !important;
+    text-shadow: none !important;
+    text-decoration: none !important;
+    background: none !important;
+    font-style: normal !important;
+    /* letter-spacing intentionally NOT reset — preserves word width */
+}
+
+/* Active word — underline accent, preserves TPS inline color */
+.rd-w.rd-now {
+    color: #F2E6CC;
+    text-shadow: 0 0 30px rgba(232,213,176,.15), 0 0 60px rgba(232,130,92,.1);
+    text-decoration: underline;
+    text-decoration-color: rgba(232,213,176,.35);
+    text-underline-offset: 8px;
+    text-decoration-thickness: 2px;
+}
+
+/* Active word with TPS color — boost the color */
+.rd-w.rd-now.tps-red { color: #FF6B6B; text-shadow: 0 0 40px rgba(255,107,107,.3); }
+.rd-w.rd-now.tps-green { color: #51CF66; text-shadow: 0 0 40px rgba(81,207,102,.3); }
+.rd-w.rd-now.tps-blue { color: #74C0FC; text-shadow: 0 0 40px rgba(116,192,252,.3); }
+.rd-w.rd-now.tps-yellow { color: #FFE066; text-shadow: 0 0 40px rgba(255,224,102,.3); }
+.rd-w.rd-now.tps-orange { color: #FFA94D; text-shadow: 0 0 40px rgba(255,169,77,.3); }
+.rd-w.rd-now.tps-purple { color: #CC5DE8; text-shadow: 0 0 40px rgba(204,93,232,.3); }
+.rd-w.rd-now.tps-cyan { color: #66D9E8; text-shadow: 0 0 40px rgba(102,217,232,.3); }
+
+/* Active word with emphasis/strong */
+.rd-w.rd-now.tps-emphasis,
+.rd-w.rd-now.tps-strong {
+    color: var(--accent);
+    text-shadow: 0 0 50px rgba(232,130,92,.3);
+}
+
+
+/* Next cluster */
+.rd-cluster-next {
+    opacity: .1;
+}
+.rd-cluster-next p {
+    font-size: 20px;
+    color: var(--t3);
+}
+.rd-cluster-next .rd-cluster-emotion { margin-bottom: 10px; }
+
+/* Center guide — subtle horizontal line where eyes focus */
+.rd-center-guide {
+    display: none;
+}
+
+/* ── Center reading guide (always visible) ── */
+.rd-center-guide {
+    position: absolute;
+    left: 0; right: 0;
+    top: 30%;
+    height: 1px;
+    background: rgba(232,213,176,.08);
+    z-index: 10;
+    pointer-events: none;
+}
+
+/* ── Adjustment guide lines — visible while dragging sliders ── */
+.rd-guide-h {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: rgba(232,213,176,.25);
+    z-index: 20;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .25s;
+    top: 30%;
+}
+.rd-guide-h.active { opacity: 1; }
+.rd-guide-h::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -3px;
+    height: 7px;
+    background: linear-gradient(to bottom, transparent, rgba(232,213,176,.06), transparent);
+}
+.rd-guide-v {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: rgba(232,213,176,.20);
+    z-index: 20;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .25s;
+}
+.rd-guide-v.active { opacity: 1; }
+.rd-guide-v::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -3px;
+    width: 7px;
+    background: linear-gradient(to right, transparent, rgba(232,213,176,.04), transparent);
+}
+
+/* Pause indicator */
+.rd-pause-indicator {
+    position: absolute;
+    bottom: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 3px;
+    background: var(--gold-07);
+    border-radius: 2px;
+    overflow: hidden;
+    opacity: 0;
+}
+.rd-pause-indicator.active { opacity: 1; }
+.rd-pause-fill {
+    height: 100%;
+    background: white;
+    border-radius: 2px;
+    width: 0%;
+}
+
+/* Edge progress bar — full width at bottom */
+.rd-edge-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    z-index: 10;
+}
+.rd-edge-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: var(--accent);
+    z-index: 2;
+    transition: width .3s;
+}
+.rd-edge-segs {
+    display: flex;
+    position: absolute;
+    inset: 0;
+}
+.rd-edge-segs > div {
+    height: 100%;
+    background: var(--sc);
+    border-right: 1px solid rgba(5,5,8,.6);
+    transition: opacity .5s ease;
+}
+
+/* Edge info — section + time at bottom corners */
+.rd-edge-info {
+    position: absolute;
+    bottom: 8px;
+    left: 20px;
+    right: 20px;
+    display: flex;
+    justify-content: space-between;
+    z-index: 10;
+    pointer-events: none;
+    opacity: .15;
+    transition: opacity .3s;
+}
+.rd-edge-info:hover { opacity: .4; pointer-events: auto; }
+.rd-edge-section {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(232,213,176,.6);
+}
+
+.rd-time {
+    font-size: 11px;
+    font-family: var(--mono);
+    color: rgba(232,213,176,.3);
+    white-space: nowrap;
+}
+
+/* ── Countdown overlay ── */
+.rd-countdown {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 15;
+    font-size: 140px;
+    font-weight: 300;
+    color: rgba(232,213,176,.7);
+    letter-spacing: -4px;
+    pointer-events: none;
+    text-shadow: 0 0 80px rgba(232,213,176,.2), 0 4px 30px rgba(0,0,0,.5);
+}
+.rd-countdown.active {
+    display: flex;
+    background: rgba(10,10,15,.60);
+}
+
+/* ── Right-edge vertical sliders (focal point + text width) ── */
+.rd-sliders {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 12;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 12px 6px;
+    background: rgba(20,18,12,.5);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--gold-08);
+    border-radius: 12px;
+    opacity: .2;
+    transition: opacity .4s;
+}
+.rd-sliders:hover {
+    opacity: .75;
+}
+.rd-slider-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+.rd-slider-icon {
+    color: rgba(232,213,176,.5);
+    flex-shrink: 0;
+}
+.rd-slider-val {
+    font-size: 9px;
+    font-family: var(--mono);
+    color: rgba(232,213,176,.35);
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+/* Vertical range input */
+.rd-vslider {
+    writing-mode: vertical-lr;
+    direction: rtl;
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 100px;
+    background: transparent;
+    cursor: pointer;
+}
+.rd-vslider::-webkit-slider-runnable-track {
+    width: 3px;
+    height: 100%;
+    background: rgba(232,213,176,.10);
+    border-radius: 2px;
+}
+.rd-vslider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: rgba(232,213,176,.45);
+    border: 2px solid rgba(232,213,176,.15);
+    margin-left: -5.5px;
+    cursor: grab;
+    transition: background .2s;
+}
+.rd-vslider::-webkit-slider-thumb:hover {
+    background: rgba(232,213,176,.7);
+}
+.rd-vslider::-moz-range-track {
+    width: 3px;
+    height: 100%;
+    background: rgba(232,213,176,.10);
+    border-radius: 2px;
+    border: none;
+}
+.rd-vslider::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: rgba(232,213,176,.45);
+    border: 2px solid rgba(232,213,176,.15);
+    cursor: grab;
+}
+/* Countdown uses no CSS animations — digits appear/disappear instantly */
+
+/* ── Reader Control Bar ── */
+.rd-controls {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 12;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: rgba(20,18,12,.75);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--gold-08);
+    border-radius: 16px;
+    opacity: .85;
+    transition: opacity .3s;
+}
+.rd-controls:hover { opacity: 1; }
+
+.rd-ctrl-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.rd-ctrl-main {
+    padding: 0 8px;
+    border-left: 1px solid var(--gold-06);
+    border-right: 1px solid var(--gold-06);
+    margin: 0 4px;
+}
+
+.rd-ctrl-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: transparent;
+    color: rgba(232,213,176,.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    transition: all .2s;
+}
+.rd-ctrl-btn:hover {
+    background: var(--gold-08);
+    color: #E8D5B0;
+}
+.rd-ctrl-btn.active {
+    background: var(--accent-g);
+    color: var(--accent);
+}
+.rd-ctrl-sm {
+    width: 28px;
+    height: 28px;
+    opacity: .5;
+}
+.rd-ctrl-sm:hover { opacity: 1; }
+.rd-ctrl-play {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--gold-06);
+}
+.rd-ctrl-play:hover {
+    background: var(--gold-12);
+}
+
+.rd-ctrl-label {
+    font-size: 11px;
+    font-family: var(--mono);
+    color: rgba(232,213,176,.35);
+    min-width: 24px;
+    text-align: center;
+    user-select: none;
+}
+.rd-block-indicator {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    min-width: 36px;
+}
+
+/* ── Card previews (mini snippets above/below) ── */
+.rd-card-prev {
+    transform: translateY(-85%) scale(.55);
+    opacity: .08;
+    z-index: 1;
+    pointer-events: none;
+    filter: blur(1px);
+}
+.rd-card-next {
+    transform: translateY(85%) scale(.55);
+    opacity: .08;
+    z-index: 1;
+    pointer-events: none;
+    filter: blur(1px);
+}

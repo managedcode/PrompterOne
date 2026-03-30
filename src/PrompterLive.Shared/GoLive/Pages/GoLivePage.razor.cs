@@ -11,8 +11,6 @@ namespace PrompterLive.Shared.Pages;
 public partial class GoLivePage : ComponentBase
 {
     private const string DefaultMicRouteLabel = "Monitor + Stream";
-    private const string DisabledReadyPrefix = "Selected routing:";
-    private const string DisabledSummary = "Enable this destination to arm it for the current program feed.";
     private const string GoLiveDefaultTitle = "Product Launch";
     private const string GoLiveLoadMessage = "Unable to prepare live routing right now.";
     private const string GoLiveLoadOperation = "Go Live load";
@@ -36,7 +34,6 @@ public partial class GoLivePage : ComponentBase
     [Inject] private IScriptSessionService SessionService { get; set; } = null!;
     [Inject] private BrowserSettingsStore SettingsStore { get; set; } = null!;
     [Inject] private StudioSettingsStore StudioSettingsStore { get; set; } = null!;
-    [Inject] private IEnumerable<IStreamingOutputProvider> StreamingProviders { get; set; } = null!;
 
     [SupplyParameterFromQuery(Name = "id")]
     public string? ScriptId { get; set; }

@@ -1,8 +1,6 @@
 (function () {
     const offscreenMirrorLeftPx = -99999;
     const floatingToolbarMinimumTopCssVariable = "--ed-floatbar-min-top";
-    const typingOverlayDebounceMilliseconds = 120;
-    const typingVisualStateClass = "ed-source-stage-typing";
     const textareaMirrorStyleProperties = [
         "whiteSpace",
         "wordBreak",
@@ -19,9 +17,7 @@
         "boxSizing"
     ];
     const editorSurfaceNamespace = "EditorSurfaceInterop";
-    const blockHeaderRegex = /^(?<hash>###)\s+\[(?<content>.+)\]\s*$/;
     const frontMatterEntryRegex = /^(?<key>[A-Za-z0-9_]+):\s*(?<value>.+)$/;
-    const segmentHeaderRegex = /^(?<hash>##)\s+\[(?<content>.+)\]\s*$/;
     const numericWpmRegex = /^(?<wpm>\d+)\s*WPM$/i;
     const tagPattern = /\[[^[\]]+\]/g;
     const emptySourceMarkup = "<div class=\"ed-src-line ed-src-line-empty\">Start writing in TPS.</div>";
@@ -78,22 +74,17 @@
             const existingState = editorSurfaceStates.get(textarea);
             if (existingState) {
                 existingState.overlay = overlay;
-                existingState.stage = resolveEditorStage(textarea);
                 overlaySurfaceStates.set(overlay, existingState);
-                cancelDeferredOverlayRender(existingState);
+                cancelScheduledOverlayRender(existingState);
                 renderSurfaceOverlay(overlay, textarea.value);
-                deactivateTypingVisualState(existingState);
                 return true;
             }
 
             const state = {
                 overlay,
-                stage: resolveEditorStage(textarea),
                 pendingRenderFrameId: 0,
-                pendingRenderTimeoutId: 0,
                 onInput() {
-                    activateTypingVisualState(state);
-                    scheduleDeferredOverlayRender(textarea, state);
+                    scheduleOverlayRender(textarea, state);
                 }
             };
 
@@ -101,21 +92,16 @@
             editorSurfaceStates.set(textarea, state);
             overlaySurfaceStates.set(overlay, state);
             renderSurfaceOverlay(overlay, textarea.value);
-            deactivateTypingVisualState(state);
             return true;
         },
 
         renderOverlay(overlay, text) {
             const state = overlaySurfaceStates.get(overlay);
             if (state) {
-                cancelDeferredOverlayRender(state);
+                cancelScheduledOverlayRender(state);
             }
 
             renderSurfaceOverlay(overlay, text);
-
-            if (state) {
-                deactivateTypingVisualState(state);
-            }
         },
 
         syncScroll(textarea, overlay) {
@@ -280,22 +266,9 @@
         overlay.dataset[renderedLengthDataAttribute] = String((text || "").length);
     }
 
-    function activateTypingVisualState(state) {
-        if (!state || !state.stage) {
-            return;
-        }
-
-        state.stage.classList.add(typingVisualStateClass);
-    }
-
-    function cancelDeferredOverlayRender(state) {
+    function cancelScheduledOverlayRender(state) {
         if (!state) {
             return;
-        }
-
-        if (state.pendingRenderTimeoutId) {
-            window.clearTimeout(state.pendingRenderTimeoutId);
-            state.pendingRenderTimeoutId = 0;
         }
 
         if (state.pendingRenderFrameId) {
@@ -304,40 +277,24 @@
         }
     }
 
-    function deactivateTypingVisualState(state) {
-        if (!state || !state.stage) {
-            return;
-        }
-
-        state.stage.classList.remove(typingVisualStateClass);
-    }
-
-    function renderDeferredOverlay(textarea, state) {
+    function renderScheduledOverlay(textarea, state) {
         if (!textarea || !state || !state.overlay) {
-            deactivateTypingVisualState(state);
             return;
         }
 
         renderSurfaceOverlay(state.overlay, textarea.value);
         window[editorSurfaceNamespace].syncScroll(textarea, state.overlay);
-        deactivateTypingVisualState(state);
     }
 
-    function resolveEditorStage(textarea) {
-        return textarea
-            ? textarea.closest(".ed-source-stage")
-            : null;
-    }
+    function scheduleOverlayRender(textarea, state) {
+        if (!textarea || !state || state.pendingRenderFrameId) {
+            return;
+        }
 
-    function scheduleDeferredOverlayRender(textarea, state) {
-        cancelDeferredOverlayRender(state);
-        state.pendingRenderTimeoutId = window.setTimeout(() => {
-            state.pendingRenderTimeoutId = 0;
-            state.pendingRenderFrameId = window.requestAnimationFrame(() => {
-                state.pendingRenderFrameId = 0;
-                renderDeferredOverlay(textarea, state);
-            });
-        }, typingOverlayDebounceMilliseconds);
+        state.pendingRenderFrameId = window.requestAnimationFrame(() => {
+            state.pendingRenderFrameId = 0;
+            renderScheduledOverlay(textarea, state);
+        });
     }
 
     function renderSourceHighlight(text) {
@@ -386,24 +343,58 @@
             return wrapLine("ed-src-line ed-src-line-empty", "&nbsp;");
         }
 
-        const segmentMatch = segmentHeaderRegex.exec(line);
-        if (segmentMatch && segmentMatch.groups) {
+        const header = tryParseHeaderLine(line);
+        if (header) {
             return wrapLine(
-                "ed-src-line ed-src-line-segment",
-                buildHeaderMarkup(segmentMatch.groups.hash, segmentMatch.groups.content, true));
-        }
-
-        const blockMatch = blockHeaderRegex.exec(line);
-        if (blockMatch && blockMatch.groups) {
-            return wrapLine(
-                "ed-src-line ed-src-line-block",
-                buildHeaderMarkup(blockMatch.groups.hash, blockMatch.groups.content, false));
+                header.isSegment
+                    ? "ed-src-line ed-src-line-segment"
+                    : "ed-src-line ed-src-line-block",
+                buildHeaderMarkup(header.hashToken, header.content, header.isSegment, header.hasClosingBracket) +
+                renderHeaderTrailingText(header.trailingText));
         }
 
         return wrapLine("ed-src-line", renderInlineMarkup(line));
     }
 
-    function buildHeaderMarkup(hashToken, content, isSegment) {
+    function tryParseHeaderLine(line) {
+        if (!line) {
+            return null;
+        }
+
+        const hashToken = line.startsWith("###")
+            ? "###"
+            : line.startsWith("##")
+                ? "##"
+                : null;
+
+        if (!hashToken) {
+            return null;
+        }
+
+        const body = line.slice(hashToken.length).trimStart();
+        if (!body.startsWith("[")) {
+            return null;
+        }
+
+        const closingBracketIndex = body.indexOf("]");
+        const hasClosingBracket = closingBracketIndex >= 0;
+        const content = hasClosingBracket
+            ? body.slice(1, closingBracketIndex)
+            : body.slice(1);
+        const trailingText = hasClosingBracket
+            ? body.slice(closingBracketIndex + 1)
+            : "";
+
+        return {
+            content,
+            hashToken,
+            hasClosingBracket,
+            isSegment: hashToken === "##",
+            trailingText
+        };
+    }
+
+    function buildHeaderMarkup(hashToken, content, isSegment, hasClosingBracket) {
         const parts = content.split("|").map(part => part.trim());
         const fragments = [
             `<span class="h-mark">${encodeHtml(hashToken)} </span><span class="h-br">[</span>`
@@ -427,8 +418,21 @@
             fragments.push(`<span class="${cssClass}">${encodeHtml(parts[index])}</span>`);
         }
 
-        fragments.push("<span class=\"h-br\">]</span>");
+        if (hasClosingBracket) {
+            fragments.push("<span class=\"h-br\">]</span>");
+        }
+
         return fragments.join("");
+    }
+
+    function renderHeaderTrailingText(text) {
+        if (!text) {
+            return "";
+        }
+
+        return text.trim()
+            ? renderInlineMarkup(text)
+            : encodeOrSpace(text);
     }
 
     function renderInlineMarkup(content) {

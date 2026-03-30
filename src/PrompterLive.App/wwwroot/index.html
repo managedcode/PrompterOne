@@ -38,6 +38,19 @@
 
     <script src="_content/PrompterLive.Shared/media/browser-media.js"></script>
     <script src="_content/PrompterLive.Shared/editor/editor-source-panel.js"></script>
-    <script src="_framework/blazor.webassembly.js"></script>
+    <script src="_framework/blazor.webassembly.js" autostart="false"></script>
+    <script>
+        const wasmDebugQueryKey = "wasm-debug";
+        const wasmDebugDisabledLevel = 0;
+        const wasmDebugEnabledLevel = 1;
+        const currentUrl = new URL(window.location.href);
+        const isWasmDebugEnabled = currentUrl.searchParams.get(wasmDebugQueryKey) === "1";
+
+        Blazor.start({
+            configureRuntime: function (builder) {
+                builder.withDebugging(isWasmDebugEnabled ? wasmDebugEnabledLevel : wasmDebugDisabledLevel);
+            }
+        });
+    </script>
 </body>
 </html>
