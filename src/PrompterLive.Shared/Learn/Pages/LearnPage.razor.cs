@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
+using Microsoft.AspNetCore.Components.Web;
 using PrompterLive.Core.Abstractions;
 using PrompterLive.Core.Models.Workspace;
 using PrompterLive.Core.Samples;
@@ -15,13 +15,11 @@ public partial class LearnPage : IAsyncDisposable
     private const string ContextShiftPropertyName = "--rsvp-context-word-shift";
     private const int DefaultContextWordCount = 5;
     private const string EndOfScriptPhrase = "End of script.";
-    private const string HandleDesignKeyboardMethodName = nameof(HandleDesignKeyboardAsync);
     private const string LoadLearnMessage = "Unable to load RSVP rehearsal right now.";
     private const string LoadLearnOperation = "Learn load";
     private const int MinimumLoopDelayMilliseconds = 150;
     private const int MinimumWordDurationMilliseconds = 120;
     private const string NeutralEmotion = "neutral";
-    protected const string OrpClassName = "orp";
     private const string ReadyWord = "Ready";
     private const int PreviewWordCount = 10;
     private const int RsvpFocusMaxContextWordGapPixels = 72;
@@ -33,22 +31,9 @@ public partial class LearnPage : IAsyncDisposable
     private const string WpmSuffix = " WPM";
     private const string LearnSettingsKey = "prompterlive.learn";
 
-    private static readonly string[] HandledKeyboardKeys =
-    [
-        UiKeyboardKeys.ArrowDown,
-        UiKeyboardKeys.ArrowLeft,
-        UiKeyboardKeys.ArrowRight,
-        UiKeyboardKeys.ArrowUp,
-        UiKeyboardKeys.Escape,
-        UiKeyboardKeys.PageDown,
-        UiKeyboardKeys.PageUp,
-        UiKeyboardKeys.Space
-    ];
-
     [Inject] private AppBootstrapper Bootstrapper { get; set; } = null!;
     [Inject] private BrowserSettingsStore BrowserSettingsStore { get; set; } = null!;
     [Inject] private UiDiagnosticsService Diagnostics { get; set; } = null!;
-    [Inject] private IJSRuntime JS { get; set; } = null!;
     [Inject] private NavigationManager Navigation { get; set; } = null!;
     [Inject] private RsvpPlaybackEngine PlaybackEngine { get; set; } = null!;
     [Inject] private IScriptRepository ScriptRepository { get; set; } = null!;
@@ -59,8 +44,8 @@ public partial class LearnPage : IAsyncDisposable
     [SupplyParameterFromQuery(Name = AppRoutes.ScriptIdQueryKey)]
     public string? ScriptId { get; set; }
 
-    private DotNetObjectReference<LearnPage>? _keyboardBridge;
     private CancellationTokenSource? _playbackCts;
+    private ElementReference _screenRoot;
     private string _nextPhrase = string.Empty;
     private string _progressFillWidth = "0%";
     private string _progressLabel = string.Empty;
@@ -68,14 +53,14 @@ public partial class LearnPage : IAsyncDisposable
     private string _screenTitle = string.Empty;
     private int _contextWordCount = DefaultContextWordCount;
     private int _currentIndex;
-    private int _pendingPauseDurationMilliseconds;
     private int _speed = 300;
-    private bool _isKeyboardAttached;
     private bool _isPlaying;
     private bool _loadState = true;
+    private bool _focusScreenAfterRender = true;
     private bool _startPlaybackAfterLayoutSync;
-    private bool _syncRsvpLayout;
-    private IReadOnlyList<RsvpCharacterViewModel> _currentWordCharacters = [];
+    private string _currentWordLeading = string.Empty;
+    private string _currentWordOrp = string.Empty;
+    private string _currentWordTrailing = string.Empty;
     private IReadOnlyList<string> _leftContextWords = [];
     private IReadOnlyList<string> _rightContextWords = [];
     private IReadOnlyList<RsvpTimelineEntry> _timeline = [];
@@ -84,6 +69,7 @@ public partial class LearnPage : IAsyncDisposable
     {
         StopPlaybackLoop();
         _loadState = true;
+        _focusScreenAfterRender = true;
         return Task.CompletedTask;
     }
 
@@ -105,30 +91,10 @@ public partial class LearnPage : IAsyncDisposable
             return;
         }
 
-        if (!_isKeyboardAttached)
+        if (_focusScreenAfterRender)
         {
-            _keyboardBridge = DotNetObjectReference.Create(this);
-            await JS.InvokeVoidAsync(
-                AppJsInterop.AttachDesignKeyboardMethod,
-                UiDomIds.Design.LearnScreen,
-                _keyboardBridge,
-                HandleDesignKeyboardMethodName,
-                HandledKeyboardKeys);
-            _isKeyboardAttached = true;
-        }
-
-        if (_syncRsvpLayout)
-        {
-            _syncRsvpLayout = false;
-            await JS.InvokeVoidAsync(
-                AppJsInterop.SyncRsvpLayoutMethod,
-                UiDomIds.Learn.Word,
-                UiDomIds.Learn.ContextLeft,
-                UiDomIds.Learn.ContextRight,
-                UiDomIds.Learn.PauseFill,
-                ContextShiftPropertyName,
-                RsvpFocusMaxContextWordGapPixels,
-                _pendingPauseDurationMilliseconds);
+            _focusScreenAfterRender = false;
+            await _screenRoot.FocusAsync();
         }
 
         if (_startPlaybackAfterLayoutSync)
@@ -301,20 +267,23 @@ public partial class LearnPage : IAsyncDisposable
     {
         if (_timeline.Count == 0)
         {
-            _currentWordCharacters = [];
+            _currentWordLeading = string.Empty;
+            _currentWordOrp = ReadyWord;
+            _currentWordTrailing = string.Empty;
             _leftContextWords = [];
             _rightContextWords = [];
             _nextPhrase = EndOfScriptPhrase;
             _progressFillWidth = "0%";
             _progressLabel = string.Empty;
-            _pendingPauseDurationMilliseconds = 0;
-            _syncRsvpLayout = true;
             return;
         }
 
         _currentIndex = Math.Clamp(_currentIndex, 0, _timeline.Count - 1);
         var entry = _timeline[_currentIndex];
-        _currentWordCharacters = BuildWordCharacters(entry.Word);
+        var focusWord = BuildFocusWord(entry.Word);
+        _currentWordLeading = focusWord.Leading;
+        _currentWordOrp = focusWord.Orp;
+        _currentWordTrailing = focusWord.Trailing;
         _leftContextWords = _timeline
             .Skip(Math.Max(0, _currentIndex - _contextWordCount))
             .Take(_currentIndex - Math.Max(0, _currentIndex - _contextWordCount))
@@ -330,8 +299,6 @@ public partial class LearnPage : IAsyncDisposable
             : entry.NextPhrase;
         _progressFillWidth = $"{((_currentIndex + 1) * 100d / _timeline.Count):0.##}%";
         _progressLabel = BuildProgressLabel(_timeline, _currentIndex, _speed);
-        _pendingPauseDurationMilliseconds = GetScaledDuration(entry.PauseAfterMs, entry.BaseWpm, allowZero: true);
-        _syncRsvpLayout = true;
     }
 
     private async Task EnsureSessionLoadedAsync()

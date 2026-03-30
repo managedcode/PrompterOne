@@ -1,28 +1,13 @@
 @page "/teleprompter"
 @namespace PrompterLive.Shared.Pages
-@using PrompterLive.Core.Abstractions
-@using PrompterLive.Core.Models.CompiledScript
-@using PrompterLive.Core.Models.Media
-@using PrompterLive.Core.Models.Tps
-@using PrompterLive.Core.Models.Workspace
-@using PrompterLive.Core.Samples
-@using PrompterLive.Shared.Services.Diagnostics
-
-@inject AppBootstrapper Bootstrapper
-@inject CameraPreviewInterop CameraPreviewInterop
-@inject ScriptCompiler Compiler
-@inject UiDiagnosticsService Diagnostics
-@inject IJSRuntime JS
-@inject NavigationManager Navigation
-@inject AppShellService Shell
-@inject IMediaDeviceService MediaDeviceService
-@inject IMediaSceneService MediaSceneService
-@inject IScriptRepository ScriptRepository
-@inject IScriptSessionService SessionService
-@inject StudioSettingsStore StudioSettingsStore
+@using PrompterLive.Shared.Contracts
 
 <div id="@UiDomIds.Design.TeleprompterScreen"
      class="screen active"
+     tabindex="0"
+     @ref="_screenRoot"
+     @onkeydown="HandleTeleprompterKeyDownAsync"
+     @onkeydown:preventDefault="true"
      data-testid="@UiTestIds.Teleprompter.Page">
     <div class="rd">
         <div class="rd-gradient @_gradientClass" id="rd-gradient"></div>
@@ -31,9 +16,6 @@
                autoplay
                muted
                playsinline
-               data-camera-device-id="@_cameraLayer.DeviceId"
-               data-camera-role="@_cameraLayer.Role"
-               data-camera-order="@_cameraLayer.Order"
                data-testid="@_cameraLayer.TestId"
                style="@_cameraLayer.Style"></video>
         <div class="@BuildCameraTintCssClass()" id="@UiDomIds.Teleprompter.CameraTint"></div>
@@ -48,30 +30,48 @@
             <div class="rd-sliders">
                 <div class="rd-slider-group">
                     <svg class="rd-slider-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="8" x2="3" y2="16" /><line x1="21" y1="8" x2="21" y2="16" /></svg>
-                    <input type="range" class="rd-vslider" id="rd-focal-slider" min="15" max="55" value="@_readerFocalPointPercent" @oninput="HandleReaderFocalPointInputAsync" data-testid="@UiTestIds.Teleprompter.FocalSlider">
+                    <input type="range"
+                           class="rd-vslider"
+                           id="rd-focal-slider"
+                           min="15"
+                           max="55"
+                           value="@_readerFocalPointPercent"
+                           @oninput="HandleReaderFocalPointInputAsync"
+                           @onkeydown:stopPropagation="true"
+                           data-testid="@UiTestIds.Teleprompter.FocalSlider">
                     <span class="rd-slider-val" id="rd-focal-val">@_readerFocalPointPercent%</span>
                 </div>
                 <div class="rd-slider-group">
                     <svg class="rd-slider-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="8,9 5,12 8,15" /><polyline points="16,9 19,12 16,15" /></svg>
-                    <input type="range" class="rd-vslider" id="rd-width-slider" min="400" max="1100" value="@_readerTextWidth" @oninput="HandleReaderTextWidthInputAsync" data-testid="@UiTestIds.Teleprompter.WidthSlider">
-                    <span class="rd-slider-val" id="rd-width-val">@_readerTextWidth</span>
+                    <input type="range"
+                           class="rd-vslider"
+                           id="rd-width-slider"
+                           min="400"
+                           max="1100"
+                           value="@_readerTextWidth"
+                           @oninput="HandleReaderTextWidthInputAsync"
+                           @onkeydown:stopPropagation="true"
+                           data-testid="@UiTestIds.Teleprompter.WidthSlider">
+                    <span class="rd-slider-val" id="@UiDomIds.Teleprompter.WidthValue">@_readerTextWidth</span>
                 </div>
             </div>
 
-            <div class="rd-stage">
+            <div class="rd-stage" id="@UiDomIds.Teleprompter.Stage">
                 <div class="rd-center-guide"></div>
-                <div class="rd-guide-h" id="@UiDomIds.Teleprompter.FocalGuide" style="@BuildFocalGuideStyle()"></div>
-                <div class="rd-guide-v rd-guide-v-l" id="@UiDomIds.Teleprompter.WidthGuideLeft"></div>
-                <div class="rd-guide-v rd-guide-v-r" id="@UiDomIds.Teleprompter.WidthGuideRight"></div>
+                <div class="@BuildFocalGuideCssClass()"
+                     id="@UiDomIds.Teleprompter.FocalGuide"
+                     style="@BuildFocalGuideStyle()"></div>
+                <div class="@BuildWidthGuideCssClass(true)"
+                     id="@UiDomIds.Teleprompter.WidthGuideLeft"
+                     style="@BuildWidthGuideStyle(true)"></div>
+                <div class="@BuildWidthGuideCssClass(false)"
+                     id="@UiDomIds.Teleprompter.WidthGuideRight"
+                     style="@BuildWidthGuideStyle(false)"></div>
 
                 <div class="rd-cluster-wrap" id="@UiDomIds.Teleprompter.ClusterWrap" style="@BuildClusterWrapStyle()">
                     @foreach (var entry in _cards.Select((card, index) => (card, index)))
                     {
                         <div class="@BuildReaderCardCssClass(entry.index)"
-                             data-card="@entry.index"
-                             data-segment-name="@entry.card.DisplayName"
-                             data-segment-emotion="@entry.card.EmotionKey"
-                             data-segment-bg="@entry.card.BackgroundClass"
                              data-testid="@entry.card.TestId">
                             <div class="rd-cluster rd-cluster-active">
                                 <div class="rd-cluster-emotion">
@@ -79,7 +79,8 @@
                                     <span class="rd-emo-name">@entry.card.EmotionLabel</span>
                                     <span class="rd-emo-wpm">@entry.card.TargetWpm <small>WPM</small></span>
                                 </div>
-                                <p class="rd-cluster-text" data-testid="@UiTestIds.Teleprompter.CardText(entry.index)">
+                                <p class="rd-cluster-text"
+                                   data-testid="@UiTestIds.Teleprompter.CardText(entry.index)">
                                     @for (var chunkIndex = 0; chunkIndex < entry.card.Chunks.Count; chunkIndex++)
                                     {
                                         var chunk = entry.card.Chunks[chunkIndex];
@@ -88,13 +89,12 @@
                                             : null;
                                         if (chunk is ReaderGroupViewModel group)
                                         {
-                                            <span class="@BuildReaderGroupCssClass(entry.index, group)" data-testid="@UiTestIds.Teleprompter.CardGroup(entry.index, chunkIndex)">
+                                            <span class="@BuildReaderGroupCssClass(entry.index, group)"
+                                                  data-testid="@UiTestIds.Teleprompter.CardGroup(entry.index, chunkIndex)">
                                                 @for (var wordIndex = 0; wordIndex < group.Words.Count; wordIndex++)
                                                 {
                                                     var word = group.Words[wordIndex];
-                                                    <span class="@BuildReaderWordCssClass(entry.index, word)"
-                                                          data-ms="@word.DurationMs"
-                                                          data-pause-ms="@word.PauseAfterMs">@word.Text</span>
+                                                    <span class="@BuildReaderWordCssClass(entry.index, word)">@word.Text</span>
                                                     @if (wordIndex < group.Words.Count - 1)
                                                     {
                                                         @(" ")
@@ -145,7 +145,7 @@
                     <button class="rd-ctrl-btn" @onclick="DecreaseReaderFontSizeAsync" title="Smaller text" data-testid="@UiTestIds.Teleprompter.FontDown">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12" /></svg>
                     </button>
-                    <span class="rd-ctrl-label" id="rd-font-label">@_readerFontSize</span>
+                    <span class="rd-ctrl-label" id="@UiDomIds.Teleprompter.FontLabel">@_readerFontSize</span>
                     <button class="rd-ctrl-btn" @onclick="IncreaseReaderFontSizeAsync" title="Larger text" data-testid="@UiTestIds.Teleprompter.FontUp">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
                     </button>
@@ -176,754 +176,3 @@
         </div>
     </div>
 </div>
-
-@code {
-    [SupplyParameterFromQuery(Name = "id")]
-    public string? ScriptId { get; set; }
-
-    private bool _loadState = true;
-    private string _screenTitle = string.Empty;
-    private string _screenSubtitle = string.Empty;
-    private string _gradientClass = string.Empty;
-    private string _edgeSectionLabel = string.Empty;
-    private string _durationLabel = "0:00";
-    private int _totalSeconds = 1;
-    private int _totalDurationMilliseconds = 1000;
-    private int _activeReaderCardIndex;
-    private int _readerFontSize = DefaultReaderFontSize;
-    private int _readerFocalPointPercent = DefaultReaderFocalPointPercent;
-    private int _readerTextWidth = DefaultReaderTextWidth;
-    private bool _syncReader;
-    private StudioSettings _studioSettings = StudioSettings.Default;
-    private ReaderCameraLayerViewModel _cameraLayer = ReaderCameraLayerViewModel.Placeholder;
-    private IReadOnlyList<ReaderCardViewModel> _cards = [];
-    private const int DefaultReaderFontSize = 36;
-    private const int DefaultReaderFocalPointPercent = 30;
-    private const int DefaultReaderTextWidth = 750;
-    private const int ReaderBackwardStep = -1;
-    private const int ReaderCardBackwardStep = -1;
-    private const int ReaderCardForwardStep = 1;
-    private const int ReaderFontStep = 4;
-    private const int ReaderForwardStep = 1;
-    private const int ReaderMaxFontSize = 56;
-    private const int ReaderMaxTextWidth = 1100;
-    private const int ReaderMaxFocalPointPercent = 55;
-    private const int ReaderMinFontSize = 24;
-    private const int ReaderMinTextWidth = 400;
-    private const int ReaderMinFocalPointPercent = 15;
-    private const string LoadReaderOperation = "Teleprompter load";
-    private const string LoadReaderMessage = "Unable to prepare teleprompter playback.";
-    private const int MaxReaderGroupCharacterCount = 24;
-    private const int MaxReaderGroupWordCount = 5;
-
-    protected override Task OnParametersSetAsync()
-    {
-        _loadState = true;
-        return Task.CompletedTask;
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (_loadState)
-        {
-            _loadState = false;
-            await Diagnostics.RunAsync(
-                LoadReaderOperation,
-                LoadReaderMessage,
-                async () =>
-                {
-                    await Bootstrapper.EnsureReadyAsync();
-                    await EnsureSessionLoadedAsync();
-                    await PopulateReaderStateAsync();
-                    await PopulateCameraStateAsync();
-                    StateHasChanged();
-                });
-            return;
-        }
-
-        if (_syncReader)
-        {
-            _syncReader = false;
-            await EnsureReaderBridgeAttachedAsync();
-            await JS.InvokeVoidAsync(AppJsInterop.InitializeDesignMethod, UiDomIds.Design.TeleprompterScreen);
-            await JS.InvokeVoidAsync(AppJsInterop.SetReaderFontSizeMethod, _readerFontSize);
-            await JS.InvokeVoidAsync(AppJsInterop.SetReaderFocalPointMethod, _readerFocalPointPercent);
-            await JS.InvokeVoidAsync(AppJsInterop.SetReaderTextWidthMethod, _readerTextWidth);
-        }
-    }
-
-    private async Task EnsureSessionLoadedAsync()
-    {
-        if (!string.IsNullOrWhiteSpace(ScriptId))
-        {
-            var document = await ScriptRepository.GetAsync(ScriptId);
-            if (document is not null &&
-                !string.Equals(SessionService.State.ScriptId, document.Id, StringComparison.Ordinal))
-            {
-                await SessionService.OpenAsync(document);
-            }
-
-            return;
-        }
-
-        if (string.IsNullOrWhiteSpace(SessionService.State.ScriptId))
-        {
-            await SessionService.LoadSampleAsync(SampleScriptCatalog.DemoSampleId);
-        }
-    }
-
-    private async Task PopulateReaderStateAsync()
-    {
-        var nextCards = await BuildReaderCardsAsync();
-        _cards = nextCards.Count > 0 ? nextCards : [ReaderCardViewModel.Empty];
-        _screenTitle = SessionService.State.Title;
-
-        var firstCard = _cards[0];
-        _gradientClass = firstCard.BackgroundClass;
-        _edgeSectionLabel = firstCard.DisplayName;
-        _activeReaderCardIndex = 0;
-        _screenSubtitle = string.Equals(firstCard.SectionName, firstCard.DisplayName, StringComparison.Ordinal)
-            ? $"{firstCard.DisplayName} · {firstCard.EmotionLabel}"
-            : $"{firstCard.SectionName} · {firstCard.DisplayName}";
-
-        _totalDurationMilliseconds = Math.Max(1000, _cards.Sum(card => card.DurationMilliseconds));
-        _totalSeconds = Math.Max(1, (int)Math.Ceiling(_totalDurationMilliseconds / 1000d));
-        _durationLabel = FormatDuration(_totalSeconds);
-        _syncReader = true;
-        Shell.ShowTeleprompter(_screenTitle, _screenSubtitle, SessionService.State.ScriptId);
-    }
-
-    private string BuildBlockIndicatorLabel() =>
-        _cards.Count == 0
-            ? string.Empty
-            : $"{_activeReaderCardIndex + 1} / {_cards.Count}";
-
-    private Task NavigateBackToEditorAsync()
-    {
-        var route = string.IsNullOrWhiteSpace(SessionService.State.ScriptId)
-            ? AppRoutes.Editor
-            : AppRoutes.EditorWithId(SessionService.State.ScriptId);
-        Navigation.NavigateTo(route);
-        return Task.CompletedTask;
-    }
-
-    private Task DecreaseReaderFontSizeAsync() => ChangeReaderFontSizeAsync(-ReaderFontStep);
-
-    private Task IncreaseReaderFontSizeAsync() => ChangeReaderFontSizeAsync(ReaderFontStep);
-
-    private Task StepReaderBackwardAsync() => StepReaderWordAsync(ReaderBackwardStep);
-
-    private Task StepReaderForwardAsync() => StepReaderWordAsync(ReaderForwardStep);
-
-    private Task JumpToPreviousReaderCardAsync() => JumpReaderCardAsync(ReaderCardBackwardStep);
-
-    private Task JumpToNextReaderCardAsync() => JumpReaderCardAsync(ReaderCardForwardStep);
-
-    private async Task ChangeReaderFontSizeAsync(int delta)
-    {
-        _readerFontSize = Math.Clamp(_readerFontSize + delta, ReaderMinFontSize, ReaderMaxFontSize);
-        await JS.InvokeVoidAsync(AppJsInterop.SetReaderFontSizeMethod, _readerFontSize);
-    }
-
-    private async Task HandleReaderFocalPointInputAsync(ChangeEventArgs args)
-    {
-        _readerFocalPointPercent = ParseReaderControlValue(args.Value, ReaderMinFocalPointPercent, ReaderMaxFocalPointPercent, _readerFocalPointPercent);
-        await JS.InvokeVoidAsync(AppJsInterop.SetReaderFocalPointMethod, _readerFocalPointPercent);
-    }
-
-    private async Task HandleReaderTextWidthInputAsync(ChangeEventArgs args)
-    {
-        _readerTextWidth = ParseReaderControlValue(args.Value, ReaderMinTextWidth, ReaderMaxTextWidth, _readerTextWidth);
-        await JS.InvokeVoidAsync(AppJsInterop.SetReaderTextWidthMethod, _readerTextWidth);
-    }
-
-    private Task StepReaderWordAsync(int direction) =>
-        JS.InvokeVoidAsync(AppJsInterop.StepReaderWordMethod, direction).AsTask();
-
-    private Task JumpReaderCardAsync(int direction) =>
-        JS.InvokeVoidAsync(AppJsInterop.JumpReaderCardMethod, direction).AsTask();
-
-    private Task ToggleReaderPlaybackAsync() =>
-        JS.InvokeVoidAsync(AppJsInterop.ToggleReaderPlaybackMethod).AsTask();
-
-    private Task ToggleReaderCameraAsync() =>
-        JS.InvokeVoidAsync(AppJsInterop.ToggleReaderCameraMethod).AsTask();
-
-    private static int ParseReaderControlValue(object? rawValue, int min, int max, int fallback)
-    {
-        if (rawValue is null)
-        {
-            return fallback;
-        }
-
-        return int.TryParse(rawValue.ToString(), out var parsed)
-            ? Math.Clamp(parsed, min, max)
-            : fallback;
-    }
-
-    private async Task PopulateCameraStateAsync()
-    {
-        _studioSettings = await StudioSettingsStore.LoadAsync();
-        var autoStart = SessionService.State.ReaderSettings.ShowCameraScene;
-        var devices = await MediaDeviceService.GetDevicesAsync();
-        var availableCameras = devices.Where(device => device.Kind == MediaDeviceKind.Camera).ToList();
-        var preferredCameraId = _studioSettings.Camera.DefaultCameraId;
-        var visibleSceneCameras = MediaSceneService.State.Cameras
-            .Where(camera => camera.Transform.Visible)
-            .OrderBy(camera => string.Equals(camera.DeviceId, preferredCameraId, StringComparison.Ordinal) ? 0 : 1)
-            .ThenByDescending(camera => camera.Transform.ZIndex)
-            .ThenBy(camera => camera.Label, StringComparer.OrdinalIgnoreCase)
-            .ToList();
-        var configuredCamera = availableCameras.FirstOrDefault(device => string.Equals(device.DeviceId, preferredCameraId, StringComparison.Ordinal));
-
-        SceneCameraSource? primarySceneCamera = visibleSceneCameras.FirstOrDefault();
-        if (!string.IsNullOrWhiteSpace(preferredCameraId))
-        {
-            primarySceneCamera = visibleSceneCameras.FirstOrDefault(camera => string.Equals(camera.DeviceId, preferredCameraId, StringComparison.Ordinal))
-                ?? primarySceneCamera;
-        }
-
-        var shouldUseConfiguredPrimary = configuredCamera is not null &&
-            visibleSceneCameras.All(camera => !string.Equals(camera.DeviceId, configuredCamera.DeviceId, StringComparison.Ordinal));
-
-        if (shouldUseConfiguredPrimary)
-        {
-            var transform = new MediaSourceTransform(MirrorHorizontal: _studioSettings.Camera.MirrorCamera);
-            _cameraLayer = new ReaderCameraLayerViewModel(
-                ElementId: UiDomIds.Teleprompter.Camera,
-                DeviceId: configuredCamera!.DeviceId,
-                AutoStart: autoStart,
-                Role: "primary",
-                Order: 0,
-                CssClass: "rd-camera",
-                Style: BuildPrimaryCameraStyle(transform),
-                TestId: UiTestIds.Teleprompter.CameraBackground);
-            return;
-        }
-
-        if (primarySceneCamera is not null)
-        {
-            _cameraLayer = new ReaderCameraLayerViewModel(
-                ElementId: UiDomIds.Teleprompter.Camera,
-                DeviceId: primarySceneCamera.DeviceId,
-                AutoStart: autoStart,
-                Role: "primary",
-                Order: 0,
-                CssClass: "rd-camera",
-                Style: BuildPrimaryCameraStyle(primarySceneCamera.Transform),
-                TestId: UiTestIds.Teleprompter.CameraBackground);
-            return;
-        }
-
-        var defaultCamera = availableCameras.FirstOrDefault(device => string.Equals(device.DeviceId, preferredCameraId, StringComparison.Ordinal))
-            ?? availableCameras.FirstOrDefault(device => device.IsDefault)
-            ?? availableCameras.FirstOrDefault();
-        var defaultTransform = new MediaSourceTransform(MirrorHorizontal: _studioSettings.Camera.MirrorCamera);
-
-        _cameraLayer = new ReaderCameraLayerViewModel(
-            ElementId: UiDomIds.Teleprompter.Camera,
-            DeviceId: defaultCamera?.DeviceId ?? string.Empty,
-            AutoStart: autoStart && !string.IsNullOrWhiteSpace(defaultCamera?.DeviceId),
-            Role: "primary",
-            Order: 0,
-            CssClass: "rd-camera",
-            Style: BuildPrimaryCameraStyle(defaultTransform),
-            TestId: UiTestIds.Teleprompter.CameraBackground);
-    }
-
-    private async Task<List<ReaderCardViewModel>> BuildReaderCardsAsync()
-    {
-        var scriptData = SessionService.State.ScriptData;
-        if (scriptData?.Segments is not { Length: > 0 })
-        {
-            return [];
-        }
-
-        var seeds = new List<ReaderCardSeed>();
-
-        foreach (var segment in scriptData.Segments)
-        {
-            var segmentEmotion = ResolveEmotionKey(segment.Emotion);
-            var segmentAccent = ResolveAccentColor(segment.AccentColor, segmentEmotion);
-            var blocks = segment.Blocks is { Length: > 0 }
-                ? segment.Blocks
-                : [new ScriptBlock
-                {
-                    Name = string.IsNullOrWhiteSpace(segment.Name) ? "Reader Block" : segment.Name,
-                    Emotion = segment.Emotion,
-                    WpmOverride = segment.WpmOverride,
-                    Content = segment.Content
-                }];
-
-            foreach (var block in blocks)
-            {
-                var words = await CompileBlockWordsAsync(scriptData.TargetWpm, segment, block);
-                if (words.Count == 0)
-                {
-                    continue;
-                }
-
-                var emotionKey = ResolveEmotionKey(block.Emotion ?? segment.Emotion);
-                var targetWpm = block.WpmOverride ?? segment.WpmOverride ?? scriptData.TargetWpm;
-                var wordCount = CountReadableWords(words);
-                if (wordCount == 0)
-                {
-                    continue;
-                }
-
-                seeds.Add(new ReaderCardSeed(
-                    SectionName: string.IsNullOrWhiteSpace(segment.Name) ? "Section" : segment.Name,
-                    DisplayName: string.IsNullOrWhiteSpace(block.Name) ? segment.Name : block.Name,
-                    EmotionKey: emotionKey,
-                    EmotionLabel: FormatEmotionLabel(emotionKey),
-                    BackgroundClass: emotionKey,
-                    AccentColor: segmentAccent,
-                    TargetWpm: targetWpm,
-                    WordCount: wordCount,
-                    DurationMilliseconds: Math.Max(1000, (int)Math.Ceiling(words.Sum(word => word.DisplayDuration.TotalMilliseconds))),
-                    DurationSeconds: Math.Max(1, (int)Math.Ceiling(words.Sum(word => word.DisplayDuration.TotalSeconds))),
-                    Chunks: BuildReaderChunks(words)));
-            }
-        }
-
-        if (seeds.Count == 0)
-        {
-            return [];
-        }
-
-        var totalWords = Math.Max(1, seeds.Sum(seed => seed.WordCount));
-        return seeds
-            .Select((seed, index) => new ReaderCardViewModel(
-                seed.SectionName,
-                seed.DisplayName,
-                seed.EmotionKey,
-                seed.EmotionLabel,
-                seed.BackgroundClass,
-                seed.AccentColor,
-                seed.TargetWpm,
-                seed.WordCount,
-                seed.DurationMilliseconds,
-                seed.DurationSeconds,
-                $"{Math.Max(8d, seed.WordCount * 100d / totalWords):0.##}%",
-                ToAlphaColor(seed.AccentColor, 0.35),
-                seed.Chunks,
-                UiTestIds.Teleprompter.Card(index)))
-            .ToList();
-    }
-
-    private async Task<IReadOnlyList<CompiledWord>> CompileBlockWordsAsync(int baseWpm, ScriptSegment segment, ScriptBlock block)
-    {
-        var document = new TpsDocument
-        {
-            Metadata = new Dictionary<string, string>
-            {
-                ["base_wpm"] = Math.Max(80, baseWpm).ToString(System.Globalization.CultureInfo.InvariantCulture)
-            },
-            Segments =
-            [
-                new TpsSegment
-                {
-                    Name = string.IsNullOrWhiteSpace(segment.Name) ? "Reader Segment" : segment.Name,
-                    Emotion = segment.Emotion,
-                    AccentColor = segment.AccentColor,
-                    BackgroundColor = segment.BackgroundColor,
-                    TextColor = segment.TextColor,
-                    TargetWPM = segment.WpmOverride ?? baseWpm,
-                    Blocks =
-                    [
-                        new TpsBlock
-                        {
-                            Name = string.IsNullOrWhiteSpace(block.Name) ? "Reader Block" : block.Name,
-                            Emotion = block.Emotion,
-                            TargetWPM = block.WpmOverride ?? segment.WpmOverride ?? baseWpm,
-                            Content = block.Content
-                        }
-                    ]
-                }
-            ]
-        };
-
-        var compiled = await Compiler.CompileAsync(document);
-        var compiledSegment = compiled.Segments.FirstOrDefault();
-        var compiledBlock = compiledSegment?.Blocks.FirstOrDefault();
-        return compiledBlock?.Words ?? compiledSegment?.Words ?? [];
-    }
-
-    private static IReadOnlyList<ReaderChunkViewModel> BuildReaderChunks(IEnumerable<CompiledWord> words)
-    {
-        var chunks = new List<ReaderChunkViewModel>();
-        var currentGroup = new List<ReaderWordViewModel>();
-        var currentCharacterCount = 0;
-
-        foreach (var word in words)
-        {
-            if (word.Metadata?.IsPause == true)
-            {
-                var pauseDuration = Math.Max(250, word.Metadata.PauseDuration ?? 500);
-                if (currentGroup.Count > 0)
-                {
-                    var lastWord = currentGroup[^1];
-                    currentGroup[^1] = lastWord with { PauseAfterMs = pauseDuration };
-                }
-
-                FlushGroup(chunks, currentGroup);
-                currentCharacterCount = 0;
-                chunks.Add(new ReaderPauseViewModel(
-                    pauseDuration,
-                    pauseDuration >= 600 ? "rd-pause rd-pause-med" : "rd-pause"));
-                continue;
-            }
-
-            if (string.IsNullOrWhiteSpace(word.CleanText))
-            {
-                continue;
-            }
-
-            var wordLength = word.CleanText.Length;
-            currentCharacterCount += wordLength;
-            if (currentGroup.Count > 0)
-            {
-                currentCharacterCount += 1;
-            }
-
-            currentGroup.Add(new ReaderWordViewModel(
-                word.CleanText,
-                BuildReaderWordClass(word.Metadata),
-                Math.Max(120, (int)Math.Round(word.DisplayDuration.TotalMilliseconds))));
-
-            if (ShouldEndReaderGroup(word.CleanText, currentGroup.Count, currentCharacterCount))
-            {
-                FlushGroup(chunks, currentGroup);
-                currentCharacterCount = 0;
-            }
-        }
-
-        FlushGroup(chunks, currentGroup);
-        return chunks;
-    }
-
-    private static bool ShouldEndReaderGroup(string cleanText, int wordCount, int characterCount)
-    {
-        if (wordCount >= MaxReaderGroupWordCount)
-        {
-            return true;
-        }
-
-        if (characterCount >= MaxReaderGroupCharacterCount)
-        {
-            return true;
-        }
-
-        if (HasSentenceEndingPunctuation(cleanText))
-        {
-            return true;
-        }
-
-        return HasClausePunctuation(cleanText) && wordCount >= 3;
-    }
-
-    private static void FlushGroup(List<ReaderChunkViewModel> chunks, List<ReaderWordViewModel> currentGroup)
-    {
-        if (currentGroup.Count == 0)
-        {
-            return;
-        }
-
-        chunks.Add(new ReaderGroupViewModel(currentGroup.ToArray()));
-        currentGroup.Clear();
-    }
-
-    private static string BuildReaderWordClass(WordMetadata? metadata)
-    {
-        if (metadata is null)
-        {
-            return string.Empty;
-        }
-
-        var classes = new List<string>();
-        if (metadata.IsEmphasis)
-        {
-            classes.Add("tps-emphasis");
-        }
-
-        var colorClass = ResolveColorClass(metadata.Color, prefix: "tps");
-        if (!string.IsNullOrWhiteSpace(colorClass))
-        {
-            classes.Add(colorClass);
-        }
-
-        var emotionClass = ResolveEmotionWordClass(metadata.EmotionHint, prefix: "tps");
-        if (!string.IsNullOrWhiteSpace(emotionClass))
-        {
-            classes.Add(emotionClass);
-        }
-
-        if (metadata.SpeedOverride.HasValue)
-        {
-            classes.Add(metadata.SpeedOverride.Value >= 175 ? "tps-fast" : "tps-slow");
-        }
-        else if (metadata.SpeedMultiplier.HasValue)
-        {
-            if (metadata.SpeedMultiplier <= 0.65f)
-            {
-                classes.Add("tps-xslow");
-            }
-            else if (metadata.SpeedMultiplier < 1f)
-            {
-                classes.Add("tps-slow");
-            }
-            else if (metadata.SpeedMultiplier >= 1.45f)
-            {
-                classes.Add("tps-xfast");
-            }
-            else if (metadata.SpeedMultiplier > 1f)
-            {
-                classes.Add("tps-fast");
-            }
-        }
-
-        if (!string.IsNullOrWhiteSpace(metadata.PronunciationGuide))
-        {
-            classes.Add("tps-phonetic");
-        }
-
-        return string.Join(" ", classes);
-    }
-
-    private static int CountReadableWords(IEnumerable<CompiledWord> words) =>
-        words.Count(word => word.Metadata?.IsPause != true && !string.IsNullOrWhiteSpace(word.CleanText));
-
-    private static string ResolveAccentColor(string? accentColor, string emotionKey)
-    {
-        if (!string.IsNullOrWhiteSpace(accentColor))
-        {
-            return accentColor;
-        }
-
-        return emotionKey switch
-        {
-            "warm" => "#E97F00",
-            "concerned" => "#B91C1C",
-            "focused" => "#16A34A",
-            "motivational" => "#7C3AED",
-            "urgent" => "#DC2626",
-            "happy" => "#D97706",
-            "excited" => "#DB2777",
-            "sad" => "#4F46E5",
-            "calm" => "#0D9488",
-            "energetic" => "#EA580C",
-            "professional" => "#1D4ED8",
-            _ => "#2563EB"
-        };
-    }
-
-    private static string ResolveEmotionKey(string? emotion)
-    {
-        var normalized = string.IsNullOrWhiteSpace(emotion)
-            ? "neutral"
-            : emotion.Trim().ToLowerInvariant();
-
-        return normalized switch
-        {
-            "worried" or "serious" or "frustrated" or "empathetic" => "concerned",
-            "determined" or "innovative" or "analytical" or "precise" or "stable" or "methodical" => "focused",
-            "supportive" or "helpful" or "encouraging" or "inspiring" => "motivational",
-            "thoughtful" or "confident" or "satisfied" => "professional",
-            "artistic" or "creative" or "amazed" or "impressed" or "passionate" => "excited",
-            "grateful" => "warm",
-            _ => normalized switch
-            {
-                "warm" or "concerned" or "focused" or "motivational" or "neutral" or "urgent" or
-                "happy" or "excited" or "sad" or "calm" or "energetic" or "professional" => normalized,
-                _ => "neutral"
-            }
-        };
-    }
-
-    private static string ResolveColorClass(string? color, string prefix)
-    {
-        if (string.IsNullOrWhiteSpace(color))
-        {
-            return string.Empty;
-        }
-
-        var normalized = color.Trim().ToLowerInvariant();
-        return normalized switch
-        {
-            "#ff5252" or "red" => $"{prefix}-red",
-            "#4caf50" or "green" => $"{prefix}-green",
-            "#2196f3" or "blue" => $"{prefix}-blue",
-            "#ffd700" or "yellow" => $"{prefix}-yellow",
-            "#ff9800" or "orange" => $"{prefix}-orange",
-            "#9c27b0" or "purple" => $"{prefix}-purple",
-            "#00bcd4" or "cyan" => $"{prefix}-cyan",
-            "#ff00ff" or "magenta" => $"{prefix}-magenta",
-            "#ec4899" or "pink" => $"{prefix}-pink",
-            "#14b8a6" or "teal" => $"{prefix}-teal",
-            "#ffffff" or "white" => $"{prefix}-white",
-            "#6b7280" or "gray" => $"{prefix}-gray",
-            "#ffeb3b" or "highlight" => $"{prefix}-highlight",
-            _ => string.Empty
-        };
-    }
-
-    private static string ResolveEmotionWordClass(string? emotion, string prefix)
-    {
-        var emotionKey = ResolveEmotionKey(emotion);
-        return string.IsNullOrWhiteSpace(emotionKey) ? string.Empty : $"{prefix}-{emotionKey}";
-    }
-
-    private static string FormatEmotionLabel(string emotionKey) =>
-        emotionKey switch
-        {
-            "concerned" => "Concerned",
-            "motivational" => "Motivational",
-            "professional" => "Professional",
-            "energetic" => "Energetic",
-            _ when string.IsNullOrWhiteSpace(emotionKey) => "Neutral",
-            _ => char.ToUpperInvariant(emotionKey[0]) + emotionKey[1..]
-        };
-
-    private static string FormatDuration(int totalSeconds) =>
-        $"{totalSeconds / 60}:{totalSeconds % 60:00}";
-
-    private static string ToAlphaColor(string color, double opacity)
-    {
-        var hex = color.Trim().TrimStart('#');
-        if (hex.Length == 8)
-        {
-            hex = hex[2..];
-        }
-
-        if (hex.Length != 6 ||
-            !int.TryParse(hex[..2], System.Globalization.NumberStyles.HexNumber, null, out var red) ||
-            !int.TryParse(hex.Substring(2, 2), System.Globalization.NumberStyles.HexNumber, null, out var green) ||
-            !int.TryParse(hex.Substring(4, 2), System.Globalization.NumberStyles.HexNumber, null, out var blue))
-        {
-            return color;
-        }
-
-        return $"rgba({red}, {green}, {blue}, {opacity.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)})";
-    }
-
-    private static string BuildPrimaryCameraStyle(MediaSourceTransform transform)
-    {
-        var styleParts = new List<string>();
-        var transformValue = BuildCameraTransform(transform, includeTranslate: false);
-        if (!string.IsNullOrWhiteSpace(transformValue))
-        {
-            styleParts.Add($"transform:{transformValue}");
-        }
-
-        return styleParts.Count == 0
-            ? string.Empty
-            : string.Join(';', styleParts) + ';';
-    }
-
-    private static bool HasSentenceEndingPunctuation(string text) =>
-        text.IndexOfAny(['.', '!', '?']) >= 0;
-
-    private static bool HasClausePunctuation(string text) =>
-        text.IndexOfAny([',', ';', ':', '—', '–']) >= 0;
-
-    private static string BuildCameraTransform(MediaSourceTransform transform, bool includeTranslate)
-    {
-        var transforms = new List<string>();
-        if (includeTranslate)
-        {
-            transforms.Add("translate(-50%, -50%)");
-        }
-
-        if (Math.Abs(transform.Rotation) > 0.01)
-        {
-            transforms.Add($"rotate({transform.Rotation.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)}deg)");
-        }
-
-        if (transform.MirrorHorizontal)
-        {
-            transforms.Add("scaleX(-1)");
-        }
-
-        if (transform.MirrorVertical)
-        {
-            transforms.Add("scaleY(-1)");
-        }
-
-        return string.Join(' ', transforms);
-    }
-
-    private sealed record ReaderCardSeed(
-        string SectionName,
-        string DisplayName,
-        string EmotionKey,
-        string EmotionLabel,
-        string BackgroundClass,
-        string AccentColor,
-        int TargetWpm,
-        int WordCount,
-        int DurationMilliseconds,
-        int DurationSeconds,
-        IReadOnlyList<ReaderChunkViewModel> Chunks);
-
-    private sealed record ReaderCardViewModel(
-        string SectionName,
-        string DisplayName,
-        string EmotionKey,
-        string EmotionLabel,
-        string BackgroundClass,
-        string AccentColor,
-        int TargetWpm,
-        int WordCount,
-        int DurationMilliseconds,
-        int DurationSeconds,
-        string WidthPercentString,
-        string EdgeColor,
-        IReadOnlyList<ReaderChunkViewModel> Chunks,
-        string TestId)
-    {
-        public static ReaderCardViewModel Empty { get; } = new(
-            "Introduction",
-            "Opening Block",
-            "warm",
-            "Warm",
-            "warm",
-            "#E97F00",
-            140,
-            1,
-            1000,
-            1,
-            "100%",
-            "rgba(233, 127, 0, 0.35)",
-            [new ReaderGroupViewModel([new ReaderWordViewModel("Ready", "tps-warm", 600)])],
-            UiTestIds.Teleprompter.Card(999));
-    }
-
-    private abstract record ReaderChunkViewModel;
-
-    private sealed record ReaderGroupViewModel(IReadOnlyList<ReaderWordViewModel> Words) : ReaderChunkViewModel;
-
-    private sealed record ReaderPauseViewModel(int DurationMs, string CssClass) : ReaderChunkViewModel;
-
-    private sealed record ReaderWordViewModel(string Text, string CssClass, int DurationMs, int PauseAfterMs = 0);
-
-    private sealed record ReaderCameraLayerViewModel(
-        string ElementId,
-        string DeviceId,
-        bool AutoStart,
-        string Role,
-        int Order,
-        string CssClass,
-        string Style,
-        string TestId)
-    {
-        public static ReaderCameraLayerViewModel Placeholder { get; } = new(
-            UiDomIds.Teleprompter.Camera,
-            string.Empty,
-            false,
-            "primary",
-            0,
-            "rd-camera",
-            string.Empty,
-            UiTestIds.Teleprompter.CameraBackground);
-    }
-}

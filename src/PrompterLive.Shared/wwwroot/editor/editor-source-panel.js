@@ -1,44 +1,9 @@
 (function () {
     const floatingToolbarAnchorMinTopPx = 44;
     const offscreenMirrorLeftPx = -99999;
-    const editorSurfaceNamespace = "editorSurface";
-    const historyBindings = new WeakMap();
-    const prompterLive = window.PrompterLive || (window.PrompterLive = {});
+    const editorSurfaceNamespace = "EditorSurfaceInterop";
 
-    prompterLive[editorSurfaceNamespace] = {
-        focus(textarea) {
-            if (!textarea) {
-                return;
-            }
-
-            textarea.focus({ preventScroll: true });
-        },
-
-        bindHistoryShortcuts(textarea, dotNetRef) {
-            if (!textarea || !dotNetRef) {
-                return;
-            }
-
-            prompterLive[editorSurfaceNamespace].unbindHistoryShortcuts(textarea);
-
-            const handler = event => {
-                const key = (event.key || "").toLowerCase();
-                const hasModifier = event.metaKey || event.ctrlKey;
-                const isUndo = hasModifier && !event.shiftKey && key === "z";
-                const isRedo = hasModifier && (key === "y" || (event.shiftKey && key === "z"));
-
-                if (!isUndo && !isRedo) {
-                    return;
-                }
-
-                event.preventDefault();
-                dotNetRef.invokeMethodAsync("HandleHistoryShortcut", isRedo ? "redo" : "undo");
-            };
-
-            textarea.addEventListener("keydown", handler);
-            historyBindings.set(textarea, handler);
-        },
-
+    window[editorSurfaceNamespace] = {
         syncScroll(textarea, overlay) {
             if (!textarea || !overlay) {
                 return;
@@ -60,20 +25,6 @@
             textarea.focus();
             textarea.setSelectionRange(start, end);
             return createEditorSelectionState(textarea);
-        },
-
-        unbindHistoryShortcuts(textarea) {
-            if (!textarea) {
-                return;
-            }
-
-            const handler = historyBindings.get(textarea);
-            if (!handler) {
-                return;
-            }
-
-            textarea.removeEventListener("keydown", handler);
-            historyBindings.delete(textarea);
         }
     };
 

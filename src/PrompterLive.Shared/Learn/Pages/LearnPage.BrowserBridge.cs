@@ -1,19 +1,15 @@
-using Microsoft.JSInterop;
+using Microsoft.AspNetCore.Components.Web;
 using PrompterLive.Shared.Contracts;
-using PrompterLive.Shared.Services;
 
 namespace PrompterLive.Shared.Pages;
 
 public partial class LearnPage : IAsyncDisposable
 {
-    [JSInvokable(HandleDesignKeyboardMethodName)]
-    public async Task HandleDesignKeyboardAsync(string key, bool isEditableTarget)
-    {
-        if (isEditableTarget)
-        {
-            return;
-        }
+    private Task HandleLearnKeyDownAsync(KeyboardEventArgs args) =>
+        HandleLearnKeyboardAsync(args.Key);
 
+    private async Task HandleLearnKeyboardAsync(string? key)
+    {
         switch (key)
         {
             case UiKeyboardKeys.Escape:
@@ -43,16 +39,9 @@ public partial class LearnPage : IAsyncDisposable
         }
     }
 
-    public async ValueTask DisposeAsync()
+    public ValueTask DisposeAsync()
     {
         StopPlaybackLoop();
-
-        if (_isKeyboardAttached)
-        {
-            await JS.InvokeVoidAsync(AppJsInterop.DetachDesignKeyboardMethod, UiDomIds.Design.LearnScreen);
-        }
-
-        _keyboardBridge?.Dispose();
-        _keyboardBridge = null;
+        return ValueTask.CompletedTask;
     }
 }

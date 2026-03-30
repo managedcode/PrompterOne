@@ -1,5 +1,6 @@
 using Bunit;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using PrompterLive.Shared.Contracts;
 using PrompterLive.Shared.Pages;
@@ -124,6 +125,53 @@ public sealed class EditorSourceInteractionTests : BunitContext
     }
 
     [Fact]
+    public void EditorPage_KeyboardUndoAndRedoReplaySourceChanges()
+    {
+        Services.GetRequiredService<NavigationManager>()
+            .NavigateTo(AppTestData.Routes.EditorDemo);
+        var cut = Render<EditorPage>();
+
+        cut.WaitForAssertion(() =>
+        {
+            var source = cut.FindByTestId(UiTestIds.Editor.SourceInput);
+            Assert.Contains(AppTestData.Editor.BodyHeading, source.GetAttribute("value"));
+        });
+
+        var sourceEditor = cut.FindByTestId(UiTestIds.Editor.SourceInput);
+        var initialSource = sourceEditor.GetAttribute("value")!;
+        var updatedSource = string.Concat(initialSource, Environment.NewLine, EditorSourceInteractionTestSource.EditPointToken);
+
+        sourceEditor.Input(updatedSource);
+
+        cut.WaitForAssertion(() =>
+        {
+            Assert.Equal(updatedSource, cut.FindByTestId(UiTestIds.Editor.SourceInput).GetAttribute("value"));
+        });
+
+        sourceEditor.TriggerEvent("onkeydown", new KeyboardEventArgs
+        {
+            CtrlKey = true,
+            Key = EditorSourceInteractionTestSource.UndoKey
+        });
+
+        cut.WaitForAssertion(() =>
+        {
+            Assert.Equal(initialSource, cut.FindByTestId(UiTestIds.Editor.SourceInput).GetAttribute("value"));
+        });
+
+        sourceEditor.TriggerEvent("onkeydown", new KeyboardEventArgs
+        {
+            CtrlKey = true,
+            Key = EditorSourceInteractionTestSource.RedoKey
+        });
+
+        cut.WaitForAssertion(() =>
+        {
+            Assert.Equal(updatedSource, cut.FindByTestId(UiTestIds.Editor.SourceInput).GetAttribute("value"));
+        });
+    }
+
+    [Fact]
     public void EditorPage_ColorMenuIncludesClearAction()
     {
         Services.GetRequiredService<NavigationManager>()
@@ -151,9 +199,11 @@ public sealed class EditorSourceInteractionTests : BunitContext
         public const string ProfileField = "profile:";
         public const string ProfilePersistenceLine = "profile: \"RSVP\"";
         public const string ProfileRsvp = "RSVP";
+        public const string RedoKey = "y";
         public const string SingleSegmentLabel = "1 Segments";
         public const string TestSpeakerPersistenceLine = "author: \"Test Speaker\"";
         public const string TitlePersistenceLine = "title: \"Product Launch\"";
+        public const string UndoKey = "z";
         public const string VersionPersistenceLine = "version: \"2.0\"";
     }
 }

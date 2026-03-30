@@ -104,10 +104,6 @@
     flex: 1;
     min-width: 0;
 }
-.rsvp-ctx-left > span,
-.rsvp-ctx-right > span {
-    transform: translateX(var(--rsvp-context-word-shift, 0px));
-}
 .rsvp-ctx-left {
     justify-content: flex-end;
     padding-right: 24px;
@@ -129,14 +125,29 @@
 
 /* Focus word — large, centered, with ORP highlight */
 .rsvp-focus {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: baseline;
     font-size: 76px;
     font-weight: 800;
     letter-spacing: 1px;
     white-space: nowrap;
     flex-shrink: 0;
+    width: 100%;
 }
-.rsvp-focus span { color: var(--t1); }
-.rsvp-focus .orp { color: var(--orp-red); font-weight: 900; }
+.rsvp-focus-segment { color: var(--t1); }
+.rsvp-focus-leading {
+    justify-self: end;
+    text-align: right;
+}
+.rsvp-focus-orp {
+    color: var(--orp-red);
+    font-weight: 900;
+    justify-self: center;
+}
+.rsvp-focus-trailing {
+    justify-self: start;
+}
 
 /* Vertical ORP line */
 .rsvp-orp-line {
@@ -264,4 +275,3 @@
     font-size: 12px;
     color: var(--t4);
 }
-

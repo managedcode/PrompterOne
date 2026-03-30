@@ -7,26 +7,14 @@ namespace PrompterLive.Shared.Services.Editor;
 
 public sealed class EditorInterop(IJSRuntime jsRuntime)
 {
-    private const string BindHistoryShortcutsMethod = EditorSurfaceNamespace + ".bindHistoryShortcuts";
-    private const string EditorSurfaceNamespace = "PrompterLive.editorSurface";
-    private const string FocusMethod = EditorSurfaceNamespace + ".focus";
+    private const string EditorSurfaceNamespace = "EditorSurfaceInterop";
     private const string GetSelectionStateMethod = EditorSurfaceNamespace + ".getSelectionState";
     private const string SetSelectionMethod = EditorSurfaceNamespace + ".setSelection";
     private const string SyncScrollMethod = EditorSurfaceNamespace + ".syncScroll";
-    private const string UnbindHistoryShortcutsMethod = EditorSurfaceNamespace + ".unbindHistoryShortcuts";
     private readonly IJSRuntime _jsRuntime = jsRuntime;
 
     public ValueTask SyncScrollAsync(ElementReference textarea, ElementReference overlay) =>
         _jsRuntime.InvokeVoidAsync(SyncScrollMethod, textarea, overlay);
-
-    public ValueTask FocusAsync(ElementReference textarea) =>
-        _jsRuntime.InvokeVoidAsync(FocusMethod, textarea);
-
-    public ValueTask BindHistoryShortcutsAsync<TValue>(
-        ElementReference textarea,
-        DotNetObjectReference<TValue> callbackReference)
-        where TValue : class =>
-        _jsRuntime.InvokeVoidAsync(BindHistoryShortcutsMethod, textarea, callbackReference);
 
     public async Task<EditorSelectionViewModel> GetSelectionAsync(ElementReference textarea)
     {
@@ -67,9 +55,6 @@ public sealed class EditorInterop(IJSRuntime jsRuntime)
             result.ToolbarTop,
             result.ToolbarLeft);
     }
-
-    public ValueTask UnbindHistoryShortcutsAsync(ElementReference textarea) =>
-        _jsRuntime.InvokeVoidAsync(UnbindHistoryShortcutsMethod, textarea);
 
     private sealed record EditorSelectionInteropResult(
         int Start,

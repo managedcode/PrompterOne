@@ -6,6 +6,7 @@
      tabindex="0"
      @ref="_screenRoot"
      @onkeydown="HandleLearnKeyDownAsync"
+     @onkeydown:preventDefault="true"
      data-testid="@UiTestIds.Learn.Page">
     <div class="rsvp">
         <div class="rsvp-progress">
@@ -33,10 +34,9 @@
 
                 <div class="rsvp-focus-shell">
                     <div class="rsvp-focus" id="@UiDomIds.Learn.Word" data-testid="@UiTestIds.Learn.Word">
-                        @foreach (var character in _currentWordCharacters)
-                        {
-                            <span class="@(character.IsOrp ? OrpClassName : null)">@character.Value</span>
-                        }
+                        <span class="rsvp-focus-segment rsvp-focus-leading">@_currentWordLeading</span>
+                        <span class="rsvp-focus-segment rsvp-focus-orp">@_currentWordOrp</span>
+                        <span class="rsvp-focus-segment rsvp-focus-trailing">@_currentWordTrailing</span>
                     </div>
                 </div>
 

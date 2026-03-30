@@ -63,7 +63,7 @@ public sealed class ScreenShellContractTests : BunitContext
             Assert.NotNull(cut.FindByTestId(UiTestIds.Learn.OrpLine));
             Assert.NotNull(cut.FindByTestId(UiTestIds.Learn.ContextLeft));
             Assert.NotNull(cut.FindByTestId(UiTestIds.Learn.ContextRight));
-            Assert.Contains("PrompterLiveDesign.setRsvpTimeline", string.Join('\n', _harness.JsRuntime.Invocations));
+            Assert.Equal("0", cut.FindByTestId(UiTestIds.Learn.Page).GetAttribute("tabindex"));
         });
     }
 

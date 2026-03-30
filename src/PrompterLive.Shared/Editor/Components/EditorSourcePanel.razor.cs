@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
+using Microsoft.AspNetCore.Components.Web;
 using PrompterLive.Core.Models.Editor;
 using PrompterLive.Shared.Rendering;
 
@@ -8,8 +8,9 @@ namespace PrompterLive.Shared.Components.Editor;
 public partial class EditorSourcePanel : IAsyncDisposable
 {
     private const string FloatingBarEdgePaddingVariable = "var(--ed-floatbar-edge)";
+    private const string RedoKeyLower = "y";
+    private const string UndoKeyLower = "z";
     private ElementReference _overlayRef;
-    private DotNetObjectReference<EditorSourcePanel>? _shortcutReference;
     private ElementReference _textareaRef;
     private EditorSelectionViewModel _domSelection = EditorSelectionViewModel.Empty;
 
@@ -42,12 +43,6 @@ public partial class EditorSourcePanel : IAsyncDisposable
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
-        {
-            _shortcutReference = DotNetObjectReference.Create(this);
-            await SafeBindHistoryShortcutsAsync();
-        }
-
         await SafeSyncScrollAsync();
     }
 
@@ -66,8 +61,7 @@ public partial class EditorSourcePanel : IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
-        await SafeUnbindHistoryShortcutsAsync();
-        _shortcutReference?.Dispose();
+        await Task.CompletedTask;
     }
 
     protected Task RequestInsertAsync(string token, int? caretOffset = null) =>
@@ -79,14 +73,19 @@ public partial class EditorSourcePanel : IAsyncDisposable
     protected Task RequestWrapAsync(string openingToken, string closingToken, string placeholder = "text") =>
         OnCommandRequested.InvokeAsync(new EditorCommandRequest(EditorCommandKind.Wrap, openingToken, closingToken, placeholder));
 
-    [JSInvokable]
-    public Task HandleHistoryShortcut(string command)
+    private Task OnSourceKeyDownAsync(KeyboardEventArgs args)
     {
-        var historyCommand = string.Equals(command, "redo", StringComparison.OrdinalIgnoreCase)
-            ? EditorHistoryCommand.Redo
-            : EditorHistoryCommand.Undo;
+        var key = (args.Key ?? string.Empty).ToLowerInvariant();
+        var hasModifier = args.CtrlKey || args.MetaKey;
+        var isUndo = hasModifier && !args.ShiftKey && key == UndoKeyLower;
+        var isRedo = hasModifier && (key == RedoKeyLower || (args.ShiftKey && key == UndoKeyLower));
 
-        return RequestHistoryAsync(historyCommand);
+        if (!isUndo && !isRedo)
+        {
+            return Task.CompletedTask;
+        }
+
+        return RequestHistoryAsync(isRedo ? EditorHistoryCommand.Redo : EditorHistoryCommand.Undo);
     }
 
     private async Task OnScrollAsync()
@@ -130,33 +129,6 @@ public partial class EditorSourcePanel : IAsyncDisposable
         try
         {
             await Interop.SyncScrollAsync(_textareaRef, _overlayRef);
-        }
-        catch
-        {
-        }
-    }
-
-    private async Task SafeBindHistoryShortcutsAsync()
-    {
-        if (_shortcutReference is null)
-        {
-            return;
-        }
-
-        try
-        {
-            await Interop.BindHistoryShortcutsAsync(_textareaRef, _shortcutReference);
-        }
-        catch
-        {
-        }
-    }
-
-    private async Task SafeUnbindHistoryShortcutsAsync()
-    {
-        try
-        {
-            await Interop.UnbindHistoryShortcutsAsync(_textareaRef);
         }
         catch
         {

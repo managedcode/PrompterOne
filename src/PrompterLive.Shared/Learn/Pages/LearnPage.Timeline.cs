@@ -48,17 +48,23 @@ public partial class LearnPage
 
     private static string BuildWpmLabel(int speed) => string.Concat(speed, WpmSuffix);
 
-    private static IReadOnlyList<RsvpCharacterViewModel> BuildWordCharacters(string word)
+    private static RsvpFocusWordViewModel BuildFocusWord(string word)
     {
         if (string.IsNullOrWhiteSpace(word))
         {
-            return [];
+            return new RsvpFocusWordViewModel(string.Empty, ReadyWord, string.Empty);
         }
 
         var orpIndex = GetOrpIndex(word);
-        return word
-            .Select((character, index) => new RsvpCharacterViewModel(character.ToString(), index == orpIndex))
-            .ToArray();
+        if (orpIndex >= word.Length)
+        {
+            orpIndex = word.Length - 1;
+        }
+
+        return new RsvpFocusWordViewModel(
+            word[..orpIndex],
+            word[orpIndex].ToString(),
+            word[(orpIndex + 1)..]);
     }
 
     private static int GetOrpIndex(string word)
@@ -141,7 +147,7 @@ public partial class LearnPage
         return fallback;
     }
 
-    private sealed record RsvpCharacterViewModel(string Value, bool IsOrp);
+    private sealed record RsvpFocusWordViewModel(string Leading, string Orp, string Trailing);
 
     private sealed record RsvpTimelineEntry(
         string Word,

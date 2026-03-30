@@ -180,6 +180,7 @@ Local `AGENTS.md` files may tighten these values, but they must not loosen them 
 - The plan file MUST contain:
   - task goal and scope
   - a detailed implementation plan with detailed ordered steps
+  - very detailed step-by-step actions; each step must say exactly what will be done, where it will be done, and how that step will be verified before moving on
   - constraints and risks
   - explicit test steps as part of the ordered plan, not as a later add-on
   - the test and verification strategy for each planned step
@@ -192,6 +193,7 @@ Local `AGENTS.md` files may tighten these values, but they must not loosen them 
 - Use the plan loop for every non-trivial task:
   - define the intended direction before implementation
   - turn that direction into a detailed `<slug>.plan.md`
+  - break the work into small concrete sequential steps; vague plan items such as "implement feature", "fix tests", or "do verification" are forbidden unless they are expanded into exact sub-steps
   - include test creation, test updates, and verification work in the ordered steps from the start
   - once the initial plan is ready, run the full relevant test suite to establish the real baseline
   - if tests are already failing, add each failing test back into `<slug>.plan.md` as a tracked item with its failure symptom, suspected cause, and fix status
@@ -285,6 +287,11 @@ Repo-specific design rules:
 - Do not introduce a server host for the app runtime.
 - Preserve stable `data-testid` selectors on core flows because the Playwright suite depends on them.
 - Keep UI routes in shared route constants and keep `data-testid` names in shared UI contract constants.
+- Keep UI flow logic, keyboard shortcuts, DOM ids/selectors, and reusable UI constants in C#/Blazor contracts whenever the platform allows it; use JS only for unavoidable browser API interop or DOM access that Blazor cannot own directly.
+- Prefer deleting JS files entirely when they only hold product UI behavior or duplicated constants; JS modules may exist only as thin bridges to browser APIs or external JS SDKs, with the owning workflow and state kept in C#/Blazor.
+- Third-party runtime JavaScript SDKs MUST be sourced only from explicitly pinned GitHub Release tags and assets, copied into the repo, bundled locally with their runtime dependencies, and never loaded from CDNs, package registries, `latest` endpoints, or ad-hoc remote downloads at app runtime.
+- Repo-owned manifests, scripts, workflows, and project files that track third-party runtime JavaScript SDKs MUST point to concrete GitHub release versions and asset URLs, never floating references.
+- Any vendored runtime JavaScript SDK that tracks an upstream GitHub repo MUST have an automated watcher job that checks new GitHub releases and opens a repo issue describing the required update when a newer release appears.
 - Build quality gates must stay green under `-warnaserror`.
 - The runtime must negotiate browser language from supported cultures and default to English.
 - Supported runtime cultures are English, Ukrainian, French, Spanish, Portuguese, and Italian.
@@ -330,6 +337,9 @@ Ask first:
 - random-port local startup
 - brittle selectors without `data-testid`
 - design drift from `new-design`
+- runtime dependencies fetched from random external sources instead of vendored release artifacts
+- progress updates that talk about internal skill routing instead of the concrete repo change
+- long exploratory work before producing the concrete vendored files the user explicitly asked for
 
 ## Preferred Skills
 

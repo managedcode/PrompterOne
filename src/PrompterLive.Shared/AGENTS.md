@@ -18,7 +18,8 @@
 - `Diagnostics/*`
 - `Media/*`
 - `wwwroot/design/*`
-- `wwwroot/prompterlive.js`
+- `wwwroot/prompterlive-shell.js`
+- `wwwroot/prompterlive-browser.js`
 
 ## Boundaries
 
@@ -27,6 +28,8 @@
 - Keep app-specific UI logic here, but keep business rules in `PrompterLive.Core`.
 - Preserve `data-testid` selectors used by Playwright.
 - Do not add server-only dependencies.
+- Keep keyboard shortcuts, screen ids/selectors, and reusable UI constants in Blazor/C# contracts when possible; leave JS only with unavoidable browser API interop and direct DOM work that Blazor cannot replace cleanly.
+- Prefer removing JS files that only orchestrate UI behavior, reader state, or shell interactions; keep those flows in Razor components or C# services and let JS expose only the minimal browser or SDK call surface.
 
 ## Project-Local Commands
 
@@ -42,5 +45,5 @@
 
 - Small class-name changes can break design fidelity badly because the CSS comes from `new-design`.
 - `AppShell`, `Contracts`, `Localization`, and `wwwroot` are cross-cutting; do not turn them back into dumping grounds for feature code.
-- Routed shell and page navigation belong in Blazor; keep `wwwroot/design/app.js` limited to browser/runtime interop.
+- Routed shell and page navigation belong in Blazor; keep remaining `wwwroot` JavaScript limited to browser/runtime interop.
 - JS interop and saved browser state are part of the real runtime contract; do not treat them as decorative.

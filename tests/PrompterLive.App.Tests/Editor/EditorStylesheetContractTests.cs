@@ -4,8 +4,7 @@ namespace PrompterLive.App.Tests;
 
 public sealed class EditorStylesheetContractTests
 {
-    private const string EditorSupportNamespace = "PrompterLive.editorSurface";
-    private const string EditorSupportProperty = "editorSurface";
+    private const string EditorSupportNamespace = "EditorSurfaceInterop";
     private const string HighlightAndInputRule = ".ed-source-highlight,\n.ed-source-input";
     private static readonly string ComponentStylesheetPath = Path.GetFullPath(Path.Combine(
         AppContext.BaseDirectory,
@@ -13,9 +12,12 @@ public sealed class EditorStylesheetContractTests
     private static readonly string EditorSupportScriptPath = Path.GetFullPath(Path.Combine(
         AppContext.BaseDirectory,
         "../../../../../src/PrompterLive.Shared/wwwroot/editor/editor-source-panel.js"));
-    private static readonly string GlobalScriptPath = Path.GetFullPath(Path.Combine(
+    private static readonly string BrowserScriptPath = Path.GetFullPath(Path.Combine(
         AppContext.BaseDirectory,
-        "../../../../../src/PrompterLive.Shared/wwwroot/prompterlive.js"));
+        "../../../../../src/PrompterLive.Shared/wwwroot/prompterlive-browser.js"));
+    private static readonly string ShellScriptPath = Path.GetFullPath(Path.Combine(
+        AppContext.BaseDirectory,
+        "../../../../../src/PrompterLive.Shared/wwwroot/prompterlive-shell.js"));
     private static readonly string HostIndexPath = Path.GetFullPath(Path.Combine(
         AppContext.BaseDirectory,
         "../../../../../src/PrompterLive.App/wwwroot/index.html"));
@@ -73,7 +75,8 @@ public sealed class EditorStylesheetContractTests
         var componentStylesheet = File.ReadAllText(ComponentStylesheetPath);
         var globalStylesheet = File.ReadAllText(SharedStylesheetPath);
         var editorSupportScript = File.ReadAllText(EditorSupportScriptPath);
-        var globalShellScript = File.ReadAllText(GlobalScriptPath);
+        var browserScript = File.ReadAllText(BrowserScriptPath);
+        var shellScript = File.ReadAllText(ShellScriptPath);
         var hostIndex = File.ReadAllText(HostIndexPath);
         var interopSource = File.ReadAllText(InteropPath);
 
@@ -86,12 +89,15 @@ public sealed class EditorStylesheetContractTests
         Assert.DoesNotContain(".ed-source-highlight", globalStylesheet, StringComparison.Ordinal);
 
         Assert.Contains(EditorSupportNamespace, interopSource, StringComparison.Ordinal);
-        Assert.Contains($"editorSurfaceNamespace = \"{EditorSupportProperty}\"", editorSupportScript, StringComparison.Ordinal);
-        Assert.Contains($"prompterLive[{EditorSupportNamespace.Split('.').Last()}Namespace]", editorSupportScript, StringComparison.Ordinal);
-        Assert.DoesNotContain("editor:", globalShellScript, StringComparison.Ordinal);
+        Assert.Contains($"editorSurfaceNamespace = \"{EditorSupportNamespace}\"", editorSupportScript, StringComparison.Ordinal);
+        Assert.Contains($"window[{EditorSupportNamespace.ToLowerInvariant() switch {{ _ => "\"EditorSurfaceInterop\"" }}]", editorSupportScript, StringComparison.Ordinal);
+        Assert.DoesNotContain("editor:", browserScript, StringComparison.Ordinal);
+        Assert.DoesNotContain("editor:", shellScript, StringComparison.Ordinal);
 
         Assert.Contains("PrompterLive.App.styles.css", hostIndex, StringComparison.Ordinal);
         Assert.Contains("_content/PrompterLive.Shared/editor/editor-source-panel.js", hostIndex, StringComparison.Ordinal);
+        Assert.Contains("_content/PrompterLive.Shared/prompterlive-shell.js", hostIndex, StringComparison.Ordinal);
+        Assert.Contains("_content/PrompterLive.Shared/prompterlive-browser.js", hostIndex, StringComparison.Ordinal);
     }
 
     private static string GetRuleBlock(string selector)
