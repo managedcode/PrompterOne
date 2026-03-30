@@ -14,6 +14,34 @@ The acceptance target is a browser-only runtime that:
 
 There is no backend in the runtime architecture.
 
+## Architecture Document Contract
+
+`docs/Architecture.md` is the required entry point before any non-trivial change.
+
+Every agent or contributor must read it first to answer three questions before editing:
+
+1. where the target behavior lives
+2. which component owns the change
+3. which boundary must stay untouched
+
+This document must stay detailed enough that a new contributor can use it as the primary map for both implementation and discovery.
+
+It must always include:
+
+- the full app structure and how the top-level projects relate
+- every major component or feature slice with:
+  - what it is
+  - why it exists
+  - where it lives in the repo
+  - what it owns
+  - what it must not own
+- the design principles that drive UI implementation
+- the architecture and dependency principles that drive code placement
+- the main places to look when adding, debugging, or reshaping behavior
+- Mermaid diagrams that render and reflect the current structure
+
+If a change introduces a new major component, moves ownership, or changes how contributors should discover the code, update this document in the same task.
+
 ## Solution Layout
 
 ```mermaid
@@ -38,6 +66,43 @@ flowchart LR
 - `src/PrompterLive.Shared` keeps routed UI in feature slices: `AppShell`, `Diagnostics`, `Editor`, `Library`, `Learn`, `Teleprompter`, `GoLive`, `Settings`, and `Media`.
 - `src/PrompterLive.Core` keeps host-neutral behavior in matching domain slices: `Tps`, `Editor`, `Workspace`, `Library`, `Rsvp`, `Media`, `Streaming`, `Localization`, and `Samples`.
 - `tests/PrompterLive.Core.Tests`, `tests/PrompterLive.App.Tests`, and `tests/PrompterLive.App.UITests` mirror those feature slices and reserve `Support` or `Infrastructure` for shared harness code.
+
+## Design And Structure Principles
+
+### UI Design Principles
+
+- `new-design/` is the visual source of truth for layout, hierarchy, spacing, controls, color direction, and interaction tone.
+- UI work should port markup, structure, and class intent from `new-design/` instead of inventing a parallel design language.
+- Routed screens should keep strong visual identities while still using the shared shell and contracts from `AppShell`.
+- Stable `data-testid` hooks are part of the UI contract, not optional test-only extras.
+- Browser-first behavior matters more than server assumptions. Media, storage, and stream state stay client-side.
+
+### Code Structure Principles
+
+- `src/PrompterLive.App` hosts only bootstrapping and runtime startup concerns.
+- `src/PrompterLive.Shared` owns routed pages, Razor components, CSS, UI state wiring, and browser interop.
+- `src/PrompterLive.Core` owns reusable domain logic, parsing, workspace state, media models, and streaming logic.
+- `tests/` mirrors production ownership and proves behavior through real UI, component, and core flows.
+- New code should be added where the owning boundary already lives; do not create duplicate feature centers.
+
+## Component Ownership Map
+
+| Component / Slice | What It Is | Why It Exists | Where It Lives | Owns | Must Not Own |
+| --- | --- | --- | --- | --- | --- |
+| `PrompterLive.App` | Browser host and startup shell | Boots the standalone WASM app on the stable local origin | `src/PrompterLive.App` | startup, host config, app shell entrypoint | domain logic, feature behavior, server runtime code |
+| `AppShell` | Shared routed layout and navigation shell | Keeps one navigation, header, widget, and screen-frame contract across the app | `src/PrompterLive.Shared/AppShell` | layout chrome, route-aware header state, persistent shell widgets | feature-specific editing, streaming, or document logic |
+| `Library` | Script and folder browsing surface | Lets users discover, search, and organize scripts | `src/PrompterLive.Shared/Library`, `src/PrompterLive.Core/Library` | cards, folder tree UI, repository-backed browse flows | TPS authoring rules, reader rendering, streaming orchestration |
+| `Editor` | TPS authoring surface | Creates and reshapes scripts with structure-aware tooling | `src/PrompterLive.Shared/Editor`, `src/PrompterLive.Core/Editor`, `src/PrompterLive.Core/Tps` | source editing UI, toolbar actions, front matter, TPS transforms | shell navigation policy, teleprompter playback, live runtime wiring |
+| `Learn` | RSVP rehearsal mode | Trains delivery with timing and context | `src/PrompterLive.Shared/Learn`, `src/PrompterLive.Core/Rsvp` | ORP playback, rehearsal pacing, next-phrase context | document storage, scene routing, destination configuration |
+| `Teleprompter` | Read-mode playback surface | Presents the script for live reading with camera-backed composition | `src/PrompterLive.Shared/Teleprompter` | reading layout, background camera composition, runtime reading flow | script persistence rules, destination setup screens |
+| `GoLive` | Live production and routing surface | Arms outputs, switches sources, previews cameras, and exposes live telemetry | `src/PrompterLive.Shared/GoLive`, `src/PrompterLive.Core/Streaming` | studio layout, output controls, destination routing, live session state | server-side stream processing, unrelated editor or library concerns |
+| `Settings` | Device and scene setup surface | Configures cameras, microphones, overlays, and base scene state | `src/PrompterLive.Shared/Settings`, `src/PrompterLive.Core/Media` | device selection UI, scene transforms, scene persistence flows | live output orchestration policy, document editing |
+| `Diagnostics` | Error and operation feedback layer | Makes recoverable and fatal issues visible in the shell | `src/PrompterLive.Shared/Diagnostics` | banners, error boundary reporting, operation status wiring | owning business logic of the failing feature |
+| `Localization` | Culture and UI text contract | Keeps supported runtime languages consistent and browser-driven | `src/PrompterLive.Shared/Localization`, `src/PrompterLive.Core/Localization` | text catalogs, culture bootstrap, supported culture rules | feature behavior or screen-specific layout ownership |
+| `Workspace` | Active script/session state model | Gives editor, learn, read, and go-live one shared script context | `src/PrompterLive.Core/Workspace` | loaded script state, previews, estimated duration, active session metadata | feature-specific rendering details |
+| `Media` | Browser media and scene domain | Models cameras, microphones, transforms, and audio bus state | `src/PrompterLive.Core/Media`, `src/PrompterLive.Shared/Media` | media device models, scene state, browser media interop | routed screen layout ownership |
+| `Streaming` | Output and target routing domain | Defines how program output is described and routed to destinations | `src/PrompterLive.Core/Streaming` | stream settings, target descriptors, routing normalization | Razor UI or page layout concerns |
+| `tests` | Verification layers | Protects behavior with browser, component, and core assertions | `tests/*` | acceptance flows, component contracts, domain verification | production logic ownership |
 
 ## Build Governance
 

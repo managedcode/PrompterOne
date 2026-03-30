@@ -22,12 +22,9 @@ public partial class GoLivePage : ComponentBase
     private const string GoLiveSceneOperation = "Go Live save scene";
     private const string GoLiveStudioMessage = "Unable to save live routing settings.";
     private const string GoLiveStudioOperation = "Go Live save studio";
-    private const string LocalRecordingReadySummary = "Capture the selected cameras locally while other live outputs stay armed.";
     private const string NeedsSetupStatusLabel = "Needs setup";
-    private const string NdiReadySummary = "Expose the selected cameras over the network to switchers and remote studios.";
     private const string NoDestinationSourceSummary = "Select at least one scene camera for this destination.";
     private const string NoMicrophoneLabel = "No microphone";
-    private const string ObsReadySummary = "Expose the selected cameras to OBS-compatible capture and virtual camera workflows.";
     private const string ReadyStatusLabel = "Ready";
     private const string SceneSettingsKey = "prompterlive.scene";
     private const string SelectedCameraSingularLabel = "selected camera";
@@ -90,16 +87,6 @@ public partial class GoLivePage : ComponentBase
 
     private string LiveKitSummary => LiveKitDescriptor.Summary;
 
-    private GoLiveDestinationState NdiDescriptor => BuildLocalOutputState(
-        _studioSettings.Streaming.NdiOutputEnabled,
-        NdiReadySummary,
-        GoLiveTargetCatalog.TargetIds.Ndi);
-
-    private GoLiveDestinationState ObsDescriptor => BuildLocalOutputState(
-        _studioSettings.Streaming.ObsVirtualCameraEnabled,
-        ObsReadySummary,
-        GoLiveTargetCatalog.TargetIds.Obs);
-
     private SceneCameraSource? PreviewCamera =>
         SceneCameras.FirstOrDefault(camera => camera.Transform.Visible && camera.Transform.IncludeInOutput)
         ?? SceneCameras.FirstOrDefault(camera => camera.Transform.Visible)
@@ -124,11 +111,6 @@ public partial class GoLivePage : ComponentBase
     private string ReadRoute => HasScriptContext
         ? AppRoutes.TeleprompterWithId(SessionService.State.ScriptId)
         : AppRoutes.Teleprompter;
-
-    private GoLiveDestinationState RecordingDescriptor => BuildLocalOutputState(
-        _studioSettings.Streaming.LocalRecordingEnabled,
-        LocalRecordingReadySummary,
-        GoLiveTargetCatalog.TargetIds.Recording);
 
     private IReadOnlyList<SceneCameraSource> SceneCameras => MediaSceneService.State.Cameras;
 

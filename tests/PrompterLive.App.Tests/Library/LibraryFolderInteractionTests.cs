@@ -115,7 +115,7 @@ public sealed class LibraryFolderInteractionTests : BunitContext
     }
 
     [Fact]
-    public async Task LibraryPage_SelectingNestedParentFolder_ExpandsItsChildrenInSidebar()
+    public async Task LibraryPage_SelectingNestedParentFolder_TogglesItsChildrenInSidebar()
     {
         const string nestedFolderName = "Launch Decks";
 
@@ -139,6 +139,11 @@ public sealed class LibraryFolderInteractionTests : BunitContext
             Assert.Contains(UiTestIds.Library.Folder(nestedFolder.Id), cut.Markup, StringComparison.Ordinal);
             Assert.Contains(nestedFolderName, cut.Markup, StringComparison.Ordinal);
         });
+
+        cut.FindByTestId(UiTestIds.Library.Folder(SampleLibraryFolderCatalog.ProductFolderId)).Click();
+
+        cut.WaitForAssertion(() =>
+            Assert.DoesNotContain(UiTestIds.Library.Folder(nestedFolder.Id), cut.Markup, StringComparison.Ordinal));
     }
 
     [Fact]

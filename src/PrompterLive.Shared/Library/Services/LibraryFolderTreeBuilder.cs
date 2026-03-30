@@ -35,7 +35,7 @@ internal static class LibraryFolderTreeBuilder
             var totalCount = totalCountByFolder.GetValueOrDefault(folder.Id);
             var hasSelectedDescendant = ContainsSelection(childNodes, selectedFolderId);
             var isExpanded = childNodes.Count > 0
-                && (expandedFolderIds.Contains(folder.Id) || hasSelectedDescendant || depth == 0);
+                && (expandedFolderIds.Contains(folder.Id) || hasSelectedDescendant);
 
             return new LibraryFolderNodeViewModel(
                 Id: folder.Id,

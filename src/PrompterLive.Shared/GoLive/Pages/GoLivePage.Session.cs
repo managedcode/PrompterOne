@@ -61,8 +61,6 @@ public partial class GoLivePage
 
     private static string ProgramTimerLabel => DefaultProgramTimerLabel;
 
-    private string RecordingActionLabel => GoLiveSession.State.IsRecordingActive ? RecordingStopLabel : RecordingButtonLabel;
-
     private string RecordingBadgeText => GoLiveSession.State.IsRecordingActive ? RecordingStopLabel : RecordingButtonLabel;
 
     private string SelectedSourceLabel => SelectedCamera?.Label ?? CameraFallbackLabel;

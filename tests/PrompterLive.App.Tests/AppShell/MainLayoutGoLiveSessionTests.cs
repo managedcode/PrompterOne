@@ -31,7 +31,11 @@ public sealed class MainLayoutGoLiveSessionTests : BunitContext
 
         var cut = RenderLayout();
 
-        cut.WaitForAssertion(() => Assert.NotNull(cut.FindByTestId(UiTestIds.Header.LiveWidget)));
+        cut.WaitForAssertion(() =>
+        {
+            Assert.NotNull(cut.FindByTestId(UiTestIds.Header.LiveWidget));
+            Assert.NotNull(cut.FindByTestId(UiTestIds.Header.LiveWidgetPreview));
+        });
         cut.Markup.Contains(AppTestData.Camera.FrontCamera, StringComparison.Ordinal);
     }
 

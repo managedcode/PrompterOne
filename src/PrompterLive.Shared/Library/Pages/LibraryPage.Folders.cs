@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using PrompterLive.Core.Models.Library;
 using PrompterLive.Shared.Components.Library;
 
 namespace PrompterLive.Shared.Pages;
@@ -9,7 +10,7 @@ public partial class LibraryPage
     {
         Logger.LogInformation(SelectFolderLogTemplate, folderId);
         _selectedFolderId = folderId;
-        ExpandSelectedFolderPath(folderId);
+        UpdateExpandedFolderState(folderId);
         RebuildLibraryView();
         await PersistViewStateAsync();
     }
@@ -95,7 +96,7 @@ public partial class LibraryPage
                 ? null
                 : folderId;
 
-    private void ExpandSelectedFolderPath(string folderId)
+    private void UpdateExpandedFolderState(string folderId)
     {
         if (string.IsNullOrWhiteSpace(folderId)
             || string.Equals(folderId, LibrarySelectionKeys.All, StringComparison.Ordinal)
@@ -105,6 +106,23 @@ public partial class LibraryPage
         }
 
         var foldersById = _folders.ToDictionary(folder => folder.Id, StringComparer.Ordinal);
+        if (!foldersById.ContainsKey(folderId))
+        {
+            return;
+        }
+
+        var hasChildren = _folders.Any(folder => string.Equals(folder.ParentId, folderId, StringComparison.Ordinal));
+        if (hasChildren && _expandedFolderIds.Contains(folderId))
+        {
+            CollapseFolderBranch(folderId);
+            return;
+        }
+
+        ExpandFolderPath(folderId, foldersById);
+    }
+
+    private void ExpandFolderPath(string folderId, IReadOnlyDictionary<string, StoredLibraryFolder> foldersById)
+    {
         var currentFolderId = folderId;
 
         while (foldersById.TryGetValue(currentFolderId, out var folder))
@@ -117,6 +135,23 @@ public partial class LibraryPage
             }
 
             currentFolderId = folder.ParentId;
+        }
+    }
+
+    private void CollapseFolderBranch(string folderId)
+    {
+        var pendingFolderIds = new Queue<string>();
+        pendingFolderIds.Enqueue(folderId);
+
+        while (pendingFolderIds.Count > 0)
+        {
+            var currentFolderId = pendingFolderIds.Dequeue();
+            _expandedFolderIds.Remove(currentFolderId);
+
+            foreach (var childFolder in _folders.Where(folder => string.Equals(folder.ParentId, currentFolderId, StringComparison.Ordinal)))
+            {
+                pendingFolderIds.Enqueue(childFolder.Id);
+            }
         }
     }
 }

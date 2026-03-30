@@ -100,15 +100,6 @@ public partial class MainLayout : LayoutComponentBase, IDisposable
         ? GoLiveSessionState.ScriptTitle
         : GoLiveSessionState.ActiveSourceLabel;
 
-    private string GoLiveWidgetStateLabel => GoLiveIndicatorState switch
-    {
-        RecordingStateValue => "REC",
-        StreamingStateValue => "LIVE",
-        _ => "READY"
-    };
-
-    private string GoLiveWidgetElapsed => GoLiveSessionState.ElapsedLabel;
-
     private bool ShowGoLiveWidget => GoLiveSessionState.HasActiveSession && ShellState.Screen != AppShellScreen.GoLive;
 
     private string GoLiveRoute => !string.IsNullOrWhiteSpace(GoLiveSessionState.ScriptId)

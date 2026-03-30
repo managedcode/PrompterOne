@@ -15,6 +15,7 @@ builder.Logging.SetMinimumLevel(LogLevel.Information);
 builder.Logging.AddFilter("PrompterLive", LogLevel.Information);
 builder.Logging.AddFilter("Microsoft.AspNetCore.Components.WebAssembly.Rendering.WebAssemblyRenderer", LogLevel.Warning);
 
+builder.Services.AddLocalization();
 builder.Services.AddSingleton<IFormFactor, FormFactor>();
 builder.Services.AddPrompterLiveShared();
 

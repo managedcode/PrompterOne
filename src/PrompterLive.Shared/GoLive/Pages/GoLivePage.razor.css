@@ -239,6 +239,12 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.live-session-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
 @media (max-width: 1320px) {
     .go-live-studio-shell,
     .go-live-routing-grid,

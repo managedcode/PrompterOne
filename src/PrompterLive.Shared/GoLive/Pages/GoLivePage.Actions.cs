@@ -19,48 +19,6 @@ public partial class GoLivePage
         _ => VirtualCameraOutputModeValue
     };
 
-    private async Task ToggleObsVirtualCameraAsync()
-    {
-        _studioSettings = _studioSettings with
-        {
-            Streaming = _studioSettings.Streaming with
-            {
-                ObsVirtualCameraEnabled = !_studioSettings.Streaming.ObsVirtualCameraEnabled,
-                OutputMode = StreamingOutputMode.VirtualCamera
-            }
-        };
-
-        await PersistStudioSettingsAsync();
-    }
-
-    private async Task ToggleNdiOutputAsync()
-    {
-        _studioSettings = _studioSettings with
-        {
-            Streaming = _studioSettings.Streaming with
-            {
-                NdiOutputEnabled = !_studioSettings.Streaming.NdiOutputEnabled,
-                OutputMode = StreamingOutputMode.NdiOutput
-            }
-        };
-
-        await PersistStudioSettingsAsync();
-    }
-
-    private async Task ToggleLocalRecordingAsync()
-    {
-        _studioSettings = _studioSettings with
-        {
-            Streaming = _studioSettings.Streaming with
-            {
-                LocalRecordingEnabled = !_studioSettings.Streaming.LocalRecordingEnabled,
-                OutputMode = StreamingOutputMode.LocalRecording
-            }
-        };
-
-        await PersistStudioSettingsAsync();
-    }
-
     private async Task ToggleLiveKitAsync()
     {
         _studioSettings = _studioSettings with

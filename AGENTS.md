@@ -99,6 +99,7 @@ Local `AGENTS.md` files may tighten these values, but they must not loosen them 
 
 - Start from [docs/Architecture.md](/Users/ksemenenko/Developer/PrompterLive/docs/Architecture.md) and the nearest local `AGENTS.md`.
 - Treat [docs/Architecture.md](/Users/ksemenenko/Developer/PrompterLive/docs/Architecture.md) as the architecture map for every non-trivial task.
+- Read [docs/Architecture.md](/Users/ksemenenko/Developer/PrompterLive/docs/Architecture.md) before implementation to identify the owning component, the allowed boundary, where code should be added, and where related code should be searched first.
 - If the overview is missing, stale, or diagram-free, update it before implementation.
 - Define scope before coding:
   - in scope
@@ -154,6 +155,8 @@ Local `AGENTS.md` files may tighten these values, but they must not loosen them 
 
 - All durable docs live in `docs/`.
 - [docs/Architecture.md](/Users/ksemenenko/Developer/PrompterLive/docs/Architecture.md) is the required global map and the first stop for agents.
+- [docs/Architecture.md](/Users/ksemenenko/Developer/PrompterLive/docs/Architecture.md) MUST describe all major components and feature slices with what they are, why they exist, where they live, what they own, and what they must not own.
+- [docs/Architecture.md](/Users/ksemenenko/Developer/PrompterLive/docs/Architecture.md) MUST document the app structure, design principles, and code-placement principles clearly enough that contributors can use it to decide where new code belongs and where existing behavior should be found.
 - [docs/Architecture.md](/Users/ksemenenko/Developer/PrompterLive/docs/Architecture.md) MUST contain Mermaid diagrams for:
   - system or module boundaries
   - interfaces or contracts between boundaries
