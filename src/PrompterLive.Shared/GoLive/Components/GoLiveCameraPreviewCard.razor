@@ -4,81 +4,85 @@
 @inject Microsoft.Extensions.Logging.ILogger<GoLiveCameraPreviewCard> Logger
 
 <section id="@UiDomIds.GoLive.PreviewCard"
-         class="live-card live-preview-card"
+         class="go-live-preview-shell"
          data-testid="@UiTestIds.GoLive.PreviewCard">
-    <div class="live-card-header">
+    <div class="go-live-preview-heading">
         <div>
-            <h3 class="live-card-title">@Title</h3>
-            <p class="live-card-desc">@Description</p>
+            <span class="go-live-sidebar-title">@Title</span>
+            <div class="set-account-name">@Description</div>
         </div>
         <span class="live-status @(HasCamera ? ReadyStatusCssClass : PendingStatusCssClass)">
             @(HasCamera ? LiveStatusLabel : EmptyStatusLabel)
         </span>
     </div>
 
-    <div class="live-preview-stage">
+    <div class="go-live-preview-stage">
         @if (HasCamera)
         {
             <video id="@UiDomIds.GoLive.PreviewVideo"
-                   class="live-preview-video"
+                   class="go-live-preview-video"
                    style="@PreviewVideoStyle"
                    autoplay
                    playsinline
                    muted
                    data-testid="@UiTestIds.GoLive.PreviewVideo"></video>
-            <div class="live-preview-overlay">
-                <span class="set-section-label">@PreviewEyebrow</span>
-                <div class="set-account-name" data-testid="@UiTestIds.GoLive.PreviewSourceLabel">@Camera!.Label</div>
-                <div class="live-card-desc">@PreviewDescription</div>
-            </div>
         }
         else
         {
             <div id="@UiDomIds.GoLive.PreviewEmpty"
-                 class="set-empty-card live-preview-empty"
+                 class="set-empty-card go-live-preview-empty"
                  data-testid="@UiTestIds.GoLive.PreviewEmpty">
                 <div class="set-account-name">@EmptyTitle</div>
                 <div class="live-card-desc">@EmptyDescription</div>
             </div>
         }
     </div>
+
+    <div class="go-live-preview-footer">
+        <div>
+            <span class="set-section-label">Program camera</span>
+            <div class="set-account-name" data-testid="@UiTestIds.GoLive.PreviewSourceLabel">@(Camera?.Label ?? EmptyTitle)</div>
+        </div>
+
+        @if (ShowSwitchAction)
+        {
+            <button type="button"
+                    class="go-live-preview-switch"
+                    @onclick="SwitchSelectedSource"
+                    disabled="@(!CanSwitchProgram)"
+                    data-testid="@UiTestIds.GoLive.SwitchSelectedSource">@SwitchActionLabel</button>
+        }
+    </div>
 </section>
 
 @code {
     private const string DefaultDescription = "Preview the current live scene camera before arming or switching destinations.";
-    private const string DefaultTitle = "Camera Preview";
+    private const string DefaultTitle = "Preview";
     private const string EmptyDescription = "Add a scene camera in Settings or include one in the live output to preview it here.";
-    private const string EmptyStatusLabel = "No camera";
-    private const string EmptyTitle = "No live camera selected";
-    private const string LiveStatusLabel = "Live preview";
+    private const string EmptyStatusLabel = "Idle";
+    private const string EmptyTitle = "No camera";
+    private const string LiveStatusLabel = "Live Preview";
     private const string PendingStatusCssClass = "pending";
-    private const string PreviewEyebrow = "PROGRAM CAMERA";
-    private const string ReadyStatusCssClass = "ready";
     private const string PreviewAttachFailureMessage = "Failed to attach Go Live preview camera for device {DeviceId}.";
     private const string PreviewDetachFailureMessage = "Failed to detach Go Live preview camera.";
+    private const string ReadyStatusCssClass = "ready";
 
     [Parameter] public SceneCameraSource? Camera { get; set; }
-
+    [Parameter] public bool CanSwitchProgram { get; set; }
     [Parameter] public string Description { get; set; } = DefaultDescription;
-
+    [Parameter] public bool ShowSwitchAction { get; set; }
+    [Parameter] public EventCallback SwitchSelectedSource { get; set; }
+    [Parameter] public string SwitchActionLabel { get; set; } = string.Empty;
     [Parameter] public string Title { get; set; } = DefaultTitle;
 
     private bool HasCamera => Camera is not null;
 
     private string? _attachedDeviceId;
 
-    private string PreviewDescription =>
-        Camera?.Transform.IncludeInOutput is true
-            ? IncludedPreviewDescription
-            : ScenePreviewDescription;
-
     private string PreviewVideoStyle =>
         Camera is null
             ? string.Empty
             : BuildPreviewVideoStyle(Camera.Transform);
-
-    private const string IncludedPreviewDescription = "This camera is currently included in the armed program feed.";
-    private const string ScenePreviewDescription = "This camera stays in the scene and can be added to live output at any time.";
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {

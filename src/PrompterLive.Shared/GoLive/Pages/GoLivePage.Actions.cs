@@ -6,6 +6,19 @@ namespace PrompterLive.Shared.Pages;
 
 public partial class GoLivePage
 {
+    private const string DirectRtmpOutputModeValue = "direct-rtmp";
+    private const string LocalRecordingOutputModeValue = "local-recording";
+    private const string NdiOutputModeValue = "ndi-output";
+    private const string VirtualCameraOutputModeValue = "virtual-camera";
+
+    private string SelectedOutputModeValue => _studioSettings.Streaming.OutputMode switch
+    {
+        StreamingOutputMode.DirectRtmp => DirectRtmpOutputModeValue,
+        StreamingOutputMode.LocalRecording => LocalRecordingOutputModeValue,
+        StreamingOutputMode.NdiOutput => NdiOutputModeValue,
+        _ => VirtualCameraOutputModeValue
+    };
+
     private async Task ToggleObsVirtualCameraAsync()
     {
         _studioSettings = _studioSettings with
@@ -159,6 +172,24 @@ public partial class GoLivePage
         _studioSettings = _studioSettings with
         {
             Streaming = _studioSettings.Streaming with { OutputResolution = outputResolution }
+        };
+
+        await PersistStudioSettingsAsync();
+    }
+
+    private async Task OnOutputModeChanged(ChangeEventArgs args)
+    {
+        var nextMode = args.Value?.ToString() switch
+        {
+            DirectRtmpOutputModeValue => StreamingOutputMode.DirectRtmp,
+            LocalRecordingOutputModeValue => StreamingOutputMode.LocalRecording,
+            NdiOutputModeValue => StreamingOutputMode.NdiOutput,
+            _ => StreamingOutputMode.VirtualCamera
+        };
+
+        _studioSettings = _studioSettings with
+        {
+            Streaming = _studioSettings.Streaming with { OutputMode = nextMode }
         };
 
         await PersistStudioSettingsAsync();

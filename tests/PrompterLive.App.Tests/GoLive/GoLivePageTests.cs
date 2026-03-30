@@ -56,6 +56,25 @@ public sealed class GoLivePageTests : BunitContext
     }
 
     [Fact]
+    public void GoLivePage_RendersProductionStudioLayoutLandmarks()
+    {
+        SeedSceneState(CreateTwoCameraScene());
+
+        Services.GetRequiredService<NavigationManager>()
+            .NavigateTo(AppTestData.Routes.GoLiveDemo);
+
+        var cut = Render<GoLivePage>();
+
+        cut.WaitForAssertion(() =>
+        {
+            Assert.NotNull(cut.FindByTestId(UiTestIds.GoLive.SessionBar));
+            Assert.NotNull(cut.FindByTestId(UiTestIds.GoLive.SourceRail));
+            Assert.NotNull(cut.FindByTestId(UiTestIds.GoLive.Stage));
+            Assert.NotNull(cut.FindByTestId(UiTestIds.GoLive.PreviewRail));
+        });
+    }
+
+    [Fact]
     public void GoLivePage_TogglesProgramSourcesAndPersistsScene()
     {
         SeedSceneState(CreateTwoCameraScene());

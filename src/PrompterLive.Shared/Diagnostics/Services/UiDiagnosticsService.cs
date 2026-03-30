@@ -1,9 +1,12 @@
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using PrompterLive.Shared.Localization;
 
 namespace PrompterLive.Shared.Services.Diagnostics;
 
-public sealed class UiDiagnosticsService(ILogger<UiDiagnosticsService> logger)
+public sealed class UiDiagnosticsService(
+    ILogger<UiDiagnosticsService> logger,
+    IStringLocalizer<SharedResource> localizer)
 {
     private const string FailureLogTemplate = "UI operation {Operation} failed.";
     private const string StartLogTemplate = "Starting UI operation {Operation}.";
@@ -11,6 +14,7 @@ public sealed class UiDiagnosticsService(ILogger<UiDiagnosticsService> logger)
     private const string FatalLogTemplate = "Unhandled UI exception in {Operation}.";
 
     private readonly ILogger<UiDiagnosticsService> _logger = logger;
+    private readonly IStringLocalizer<SharedResource> _localizer = localizer;
 
     public UiDiagnosticEntry? Current { get; private set; }
 
@@ -57,7 +61,7 @@ public sealed class UiDiagnosticsService(ILogger<UiDiagnosticsService> logger)
 
         SetCurrent(
             new UiDiagnosticEntry(
-                Title: UiTextCatalog.Get(UiTextKey.DiagnosticsRecoverableTitle),
+                Title: Text(UiTextKey.DiagnosticsRecoverableTitle),
                 Message: message,
                 Operation: operation,
                 Detail: exception.Message,
@@ -70,7 +74,7 @@ public sealed class UiDiagnosticsService(ILogger<UiDiagnosticsService> logger)
         _logger.LogWarning("Recoverable UI issue in {Operation}: {Detail}", operation, detail);
         SetCurrent(
             new UiDiagnosticEntry(
-                Title: UiTextCatalog.Get(UiTextKey.DiagnosticsRecoverableTitle),
+                Title: Text(UiTextKey.DiagnosticsRecoverableTitle),
                 Message: message,
                 Operation: operation,
                 Detail: detail,
@@ -83,8 +87,8 @@ public sealed class UiDiagnosticsService(ILogger<UiDiagnosticsService> logger)
         _logger.LogCritical(exception, FatalLogTemplate, operation);
         SetCurrent(
             new UiDiagnosticEntry(
-                Title: UiTextCatalog.Get(UiTextKey.DiagnosticsFatalTitle),
-                Message: UiTextCatalog.Get(UiTextKey.DiagnosticsFatalMessage),
+                Title: Text(UiTextKey.DiagnosticsFatalTitle),
+                Message: Text(UiTextKey.DiagnosticsFatalMessage),
                 Operation: operation,
                 Detail: exception.Message,
                 IsFatal: true,
@@ -127,4 +131,6 @@ public sealed class UiDiagnosticsService(ILogger<UiDiagnosticsService> logger)
         Current = next;
         Changed?.Invoke(this, EventArgs.Empty);
     }
+
+    private string Text(UiTextKey key) => _localizer[key.ToString()];
 }

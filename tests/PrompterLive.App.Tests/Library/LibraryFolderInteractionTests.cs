@@ -115,6 +115,33 @@ public sealed class LibraryFolderInteractionTests : BunitContext
     }
 
     [Fact]
+    public async Task LibraryPage_SelectingNestedParentFolder_ExpandsItsChildrenInSidebar()
+    {
+        const string nestedFolderName = "Launch Decks";
+
+        await _harness.FolderRepository.InitializeAsync(SampleLibraryFolderCatalog.CreateSeedFolders());
+        await _harness.Repository.InitializeAsync(SampleScriptCatalog.CreateSeedDocuments());
+        var nestedFolder = await _harness.FolderRepository.CreateAsync(
+            nestedFolderName,
+            SampleLibraryFolderCatalog.ProductFolderId);
+        var cut = Render<LibraryPage>();
+
+        cut.WaitForAssertion(() =>
+        {
+            Assert.Contains(UiTestIds.Library.Folder(SampleLibraryFolderCatalog.ProductFolderId), cut.Markup, StringComparison.Ordinal);
+            Assert.DoesNotContain(UiTestIds.Library.Folder(nestedFolder.Id), cut.Markup, StringComparison.Ordinal);
+        });
+
+        cut.FindByTestId(UiTestIds.Library.Folder(SampleLibraryFolderCatalog.ProductFolderId)).Click();
+
+        cut.WaitForAssertion(() =>
+        {
+            Assert.Contains(UiTestIds.Library.Folder(nestedFolder.Id), cut.Markup, StringComparison.Ordinal);
+            Assert.Contains(nestedFolderName, cut.Markup, StringComparison.Ordinal);
+        });
+    }
+
+    [Fact]
     public async Task LibraryPage_RestoresPersistedFolderSelectionAfterReload()
     {
         await _harness.FolderRepository.InitializeAsync(SampleLibraryFolderCatalog.CreateSeedFolders());

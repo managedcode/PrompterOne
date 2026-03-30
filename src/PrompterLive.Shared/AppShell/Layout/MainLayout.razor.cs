@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Routing;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using PrompterLive.Core.Abstractions;
@@ -14,6 +15,10 @@ public partial class MainLayout : LayoutComponentBase, IDisposable
     private const string AttachNavigatorLogMessage = "Attached SPA navigator bridge.";
     private const string ClientNavigationHomeLogMessage = "Client navigation requested for library.";
     private const string ClientNavigationEditorLogMessage = "Client navigation requested for editor.";
+    private const string GoLiveWidgetIdleElapsed = "00:00:00";
+    private const string GoLiveWidgetLiveStateLabel = "Live";
+    private const string GoLiveWidgetRecordingStateLabel = "Rec";
+    private const string GoLiveWidgetStreamingRecordingStateLabel = "Live + Rec";
     private const string RouteChangedLogTemplate = "Route changed to {Location}.";
 
     private DotNetObjectReference<MainLayout>? _navigationBridge;
@@ -23,6 +28,7 @@ public partial class MainLayout : LayoutComponentBase, IDisposable
     [Inject] private GoLiveSessionService GoLiveSession { get; set; } = null!;
     [Inject] private IScriptSessionService SessionService { get; set; } = null!;
     [Inject] private ILogger<MainLayout> Logger { get; set; } = null!;
+    [Inject] private IStringLocalizer<SharedResource> Localizer { get; set; } = null!;
     [Inject] private IJSRuntime JS { get; set; } = null!;
     [Inject] private NavigationManager Navigation { get; set; } = null!;
 
@@ -54,8 +60,8 @@ public partial class MainLayout : LayoutComponentBase, IDisposable
 
     private string HeaderTitle => ShellState.Screen switch
     {
-        AppShellScreen.GoLive => UiTextCatalog.Get(UiTextKey.HeaderGoLive),
-        AppShellScreen.Settings => UiTextCatalog.Get(UiTextKey.HeaderSettings),
+        AppShellScreen.GoLive => Text(UiTextKey.HeaderGoLive),
+        AppShellScreen.Settings => Text(UiTextKey.HeaderSettings),
         _ => ShellState.Title
     };
 
@@ -72,13 +78,36 @@ public partial class MainLayout : LayoutComponentBase, IDisposable
             ? StreamingStateValue
             : IdleStateValue;
 
+    private DateTimeOffset? GoLiveStartedAt => GoLiveSessionState.IsRecordingActive
+        ? GoLiveSessionState.RecordingStartedAt ?? GoLiveSessionState.StreamStartedAt
+        : GoLiveSessionState.StreamStartedAt;
+
     private string GoLiveWidgetDetail => string.IsNullOrWhiteSpace(GoLiveSessionState.ScriptSubtitle)
         ? GoLiveSessionState.PrimaryMicrophoneLabel
         : GoLiveSessionState.ScriptSubtitle;
 
+    private string GoLiveWidgetElapsed => FormatSessionElapsed(GoLiveStartedAt);
+
+    private string GoLiveWidgetStateLabel => (GoLiveSessionState.IsStreamActive, GoLiveSessionState.IsRecordingActive) switch
+    {
+        (true, true) => GoLiveWidgetStreamingRecordingStateLabel,
+        (true, false) => GoLiveWidgetLiveStateLabel,
+        (false, true) => GoLiveWidgetRecordingStateLabel,
+        _ => GoLiveIndicatorCopy
+    };
+
     private string GoLiveWidgetTitle => string.IsNullOrWhiteSpace(GoLiveSessionState.ActiveSourceLabel)
         ? GoLiveSessionState.ScriptTitle
         : GoLiveSessionState.ActiveSourceLabel;
+
+    private string GoLiveWidgetStateLabel => GoLiveIndicatorState switch
+    {
+        RecordingStateValue => "REC",
+        StreamingStateValue => "LIVE",
+        _ => "READY"
+    };
+
+    private string GoLiveWidgetElapsed => GoLiveSessionState.ElapsedLabel;
 
     private bool ShowGoLiveWidget => GoLiveSessionState.HasActiveSession && ShellState.Screen != AppShellScreen.GoLive;
 
@@ -89,6 +118,24 @@ public partial class MainLayout : LayoutComponentBase, IDisposable
     private const string IdleStateValue = "idle";
     private const string RecordingStateValue = "recording";
     private const string StreamingStateValue = "streaming";
+
+    private static string FormatSessionElapsed(DateTimeOffset? startedAt)
+    {
+        if (startedAt is null)
+        {
+            return GoLiveWidgetIdleElapsed;
+        }
+
+        var elapsed = DateTimeOffset.UtcNow - startedAt.Value;
+        if (elapsed < TimeSpan.Zero)
+        {
+            elapsed = TimeSpan.Zero;
+        }
+
+        return elapsed.TotalHours >= 1
+            ? elapsed.ToString(@"hh\:mm\:ss", System.Globalization.CultureInfo.InvariantCulture)
+            : elapsed.ToString(@"mm\:ss", System.Globalization.CultureInfo.InvariantCulture).Insert(0, "00:");
+    }
 
     protected override void OnInitialized()
     {
@@ -147,7 +194,7 @@ public partial class MainLayout : LayoutComponentBase, IDisposable
             case AppRoutes.Root:
             case AppRoutes.Library:
                 Shell.ShowLibrary(string.IsNullOrWhiteSpace(ShellState.BreadcrumbLabel)
-                    ? UiTextCatalog.Get(UiTextKey.LibraryAllScripts)
+                    ? Text(UiTextKey.LibraryAllScripts)
                     : ShellState.BreadcrumbLabel);
                 break;
             case AppRoutes.Editor:
@@ -166,10 +213,12 @@ public partial class MainLayout : LayoutComponentBase, IDisposable
                 Shell.ShowSettings();
                 break;
             default:
-                Shell.ShowLibrary(UiTextCatalog.Get(UiTextKey.LibraryAllScripts));
+                Shell.ShowLibrary(Text(UiTextKey.LibraryAllScripts));
                 break;
         }
     }
+
+    private string Text(UiTextKey key) => Localizer[key.ToString()];
 
     private static string ResolveQueryValue(string uri, string key)
     {

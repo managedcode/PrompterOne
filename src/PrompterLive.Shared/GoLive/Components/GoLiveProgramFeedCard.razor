@@ -1,137 +1,58 @@
 @namespace PrompterLive.Shared.Components.GoLive
-@using Microsoft.AspNetCore.Components
 @using PrompterLive.Core.Models.Workspace
 
-<section class="live-card go-live-session-card" data-live-state="@LiveState" data-testid="@UiTestIds.GoLive.ProgramCard">
-    <div class="live-card-header">
+<section class="go-live-stage-shell"
+         data-live-state="@LiveState"
+         data-testid="@UiTestIds.GoLive.ProgramCard">
+    <div class="go-live-stage-header">
         <div>
-            <h3 class="live-card-title">@Title</h3>
-            <p class="live-card-desc">@Description</p>
+            <span class="go-live-sidebar-title">@Title</span>
+            <h2 class="go-live-stage-title"
+                data-testid="@UiTestIds.GoLive.Stage">@ActiveSourceLabel</h2>
         </div>
+
         <span class="live-status @(IsArmed ? ReadyCssClass : PendingCssClass)">@ActiveSessionLabel</span>
     </div>
 
-    <div class="go-live-session-layout">
-        @if (PreviewContent is not null)
-        {
-            <div class="go-live-session-preview">
-                @PreviewContent
-            </div>
-        }
+    <div class="go-live-stage-viewport">
+        <div class="go-live-stage-tint"></div>
 
-        <div class="go-live-session-side">
-            <div class="go-live-session-actions">
-                <button type="button"
-                        class="set-btn-golden"
-                        @onclick="ToggleStreamSession"
-                        disabled="@(!CanControlProgram)"
-                        data-testid="@UiTestIds.GoLive.StartStream">@StreamActionLabel</button>
-                <button type="button"
-                        class="go-live-record-button"
-                        @onclick="ToggleRecordingSession"
-                        disabled="@(!CanControlProgram)"
-                        data-testid="@UiTestIds.GoLive.StartRecording">@RecordingActionLabel</button>
-                <button type="button"
-                        class="set-btn-outline"
-                        @onclick="SwitchSelectedSource"
-                        disabled="@(!CanControlProgram)"
-                        data-testid="@UiTestIds.GoLive.SwitchSelectedSource">@SwitchActionLabel</button>
-            </div>
-
-            <div class="go-live-session-sources">
-                <div class="go-live-session-source">
-                    <span class="set-section-label">SELECTED</span>
-                    <div class="set-account-name" data-testid="@UiTestIds.GoLive.SelectedSourceLabel">@SelectedSourceLabel</div>
-                </div>
-                <div class="go-live-session-source">
-                    <span class="set-section-label">PROGRAM</span>
-                    <div class="set-account-name" data-testid="@UiTestIds.GoLive.ActiveSourceLabel">@ActiveSourceLabel</div>
-                </div>
-            </div>
-
-            @if (ActionContent is not null)
+        <div class="go-live-stage-copy">
+            @foreach (var line in EffectiveStageCaptionLines)
             {
-                @ActionContent
+                <p>@line</p>
             }
         </div>
-    </div>
 
-    <div class="go-live-telemetry-grid">
-        <article class="go-live-telemetry-card">
-            <span class="set-section-label">VIDEO</span>
-            <strong>@VideoTelemetry</strong>
-        </article>
-        <article class="go-live-telemetry-card">
-            <span class="set-section-label">AUDIO</span>
-            <strong>@AudioTelemetry</strong>
-        </article>
-        <article class="go-live-telemetry-card">
-            <span class="set-section-label">BITRATE</span>
-            <strong>@BitrateTelemetry</strong>
-        </article>
-        <article class="go-live-telemetry-card">
-            <span class="set-section-label">DESTINATIONS</span>
-            <strong>@OutputDestinationsTelemetry</strong>
-        </article>
-    </div>
-
-    <div class="set-devices">
-        <div class="set-field">
-            <label>@OutputResolutionLabel</label>
-            <select class="set-select"
-                    value="@OutputResolution"
-                    @onchange="OutputResolutionChanged"
-                    data-testid="@UiTestIds.GoLive.OutputResolution">
-                <option value="@StreamingResolutionPreset.FullHd1080p30">1920 x 1080 @@ 30fps</option>
-                <option value="@StreamingResolutionPreset.FullHd1080p60">1920 x 1080 @@ 60fps</option>
-                <option value="@StreamingResolutionPreset.Hd720p30">1280 x 720 @@ 30fps</option>
-                <option value="@StreamingResolutionPreset.UltraHd2160p30">3840 x 2160 @@ 30fps</option>
-            </select>
-        </div>
-        <div class="set-field">
-            <label>@BitrateLabel</label>
-            <input type="number"
-                   class="set-input"
-                   value="@BitrateKbps"
-                   @oninput="BitrateChanged"
-                   data-testid="@UiTestIds.GoLive.Bitrate" />
-        </div>
-        <div class="set-field set-field-toggle">
-            <label>@TextOverlayLabel</label>
-            <div class="set-toggle @(ShowTextOverlay ? ToggleOnCssClass : null)"
-                 @onclick="ToggleTextOverlay"
-                 data-testid="@UiTestIds.GoLive.StreamTextOverlay">
-                <div class="set-toggle-thumb"></div>
-            </div>
-        </div>
-        <div class="set-field set-field-toggle">
-            <label>@IncludeCameraLabel</label>
-            <div class="set-toggle @(IncludeCameraInOutput ? ToggleOnCssClass : null)"
-                 @onclick="ToggleIncludeCamera"
-                 data-testid="@UiTestIds.GoLive.StreamIncludeCamera">
-                <div class="set-toggle-thumb"></div>
-            </div>
+        <div class="go-live-stage-footer">
+            <span>@EffectiveProgramResolutionLabel</span>
+            <span>@EffectiveStageFrameRateLabel</span>
         </div>
     </div>
 
-    <div class="live-local-grid">
-        @ChildContent
+    <div class="go-live-stage-meta">
+        <article class="go-live-stage-meta-card">
+            <span class="set-section-label">Selected</span>
+            <strong data-testid="@UiTestIds.GoLive.SelectedSourceLabel">@SelectedSourceLabel</strong>
+        </article>
+        <article class="go-live-stage-meta-card">
+            <span class="set-section-label">Program</span>
+            <strong data-testid="@UiTestIds.GoLive.ActiveSourceLabel">@ActiveSourceLabel</strong>
+        </article>
     </div>
 </section>
 
+@ActionContent
+@PreviewContent
+@ChildContent
+
 @code {
-    private const string BitrateLabel = "Bitrate (kbps)";
-    private const string DefaultDescription = "Launch stream or recording, then keep source switching and telemetry in one place.";
-    private const string DefaultTitle = "Go Live Console";
-    private const string IncludeCameraLabel = "Include Camera in Output";
+    private const string DefaultTitle = "Program";
     private const string IdleStateCss = "idle";
     private const string PendingCssClass = "pending";
     private const string ReadyCssClass = "ready";
     private const string RecordingStateCss = "recording";
     private const string StreamingStateCss = "streaming";
-    private const string TextOverlayLabel = "Show Text Overlay on Stream";
-    private const string ToggleOnCssClass = "on";
-    private const string OutputResolutionLabel = "Output Resolution";
 
     [Parameter] public string ActiveSessionLabel { get; set; } = string.Empty;
     [Parameter] public string ActiveSourceLabel { get; set; } = string.Empty;
@@ -142,27 +63,51 @@
     [Parameter] public string BitrateTelemetry { get; set; } = string.Empty;
     [Parameter] public bool CanControlProgram { get; set; }
     [Parameter] public RenderFragment? ChildContent { get; set; }
-    [Parameter] public string Description { get; set; } = DefaultDescription;
     [Parameter] public bool IncludeCameraInOutput { get; set; }
     [Parameter] public bool IsArmed { get; set; }
     [Parameter] public bool IsRecordingActive { get; set; }
     [Parameter] public bool IsStreamActive { get; set; }
-    [Parameter] public EventCallback<ChangeEventArgs> OutputResolutionChanged { get; set; }
     [Parameter] public string OutputDestinationsTelemetry { get; set; } = string.Empty;
     [Parameter] public StreamingResolutionPreset OutputResolution { get; set; }
+    [Parameter] public EventCallback<ChangeEventArgs> OutputResolutionChanged { get; set; }
+    [Parameter] public string ProgramResolutionLabel { get; set; } = string.Empty;
     [Parameter] public RenderFragment? PreviewContent { get; set; }
     [Parameter] public string RecordingActionLabel { get; set; } = string.Empty;
-    [Parameter] public string SelectedSourceLabel { get; set; } = string.Empty;
     [Parameter] public bool ShowTextOverlay { get; set; }
-    [Parameter] public string StreamActionLabel { get; set; } = string.Empty;
+    [Parameter] public string SelectedSourceLabel { get; set; } = string.Empty;
+    [Parameter] public IReadOnlyList<string> StageCaptionLines { get; set; } = [];
+    [Parameter] public string StageFrameRateLabel { get; set; } = string.Empty;
     [Parameter] public EventCallback SwitchSelectedSource { get; set; }
     [Parameter] public string SwitchActionLabel { get; set; } = string.Empty;
+    [Parameter] public string StreamActionLabel { get; set; } = string.Empty;
     [Parameter] public EventCallback ToggleIncludeCamera { get; set; }
     [Parameter] public EventCallback ToggleRecordingSession { get; set; }
     [Parameter] public EventCallback ToggleStreamSession { get; set; }
     [Parameter] public EventCallback ToggleTextOverlay { get; set; }
     [Parameter] public string Title { get; set; } = DefaultTitle;
     [Parameter] public string VideoTelemetry { get; set; } = string.Empty;
+
+    private IReadOnlyList<string> FallbackStageCaptionLines =>
+    [
+        SelectedSourceLabel,
+        VideoTelemetry,
+        AudioTelemetry
+    ];
+
+    private string EffectiveProgramResolutionLabel =>
+        string.IsNullOrWhiteSpace(ProgramResolutionLabel)
+            ? OutputResolution.ToString()
+            : ProgramResolutionLabel;
+
+    private string EffectiveStageFrameRateLabel =>
+        string.IsNullOrWhiteSpace(StageFrameRateLabel)
+            ? BitrateTelemetry
+            : StageFrameRateLabel;
+
+    private IReadOnlyList<string> EffectiveStageCaptionLines =>
+        StageCaptionLines.Count == 0
+            ? FallbackStageCaptionLines
+            : StageCaptionLines;
 
     private string LiveState => IsRecordingActive
         ? RecordingStateCss

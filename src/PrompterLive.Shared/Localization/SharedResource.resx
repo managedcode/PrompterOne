@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="DiagnosticsDismiss" xml:space="preserve">
+    <value>Dismiss</value>
+  </data>
+  <data name="DiagnosticsRetry" xml:space="preserve">
+    <value>Retry</value>
+  </data>
+  <data name="DiagnosticsLibrary" xml:space="preserve">
+    <value>Library</value>
+  </data>
+  <data name="DiagnosticsFatalTitle" xml:space="preserve">
+    <value>Unexpected Error</value>
+  </data>
+  <data name="DiagnosticsFatalMessage" xml:space="preserve">
+    <value>PrompterLive hit an unexpected error. Try the screen again or return to the library.</value>
+  </data>
+  <data name="DiagnosticsRecoverableTitle" xml:space="preserve">
+    <value>Action Failed</value>
+  </data>
+  <data name="LibraryAllScripts" xml:space="preserve">
+    <value>All Scripts</value>
+  </data>
+  <data name="LibraryRecent" xml:space="preserve">
+    <value>Recent</value>
+  </data>
+  <data name="LibraryFavorites" xml:space="preserve">
+    <value>Favorites</value>
+  </data>
+  <data name="LibraryFolders" xml:space="preserve">
+    <value>Folders</value>
+  </data>
+  <data name="LibraryNewFolder" xml:space="preserve">
+    <value>New folder</value>
+  </data>
+  <data name="LibrarySettings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="LibrarySortBy" xml:space="preserve">
+    <value>Sort by</value>
+  </data>
+  <data name="LibrarySortName" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="LibrarySortDate" xml:space="preserve">
+    <value>Date</value>
+  </data>
+  <data name="LibrarySortDuration" xml:space="preserve">
+    <value>Duration</value>
+  </data>
+  <data name="LibrarySortWpm" xml:space="preserve">
+    <value>WPM</value>
+  </data>
+  <data name="LibraryCreateFolderTitle" xml:space="preserve">
+    <value>Create Folder</value>
+  </data>
+  <data name="LibraryCreateFolderDescription" xml:space="preserve">
+    <value>Organize scripts into nested collections without disturbing the library grid.</value>
+  </data>
+  <data name="HeaderSearchPlaceholder" xml:space="preserve">
+    <value>Search...</value>
+  </data>
+  <data name="HeaderNewScript" xml:space="preserve">
+    <value>New Script</value>
+  </data>
+  <data name="HeaderLearn" xml:space="preserve">
+    <value>Learn</value>
+  </data>
+  <data name="HeaderRead" xml:space="preserve">
+    <value>Read</value>
+  </data>
+  <data name="HeaderGoLive" xml:space="preserve">
+    <value>Go Live</value>
+  </data>
+  <data name="HeaderSettings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="GoLiveHeroEyebrow" xml:space="preserve">
+    <value>LIVE ROUTING</value>
+  </data>
+  <data name="GoLiveHeroDescription" xml:space="preserve">
+    <value>Arm destinations for the current program feed while leaving teleprompter and RSVP ready in separate tabs.</value>
+  </data>
+  <data name="CommonName" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="CommonParent" xml:space="preserve">
+    <value>Parent</value>
+  </data>
+  <data name="CommonTopLevel" xml:space="preserve">
+    <value>Top Level</value>
+  </data>
+  <data name="CommonCancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="CommonCreate" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="LibraryFolderPlaceholder" xml:space="preserve">
+    <value>Roadshows</value>
+  </data>
+</root>

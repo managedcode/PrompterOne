@@ -14,6 +14,7 @@ public static class UiTestIds
         public const string LibraryNewScript = "header-library-new-script";
         public const string LibrarySearch = "library-search";
         public const string LiveWidget = "header-go-live-widget";
+        public const string LiveWidgetPreview = "header-go-live-widget-preview";
         public const string Subtitle = "header-subtitle";
         public const string Title = "header-title";
         public const string Wpm = "header-wpm";
@@ -261,11 +262,15 @@ public static class UiTestIds
         public const string OutputResolution = "go-live-output-resolution";
         public const string Page = "go-live-page";
         public const string ProgramCard = "go-live-program-card";
+        public const string PreviewRail = "go-live-preview-rail";
         public const string PreviewCard = "go-live-preview-card";
         public const string PreviewEmpty = "go-live-preview-empty";
         public const string PreviewSourceLabel = "go-live-preview-source-label";
         public const string PreviewVideo = "go-live-preview-video";
         public const string RecordingToggle = "go-live-recording-toggle";
+        public const string SessionBar = "go-live-session-bar";
+        public const string SourceRail = "go-live-source-rail";
+        public const string Stage = "go-live-stage";
         public const string SelectedSourceLabel = "go-live-selected-source-label";
         public const string SourcesCard = "go-live-sources-card";
         public const string StartRecording = "go-live-start-recording";

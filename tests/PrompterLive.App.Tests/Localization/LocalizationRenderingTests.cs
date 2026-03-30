@@ -2,6 +2,7 @@ using Bunit;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Localization;
 using PrompterLive.Core.Localization;
 using PrompterLive.Shared.Components.Diagnostics;
 using PrompterLive.Shared.Components.GoLive;
@@ -30,9 +31,9 @@ public sealed class LocalizationRenderingTests : BunitContext
             .Add(component => component.OnSelectFolder, EventCallback.Factory.Create<string>(this, _ => Task.CompletedTask))
             .Add(component => component.OnStartCreateFolder, EventCallback.Factory.Create(this, () => Task.CompletedTask)));
 
-        Assert.Contains(UiTextCatalog.Get(UiTextKey.LibraryAllScripts), cut.Markup);
-        Assert.Contains(UiTextCatalog.Get(UiTextKey.LibraryFavorites), cut.Markup);
-        Assert.Contains(UiTextCatalog.Get(UiTextKey.LibrarySettings), cut.Markup);
+        Assert.Contains(Text(UiTextKey.LibraryAllScripts), cut.Markup);
+        Assert.Contains(Text(UiTextKey.LibraryFavorites), cut.Markup);
+        Assert.Contains(Text(UiTextKey.LibrarySettings), cut.Markup);
     }
 
     [Fact]
@@ -49,9 +50,9 @@ public sealed class LocalizationRenderingTests : BunitContext
             .Add(component => component.OnFolderDraftNameChanged, EventCallback.Factory.Create<string>(this, _ => Task.CompletedTask))
             .Add(component => component.OnFolderDraftParentChanged, EventCallback.Factory.Create<string>(this, _ => Task.CompletedTask)));
 
-        Assert.Contains(UiTextCatalog.Get(UiTextKey.LibraryCreateFolderTitle), cut.Markup);
-        Assert.Contains(UiTextCatalog.Get(UiTextKey.CommonCreate), cut.Markup);
-        Assert.Contains(UiTextCatalog.Get(UiTextKey.CommonCancel), cut.Markup);
+        Assert.Contains(Text(UiTextKey.LibraryCreateFolderTitle), cut.Markup);
+        Assert.Contains(Text(UiTextKey.CommonCreate), cut.Markup);
+        Assert.Contains(Text(UiTextKey.CommonCancel), cut.Markup);
     }
 
     [Fact]
@@ -63,7 +64,7 @@ public sealed class LocalizationRenderingTests : BunitContext
 
         var cut = Render<DiagnosticsBanner>();
 
-        Assert.Contains(UiTextCatalog.Get(UiTextKey.DiagnosticsDismiss), cut.Markup);
+        Assert.Contains(Text(UiTextKey.DiagnosticsDismiss), cut.Markup);
     }
 
     [Fact]
@@ -74,9 +75,9 @@ public sealed class LocalizationRenderingTests : BunitContext
         var cut = Render<LoggingErrorBoundary>(parameters => parameters
             .AddChildContent<ThrowingLocalizationDiagnosticsComponent>());
 
-        Assert.Contains(UiTextCatalog.Get(UiTextKey.DiagnosticsRetry), cut.Markup);
-        Assert.Contains(UiTextCatalog.Get(UiTextKey.DiagnosticsLibrary), cut.Markup);
-        Assert.Contains(UiTextCatalog.Get(UiTextKey.DiagnosticsFatalTitle), cut.Markup);
+        Assert.Contains(Text(UiTextKey.DiagnosticsRetry), cut.Markup);
+        Assert.Contains(Text(UiTextKey.DiagnosticsLibrary), cut.Markup);
+        Assert.Contains(Text(UiTextKey.DiagnosticsFatalTitle), cut.Markup);
     }
 
     [Fact]
@@ -87,11 +88,14 @@ public sealed class LocalizationRenderingTests : BunitContext
         var cut = Render<GoLiveHero>(parameters => parameters
             .Add(component => component.HasScriptContext, true));
 
-        Assert.Contains(UiTextCatalog.Get(UiTextKey.GoLiveHeroEyebrow), cut.Markup);
-        Assert.Contains(UiTextCatalog.Get(UiTextKey.GoLiveHeroDescription), cut.Markup);
-        Assert.Contains(UiTextCatalog.Get(UiTextKey.HeaderLearn), cut.Markup);
-        Assert.Contains(UiTextCatalog.Get(UiTextKey.HeaderRead), cut.Markup);
+        Assert.Contains(Text(UiTextKey.GoLiveHeroEyebrow), cut.Markup);
+        Assert.Contains(Text(UiTextKey.GoLiveHeroDescription), cut.Markup);
+        Assert.Contains(Text(UiTextKey.HeaderLearn), cut.Markup);
+        Assert.Contains(Text(UiTextKey.HeaderRead), cut.Markup);
     }
+
+    private string Text(UiTextKey key) =>
+        Services.GetRequiredService<IStringLocalizer<SharedResource>>()[key.ToString()];
 
     private sealed class ThrowingLocalizationDiagnosticsComponent : ComponentBase
     {

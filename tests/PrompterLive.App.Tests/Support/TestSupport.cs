@@ -64,6 +64,7 @@ internal static class TestHarnessFactory
             settingsStore,
             loggerFactory.CreateLogger<AppBootstrapper>());
 
+        context.Services.AddLocalization();
         context.Services.AddSingleton<IJSRuntime>(jsRuntime);
         context.Services.AddSingleton<ILoggerFactory>(loggerFactory);
         context.Services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));

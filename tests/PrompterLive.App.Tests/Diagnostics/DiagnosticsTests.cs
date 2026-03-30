@@ -2,6 +2,7 @@ using Bunit;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using PrompterLive.Shared.Components.Diagnostics;
 using PrompterLive.Shared.Contracts;
@@ -16,6 +17,7 @@ public sealed class DiagnosticsTests : BunitContext
     [Fact]
     public async Task UiDiagnosticsService_LogsRecoverableFailureAndStoresBannerEntry()
     {
+        Services.AddLocalization();
         var logProvider = new RecordingLoggerProvider();
         using var loggerFactory = LoggerFactory.Create(builder =>
         {
@@ -23,7 +25,9 @@ public sealed class DiagnosticsTests : BunitContext
             builder.AddProvider(logProvider);
         });
 
-        var diagnostics = new UiDiagnosticsService(loggerFactory.CreateLogger<UiDiagnosticsService>());
+        var diagnostics = new UiDiagnosticsService(
+            loggerFactory.CreateLogger<UiDiagnosticsService>(),
+            Services.GetRequiredService<IStringLocalizer<SharedResource>>());
 
         var completed = await diagnostics.RunAsync(
             "Library load",
@@ -56,7 +60,7 @@ public sealed class DiagnosticsTests : BunitContext
 
         cut.WaitForAssertion(() =>
         {
-            Assert.Contains(UiTextCatalog.Get(UiTextKey.DiagnosticsRecoverableTitle), cut.Markup);
+            Assert.Contains(Text(UiTextKey.DiagnosticsRecoverableTitle), cut.Markup);
             Assert.Contains("Unable to save settings.", cut.Markup);
             Assert.Contains("Forced diagnostics failure.", cut.Markup);
         });
@@ -66,7 +70,7 @@ public sealed class DiagnosticsTests : BunitContext
         cut.WaitForAssertion(() =>
         {
             Assert.Null(diagnostics.Current);
-            Assert.DoesNotContain(UiTextCatalog.Get(UiTextKey.DiagnosticsRecoverableTitle), cut.Markup);
+            Assert.DoesNotContain(Text(UiTextKey.DiagnosticsRecoverableTitle), cut.Markup);
         });
         GC.KeepAlive(harness);
     }
@@ -84,11 +88,11 @@ public sealed class DiagnosticsTests : BunitContext
 
         cut.WaitForAssertion(() =>
         {
-            Assert.Contains(UiTextCatalog.Get(UiTextKey.DiagnosticsFatalTitle), cut.Markup);
-            Assert.Contains(UiTextCatalog.Get(UiTextKey.DiagnosticsFatalMessage), cut.Markup);
+            Assert.Contains(Text(UiTextKey.DiagnosticsFatalTitle), cut.Markup);
+            Assert.Contains(Text(UiTextKey.DiagnosticsFatalMessage), cut.Markup);
             Assert.Contains("Forced boundary failure.", cut.Markup);
-            Assert.Contains(UiTextCatalog.Get(UiTextKey.DiagnosticsRetry), cut.Markup);
-            Assert.Contains(UiTextCatalog.Get(UiTextKey.DiagnosticsLibrary), cut.Markup);
+            Assert.Contains(Text(UiTextKey.DiagnosticsRetry), cut.Markup);
+            Assert.Contains(Text(UiTextKey.DiagnosticsLibrary), cut.Markup);
         });
 
         var diagnostics = Services.GetRequiredService<UiDiagnosticsService>();
@@ -96,9 +100,12 @@ public sealed class DiagnosticsTests : BunitContext
         Assert.True(diagnostics.Current!.IsFatal);
         Assert.Contains(
             logProvider.Entries,
-            entry => entry.Level == LogLevel.Critical &&
+                entry => entry.Level == LogLevel.Critical &&
                 entry.Message.Contains("Unhandled UI exception reached the global error boundary.", StringComparison.Ordinal));
     }
+
+    private string Text(UiTextKey key) =>
+        Services.GetRequiredService<IStringLocalizer<SharedResource>>()[key.ToString()];
 
     private sealed class ThrowingDiagnosticsComponent : ComponentBase
     {

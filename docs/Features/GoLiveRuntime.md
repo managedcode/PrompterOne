@@ -4,6 +4,14 @@
 
 `Go Live` is the dedicated browser-only routing surface for arming live destinations.
 
+The current page layout is a production-style studio surface:
+
+- top session bar for back, title, timer, record, and stream controls
+- left source rail for scene cameras and session shortcuts
+- center program stage for the active script and selected/program source state
+- right rail for live preview plus stream, audio, and network telemetry
+- lower routing decks for local outputs and cloud destinations
+
 It is separate from:
 
 - `Settings`, which owns device setup such as camera selection, resolution, FPS, microphones, and audio sync
@@ -44,7 +52,8 @@ sequenceDiagram
 ```mermaid
 flowchart LR
     Page["GoLivePage"]
-    Hero["GoLiveHero"]
+    SessionBar["session bar"]
+    PreviewRail["preview + telemetry rail"]
     Preview["GoLiveCameraPreviewCard"]
     Program["GoLiveProgramFeedCard"]
     Sources["GoLiveSourcesCard"]
@@ -57,7 +66,8 @@ flowchart LR
     Vdo["VdoNinjaOutputProvider"]
     Rtmp["RtmpStreamingOutputProvider"]
 
-    Page --> Hero
+    Page --> SessionBar
+    Page --> PreviewRail
     Page --> Preview
     Page --> Program
     Page --> Sources
@@ -80,7 +90,7 @@ flowchart LR
 - `Go Live` must reuse the browser-composed scene and not invent a separate media graph.
 - `Go Live` must show a live camera preview inside the program feed area, using the first included scene camera and falling back to the first visible scene camera.
 - `Go Live` must show a stable empty preview state instead of mounting camera interop when the current scene has no cameras.
-- `GoLiveHero` default eyebrow, title, description, and CTA labels must come from `PrompterLive.Shared.Localization.UiTextCatalog`, so supported browser cultures localize the screen without feature-local string copies.
+- any shared `Go Live` localized copy must come from `PrompterLive.Shared.Localization.UiTextCatalog`, so supported browser cultures localize the studio surface without feature-local string copies.
 - each live destination must persist its own selected scene cameras, independent of the shared program feed source list
 - legacy streaming settings must normalize to the current included program cameras so existing browser storage keeps working
 - Camera source inclusion is persisted through `MediaSceneState`.

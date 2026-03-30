@@ -1,97 +1,136 @@
-.go-live-session-card[data-live-state="recording"] {
-    border-color: rgba(248, 113, 113, .24);
-}
-
-.go-live-session-layout {
-    display: grid;
-    grid-template-columns: minmax(0, 1.2fr) minmax(280px, .8fr);
-    gap: 20px;
-    align-items: start;
-}
-
-.go-live-session-preview {
-    min-width: 0;
-}
-
-.go-live-session-side {
+.go-live-stage-shell {
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 16px;
+    min-width: 0;
+    height: 100%;
+    padding: 10px;
+    border: 1px solid rgba(214, 166, 91, .12);
+    border-radius: 22px;
+    background: rgba(6, 9, 18, .82);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04);
 }
 
-.go-live-session-actions {
+.go-live-stage-header {
     display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 6px 8px 0;
 }
 
-.go-live-session-actions > button {
-    min-height: 40px;
+.go-live-stage-title {
+    margin: 6px 0 0;
+    color: rgba(255, 245, 224, .96);
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: .02em;
 }
 
-.go-live-record-button {
-    padding: 8px 20px;
-    border: 1px solid rgba(248, 113, 113, .32);
-    border-radius: 10px;
-    background: rgba(127, 29, 29, .14);
-    color: #FCA5A5;
-    font-size: 13px;
+.go-live-stage-viewport {
+    position: relative;
+    overflow: hidden;
+    min-height: 640px;
+    border: 1px solid rgba(214, 166, 91, .08);
+    border-radius: 18px;
+    background:
+        radial-gradient(circle at 18% 22%, rgba(183, 171, 62, .14), transparent 28%),
+        linear-gradient(180deg, rgba(52, 52, 17, .9), rgba(8, 10, 10, .98));
+}
+
+.go-live-stage-tint {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(9, 11, 20, .08), rgba(5, 6, 10, .52));
+}
+
+.go-live-stage-copy {
+    position: absolute;
+    left: 20px;
+    bottom: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-width: 340px;
+    z-index: 1;
+}
+
+.go-live-stage-copy p {
+    margin: 0;
+    color: rgba(248, 241, 226, .42);
+    font-size: 14px;
+    line-height: 1.45;
     font-weight: 600;
 }
 
-.go-live-record-button:hover:not(:disabled) {
-    background: rgba(127, 29, 29, .2);
+.go-live-stage-copy p:nth-child(2) {
+    color: rgba(248, 241, 226, .88);
 }
 
-.go-live-record-button:disabled {
-    opacity: .45;
+.go-live-stage-copy p:nth-child(3) {
+    color: #74d87f;
 }
 
-.go-live-session-sources {
+.go-live-stage-footer {
+    position: absolute;
+    right: 16px;
+    bottom: 12px;
+    left: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    color: rgba(248, 241, 226, .28);
+    font-size: 10px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    z-index: 1;
+}
+
+.go-live-stage-meta {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
 }
 
-.go-live-session-source {
-    padding: 14px 16px;
-    border: 1px solid var(--gold-08);
-    border-radius: 14px;
-    background: rgba(255, 255, 255, .02);
-}
-
-.go-live-telemetry-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 12px;
-}
-
-.go-live-telemetry-card {
+.go-live-stage-meta-card {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     min-width: 0;
     padding: 14px 16px;
-    border: 1px solid var(--gold-08);
-    border-radius: 14px;
+    border: 1px solid rgba(214, 166, 91, .08);
+    border-radius: 16px;
     background: rgba(255, 255, 255, .02);
 }
 
-.go-live-telemetry-card strong {
-    color: var(--t1);
+.go-live-stage-meta-card strong {
+    color: rgba(255, 245, 224, .92);
     font-size: 14px;
-    line-height: 1.4;
+    line-height: 1.35;
 }
 
-.live-session-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
+.go-live-stage-shell[data-live-state="recording"] {
+    border-color: rgba(255, 120, 120, .22);
 }
 
-@media (max-width: 1180px) {
-    .go-live-session-layout,
-    .go-live-telemetry-grid {
+@media (max-width: 1200px) {
+    .go-live-stage-viewport {
+        min-height: 520px;
+    }
+}
+
+@media (max-width: 720px) {
+    .go-live-stage-meta {
         grid-template-columns: 1fr;
+    }
+
+    .go-live-stage-viewport {
+        min-height: 380px;
+    }
+
+    .go-live-stage-header {
+        flex-direction: column;
+        align-items: stretch;
     }
 }

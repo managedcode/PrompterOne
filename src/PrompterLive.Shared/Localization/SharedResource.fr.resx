@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="DiagnosticsDismiss" xml:space="preserve">
+    <value>Fermer</value>
+  </data>
+  <data name="DiagnosticsRetry" xml:space="preserve">
+    <value>Réessayer</value>
+  </data>
+  <data name="DiagnosticsLibrary" xml:space="preserve">
+    <value>Bibliothèque</value>
+  </data>
+  <data name="DiagnosticsFatalTitle" xml:space="preserve">
+    <value>Erreur inattendue</value>
+  </data>
+  <data name="DiagnosticsFatalMessage" xml:space="preserve">
+    <value>PrompterLive a rencontré une erreur inattendue. Réessayez cet écran ou revenez à la bibliothèque.</value>
+  </data>
+  <data name="DiagnosticsRecoverableTitle" xml:space="preserve">
+    <value>Action échouée</value>
+  </data>
+  <data name="LibraryAllScripts" xml:space="preserve">
+    <value>Tous les scripts</value>
+  </data>
+  <data name="LibraryRecent" xml:space="preserve">
+    <value>Récents</value>
+  </data>
+  <data name="LibraryFavorites" xml:space="preserve">
+    <value>Favoris</value>
+  </data>
+  <data name="LibraryFolders" xml:space="preserve">
+    <value>Dossiers</value>
+  </data>
+  <data name="LibraryNewFolder" xml:space="preserve">
+    <value>Nouveau dossier</value>
+  </data>
+  <data name="LibrarySettings" xml:space="preserve">
+    <value>Paramètres</value>
+  </data>
+  <data name="LibrarySortBy" xml:space="preserve">
+    <value>Trier par</value>
+  </data>
+  <data name="LibrarySortName" xml:space="preserve">
+    <value>Nom</value>
+  </data>
+  <data name="LibrarySortDate" xml:space="preserve">
+    <value>Date</value>
+  </data>
+  <data name="LibrarySortDuration" xml:space="preserve">
+    <value>Durée</value>
+  </data>
+  <data name="LibrarySortWpm" xml:space="preserve">
+    <value>MPM</value>
+  </data>
+  <data name="LibraryCreateFolderTitle" xml:space="preserve">
+    <value>Créer un dossier</value>
+  </data>
+  <data name="LibraryCreateFolderDescription" xml:space="preserve">
+    <value>Organisez les scripts dans des collections imbriquées sans perturber la grille de la bibliothèque.</value>
+  </data>
+  <data name="HeaderSearchPlaceholder" xml:space="preserve">
+    <value>Rechercher...</value>
+  </data>
+  <data name="HeaderNewScript" xml:space="preserve">
+    <value>Nouveau script</value>
+  </data>
+  <data name="HeaderLearn" xml:space="preserve">
+    <value>Apprendre</value>
+  </data>
+  <data name="HeaderRead" xml:space="preserve">
+    <value>Lire</value>
+  </data>
+  <data name="HeaderGoLive" xml:space="preserve">
+    <value>En direct</value>
+  </data>
+  <data name="HeaderSettings" xml:space="preserve">
+    <value>Paramètres</value>
+  </data>
+  <data name="GoLiveHeroEyebrow" xml:space="preserve">
+    <value>ROUTAGE EN DIRECT</value>
+  </data>
+  <data name="GoLiveHeroDescription" xml:space="preserve">
+    <value>Préparez les destinations pour le flux programme actuel tout en gardant le prompteur et RSVP prêts dans des onglets séparés.</value>
+  </data>
+  <data name="CommonName" xml:space="preserve">
+    <value>Nom</value>
+  </data>
+  <data name="CommonParent" xml:space="preserve">
+    <value>Parent</value>
+  </data>
+  <data name="CommonTopLevel" xml:space="preserve">
+    <value>Niveau supérieur</value>
+  </data>
+  <data name="CommonCancel" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="CommonCreate" xml:space="preserve">
+    <value>Créer</value>
+  </data>
+  <data name="LibraryFolderPlaceholder" xml:space="preserve">
+    <value>Roadshows</value>
+  </data>
+</root>

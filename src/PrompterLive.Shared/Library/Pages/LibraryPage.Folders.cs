@@ -9,6 +9,7 @@ public partial class LibraryPage
     {
         Logger.LogInformation(SelectFolderLogTemplate, folderId);
         _selectedFolderId = folderId;
+        ExpandSelectedFolderPath(folderId);
         RebuildLibraryView();
         await PersistViewStateAsync();
     }
@@ -93,4 +94,29 @@ public partial class LibraryPage
             : string.Equals(folderId, LibrarySelectionKeys.Root, StringComparison.Ordinal)
                 ? null
                 : folderId;
+
+    private void ExpandSelectedFolderPath(string folderId)
+    {
+        if (string.IsNullOrWhiteSpace(folderId)
+            || string.Equals(folderId, LibrarySelectionKeys.All, StringComparison.Ordinal)
+            || string.Equals(folderId, LibrarySelectionKeys.Root, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        var foldersById = _folders.ToDictionary(folder => folder.Id, StringComparer.Ordinal);
+        var currentFolderId = folderId;
+
+        while (foldersById.TryGetValue(currentFolderId, out var folder))
+        {
+            _expandedFolderIds.Add(currentFolderId);
+
+            if (string.IsNullOrWhiteSpace(folder.ParentId))
+            {
+                break;
+            }
+
+            currentFolderId = folder.ParentId;
+        }
+    }
 }

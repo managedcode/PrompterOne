@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="DiagnosticsDismiss" xml:space="preserve">
+    <value>Cerrar</value>
+  </data>
+  <data name="DiagnosticsRetry" xml:space="preserve">
+    <value>Reintentar</value>
+  </data>
+  <data name="DiagnosticsLibrary" xml:space="preserve">
+    <value>Biblioteca</value>
+  </data>
+  <data name="DiagnosticsFatalTitle" xml:space="preserve">
+    <value>Error inesperado</value>
+  </data>
+  <data name="DiagnosticsFatalMessage" xml:space="preserve">
+    <value>PrompterLive encontró un error inesperado. Vuelve a intentar esta pantalla o regresa a la biblioteca.</value>
+  </data>
+  <data name="DiagnosticsRecoverableTitle" xml:space="preserve">
+    <value>Acción fallida</value>
+  </data>
+  <data name="LibraryAllScripts" xml:space="preserve">
+    <value>Todos los guiones</value>
+  </data>
+  <data name="LibraryRecent" xml:space="preserve">
+    <value>Recientes</value>
+  </data>
+  <data name="LibraryFavorites" xml:space="preserve">
+    <value>Favoritos</value>
+  </data>
+  <data name="LibraryFolders" xml:space="preserve">
+    <value>Carpetas</value>
+  </data>
+  <data name="LibraryNewFolder" xml:space="preserve">
+    <value>Nueva carpeta</value>
+  </data>
+  <data name="LibrarySettings" xml:space="preserve">
+    <value>Configuración</value>
+  </data>
+  <data name="LibrarySortBy" xml:space="preserve">
+    <value>Ordenar por</value>
+  </data>
+  <data name="LibrarySortName" xml:space="preserve">
+    <value>Nombre</value>
+  </data>
+  <data name="LibrarySortDate" xml:space="preserve">
+    <value>Fecha</value>
+  </data>
+  <data name="LibrarySortDuration" xml:space="preserve">
+    <value>Duración</value>
+  </data>
+  <data name="LibrarySortWpm" xml:space="preserve">
+    <value>PPM</value>
+  </data>
+  <data name="LibraryCreateFolderTitle" xml:space="preserve">
+    <value>Crear carpeta</value>
+  </data>
+  <data name="LibraryCreateFolderDescription" xml:space="preserve">
+    <value>Organiza los guiones en colecciones anidadas sin alterar la cuadrícula de la biblioteca.</value>
+  </data>
+  <data name="HeaderSearchPlaceholder" xml:space="preserve">
+    <value>Buscar...</value>
+  </data>
+  <data name="HeaderNewScript" xml:space="preserve">
+    <value>Nuevo guion</value>
+  </data>
+  <data name="HeaderLearn" xml:space="preserve">
+    <value>Estudiar</value>
+  </data>
+  <data name="HeaderRead" xml:space="preserve">
+    <value>Leer</value>
+  </data>
+  <data name="HeaderGoLive" xml:space="preserve">
+    <value>En vivo</value>
+  </data>
+  <data name="HeaderSettings" xml:space="preserve">
+    <value>Configuración</value>
+  </data>
+  <data name="GoLiveHeroEyebrow" xml:space="preserve">
+    <value>RUTEO EN VIVO</value>
+  </data>
+  <data name="GoLiveHeroDescription" xml:space="preserve">
+    <value>Prepara los destinos para la señal de programa actual mientras mantienes el teleprompter y RSVP listos en pestañas separadas.</value>
+  </data>
+  <data name="CommonName" xml:space="preserve">
+    <value>Nombre</value>
+  </data>
+  <data name="CommonParent" xml:space="preserve">
+    <value>Principal</value>
+  </data>
+  <data name="CommonTopLevel" xml:space="preserve">
+    <value>Nivel superior</value>
+  </data>
+  <data name="CommonCancel" xml:space="preserve">
+    <value>Cancelar</value>
+  </data>
+  <data name="CommonCreate" xml:space="preserve">
+    <value>Crear</value>
+  </data>
+  <data name="LibraryFolderPlaceholder" xml:space="preserve">
+    <value>Roadshows</value>
+  </data>
+</root>

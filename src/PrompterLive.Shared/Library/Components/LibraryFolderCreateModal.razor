@@ -1,5 +1,6 @@
 @namespace PrompterLive.Shared.Components.Library
 @using PrompterLive.Shared.Localization
+@inject IStringLocalizer<SharedResource> Localizer
 
 <div class="lib-modal-backdrop"
      @onclick="HandleCancelCreateFolderAsync"
@@ -19,28 +20,28 @@
                 </svg>
             </div>
             <div class="lib-folder-modal-copy">
-                <h2 id="library-folder-modal-title" data-testid="@UiTestIds.Library.NewFolderTitle">@UiTextCatalog.Get(UiTextKey.LibraryCreateFolderTitle)</h2>
-                <p>@UiTextCatalog.Get(UiTextKey.LibraryCreateFolderDescription)</p>
+                <h2 id="library-folder-modal-title" data-testid="@UiTestIds.Library.NewFolderTitle">@Text(UiTextKey.LibraryCreateFolderTitle)</h2>
+                <p>@Text(UiTextKey.LibraryCreateFolderDescription)</p>
             </div>
         </div>
 
         <div class="lib-folder-modal-body">
             <label class="folder-form-label">
-                <span>@UiTextCatalog.Get(UiTextKey.CommonName)</span>
+                <span>@Text(UiTextKey.CommonName)</span>
                 <input class="folder-form-input"
                        value="@FolderDraftName"
                        @oninput="HandleFolderNameInput"
-                       placeholder="@UiTextCatalog.Get(UiTextKey.LibraryFolderPlaceholder)"
+                       placeholder="@Text(UiTextKey.LibraryFolderPlaceholder)"
                        autofocus
                        data-testid="@UiTestIds.Library.NewFolderName" />
             </label>
             <label class="folder-form-label">
-                <span>@UiTextCatalog.Get(UiTextKey.CommonParent)</span>
+                <span>@Text(UiTextKey.CommonParent)</span>
                 <select class="folder-form-select"
                         value="@FolderDraftParentId"
                         @onchange="HandleFolderParentChange"
                         data-testid="@UiTestIds.Library.NewFolderParent">
-                    <option value="@LibrarySelectionKeys.Root">@UiTextCatalog.Get(UiTextKey.CommonTopLevel)</option>
+                    <option value="@LibrarySelectionKeys.Root">@Text(UiTextKey.CommonTopLevel)</option>
                     @foreach (var folder in FolderOptions)
                     {
                         <option value="@folder.Id">@folder.Label</option>
@@ -53,11 +54,11 @@
             <button class="dcard-act"
                     type="button"
                     @onclick="HandleCancelCreateFolderAsync"
-                    data-testid="@UiTestIds.Library.NewFolderCancel">@UiTextCatalog.Get(UiTextKey.CommonCancel)</button>
+                    data-testid="@UiTestIds.Library.NewFolderCancel">@Text(UiTextKey.CommonCancel)</button>
             <button class="dcard-act dcard-act-go"
                     type="button"
                     @onclick="HandleSubmitCreateFolderAsync"
-                    data-testid="@UiTestIds.Library.NewFolderSubmit">@UiTextCatalog.Get(UiTextKey.CommonCreate)</button>
+                    data-testid="@UiTestIds.Library.NewFolderSubmit">@Text(UiTextKey.CommonCreate)</button>
         </div>
     </section>
 </div>
@@ -86,4 +87,6 @@
 
     private Task HandleFolderParentChange(ChangeEventArgs args) =>
         OnFolderDraftParentChanged.InvokeAsync(args.Value?.ToString() ?? LibrarySelectionKeys.Root);
+
+    private string Text(UiTextKey key) => Localizer[key.ToString()];
 }

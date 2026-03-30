@@ -24,7 +24,7 @@
         @if (IsLibraryScreen)
         {
             <div class="lib-breadcrumb">
-                <span class="bc-item">@UiTextCatalog.Get(UiTextKey.LibraryAllScripts)</span>
+                <span class="bc-item">@Text(UiTextKey.LibraryAllScripts)</span>
                 <span class="bc-sep">/</span>
                 <span class="bc-item bc-current"
                       data-testid="@UiTestIds.Header.LibraryBreadcrumbCurrent">@ShellState.BreadcrumbLabel</span>
@@ -64,7 +64,7 @@
                 </svg>
                 <input type="text"
                        value="@ShellState.SearchText"
-                       placeholder="@UiTextCatalog.Get(UiTextKey.HeaderSearchPlaceholder)"
+                       placeholder="@Text(UiTextKey.HeaderSearchPlaceholder)"
                        @oninput="HandleLibrarySearchInputAsync"
                        data-testid="@UiTestIds.Header.LibrarySearch" />
             </div>
@@ -76,7 +76,7 @@
                     <line x1="12" y1="5" x2="12" y2="19" />
                     <line x1="5" y1="12" x2="19" y2="12" />
                 </svg>
-                @UiTextCatalog.Get(UiTextKey.HeaderNewScript)
+                @Text(UiTextKey.HeaderNewScript)
             </button>
         }
 
@@ -90,7 +90,7 @@
                     <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
                     <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
                 </svg>
-                @UiTextCatalog.Get(UiTextKey.HeaderLearn)
+                @Text(UiTextKey.HeaderLearn)
             </button>
         }
 
@@ -109,7 +109,7 @@
                 </svg>
             </span>
             <span class="btn-live-shell-copy">
-                <span class="btn-live-shell-label">@UiTextCatalog.Get(UiTextKey.HeaderGoLive)</span>
+                <span class="btn-live-shell-label">@Text(UiTextKey.HeaderGoLive)</span>
                 @if (GoLiveSessionState.HasActiveSession)
                 {
                     <span class="btn-live-shell-status">@GoLiveIndicatorCopy</span>
@@ -133,7 +133,7 @@
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polygon points="5,3 19,12 5,21" />
                 </svg>
-                @UiTextCatalog.Get(UiTextKey.HeaderRead)
+                @Text(UiTextKey.HeaderRead)
             </button>
         }
     </div>
@@ -150,8 +150,18 @@
             @onclick="HandleOpenGoLiveClickAsync"
             data-live-state="@GoLiveIndicatorState"
             data-testid="@UiTestIds.Header.LiveWidget">
-        <span class="app-live-widget-eyebrow">@GoLiveIndicatorCopy</span>
-        <strong class="app-live-widget-title">@GoLiveWidgetTitle</strong>
-        <span class="app-live-widget-detail">@GoLiveWidgetDetail</span>
+        <div class="app-live-widget-preview" data-testid="@UiTestIds.Header.LiveWidgetPreview">
+            <div class="app-live-widget-overlay"></div>
+            <div class="app-live-widget-meta">
+                <span class="app-live-widget-live-pill">@GoLiveWidgetStateLabel</span>
+                <span class="app-live-widget-timer">@GoLiveWidgetElapsed</span>
+            </div>
+        </div>
+
+        <div class="app-live-widget-copy">
+            <span class="app-live-widget-eyebrow">@GoLiveIndicatorCopy</span>
+            <strong class="app-live-widget-title">@GoLiveWidgetTitle</strong>
+            <span class="app-live-widget-detail">@GoLiveWidgetDetail</span>
+        </div>
     </button>
 }

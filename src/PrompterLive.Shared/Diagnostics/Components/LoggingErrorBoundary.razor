@@ -1,6 +1,7 @@
 @namespace PrompterLive.Shared.Components.Diagnostics
 @inherits PrompterLive.Shared.Components.Diagnostics.LoggingErrorBoundaryBase
 @using PrompterLive.Shared.Localization
+@inject IStringLocalizer<SharedResource> Localizer
 
 @if (CurrentException is null)
 {
@@ -15,8 +16,8 @@ else
             <p>@CurrentDiagnostic?.Message</p>
             <div class="diag-fatal-detail">@CurrentDiagnostic?.Detail</div>
             <div class="diag-fatal-actions">
-                <button class="diag-fatal-btn" type="button" @onclick="HandleRecover" data-testid="@UiTestIds.Diagnostics.Retry">@UiTextCatalog.Get(UiTextKey.DiagnosticsRetry)</button>
-                <button class="diag-fatal-btn diag-fatal-btn-primary" type="button" @onclick="HandleReturnHome" data-testid="@UiTestIds.Diagnostics.Home">@UiTextCatalog.Get(UiTextKey.DiagnosticsLibrary)</button>
+                <button class="diag-fatal-btn" type="button" @onclick="HandleRecover" data-testid="@UiTestIds.Diagnostics.Retry">@Localizer[UiTextKey.DiagnosticsRetry.ToString()]</button>
+                <button class="diag-fatal-btn diag-fatal-btn-primary" type="button" @onclick="HandleReturnHome" data-testid="@UiTestIds.Diagnostics.Home">@Localizer[UiTextKey.DiagnosticsLibrary.ToString()]</button>
             </div>
         </div>
     </section>

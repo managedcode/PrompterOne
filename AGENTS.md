@@ -109,6 +109,10 @@ Local `AGENTS.md` files may tighten these values, but they must not loosen them 
   - current state
   - required change
   - constraints and risks
+- For UI and design-driven work, execute in this order unless an explicit exception is documented:
+  - inspect the design reference and current implementation first
+  - map the design into the target Blazor structure and wire the intended UI before spending time on test execution
+  - run tests only after the design hookup and implementation path are in place
 - For non-trivial work, create a root-level `<slug>.plan.md` file before making code or doc changes.
 - Keep the `<slug>.plan.md` file as the working plan for the task until completion.
 - The plan file MUST contain:

@@ -1,31 +1,282 @@
-.live-grid-studio {
-    grid-template-columns: minmax(320px, .78fr) minmax(0, 1.22fr);
-    align-items: start;
+.go-live-page {
+    padding: 0;
 }
 
-.live-provider-heading {
+.go-live-page-shell {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    min-height: 100%;
+    padding: 4px;
+    background: linear-gradient(180deg, rgba(6, 8, 14, .98), rgba(3, 5, 10, 1));
+    border: 1px solid rgba(214, 166, 91, .08);
+    border-radius: 24px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05);
+}
+
+.go-live-session-bar {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 16px;
+    min-height: 54px;
+    padding: 0 10px;
+    border-bottom: 1px solid rgba(214, 166, 91, .06);
+}
+
+.go-live-session-bar-left,
+.go-live-session-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.go-live-session-actions {
+    justify-self: end;
+}
+
+.go-live-session-bar-left strong {
+    color: rgba(255, 245, 224, .92);
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.go-live-back-link,
+.go-live-live-badge,
+.go-live-record-pill,
+.go-live-stream-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 28px;
+    padding: 0 12px;
+    border-radius: 999px;
+    text-decoration: none;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.go-live-back-link {
+    border: 1px solid rgba(214, 166, 91, .1);
+    color: rgba(248, 241, 226, .68);
+    background: rgba(255, 255, 255, .02);
+}
+
+.go-live-live-badge,
+.go-live-record-pill {
+    border: 1px solid rgba(255, 120, 120, .14);
+    color: #f28e8e;
+    background: rgba(90, 24, 24, .22);
+}
+
+.go-live-stream-pill {
+    margin-left: auto;
+    border: 1px solid rgba(214, 166, 91, .14);
+    color: #f4d9b0;
+    background: rgba(111, 43, 20, .22);
+}
+
+.go-live-record-pill:disabled,
+.go-live-stream-pill:disabled {
+    opacity: .45;
+}
+
+.go-live-session-timer {
+    justify-self: center;
+    color: #f28e8e;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .18em;
+}
+
+.go-live-studio-shell {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 124px minmax(0, 1fr) 176px;
+    gap: 14px;
+    min-height: 720px;
+    padding: 12px 6px 6px;
+}
+
+.go-live-left-rail,
+.go-live-right-rail,
+.go-live-center-stage {
+    min-width: 0;
+}
+
+.go-live-right-rail {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.go-live-rail-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 10px;
+    border: 1px solid rgba(214, 166, 91, .08);
+    border-radius: 18px;
+    background: rgba(6, 9, 18, .88);
+}
+
+.go-live-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 12px;
+}
+
+.go-live-stat-grid div,
+.go-live-meter-row {
+    display: grid;
+    gap: 4px;
+}
+
+.go-live-stat-grid span,
+.go-live-meter-row span {
+    color: rgba(248, 241, 226, .34);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+
+.go-live-stat-grid strong,
+.go-live-meter-row strong {
+    color: rgba(255, 245, 224, .84);
+    font-size: 11px;
+    line-height: 1.35;
+}
+
+.go-live-stat-grid-compact strong:last-child {
+    color: #7ff3bf;
+}
+
+.go-live-meter-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.go-live-meter-row {
+    grid-template-columns: 28px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+}
+
+.go-live-meter {
+    position: relative;
+    overflow: hidden;
+    height: 3px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .08);
+}
+
+.go-live-meter-fill {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #36caa0, #7ff3bf);
+}
+
+.go-live-meter-fill-primary {
+    width: 78%;
+}
+
+.go-live-meter-fill-secondary {
+    width: 46%;
+}
+
+.go-live-meter-fill-tertiary {
+    width: 58%;
+}
+
+.go-live-routing-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 0 10px 10px;
+}
+
+.go-live-routing-copy {
     display: flex;
     flex-direction: column;
     gap: 6px;
-    padding: 0 4px;
 }
 
-.live-provider-title {
+.go-live-routing-copy h3 {
     margin: 0;
-    color: var(--t1);
+    color: rgba(255, 245, 224, .92);
     font-size: 18px;
     font-weight: 700;
 }
 
-.live-provider-desc {
+.go-live-routing-copy p {
     margin: 0;
-    color: var(--t3);
+    color: rgba(248, 241, 226, .48);
     font-size: 13px;
     line-height: 1.5;
 }
 
-@media (max-width: 1240px) {
-    .live-grid-studio {
+.go-live-routing-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.45fr);
+    gap: 18px;
+}
+
+.go-live-output-panel {
+    min-height: 100%;
+}
+
+.go-live-output-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 1320px) {
+    .go-live-studio-shell,
+    .go-live-routing-grid,
+    .live-targets-grid,
+    .live-local-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .go-live-studio-shell {
+        min-height: auto;
+    }
+
+    .go-live-session-bar {
+        grid-template-columns: 1fr;
+        justify-items: stretch;
+    }
+
+    .go-live-session-timer {
+        justify-self: start;
+    }
+
+    .go-live-stream-pill {
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 720px) {
+    .go-live-page-shell {
+        padding: 2px;
+    }
+
+    .go-live-session-bar-left,
+    .go-live-session-actions {
+        flex-wrap: wrap;
+    }
+
+    .go-live-output-fields,
+    .go-live-stat-grid {
         grid-template-columns: 1fr;
     }
 }

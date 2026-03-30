@@ -2,6 +2,7 @@
 @page "/library"
 @namespace PrompterLive.Shared.Pages
 @using PrompterLive.Shared.Localization
+@inject IStringLocalizer<SharedResource> Localizer
 
 <div id="screen-library" class="screen active" data-testid="@UiTestIds.Library.Page">
     <LibrarySidebar Folders="_folderNodes"
@@ -13,19 +14,19 @@
     <main class="lib-main">
         <div class="lib-scroll">
             <div class="lib-sort-bar">
-                <span class="sort-label" data-testid="@UiTestIds.Library.SortLabel">@UiTextCatalog.Get(UiTextKey.LibrarySortBy)</span>
+                <span class="sort-label" data-testid="@UiTestIds.Library.SortLabel">@Text(UiTextKey.LibrarySortBy)</span>
                 <button class="sort-btn @GetSortClass(LibrarySortMode.Name)"
                         @onclick="() => SetSortMode(LibrarySortMode.Name)"
-                        data-testid="@UiTestIds.Library.SortName">@UiTextCatalog.Get(UiTextKey.LibrarySortName)</button>
+                        data-testid="@UiTestIds.Library.SortName">@Text(UiTextKey.LibrarySortName)</button>
                 <button class="sort-btn @GetSortClass(LibrarySortMode.Date)"
                         @onclick="() => SetSortMode(LibrarySortMode.Date)"
-                        data-testid="@UiTestIds.Library.SortDate">@UiTextCatalog.Get(UiTextKey.LibrarySortDate)</button>
+                        data-testid="@UiTestIds.Library.SortDate">@Text(UiTextKey.LibrarySortDate)</button>
                 <button class="sort-btn @GetSortClass(LibrarySortMode.Duration)"
                         @onclick="() => SetSortMode(LibrarySortMode.Duration)"
-                        data-testid="@UiTestIds.Library.SortDuration">@UiTextCatalog.Get(UiTextKey.LibrarySortDuration)</button>
+                        data-testid="@UiTestIds.Library.SortDuration">@Text(UiTextKey.LibrarySortDuration)</button>
                 <button class="sort-btn @GetSortClass(LibrarySortMode.Wpm)"
                         @onclick="() => SetSortMode(LibrarySortMode.Wpm)"
-                        data-testid="@UiTestIds.Library.SortWpm">@UiTextCatalog.Get(UiTextKey.LibrarySortWpm)</button>
+                        data-testid="@UiTestIds.Library.SortWpm">@Text(UiTextKey.LibrarySortWpm)</button>
             </div>
 
             <LibraryFolderChips Chips="_folderChips"
@@ -54,4 +55,8 @@
                               OnSubmitCreateFolder="SubmitCreateFolderAsync"
                               OnFolderDraftNameChanged="UpdateFolderDraftName"
                               OnFolderDraftParentChanged="UpdateFolderDraftParent" />
+}
+
+@code {
+    private string Text(UiTextKey key) => Localizer[key.ToString()];
 }

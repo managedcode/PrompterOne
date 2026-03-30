@@ -279,8 +279,9 @@ sequenceDiagram
 ```mermaid
 flowchart LR
     Settings["SettingsPage<br/>device setup only"]
-    GoLive["GoLivePage<br/>destination routing"]
-    Hero["GoLiveHero"]
+    GoLive["GoLivePage<br/>studio layout + destination routing"]
+    SessionBar["GO Live session bar<br/>back, title, timer, record, stream"]
+    PreviewRail["preview + stats rail"]
     Preview["GoLiveCameraPreviewCard"]
     Program["GoLiveProgramFeedCard"]
     Sources["GoLiveSourcesCard"]
@@ -300,7 +301,8 @@ flowchart LR
     GoLive --> Routing
     GoLive --> Providers
     GoLive --> Reader
-    GoLive --> Hero
+    GoLive --> SessionBar
+    GoLive --> PreviewRail
     GoLive --> Preview
     GoLive --> Program
     GoLive --> Sources

@@ -1,5 +1,6 @@
 @namespace PrompterLive.Shared.Components.GoLive
 @using PrompterLive.Shared.Localization
+@inject IStringLocalizer<SharedResource> Localizer
 
 <section class="live-hero">
     <div class="live-hero-copy">
@@ -43,8 +44,8 @@
 
     private string EffectiveTitle => ResolveText(Title, UiTextKey.HeaderGoLive);
 
-    private static string ResolveText(string? parameterValue, UiTextKey defaultKey) =>
+    private string ResolveText(string? parameterValue, UiTextKey defaultKey) =>
         string.IsNullOrWhiteSpace(parameterValue)
-            ? UiTextCatalog.Get(defaultKey)
+            ? Localizer[defaultKey.ToString()]
             : parameterValue;
 }

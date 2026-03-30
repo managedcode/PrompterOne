@@ -84,13 +84,13 @@ public partial class LibraryPage
         {
             return _folderNodes.Count > 0
                 ? _folderNodes[RootFolderNodeIndex].Name
-                : UiTextCatalog.Get(UiTextKey.LibraryAllScripts);
+                : Text(UiTextKey.LibraryAllScripts);
         }
 
         return _folders
             .FirstOrDefault(folder => string.Equals(folder.Id, _selectedFolderId, StringComparison.Ordinal))
             ?.Name
-            ?? UiTextCatalog.Get(UiTextKey.LibraryAllScripts);
+            ?? Text(UiTextKey.LibraryAllScripts);
     }
 
     private void NormalizeRestoredState()

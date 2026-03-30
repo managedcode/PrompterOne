@@ -2,6 +2,7 @@
 @implements IDisposable
 @using PrompterLive.Shared.Localization
 @inject PrompterLive.Shared.Services.Diagnostics.UiDiagnosticsService Diagnostics
+@inject IStringLocalizer<SharedResource> Localizer
 
 @if (Diagnostics.Current is { IsFatal: false } diagnostic)
 {
@@ -15,7 +16,7 @@
                 type="button"
                 @onclick="HandleDismiss"
                 data-testid="@UiTestIds.Diagnostics.Dismiss">
-            @UiTextCatalog.Get(UiTextKey.DiagnosticsDismiss)
+            @Localizer[UiTextKey.DiagnosticsDismiss.ToString()]
         </button>
     </section>
 }

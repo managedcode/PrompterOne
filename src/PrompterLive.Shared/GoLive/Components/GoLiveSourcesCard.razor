@@ -1,46 +1,48 @@
 @namespace PrompterLive.Shared.Components.GoLive
 
-<section class="live-card go-live-sources-card" data-testid="@UiTestIds.GoLive.SourcesCard">
-    <div class="live-card-header">
-        <div>
-            <h3 class="live-card-title">@Title</h3>
-            <p class="live-card-desc">@Description</p>
-        </div>
-        <a class="set-btn-outline" href="@SettingsRoute" data-testid="@UiTestIds.GoLive.OpenSettings">@SettingsLabel</a>
+<section class="go-live-sources-shell"
+         data-testid="@UiTestIds.GoLive.SourceRail">
+    <div class="go-live-sidebar-header">
+        <span class="go-live-sidebar-title">Sources</span>
+        <a class="go-live-sidebar-action"
+           href="@SettingsRoute"
+           data-testid="@UiTestIds.GoLive.OpenSettings">+</a>
     </div>
 
-    <div class="live-source-stack">
+    <div class="go-live-sources-stack"
+         data-testid="@UiTestIds.GoLive.SourcesCard">
         @if (Sources.Count == 0)
         {
             <div class="set-empty-card">@EmptyStateMessage</div>
         }
         else
         {
-            @foreach (var source in Sources)
+            @for (var index = 0; index < Sources.Count; index++)
             {
-                <article class="live-source-item go-live-source-item" data-testid="@UiTestIds.GoLive.SourceCamera(source.SourceId)">
+                var source = Sources[index];
+
+                <article class="go-live-source-tile"
+                         data-testid="@UiTestIds.GoLive.SourceCamera(source.SourceId)">
                     <button type="button"
                             class="go-live-source-select"
                             data-active="@IsActive(source)"
                             data-selected="@IsSelected(source)"
                             @onclick="() => SelectSource.InvokeAsync(source.SourceId)"
                             data-testid="@UiTestIds.GoLive.SourceCameraSelect(source.SourceId)">
-                        <div>
-                            <div class="set-account-name">@source.Label</div>
-                            <div class="set-account-status @(source.Transform.IncludeInOutput ? ConnectedCssClass : DisconnectedCssClass)">@GetSourceStatus(source)</div>
-                        </div>
-                        <div class="go-live-source-flags">
-                            @if (IsSelected(source))
+                        <span class="go-live-source-swatch @ResolveSwatchCss(index)">
+                            @if (source.Transform.IncludeInOutput || IsActive(source))
                             {
-                                <span class="live-status pending">Selected</span>
+                                <span class="go-live-source-dot"></span>
                             }
-                            @if (IsActive(source))
-                            {
-                                <span class="live-status ready">Program</span>
-                            }
-                        </div>
+                        </span>
+                        <span class="go-live-source-copy">
+                            <strong>@source.Label</strong>
+                            <span>@GetSourceStatus(source)</span>
+                        </span>
                     </button>
-                    <button class="@(source.Transform.IncludeInOutput ? OutlineButtonCssClass : GoldenButtonCssClass)"
+
+                    <button type="button"
+                            class="go-live-source-action"
                             @onclick="() => ToggleSource.InvokeAsync(source.SourceId)"
                             data-testid="@UiTestIds.GoLive.SourceCameraAction(source.DeviceId)">
                         @(source.Transform.IncludeInOutput ? RemoveLabel : AddLabel)
@@ -50,31 +52,44 @@
         }
     </div>
 
-    <div class="live-mic-summary">
-        <div>
-            <span class="set-section-label">@PrimaryMicLabel</span>
-            <div class="set-account-name">@MicrophoneName</div>
+    <div class="go-live-participants-shell">
+        <div class="go-live-sidebar-header go-live-participants-header">
+            <span class="go-live-sidebar-title">Participants</span>
+            <span class="go-live-participants-icon">+</span>
         </div>
-        <span class="live-status @(HasPrimaryMicrophone ? ReadyCssClass : PendingCssClass)">@MicrophoneRouteLabel</span>
+
+        <article class="go-live-participant-card">
+            <div>
+                <strong>@HostLabel</strong>
+                <span>@ParticipantRoleLabel</span>
+            </div>
+            <span class="go-live-participant-badge">@DirectorLabel</span>
+        </article>
+
+        <div class="go-live-participant-actions">
+            <a class="go-live-source-action"
+               href="@SettingsRoute">@InviteLabel</a>
+        </div>
     </div>
 </section>
 
 @code {
     private const string AddLabel = "Add To Live Feed";
-    private const string ConnectedCssClass = "set-connected";
     private const string DefaultDescription = "Pick the camera that should be ready for the next switch, while keeping inclusion controls nearby.";
     private const string DefaultTitle = "Live Cameras";
-    private const string DisconnectedCssClass = "set-disconnected";
+    private const string DirectorLabel = "Director";
     private const string EmptyStateMessage = "No scene cameras are configured yet. Add them in Settings first.";
-    private const string GoldenButtonCssClass = "set-btn-golden";
-    private const string OutlineButtonCssClass = "set-btn-outline";
-    private const string PendingCssClass = "pending";
-    private const string PrimaryMicLabel = "PRIMARY MIC";
-    private const string ReadyCssClass = "ready";
+    private const string HostLabel = "You (Host)";
+    private const string InviteLabel = "Invite to session";
+    private const string ParticipantRoleLabel = "Primary control room";
     private const string RemoveLabel = "Remove From Live Feed";
-    private const string SettingsLabel = "Camera Settings";
     private const string SourceIncludedLabel = "Included in program output";
-    private const string SourceSceneOnlyLabel = "Available in scene only";
+    private const string SourceLiveLabel = "Ready for live switch";
+    private const string SourceSceneOnlyLabel = "Scene only";
+    private const string SwatchACssClass = "go-live-source-swatch-a";
+    private const string SwatchBCssClass = "go-live-source-swatch-b";
+    private const string SwatchCCssClass = "go-live-source-swatch-c";
+    private const string SwatchDCssClass = "go-live-source-swatch-d";
 
     [Parameter] public string? ActiveSourceId { get; set; }
     [Parameter] public string Description { get; set; } = DefaultDescription;
@@ -94,6 +109,23 @@
     private bool IsSelected(SceneCameraSource source) =>
         string.Equals(source.SourceId, SelectedSourceId, StringComparison.Ordinal);
 
-    private static string GetSourceStatus(SceneCameraSource source) =>
-        source.Transform.IncludeInOutput ? SourceIncludedLabel : SourceSceneOnlyLabel;
+    private static string GetSourceStatus(SceneCameraSource source)
+    {
+        if (source.Transform.IncludeInOutput)
+        {
+            return SourceIncludedLabel;
+        }
+
+        return source.Transform.Visible
+            ? SourceLiveLabel
+            : SourceSceneOnlyLabel;
+    }
+
+    private static string ResolveSwatchCss(int index) => (index % 4) switch
+    {
+        0 => SwatchACssClass,
+        1 => SwatchBCssClass,
+        2 => SwatchCCssClass,
+        _ => SwatchDCssClass
+    };
 }
