@@ -6,6 +6,7 @@ using PrompterLive.Core.Models.Media;
 using PrompterLive.Core.Models.Tps;
 using PrompterLive.Core.Models.Workspace;
 using PrompterLive.Core.Samples;
+using PrompterLive.Core.Services;
 using PrompterLive.Shared.Contracts;
 using PrompterLive.Shared.Services;
 using PrompterLive.Shared.Services.Diagnostics;
@@ -150,7 +151,7 @@ public partial class TeleprompterPage : IAsyncDisposable
         _readerFontSize = NormalizeReaderFontSize(SessionService.State.ReaderSettings.FontScale);
         _readerTextWidth = NormalizeReaderTextWidth(SessionService.State.ReaderSettings.TextWidth);
         _activeReaderCardIndex = 0;
-        _activeReaderWordIndex = 0;
+        _activeReaderWordIndex = -1;
         _isReaderPlaying = false;
         _isReaderCountdownActive = false;
         _countdownValue = null;
@@ -188,11 +189,14 @@ public partial class TeleprompterPage : IAsyncDisposable
         {
             var transform = new MediaSourceTransform(MirrorHorizontal: _studioSettings.Camera.MirrorCamera);
             _cameraLayer = new ReaderCameraLayerViewModel(
-                UiDomIds.Teleprompter.Camera,
-                configuredCamera!.DeviceId,
-                "rd-camera",
-                BuildPrimaryCameraStyle(transform),
-                UiTestIds.Teleprompter.CameraBackground);
+                ElementId: UiDomIds.Teleprompter.Camera,
+                DeviceId: configuredCamera!.DeviceId,
+                AutoStart: autoStart,
+                Role: "primary",
+                Order: 0,
+                CssClass: "rd-camera",
+                Style: BuildPrimaryCameraStyle(transform),
+                TestId: UiTestIds.Teleprompter.CameraBackground);
             _isReaderCameraActive = autoStart;
             _activateReaderCameraAfterRender = _isReaderCameraActive;
             return;
@@ -201,11 +205,14 @@ public partial class TeleprompterPage : IAsyncDisposable
         if (primarySceneCamera is not null)
         {
             _cameraLayer = new ReaderCameraLayerViewModel(
-                UiDomIds.Teleprompter.Camera,
-                primarySceneCamera.DeviceId,
-                "rd-camera",
-                BuildPrimaryCameraStyle(primarySceneCamera.Transform),
-                UiTestIds.Teleprompter.CameraBackground);
+                ElementId: UiDomIds.Teleprompter.Camera,
+                DeviceId: primarySceneCamera.DeviceId,
+                AutoStart: autoStart,
+                Role: "primary",
+                Order: 0,
+                CssClass: "rd-camera",
+                Style: BuildPrimaryCameraStyle(primarySceneCamera.Transform),
+                TestId: UiTestIds.Teleprompter.CameraBackground);
             _isReaderCameraActive = autoStart;
             _activateReaderCameraAfterRender = _isReaderCameraActive;
             return;
@@ -217,11 +224,14 @@ public partial class TeleprompterPage : IAsyncDisposable
         var defaultTransform = new MediaSourceTransform(MirrorHorizontal: _studioSettings.Camera.MirrorCamera);
 
         _cameraLayer = new ReaderCameraLayerViewModel(
-            UiDomIds.Teleprompter.Camera,
-            defaultCamera?.DeviceId ?? string.Empty,
-            "rd-camera",
-            BuildPrimaryCameraStyle(defaultTransform),
-            UiTestIds.Teleprompter.CameraBackground);
+            ElementId: UiDomIds.Teleprompter.Camera,
+            DeviceId: defaultCamera?.DeviceId ?? string.Empty,
+            AutoStart: autoStart && !string.IsNullOrWhiteSpace(defaultCamera?.DeviceId),
+            Role: "primary",
+            Order: 0,
+            CssClass: "rd-camera",
+            Style: BuildPrimaryCameraStyle(defaultTransform),
+            TestId: UiTestIds.Teleprompter.CameraBackground);
         _isReaderCameraActive = autoStart && !string.IsNullOrWhiteSpace(defaultCamera?.DeviceId);
         _activateReaderCameraAfterRender = _isReaderCameraActive;
     }

@@ -16,6 +16,10 @@
                autoplay
                muted
                playsinline
+               data-camera-device-id="@_cameraLayer.DeviceId"
+               data-camera-role="@_cameraLayer.Role"
+               data-camera-order="@_cameraLayer.Order"
+               data-camera-autostart="@BuildBooleanDataAttribute(_cameraLayer.AutoStart)"
                data-testid="@_cameraLayer.TestId"
                style="@_cameraLayer.Style"></video>
         <div class="@BuildCameraTintCssClass()" id="@UiDomIds.Teleprompter.CameraTint"></div>
@@ -89,12 +93,14 @@
                                             : null;
                                         if (chunk is ReaderGroupViewModel group)
                                         {
-                                            <span class="@BuildReaderGroupCssClass(entry.index, group)"
+                                            <span class="@BuildReaderGroupCssClass(entry.index, chunkIndex)"
                                                   data-testid="@UiTestIds.Teleprompter.CardGroup(entry.index, chunkIndex)">
                                                 @for (var wordIndex = 0; wordIndex < group.Words.Count; wordIndex++)
                                                 {
                                                     var word = group.Words[wordIndex];
-                                                    <span class="@BuildReaderWordCssClass(entry.index, word)">@word.Text</span>
+                                                    <span class="@BuildReaderWordCssClass(entry.index, chunkIndex, wordIndex)"
+                                                          data-ms="@word.DurationMs"
+                                                          data-pause-ms="@word.PauseAfterMs">@word.Text</span>
                                                     @if (wordIndex < group.Words.Count - 1)
                                                     {
                                                         @(" ")

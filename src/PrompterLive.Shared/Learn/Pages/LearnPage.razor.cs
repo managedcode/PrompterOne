@@ -12,7 +12,6 @@ namespace PrompterLive.Shared.Pages;
 
 public partial class LearnPage : IAsyncDisposable
 {
-    private const string ContextShiftPropertyName = "--rsvp-context-word-shift";
     private const int DefaultContextWordCount = 5;
     private const string EndOfScriptPhrase = "End of script.";
     private const string LoadLearnMessage = "Unable to load RSVP rehearsal right now.";
@@ -22,7 +21,6 @@ public partial class LearnPage : IAsyncDisposable
     private const string NeutralEmotion = "neutral";
     private const string ReadyWord = "Ready";
     private const int PreviewWordCount = 10;
-    private const int RsvpFocusMaxContextWordGapPixels = 72;
     private const int RsvpMaxSpeed = 600;
     private const int RsvpMinSpeed = 100;
     private const int RsvpSpeedStep = 10;
