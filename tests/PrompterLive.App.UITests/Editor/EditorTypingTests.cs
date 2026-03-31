@@ -310,10 +310,18 @@ public sealed class EditorTypingTests(StandaloneAppFixture fixture) : IClassFixt
                         throw new Error("Editor typing probe data is missing.");
                     }
 
+                    const latencies = probe.samples
+                        .map(sample => sample.latency)
+                        .sort((left, right) => left - right);
+                    const p95Index = latencies.length
+                        ? Math.max(0, Math.ceil(latencies.length * 0.95) - 1)
+                        : -1;
+
                     probe.observer.disconnect();
                     return {
                         sampleCount: probe.samples.length,
-                        maxLatency: probe.samples.length ? Math.max(...probe.samples.map(sample => sample.latency)) : -1,
+                        maxLatency: latencies.length ? latencies[latencies.length - 1] : -1,
+                        p95Latency: p95Index >= 0 ? latencies[p95Index] : -1,
                         longTaskCount: probe.longTasks.length,
                         maxLongTaskDuration: probe.longTasks.length ? Math.max(...probe.longTasks) : 0,
                         sawVisibleInput: probe.samples.some(sample => sample.inputVisible),
@@ -329,9 +337,13 @@ public sealed class EditorTypingTests(StandaloneAppFixture fixture) : IClassFixt
             Assert.True(probeResult.SampleCount > 0);
             Assert.False(probeResult.SawVisibleInput);
             Assert.InRange(
+                probeResult.P95Latency,
+                0,
+                BrowserTestConstants.Editor.MaxVisibleRenderP95LatencyMs);
+            Assert.InRange(
                 probeResult.MaxLatency,
                 0,
-                BrowserTestConstants.Editor.MaxVisibleRenderLatencyMs);
+                BrowserTestConstants.Editor.MaxVisibleRenderSpikeLatencyMs);
             Assert.InRange(
                 probeResult.LongTaskCount,
                 0,
@@ -375,6 +387,8 @@ public sealed class EditorTypingTests(StandaloneAppFixture fixture) : IClassFixt
         public double MaxLatency { get; set; }
 
         public double MaxLongTaskDuration { get; set; }
+
+        public double P95Latency { get; set; }
 
         public bool SawVisibleInput { get; set; }
 

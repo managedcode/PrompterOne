@@ -230,6 +230,10 @@ Root-cause note:
   - `EditorScreen_FloatingToolbarStaysPinnedAfterFloatingFormatAction` still failed because a late textarea `select` event could request a fresh floating-bar re-anchor after toolbar formatting on Linux.
   - `EditorScreen_FloatingToolbarStaysAboveMultiLineSelection` failed because the visual floating-toolbar gap above the selected segment line was too tight for Linux font metrics.
   - Intended fix path: preserve the existing floating-bar anchor when the refreshed DOM selection matches the already-tracked range, and increase the runtime floating-toolbar gap so the toolbar body clears multi-line selections consistently across platforms.
+- GitHub run `23816573578` isolated the remaining release-only browser failure after the floating-toolbar fixes:
+  - `EditorScreen_QuantumTypingKeepsStyledOverlayVisibleResponsive`
+  - Root cause note: the test asserted a hard `maxLatency <= 120ms` on the single slowest MutationObserver sample, which was sensitive to one-off runner scheduling spikes in the release workflow even when the same Linux browser suite passed in `PR Validation`.
+  - Intended fix path: keep the strong no-visible-input/no-long-task checks, but evaluate typing responsiveness with a bounded spike plus a stable `p95` latency threshold instead of a single-sample maximum.
 - Local validation after the browser-suite stability fixes passed:
   - `dotnet build /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx -warnaserror`
   - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.Core.Tests/PrompterLive.Core.Tests.csproj --no-build`
@@ -242,6 +246,10 @@ Root-cause note:
 - Local validation after the runtime floating-toolbar fixes passed:
   - `dotnet build /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx -warnaserror`
   - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.Tests/PrompterLive.App.Tests.csproj --no-build`
+  - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj --no-build`
+  - `dotnet format /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx`
+- Local validation after the typing-latency probe stabilization passed:
+  - `dotnet build /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx -warnaserror`
   - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj --no-build`
   - `dotnet format /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx`
 
