@@ -7,7 +7,8 @@ namespace PrompterLive.App.UITests;
 public sealed class EditorFloatingToolbarLayoutTests(StandaloneAppFixture fixture) : IClassFixture<StandaloneAppFixture>
 {
     private const string SegmentLineSelector = ".ed-src-line-segment";
-    private readonly record struct LayoutBounds(double X, double Y, double Width, double Height);
+    private readonly record struct LayoutBounds(double Y, double Height);
+    private readonly record struct ToolbarAnchor(double Left, double Top);
     private readonly StandaloneAppFixture _fixture = fixture;
 
     [Fact]
@@ -158,19 +159,20 @@ public sealed class EditorFloatingToolbarLayoutTests(StandaloneAppFixture fixtur
             await Expect(floatingBar).ToBeVisibleAsync();
             await page.WaitForTimeoutAsync(BrowserTestConstants.Timing.FloatingToolbarSettleDelayMs);
 
-            var before = await GetRequiredBoundingBoxAsync(floatingBar);
+            var before = await GetRequiredAnchorAsync(floatingBar);
 
             await page.GetByTestId(UiTestIds.Editor.FloatEmphasis).ClickAsync();
+            await Expect(floatingBar).ToBeVisibleAsync();
             await page.WaitForTimeoutAsync(BrowserTestConstants.Timing.FloatingToolbarSettleDelayMs);
 
-            var after = await GetRequiredBoundingBoxAsync(floatingBar);
+            var after = await GetRequiredAnchorAsync(floatingBar);
 
             Assert.InRange(
-                Math.Abs(after.X - before.X),
+                Math.Abs(after.Left - before.Left),
                 0,
                 BrowserTestConstants.Editor.FloatingBarPinnedMaxDriftPx);
             Assert.InRange(
-                Math.Abs(after.Y - before.Y),
+                Math.Abs(after.Top - before.Top),
                 0,
                 BrowserTestConstants.Editor.FloatingBarPinnedMaxDriftPx);
         }
@@ -186,10 +188,20 @@ public sealed class EditorFloatingToolbarLayoutTests(StandaloneAppFixture fixtur
             element => {
                 const rect = element.getBoundingClientRect();
                 return {
-                    x: rect.x,
                     y: rect.y,
-                    width: rect.width,
                     height: rect.height
+                };
+            }
+            """);
+
+    private static async Task<ToolbarAnchor> GetRequiredAnchorAsync(ILocator locator) =>
+        await locator.EvaluateAsync<ToolbarAnchor>(
+            """
+            element => {
+                const style = window.getComputedStyle(element);
+                return {
+                    left: Number.parseFloat(style.left),
+                    top: Number.parseFloat(style.top)
                 };
             }
             """);

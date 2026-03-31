@@ -222,11 +222,19 @@ Root-cause note:
   - mac-only keyboard shortcuts in UI tests (`Meta+A`, `Meta+Z`, `Meta+Shift+Z`) that broke Linux editor shortcuts and typing flows
   - browser-suite self-contention from `4` parallel xUnit workers inside one process on the slower GitHub runner
   - route/readiness assertions still relying on Playwright's short default timeouts instead of the suite's WASM-specific timeout budget
+- GitHub runs `23815330400` and `23815334683` proved the stability fixes removed all but one browser failure:
+  - `PrompterLive.App.UITests.EditorFloatingToolbarLayoutTests.EditorScreen_FloatingToolbarStaysPinnedAfterFloatingFormatAction`
+  - Root cause note: the test asserted `getBoundingClientRect().x/y` drift after the format action even though the production floating-toolbar contract preserves the inline/computed anchor (`left` and `top`) and the element itself is centered with `transform: translate(-50%, ...)`. Linux font/layout differences moved the rendered box without breaking the preserved anchor.
+  - Intended fix path: assert the preserved computed anchor coordinates instead of bounding-box drift, and keep the visibility check after the floating action.
 - Local validation after the browser-suite stability fixes passed:
   - `dotnet build /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx -warnaserror`
   - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.Core.Tests/PrompterLive.Core.Tests.csproj --no-build`
   - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.Tests/PrompterLive.App.Tests.csproj --no-build`
   - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj --no-build`
+- Local validation after the floating-toolbar anchor assertion fix passed:
+  - `dotnet build /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx -warnaserror`
+  - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj --no-build`
+  - `dotnet format /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx`
 
 ## Final Validation Skills And Commands
 
