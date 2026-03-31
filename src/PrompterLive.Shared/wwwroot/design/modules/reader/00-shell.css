@@ -222,8 +222,7 @@
 .tps-professional { color: #5B7FFF; }
 
 /* ── TPS Speed Indicators (visual cue for speed tags) ── */
-.tps-xslow { letter-spacing: 1.5px; }
-.tps-slow { letter-spacing: 0.5px; }
-.tps-fast { letter-spacing: -0.3px; }
-.tps-xfast { letter-spacing: -0.5px; opacity: .7; }
-
+.tps-xslow { letter-spacing: var(--tps-word-letter-spacing, 0.055em); }
+.tps-slow { letter-spacing: var(--tps-word-letter-spacing, 0.028em); }
+.tps-fast { letter-spacing: var(--tps-word-letter-spacing, -0.015em); }
+.tps-xfast { letter-spacing: var(--tps-word-letter-spacing, -0.028em); opacity: .78; }

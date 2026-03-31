@@ -9,6 +9,7 @@ This flow keeps the version number automated:
 - local builds default to `0.1.0`
 - release builds derive `0.1.<run_number>` from the active release workflow run
 - the About screen reads the compiled assembly metadata instead of hardcoded copy
+- the About screen links only to official Managed Code and `managedcode/PrompterLive` resources; it must never invent a team roster
 
 ## Version And Deploy Flow
 
@@ -44,7 +45,7 @@ flowchart LR
 - `PrompterLiveBuildNumber` comes from `GITHUB_RUN_NUMBER` when CI provides it, or falls back to `0` locally.
 - `.github/workflows/deploy-github-pages.yml` resolves the release version from `VersionPrefix`, so the release tag and the compiled app version stay aligned.
 - `Program.cs` creates `IAppVersionProvider` from the compiled `PrompterLive.App` assembly metadata.
-- `SettingsAboutSection` renders that provider value in the About card subtitle.
+- `SettingsAboutSection` renders that provider value in the About card subtitle and pairs it with official Managed Code, GitHub, releases, and issues links.
 
 ## GitHub Pages Rules
 
@@ -65,6 +66,7 @@ flowchart LR
 - `.github/workflows/pr-validation.yml` runs `dotnet test tests/PrompterLive.App.Tests/PrompterLive.App.Tests.csproj --no-build`
 - `.github/workflows/pr-validation.yml` runs `dotnet test tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj --no-build`
 - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.Tests/PrompterLive.App.Tests.csproj --filter "FullyQualifiedName~SettingsInteractionTests.AboutSection_RendersInjectedAppVersionMetadata"`
+- `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.Tests/PrompterLive.App.Tests.csproj --filter "FullyQualifiedName~SettingsInteractionTests.AboutSection_RendersInjectedAppVersionMetadata_AndOfficialManagedCodeLinks"`
 - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj --filter "FullyQualifiedName~TeleprompterSettingsFlowTests.TeleprompterAndSettingsScreens_RespondToCoreControls"`
 - `.github/workflows/deploy-github-pages.yml` publish step passes `-p:PrompterLiveBuildNumber=${{ github.run_number }}`
 - `.github/workflows/deploy-github-pages.yml` publishes both the GitHub Release asset and the GitHub Pages artifact from the same release build output

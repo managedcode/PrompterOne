@@ -55,7 +55,15 @@ public partial class TeleprompterPage
 
     private sealed record ReaderPauseViewModel(int DurationMs, string CssClass) : ReaderChunkViewModel;
 
-    private sealed record ReaderWordViewModel(string Text, string CssClass, int DurationMs, int PauseAfterMs = 0);
+    private sealed record ReaderWordViewModel(
+        string Text,
+        string CssClass,
+        int DurationMs,
+        int PauseAfterMs = 0,
+        string? Style = null,
+        string? Title = null,
+        string? PronunciationGuide = null,
+        int? EffectiveWpm = null);
 
     private sealed record ReaderCameraLayerViewModel(
         string ElementId,

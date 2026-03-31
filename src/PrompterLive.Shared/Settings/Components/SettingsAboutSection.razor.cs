@@ -1,22 +1,48 @@
 using Microsoft.AspNetCore.Components;
+using PrompterLive.Shared.Contracts;
 using PrompterLive.Shared.Settings.Services;
 
 namespace PrompterLive.Shared.Components.Settings;
 
 public partial class SettingsAboutSection
 {
+    private const string AboutSectionTitle = "About";
+    private const string AboutSectionDescription = "Prompter.live is a professional teleprompter for creators, broadcasters, and public speakers.";
+    private const string AppCardTitle = AboutLinks.ProductName;
     private const string AppCardId = "about-app";
+    private const string AutomaticUpdatesLabel = "Check for updates automatically";
+    private const string CompanyCardId = "about-company";
+    private const string FooterText = "Built and maintained by Managed Code.";
     private const string LicensedStatusLabel = "Licensed";
+    private const string ManagedCodeCardCopy = "Everything in Prompter.live is designed, built, and maintained by Managed Code. Use the official links below for the company site, the public GitHub organization, and the live product site.";
+    private const string ManagedCodeCardSubtitle = "Product, design, and engineering by Managed Code";
+    private const string ManagedCodeCardTitle = AboutLinks.ManagedCodeName;
     private const string OpenSourceCardId = "about-open-source";
+    private const string OpenSourceCardSubtitle = "Libraries & licenses";
+    private const string OpenSourceCardTitle = "Open Source";
     private const string ResourcesCardId = "about-resources";
-    private const string TeamCardId = "about-team";
+    private const string ResourcesCardSubtitle = "Live app, releases, and support";
+    private const string ResourcesCardTitle = "Help & Resources";
+    private const string SoftwareUpdatesLabel = "Software Updates";
+    private const string UpToDateLabel = "Up to date";
 
-    private static readonly string[] ResourceLinks =
+    private static readonly AboutLinkItem[] CompanyLinks =
     [
-        "What's New",
-        "Help & Documentation",
-        "Report a Bug",
-        "Privacy Policy"
+        new(
+            UiTestIds.Settings.AboutCompanyWebsite,
+            "Managed Code website",
+            "Official company website",
+            AboutLinks.ManagedCodeWebsiteUrl),
+        new(
+            UiTestIds.Settings.AboutCompanyGitHub,
+            "Managed Code on GitHub",
+            "Official GitHub organization",
+            AboutLinks.ManagedCodeGitHubUrl),
+        new(
+            UiTestIds.Settings.AboutProductWebsite,
+            "Prompter.live app",
+            "Live standalone WebAssembly build",
+            AboutLinks.ProductWebsiteUrl)
     ];
 
     private static readonly AboutItem[] Libraries =
@@ -30,11 +56,23 @@ public partial class SettingsAboutSection
         new("Web Audio API", "High-level audio processing", "W3C")
     ];
 
-    private static readonly TeamMember[] TeamMembers =
+    private static readonly AboutLinkItem[] ResourceLinks =
     [
-        new("M", "Mykola Kovalenko", "Founder · Product & Design", "background:linear-gradient(135deg,#C4A060,#8B6A3A);"),
-        new("A", "Anna Petrenko", "Lead Engineer", "background:linear-gradient(135deg,#60A5FA,#2563EB);"),
-        new("D", "Dmytro Shevchenko", "Backend & Infrastructure", "background:linear-gradient(135deg,#34D399,#059669);")
+        new(
+            UiTestIds.Settings.AboutRepositoryLink,
+            "PrompterLive repository",
+            "Source code, docs, and milestones",
+            AboutLinks.ProductRepositoryUrl),
+        new(
+            UiTestIds.Settings.AboutReleasesLink,
+            "Release notes",
+            "Published builds and changelog",
+            AboutLinks.ProductReleasesUrl),
+        new(
+            UiTestIds.Settings.AboutIssuesLink,
+            "Report an issue",
+            "Bug reports and product feedback",
+            AboutLinks.ProductIssuesUrl)
     ];
 
     [Inject] private IAppVersionProvider AppVersionProvider { get; set; } = null!;
@@ -46,6 +84,5 @@ public partial class SettingsAboutSection
     private string AppCardSubtitle => AppVersionProvider.Current.Subtitle;
 
     private sealed record AboutItem(string Name, string Description, string License);
-
-    private sealed record TeamMember(string Initials, string Name, string Role, string AvatarStyle);
+    private sealed record AboutLinkItem(string TestId, string Label, string Description, string Href);
 }

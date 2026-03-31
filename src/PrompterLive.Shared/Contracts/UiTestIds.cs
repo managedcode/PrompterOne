@@ -172,7 +172,9 @@ public static class UiTestIds
         public const string Back = "teleprompter-back";
         public const string CameraBackground = "teleprompter-camera-layer-primary";
         public const string CameraToggle = "teleprompter-camera-toggle";
+        public const string Controls = "teleprompter-controls";
         public const string EdgeSection = "teleprompter-edge-section";
+        public const string EdgeInfo = "teleprompter-edge-info";
         public const string FocalSlider = "teleprompter-focal-slider";
         public const string FocalGuide = "teleprompter-focal-guide";
         public const string FontDown = "teleprompter-font-down";
@@ -183,6 +185,7 @@ public static class UiTestIds
         public const string PlayToggle = "teleprompter-play-toggle";
         public const string PreviousBlock = "teleprompter-previous-block";
         public const string PreviousWord = "teleprompter-previous-word";
+        public const string Sliders = "teleprompter-sliders";
         public const string Stage = "teleprompter-stage";
         public const string WidthSlider = "teleprompter-width-slider";
 
@@ -201,7 +204,14 @@ public static class UiTestIds
     public static class Settings
     {
         public const string AboutAppCard = "settings-about-app-card";
+        public const string AboutCompanyCard = "settings-about-company-card";
+        public const string AboutCompanyGitHub = "settings-about-company-github";
+        public const string AboutCompanyWebsite = "settings-about-company-website";
         public const string AboutPanel = "settings-about-panel";
+        public const string AboutProductWebsite = "settings-about-product-website";
+        public const string AboutRepositoryLink = "settings-about-repository-link";
+        public const string AboutReleasesLink = "settings-about-releases-link";
+        public const string AboutIssuesLink = "settings-about-issues-link";
         public const string AboutVersion = "settings-about-version";
         public const string AppearancePanel = "settings-appearance-panel";
         public const string AiPanel = "settings-ai-panel";

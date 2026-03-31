@@ -10,11 +10,13 @@ public sealed class TeleprompterReaderInterop(IJSRuntime jsRuntime)
         string stageId,
         string textId,
         string targetWordId,
-        int focalPointPercent) =>
+        int focalPointPercent,
+        bool neutralizeCard = false) =>
         _jsRuntime.InvokeAsync<double?>(
             TeleprompterReaderInteropMethodNames.MeasureClusterOffset,
             stageId,
             textId,
             targetWordId,
-            focalPointPercent);
+            focalPointPercent,
+            neutralizeCard);
 }

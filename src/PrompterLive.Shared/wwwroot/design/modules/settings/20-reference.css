@@ -758,6 +758,32 @@
     margin-bottom: 0;
 }
 
+.set-about-link {
+    color: inherit;
+    text-decoration: none;
+    transition: background .12s ease, border-color .12s ease;
+}
+
+.set-about-link:hover {
+    background: rgba(196, 160, 96, .06);
+}
+
+.set-about-link-copy {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.set-about-link-copy label {
+    cursor: pointer;
+}
+
+.set-about-link-meta {
+    color: var(--t4);
+    font-size: 11px;
+}
+
 .set-about-team {
     display: flex;
     flex-direction: column;

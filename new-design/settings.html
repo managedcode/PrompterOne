@@ -1240,41 +1240,42 @@
                         </div>
                     </div>
 
-                    <!-- Team -->
+                    <!-- Managed Code -->
                     <div class="set-dest-card open" onclick="toggleDestCard(this)">
                         <div class="set-dest-header">
                             <div class="set-dest-icon" style="background:rgba(196,160,96,.10); color:var(--gold);">
-                                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>
+                                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7L9 18l-5-5"/></svg>
                             </div>
                             <div class="set-dest-info">
-                                <span class="set-dest-name">Our Team</span>
-                                <span class="set-dest-account">Built with care from Kyiv 🇺🇦</span>
+                                <span class="set-dest-name">Managed Code</span>
+                                <span class="set-dest-account">Product, design &amp; engineering by Managed Code</span>
                             </div>
                             <svg class="set-dest-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
                         </div>
                         <div class="set-dest-body" onclick="event.stopPropagation()">
+                            <p class="set-card-copy">Everything in Prompter.live is designed, built, and maintained by Managed Code. Use the official links below for the company site, the public GitHub organization, and the live product site.</p>
                             <div class="set-device-fields">
-                                <div class="set-field" style="flex-direction:row;align-items:center;gap:12px;padding:4px 0;">
-                                    <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#C4A060,#8B6A3A);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:white;flex-shrink:0;">M</div>
-                                    <div>
-                                        <div style="font-size:13px;font-weight:600;color:var(--t1);">Mykola Kovalenko</div>
-                                        <div style="font-size:11px;color:var(--t4);margin-top:1px;">Founder · Product &amp; Design</div>
+                                <a class="set-about-link set-field set-field-toggle" href="https://www.managed-code.com/" target="_blank" rel="noreferrer">
+                                    <div class="set-about-link-copy">
+                                        <label>Managed Code website</label>
+                                        <span class="set-about-link-meta">Official company website</span>
                                     </div>
-                                </div>
-                                <div class="set-field" style="flex-direction:row;align-items:center;gap:12px;padding:4px 0;">
-                                    <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#60A5FA,#2563EB);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:white;flex-shrink:0;">A</div>
-                                    <div>
-                                        <div style="font-size:13px;font-weight:600;color:var(--t1);">Anna Petrenko</div>
-                                        <div style="font-size:11px;color:var(--t4);margin-top:1px;">Lead Engineer</div>
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--t4)" stroke-width="2"><polyline points="9,18 15,12 9,6"/></svg>
+                                </a>
+                                <a class="set-about-link set-field set-field-toggle" href="https://github.com/managedcode" target="_blank" rel="noreferrer">
+                                    <div class="set-about-link-copy">
+                                        <label>Managed Code on GitHub</label>
+                                        <span class="set-about-link-meta">Official GitHub organization</span>
                                     </div>
-                                </div>
-                                <div class="set-field" style="flex-direction:row;align-items:center;gap:12px;padding:4px 0;">
-                                    <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#34D399,#059669);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:white;flex-shrink:0;">D</div>
-                                    <div>
-                                        <div style="font-size:13px;font-weight:600;color:var(--t1);">Dmytro Shevchenko</div>
-                                        <div style="font-size:11px;color:var(--t4);margin-top:1px;">Backend &amp; Infrastructure</div>
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--t4)" stroke-width="2"><polyline points="9,18 15,12 9,6"/></svg>
+                                </a>
+                                <a class="set-about-link set-field set-field-toggle" href="https://prompter.managed-code.com/" target="_blank" rel="noreferrer">
+                                    <div class="set-about-link-copy">
+                                        <label>Prompter.live app</label>
+                                        <span class="set-about-link-meta">Live standalone WebAssembly build</span>
                                     </div>
-                                </div>
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--t4)" stroke-width="2"><polyline points="9,18 15,12 9,6"/></svg>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -1339,22 +1340,27 @@
                         </div>
                         <div class="set-dest-body" onclick="event.stopPropagation()">
                             <div class="set-device-fields">
-                                <div class="set-field set-field-toggle" style="cursor:pointer;" onclick="event.preventDefault()">
-                                    <label style="cursor:pointer;">What's New</label>
+                                <a class="set-about-link set-field set-field-toggle" href="https://github.com/managedcode/PrompterLive" target="_blank" rel="noreferrer">
+                                    <div class="set-about-link-copy">
+                                        <label>PrompterLive repository</label>
+                                        <span class="set-about-link-meta">Source code, docs, and milestones</span>
+                                    </div>
                                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--t4)" stroke-width="2"><polyline points="9,18 15,12 9,6"/></svg>
-                                </div>
-                                <div class="set-field set-field-toggle" style="cursor:pointer;" onclick="event.preventDefault()">
-                                    <label style="cursor:pointer;">Help &amp; Documentation</label>
+                                </a>
+                                <a class="set-about-link set-field set-field-toggle" href="https://github.com/managedcode/PrompterLive/releases" target="_blank" rel="noreferrer">
+                                    <div class="set-about-link-copy">
+                                        <label>Release notes</label>
+                                        <span class="set-about-link-meta">Published builds and changelog</span>
+                                    </div>
                                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--t4)" stroke-width="2"><polyline points="9,18 15,12 9,6"/></svg>
-                                </div>
-                                <div class="set-field set-field-toggle" style="cursor:pointer;" onclick="event.preventDefault()">
-                                    <label style="cursor:pointer;">Report a Bug</label>
+                                </a>
+                                <a class="set-about-link set-field set-field-toggle" href="https://github.com/managedcode/PrompterLive/issues" target="_blank" rel="noreferrer">
+                                    <div class="set-about-link-copy">
+                                        <label>Report an issue</label>
+                                        <span class="set-about-link-meta">Bug reports and product feedback</span>
+                                    </div>
                                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--t4)" stroke-width="2"><polyline points="9,18 15,12 9,6"/></svg>
-                                </div>
-                                <div class="set-field set-field-toggle" style="cursor:pointer;" onclick="event.preventDefault()">
-                                    <label style="cursor:pointer;">Privacy Policy</label>
-                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--t4)" stroke-width="2"><polyline points="9,18 15,12 9,6"/></svg>
-                                </div>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -1362,7 +1368,7 @@
                 </div>
 
                 <div style="text-align:center;font-size:12px;color:var(--t4);padding:16px 0 8px;">
-                    Made with care in Ukraine 🇺🇦 · © 2026 Prompter.live
+                    Built and maintained by Managed Code.
                 </div>
 
     </div><!-- /screen -->

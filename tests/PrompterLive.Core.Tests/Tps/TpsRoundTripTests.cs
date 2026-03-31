@@ -45,4 +45,33 @@ public sealed class TpsRoundTripTests
         Assert.Equal("p", split.OrpChar);
         Assert.Equal("rompter", split.PostORP);
     }
+
+    [Fact]
+    public async Task CompileAsync_PreservesInlineWpmScopesAcrossNestedPronunciationTags()
+    {
+        var parser = new TpsParser();
+        var compiler = new ScriptCompiler();
+        const string source = """
+        ---
+        title: "Inline speed"
+        base_wpm: 140
+        ---
+
+        ## [Call to Action|140WPM|motivational]
+
+        ### [Closing Block|140WPM|energetic]
+
+        [180WPM]Join us in building the future of [pronunciation:TELE-promp-ter]teleprompter[/pronunciation] technology.[/180WPM]
+        """;
+
+        var document = await parser.ParseAsync(source);
+        var compiled = await compiler.CompileAsync(document);
+        var compiledWord = compiled.Segments
+            .SelectMany(segment => segment.Blocks)
+            .SelectMany(block => block.Words)
+            .Single(word => string.Equals(word.CleanText, "teleprompter", StringComparison.Ordinal));
+
+        Assert.Equal(180, compiledWord.Metadata.SpeedOverride);
+        Assert.Equal("TELE-promp-ter", compiledWord.Metadata.PronunciationGuide);
+    }
 }

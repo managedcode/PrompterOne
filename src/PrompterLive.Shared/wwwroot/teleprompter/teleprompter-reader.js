@@ -2,10 +2,15 @@
     const teleprompterReaderNamespace = "TeleprompterReaderInterop";
 
     window[teleprompterReaderNamespace] = {
-        measureClusterOffset(stageId, textId, targetWordId, focalPointPercent) {
+        measureClusterOffset(stageId, textId, targetWordId, focalPointPercent, neutralizeCard) {
             const stage = document.getElementById(stageId);
             const text = document.getElementById(textId);
             const targetWord = document.getElementById(targetWordId);
+            const card = Boolean(neutralizeCard)
+                ? targetWord instanceof HTMLElement
+                    ? targetWord.closest(".rd-card")
+                    : null
+                : null;
 
             if (!(stage instanceof HTMLElement) || !(text instanceof HTMLElement) || !(targetWord instanceof HTMLElement)) {
                 return null;
@@ -13,6 +18,15 @@
 
             const previousTransition = text.style.transition;
             const previousTransform = text.style.transform;
+            const previousCardOpacity = card instanceof HTMLElement ? card.style.opacity : "";
+            const previousCardTransition = card instanceof HTMLElement ? card.style.transition : "";
+            const previousCardTransform = card instanceof HTMLElement ? card.style.transform : "";
+
+            if (card instanceof HTMLElement) {
+                card.style.opacity = "0";
+                card.style.transition = "none";
+                card.style.transform = "translateY(0)";
+            }
 
             text.style.transition = "none";
             text.style.transform = "none";
@@ -25,6 +39,11 @@
 
             text.style.transform = previousTransform;
             text.style.transition = previousTransition;
+            if (card instanceof HTMLElement) {
+                card.style.opacity = previousCardOpacity;
+                card.style.transition = previousCardTransition;
+                card.style.transform = previousCardTransform;
+            }
 
             return Number.isFinite(offset) ? offset : null;
         }

@@ -4,11 +4,11 @@
          id="set-about"
          style="@DisplayStyle"
          data-testid="@UiTestIds.Settings.AboutPanel">
-    <h3 class="set-section-title">About</h3>
-    <p class="set-section-desc">Prompter.live — professional teleprompter for creators, broadcasters, and public speakers.</p>
+    <h3 class="set-section-title">@AboutSectionTitle</h3>
+    <p class="set-section-desc">@AboutSectionDescription</p>
 
     <div class="set-device-list">
-        <SettingsExpandableCard Title="Prompter.live"
+        <SettingsExpandableCard Title="@AppCardTitle"
                                 Subtitle="@AppCardSubtitle"
                                 SubtitleTestId="@UiTestIds.Settings.AboutVersion"
                                 StatusLabel="@LicensedStatusLabel"
@@ -22,11 +22,11 @@
             </svg>
             <div class="set-device-fields">
                 <div class="set-field set-field-toggle">
-                    <label>Software Updates</label>
-                    <span class="set-dest-status set-dest-ok" style="font-size:12px;">Up to date</span>
+                    <label>@SoftwareUpdatesLabel</label>
+                    <span class="set-dest-status set-dest-ok" style="font-size:12px;">@UpToDateLabel</span>
                 </div>
                 <div class="set-field set-field-toggle">
-                    <label>Check for updates automatically</label>
+                    <label>@AutomaticUpdatesLabel</label>
                     <div class="set-toggle on">
                         <div class="set-toggle-thumb"></div>
                     </div>
@@ -34,32 +34,38 @@
             </div>
         </SettingsExpandableCard>
 
-        <SettingsExpandableCard Title="Our Team"
-                                Subtitle="Built with care from Kyiv"
+        <SettingsExpandableCard Title="@ManagedCodeCardTitle"
+                                Subtitle="@ManagedCodeCardSubtitle"
                                 IconStyle="background:rgba(196,160,96,.10); color:var(--gold);"
-                                IsOpen="@IsCardOpen(TeamCardId)"
-                                OnToggle="@(() => ToggleCard.InvokeAsync(TeamCardId))">
+                                TestId="@UiTestIds.Settings.AboutCompanyCard"
+                                IsOpen="@IsCardOpen(CompanyCardId)"
+                                OnToggle="@(() => ToggleCard.InvokeAsync(CompanyCardId))">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                <circle cx="9" cy="7" r="4" />
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M20 7L9 18l-5-5" />
             </svg>
-            <div class="set-about-team">
-                @foreach (var member in TeamMembers)
+            <p class="set-card-copy">@ManagedCodeCardCopy</p>
+            <div class="set-device-fields">
+                @foreach (var link in CompanyLinks)
                 {
-                    <div class="set-about-member">
-                        <div class="set-about-avatar" style="@member.AvatarStyle">@member.Initials</div>
-                        <div>
-                            <div class="set-about-mname">@member.Name</div>
-                            <div class="set-about-mrole">@member.Role</div>
+                    <a class="set-about-link set-field set-field-toggle"
+                       href="@link.Href"
+                       target="_blank"
+                       rel="noreferrer"
+                       data-testid="@link.TestId">
+                        <div class="set-about-link-copy">
+                            <label>@link.Label</label>
+                            <span class="set-about-link-meta">@link.Description</span>
                         </div>
-                    </div>
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--t4)" stroke-width="2">
+                            <polyline points="9,18 15,12 9,6" />
+                        </svg>
+                    </a>
                 }
             </div>
         </SettingsExpandableCard>
 
-        <SettingsExpandableCard Title="Open Source"
-                                Subtitle="Libraries &amp; licenses"
+        <SettingsExpandableCard Title="@OpenSourceCardTitle"
+                                Subtitle="@OpenSourceCardSubtitle"
                                 IconStyle="background:rgba(99,102,241,.10); color:#818CF8;"
                                 IsOpen="@IsCardOpen(OpenSourceCardId)"
                                 OnToggle="@(() => ToggleCard.InvokeAsync(OpenSourceCardId))">
@@ -81,8 +87,8 @@
             </div>
         </SettingsExpandableCard>
 
-        <SettingsExpandableCard Title="Help &amp; Resources"
-                                Subtitle="Docs, changelog, feedback"
+        <SettingsExpandableCard Title="@ResourcesCardTitle"
+                                Subtitle="@ResourcesCardSubtitle"
                                 IconStyle="background:rgba(59,130,246,.10); color:#60A5FA;"
                                 IsOpen="@IsCardOpen(ResourcesCardId)"
                                 OnToggle="@(() => ToggleCard.InvokeAsync(ResourcesCardId))">
@@ -94,16 +100,23 @@
             <div class="set-device-fields">
                 @foreach (var link in ResourceLinks)
                 {
-                    <div class="set-field set-field-toggle" style="cursor:pointer;">
-                        <label>@link</label>
+                    <a class="set-about-link set-field set-field-toggle"
+                       href="@link.Href"
+                       target="_blank"
+                       rel="noreferrer"
+                       data-testid="@link.TestId">
+                        <div class="set-about-link-copy">
+                            <label>@link.Label</label>
+                            <span class="set-about-link-meta">@link.Description</span>
+                        </div>
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--t4)" stroke-width="2">
                             <polyline points="9,18 15,12 9,6" />
                         </svg>
-                    </div>
+                    </a>
                 }
             </div>
         </SettingsExpandableCard>
     </div>
 
-    <div class="set-about-footer">Made with care in Ukraine · © 2026 Prompter.live</div>
+    <div class="set-about-footer">@FooterText</div>
 </section>

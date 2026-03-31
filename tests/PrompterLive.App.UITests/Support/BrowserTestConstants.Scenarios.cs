@@ -32,6 +32,14 @@ internal static partial class BrowserTestConstants
         public const string TeleprompterFocal = "35";
     }
 
+    public static class TeleprompterFullFlow
+    {
+        public const string Name = "teleprompter-product-launch";
+        public const string InitialStep = "01-product-launch-initial";
+        public const string PlaybackStep = "02-product-launch-playback";
+        public const string TransitionStep = "03-product-launch-transition";
+    }
+
     public static class NewScriptWorkflow
     {
         public const string Name = "new-script-workflow";

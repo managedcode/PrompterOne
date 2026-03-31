@@ -418,6 +418,12 @@ public class ScriptCompiler
             return true;
         }
 
+        if (TryParseInlineWpmTag(name, out var inlineWpm))
+        {
+            PushScope(scopeStack, lowered, state => state.SpeedOverride = ClampWpm(inlineWpm));
+            return true;
+        }
+
         if (AvailableColors.TryGetValue(lowered, out var colorHex))
         {
             PushScope(scopeStack, lowered, state =>
@@ -729,6 +735,23 @@ public class ScriptCompiler
     }
 
     private static int ClampWpm(int wpm) => Math.Clamp(wpm, MinWpm, MaxWpm);
+
+    private static bool TryParseInlineWpmTag(string name, out int wpm)
+    {
+        const string suffix = "wpm";
+        wpm = 0;
+        if (string.IsNullOrWhiteSpace(name) ||
+            !name.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        return int.TryParse(
+            name[..^suffix.Length],
+            NumberStyles.Integer,
+            CultureInfo.InvariantCulture,
+            out wpm);
+    }
 
     private static string? NormalizeEmotion(string? emotion) =>
         string.IsNullOrWhiteSpace(emotion) ? null : emotion.Trim();

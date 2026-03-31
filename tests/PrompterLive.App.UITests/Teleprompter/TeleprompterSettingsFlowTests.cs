@@ -37,14 +37,17 @@ public sealed class TeleprompterSettingsFlowTests(StandaloneAppFixture fixture) 
     {
         await page.GotoAsync(BrowserTestConstants.Routes.TeleprompterDemo);
         await Expect(page.GetByTestId(UiTestIds.Teleprompter.Page)).ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
-        await Expect(page.GetByTestId(UiTestIds.Teleprompter.EdgeSection)).ToContainTextAsync("Opening Block");
-        await Expect(page.GetByTestId(UiTestIds.Teleprompter.CardText(0))).ToContainTextAsync("Good morning everyone");
-        await Expect(page.GetByTestId(UiTestIds.Teleprompter.CardText(0))).Not.ToContainTextAsync("Goodmorningeveryone");
-        await Expect(page.Locator($"#{UiDomIds.Teleprompter.Camera}")).ToHaveAttributeAsync("data-camera-autostart", BrowserTestConstants.Regexes.CameraAutoStart);
+        await Expect(page.GetByTestId(UiTestIds.Teleprompter.EdgeSection)).ToContainTextAsync(BrowserTestConstants.TeleprompterFlow.OpeningBlock);
+        await Expect(page.GetByTestId(UiTestIds.Teleprompter.CardText(0))).ToContainTextAsync(BrowserTestConstants.TeleprompterFlow.OpeningLine);
+        await Expect(page.GetByTestId(UiTestIds.Teleprompter.CardText(0))).Not.ToContainTextAsync(BrowserTestConstants.TeleprompterFlow.CollapsedOpeningLine);
+        await Expect(page.Locator($"#{UiDomIds.Teleprompter.Camera}")).ToHaveAttributeAsync(
+            BrowserTestConstants.TeleprompterFlow.CameraAutostartAttribute,
+            BrowserTestConstants.Regexes.CameraAutoStart);
         await Expect(page.Locator($"#{UiDomIds.Teleprompter.CameraOverlay(1)}")).ToHaveCountAsync(0);
+        await AssertTeleprompterChromeVisibilityAsync(page);
 
         await page.GetByTestId(UiTestIds.Teleprompter.FontUp).ClickAsync();
-        await Expect(page.Locator($"#{UiDomIds.Teleprompter.FontLabel}")).ToHaveTextAsync("40");
+        await Expect(page.Locator($"#{UiDomIds.Teleprompter.FontLabel}")).ToHaveTextAsync(BrowserTestConstants.TeleprompterFlow.FontScaleAfterIncrease);
 
         var cameraToggle = page.GetByTestId(UiTestIds.Teleprompter.CameraToggle);
         var cameraWasActive = await HasActiveClassAsync(cameraToggle);
@@ -59,8 +62,8 @@ public sealed class TeleprompterSettingsFlowTests(StandaloneAppFixture fixture) 
             await Expect(cameraToggle).ToHaveClassAsync(BrowserTestConstants.Regexes.ActiveClass);
         }
 
-        await page.GetByTestId(UiTestIds.Teleprompter.WidthSlider).EvaluateAsync("element => { element.value = '900'; element.dispatchEvent(new Event('input', { bubbles: true })); }");
-        await Expect(page.Locator($"#{UiDomIds.Teleprompter.WidthValue}")).ToHaveTextAsync("900");
+        await page.GetByTestId(UiTestIds.Teleprompter.WidthSlider).EvaluateAsync(BrowserTestConstants.TeleprompterFlow.WidthInputScript);
+        await Expect(page.Locator($"#{UiDomIds.Teleprompter.WidthValue}")).ToHaveTextAsync(BrowserTestConstants.TeleprompterFlow.WidthAfterChange);
 
         var playToggle = page.GetByTestId(UiTestIds.Teleprompter.PlayToggle);
         await playToggle.ClickAsync();
@@ -177,7 +180,13 @@ public sealed class TeleprompterSettingsFlowTests(StandaloneAppFixture fixture) 
         await page.GetByTestId(UiTestIds.Settings.NavAbout).ClickAsync();
         await Expect(page.GetByTestId(UiTestIds.Settings.AboutPanel)).ToBeVisibleAsync();
         await Expect(page.GetByTestId(UiTestIds.Settings.AboutAppCard)).ToBeVisibleAsync();
+        await Expect(page.GetByTestId(UiTestIds.Settings.AboutCompanyCard)).ToBeVisibleAsync();
         await Expect(page.GetByTestId(UiTestIds.Settings.AboutVersion)).ToHaveTextAsync(BrowserTestConstants.Regexes.SettingsAboutVersion);
+        await Expect(page.GetByTestId(UiTestIds.Settings.AboutCompanyWebsite)).ToHaveAttributeAsync("href", AboutLinks.ManagedCodeWebsiteUrl);
+        await Expect(page.GetByTestId(UiTestIds.Settings.AboutCompanyGitHub)).ToHaveAttributeAsync("href", AboutLinks.ManagedCodeGitHubUrl);
+        await Expect(page.GetByTestId(UiTestIds.Settings.AboutRepositoryLink)).ToHaveAttributeAsync("href", AboutLinks.ProductRepositoryUrl);
+        await Expect(page.GetByTestId(UiTestIds.Settings.AboutReleasesLink)).ToHaveAttributeAsync("href", AboutLinks.ProductReleasesUrl);
+        await Expect(page.GetByTestId(UiTestIds.Settings.AboutIssuesLink)).ToHaveAttributeAsync("href", AboutLinks.ProductIssuesUrl);
     }
 
     private static async Task<bool> ToggleReaderCameraAsync(Microsoft.Playwright.IPage page)
@@ -205,11 +214,26 @@ public sealed class TeleprompterSettingsFlowTests(StandaloneAppFixture fixture) 
         .Split(BrowserTestConstants.Html.ClassSeparator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
         .Contains(BrowserTestConstants.Css.ActiveClass, StringComparer.Ordinal);
 
+    private static async Task AssertTeleprompterChromeVisibilityAsync(Microsoft.Playwright.IPage page)
+    {
+        var controlsOpacity = await GetOpacityAsync(page.GetByTestId(UiTestIds.Teleprompter.Controls));
+        var slidersOpacity = await GetOpacityAsync(page.GetByTestId(UiTestIds.Teleprompter.Sliders));
+        var edgeInfoOpacity = await GetOpacityAsync(page.GetByTestId(UiTestIds.Teleprompter.EdgeInfo));
+
+        Assert.True(controlsOpacity >= BrowserTestConstants.TeleprompterFlow.ControlsMinimumOpacity);
+        Assert.True(slidersOpacity >= BrowserTestConstants.TeleprompterFlow.SlidersMinimumOpacity);
+        Assert.True(edgeInfoOpacity >= BrowserTestConstants.TeleprompterFlow.EdgeInfoMinimumOpacity);
+    }
+
     private static void AssertDimensionStable(double before, double after) =>
         Assert.InRange(
             Math.Abs(before - after),
             0,
             BrowserTestConstants.SettingsFlow.NavItemLayoutTolerancePx);
+
+    private static Task<double> GetOpacityAsync(Microsoft.Playwright.ILocator locator) =>
+        locator.EvaluateAsync<double>(
+            "element => Number.parseFloat(window.getComputedStyle(element).opacity)");
 
     private static async Task<LayoutBounds> GetRequiredBoundingBoxAsync(Microsoft.Playwright.ILocator locator) =>
         await locator.EvaluateAsync<LayoutBounds>(

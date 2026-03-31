@@ -1344,9 +1344,21 @@
     text-decoration: none;
     display: block;
     cursor: pointer;
+    color: inherit;
 }
 .set-about-link:hover .set-dest-header {
     background: none;
+}
+
+.set-about-link-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.set-about-link-meta {
+    color: var(--t4);
+    font-size: 11px;
 }
 
 .set-about-footer {

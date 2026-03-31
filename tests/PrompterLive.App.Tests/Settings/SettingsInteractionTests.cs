@@ -11,6 +11,9 @@ namespace PrompterLive.App.Tests;
 
 public sealed class SettingsInteractionTests : BunitContext
 {
+    private const string FakeEngineerName = "Anna Petrenko";
+    private const string FakeFounderName = "Mykola Kovalenko";
+    private const string FakeInfrastructureName = "Dmytro Shevchenko";
     private const string ReaderSettingsKey = "prompterlive.reader";
     private const string SceneSettingsKey = "prompterlive.scene";
 
@@ -136,7 +139,7 @@ public sealed class SettingsInteractionTests : BunitContext
     }
 
     [Fact]
-    public void AboutSection_RendersInjectedAppVersionMetadata()
+    public void AboutSection_RendersInjectedAppVersionMetadata_AndOfficialManagedCodeLinks()
     {
         var cut = Render<SettingsPage>();
 
@@ -150,6 +153,28 @@ public sealed class SettingsInteractionTests : BunitContext
                 AppTestData.About.VersionSubtitle,
                 cut.FindByTestId(UiTestIds.Settings.AboutVersion).TextContent.Trim());
             Assert.NotNull(cut.FindByTestId(UiTestIds.Settings.AboutAppCard));
+            Assert.NotNull(cut.FindByTestId(UiTestIds.Settings.AboutCompanyCard));
+            Assert.Equal(
+                AboutLinks.ManagedCodeWebsiteUrl,
+                cut.FindByTestId(UiTestIds.Settings.AboutCompanyWebsite).GetAttribute("href"));
+            Assert.Equal(
+                AboutLinks.ManagedCodeGitHubUrl,
+                cut.FindByTestId(UiTestIds.Settings.AboutCompanyGitHub).GetAttribute("href"));
+            Assert.Equal(
+                AboutLinks.ProductWebsiteUrl,
+                cut.FindByTestId(UiTestIds.Settings.AboutProductWebsite).GetAttribute("href"));
+            Assert.Equal(
+                AboutLinks.ProductRepositoryUrl,
+                cut.FindByTestId(UiTestIds.Settings.AboutRepositoryLink).GetAttribute("href"));
+            Assert.Equal(
+                AboutLinks.ProductReleasesUrl,
+                cut.FindByTestId(UiTestIds.Settings.AboutReleasesLink).GetAttribute("href"));
+            Assert.Equal(
+                AboutLinks.ProductIssuesUrl,
+                cut.FindByTestId(UiTestIds.Settings.AboutIssuesLink).GetAttribute("href"));
+            Assert.DoesNotContain(FakeFounderName, cut.Markup, StringComparison.Ordinal);
+            Assert.DoesNotContain(FakeEngineerName, cut.Markup, StringComparison.Ordinal);
+            Assert.DoesNotContain(FakeInfrastructureName, cut.Markup, StringComparison.Ordinal);
         });
     }
 

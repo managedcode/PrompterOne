@@ -122,10 +122,10 @@
     justify-content: space-between;
     z-index: 10;
     pointer-events: none;
-    opacity: .15;
+    opacity: .58;
     transition: opacity .3s;
 }
-.rd-edge-info:hover { opacity: .4; pointer-events: auto; }
+.rd-edge-info:hover { opacity: .82; pointer-events: auto; }
 .rd-edge-section {
     font-size: 10px;
     font-weight: 600;
@@ -137,7 +137,7 @@
 .rd-time {
     font-size: 11px;
     font-family: var(--mono);
-    color: rgba(232,213,176,.3);
+    color: rgba(232,213,176,.55);
     white-space: nowrap;
 }
 
@@ -173,15 +173,15 @@
     align-items: center;
     gap: 20px;
     padding: 12px 6px;
-    background: rgba(20,18,12,.5);
-    backdrop-filter: blur(12px);
-    border: 1px solid var(--gold-08);
+    background: rgba(20,18,12,.74);
+    backdrop-filter: blur(18px);
+    border: 1px solid var(--gold-14);
     border-radius: 12px;
-    opacity: .2;
+    opacity: .66;
     transition: opacity .4s;
 }
 .rd-sliders:hover {
-    opacity: .75;
+    opacity: .96;
 }
 .rd-slider-group {
     display: flex;
@@ -190,13 +190,13 @@
     gap: 6px;
 }
 .rd-slider-icon {
-    color: rgba(232,213,176,.5);
+    color: rgba(232,213,176,.72);
     flex-shrink: 0;
 }
 .rd-slider-val {
     font-size: 9px;
     font-family: var(--mono);
-    color: rgba(232,213,176,.35);
+    color: rgba(232,213,176,.62);
     letter-spacing: 0.5px;
     white-space: nowrap;
 }
@@ -215,7 +215,7 @@
 .rd-vslider::-webkit-slider-runnable-track {
     width: 3px;
     height: 100%;
-    background: rgba(232,213,176,.10);
+    background: rgba(232,213,176,.22);
     border-radius: 2px;
 }
 .rd-vslider::-webkit-slider-thumb {
@@ -223,19 +223,19 @@
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    background: rgba(232,213,176,.45);
-    border: 2px solid rgba(232,213,176,.15);
+    background: rgba(232,213,176,.78);
+    border: 2px solid rgba(12,10,6,.38);
     margin-left: -5.5px;
     cursor: grab;
     transition: background .2s;
 }
 .rd-vslider::-webkit-slider-thumb:hover {
-    background: rgba(232,213,176,.7);
+    background: rgba(232,213,176,.94);
 }
 .rd-vslider::-moz-range-track {
     width: 3px;
     height: 100%;
-    background: rgba(232,213,176,.10);
+    background: rgba(232,213,176,.22);
     border-radius: 2px;
     border: none;
 }
@@ -243,8 +243,8 @@
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    background: rgba(232,213,176,.45);
-    border: 2px solid rgba(232,213,176,.15);
+    background: rgba(232,213,176,.78);
+    border: 2px solid rgba(12,10,6,.38);
     cursor: grab;
 }
 /* Countdown uses no CSS animations — digits appear/disappear instantly */
@@ -260,11 +260,11 @@
     align-items: center;
     gap: 8px;
     padding: 6px 12px;
-    background: rgba(20,18,12,.75);
-    backdrop-filter: blur(16px);
-    border: 1px solid var(--gold-08);
+    background: rgba(20,18,12,.84);
+    backdrop-filter: blur(18px);
+    border: 1px solid var(--gold-14);
     border-radius: 16px;
-    opacity: .85;
+    opacity: .97;
     transition: opacity .3s;
 }
 .rd-controls:hover { opacity: 1; }
@@ -286,7 +286,7 @@
     height: 36px;
     border-radius: 10px;
     background: transparent;
-    color: rgba(232,213,176,.4);
+    color: rgba(232,213,176,.74);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -295,7 +295,7 @@
     transition: all .2s;
 }
 .rd-ctrl-btn:hover {
-    background: var(--gold-08);
+    background: var(--gold-12);
     color: #E8D5B0;
 }
 .rd-ctrl-btn.active {
@@ -305,23 +305,23 @@
 .rd-ctrl-sm {
     width: 28px;
     height: 28px;
-    opacity: .5;
+    opacity: .82;
 }
 .rd-ctrl-sm:hover { opacity: 1; }
 .rd-ctrl-play {
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    background: var(--gold-06);
+    background: var(--gold-12);
 }
 .rd-ctrl-play:hover {
-    background: var(--gold-12);
+    background: var(--gold-16);
 }
 
 .rd-ctrl-label {
     font-size: 11px;
     font-family: var(--mono);
-    color: rgba(232,213,176,.35);
+    color: rgba(232,213,176,.62);
     min-width: 24px;
     text-align: center;
     user-select: none;
@@ -359,4 +359,3 @@ body::before {
     z-index: 9999;
     mix-blend-mode: overlay;
 }
-

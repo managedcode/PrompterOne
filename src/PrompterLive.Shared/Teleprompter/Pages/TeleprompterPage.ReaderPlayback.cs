@@ -126,6 +126,7 @@ public partial class TeleprompterPage
 
             await Task.Delay(ReaderFirstWordDelayMilliseconds, cancellationToken);
 
+            await PrepareReaderCardAlignmentAsync(_activeReaderCardIndex, 0);
             _activeReaderWordIndex = 0;
             UpdateReaderDisplayState();
             _isReaderPlaying = true;
@@ -192,6 +193,7 @@ public partial class TeleprompterPage
 
         if (direction < 0 && _activeReaderWordIndex > 1)
         {
+            await PrepareReaderCardAlignmentAsync(_activeReaderCardIndex, 0);
             _activeReaderWordIndex = 0;
             UpdateReaderDisplayState();
 
@@ -325,6 +327,7 @@ public partial class TeleprompterPage
 
     private async Task AdvanceToCardAsync(int nextCardIndex, CancellationToken cancellationToken)
     {
+        await PrepareReaderCardAlignmentAsync(nextCardIndex, 0);
         _activeReaderCardIndex = nextCardIndex;
         _activeReaderWordIndex = -1;
         UpdateReaderDisplayState();

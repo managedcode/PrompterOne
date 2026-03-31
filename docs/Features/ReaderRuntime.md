@@ -11,6 +11,9 @@ The important contracts are:
 - RSVP keeps a five-word context rail on each side, matching `new-design/app.js`.
 - Teleprompter camera stays behind the text as one background layer.
 - Teleprompter word groups stay short enough to avoid run-on lines.
+- Teleprompter preserves TPS word presentation details such as pronunciation guides, inline colors, emotion styling, and speed-derived spacing/timing.
+- Teleprompter pre-centers the next card before it slides in, so block transitions do not jump at the focal line.
+- Teleprompter controls stay readable at rest; they must not fade until they become unusable.
 
 ## Flow
 
@@ -38,11 +41,17 @@ flowchart LR
 - `teleprompter` selects one primary camera device for `#rd-camera`.
 - `teleprompter` does not render overlay camera elements such as `#rd-camera-overlay-*`.
 - `teleprompter` groups words by pauses, sentence endings, clause endings, and short phrase limits.
+- `teleprompter` forwards TPS pronunciation metadata to word-level `title` / `data-pronunciation` attributes.
+- `teleprompter` derives word-level pacing from the compiled TPS duration and carries effective WPM into the DOM for testable parity.
+- `teleprompter` keeps TPS inline colors visible even when a phrase group is active or the active word is highlighted.
 
 ## Verification
 
 - bUnit verifies teleprompter background-camera markup and readable phrase groups.
+- bUnit verifies product-launch TPS modifiers survive into teleprompter word markup, timing, and pronunciation metadata.
 - Core tests verify TPS scripts generate RSVP phrase groups.
+- Core tests verify shorthand inline WPM scopes such as `[180WPM]...[/180WPM]` survive nested tags.
 - Playwright verifies ORP centering and the `security-incident` phrase-aware flow in `learn`.
 - Playwright verifies there is no teleprompter overlay camera box and that phrase groups do not overflow.
 - Playwright verifies the teleprompter camera button attaches and detaches a real synthetic `MediaStream` on the background video layer.
+- Playwright verifies the full `Product Launch` teleprompter scenario, including visible controls, TPS formatting parity, screenshot artifacts, and aligned post-transition playback.

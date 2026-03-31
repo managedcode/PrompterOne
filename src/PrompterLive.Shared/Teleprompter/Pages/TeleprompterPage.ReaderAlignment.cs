@@ -18,32 +18,7 @@ public partial class TeleprompterPage
         }
 
         _pendingReaderAlignment = false;
-
-        if (!TryGetAlignmentWordId(out var wordId))
-        {
-            return;
-        }
-
-        var offsetPixels = await ReaderInterop.MeasureClusterOffsetAsync(
-            UiDomIds.Teleprompter.Stage,
-            UiDomIds.Teleprompter.CardText(_activeReaderCardIndex),
-            wordId,
-            _readerFocalPointPercent);
-
-        if (!offsetPixels.HasValue)
-        {
-            return;
-        }
-
-        var nextStyle = BuildReaderCardTextStyleValue(offsetPixels.Value);
-        if (_readerCardTextStyles.TryGetValue(_activeReaderCardIndex, out var currentStyle) &&
-            string.Equals(currentStyle, nextStyle, StringComparison.Ordinal))
-        {
-            return;
-        }
-
-        _readerCardTextStyles[_activeReaderCardIndex] = nextStyle;
-        await InvokeAsync(StateHasChanged);
+        await AlignReaderCardTextAsync(_activeReaderCardIndex, Math.Max(_activeReaderWordIndex, 0), neutralizeCard: false, rerender: true);
     }
 
     private string BuildReaderCardTextStyle(int cardIndex) =>
@@ -59,10 +34,46 @@ public partial class TeleprompterPage
         _pendingReaderAlignment = true;
     }
 
-    private bool TryGetAlignmentWordId(out string wordId)
+    private Task PrepareReaderCardAlignmentAsync(int cardIndex, int wordOrdinal) =>
+        AlignReaderCardTextAsync(cardIndex, wordOrdinal, neutralizeCard: true, rerender: false);
+
+    private async Task AlignReaderCardTextAsync(int cardIndex, int wordOrdinal, bool neutralizeCard, bool rerender)
+    {
+        if (!TryGetAlignmentWordId(cardIndex, wordOrdinal, out var wordId))
+        {
+            return;
+        }
+
+        var offsetPixels = await ReaderInterop.MeasureClusterOffsetAsync(
+            UiDomIds.Teleprompter.Stage,
+            UiDomIds.Teleprompter.CardText(cardIndex),
+            wordId,
+            _readerFocalPointPercent,
+            neutralizeCard);
+
+        if (!offsetPixels.HasValue)
+        {
+            return;
+        }
+
+        var nextStyle = BuildReaderCardTextStyleValue(offsetPixels.Value);
+        if (_readerCardTextStyles.TryGetValue(cardIndex, out var currentStyle) &&
+            string.Equals(currentStyle, nextStyle, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        _readerCardTextStyles[cardIndex] = nextStyle;
+        if (rerender)
+        {
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private bool TryGetAlignmentWordId(int cardIndex, int wordOrdinal, out string wordId)
     {
         wordId = string.Empty;
-        if (!TryGetAlignmentWordPosition(out var position))
+        if (!TryGetAlignmentWordPosition(cardIndex, wordOrdinal, out var position))
         {
             return false;
         }
@@ -71,16 +82,16 @@ public partial class TeleprompterPage
         return true;
     }
 
-    private bool TryGetAlignmentWordPosition(out (int CardIndex, int ChunkIndex, int WordIndex) position)
+    private bool TryGetAlignmentWordPosition(int cardIndex, int wordOrdinal, out (int CardIndex, int ChunkIndex, int WordIndex) position)
     {
         position = default;
-        if (_activeReaderCardIndex >= _cards.Count)
+        if (cardIndex < 0 || cardIndex >= _cards.Count)
         {
             return false;
         }
 
-        var remainingWords = Math.Max(_activeReaderWordIndex, 0);
-        var chunks = _cards[_activeReaderCardIndex].Chunks;
+        var remainingWords = Math.Max(wordOrdinal, 0);
+        var chunks = _cards[cardIndex].Chunks;
 
         for (var chunkIndex = 0; chunkIndex < chunks.Count; chunkIndex++)
         {
@@ -93,7 +104,7 @@ public partial class TeleprompterPage
             {
                 if (remainingWords == 0)
                 {
-                    position = (_activeReaderCardIndex, chunkIndex, wordIndex);
+                    position = (cardIndex, chunkIndex, wordIndex);
                     return true;
                 }
 

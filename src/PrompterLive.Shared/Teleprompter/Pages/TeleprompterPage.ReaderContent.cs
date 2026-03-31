@@ -72,7 +72,7 @@ public partial class TeleprompterPage
                     DurationMilliseconds: durationMilliseconds,
                     WidthPercentString: string.Empty,
                     EdgeColor: string.Empty,
-                    Chunks: BuildReaderChunks(words)));
+                    Chunks: BuildReaderChunks(words, targetWpm)));
             }
         }
 
@@ -139,7 +139,7 @@ public partial class TeleprompterPage
         return compiledBlock?.Words ?? compiledSegment?.Words ?? [];
     }
 
-    private static IReadOnlyList<ReaderChunkViewModel> BuildReaderChunks(IEnumerable<CompiledWord> words)
+    private static IReadOnlyList<ReaderChunkViewModel> BuildReaderChunks(IEnumerable<CompiledWord> words, int targetWpm)
     {
         var chunks = new List<ReaderChunkViewModel>();
         var currentGroup = new List<ReaderWordViewModel>();
@@ -179,10 +179,15 @@ public partial class TeleprompterPage
                 currentCharacterCount += 1;
             }
 
+            var effectiveWpm = ResolveEffectiveWpm(word.Metadata, targetWpm);
             currentGroup.Add(new ReaderWordViewModel(
                 Text: word.CleanText,
-                CssClass: BuildReaderWordBaseClass(word.Metadata),
-                DurationMs: Math.Max(MinimumReaderWordDurationMilliseconds, (int)Math.Round(word.DisplayDuration.TotalMilliseconds))));
+                CssClass: BuildReaderWordBaseClass(word.Metadata, targetWpm),
+                DurationMs: Math.Max(MinimumReaderWordDurationMilliseconds, (int)Math.Round(word.DisplayDuration.TotalMilliseconds)),
+                Style: BuildReaderWordStyle(word.Metadata, targetWpm, effectiveWpm),
+                Title: BuildReaderWordTitle(word.Metadata, targetWpm, effectiveWpm),
+                PronunciationGuide: string.IsNullOrWhiteSpace(word.Metadata?.PronunciationGuide) ? null : word.Metadata.PronunciationGuide.Trim(),
+                EffectiveWpm: effectiveWpm));
 
             if (ShouldEndReaderGroup(word.CleanText, currentGroup.Count, currentCharacterCount))
             {
@@ -221,7 +226,7 @@ public partial class TeleprompterPage
         currentGroup.Clear();
     }
 
-    private static string BuildReaderWordBaseClass(WordMetadata? metadata)
+    private static string BuildReaderWordBaseClass(WordMetadata? metadata, int targetWpm)
     {
         if (metadata is null)
         {
@@ -247,28 +252,23 @@ public partial class TeleprompterPage
             classes.Add(emotionClass);
         }
 
-        if (metadata.SpeedOverride.HasValue)
+        var effectiveWpm = ResolveEffectiveWpm(metadata, targetWpm);
+        var speedRatio = effectiveWpm / (double)Math.Max(MinimumReaderReferenceWpm, targetWpm);
+        if (speedRatio <= 0.65d)
         {
-            classes.Add(metadata.SpeedOverride.Value >= 175 ? "tps-fast" : "tps-slow");
+            classes.Add("tps-xslow");
         }
-        else if (metadata.SpeedMultiplier.HasValue)
+        else if (speedRatio < 0.95d)
         {
-            if (metadata.SpeedMultiplier <= 0.65f)
-            {
-                classes.Add("tps-xslow");
-            }
-            else if (metadata.SpeedMultiplier < 1f)
-            {
-                classes.Add("tps-slow");
-            }
-            else if (metadata.SpeedMultiplier >= 1.45f)
-            {
-                classes.Add("tps-xfast");
-            }
-            else if (metadata.SpeedMultiplier > 1f)
-            {
-                classes.Add("tps-fast");
-            }
+            classes.Add("tps-slow");
+        }
+        else if (speedRatio >= 1.45d)
+        {
+            classes.Add("tps-xfast");
+        }
+        else if (speedRatio > 1.05d)
+        {
+            classes.Add("tps-fast");
         }
 
         if (!string.IsNullOrWhiteSpace(metadata.PronunciationGuide))
@@ -349,6 +349,7 @@ public partial class TeleprompterPage
             "#ec4899" or "pink" => $"{prefix}-pink",
             "#14b8a6" or "teal" => $"{prefix}-teal",
             "#ffffff" or "white" => $"{prefix}-white",
+            "#111827" or "black" => $"{prefix}-gray",
             "#6b7280" or "gray" => $"{prefix}-gray",
             "#ffeb3b" or "highlight" => $"{prefix}-highlight",
             _ => string.Empty

@@ -290,6 +290,7 @@ Repo-specific design rules:
 - Treat every file under `new-design/` as a static design/prototype reference only. Production UI must be implemented as Blazor components in `src/PrompterLive.Shared`; do not ship raw `new-design` HTML as runtime UI.
 - Do not re-invent the UI when the answer should be “port the markup and classes from `new-design`”.
 - For parity tasks, port the full routed screen from its matching `new-design/*.html` reference, not just isolated high-signal blocks. Settings, Editor, Learn, Teleprompter, and Go Live must match the reference screen in layout and intended interaction while staying Blazor/C# owned.
+- About content must stay factual and current: do not invent team members or contributor names; use Managed Code attribution and official company links only.
 - Do not introduce a server host for the app runtime.
 - Preserve stable `data-testid` selectors on core flows because the Playwright suite depends on them.
 - Keep UI routes in shared route constants and keep `data-testid` names in shared UI contract constants.
@@ -320,6 +321,7 @@ Repo-specific design rules:
 - Never introduce a non-SOLID design unless the exception is explicitly documented under `exception_policy`.
 - Never force-push to `main`.
 - Never approve or merge on behalf of a human maintainer.
+- When the task explicitly needs delivery, the agent may commit, push to `main` or a feature branch, open a PR, and merge it after the required tests and validation commands pass.
 
 ### Boundaries
 
@@ -352,7 +354,9 @@ Ask first:
 - brittle selectors without `data-testid`
 - mixed-language root README or public entry docs; keep them English-only unless the user explicitly asks otherwise
 - design drift from `new-design`
+- made-up About/team content or stale attribution; About must point to real Managed Code ownership and official links
 - any visible typing latency in the editor; plain input must feel immediate with no observable delay
+- teleprompter controls that fade so much they become hard to see during real reading
 - editor keystroke paths that persist, compile, or rebuild shared session state; keep plain typing in memory and move heavier local sync to debounce or autosave
 - murky JavaScript or interop layers that keep product UI behavior in JS when Blazor can own it cleanly
 - runtime dependencies fetched from random external sources instead of vendored release artifacts

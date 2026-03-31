@@ -31,7 +31,7 @@
 
             <div class="@BuildCountdownCssClass()" id="@UiDomIds.Teleprompter.Countdown">@BuildCountdownLabel()</div>
 
-            <div class="rd-sliders">
+            <div class="rd-sliders" data-testid="@UiTestIds.Teleprompter.Sliders">
                 <div class="rd-slider-group">
                     <svg class="rd-slider-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="8" x2="3" y2="16" /><line x1="21" y1="8" x2="21" y2="16" /></svg>
                     <input type="range"
@@ -107,6 +107,10 @@
                                                           id="@UiDomIds.Teleprompter.CardWord(entry.index, chunkIndex, wordIndex)"
                                                           data-ms="@word.DurationMs"
                                                           data-pause-ms="@word.PauseAfterMs"
+                                                          data-effective-wpm="@word.EffectiveWpm"
+                                                          data-pronunciation="@word.PronunciationGuide"
+                                                          title="@word.Title"
+                                                          style="@word.Style"
                                                           data-testid="@UiTestIds.Teleprompter.CardWord(entry.index, chunkIndex, wordIndex)">@word.Text</span>
                                                     @if (wordIndex < group.Words.Count - 1)
                                                     {
@@ -145,7 +149,7 @@
                     }
                 </div>
             </div>
-            <div class="rd-edge-info">
+            <div class="rd-edge-info" data-testid="@UiTestIds.Teleprompter.EdgeInfo">
                 <span class="rd-edge-section" data-testid="@UiTestIds.Teleprompter.EdgeSection">@_edgeSectionLabel</span>
                 <span class="rd-time"
                       id="@UiDomIds.Teleprompter.Time"
@@ -153,7 +157,7 @@
                       data-total-ms="@_totalDurationMilliseconds">@BuildElapsedLabel()</span>
             </div>
 
-            <div class="rd-controls">
+            <div class="rd-controls" data-testid="@UiTestIds.Teleprompter.Controls">
                 <div class="rd-ctrl-group">
                     <button class="rd-ctrl-btn" @onclick="DecreaseReaderFontSizeAsync" title="Smaller text" data-testid="@UiTestIds.Teleprompter.FontDown">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12" /></svg>

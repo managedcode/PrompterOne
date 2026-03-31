@@ -32,11 +32,23 @@ internal static partial class BrowserTestConstants
 
     public static class TeleprompterFlow
     {
+        public const double ControlsMinimumOpacity = 0.9;
         public const string OpeningBlock = "Opening Block";
         public const string OpeningLine = "Good morning everyone";
         public const string CollapsedOpeningLine = "Goodmorningeveryone";
+        public const double EdgeInfoMinimumOpacity = 0.5;
+        public const string FastWord = "Full";
         public const string FontScaleAfterIncrease = "40";
+        public const string NeutralWord = "Good";
         public const string WidthAfterChange = "900";
+        public const string ProductLaunchPurpleWord = "focus";
+        public const string ProductLaunchSlowWord = "elephant";
+        public const string ProductLaunchTeleprompterWord = "teleprompter";
+        public const string ProductLaunchTeleprompterPronunciation = "TELE-promp-ter";
+        public const string ProductLaunchTeleprompterWpm = "180";
+        public const string ProductLaunchVisionPronunciation = "ˈviʒən";
+        public const string ProductLaunchVisionWord = "vision";
+        public const double SlidersMinimumOpacity = 0.6;
         public const string CameraRoleAttribute = "data-camera-role";
         public const string CameraDeviceIdAttribute = "data-camera-device-id";
         public const string CameraAutostartAttribute = "data-camera-autostart";
