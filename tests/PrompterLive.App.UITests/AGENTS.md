@@ -31,7 +31,7 @@
 - This suite is the primary acceptance gate for the product.
 - Major workflows must be covered by long scenario tests, not only narrow regression tests.
 - Major scenario tests must save screenshots under `output/playwright/`.
-- This suite resolves its origin at runtime and uses one `dotnet test` process with up to `4` parallel xUnit workers.
+- This suite resolves its origin at runtime and uses one `dotnet test` process with up to `2` parallel xUnit workers.
 - Do not keep separate concurrent `dotnet build` or `dotnet test` processes alive against the same test assets.
 - Prefer `PrompterLive.Shared.Contracts.AppRoutes`, `UiTestIds`, and other named constants over inline route or selector strings.
 - Use `data-testid` first. Raw text, role-name, and CSS selectors are allowed only when no stable `data-testid` contract exists yet and the missing contract is fixed in the same task.

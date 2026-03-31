@@ -412,6 +412,7 @@ internal static partial class BrowserTestConstants
 
     public static class Timing
     {
+        public const int DefaultNavigationTimeoutMs = 20_000;
         public const int FastVisibleTimeoutMs = 5_000;
         public const int DefaultVisibleTimeoutMs = 10_000;
         public const int ExtendedVisibleTimeoutMs = 15_000;
@@ -448,10 +449,10 @@ internal static partial class BrowserTestConstants
     public static class Keyboard
     {
         public const string ArrowRight = "ArrowRight";
-        public const string SelectAll = "Meta+A";
+        public const string SelectAll = "ControlOrMeta+A";
         public const string Backspace = "Backspace";
-        public const string Undo = "Meta+Z";
-        public const string Redo = "Meta+Shift+Z";
+        public const string Undo = "ControlOrMeta+Z";
+        public const string Redo = "ControlOrMeta+Shift+Z";
         public const string Shift = "Shift";
     }
 

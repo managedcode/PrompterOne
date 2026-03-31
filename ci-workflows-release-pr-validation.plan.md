@@ -217,6 +217,16 @@ Root-cause note:
   - `node /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/bin/Debug/net10.0/.playwright/package/cli.js install chromium`
   - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj --no-build`
   - `dotnet format /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx`
+- GitHub runs `23814810144` and `23814814816` proved that workflow-level isolation alone was not enough; the browser suite still failed under GitHub Linux with 25-28 flaky editor, go-live, and teleprompter tests.
+- The remaining GitHub-only root causes were narrowed to:
+  - mac-only keyboard shortcuts in UI tests (`Meta+A`, `Meta+Z`, `Meta+Shift+Z`) that broke Linux editor shortcuts and typing flows
+  - browser-suite self-contention from `4` parallel xUnit workers inside one process on the slower GitHub runner
+  - route/readiness assertions still relying on Playwright's short default timeouts instead of the suite's WASM-specific timeout budget
+- Local validation after the browser-suite stability fixes passed:
+  - `dotnet build /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx -warnaserror`
+  - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.Core.Tests/PrompterLive.Core.Tests.csproj --no-build`
+  - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.Tests/PrompterLive.App.Tests.csproj --no-build`
+  - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj --no-build`
 
 ## Final Validation Skills And Commands
 

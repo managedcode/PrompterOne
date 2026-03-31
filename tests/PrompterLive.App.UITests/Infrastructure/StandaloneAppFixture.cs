@@ -53,7 +53,10 @@ public sealed partial class StandaloneAppFixture : IAsyncLifetime
         });
         await ConfigureMediaHarnessAsync(context);
         _contexts.Add(context);
-        return await context.NewPageAsync();
+        var page = await context.NewPageAsync();
+        page.SetDefaultNavigationTimeout(BrowserTestConstants.Timing.DefaultNavigationTimeoutMs);
+        page.SetDefaultTimeout(BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs);
+        return page;
     }
 
     private static class SharedRuntime

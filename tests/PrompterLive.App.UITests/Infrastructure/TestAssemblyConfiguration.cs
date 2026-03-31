@@ -4,5 +4,5 @@ namespace PrompterLive.App.UITests;
 
 internal static class UiTestExecution
 {
-    public const int MaxParallelThreads = 4;
+    public const int MaxParallelThreads = 2;
 }
