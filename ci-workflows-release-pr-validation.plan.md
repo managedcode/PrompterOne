@@ -226,6 +226,10 @@ Root-cause note:
   - `PrompterLive.App.UITests.EditorFloatingToolbarLayoutTests.EditorScreen_FloatingToolbarStaysPinnedAfterFloatingFormatAction`
   - Root cause note: the test asserted `getBoundingClientRect().x/y` drift after the format action even though the production floating-toolbar contract preserves the inline/computed anchor (`left` and `top`) and the element itself is centered with `transform: translate(-50%, ...)`. Linux font/layout differences moved the rendered box without breaking the preserved anchor.
   - Intended fix path: assert the preserved computed anchor coordinates instead of bounding-box drift, and keep the visibility check after the floating action.
+- GitHub runs `23815986364` and `23815989928` showed the browser failures were not purely test-level:
+  - `EditorScreen_FloatingToolbarStaysPinnedAfterFloatingFormatAction` still failed because a late textarea `select` event could request a fresh floating-bar re-anchor after toolbar formatting on Linux.
+  - `EditorScreen_FloatingToolbarStaysAboveMultiLineSelection` failed because the visual floating-toolbar gap above the selected segment line was too tight for Linux font metrics.
+  - Intended fix path: preserve the existing floating-bar anchor when the refreshed DOM selection matches the already-tracked range, and increase the runtime floating-toolbar gap so the toolbar body clears multi-line selections consistently across platforms.
 - Local validation after the browser-suite stability fixes passed:
   - `dotnet build /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx -warnaserror`
   - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.Core.Tests/PrompterLive.Core.Tests.csproj --no-build`
@@ -233,6 +237,11 @@ Root-cause note:
   - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj --no-build`
 - Local validation after the floating-toolbar anchor assertion fix passed:
   - `dotnet build /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx -warnaserror`
+  - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj --no-build`
+  - `dotnet format /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx`
+- Local validation after the runtime floating-toolbar fixes passed:
+  - `dotnet build /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx -warnaserror`
+  - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.Tests/PrompterLive.App.Tests.csproj --no-build`
   - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj --no-build`
   - `dotnet format /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx`
 

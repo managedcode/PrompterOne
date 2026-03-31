@@ -170,10 +170,25 @@ public partial class EditorSourcePanel
 
     // A late textarea select event can arrive after a toolbar click and should
     // refresh selection state without dismissing the menu the user just opened.
-    private Task OnSourceSelectAsync()
+    private async Task OnSourceSelectAsync()
     {
-        RequestFloatingBarReanchor();
-        return RefreshSelectionAsync();
+        var selection = await RunSelectionInteropAsync(
+            () => Interop.GetSelectionAsync(_textareaRef),
+            RefreshSelectionFailureMessage);
+
+        if (selection is null)
+        {
+            return;
+        }
+
+        if (!_floatingBarAnchor.HasSelection || selection.Range != Selection.Range)
+        {
+            RequestFloatingBarReanchor();
+        }
+
+        await OnSelectionChanged.InvokeAsync(selection);
+        _syncScrollAfterRender = Selection.HasSelection || selection.HasSelection;
+        StateHasChanged();
     }
 
     private async Task OnSourceInputAsync(ChangeEventArgs args)
