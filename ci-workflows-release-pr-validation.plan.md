@@ -234,6 +234,10 @@ Root-cause note:
   - `EditorScreen_QuantumTypingKeepsStyledOverlayVisibleResponsive`
   - Root cause note: the test asserted a hard `maxLatency <= 120ms` on the single slowest MutationObserver sample, which was sensitive to one-off runner scheduling spikes in the release workflow even when the same Linux browser suite passed in `PR Validation`.
   - Intended fix path: keep the strong no-visible-input/no-long-task checks, but evaluate typing responsiveness with a bounded spike plus a stable `p95` latency threshold instead of a single-sample maximum.
+- GitHub run `23817217598` confirmed a workflow-level difference still remained after the typing-probe stabilization:
+  - `PR Validation` run `23817221509` passed on the same commit while the release workflow still failed in `Build And Test`.
+  - Root cause note: the release workflow exported Pages and release publishing variables globally, so the validation job did not actually run under the same environment contract as `PR Validation`.
+  - Intended fix path: scope release-only environment variables to the release-preparation and publish jobs, leaving the release validation job with the same build/test environment as `PR Validation`.
 - Local validation after the browser-suite stability fixes passed:
   - `dotnet build /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx -warnaserror`
   - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.Core.Tests/PrompterLive.Core.Tests.csproj --no-build`
@@ -252,6 +256,8 @@ Root-cause note:
   - `dotnet build /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx -warnaserror`
   - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj --no-build`
   - `dotnet format /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx`
+- Local workflow validation after the release-env scoping fix passed:
+  - `actionlint /Users/ksemenenko/Developer/PrompterLive/.github/workflows/*.yml`
 
 ## Final Validation Skills And Commands
 

@@ -16,17 +16,9 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  APP_PROJECT: src/PrompterLive.App/PrompterLive.App.csproj
   APP_TEST_PROJECT: tests/PrompterLive.App.Tests/PrompterLive.App.Tests.csproj
   CORE_TEST_PROJECT: tests/PrompterLive.Core.Tests/PrompterLive.Core.Tests.csproj
-  PAGES_ARTIFACT_ROOT: .artifacts/prompterlive-pages
-  PAGES_BASE_PATH: /
-  PAGES_CNAME: prompter.managed-code.com
   PLAYWRIGHT_CLI: tests/PrompterLive.App.UITests/bin/Debug/net10.0/.playwright/package/cli.js
-  PUBLISH_ROOT: .artifacts/prompterlive-publish
-  RELEASE_ARCHIVE_NAME: prompterlive-pages.zip
-  RELEASE_ARTIFACT_NAME: prompterlive-release-package
-  RELEASE_ARTIFACT_ROOT: .artifacts/release-artifact
   SOLUTION_FILE: PrompterLive.slnx
   UI_TEST_PROJECT: tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj
 
@@ -65,6 +57,8 @@ jobs:
     name: Resolve Release Version
     needs: validate_release
     runs-on: ubuntu-latest
+    env:
+      APP_PROJECT: src/PrompterLive.App/PrompterLive.App.csproj
 
     permissions:
       contents: read
@@ -94,6 +88,15 @@ jobs:
     name: Publish Release Build
     needs: prepare_release
     runs-on: ubuntu-latest
+    env:
+      APP_PROJECT: src/PrompterLive.App/PrompterLive.App.csproj
+      PAGES_ARTIFACT_ROOT: .artifacts/prompterlive-pages
+      PAGES_BASE_PATH: /
+      PAGES_CNAME: prompter.managed-code.com
+      PUBLISH_ROOT: .artifacts/prompterlive-publish
+      RELEASE_ARCHIVE_NAME: prompterlive-pages.zip
+      RELEASE_ARTIFACT_NAME: prompterlive-release-package
+      RELEASE_ARTIFACT_ROOT: .artifacts/release-artifact
 
     permissions:
       contents: read
@@ -147,6 +150,9 @@ jobs:
       - prepare_release
       - publish_release_build
     runs-on: ubuntu-latest
+    env:
+      RELEASE_ARCHIVE_NAME: prompterlive-pages.zip
+      RELEASE_ARTIFACT_ROOT: .artifacts/release-artifact
 
     permissions:
       contents: write
