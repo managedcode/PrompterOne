@@ -258,6 +258,9 @@ Root-cause note:
   - `dotnet format /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx`
 - Local workflow validation after the release-env scoping fix passed:
   - `actionlint /Users/ksemenenko/Developer/PrompterLive/.github/workflows/*.yml`
+- GitHub run `23817606264` proved the release pipeline now reaches the publishing stages cleanly, but it still failed in `Publish GitHub Release`:
+  - Root cause note: the release-publication job did not define `RELEASE_ARTIFACT_NAME`, so `actions/download-artifact` downloaded both `github-pages` and the release bundle. The subsequent `gh release create` step then looked for `.artifacts/release-artifact/prompterlive-pages.zip`, but the real zip sat inside the downloaded artifact subdirectory.
+  - Intended fix path: explicitly request the `prompterlive-release-package` artifact and resolve the archive path dynamically before calling `gh release create` or `gh release upload`.
 
 ## Final Validation Skills And Commands
 

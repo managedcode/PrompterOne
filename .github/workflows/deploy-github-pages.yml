@@ -152,6 +152,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       RELEASE_ARCHIVE_NAME: prompterlive-pages.zip
+      RELEASE_ARTIFACT_NAME: prompterlive-release-package
       RELEASE_ARTIFACT_ROOT: .artifacts/release-artifact
 
     permissions:
@@ -164,13 +165,24 @@ jobs:
           name: ${{ env.RELEASE_ARTIFACT_NAME }}
           path: ${{ env.RELEASE_ARTIFACT_ROOT }}
 
+      - name: Resolve release asset path
+        id: release_asset
+        run: |
+          release_asset="$(find "$RELEASE_ARTIFACT_ROOT" -type f -name "$RELEASE_ARCHIVE_NAME" | head -n 1)"
+          if [ -z "$release_asset" ]; then
+            echo "Expected release archive '$RELEASE_ARCHIVE_NAME' was not found under '$RELEASE_ARTIFACT_ROOT'." >&2
+            exit 1
+          fi
+
+          echo "release_asset=$release_asset" >> "$GITHUB_OUTPUT"
+
       - name: Create or update release tag and GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG: ${{ needs.prepare_release.outputs.release_tag }}
           RELEASE_TITLE: PrompterLive ${{ needs.prepare_release.outputs.release_version }}
         run: |
-          release_asset="$RELEASE_ARTIFACT_ROOT/$RELEASE_ARCHIVE_NAME"
+          release_asset="${{ steps.release_asset.outputs.release_asset }}"
           if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
             gh release upload "$RELEASE_TAG" "$release_asset" --clobber
             gh release edit "$RELEASE_TAG" --title "$RELEASE_TITLE"
