@@ -7,28 +7,9 @@
     <h3 class="set-section-title">About</h3>
     <p class="set-section-desc">Prompter.live — professional teleprompter for creators, broadcasters, and public speakers.</p>
 
-    <div class="set-about-hero">
-        <div class="set-about-logo-wrap">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                <path d="M4 6h16M4 12h12M4 18h14" stroke="url(#about-logo-gradient)" stroke-width="2.5" stroke-linecap="round" />
-                <defs>
-                    <linearGradient id="about-logo-gradient" x1="4" y1="6" x2="20" y2="18">
-                        <stop stop-color="#F5E6D0" />
-                        <stop offset="1" stop-color="#C4A882" />
-                    </linearGradient>
-                </defs>
-            </svg>
-        </div>
-        <div class="set-about-hero-info">
-            <div class="set-about-appname">Prompter.live</div>
-            <div class="set-about-version">Standalone browser build</div>
-            <div class="set-about-build">Version 0.1.0-dev · Blazor WebAssembly</div>
-        </div>
-    </div>
-
     <div class="set-device-list">
         <SettingsExpandableCard Title="Prompter.live"
-                                Subtitle="Version 0.1.0-dev · Local browser workspace"
+                                Subtitle="Version 1.0.0 (Build 42) · March 2026"
                                 StatusLabel="Licensed"
                                 StatusClass="set-dest-ok"
                                 IconStyle="background:rgba(196,160,96,.10); color:var(--gold);"
@@ -37,8 +18,18 @@
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M4 6h16M4 12h12M4 18h14" />
             </svg>
-            <p class="set-about-text">Prompter.live runs fully in the browser for this runtime shape, keeping scripts, studio settings, and playback state inside local browser storage.</p>
-            <p class="set-about-text">Media setup, teleprompter playback, RSVP learning, and GO LIVE routing stay client-side so the app boots directly from the WebAssembly host.</p>
+            <div class="set-device-fields">
+                <div class="set-field set-field-toggle">
+                    <label>Software Updates</label>
+                    <span class="set-dest-status set-dest-ok" style="font-size:12px;">Up to date</span>
+                </div>
+                <div class="set-field set-field-toggle">
+                    <label>Check for updates automatically</label>
+                    <div class="set-toggle on">
+                        <div class="set-toggle-thumb"></div>
+                    </div>
+                </div>
+            </div>
         </SettingsExpandableCard>
 
         <SettingsExpandableCard Title="Our Team"
@@ -101,7 +92,7 @@
             <div class="set-device-fields">
                 @foreach (var link in ResourceLinks)
                 {
-                    <div class="set-field set-field-toggle">
+                    <div class="set-field set-field-toggle" style="cursor:pointer;">
                         <label>@link</label>
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--t4)" stroke-width="2">
                             <polyline points="9,18 15,12 9,6" />
@@ -136,6 +127,7 @@
         new("Playfair Display", "Display serif · Claus Eggers Sorensen", "OFL"),
         new("Feather Icons", "Open source icon set", "MIT"),
         new("WebRTC", "Real-time communication APIs", "BSD"),
+        new("MediaRecorder API", "Browser media recording", "W3C"),
         new("Web Audio API", "High-level audio processing", "W3C")
     ];
 

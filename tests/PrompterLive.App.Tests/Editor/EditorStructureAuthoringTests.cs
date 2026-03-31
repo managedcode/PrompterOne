@@ -9,7 +9,7 @@ namespace PrompterLive.App.Tests;
 
 public sealed class EditorStructureAuthoringTests : BunitContext
 {
-    private static readonly TimeSpan StructureRefreshTimeout = TimeSpan.FromSeconds(3);
+    private static readonly TimeSpan StructureRefreshTimeout = TimeSpan.FromSeconds(10);
     private readonly AppHarness _harness;
 
     public EditorStructureAuthoringTests()

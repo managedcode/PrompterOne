@@ -1,5 +1,4 @@
 @namespace PrompterLive.Shared.Components.Settings
-@using Microsoft.AspNetCore.Components
 @using PrompterLive.Shared.Pages
 
 <section class="set-section set-panel"
@@ -25,11 +24,7 @@
             <div class="set-device-fields">
                 <div class="set-field">
                     <label>API Key</label>
-                    <input type="password"
-                           class="set-input"
-                           placeholder="sk-ant-..."
-                           value="sk-ant-xxxxxxxxxxxx"
-                           @onclick:stopPropagation="true" />
+                    <input type="password" class="set-input" placeholder="sk-ant-..." value="sk-ant-xxxxxxxxxxxx" @onclick:stopPropagation="true" />
                 </div>
                 <div class="set-field">
                     <label>Model</label>
@@ -41,10 +36,7 @@
                 </div>
                 <div class="set-field">
                     <label>Base URL (optional)</label>
-                    <input type="text"
-                           class="set-input"
-                           placeholder="https://api.anthropic.com"
-                           @onclick:stopPropagation="true" />
+                    <input type="text" class="set-input" placeholder="https://api.anthropic.com" @onclick:stopPropagation="true" />
                 </div>
             </div>
             <div class="set-ai-test-row">
@@ -83,10 +75,7 @@
             <div class="set-device-fields">
                 <div class="set-field">
                     <label>API Key</label>
-                    <input type="password"
-                           class="set-input"
-                           placeholder="sk-..."
-                           @onclick:stopPropagation="true" />
+                    <input type="password" class="set-input" placeholder="sk-..." @onclick:stopPropagation="true" />
                 </div>
                 <div class="set-field">
                     <label>Model</label>
@@ -96,13 +85,6 @@
                         <option>o1</option>
                         <option>o3-mini</option>
                     </select>
-                </div>
-                <div class="set-field">
-                    <label>Base URL (optional)</label>
-                    <input type="text"
-                           class="set-input"
-                           placeholder="https://api.openai.com/v1"
-                           @onclick:stopPropagation="true" />
                 </div>
             </div>
             <button class="set-btn-outline set-btn-sm"
@@ -130,17 +112,11 @@
             <div class="set-device-fields">
                 <div class="set-field">
                     <label>Ollama URL</label>
-                    <input type="text"
-                           class="set-input"
-                           placeholder="http://localhost:11434"
-                           @onclick:stopPropagation="true" />
+                    <input type="text" class="set-input" placeholder="http://localhost:11434" @onclick:stopPropagation="true" />
                 </div>
                 <div class="set-field">
                     <label>Model</label>
-                    <input type="text"
-                           class="set-input"
-                           placeholder="llama3, mistral, gemma..."
-                           @onclick:stopPropagation="true" />
+                    <input type="text" class="set-input" placeholder="llama3, mistral, gemma..." @onclick:stopPropagation="true" />
                 </div>
             </div>
             <button class="set-btn-outline set-btn-sm"
@@ -150,94 +126,23 @@
                 Test Connection
             </button>
         </SettingsExpandableCard>
-
-        <SettingsExpandableCard Title="Claude Code"
-                                Subtitle="CLI agent · Local workstation"
-                                StatusLabel="@BuildStatusLabel(SettingsAiProviderIds.ClaudeCode, false)"
-                                StatusClass="@BuildStatusClass(SettingsAiProviderIds.ClaudeCode)"
-                                IconStyle="background:rgba(236,72,153,.12); color:#F472B6;"
-                                AdditionalCssClass="@BuildCardCssClass(SettingsAiProviderIds.ClaudeCode)"
-                                IsOpen="@IsCardOpen(ClaudeCodeCardId)"
-                                OnToggle="@(() => OnProviderCardToggleAsync(SettingsAiProviderIds.ClaudeCode, ClaudeCodeCardId))"
-                                TestId="@UiTestIds.Settings.AiProvider(SettingsAiProviderIds.ClaudeCode)">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="16,18 22,12 16,6" />
-                <polyline points="8,6 2,12 8,18" />
-            </svg>
-            <p class="set-card-copy">Use Claude Code from your local workstation when you want agent-style editing outside the browser runtime.</p>
-            <button class="set-btn-outline set-btn-sm"
-                    type="button"
-                    data-testid="@(IsSelected(SettingsAiProviderIds.ClaudeCode) ? UiTestIds.Settings.TestConnection : null)"
-                    @onclick:stopPropagation="true">
-                Verify CLI Access
-            </button>
-        </SettingsExpandableCard>
-
-        <SettingsExpandableCard Title="Copilot"
-                                Subtitle="GitHub / Microsoft"
-                                StatusLabel="@BuildStatusLabel(SettingsAiProviderIds.Copilot, false)"
-                                StatusClass="@BuildStatusClass(SettingsAiProviderIds.Copilot)"
-                                IconStyle="background:rgba(59,130,246,.12); color:#60A5FA;"
-                                AdditionalCssClass="@BuildCardCssClass(SettingsAiProviderIds.Copilot)"
-                                IsOpen="@IsCardOpen(CopilotCardId)"
-                                OnToggle="@(() => OnProviderCardToggleAsync(SettingsAiProviderIds.Copilot, CopilotCardId))"
-                                TestId="@UiTestIds.Settings.AiProvider(SettingsAiProviderIds.Copilot)">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3" />
-            </svg>
-            <p class="set-card-copy">Keep GitHub Copilot available as an alternate writing and rewrite provider for Microsoft-centered workflows.</p>
-            <button class="set-btn-outline set-btn-sm"
-                    type="button"
-                    data-testid="@(IsSelected(SettingsAiProviderIds.Copilot) ? UiTestIds.Settings.TestConnection : null)"
-                    @onclick:stopPropagation="true">
-                Check Account
-            </button>
-        </SettingsExpandableCard>
-
-        <SettingsExpandableCard Title="Codex"
-                                Subtitle="OpenAI Codex · Coding agent"
-                                StatusLabel="@BuildStatusLabel(SettingsAiProviderIds.Codex, false)"
-                                StatusClass="@BuildStatusClass(SettingsAiProviderIds.Codex)"
-                                IconStyle="background:rgba(234,179,8,.12); color:#FBBF24;"
-                                AdditionalCssClass="@BuildCardCssClass(SettingsAiProviderIds.Codex)"
-                                IsOpen="@IsCardOpen(CodexCardId)"
-                                OnToggle="@(() => OnProviderCardToggleAsync(SettingsAiProviderIds.Codex, CodexCardId))"
-                                TestId="@UiTestIds.Settings.AiProvider(SettingsAiProviderIds.Codex)">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polygon points="13,2 3,14 12,14 11,22 21,10 12,10" />
-            </svg>
-            <p class="set-card-copy">Use Codex when you want coding-oriented assist flows beside the script-writing providers.</p>
-            <button class="set-btn-outline set-btn-sm"
-                    type="button"
-                    data-testid="@(IsSelected(SettingsAiProviderIds.Codex) ? UiTestIds.Settings.TestConnection : null)"
-                    @onclick:stopPropagation="true">
-                Check Access
-            </button>
-        </SettingsExpandableCard>
     </div>
 </section>
 
 @code {
     private const string ActiveCssClass = "active";
     private const string ClaudeApiCardId = "ai-claude-api";
-    private const string ClaudeCodeCardId = "ai-claude-code";
-    private const string CodexCardId = "ai-codex";
-    private const string CopilotCardId = "ai-copilot";
-    private const string DisconnectedStatusLabel = "Not configured";
     private const string DisconnectedStatusClass = "";
+    private const string DisconnectedStatusLabel = "Not configured";
     private const string OllamaCardId = "ai-ollama";
     private const string OpenAiCardId = "ai-openai";
-    private const string SelectedStatusLabel = "Active";
     private const string SelectedStatusClass = "set-dest-ok";
+    private const string SelectedStatusLabel = "Active";
 
     [Parameter] public string DisplayStyle { get; set; } = string.Empty;
-
     [Parameter] public Func<string, bool> IsCardOpen { get; set; } = static _ => false;
-
     [Parameter] public string SelectedProviderId { get; set; } = string.Empty;
-
     [Parameter] public EventCallback<string> SelectProvider { get; set; }
-
     [Parameter] public EventCallback<string> ToggleCard { get; set; }
 
     private string BuildCardCssClass(string providerId) =>

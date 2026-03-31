@@ -24,7 +24,7 @@ sequenceDiagram
     participant Devices as "IMediaDeviceService"
     participant CameraInterop as "CameraPreviewInterop"
     participant MicInterop as "MicrophoneLevelInterop"
-    participant Browser as "navigator.mediaDevices + AudioContext"
+    participant Browser as "vendored LiveKit SDK + browser media APIs"
 
     User->>Settings: Open Cameras or Microphones
     Settings->>Permissions: Query or request browser access
@@ -33,8 +33,8 @@ sequenceDiagram
     Settings->>MicCard: Pass selected microphone + active section state
     CameraCard->>CameraInterop: Attach or detach preview stream
     MicCard->>MicInterop: Start or stop live level monitor
-    CameraInterop->>Browser: getUserMedia(video)
-    MicInterop->>Browser: getUserMedia(audio) + analyser
+    CameraInterop->>Browser: createLocalVideoTrack(device)
+    MicInterop->>Browser: createLocalAudioTrack(device) + createAudioAnalyser(track)
     Browser-->>CameraCard: Live video stream
     Browser-->>MicCard: Live signal level
     User->>Settings: Adjust camera mirror, gain, or default devices
@@ -53,7 +53,7 @@ flowchart LR
     MicInterop["MicrophoneLevelInterop"]
     Scene["IMediaSceneService"]
     Studio["StudioSettingsStore"]
-    Browser["browser-media.js thin bridge"]
+    Browser["browser-media.js thin LiveKit-backed bridge"]
 
     Page --> CameraCard
     Page --> MicCard
@@ -73,4 +73,5 @@ flowchart LR
 - the microphone meter UI must stay Blazor-owned; JS may sample browser audio and report numeric levels only
 - UI contracts for the feedback cards must use stable shared `UiTestIds` and `UiDomIds`
 - browser acceptance must verify real synthetic media attachment and live activity through the deterministic media harness
+- settings camera and microphone feedback must use the vendored LiveKit browser SDK that is already shipped with the app, not a second CDN or ad-hoc runtime
 - this document is about setup feedback only; routing remains documented in [GoLiveRuntime.md](./GoLiveRuntime.md)

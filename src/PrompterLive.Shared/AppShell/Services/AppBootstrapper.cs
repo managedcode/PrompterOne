@@ -8,6 +8,7 @@ namespace PrompterLive.Shared.Services;
 
 public sealed class AppBootstrapper(
     IScriptSessionService sessionService,
+    IScriptRepository scriptRepository,
     ILibraryFolderRepository libraryFolderRepository,
     IMediaSceneService mediaSceneService,
     BrowserSettingsStore settingsStore,
@@ -18,6 +19,7 @@ public sealed class AppBootstrapper(
     private const string SceneSettingsKey = "prompterlive.scene";
 
     private readonly IScriptSessionService _sessionService = sessionService;
+    private readonly IScriptRepository _scriptRepository = scriptRepository;
     private readonly ILibraryFolderRepository _libraryFolderRepository = libraryFolderRepository;
     private readonly IMediaSceneService _mediaSceneService = mediaSceneService;
     private readonly BrowserSettingsStore _settingsStore = settingsStore;
@@ -44,7 +46,8 @@ public sealed class AppBootstrapper(
             }
 
             _logger.LogInformation("Initializing PrompterLive browser state.");
-            await _libraryFolderRepository.InitializeAsync([], cancellationToken);
+            await _libraryFolderRepository.InitializeAsync(RuntimeLibrarySeedCatalog.CreateFolders(), cancellationToken);
+            await _scriptRepository.InitializeAsync(RuntimeLibrarySeedCatalog.CreateDocuments(), cancellationToken);
             await _sessionService.InitializeAsync(cancellationToken);
 
             var readerSettings = await _settingsStore.LoadAsync<ReaderSettings>(ReaderSettingsKey, cancellationToken);

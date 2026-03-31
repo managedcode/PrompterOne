@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using PrompterLive.Shared.Services;
 using PrompterLive.Shared.Settings.Models;
 
 namespace PrompterLive.Shared.Pages;
@@ -23,13 +24,11 @@ public partial class SettingsPage
 
     private SettingsPagePreferences _pagePreferences = SettingsPagePreferences.Default;
 
-    private string AmbientGradientMotionToggleCssClass => BuildToggleCssClass(_pagePreferences.AmbientGradientMotion);
-
     private string FileAutoSaveToggleCssClass => BuildToggleCssClass(_pagePreferences.FileAutoSaveEnabled);
 
     private string FileBackupCopiesToggleCssClass => BuildToggleCssClass(_pagePreferences.FileBackupCopiesEnabled);
 
-    private string ShowHeaderChromeToggleCssClass => BuildToggleCssClass(_pagePreferences.ShowHeaderChrome);
+    [Inject] private BrowserThemeService ThemeService { get; set; } = null!;
 
     private bool IsCardOpen(string cardId) => _openCards.Contains(cardId);
 
@@ -37,6 +36,7 @@ public partial class SettingsPage
     {
         var storedPreferences = await SettingsStore.LoadAsync<SettingsPagePreferences>(SettingsPagePreferences.StorageKey);
         _pagePreferences = storedPreferences ?? SettingsPagePreferences.Default;
+        await ThemeService.ApplyAsync(_pagePreferences);
     }
 
     private Task PersistPreferencesAsync() =>
@@ -51,12 +51,6 @@ public partial class SettingsPage
         await PersistPreferencesAsync();
     }
 
-    private async Task ToggleAmbientGradientMotionAsync()
-    {
-        _pagePreferences = _pagePreferences with { AmbientGradientMotion = !_pagePreferences.AmbientGradientMotion };
-        await PersistPreferencesAsync();
-    }
-
     private async Task ToggleAutoSaveAsync()
     {
         _pagePreferences = _pagePreferences with { FileAutoSaveEnabled = !_pagePreferences.FileAutoSaveEnabled };
@@ -66,12 +60,6 @@ public partial class SettingsPage
     private async Task ToggleBackupCopiesAsync()
     {
         _pagePreferences = _pagePreferences with { FileBackupCopiesEnabled = !_pagePreferences.FileBackupCopiesEnabled };
-        await PersistPreferencesAsync();
-    }
-
-    private async Task ToggleShowHeaderChromeAsync()
-    {
-        _pagePreferences = _pagePreferences with { ShowHeaderChrome = !_pagePreferences.ShowHeaderChrome };
         await PersistPreferencesAsync();
     }
 
@@ -201,12 +189,14 @@ public partial class SettingsPage
     {
         _pagePreferences = _pagePreferences with { ColorScheme = value };
         await PersistPreferencesAsync();
+        await ThemeService.ApplyAsync(_pagePreferences);
     }
 
     private async Task UpdateAccentColorAsync(string value)
     {
         _pagePreferences = _pagePreferences with { AccentColor = value };
         await PersistPreferencesAsync();
+        await ThemeService.ApplyAsync(_pagePreferences);
     }
 
     private async Task UpdateTeleprompterFontAsync(string value)
@@ -248,6 +238,7 @@ public partial class SettingsPage
     {
         _pagePreferences = _pagePreferences with { UiDensity = value };
         await PersistPreferencesAsync();
+        await ThemeService.ApplyAsync(_pagePreferences);
     }
 
     private async Task ToggleReduceMotionAsync()

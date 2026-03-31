@@ -47,11 +47,10 @@ public sealed class TeleprompterPlaybackContinuityTests(StandaloneAppFixture fix
 
     private static async Task StartPlaybackAsync(IPage page)
     {
-        await page.GetByTestId(UiTestIds.Teleprompter.PlayToggle).ClickAsync();
-        await Expect(page.Locator($"#{UiDomIds.Teleprompter.Time}"))
-            .Not.ToHaveTextAsync(
-                BrowserTestConstants.Regexes.ReaderTimeNotZero,
-                new() { Timeout = BrowserTestConstants.Timing.ReaderPlaybackStartTimeoutMs });
+        var playToggle = page.GetByTestId(UiTestIds.Teleprompter.PlayToggle);
+        await playToggle.ClickAsync();
+        await Expect(playToggle.Locator(BrowserTestConstants.Teleprompter.PauseToggleIconSelector))
+            .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ReaderPlaybackReadyTimeoutMs });
     }
 
     private static async Task AssertReaderTimeContinuesAdvancingAsync(IPage page)

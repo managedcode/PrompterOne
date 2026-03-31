@@ -62,11 +62,20 @@ public sealed class TeleprompterSettingsFlowTests(StandaloneAppFixture fixture) 
         await page.GetByTestId(UiTestIds.Teleprompter.WidthSlider).EvaluateAsync("element => { element.value = '900'; element.dispatchEvent(new Event('input', { bubbles: true })); }");
         await Expect(page.Locator($"#{UiDomIds.Teleprompter.WidthValue}")).ToHaveTextAsync("900");
 
-        await page.GetByTestId(UiTestIds.Teleprompter.PlayToggle).ClickAsync();
-        await Expect(page.GetByTestId(UiTestIds.Teleprompter.PlayToggle)).ToBeVisibleAsync();
-        await page.WaitForTimeoutAsync(BrowserTestConstants.Timing.ReaderPlaybackDelayMs);
-        await Expect(page.Locator($"#{UiDomIds.Teleprompter.Time}")).Not.ToHaveTextAsync(BrowserTestConstants.Regexes.ReaderTimeNotZero);
-        await Expect(page.Locator($"#{UiDomIds.Teleprompter.ProgressFill}")).Not.ToHaveAttributeAsync("style", BrowserTestConstants.Regexes.NonZeroWidth);
+        var playToggle = page.GetByTestId(UiTestIds.Teleprompter.PlayToggle);
+        await playToggle.ClickAsync();
+        await Expect(playToggle).ToBeVisibleAsync();
+        await Expect(playToggle.Locator(BrowserTestConstants.Teleprompter.PauseToggleIconSelector))
+            .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ReaderPlaybackReadyTimeoutMs });
+        await Expect(page.Locator($"#{UiDomIds.Teleprompter.Time}"))
+            .Not.ToHaveTextAsync(
+                BrowserTestConstants.Regexes.ReaderTimeNotZero,
+                new() { Timeout = BrowserTestConstants.Timing.ReaderPlaybackAdvanceTimeoutMs });
+        await Expect(page.Locator($"#{UiDomIds.Teleprompter.ProgressFill}"))
+            .Not.ToHaveAttributeAsync(
+                "style",
+                BrowserTestConstants.Regexes.NonZeroWidth,
+                new() { Timeout = BrowserTestConstants.Timing.ReaderPlaybackAdvanceTimeoutMs });
         await page.GetByTestId(UiTestIds.Teleprompter.PreviousBlock).ClickAsync();
         await page.GetByTestId(UiTestIds.Teleprompter.NextBlock).ClickAsync();
         await page.GetByTestId(UiTestIds.Teleprompter.PreviousWord).ClickAsync();
@@ -96,28 +105,27 @@ public sealed class TeleprompterSettingsFlowTests(StandaloneAppFixture fixture) 
     private static async Task<bool> VerifyCameraSettingsAsync(Microsoft.Playwright.IPage page)
     {
         await page.GetByTestId(UiTestIds.Settings.NavCameras).ClickAsync();
-        await Expect(page.GetByTestId(UiTestIds.Settings.CamerasPanel)).ToBeVisibleAsync();
-        await Expect(page.GetByTestId(UiTestIds.Settings.RequestMedia)).ToBeVisibleAsync();
-        await page.GetByTestId(UiTestIds.Settings.RequestMedia).ClickAsync();
-        await Expect(page.GetByTestId(UiTestIds.Settings.DefaultCamera)).ToBeVisibleAsync();
+        var camerasPanel = page.GetByTestId(UiTestIds.Settings.CamerasPanel);
+        await Expect(camerasPanel).ToBeVisibleAsync();
+        var requestMediaButton = camerasPanel.GetByTestId(UiTestIds.Settings.RequestMedia);
+        await requestMediaButton.ScrollIntoViewIfNeededAsync();
+        await Expect(requestMediaButton).ToBeVisibleAsync();
+        await requestMediaButton.ClickAsync();
         await Expect(page.GetByTestId(UiTestIds.Settings.CameraResolution)).ToBeVisibleAsync();
-        await Expect(page.GetByTestId(UiTestIds.Settings.CameraFrameRate)).ToBeVisibleAsync();
         await Expect(page.GetByTestId(UiTestIds.Settings.CameraMirrorToggle)).ToBeVisibleAsync();
         await Expect(page.GetByTestId(UiTestIds.Settings.CameraPreviewCard)).ToBeVisibleAsync();
         await Expect(page.GetByTestId(UiTestIds.Settings.CameraPreviewVideo)).ToBeVisibleAsync();
         await Expect(page.GetByTestId(UiTestIds.Settings.CameraPreviewLabel)).ToHaveTextAsync(BrowserTestConstants.Media.PrimaryCameraLabel);
-        await Expect(page.Locator($"[data-testid^='{UiTestIds.Settings.CameraDevice(string.Empty)}']").First).ToBeVisibleAsync();
-        await Expect(page.Locator($"[data-testid^='{UiTestIds.Settings.SceneCamera(string.Empty)}']").First).ToBeVisibleAsync();
+        await Expect(page.GetByTestId(UiTestIds.Settings.CameraDevice(BrowserTestConstants.Media.PrimaryCameraId))).ToBeVisibleAsync();
+        await Expect(page.GetByTestId(UiTestIds.Settings.CameraDevice(BrowserTestConstants.Media.SecondaryCameraId))).ToBeVisibleAsync();
         await page.GetByTestId(UiTestIds.Settings.CameraResolution).SelectOptionAsync(new[] { BrowserTestConstants.Streaming.ResolutionHd720 });
         await Expect(page.GetByTestId(UiTestIds.Settings.CameraResolution)).ToHaveValueAsync(BrowserTestConstants.Streaming.ResolutionHd720);
-        await page.GetByTestId(UiTestIds.Settings.CameraFrameRate).SelectOptionAsync(new[] { BrowserTestConstants.Streaming.CameraFrameRateFps24 });
-        await Expect(page.GetByTestId(UiTestIds.Settings.CameraFrameRate)).ToHaveValueAsync(BrowserTestConstants.Streaming.CameraFrameRateFps24);
 
         await ToggleSettingsButtonAsync(page.GetByTestId(UiTestIds.Settings.CameraMirrorToggle));
-        await page.Locator($"[data-testid^='{UiTestIds.Settings.SceneCamera(string.Empty)}']").First
-            .Locator($"[data-testid^='{UiTestIds.Settings.SceneMirror(string.Empty)}']").ClickAsync();
-        await page.Locator($"[data-testid^='{UiTestIds.Settings.SceneCamera(string.Empty)}']").First
-            .Locator($"[data-testid^='{UiTestIds.Settings.SceneFlip(string.Empty)}']").ClickAsync();
+        await page.GetByTestId(UiTestIds.Settings.CameraDeviceAction(BrowserTestConstants.Media.SecondaryCameraId)).ClickAsync();
+        var secondaryPrimaryAction = page.GetByTestId(UiTestIds.Settings.CameraPrimaryAction(BrowserTestConstants.Media.SecondaryCameraId));
+        await secondaryPrimaryAction.ClickAsync();
+        await Expect(secondaryPrimaryAction).ToBeDisabledAsync();
 
         return await ToggleReaderCameraAsync(page);
     }
@@ -126,14 +134,14 @@ public sealed class TeleprompterSettingsFlowTests(StandaloneAppFixture fixture) 
     {
         await page.GetByTestId(UiTestIds.Settings.NavMics).ClickAsync();
         await Expect(page.GetByTestId(UiTestIds.Settings.MicsPanel)).ToBeVisibleAsync();
-        await Expect(page.GetByTestId(UiTestIds.Settings.PrimaryMic)).ToBeVisibleAsync();
+        await Expect(page.GetByTestId(UiTestIds.Settings.MicDevice(BrowserTestConstants.Media.PrimaryMicrophoneId))).ToBeVisibleAsync();
         await Expect(page.GetByTestId(UiTestIds.Settings.MicLevel)).ToBeVisibleAsync();
         await Expect(page.GetByTestId(UiTestIds.Settings.MicPreviewCard)).ToBeVisibleAsync();
         await Expect(page.GetByTestId(UiTestIds.Settings.MicPreviewMeter)).ToBeVisibleAsync();
         await Expect(page.GetByTestId(UiTestIds.Settings.NoiseSuppression)).ToBeVisibleAsync();
         await Expect(page.GetByTestId(UiTestIds.Settings.EchoCancellation)).ToBeVisibleAsync();
-        await page.GetByTestId(UiTestIds.Settings.MicLevel).EvaluateAsync("element => { element.value = '82'; element.dispatchEvent(new Event('input', { bubbles: true })); }");
-        await Expect(page.GetByTestId(UiTestIds.Settings.MicLevelValue)).ToHaveTextAsync("82%");
+        await page.GetByTestId(UiTestIds.Settings.MicLevel).EvaluateAsync(BrowserTestConstants.SettingsFlow.MicLevelInputScript);
+        await Expect(page.GetByTestId(UiTestIds.Settings.MicLevel)).ToHaveValueAsync(BrowserTestConstants.SettingsFlow.MicLevelValue);
         await page.GetByTestId(UiTestIds.Settings.NoiseSuppression).ClickAsync();
     }
 
@@ -161,6 +169,10 @@ public sealed class TeleprompterSettingsFlowTests(StandaloneAppFixture fixture) 
 
         await page.GetByTestId(UiTestIds.Settings.NavAppearance).ClickAsync();
         await Expect(page.GetByTestId(UiTestIds.Settings.AppearancePanel)).ToBeVisibleAsync();
+        await page.GetByTestId(UiTestIds.Settings.ThemeOption(BrowserTestConstants.SettingsFlow.LightTheme)).ClickAsync();
+        await Expect(page.Locator("html")).ToHaveAttributeAsync(
+            BrowserTestConstants.SettingsFlow.HtmlThemeAttribute,
+            BrowserTestConstants.SettingsFlow.LightTheme);
 
         await page.GetByTestId(UiTestIds.Settings.NavAbout).ClickAsync();
         await Expect(page.GetByTestId(UiTestIds.Settings.AboutPanel)).ToBeVisibleAsync();

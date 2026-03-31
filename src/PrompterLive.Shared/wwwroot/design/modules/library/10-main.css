@@ -87,6 +87,50 @@
 }
 .btn-create svg { stroke: #F5E6D0; }
 
+.btn-golive-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 18px;
+    height: 36px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .3px;
+    text-transform: uppercase;
+    color: #FF8A8A;
+    background: rgba(255,68,68,.08);
+    border: 1px solid rgba(255,68,68,.22);
+    border-radius: 12px;
+    cursor: pointer;
+    position: relative;
+    transition: background .15s, border-color .15s, box-shadow .15s;
+}
+
+.btn-golive-header:hover {
+    background: rgba(255,68,68,.14);
+    border-color: rgba(255,68,68,.35);
+    box-shadow: 0 0 20px rgba(255,68,68,.10);
+}
+
+.btn-golive-header svg {
+    stroke: #FF8A8A;
+    flex-shrink: 0;
+}
+
+.btn-golive-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #FF4444;
+    box-shadow: 0 0 6px #FF4444;
+    animation: golive-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes golive-pulse {
+    0%, 100% { opacity: .6; }
+    50% { opacity: 1; }
+}
+
 /* Cards */
 /* ---- Folders / chips ---- */
 .lib-folders {
@@ -120,4 +164,3 @@
     font-family: var(--mono);
     color: var(--t4);
 }
-

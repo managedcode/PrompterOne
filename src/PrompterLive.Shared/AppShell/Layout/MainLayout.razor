@@ -69,6 +69,18 @@
                        data-testid="@UiTestIds.Header.LibrarySearch" />
             </div>
             <button type="button"
+                    class="btn-golive-header"
+                    @onclick="HandleOpenGoLiveClickAsync"
+                    data-live-state="@GoLiveIndicatorState"
+                    data-testid="@UiTestIds.Header.GoLive">
+                <span class="btn-golive-dot" aria-hidden="true"></span>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="23,7 16,12 23,17" />
+                    <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                </svg>
+                @Text(UiTextKey.HeaderGoLive)
+            </button>
+            <button type="button"
                     class="btn-create"
                     @onclick="HandleCreateScriptClickAsync"
                     data-testid="@UiTestIds.Header.LibraryNewScript">
@@ -77,6 +89,31 @@
                     <line x1="5" y1="12" x2="19" y2="12" />
                 </svg>
                 @Text(UiTextKey.HeaderNewScript)
+            </button>
+        }
+        else
+        {
+            <button type="button"
+                    class="btn-live-shell"
+                    @onclick="HandleOpenGoLiveClickAsync"
+                    data-live-state="@GoLiveIndicatorState"
+                    data-testid="@UiTestIds.Header.GoLive">
+                <span class="btn-live-shell-icon" aria-hidden="true">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 12a8 8 0 0 1 8-8" />
+                        <path d="M20 12a8 8 0 0 0-8-8" />
+                        <path d="M4 12a8 8 0 0 0 8 8" />
+                        <path d="M20 12a8 8 0 0 1-8 8" />
+                        <circle cx="12" cy="12" r="2.5" />
+                    </svg>
+                </span>
+                <span class="btn-live-shell-copy">
+                    <span class="btn-live-shell-label">@Text(UiTextKey.HeaderGoLive)</span>
+                    @if (GoLiveSessionState.HasActiveSession)
+                    {
+                        <span class="btn-live-shell-status">@GoLiveIndicatorCopy</span>
+                    }
+                </span>
             </button>
         }
 
@@ -93,29 +130,6 @@
                 @Text(UiTextKey.HeaderLearn)
             </button>
         }
-
-        <button type="button"
-                class="btn-live-shell"
-                @onclick="HandleOpenGoLiveClickAsync"
-                data-live-state="@GoLiveIndicatorState"
-                data-testid="@UiTestIds.Header.GoLive">
-            <span class="btn-live-shell-icon" aria-hidden="true">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M4 12a8 8 0 0 1 8-8" />
-                    <path d="M20 12a8 8 0 0 0-8-8" />
-                    <path d="M4 12a8 8 0 0 0 8 8" />
-                    <path d="M20 12a8 8 0 0 1-8 8" />
-                    <circle cx="12" cy="12" r="2.5" />
-                </svg>
-            </span>
-            <span class="btn-live-shell-copy">
-                <span class="btn-live-shell-label">@Text(UiTextKey.HeaderGoLive)</span>
-                @if (GoLiveSessionState.HasActiveSession)
-                {
-                    <span class="btn-live-shell-status">@GoLiveIndicatorCopy</span>
-                }
-            </span>
-        </button>
 
         @if (ShowLearnWpmBadge)
         {

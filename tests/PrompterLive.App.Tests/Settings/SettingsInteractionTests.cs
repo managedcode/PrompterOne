@@ -91,20 +91,48 @@ public sealed class SettingsInteractionTests : BunitContext
     {
         var cut = Render<SettingsPage>();
 
-        cut.WaitForAssertion(() => Assert.Contains(UiTestIds.Settings.DefaultCamera, cut.Markup, StringComparison.Ordinal));
+        cut.WaitForAssertion(() => Assert.Contains(UiTestIds.Settings.CameraResolution, cut.Markup, StringComparison.Ordinal));
 
         cut.FindByTestId(UiTestIds.Settings.CameraResolution).Change(CameraResolutionPreset.Hd720.ToString());
-        cut.FindByTestId(UiTestIds.Settings.CameraFrameRate).Change(AppTestData.Camera.FrameRateFps24);
         cut.FindByTestId(UiTestIds.Settings.CameraMirrorToggle).Click();
         cut.FindByTestId(UiTestIds.Settings.MicLevel).Input(82);
         cut.FindByTestId(UiTestIds.Settings.NoiseSuppression).Click();
 
         var settings = _harness.JsRuntime.GetSavedValue<StudioSettings>(StudioSettingsStore.StorageKey);
         Assert.Equal(CameraResolutionPreset.Hd720, settings.Camera.Resolution);
-        Assert.Equal(CameraFrameRatePreset.Fps24, settings.Camera.FrameRate);
         Assert.False(settings.Camera.MirrorCamera);
         Assert.Equal(82, settings.Microphone.InputLevelPercent);
         Assert.False(settings.Microphone.NoiseSuppression);
+    }
+
+    [Fact]
+    public void AppearanceThemeChoice_PersistsAndCallsBrowserThemeInterop()
+    {
+        var cut = Render<SettingsPage>();
+
+        cut.WaitForAssertion(() => Assert.Contains(UiTestIds.Settings.NavAppearance, cut.Markup, StringComparison.Ordinal));
+
+        var applyInvocationCount = _harness.JsRuntime.InvocationRecords.Count(record =>
+            string.Equals(record.Identifier, AppTestData.Theme.ApplySettingsInvocation, StringComparison.Ordinal));
+
+        cut.FindByTestId(UiTestIds.Settings.NavAppearance).Click();
+        cut.FindByTestId(UiTestIds.Settings.ThemeOption(AppTestData.Theme.LightColorScheme))
+            .QuerySelector("input")!
+            .Change(true);
+
+        var savedPreferences = _harness.JsRuntime.GetSavedValue<SettingsPagePreferences>(SettingsPagePreferences.StorageKey);
+        Assert.Equal(SettingsAppearanceValues.LightColorScheme, savedPreferences.ColorScheme);
+
+        var themeInvocations = _harness.JsRuntime.InvocationRecords
+            .Where(record => string.Equals(record.Identifier, AppTestData.Theme.ApplySettingsInvocation, StringComparison.Ordinal))
+            .ToList();
+
+        Assert.True(themeInvocations.Count > applyInvocationCount);
+
+        var latestInvocation = themeInvocations[^1];
+        Assert.Equal(AppTestData.Theme.LightColorScheme, latestInvocation.Arguments[0]?.ToString());
+        Assert.Equal(savedPreferences.AccentColor, latestInvocation.Arguments[1]?.ToString());
+        Assert.Equal(savedPreferences.UiDensity, latestInvocation.Arguments[2]?.ToString());
     }
 
     [Fact]

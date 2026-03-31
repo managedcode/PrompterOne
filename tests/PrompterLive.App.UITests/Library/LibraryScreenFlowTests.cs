@@ -5,12 +5,22 @@ namespace PrompterLive.App.UITests;
 
 public sealed class LibraryScreenFlowTests(StandaloneAppFixture fixture) : AppUiTestBase(fixture), IClassFixture<StandaloneAppFixture>
 {
+    private const string StartupScenarioName = "library-startup";
+    private const string StartupScenarioStep = "loaded";
+
     [Fact]
     public Task LibraryScreen_NavigatesIntoEditorAndSettings() =>
         RunPageAsync(async page =>
         {
             await page.GotoAsync(BrowserTestConstants.Routes.Library);
             await Expect(page.GetByTestId(UiTestIds.Library.Page)).ToBeVisibleAsync();
+            await Expect(page.GetByTestId(UiTestIds.Header.LibraryBreadcrumbCurrent))
+                .ToHaveTextAsync(BrowserTestConstants.Folders.PresentationsName);
+            await Expect(page.GetByTestId(UiTestIds.Header.GoLive))
+                .ToHaveClassAsync(BrowserTestConstants.Regexes.GoLiveHeaderClass);
+            await Expect(page.GetByTestId(UiTestIds.Library.FolderChips)).ToHaveCountAsync(0);
+            UiScenarioArtifacts.ResetScenario(StartupScenarioName);
+            await UiScenarioArtifacts.CapturePageAsync(page, StartupScenarioName, StartupScenarioStep);
             var demoCard = page.GetByTestId(BrowserTestConstants.Elements.DemoCard);
             await Expect(demoCard).ToContainTextAsync(BrowserTestConstants.Scripts.ProductLaunchTitle);
             await Expect(demoCard.Locator(BrowserTestConstants.Selectors.CardCoverMeta))
@@ -96,26 +106,28 @@ public sealed class LibraryScreenFlowTests(StandaloneAppFixture fixture) : AppUi
         });
 
     [Fact]
-    public Task LibraryScreen_FolderChipsFilterCards() =>
+    public Task LibraryScreen_SidebarFoldersFilterCards() =>
         RunPageAsync(async page =>
         {
             await page.GotoAsync(BrowserTestConstants.Routes.Library);
-            await Expect(page.GetByTestId(UiTestIds.Library.FolderChips)).ToBeVisibleAsync();
-            await Expect(page.GetByTestId(BrowserTestConstants.Elements.TedTalksChip)).ToBeVisibleAsync();
-            await Expect(page.GetByTestId(BrowserTestConstants.Elements.PresentationsChip)).ToBeVisibleAsync();
+            await Expect(page.GetByTestId(UiTestIds.Library.FolderChips)).ToHaveCountAsync(0);
+            var tedTalksFolder = page.GetByTestId(BrowserTestConstants.Elements.TedTalksFolder);
+            var presentationsFolder = page.GetByTestId(BrowserTestConstants.Elements.PresentationsFolder);
+            await Expect(tedTalksFolder).ToBeVisibleAsync();
+            await Expect(presentationsFolder).ToBeVisibleAsync();
 
-            await page.GetByTestId(BrowserTestConstants.Elements.TedTalksChip).ClickAsync();
+            await tedTalksFolder.ClickAsync();
 
-            await Expect(page.GetByTestId(BrowserTestConstants.Elements.TedTalksChip)).ToHaveClassAsync(BrowserTestConstants.Regexes.ActiveClass);
+            await Expect(tedTalksFolder).ToHaveClassAsync(BrowserTestConstants.Regexes.ActiveClass);
             await Expect(page.GetByTestId(BrowserTestConstants.Elements.LeadershipCard)).ToContainTextAsync(BrowserTestConstants.Scripts.LeadershipTitle);
             await Expect(page.GetByTestId(BrowserTestConstants.Elements.DemoCard)).ToBeHiddenAsync();
             await Expect(page.GetByTestId(UiTestIds.Header.LibraryBreadcrumbCurrent)).ToHaveTextAsync(BrowserTestConstants.Folders.TedTalksName);
 
-            await page.GetByTestId(BrowserTestConstants.Elements.PresentationsChip).ClickAsync();
+            await page.GetByTestId(UiTestIds.Library.FolderAll).ClickAsync();
 
-            await Expect(page.GetByTestId(BrowserTestConstants.Elements.PresentationsChip)).ToHaveClassAsync(BrowserTestConstants.Regexes.ActiveClass);
+            await Expect(page.GetByTestId(UiTestIds.Library.FolderAll)).ToHaveClassAsync(BrowserTestConstants.Regexes.ActiveClass);
             await Expect(page.GetByTestId(BrowserTestConstants.Elements.DemoCard)).ToContainTextAsync(BrowserTestConstants.Scripts.ProductLaunchTitle);
-            await Expect(page.GetByTestId(BrowserTestConstants.Elements.LeadershipCard)).ToBeHiddenAsync();
+            await Expect(page.GetByTestId(BrowserTestConstants.Elements.LeadershipCard)).ToContainTextAsync(BrowserTestConstants.Scripts.LeadershipTitle);
         });
 
     [Fact]

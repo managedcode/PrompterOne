@@ -1,4 +1,6 @@
 @namespace PrompterLive.Shared.Components.Settings
+@using Microsoft.AspNetCore.Components
+@using PrompterLive.Shared.Settings.Models
 
 <section class="set-section set-panel"
          id="set-appearance"
@@ -31,6 +33,7 @@
                         @foreach (var option in ThemeOptions)
                         {
                             <label class="@(option.Value == ColorScheme ? "set-theme-opt active" : "set-theme-opt")"
+                                   data-testid="@UiTestIds.Settings.ThemeOption(option.Value)"
                                    @onclick:stopPropagation="true">
                                 <input type="radio"
                                        name="theme"
@@ -60,7 +63,7 @@
         </SettingsExpandableCard>
 
         <SettingsExpandableCard Title="Teleprompter Display"
-                                Subtitle="@($"{TeleprompterFont} · {TeleprompterFontSize}px")"
+                                Subtitle="Font · Size · Mirror · Background"
                                 IconStyle="background:rgba(59,130,246,.10); color:#60A5FA;"
                                 IsOpen="@IsCardOpen(TeleprompterCardId)"
                                 OnToggle="@(() => ToggleCard.InvokeAsync(TeleprompterCardId))">
@@ -126,7 +129,7 @@
         </SettingsExpandableCard>
 
         <SettingsExpandableCard Title="Interface"
-                                Subtitle="Density · Motion · Shortcuts"
+                                Subtitle="Density · Animations · Sidebar"
                                 IconStyle="background:rgba(139,92,246,.10); color:#A78BFA;"
                                 IsOpen="@IsCardOpen(InterfaceCardId)"
                                 OnToggle="@(() => ToggleCard.InvokeAsync(InterfaceCardId))">
@@ -168,22 +171,6 @@
                         <div class="set-toggle-thumb"></div>
                     </div>
                 </div>
-                <div class="set-field set-field-toggle">
-                    <label>Show Header Chrome</label>
-                    <div class="@ShowHeaderChromeToggleCssClass"
-                         @onclick="ToggleShowHeaderChrome"
-                         @onclick:stopPropagation="true">
-                        <div class="set-toggle-thumb"></div>
-                    </div>
-                </div>
-                <div class="set-field set-field-toggle">
-                    <label>Use Ambient Gradient Motion</label>
-                    <div class="@AmbientGradientMotionToggleCssClass"
-                         @onclick="ToggleAmbientGradientMotion"
-                         @onclick:stopPropagation="true">
-                        <div class="set-toggle-thumb"></div>
-                    </div>
-                </div>
             </div>
         </SettingsExpandableCard>
     </div>
@@ -206,9 +193,9 @@
 
     private static readonly ThemeOption[] DensityOptions =
     [
-        new("compact", "Compact", "background:rgba(196,160,96,.08);display:flex;align-items:center;justify-content:center;", "<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" style=\"color:var(--t3)\"><line x1=\"4\" y1=\"6\" x2=\"20\" y2=\"6\"/><line x1=\"4\" y1=\"12\" x2=\"20\" y2=\"12\"/><line x1=\"4\" y1=\"18\" x2=\"20\" y2=\"18\"/></svg>"),
-        new("default", "Default", "background:rgba(196,160,96,.08);display:flex;align-items:center;justify-content:center;", "<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" style=\"color:var(--gold)\"><line x1=\"4\" y1=\"7\" x2=\"20\" y2=\"7\"/><line x1=\"4\" y1=\"14\" x2=\"20\" y2=\"14\"/></svg>"),
-        new("spacious", "Spacious", "background:rgba(196,160,96,.08);display:flex;align-items:center;justify-content:center;", "<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" style=\"color:var(--t3)\"><line x1=\"4\" y1=\"8\" x2=\"20\" y2=\"8\"/><line x1=\"4\" y1=\"16\" x2=\"20\" y2=\"16\"/></svg>")
+        new(SettingsAppearanceValues.CompactDensity, "Compact", "background:rgba(196,160,96,.08);display:flex;align-items:center;justify-content:center;", "<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" style=\"color:var(--t3)\"><line x1=\"4\" y1=\"6\" x2=\"20\" y2=\"6\"/><line x1=\"4\" y1=\"12\" x2=\"20\" y2=\"12\"/><line x1=\"4\" y1=\"18\" x2=\"20\" y2=\"18\"/></svg>"),
+        new(SettingsAppearanceValues.DefaultDensity, "Default", "background:rgba(196,160,96,.08);display:flex;align-items:center;justify-content:center;", "<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" style=\"color:var(--gold)\"><line x1=\"4\" y1=\"7\" x2=\"20\" y2=\"7\"/><line x1=\"4\" y1=\"14\" x2=\"20\" y2=\"14\"/></svg>"),
+        new(SettingsAppearanceValues.SpaciousDensity, "Spacious", "background:rgba(196,160,96,.08);display:flex;align-items:center;justify-content:center;", "<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" style=\"color:var(--t3)\"><line x1=\"4\" y1=\"8\" x2=\"20\" y2=\"8\"/><line x1=\"4\" y1=\"16\" x2=\"20\" y2=\"16\"/></svg>")
     ];
 
     private static readonly ThemeOption[] TextColorOptions =
@@ -221,38 +208,34 @@
 
     private static readonly ThemeOption[] ThemeOptions =
     [
-        new("dark", "Dark", "background:linear-gradient(135deg,#0a0e14,#141c28)", "<svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" style=\"color:rgba(196,160,96,.7)\"><path d=\"M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z\"/></svg>"),
-        new("light", "Light", "background:linear-gradient(135deg,#f0ebe4,#e0d8cc)", "<svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#8B7355\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"5\"/><line x1=\"12\" y1=\"1\" x2=\"12\" y2=\"3\"/><line x1=\"12\" y1=\"21\" x2=\"12\" y2=\"23\"/></svg>"),
-        new("system", "System", "background:linear-gradient(135deg,#0a0e14 50%,#f0ebe4 50%)", "<svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" style=\"color:rgba(196,160,96,.9)\"><rect x=\"2\" y=\"3\" width=\"20\" height=\"14\" rx=\"2\"/><line x1=\"8\" y1=\"21\" x2=\"16\" y2=\"21\"/><line x1=\"12\" y1=\"17\" x2=\"12\" y2=\"21\"/></svg>")
+        new(SettingsAppearanceValues.DarkColorScheme, "Dark", "background:linear-gradient(135deg,#0a0e14,#141c28)", "<svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" style=\"color:rgba(196,160,96,.7)\"><path d=\"M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z\"/></svg>"),
+        new(SettingsAppearanceValues.LightColorScheme, "Light", "background:linear-gradient(135deg,#f0ebe4,#e0d8cc)", "<svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#8B7355\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"5\"/><line x1=\"12\" y1=\"1\" x2=\"12\" y2=\"3\"/><line x1=\"12\" y1=\"21\" x2=\"12\" y2=\"23\"/></svg>"),
+        new(SettingsAppearanceValues.SystemColorScheme, "System", "background:linear-gradient(135deg,#0a0e14 50%,#f0ebe4 50%)", "<svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" style=\"color:rgba(196,160,96,.9)\"><rect x=\"2\" y=\"3\" width=\"20\" height=\"14\" rx=\"2\"/><line x1=\"8\" y1=\"21\" x2=\"16\" y2=\"21\"/><line x1=\"12\" y1=\"17\" x2=\"12\" y2=\"21\"/></svg>")
     ];
 
     private string ThemeSubtitle =>
         ColorScheme switch
         {
-            "light" => "Light · Custom accent",
-            "system" => "System · Custom accent",
+            SettingsAppearanceValues.LightColorScheme => "Light · Custom accent",
+            SettingsAppearanceValues.SystemColorScheme => "System · Custom accent",
             _ => "Dark · Gold accent"
         };
 
     [Parameter] public string AccentColor { get; set; } = string.Empty;
-    [Parameter] public string AmbientGradientMotionToggleCssClass { get; set; } = string.Empty;
     [Parameter] public string ColorScheme { get; set; } = string.Empty;
     [Parameter] public string DisplayStyle { get; set; } = string.Empty;
     [Parameter] public Func<string, bool> IsCardOpen { get; set; } = static _ => false;
     [Parameter] public bool MirrorTeleprompterText { get; set; }
     [Parameter] public bool ReduceMotion { get; set; }
     [Parameter] public bool ShowShortcutOverlay { get; set; }
-    [Parameter] public string ShowHeaderChromeToggleCssClass { get; set; } = string.Empty;
     [Parameter] public bool ShowWordHighlight { get; set; }
     [Parameter] public string TeleprompterFont { get; set; } = string.Empty;
     [Parameter] public int TeleprompterFontSize { get; set; }
     [Parameter] public string TeleprompterTextColor { get; set; } = string.Empty;
     [Parameter] public string UiDensity { get; set; } = string.Empty;
     [Parameter] public EventCallback<string> ToggleCard { get; set; }
-    [Parameter] public EventCallback ToggleAmbientGradientMotion { get; set; }
     [Parameter] public EventCallback ToggleMirrorTeleprompterText { get; set; }
     [Parameter] public EventCallback ToggleReduceMotion { get; set; }
-    [Parameter] public EventCallback ToggleShowHeaderChrome { get; set; }
     [Parameter] public EventCallback ToggleShowShortcutOverlay { get; set; }
     [Parameter] public EventCallback ToggleShowWordHighlight { get; set; }
     [Parameter] public EventCallback<string> UpdateAccentColor { get; set; }
@@ -262,12 +245,12 @@
     [Parameter] public EventCallback<string> UpdateTeleprompterTextColor { get; set; }
     [Parameter] public EventCallback<string> UpdateUiDensity { get; set; }
 
-    private Task OnFontChanged(ChangeEventArgs args) =>
+    private void OnFontChanged(ChangeEventArgs args) =>
         UpdateTeleprompterFont.InvokeAsync(args.Value?.ToString() ?? string.Empty);
 
-    private sealed record ThemeOption(string Value, string Label)
+    private sealed record ThemeOption(string Label, string Value)
     {
-        public ThemeOption(string value, string label, string swatchStyle, string iconMarkup) : this(value, label)
+        public ThemeOption(string value, string label, string swatchStyle, string iconMarkup) : this(label, value)
         {
             SwatchStyle = swatchStyle;
             IconMarkup = iconMarkup;

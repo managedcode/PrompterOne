@@ -54,7 +54,6 @@ public partial class LibraryPage : ComponentBase, IDisposable
     private IReadOnlyList<StoredLibraryFolder> _folders = [];
     private IReadOnlyList<LibraryCardViewModel> _allCards = [];
     private IReadOnlyList<LibraryCardViewModel> _cards = [];
-    private IReadOnlyList<LibraryFolderChipViewModel> _folderChips = [];
     private IReadOnlyList<LibraryFolderNodeViewModel> _folderNodes = [];
     private IReadOnlyList<LibraryFolderOptionViewModel> _folderOptions = [];
     private HashSet<string> _expandedFolderIds = new(StringComparer.Ordinal);

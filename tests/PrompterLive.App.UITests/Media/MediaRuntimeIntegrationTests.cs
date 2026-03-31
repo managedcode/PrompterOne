@@ -17,10 +17,14 @@ public sealed class MediaRuntimeIntegrationTests(StandaloneAppFixture fixture) :
             await page.GotoAsync(BrowserTestConstants.Routes.Settings);
             await Expect(page.GetByTestId(UiTestIds.Settings.Page)).ToBeVisibleAsync();
             await page.GetByTestId(UiTestIds.Settings.NavCameras).ClickAsync();
-            await Expect(page.GetByTestId(UiTestIds.Settings.CamerasPanel)).ToBeVisibleAsync();
+            var camerasPanel = page.GetByTestId(UiTestIds.Settings.CamerasPanel);
+            await Expect(camerasPanel).ToBeVisibleAsync();
+            var requestMediaButton = camerasPanel.GetByTestId(UiTestIds.Settings.RequestMedia);
 
             await page.EvaluateAsync(BrowserTestConstants.Media.ClearRequestLogScript);
-            await page.GetByTestId(UiTestIds.Settings.RequestMedia).ClickAsync();
+            await requestMediaButton.ScrollIntoViewIfNeededAsync();
+            await Expect(requestMediaButton).ToBeVisibleAsync();
+            await requestMediaButton.ClickAsync();
 
             await page.WaitForFunctionAsync(
                 BrowserTestConstants.Media.HasAudioVideoRequestScript,
@@ -137,8 +141,11 @@ public sealed class MediaRuntimeIntegrationTests(StandaloneAppFixture fixture) :
             await page.GotoAsync(BrowserTestConstants.Routes.Settings);
             await Expect(page.GetByTestId(UiTestIds.Settings.Page)).ToBeVisibleAsync();
             await page.GetByTestId(UiTestIds.Settings.NavCameras).ClickAsync();
-            await Expect(page.GetByTestId(UiTestIds.Settings.CamerasPanel)).ToBeVisibleAsync();
-            await page.GetByTestId(UiTestIds.Settings.RequestMedia).ClickAsync();
+            var camerasPanel = page.GetByTestId(UiTestIds.Settings.CamerasPanel);
+            await Expect(camerasPanel).ToBeVisibleAsync();
+            var requestMediaButton = camerasPanel.GetByTestId(UiTestIds.Settings.RequestMedia);
+            await requestMediaButton.ScrollIntoViewIfNeededAsync();
+            await requestMediaButton.ClickAsync();
 
             await Expect(page.GetByTestId(UiTestIds.Settings.CameraDeviceAction(BrowserTestConstants.Media.SecondaryCameraId))).ToBeVisibleAsync();
             await page.GetByTestId(UiTestIds.Settings.CameraDeviceAction(BrowserTestConstants.Media.SecondaryCameraId)).ClickAsync();

@@ -65,11 +65,13 @@ internal static partial class BrowserTestConstants
         public const string AdjustedFocalPointPercent = "45";
         public static readonly Regex AdjustedFocalGuideStyle = new("top:\\s*45%", RegexOptions.Compiled);
         public const int AlignmentTimeoutMs = 1000;
+        public const string PauseToggleIconSelector = "[data-toggle-icon='pause']";
     }
 
     public static class Folders
     {
         public const string PresentationsId = "test-presentations";
+        public const string PresentationsName = "Presentations";
         public const string TedTalksId = "test-ted-talks";
         public const string RoadshowsId = "roadshows";
         public const string RoadshowsName = "Roadshows";
@@ -360,6 +362,8 @@ internal static partial class BrowserTestConstants
     {
         public const string ConnectivityOfflineTitle = "Connection lost";
         public const string ConnectivityOnlineTitle = "Connection restored";
+        public const string DispatchOfflineEventScript = "() => window.dispatchEvent(new Event('offline'))";
+        public const string DispatchOnlineEventScript = "() => window.dispatchEvent(new Event('online'))";
         public const string FolderCreateFailureToggleGlobal = "__prompterFailFolderCreate";
         public const string ForcedFailureDetail = "Forced diagnostics failure from browser test.";
         public const string CreateFolderFailure = "Unable to create this folder.";
@@ -386,7 +390,9 @@ internal static partial class BrowserTestConstants
         public const int FloatingToolbarSettleDelayMs = 500;
         public const int LearnPlaybackDelayMs = 900;
         public const int ReaderPlaybackDelayMs = 2_500;
+        public const int ReaderPlaybackReadyTimeoutMs = 8_000;
         public const int ReaderPlaybackStartTimeoutMs = 5_000;
+        public const int ReaderPlaybackAdvanceTimeoutMs = 8_000;
         public const int ReaderTransitionSettleDelayMs = 1_100;
         public const int ReaderPostTransitionAdvanceDelayMs = 1_600;
         public const int ReaderAutomaticTransitionTimeoutMs = 14_000;
@@ -398,6 +404,7 @@ internal static partial class BrowserTestConstants
     public static class Regexes
     {
         public static Regex ActiveClass { get; } = new(@"\bactive\b", RegexOptions.Compiled);
+        public static Regex GoLiveHeaderClass { get; } = new(@"btn-golive-header", RegexOptions.Compiled);
         public static Regex ToggleOnClass { get; } = new(@"\bon\b", RegexOptions.Compiled);
         public static Regex NonZeroWidth { get; } = new(@"width:\s*0%", RegexOptions.Compiled);
         public static Regex ReaderTimeNotZero { get; } = new(@"^0:00 /", RegexOptions.Compiled);
@@ -443,10 +450,9 @@ internal static partial class BrowserTestConstants
         public static string DemoCard => UiTestIds.Library.Card(Scripts.DemoId);
         public static string SecurityIncidentCard => UiTestIds.Library.Card(Scripts.SecurityIncidentId);
         public static string LeadershipCard => UiTestIds.Library.Card(Scripts.LeadershipId);
-        public static string PresentationsChip => UiTestIds.Library.FolderChip(Folders.PresentationsId);
+        public static string PresentationsFolder => UiTestIds.Library.Folder(Folders.PresentationsId);
         public static string QuantumCard => UiTestIds.Library.Card(Scripts.QuantumId);
         public static string RoadshowsFolder => UiTestIds.Library.Folder(Folders.RoadshowsId);
-        public static string TedTalksChip => UiTestIds.Library.FolderChip(Folders.TedTalksId);
         public static string TedTalksFolder => UiTestIds.Library.Folder(Folders.TedTalksId);
     }
 }

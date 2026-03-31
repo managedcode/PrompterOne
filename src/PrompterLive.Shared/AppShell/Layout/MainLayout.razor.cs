@@ -21,6 +21,7 @@ public partial class MainLayout : LayoutComponentBase, IDisposable
     [Inject] private AppBootstrapper Bootstrapper { get; set; } = null!;
     [Inject] private AppShellService Shell { get; set; } = null!;
     [Inject] private BrowserConnectivityService Connectivity { get; set; } = null!;
+    [Inject] private BrowserThemeService ThemeService { get; set; } = null!;
     [Inject] private GoLiveSessionService GoLiveSession { get; set; } = null!;
     [Inject] private IScriptSessionService SessionService { get; set; } = null!;
     [Inject] private ILogger<MainLayout> Logger { get; set; } = null!;
@@ -138,6 +139,7 @@ public partial class MainLayout : LayoutComponentBase, IDisposable
             return;
         }
 
+        await ThemeService.InitializeAsync();
         await Connectivity.StartAsync();
         await Bootstrapper.EnsureReadyAsync();
     }

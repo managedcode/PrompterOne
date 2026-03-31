@@ -69,6 +69,12 @@ internal static class AppTestData
         public const string StopLevelMonitorInvocation = "BrowserMediaInterop.stopMicrophoneLevelMonitor";
     }
 
+    public static class Theme
+    {
+        public const string ApplySettingsInvocation = "prompterLiveTheme.applySettingsTheme";
+        public const string LightColorScheme = "light";
+    }
+
     public static class Editor
     {
         public const string TestSpeaker = "Test Speaker";

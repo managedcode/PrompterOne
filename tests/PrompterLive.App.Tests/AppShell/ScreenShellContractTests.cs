@@ -92,11 +92,11 @@ public sealed class ScreenShellContractTests : BunitContext
         {
             Assert.NotNull(cut.FindByTestId(UiTestIds.Settings.Page));
             Assert.Contains("Cloud Storage", cut.Markup);
-            Assert.Contains("Audio Sync + Routing", cut.Markup);
-            Assert.Contains("Frame Rate", cut.Markup);
-            Assert.Contains("Default Camera", cut.Markup);
-            Assert.Contains(AppTestData.Scripts.BroadcastMic, cut.Markup);
-            Assert.NotNull(cut.FindByTestId(UiTestIds.Settings.CameraRoutingCta));
+            Assert.Contains("Choose which cameras are available in GO LIVE", cut.Markup);
+            Assert.Contains("Mute all microphones when not in GO LIVE", cut.Markup);
+            Assert.Contains("Teleprompter Display", cut.Markup);
+            Assert.NotNull(cut.FindByTestId(UiTestIds.Settings.MicPreviewCard));
+            Assert.NotNull(cut.FindByTestId(UiTestIds.Settings.CameraPrimaryAction(AppTestData.Camera.FirstDeviceId)));
         });
     }
 

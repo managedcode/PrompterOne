@@ -209,18 +209,19 @@ public sealed class StudioWorkflowScenarioTests(StandaloneAppFixture fixture) : 
         await page.GotoAsync(BrowserTestConstants.Routes.Settings);
         await Expect(page.GetByTestId(UiTestIds.Settings.Page)).ToBeVisibleAsync();
         await page.GetByTestId(UiTestIds.Settings.NavCameras).ClickAsync();
-        await page.GetByTestId(UiTestIds.Settings.RequestMedia).ClickAsync();
+        var camerasPanel = page.GetByTestId(UiTestIds.Settings.CamerasPanel);
+        var requestMediaButton = camerasPanel.GetByTestId(UiTestIds.Settings.RequestMedia);
+        await requestMediaButton.ScrollIntoViewIfNeededAsync();
+        await requestMediaButton.ClickAsync();
         await Expect(page.GetByTestId(UiTestIds.Settings.CameraDevice(BrowserTestConstants.Media.PrimaryCameraId))).ToBeVisibleAsync();
-        await page.GetByTestId(UiTestIds.Settings.DefaultCamera).SelectOptionAsync([BrowserTestConstants.Media.PrimaryCameraId]);
         await page.GetByTestId(UiTestIds.Settings.CameraResolution).SelectOptionAsync([BrowserTestConstants.Streaming.ResolutionHd720]);
-        await page.GetByTestId(UiTestIds.Settings.CameraFrameRate).SelectOptionAsync([BrowserTestConstants.Streaming.CameraFrameRateFps24]);
         await page.GetByTestId(UiTestIds.Settings.CameraDeviceAction(BrowserTestConstants.Media.SecondaryCameraId)).ClickAsync();
 
         await page.GetByTestId(UiTestIds.Settings.NavMics).ClickAsync();
         await Expect(page.GetByTestId(UiTestIds.Settings.MicDevice(BrowserTestConstants.Media.PrimaryMicrophoneId))).ToBeVisibleAsync();
-        await page.GetByTestId(UiTestIds.Settings.PrimaryMic).SelectOptionAsync([BrowserTestConstants.Media.PrimaryMicrophoneId]);
         await SetRangeValueAsync(page.GetByTestId(UiTestIds.Settings.MicLevel), BrowserTestConstants.LiveWorkflow.MicLevelPercent);
-        await SetRangeValueAsync(page.GetByTestId(UiTestIds.Settings.MicDelay(BrowserTestConstants.Media.PrimaryMicrophoneId)), BrowserTestConstants.LiveWorkflow.MicDelayMilliseconds);
+        await page.GetByTestId(UiTestIds.Settings.MicDelay(BrowserTestConstants.Media.PrimaryMicrophoneId))
+            .FillAsync(BrowserTestConstants.LiveWorkflow.MicDelayMilliseconds);
         await UiScenarioArtifacts.CapturePageAsync(page, BrowserTestConstants.LiveWorkflow.Name, BrowserTestConstants.LiveWorkflow.SettingsConfiguredStep);
     }
 

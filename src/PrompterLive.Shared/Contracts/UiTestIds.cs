@@ -205,7 +205,7 @@ public static class UiTestIds
         public const string CameraPreviewEmpty = "settings-camera-preview-empty";
         public const string CameraPreviewLabel = "settings-camera-preview-label";
         public const string CameraPreviewVideo = "settings-camera-preview-video";
-        public const string CameraRoutingCta = "settings-camera-routing-cta";
+        public const string CameraRoutingCta = Header.GoLive;
         public const string CameraMirrorToggle = "settings-camera-mirror-toggle";
         public const string CameraResolution = "settings-camera-resolution";
         public const string CamerasPanel = "settings-cameras-panel";
@@ -279,9 +279,13 @@ public static class UiTestIds
 
         public static string CameraDeviceAction(string deviceId) => $"settings-camera-device-action-{deviceId}";
 
+        public static string CameraPrimaryAction(string deviceId) => $"settings-camera-primary-{deviceId}";
+
         public static string MicDelay(string deviceId) => $"settings-mic-delay-{deviceId}";
 
         public static string MicDevice(string deviceId) => $"settings-mic-device-{deviceId}";
+
+        public static string ThemeOption(string value) => $"settings-theme-option-{value}";
 
         public static string SceneCamera(string sourceId) => $"settings-scene-camera-{sourceId}";
 

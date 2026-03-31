@@ -97,20 +97,21 @@ public sealed class LibraryFolderInteractionTests : BunitContext
     }
 
     [Fact]
-    public void LibraryPage_SelectsFolderChip_AndFiltersCards()
+    public void LibraryPage_SelectsSidebarFolder_AndFiltersCards()
     {
         var cut = Render<LibraryPage>();
 
         cut.WaitForAssertion(() => Assert.Contains(AppTestData.Scripts.DemoTitle, cut.Markup));
 
-        var tedTalksChip = cut.FindByTestId(UiTestIds.Library.FolderChip(AppTestData.Folders.TedTalksId));
-        tedTalksChip.Click();
+        var tedTalksFolder = cut.FindByTestId(UiTestIds.Library.Folder(AppTestData.Folders.TedTalksId));
+        tedTalksFolder.Click();
 
         cut.WaitForAssertion(() =>
         {
             Assert.Contains(AppTestData.Scripts.TedLeadershipTitle, cut.Markup);
             Assert.DoesNotContain(AppTestData.Scripts.DemoTitle, cut.Markup);
-            Assert.Contains("active", tedTalksChip.ClassName, StringComparison.Ordinal);
+            Assert.Contains("active", tedTalksFolder.ClassName, StringComparison.Ordinal);
+            Assert.DoesNotContain(UiTestIds.Library.FolderChips, cut.Markup, StringComparison.Ordinal);
         });
     }
 

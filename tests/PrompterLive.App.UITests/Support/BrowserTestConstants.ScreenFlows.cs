@@ -20,8 +20,11 @@ internal static partial class BrowserTestConstants
 
     public static class SettingsFlow
     {
+        public const string HtmlThemeAttribute = "data-theme";
+        public const string LightTheme = "light";
         public const string OpenAiProviderId = "openai";
         public const string MicLevelPercentText = "82%";
+        public const string MicLevelValue = "82";
         public const double NavItemLayoutTolerancePx = 0.5;
         public const string MicLevelInputScript =
             "element => { element.value = '82'; element.dispatchEvent(new Event('input', { bubbles: true })); }";

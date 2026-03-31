@@ -28,9 +28,16 @@
             </span>
             <span class="set-device-meta">@MonitorDescription</span>
         </div>
-        <span class="live-status @(CanMonitor ? ReadyStatusCssClass : PendingStatusCssClass)">
-            @(CanMonitor ? ReadyStatusLabel : PendingStatusLabel)
-        </span>
+        @if (HeaderAction is not null)
+        {
+            @HeaderAction
+        }
+        else
+        {
+            <span class="live-status @(CanMonitor ? ReadyStatusCssClass : PendingStatusCssClass)">
+                @(CanMonitor ? ReadyStatusLabel : PendingStatusLabel)
+            </span>
+        }
     </div>
 
     @if (CanRenderMonitor)
@@ -55,6 +62,13 @@
                 <div class="set-account-name">@EmptyTitle</div>
                 <div class="live-card-desc">@EmptyDescription</div>
             </div>
+        </div>
+    }
+
+    @if (ChildContent is not null)
+    {
+        <div class="set-device-body">
+            @ChildContent
         </div>
     }
 </section>
@@ -82,7 +96,13 @@
 
     [Parameter] public MediaDeviceInfo? Microphone { get; set; }
 
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
     [Parameter] public string Description { get; set; } = DefaultDescription;
+
+    [Parameter] public RenderFragment? HeaderAction { get; set; }
+
+    [Parameter] public string MetaText { get; set; } = string.Empty;
 
     [Parameter] public string Title { get; set; } = DefaultTitle;
 
@@ -102,7 +122,10 @@
 
     private string MicrophoneLabel => Microphone?.Label ?? string.Empty;
 
-    private string MonitorDescription => CanRenderMonitor ? PreviewDescription : EmptyDescription;
+    private string MonitorDescription =>
+        CanRenderMonitor
+            ? string.IsNullOrWhiteSpace(MetaText) ? PreviewDescription : MetaText
+            : EmptyDescription;
 
     private string MonitorFillStyle =>
         string.Format(CultureInfo.InvariantCulture, "width: {0}%;", _levelPercent);

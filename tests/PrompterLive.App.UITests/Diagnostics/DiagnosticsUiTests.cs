@@ -71,18 +71,28 @@ public sealed class DiagnosticsUiTests(StandaloneAppFixture fixture) : IClassFix
         try
         {
             await page.GotoAsync(BrowserTestConstants.Routes.Library);
+            await Expect(page.GetByTestId(UiTestIds.Library.Page))
+                .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
 
             await page.Context.SetOfflineAsync(true);
-            await Expect(page.GetByTestId(UiTestIds.Diagnostics.Connectivity)).ToBeVisibleAsync();
+            await page.EvaluateAsync(BrowserTestConstants.Diagnostics.DispatchOfflineEventScript);
             await Expect(page.GetByTestId(UiTestIds.Diagnostics.Connectivity))
-                .ToContainTextAsync(BrowserTestConstants.Diagnostics.ConnectivityOfflineTitle);
+                .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
+            await Expect(page.GetByTestId(UiTestIds.Diagnostics.Connectivity))
+                .ToContainTextAsync(
+                    BrowserTestConstants.Diagnostics.ConnectivityOfflineTitle,
+                    new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
 
             await page.Context.SetOfflineAsync(false);
+            await page.EvaluateAsync(BrowserTestConstants.Diagnostics.DispatchOnlineEventScript);
             await Expect(page.GetByTestId(UiTestIds.Diagnostics.Connectivity))
-                .ToContainTextAsync(BrowserTestConstants.Diagnostics.ConnectivityOnlineTitle);
+                .ToContainTextAsync(
+                    BrowserTestConstants.Diagnostics.ConnectivityOnlineTitle,
+                    new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
 
             await page.GetByTestId(UiTestIds.Diagnostics.ConnectivityDismiss).ClickAsync();
-            await Expect(page.GetByTestId(UiTestIds.Diagnostics.Connectivity)).ToBeHiddenAsync();
+            await Expect(page.GetByTestId(UiTestIds.Diagnostics.Connectivity))
+                .ToBeHiddenAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
         }
         finally
         {

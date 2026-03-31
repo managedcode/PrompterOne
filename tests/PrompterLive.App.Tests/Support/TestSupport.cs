@@ -60,6 +60,7 @@ internal static class TestHarnessFactory
         var shell = new AppShellService();
         var bootstrapper = new AppBootstrapper(
             session,
+            repository,
             folderRepository,
             sceneService,
             settingsStore,
@@ -95,6 +96,7 @@ internal static class TestHarnessFactory
         context.Services.AddSingleton<RsvpEmotionAnalyzer>();
         context.Services.AddSingleton<RsvpPlaybackEngine>();
         context.Services.AddSingleton(settingsStore);
+        context.Services.AddSingleton<BrowserThemeService>();
         context.Services.AddSingleton(shell);
         context.Services.AddSingleton<StudioSettingsStore>();
         context.Services.AddSingleton<CameraPreviewInterop>();

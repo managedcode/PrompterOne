@@ -108,6 +108,7 @@ Browser test execution rules:
 - Inside that single process, the browser suite may run up to `4` parallel xUnit workers.
 - Do not run `PrompterLive.App.UITests` in parallel with another `dotnet build` or `dotnet test` command.
 - If a prior build already ran, prefer `dotnet test ... --no-build` for the browser suite.
+- Do not add Python or ad-hoc runner scripts to bootstrap browser verification. The repo test commands must self-host the app and execute the flows end to end on their own.
 - Browser UI scenarios are the primary acceptance gate for this repo. Component and core tests are supporting layers, not the release bar.
 - Major user flows MUST be covered by long Playwright scenarios that execute real browser interactions end to end.
 - Major browser scenarios MUST capture screenshot artifacts under `output/playwright/`.

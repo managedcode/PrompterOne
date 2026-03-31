@@ -16,7 +16,6 @@ public partial class LibraryPage
     private void RebuildLibraryView()
     {
         _folderNodes = LibraryFolderTreeBuilder.BuildTree(_folders, _allCards, _selectedFolderId, _expandedFolderIds);
-        _folderChips = LibraryFolderTreeBuilder.BuildChips(_folders, _allCards, _selectedFolderId);
         _folderOptions = LibraryFolderTreeBuilder.BuildOptions(_folders);
         _cards = SortCards(FilterCards()).ToList();
         Shell.ShowLibrary(ResolveSelectedFolderLabel());

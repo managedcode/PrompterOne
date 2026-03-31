@@ -23,4 +23,28 @@ public sealed class MainLayoutActionTests : BunitContext
 
         cut.WaitForAssertion(() => Assert.NotNull(cut.FindByTestId(UiTestIds.Header.GoLive)));
     }
+
+    [Fact]
+    public void MainLayout_LibraryHeaderMatchesReferenceActionOrder()
+    {
+        _ = TestHarnessFactory.Create(this);
+        var navigation = Services.GetRequiredService<NavigationManager>();
+        navigation.NavigateTo(AppRoutes.Library);
+
+        var cut = Render<MainLayout>(parameters => parameters
+            .Add(layout => layout.Body, (RenderFragment)(builder => builder.AddMarkupContent(0, "<div>Body</div>"))));
+
+        cut.WaitForAssertion(() =>
+        {
+            var goLive = cut.FindByTestId(UiTestIds.Header.GoLive);
+            var newScript = cut.FindByTestId(UiTestIds.Header.LibraryNewScript);
+
+            Assert.Contains("btn-golive-header", goLive.ClassName, StringComparison.Ordinal);
+            Assert.Contains("btn-create", newScript.ClassName, StringComparison.Ordinal);
+
+            var goLiveIndex = cut.Markup.IndexOf(UiTestIds.Header.GoLive, StringComparison.Ordinal);
+            var newScriptIndex = cut.Markup.IndexOf(UiTestIds.Header.LibraryNewScript, StringComparison.Ordinal);
+            Assert.True(goLiveIndex >= 0 && newScriptIndex >= 0 && goLiveIndex < newScriptIndex);
+        });
+    }
 }

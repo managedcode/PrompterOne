@@ -103,4 +103,67 @@
 
     /* ---- Sidebar ---- */
     --sidebar-width: 260px;
+
+    /* ---- Accent (customizable) ---- */
+    --accent-color: #C4A060;
+    --accent-rgb: 196, 160, 96;
+}
+
+[data-theme="light"],
+.theme-light {
+    --bg-deep: #F5F0E8;
+    --bg-1: #FAF7F2;
+    --bg-2: #F0EBE4;
+    --bg-3: #E8E2D8;
+    --bg-4: #DED6C8;
+    --bg-5: #D4CBBA;
+    --gold: #8B7355;
+    --gold-text: #5C4D3D;
+    --gold-light: #A08060;
+    --gold-mid: #6B5A48;
+    --gold-gradient: linear-gradient(135deg, #8B7355, #6B5A48);
+    --gold-03: rgba(107,90,72,.03);
+    --gold-04: rgba(107,90,72,.04);
+    --gold-05: rgba(107,90,72,.05);
+    --gold-06: rgba(107,90,72,.06);
+    --gold-07: rgba(107,90,72,.08);
+    --gold-08: rgba(107,90,72,.10);
+    --gold-09: rgba(107,90,72,.12);
+    --gold-10: rgba(107,90,72,.14);
+    --gold-12: rgba(107,90,72,.18);
+    --gold-14: rgba(107,90,72,.22);
+    --gold-15: rgba(107,90,72,.25);
+    --gold-16: rgba(107,90,72,.28);
+    --gold-20: rgba(107,90,72,.32);
+    --gold-25: rgba(107,90,72,.38);
+    --gold-30: rgba(107,90,72,.45);
+    --gold-35: rgba(107,90,72,.52);
+    --gold-45: rgba(107,90,72,.65);
+    --glass-bg: rgba(255,255,255,.65);
+    --glass-bg-light: rgba(255,255,255,.45);
+    --glass-border: 1px solid rgba(107,90,72,.12);
+    --glass-border-light: 1px solid rgba(107,90,72,.08);
+    --glass-shadow: 0 8px 32px rgba(107,90,72,.08);
+    --glass-inset: inset 0 1px 0 rgba(255,255,255,.8);
+    --text-1: #2C2418;
+    --text-2: #4A3F32;
+    --text-3: #6B5E4E;
+    --text-4: #8C7E6A;
+    --border-subtle: rgba(107,90,72,.06);
+    --border-default: rgba(107,90,72,.12);
+    --border-strong: rgba(107,90,72,.20);
+    --border-hover: rgba(107,90,72,.28);
+    --border-active: rgba(107,90,72,.40);
+    --tps-red: #DC2626;
+    --tps-green: #059669;
+    --tps-blue: #2563EB;
+    --tps-yellow: #B45309;
+    --tps-orange: #C2410C;
+    --tps-purple: #7C3AED;
+    --tps-cyan: #0891B2;
+    --tps-magenta: #BE185D;
+    --tps-pink: #DB2777;
+    --tps-teal: #0D9488;
+    --tps-gray: #4B5563;
+    --orp-red: #DC2626;
 }

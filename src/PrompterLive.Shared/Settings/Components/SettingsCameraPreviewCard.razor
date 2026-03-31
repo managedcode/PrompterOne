@@ -84,7 +84,9 @@
             ? PermissionTitle
             : NoCameraTitle;
 
-    private string PreviewDescription => PreviewReadyDescription;
+    private string PreviewDescription => string.IsNullOrWhiteSpace(Description)
+        ? PreviewReadyDescription
+        : Description;
 
     private string PreviewVideoStyle => BuildPreviewVideoStyle(MirrorHorizontal, MirrorVertical);
 

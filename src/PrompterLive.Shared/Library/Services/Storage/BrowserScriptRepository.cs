@@ -130,13 +130,16 @@ public sealed class BrowserScriptRepository(IJSRuntime jsRuntime) : IScriptRepos
         var nextDocuments = documents
             .Where(document => !LegacyLibrarySeedCatalog.IsLegacyDocument(document))
             .ToList();
-        var existingIds = nextDocuments
-            .Select(document => document.Id)
-            .ToHashSet(StringComparer.Ordinal);
-
-        foreach (var document in initialDocuments.Where(document => !existingIds.Contains(document.Id)).Select(ToDto))
+        if (nextDocuments.Count == 0)
         {
-            nextDocuments.Add(document);
+            var existingIds = nextDocuments
+                .Select(document => document.Id)
+                .ToHashSet(StringComparer.Ordinal);
+
+            foreach (var document in initialDocuments.Where(document => !existingIds.Contains(document.Id)).Select(ToDto))
+            {
+                nextDocuments.Add(document);
+            }
         }
 
         var shouldPersist = nextDocuments.Count != documents.Count ||

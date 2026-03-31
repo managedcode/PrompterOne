@@ -20,13 +20,16 @@ public sealed class BrowserLibraryFolderRepository(IJSRuntime jsRuntime) : ILibr
         var nextFolderDtos = folders
             .Where(folder => !LegacyLibrarySeedCatalog.IsLegacyFolder(folder))
             .ToList();
-        var existingIds = nextFolderDtos
-            .Select(folder => folder.Id)
-            .ToHashSet(StringComparer.Ordinal);
-
-        foreach (var folder in initialFolders.Where(folder => !existingIds.Contains(folder.Id)).Select(ToDto))
+        if (nextFolderDtos.Count == 0)
         {
-            nextFolderDtos.Add(folder);
+            var existingIds = nextFolderDtos
+                .Select(folder => folder.Id)
+                .ToHashSet(StringComparer.Ordinal);
+
+            foreach (var folder in initialFolders.Where(folder => !existingIds.Contains(folder.Id)).Select(ToDto))
+            {
+                nextFolderDtos.Add(folder);
+            }
         }
 
         var shouldPersist = nextFolderDtos.Count != folders.Count ||
