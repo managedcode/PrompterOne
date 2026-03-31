@@ -20,6 +20,7 @@ env:
   PAGES_ARTIFACT_ROOT: .artifacts/prompterlive-pages
   PAGES_BASE_PATH: /
   PAGES_CNAME: prompter.managed-code.com
+  PLAYWRIGHT_CLI: tests/PrompterLive.App.UITests/bin/Debug/net10.0/.playwright/package/cli.js
   PUBLISH_ROOT: .artifacts/prompterlive-publish
   RELEASE_ARCHIVE_NAME: prompterlive-pages.zip
   RELEASE_ARTIFACT_NAME: prompterlive-release-package
@@ -45,6 +46,9 @@ jobs:
 
       - name: Build solution
         run: dotnet build "$SOLUTION_FILE" -warnaserror
+
+      - name: Install Playwright browser
+        run: node "$PLAYWRIGHT_CLI" install chromium
 
       - name: Test solution
         run: dotnet test "$SOLUTION_FILE" --no-build
