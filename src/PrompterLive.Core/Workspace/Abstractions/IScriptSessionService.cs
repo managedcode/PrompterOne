@@ -13,8 +13,6 @@ public interface IScriptSessionService
 
     Task NewAsync(CancellationToken cancellationToken = default);
 
-    Task LoadSampleAsync(string sampleId, CancellationToken cancellationToken = default);
-
     Task OpenAsync(StoredScriptDocument document, CancellationToken cancellationToken = default);
 
     Task UpdateDraftAsync(

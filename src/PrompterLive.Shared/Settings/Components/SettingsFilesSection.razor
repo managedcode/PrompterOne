@@ -1,0 +1,156 @@
+@namespace PrompterLive.Shared.Components.Settings
+
+<section class="set-section set-panel"
+         id="set-files"
+         style="@DisplayStyle"
+         data-testid="@UiTestIds.Settings.FilesPanel">
+    <h3 class="set-section-title">File Storage</h3>
+    <p class="set-section-desc">Where scripts, recordings, and exports are saved locally.</p>
+
+    <div class="set-device-list">
+        <SettingsExpandableCard Title="Scripts"
+                                Subtitle="@ScriptsLocation"
+                                IconStyle="background:rgba(196,160,96,.10); color:var(--gold);"
+                                IsOpen="@IsCardOpen(ScriptsCardId)"
+                                OnToggle="@(() => ToggleCard.InvokeAsync(ScriptsCardId))">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14,2 14,8 20,8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
+            </svg>
+            <div class="set-device-fields">
+                <div class="set-field">
+                    <label>Location</label>
+                    <div class="set-path-field">
+                        <input type="text" class="set-input" value="@ScriptsLocation" readonly />
+                        <button class="set-btn-outline set-btn-sm" type="button">Browse</button>
+                    </div>
+                </div>
+                <div class="set-field set-field-toggle">
+                    <label>Auto-save every 30 seconds</label>
+                    <div class="@FileAutoSaveToggleCssClass"
+                         data-testid="@UiTestIds.Settings.FileAutoSave"
+                         @onclick="ToggleAutoSave"
+                         @onclick:stopPropagation="true">
+                        <div class="set-toggle-thumb"></div>
+                    </div>
+                </div>
+                <div class="set-field set-field-toggle">
+                    <label>Keep backup copies</label>
+                    <div class="@FileBackupCopiesToggleCssClass"
+                         data-testid="@UiTestIds.Settings.FileBackupCopies"
+                         @onclick="ToggleBackupCopies"
+                         @onclick:stopPropagation="true">
+                        <div class="set-toggle-thumb"></div>
+                    </div>
+                </div>
+            </div>
+        </SettingsExpandableCard>
+
+        <SettingsExpandableCard Title="Recordings"
+                                Subtitle="@RecordingsLocation"
+                                IconStyle="background:rgba(239,68,68,.10); color:#F87171;"
+                                IsOpen="@IsCardOpen(RecordingsCardId)"
+                                OnToggle="@(() => ToggleCard.InvokeAsync(RecordingsCardId))">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" />
+                <circle cx="12" cy="12" r="3" fill="currentColor" stroke="none" />
+            </svg>
+            <div class="set-device-fields">
+                <div class="set-field">
+                    <label>Location</label>
+                    <div class="set-path-field">
+                        <input type="text" class="set-input" value="@RecordingsLocation" readonly />
+                        <button class="set-btn-outline set-btn-sm" type="button">Browse</button>
+                    </div>
+                </div>
+                <div class="set-field">
+                    <label>Max Storage</label>
+                    <select class="set-select"
+                            value="@RecordingsStorageLimit"
+                            @onchange="OnStorageLimitChanged"
+                            @onclick:stopPropagation="true">
+                        <option value="No limit">No limit</option>
+                        <option value="10 GB">10 GB</option>
+                        <option value="50 GB">50 GB</option>
+                        <option value="100 GB">100 GB</option>
+                    </select>
+                </div>
+            </div>
+        </SettingsExpandableCard>
+
+        <SettingsExpandableCard Title="Exports"
+                                Subtitle="TPS (Native) · PDF · Markdown"
+                                IconStyle="background:rgba(99,102,241,.10); color:#818CF8;"
+                                IsOpen="@IsCardOpen(ExportsCardId)"
+                                OnToggle="@(() => ToggleCard.InvokeAsync(ExportsCardId))">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7,10 12,15 17,10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            <div class="set-device-fields">
+                <div class="set-field">
+                    <label>Default Export Format</label>
+                    <select class="set-select"
+                            value="@ExportFormat"
+                            @onchange="OnExportFormatChanged"
+                            @onclick:stopPropagation="true">
+                        <option value="TPS (Native)">TPS (Native)</option>
+                        <option value="Markdown">Markdown</option>
+                        <option value="Plain Text">Plain Text</option>
+                        <option value="PDF">PDF</option>
+                    </select>
+                </div>
+                <div class="set-field">
+                    <label>Export Location</label>
+                    <div class="set-path-field">
+                        <input type="text" class="set-input" value="@ExportsLocation" readonly />
+                        <button class="set-btn-outline set-btn-sm" type="button">Browse</button>
+                    </div>
+                </div>
+            </div>
+        </SettingsExpandableCard>
+    </div>
+</section>
+
+@code {
+    private const string ExportsCardId = "files-exports";
+    private const string RecordingsCardId = "files-recordings";
+    private const string ScriptsCardId = "files-scripts";
+
+    [Parameter] public string DisplayStyle { get; set; } = string.Empty;
+
+    [Parameter] public string ExportFormat { get; set; } = string.Empty;
+
+    [Parameter] public string ExportsLocation { get; set; } = string.Empty;
+
+    [Parameter] public string FileAutoSaveToggleCssClass { get; set; } = string.Empty;
+
+    [Parameter] public string FileBackupCopiesToggleCssClass { get; set; } = string.Empty;
+
+    [Parameter] public Func<string, bool> IsCardOpen { get; set; } = static _ => false;
+
+    [Parameter] public string RecordingsLocation { get; set; } = string.Empty;
+
+    [Parameter] public string RecordingsStorageLimit { get; set; } = string.Empty;
+
+    [Parameter] public string ScriptsLocation { get; set; } = string.Empty;
+
+    [Parameter] public EventCallback<string> ToggleCard { get; set; }
+
+    [Parameter] public EventCallback ToggleAutoSave { get; set; }
+
+    [Parameter] public EventCallback ToggleBackupCopies { get; set; }
+
+    [Parameter] public EventCallback<string> UpdateExportFormat { get; set; }
+
+    [Parameter] public EventCallback<string> UpdateRecordingsStorageLimit { get; set; }
+
+    private Task OnExportFormatChanged(ChangeEventArgs args) =>
+        UpdateExportFormat.InvokeAsync(args.Value?.ToString() ?? string.Empty);
+
+    private Task OnStorageLimitChanged(ChangeEventArgs args) =>
+        UpdateRecordingsStorageLimit.InvokeAsync(args.Value?.ToString() ?? string.Empty);
+}

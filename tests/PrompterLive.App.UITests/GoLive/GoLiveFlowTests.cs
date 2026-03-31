@@ -1,3 +1,4 @@
+using System.Text.Json;
 using PrompterLive.Core.Models.Workspace;
 using PrompterLive.Shared.Contracts;
 using static Microsoft.Playwright.Assertions;
@@ -145,6 +146,132 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture) : IClassFixtur
             await Expect(page.GetByTestId(UiTestIds.GoLive.PreviewCard)).ToBeVisibleAsync();
             await Expect(page.GetByTestId(UiTestIds.GoLive.PreviewEmpty)).ToBeVisibleAsync();
             await Expect(page.GetByTestId(UiTestIds.GoLive.PreviewVideo)).ToHaveCountAsync(0);
+        }
+        finally
+        {
+            await page.Context.CloseAsync();
+        }
+    }
+
+    [Fact]
+    public async Task GoLivePage_StartStream_WithLiveKitArmed_PublishesProgramVideoAndAudio()
+    {
+        var page = await _fixture.NewPageAsync();
+
+        try
+        {
+            await SeedGoLiveSceneForReuseAsync(page);
+            var cameraDeviceId = await page.EvaluateAsync<string>(BrowserTestConstants.GoLive.ResolveCameraDeviceScript);
+            await page.GotoAsync(BrowserTestConstants.Routes.GoLiveDemo);
+            await Expect(page.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
+
+            await page.EvaluateAsync(BrowserTestConstants.GoLive.InstallLiveKitHarnessScript);
+            await page.GetByTestId(UiTestIds.GoLive.LiveKitToggle).ClickAsync();
+            await page.GetByTestId(UiTestIds.GoLive.LiveKitServer).FillAsync(BrowserTestConstants.GoLive.LiveKitServer);
+            await page.GetByTestId(UiTestIds.GoLive.LiveKitRoom).FillAsync(BrowserTestConstants.GoLive.LiveKitRoom);
+            await page.GetByTestId(UiTestIds.GoLive.LiveKitToken).FillAsync(BrowserTestConstants.GoLive.LiveKitToken);
+            await page.GetByTestId(UiTestIds.GoLive.StartStream).ClickAsync();
+
+            await page.WaitForFunctionAsync(
+                BrowserTestConstants.Media.HasAudioVideoRequestScript,
+                new object[]
+                {
+                    cameraDeviceId,
+                    BrowserTestConstants.Media.PrimaryMicrophoneId
+                },
+                new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
+            await page.WaitForFunctionAsync(
+                BrowserTestConstants.GoLive.LiveKitHarnessReadyScript,
+                null,
+                new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
+
+            var harnessState = await page.EvaluateAsync<JsonElement>(BrowserTestConstants.GoLive.GetLiveKitHarnessScript);
+            Assert.Equal(BrowserTestConstants.GoLive.LiveKitServer, harnessState.GetProperty("connectCalls")[0].GetProperty("url").GetString());
+            Assert.Contains(
+                harnessState.GetProperty("publishCalls").EnumerateArray().Select(call => call.GetProperty("kind").GetString()),
+                kind => string.Equals(kind, "video", StringComparison.Ordinal));
+            Assert.Contains(
+                harnessState.GetProperty("publishCalls").EnumerateArray().Select(call => call.GetProperty("kind").GetString()),
+                kind => string.Equals(kind, "audio", StringComparison.Ordinal));
+        }
+        finally
+        {
+            await page.Context.CloseAsync();
+        }
+    }
+
+    [Fact]
+    public async Task GoLivePage_StartStream_WithObsArmed_RoutesMicrophoneAudioForObsBrowserSource()
+    {
+        var page = await _fixture.NewPageAsync();
+
+        try
+        {
+            await SeedGoLiveSceneForReuseAsync(page);
+            var cameraDeviceId = await page.EvaluateAsync<string>(BrowserTestConstants.GoLive.ResolveCameraDeviceScript);
+            await page.GotoAsync(BrowserTestConstants.Routes.GoLiveDemo);
+            await Expect(page.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
+
+            await page.EvaluateAsync(BrowserTestConstants.GoLive.EnableObsStudioScript);
+            var obsToggle = page.GetByTestId(UiTestIds.GoLive.ObsToggle);
+            await Expect(obsToggle).ToHaveClassAsync(BrowserTestConstants.Regexes.ToggleOnClass);
+            await page.GetByTestId(UiTestIds.GoLive.StartStream).ClickAsync();
+
+            await page.WaitForFunctionAsync(
+                BrowserTestConstants.Media.HasAudioVideoRequestScript,
+                new object[]
+                {
+                    cameraDeviceId,
+                    BrowserTestConstants.Media.PrimaryMicrophoneId
+                },
+                new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
+            await page.WaitForFunctionAsync(
+                BrowserTestConstants.GoLive.ObsRuntimeAudioAttachedScript,
+                BrowserTestConstants.GoLive.RuntimeSessionId,
+                new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
+
+            var runtimeState = await page.EvaluateAsync<JsonElement>(
+                BrowserTestConstants.GoLive.GetRuntimeStateScript,
+                BrowserTestConstants.GoLive.RuntimeSessionId);
+
+            Assert.True(runtimeState.GetProperty("obs").GetProperty("active").GetBoolean());
+            Assert.True(runtimeState.GetProperty("obs").GetProperty("audioAttached").GetBoolean());
+            Assert.Equal("obsstudio", runtimeState.GetProperty("obs").GetProperty("environment").GetString());
+            Assert.Equal(cameraDeviceId, runtimeState.GetProperty("videoDeviceId").GetString());
+            Assert.Equal(BrowserTestConstants.Media.PrimaryMicrophoneId, runtimeState.GetProperty("audioDeviceId").GetString());
+        }
+        finally
+        {
+            await page.Context.CloseAsync();
+        }
+    }
+
+    [Fact]
+    public async Task GoLivePage_SwitchesStudioTabsAndCreatesRemoteRoom()
+    {
+        var page = await _fixture.NewPageAsync();
+
+        try
+        {
+            await SeedGoLiveSceneForReuseAsync(page);
+            await page.GotoAsync(BrowserTestConstants.Routes.GoLiveDemo);
+            await Expect(page.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
+            await Expect(page.GetByTestId(UiTestIds.GoLive.SceneControls)).ToBeVisibleAsync();
+            await Expect(page.GetByTestId(UiTestIds.GoLive.UtilitySource(BrowserTestConstants.GoLive.PrompterUtilitySourceId))).ToBeVisibleAsync();
+
+            await page.GetByTestId(UiTestIds.GoLive.RoomTab).ClickAsync();
+            await Expect(page.GetByTestId(UiTestIds.GoLive.RoomEmpty)).ToBeVisibleAsync();
+
+            await page.GetByTestId(UiTestIds.GoLive.CreateRoom).ClickAsync();
+            await Expect(page.GetByTestId(UiTestIds.GoLive.RoomActive)).ToBeVisibleAsync();
+            await Expect(page.GetByTestId(UiTestIds.GoLive.RoomParticipant(BrowserTestConstants.GoLive.PrimaryParticipantId))).ToBeVisibleAsync();
+            await Expect(page.GetByTestId(UiTestIds.GoLive.RoomParticipant(BrowserTestConstants.GoLive.PrimaryParticipantId)))
+                .ToContainTextAsync(BrowserTestConstants.GoLive.HostParticipantName);
+
+            await page.GetByTestId(UiTestIds.GoLive.AudioTab).ClickAsync();
+            await Expect(page.GetByTestId(UiTestIds.GoLive.AudioMixer)).ToBeVisibleAsync();
+            await Expect(page.GetByTestId(UiTestIds.GoLive.AudioChannel(BrowserTestConstants.GoLive.MicChannelId))).ToBeVisibleAsync();
+            await Expect(page.Locator("body")).Not.ToContainTextAsync(BrowserTestConstants.GoLive.LegacyNetworkUploadMetric);
         }
         finally
         {

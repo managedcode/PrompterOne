@@ -5,12 +5,28 @@
 @inject Microsoft.Extensions.Logging.ILogger<SettingsMicrophoneLevelCard> Logger
 @inject MicrophoneLevelInterop MicrophoneLevelInterop
 
-<section class="live-card set-media-feedback-card"
+<section class="set-device-card active"
          data-testid="@UiTestIds.Settings.MicPreviewCard">
-    <div class="live-card-header">
-        <div>
-            <h4 class="live-card-title">@Title</h4>
-            <p class="live-card-desc">@Description</p>
+    <div class="set-device-header">
+        <div class="set-device-preview set-mic-preview @(CanRenderMonitor ? string.Empty : "set-mic-off")">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                <line x1="12" y1="19" x2="12" y2="23" />
+                <line x1="8" y1="23" x2="16" y2="23" />
+            </svg>
+            <div class="set-mic-level-indicator">
+                <div class="set-mic-bar" style="@BuildMicBarStyle(0.90)"></div>
+                <div class="set-mic-bar" style="@BuildMicBarStyle(0.65)"></div>
+                <div class="set-mic-bar" style="@BuildMicBarStyle(0.80)"></div>
+            </div>
+        </div>
+        <div class="set-device-info">
+            <span class="set-device-name"
+                  data-testid="@UiTestIds.Settings.MicPreviewLabel">
+                @(CanRenderMonitor ? MicrophoneLabel : EmptyTitle)
+            </span>
+            <span class="set-device-meta">@MonitorDescription</span>
         </div>
         <span class="live-status @(CanMonitor ? ReadyStatusCssClass : PendingStatusCssClass)">
             @(CanMonitor ? ReadyStatusLabel : PendingStatusLabel)
@@ -20,24 +36,15 @@
     @if (CanRenderMonitor)
     {
         <div id="@UiDomIds.Settings.MicrophoneLevelMonitor"
-             class="set-mic-monitor"
+             class="set-vu-meter"
              data-live-level="@_levelPercent"
              data-live-state="@MonitorState"
              data-testid="@UiTestIds.Settings.MicPreviewMeter">
-            <div class="set-mic-monitor-track">
-                <div class="set-mic-monitor-fill" style="@MonitorFillStyle"></div>
+            <div class="set-vu-track">
+                <div class="set-vu-fill" style="@MonitorFillStyle"></div>
+                <div class="set-vu-peak" style="@MonitorPeakStyle"></div>
             </div>
-            <div class="set-mic-monitor-readout"
-                 data-testid="@UiTestIds.Settings.MicPreviewValue">@MonitorValueText</div>
-        </div>
-
-        <div class="set-mic-monitor-meta">
-            <div>
-                <span class="set-section-label">@PreviewEyebrow</span>
-                <div class="set-account-name"
-                     data-testid="@UiTestIds.Settings.MicPreviewLabel">@MicrophoneLabel</div>
-            </div>
-            <div class="live-card-desc">@PreviewDescription</div>
+            <span class="set-vu-db">@MonitorValueText</span>
         </div>
     }
     else
@@ -53,22 +60,19 @@
 </section>
 
 @code {
+    private const string ActiveStateValue = "active";
     private const string DefaultDescription = "Speak into the selected microphone to confirm the browser sees a live signal before recording or streaming.";
     private const string DefaultTitle = "Microphone Activity";
+    private const string IdleStateValue = "idle";
     private const string NoMicrophoneDescription = "Pick a default microphone to see a live level meter here.";
     private const string NoMicrophoneTitle = "No microphone selected";
     private const string PendingStatusCssClass = "pending";
     private const string PendingStatusLabel = "Waiting";
     private const string PermissionDescription = "Enable microphone access in Cameras first, then return here to confirm live input activity.";
     private const string PermissionTitle = "Microphone access required";
-    private const string PreviewDescription = "The live meter reflects real browser input, separate from the manual gain slider below.";
-    private const string PreviewEyebrow = "PRIMARY MICROPHONE";
+    private const string PreviewDescription = "Live browser input monitor";
     private const string ReadyStatusCssClass = "ready";
     private const string ReadyStatusLabel = "Live level";
-    private const string ActiveStateValue = "active";
-    private const string IdleStateValue = "idle";
-    private const string FillWidthStyleFormat = "width: {0}%;";
-    private const string PercentageSuffix = "%";
     private const string StartMonitorFailureMessage = "Failed to start Settings microphone monitor for device {DeviceId}.";
     private const string StopMonitorFailureMessage = "Failed to stop Settings microphone monitor.";
 
@@ -98,17 +102,22 @@
 
     private string MicrophoneLabel => Microphone?.Label ?? string.Empty;
 
-    private string? _attachedDeviceId;
-    private DotNetObjectReference<MicrophoneLevelObserver>? _observerReference;
-    private int _levelPercent;
+    private string MonitorDescription => CanRenderMonitor ? PreviewDescription : EmptyDescription;
 
     private string MonitorFillStyle =>
-        string.Format(CultureInfo.InvariantCulture, FillWidthStyleFormat, _levelPercent);
+        string.Format(CultureInfo.InvariantCulture, "width: {0}%;", _levelPercent);
+
+    private string MonitorPeakStyle =>
+        string.Format(CultureInfo.InvariantCulture, "left: {0}%;", Math.Clamp(_levelPercent, 2, 100));
 
     private string MonitorState => _levelPercent > 0 ? ActiveStateValue : IdleStateValue;
 
     private string MonitorValueText =>
-        string.Concat(_levelPercent.ToString(CultureInfo.InvariantCulture), PercentageSuffix);
+        string.Concat(ConvertLevelToDb(_levelPercent).ToString(CultureInfo.InvariantCulture), " dB");
+
+    private string? _attachedDeviceId;
+    private DotNetObjectReference<MicrophoneLevelObserver>? _observerReference;
+    private int _levelPercent;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -138,7 +147,7 @@
         {
             Microsoft.Extensions.Logging.LoggerExtensions.LogWarning(Logger, exception, StartMonitorFailureMessage, Microphone?.DeviceId);
             _attachedDeviceId = null;
-            await HandleLevelChangedAsync(0);
+            await ResetLevelAsync();
         }
     }
 
@@ -148,11 +157,38 @@
         _observerReference?.Dispose();
     }
 
+    private static string BuildMicBarStyle(double ratio) =>
+        string.Format(
+            CultureInfo.InvariantCulture,
+            "height:{0}%",
+            Math.Round(ratio * 100, MidpointRounding.AwayFromZero));
+
+    private static int ConvertLevelToDb(int levelPercent) =>
+        levelPercent switch
+        {
+            <= 0 => -60,
+            _ => Math.Clamp((int)Math.Round(-60 + (levelPercent * 0.48), MidpointRounding.AwayFromZero), -60, -12)
+        };
+
+    private Task HandleLevelChangedAsync(int levelPercent)
+    {
+        var nextLevel = Math.Clamp(levelPercent, 0, 100);
+        if (_levelPercent == nextLevel)
+        {
+            return Task.CompletedTask;
+        }
+
+        _levelPercent = nextLevel;
+        return InvokeAsync(StateHasChanged);
+    }
+
+    private Task ResetLevelAsync() => HandleLevelChangedAsync(0);
+
     private async Task StopMonitoringAsync()
     {
         if (string.IsNullOrWhiteSpace(_attachedDeviceId))
         {
-            await HandleLevelChangedAsync(0);
+            await ResetLevelAsync();
             return;
         }
 
@@ -167,13 +203,7 @@
         finally
         {
             _attachedDeviceId = null;
-            await HandleLevelChangedAsync(0);
+            await ResetLevelAsync();
         }
-    }
-
-    private Task HandleLevelChangedAsync(int levelPercent)
-    {
-        _levelPercent = Math.Clamp(levelPercent, 0, 100);
-        return InvokeAsync(StateHasChanged);
     }
 }

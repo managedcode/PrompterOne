@@ -16,7 +16,6 @@ It owns TPS parsing, compilation, export, RSVP helpers, preview and workspace st
 - `Media/*`
 - `Streaming/*`
 - `Localization/*`
-- `Samples/*`
 
 ## Boundaries
 

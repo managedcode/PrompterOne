@@ -49,7 +49,7 @@ public sealed class UiTraceLoggingTests : BunitContext
 
         var cut = Render<LibraryPage>();
 
-        cut.WaitForAssertion(() => Assert.Contains("Product Launch", cut.Markup));
+        cut.WaitForAssertion(() => Assert.Contains(AppTestData.Scripts.DemoTitle, cut.Markup, StringComparison.Ordinal));
 
         cut.FindByTestId(UiTestIds.Library.Folder(AppTestData.Folders.PresentationsId)).Click();
         cut.FindByTestId(UiTestIds.Library.FolderCreateStart).Click();
@@ -59,17 +59,17 @@ public sealed class UiTraceLoggingTests : BunitContext
         cut.FindByTestId(UiTestIds.Library.NewFolderParent).Change(AppTestData.Folders.PresentationsId);
         cut.FindByTestId(UiTestIds.Library.NewFolderSubmit).Click();
 
-        cut.WaitForAssertion(() => Assert.Contains(UiTestIds.Library.Folder("roadshows"), cut.Markup, StringComparison.Ordinal));
+        cut.WaitForAssertion(() => Assert.Contains(UiTestIds.Library.Folder(AppTestData.Folders.RoadshowsId), cut.Markup, StringComparison.Ordinal));
 
         Assert.Contains(
             logProvider.Entries,
             entry => entry.Category.Contains(nameof(LibraryPage), StringComparison.Ordinal) &&
-                entry.Message.Contains("Selecting library folder presentations.", StringComparison.Ordinal));
+                entry.Message.Contains($"Selecting library folder {AppTestData.Folders.PresentationsId}.", StringComparison.Ordinal));
         Assert.Contains(
             logProvider.Entries,
             entry => entry.Category.Contains(nameof(LibraryPage), StringComparison.Ordinal) &&
                 entry.Message.Contains("Opening library folder overlay", StringComparison.Ordinal) &&
-                entry.Message.Contains("presentations", StringComparison.Ordinal));
+                entry.Message.Contains(AppTestData.Folders.PresentationsId, StringComparison.Ordinal));
         Assert.Contains(
             logProvider.Entries,
             entry => entry.Category.Contains(nameof(LibraryPage), StringComparison.Ordinal) &&
@@ -77,6 +77,6 @@ public sealed class UiTraceLoggingTests : BunitContext
         Assert.Contains(
             logProvider.Entries,
             entry => entry.Category.Contains(nameof(LibraryPage), StringComparison.Ordinal) &&
-                entry.Message.Contains("Created library folder roadshows under presentations.", StringComparison.Ordinal));
+                entry.Message.Contains($"Created library folder {AppTestData.Folders.RoadshowsId} under {AppTestData.Folders.PresentationsId}.", StringComparison.Ordinal));
     }
 }

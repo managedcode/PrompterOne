@@ -26,7 +26,8 @@ internal static class TestHarnessFactory
         BunitContext context,
         IReadOnlyList<MediaDeviceInfo>? devices = null,
         Action<ILoggingBuilder>? configureLogging = null,
-        TimeSpan? jsInvocationDelay = null)
+        TimeSpan? jsInvocationDelay = null,
+        bool seedLibraryData = true)
     {
         var jsRuntime = new TestJsRuntime(jsInvocationDelay);
         var repository = new InMemoryScriptRepository();
@@ -64,6 +65,12 @@ internal static class TestHarnessFactory
             settingsStore,
             loggerFactory.CreateLogger<AppBootstrapper>());
 
+        if (seedLibraryData)
+        {
+            folderRepository.InitializeAsync(AppTestLibrarySeedData.CreateFolders()).GetAwaiter().GetResult();
+            repository.InitializeAsync(AppTestLibrarySeedData.CreateDocuments()).GetAwaiter().GetResult();
+        }
+
         context.Services.AddLocalization();
         context.Services.AddSingleton<IJSRuntime>(jsRuntime);
         context.Services.AddSingleton<ILoggerFactory>(loggerFactory);
@@ -92,6 +99,9 @@ internal static class TestHarnessFactory
         context.Services.AddSingleton<StudioSettingsStore>();
         context.Services.AddSingleton<CameraPreviewInterop>();
         context.Services.AddSingleton<MicrophoneLevelInterop>();
+        context.Services.AddSingleton<TeleprompterReaderInterop>();
+        context.Services.AddSingleton<GoLiveOutputInterop>();
+        context.Services.AddSingleton<GoLiveOutputRuntimeService>();
         context.Services.AddSingleton(bootstrapper);
         context.Services.AddSingleton<GoLiveSessionService>();
         context.Services.AddSingleton<BrowserConnectivityService>();
@@ -128,6 +138,10 @@ internal sealed record AppHarness(
     FakeMediaDeviceService DeviceService,
     ILoggerFactory LoggerFactory);
 
+internal sealed record JsInvocationRecord(
+    string Identifier,
+    IReadOnlyList<object?> Arguments);
+
 internal sealed class TestJsRuntime(TimeSpan? invocationDelay = null) : IJSRuntime
 {
     private const string EvaluateIdentifier = "eval";
@@ -145,6 +159,7 @@ internal sealed class TestJsRuntime(TimeSpan? invocationDelay = null) : IJSRunti
     public Dictionary<string, object?> SavedValues { get; } = new(StringComparer.Ordinal);
     public Dictionary<string, string> SavedJsonValues { get; } = new(StringComparer.Ordinal);
     public List<string> Invocations { get; } = [];
+    public List<JsInvocationRecord> InvocationRecords { get; } = [];
 
     public ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args) =>
         InvokeAsync<TValue>(identifier, CancellationToken.None, args);
@@ -168,6 +183,7 @@ internal sealed class TestJsRuntime(TimeSpan? invocationDelay = null) : IJSRunti
     private TValue GetResult<TValue>(string identifier, object?[]? args)
     {
         Invocations.Add(identifier);
+        InvocationRecords.Add(new JsInvocationRecord(identifier, args?.ToArray() ?? []));
 
         var result = identifier switch
         {
@@ -193,15 +209,18 @@ internal sealed class TestJsRuntime(TimeSpan? invocationDelay = null) : IJSRunti
 
     public T GetSavedValue<T>(string key)
     {
-        if (SavedValues.TryGetValue(key, out var value) && value is T typedValue)
+        foreach (var storageKey in EnumerateStorageKeys(key))
         {
-            return typedValue;
-        }
+            if (SavedValues.TryGetValue(storageKey, out var value) && value is T typedValue)
+            {
+                return typedValue;
+            }
 
-        if (SavedJsonValues.TryGetValue(key, out var json))
-        {
-            return JsonSerializer.Deserialize<T>(json, JsonOptions)
-                ?? throw new InvalidOperationException($"Saved JSON for '{key}' could not be deserialized as {typeof(T).Name}.");
+            if (SavedJsonValues.TryGetValue(storageKey, out var json))
+            {
+                return JsonSerializer.Deserialize<T>(json, JsonOptions)
+                    ?? throw new InvalidOperationException($"Saved JSON for '{storageKey}' could not be deserialized as {typeof(T).Name}.");
+            }
         }
 
         throw new KeyNotFoundException($"No saved value was found for '{key}'.");
@@ -210,14 +229,21 @@ internal sealed class TestJsRuntime(TimeSpan? invocationDelay = null) : IJSRunti
     private object? LoadJson(object?[]? args)
     {
         var key = args?.FirstOrDefault()?.ToString() ?? string.Empty;
-        if (SavedJsonValues.TryGetValue(key, out var savedJson))
+
+        foreach (var storageKey in EnumerateStorageKeys(key))
         {
-            return savedJson;
+            if (SavedJsonValues.TryGetValue(storageKey, out var savedJson))
+            {
+                return savedJson;
+            }
+
+            if (SavedValues.TryGetValue(storageKey, out var value))
+            {
+                return JsonSerializer.Serialize(value, JsonOptions);
+            }
         }
 
-        return SavedValues.TryGetValue(key, out var value)
-            ? JsonSerializer.Serialize(value, JsonOptions)
-            : null;
+        return null;
     }
 
     private object? SaveJson(object?[]? args)
@@ -231,9 +257,26 @@ internal sealed class TestJsRuntime(TimeSpan? invocationDelay = null) : IJSRunti
     private object? Remove(object?[]? args)
     {
         var key = args?.FirstOrDefault()?.ToString() ?? string.Empty;
-        SavedJsonValues.Remove(key);
-        SavedValues.Remove(key);
+        foreach (var storageKey in EnumerateStorageKeys(key))
+        {
+            SavedJsonValues.Remove(storageKey);
+            SavedValues.Remove(storageKey);
+        }
+
         return null;
+    }
+
+    private static IEnumerable<string> EnumerateStorageKeys(string key)
+    {
+        if (key.StartsWith(BrowserStorageKeys.SettingsPrefix, StringComparison.Ordinal))
+        {
+            yield return key;
+            yield return key[BrowserStorageKeys.SettingsPrefix.Length..];
+            yield break;
+        }
+
+        yield return string.Concat(BrowserStorageKeys.SettingsPrefix, key);
+        yield return key;
     }
 
     private static object? Evaluate(object?[]? args)

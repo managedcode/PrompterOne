@@ -1,0 +1,262 @@
+@namespace PrompterLive.Shared.Components.Settings
+@using Microsoft.AspNetCore.Components
+@using PrompterLive.Shared.Pages
+
+<section class="set-section set-panel"
+         id="set-ai"
+         style="@DisplayStyle"
+         data-testid="@UiTestIds.Settings.AiPanel">
+    <h3 class="set-section-title">AI Provider</h3>
+    <p class="set-section-desc">Connect an AI provider to enable rewriting, expanding, and formatting scripts with AI.</p>
+
+    <div class="set-device-list">
+        <SettingsExpandableCard Title="Claude API"
+                                Subtitle="Anthropic · claude-sonnet-4-6"
+                                StatusLabel="@BuildStatusLabel(SettingsAiProviderIds.ClaudeApi, true)"
+                                StatusClass="@BuildStatusClass(SettingsAiProviderIds.ClaudeApi)"
+                                IconStyle="background:rgba(196,160,96,.12); color:#E8D5B0;"
+                                AdditionalCssClass="@BuildCardCssClass(SettingsAiProviderIds.ClaudeApi)"
+                                IsOpen="@IsCardOpen(ClaudeApiCardId)"
+                                OnToggle="@(() => OnProviderCardToggleAsync(SettingsAiProviderIds.ClaudeApi, ClaudeApiCardId))"
+                                TestId="@UiTestIds.Settings.AiProvider(SettingsAiProviderIds.ClaudeApi)">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2L9 9 2 12l7 3 3 7 3-7 7-3-7-3z" />
+            </svg>
+            <div class="set-device-fields">
+                <div class="set-field">
+                    <label>API Key</label>
+                    <input type="password"
+                           class="set-input"
+                           placeholder="sk-ant-..."
+                           value="sk-ant-xxxxxxxxxxxx"
+                           @onclick:stopPropagation="true" />
+                </div>
+                <div class="set-field">
+                    <label>Model</label>
+                    <select class="set-select" @onclick:stopPropagation="true">
+                        <option>claude-sonnet-4-6</option>
+                        <option>claude-opus-4-6</option>
+                        <option>claude-haiku-4-5</option>
+                    </select>
+                </div>
+                <div class="set-field">
+                    <label>Base URL (optional)</label>
+                    <input type="text"
+                           class="set-input"
+                           placeholder="https://api.anthropic.com"
+                           @onclick:stopPropagation="true" />
+                </div>
+            </div>
+            <div class="set-ai-test-row">
+                <button class="set-btn-golden set-btn-sm"
+                        type="button"
+                        data-testid="@(IsSelected(SettingsAiProviderIds.ClaudeApi) ? UiTestIds.Settings.TestConnection : null)"
+                        @onclick:stopPropagation="true">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                        <polyline points="22,4 12,14.01 9,11.01" />
+                    </svg>
+                    Test Connection
+                </button>
+                <span class="set-ai-status-ok">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <polyline points="20,6 9,17 4,12" />
+                    </svg>
+                    Connected
+                </span>
+            </div>
+        </SettingsExpandableCard>
+
+        <SettingsExpandableCard Title="OpenAI"
+                                Subtitle="GPT-4o, o1, o3"
+                                StatusLabel="@BuildStatusLabel(SettingsAiProviderIds.OpenAi, false)"
+                                StatusClass="@BuildStatusClass(SettingsAiProviderIds.OpenAi)"
+                                IconStyle="background:rgba(16,163,127,.12); color:#34D399;"
+                                AdditionalCssClass="@BuildCardCssClass(SettingsAiProviderIds.OpenAi)"
+                                IsOpen="@IsCardOpen(OpenAiCardId)"
+                                OnToggle="@(() => OnProviderCardToggleAsync(SettingsAiProviderIds.OpenAi, OpenAiCardId))"
+                                TestId="@UiTestIds.Settings.AiProvider(SettingsAiProviderIds.OpenAi)">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3" />
+                <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83" />
+            </svg>
+            <div class="set-device-fields">
+                <div class="set-field">
+                    <label>API Key</label>
+                    <input type="password"
+                           class="set-input"
+                           placeholder="sk-..."
+                           @onclick:stopPropagation="true" />
+                </div>
+                <div class="set-field">
+                    <label>Model</label>
+                    <select class="set-select" @onclick:stopPropagation="true">
+                        <option>gpt-4o</option>
+                        <option>gpt-4o-mini</option>
+                        <option>o1</option>
+                        <option>o3-mini</option>
+                    </select>
+                </div>
+                <div class="set-field">
+                    <label>Base URL (optional)</label>
+                    <input type="text"
+                           class="set-input"
+                           placeholder="https://api.openai.com/v1"
+                           @onclick:stopPropagation="true" />
+                </div>
+            </div>
+            <button class="set-btn-outline set-btn-sm"
+                    type="button"
+                    data-testid="@(IsSelected(SettingsAiProviderIds.OpenAi) ? UiTestIds.Settings.TestConnection : null)"
+                    @onclick:stopPropagation="true">
+                Test Connection
+            </button>
+        </SettingsExpandableCard>
+
+        <SettingsExpandableCard Title="Local / Ollama"
+                                Subtitle="Self-hosted · localhost:11434"
+                                StatusLabel="@BuildStatusLabel(SettingsAiProviderIds.Ollama, false)"
+                                StatusClass="@BuildStatusClass(SettingsAiProviderIds.Ollama)"
+                                IconStyle="background:rgba(99,102,241,.12); color:#818CF8;"
+                                AdditionalCssClass="@BuildCardCssClass(SettingsAiProviderIds.Ollama)"
+                                IsOpen="@IsCardOpen(OllamaCardId)"
+                                OnToggle="@(() => OnProviderCardToggleAsync(SettingsAiProviderIds.Ollama, OllamaCardId))"
+                                TestId="@UiTestIds.Settings.AiProvider(SettingsAiProviderIds.Ollama)">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="3" width="20" height="14" rx="2" />
+                <line x1="8" y1="21" x2="16" y2="21" />
+                <line x1="12" y1="17" x2="12" y2="21" />
+            </svg>
+            <div class="set-device-fields">
+                <div class="set-field">
+                    <label>Ollama URL</label>
+                    <input type="text"
+                           class="set-input"
+                           placeholder="http://localhost:11434"
+                           @onclick:stopPropagation="true" />
+                </div>
+                <div class="set-field">
+                    <label>Model</label>
+                    <input type="text"
+                           class="set-input"
+                           placeholder="llama3, mistral, gemma..."
+                           @onclick:stopPropagation="true" />
+                </div>
+            </div>
+            <button class="set-btn-outline set-btn-sm"
+                    type="button"
+                    data-testid="@(IsSelected(SettingsAiProviderIds.Ollama) ? UiTestIds.Settings.TestConnection : null)"
+                    @onclick:stopPropagation="true">
+                Test Connection
+            </button>
+        </SettingsExpandableCard>
+
+        <SettingsExpandableCard Title="Claude Code"
+                                Subtitle="CLI agent · Local workstation"
+                                StatusLabel="@BuildStatusLabel(SettingsAiProviderIds.ClaudeCode, false)"
+                                StatusClass="@BuildStatusClass(SettingsAiProviderIds.ClaudeCode)"
+                                IconStyle="background:rgba(236,72,153,.12); color:#F472B6;"
+                                AdditionalCssClass="@BuildCardCssClass(SettingsAiProviderIds.ClaudeCode)"
+                                IsOpen="@IsCardOpen(ClaudeCodeCardId)"
+                                OnToggle="@(() => OnProviderCardToggleAsync(SettingsAiProviderIds.ClaudeCode, ClaudeCodeCardId))"
+                                TestId="@UiTestIds.Settings.AiProvider(SettingsAiProviderIds.ClaudeCode)">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="16,18 22,12 16,6" />
+                <polyline points="8,6 2,12 8,18" />
+            </svg>
+            <p class="set-card-copy">Use Claude Code from your local workstation when you want agent-style editing outside the browser runtime.</p>
+            <button class="set-btn-outline set-btn-sm"
+                    type="button"
+                    data-testid="@(IsSelected(SettingsAiProviderIds.ClaudeCode) ? UiTestIds.Settings.TestConnection : null)"
+                    @onclick:stopPropagation="true">
+                Verify CLI Access
+            </button>
+        </SettingsExpandableCard>
+
+        <SettingsExpandableCard Title="Copilot"
+                                Subtitle="GitHub / Microsoft"
+                                StatusLabel="@BuildStatusLabel(SettingsAiProviderIds.Copilot, false)"
+                                StatusClass="@BuildStatusClass(SettingsAiProviderIds.Copilot)"
+                                IconStyle="background:rgba(59,130,246,.12); color:#60A5FA;"
+                                AdditionalCssClass="@BuildCardCssClass(SettingsAiProviderIds.Copilot)"
+                                IsOpen="@IsCardOpen(CopilotCardId)"
+                                OnToggle="@(() => OnProviderCardToggleAsync(SettingsAiProviderIds.Copilot, CopilotCardId))"
+                                TestId="@UiTestIds.Settings.AiProvider(SettingsAiProviderIds.Copilot)">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3" />
+            </svg>
+            <p class="set-card-copy">Keep GitHub Copilot available as an alternate writing and rewrite provider for Microsoft-centered workflows.</p>
+            <button class="set-btn-outline set-btn-sm"
+                    type="button"
+                    data-testid="@(IsSelected(SettingsAiProviderIds.Copilot) ? UiTestIds.Settings.TestConnection : null)"
+                    @onclick:stopPropagation="true">
+                Check Account
+            </button>
+        </SettingsExpandableCard>
+
+        <SettingsExpandableCard Title="Codex"
+                                Subtitle="OpenAI Codex · Coding agent"
+                                StatusLabel="@BuildStatusLabel(SettingsAiProviderIds.Codex, false)"
+                                StatusClass="@BuildStatusClass(SettingsAiProviderIds.Codex)"
+                                IconStyle="background:rgba(234,179,8,.12); color:#FBBF24;"
+                                AdditionalCssClass="@BuildCardCssClass(SettingsAiProviderIds.Codex)"
+                                IsOpen="@IsCardOpen(CodexCardId)"
+                                OnToggle="@(() => OnProviderCardToggleAsync(SettingsAiProviderIds.Codex, CodexCardId))"
+                                TestId="@UiTestIds.Settings.AiProvider(SettingsAiProviderIds.Codex)">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="13,2 3,14 12,14 11,22 21,10 12,10" />
+            </svg>
+            <p class="set-card-copy">Use Codex when you want coding-oriented assist flows beside the script-writing providers.</p>
+            <button class="set-btn-outline set-btn-sm"
+                    type="button"
+                    data-testid="@(IsSelected(SettingsAiProviderIds.Codex) ? UiTestIds.Settings.TestConnection : null)"
+                    @onclick:stopPropagation="true">
+                Check Access
+            </button>
+        </SettingsExpandableCard>
+    </div>
+</section>
+
+@code {
+    private const string ActiveCssClass = "active";
+    private const string ClaudeApiCardId = "ai-claude-api";
+    private const string ClaudeCodeCardId = "ai-claude-code";
+    private const string CodexCardId = "ai-codex";
+    private const string CopilotCardId = "ai-copilot";
+    private const string DisconnectedStatusLabel = "Not configured";
+    private const string DisconnectedStatusClass = "";
+    private const string OllamaCardId = "ai-ollama";
+    private const string OpenAiCardId = "ai-openai";
+    private const string SelectedStatusLabel = "Active";
+    private const string SelectedStatusClass = "set-dest-ok";
+
+    [Parameter] public string DisplayStyle { get; set; } = string.Empty;
+
+    [Parameter] public Func<string, bool> IsCardOpen { get; set; } = static _ => false;
+
+    [Parameter] public string SelectedProviderId { get; set; } = string.Empty;
+
+    [Parameter] public EventCallback<string> SelectProvider { get; set; }
+
+    [Parameter] public EventCallback<string> ToggleCard { get; set; }
+
+    private string BuildCardCssClass(string providerId) =>
+        IsSelected(providerId) ? ActiveCssClass : string.Empty;
+
+    private string BuildStatusClass(string providerId) =>
+        IsSelected(providerId) ? SelectedStatusClass : DisconnectedStatusClass;
+
+    private string BuildStatusLabel(string providerId, bool isConfiguredByDefault) =>
+        IsSelected(providerId)
+            ? SelectedStatusLabel
+            : isConfiguredByDefault ? "Ready" : DisconnectedStatusLabel;
+
+    private bool IsSelected(string providerId) =>
+        string.Equals(providerId, SelectedProviderId, StringComparison.Ordinal);
+
+    private async Task OnProviderCardToggleAsync(string providerId, string cardId)
+    {
+        await SelectProvider.InvokeAsync(providerId);
+        await ToggleCard.InvokeAsync(cardId);
+    }
+}

@@ -2,7 +2,6 @@ using System.Text.Json;
 using Microsoft.JSInterop;
 using PrompterLive.Core.Abstractions;
 using PrompterLive.Core.Models.Documents;
-using PrompterLive.Core.Samples;
 
 namespace PrompterLive.Shared.Services;
 
@@ -15,9 +14,9 @@ public sealed class BrowserScriptRepository(IJSRuntime jsRuntime) : IScriptRepos
 
     private readonly IJSRuntime _jsRuntime = jsRuntime;
 
-    public Task InitializeAsync(IEnumerable<StoredScriptDocument> seedDocuments, CancellationToken cancellationToken = default)
+    public Task InitializeAsync(IEnumerable<StoredScriptDocument> initialDocuments, CancellationToken cancellationToken = default)
     {
-        return InitializeSeedDataAsync(seedDocuments, cancellationToken);
+        return InitializeDocumentsAsync(initialDocuments, cancellationToken);
     }
 
     public async Task<IReadOnlyList<StoredScriptSummary>> ListAsync(CancellationToken cancellationToken = default)
@@ -125,45 +124,32 @@ public sealed class BrowserScriptRepository(IJSRuntime jsRuntime) : IScriptRepos
         return dto is null ? null : ToDocument(dto);
     }
 
-    private async Task InitializeSeedDataAsync(IEnumerable<StoredScriptDocument> seedDocuments, CancellationToken cancellationToken)
+    private async Task InitializeDocumentsAsync(IEnumerable<StoredScriptDocument> initialDocuments, CancellationToken cancellationToken)
     {
-        var seedList = seedDocuments.ToList();
-        var existing = await ListAsync(cancellationToken);
-        var seedVersion = await LoadStorageValueAsync(BrowserStorageKeys.DocumentSeedVersion, cancellationToken);
-        var forceRefresh = !string.Equals(seedVersion, SampleScriptCatalog.SeedVersion, StringComparison.Ordinal);
-
-        if (forceRefresh)
-        {
-            var replaceIds = existing
-                .Where(SampleScriptCatalog.ShouldReplaceOnSeedRefresh)
-                .Select(document => document.Id)
-                .ToHashSet(StringComparer.Ordinal);
-            var nextDocuments = (await LoadDocumentsAsync(cancellationToken))
-                .Where(document => !replaceIds.Contains(document.Id ?? string.Empty))
-                .ToList();
-
-            foreach (var seedDocument in seedList.Select(ToDto))
-            {
-                nextDocuments.RemoveAll(document => string.Equals(document.Id, seedDocument.Id, StringComparison.Ordinal));
-                nextDocuments.Add(seedDocument);
-            }
-
-            await SaveDocumentsAsync(nextDocuments, cancellationToken);
-            await SaveStorageValueAsync(BrowserStorageKeys.DocumentSeedVersion, SampleScriptCatalog.SeedVersion, cancellationToken);
-            return;
-        }
-
         var documents = await LoadDocumentsAsync(cancellationToken);
-        var existingIds = documents
+        var nextDocuments = documents
+            .Where(document => !LegacyLibrarySeedCatalog.IsLegacyDocument(document))
+            .ToList();
+        var existingIds = nextDocuments
             .Select(document => document.Id)
             .ToHashSet(StringComparer.Ordinal);
 
-        foreach (var document in seedList.Where(document => !existingIds.Contains(document.Id)))
+        foreach (var document in initialDocuments.Where(document => !existingIds.Contains(document.Id)).Select(ToDto))
         {
-            documents.Add(ToDto(document));
+            nextDocuments.Add(document);
         }
 
-        await SaveDocumentsAsync(documents, cancellationToken);
+        var shouldPersist = nextDocuments.Count != documents.Count ||
+            !string.Equals(
+                await LoadStorageValueAsync(BrowserStorageKeys.DocumentSeedVersion, cancellationToken),
+                LegacyLibrarySeedCatalog.CleanupVersion,
+                StringComparison.Ordinal);
+
+        if (shouldPersist)
+        {
+            await SaveDocumentsAsync(nextDocuments, cancellationToken);
+            await SaveStorageValueAsync(BrowserStorageKeys.DocumentSeedVersion, LegacyLibrarySeedCatalog.CleanupVersion, cancellationToken);
+        }
     }
 
     private static StoredScriptDocument ToDocument(BrowserStoredScriptDocumentDto dto)

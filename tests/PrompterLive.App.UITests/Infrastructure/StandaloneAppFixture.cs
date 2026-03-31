@@ -46,6 +46,7 @@ public sealed partial class StandaloneAppFixture : IAsyncLifetime
         {
             BaseURL = BaseAddress
         });
+        await context.AddInitScriptAsync(BrowserTestLibrarySeedData.CreateInitializationScript());
         await context.GrantPermissionsAsync(UiTestHostConstants.GrantedPermissions, new BrowserContextGrantPermissionsOptions
         {
             Origin = BaseAddress

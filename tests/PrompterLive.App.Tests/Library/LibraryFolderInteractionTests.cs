@@ -42,7 +42,7 @@ public sealed class LibraryFolderInteractionTests : BunitContext
         var createdFolder = (await _harness.FolderRepository.ListAsync())
             .Single(folder => folder.Name == AppTestData.Folders.Roadshows);
 
-        Assert.Equal(SampleLibraryFolderCatalog.PresentationsFolderId, createdFolder.ParentId);
+        Assert.Equal(AppTestData.Folders.PresentationsId, createdFolder.ParentId);
     }
 
     [Fact]
@@ -72,17 +72,17 @@ public sealed class LibraryFolderInteractionTests : BunitContext
     {
         var roadshowsFolder = await _harness.FolderRepository.CreateAsync(
             AppTestData.Folders.Roadshows,
-            SampleLibraryFolderCatalog.PresentationsFolderId);
+            AppTestData.Folders.PresentationsId);
         var cut = Render<LibraryPage>();
 
         cut.WaitForAssertion(() => Assert.Contains("Product Launch", cut.Markup));
 
-        cut.FindByTestId(UiTestIds.Library.CardMenu(SampleScriptCatalog.DemoSampleId)).Click();
-        cut.FindByTestId(UiTestIds.Library.Move(SampleScriptCatalog.DemoSampleId, roadshowsFolder.Id)).Click();
+        cut.FindByTestId(UiTestIds.Library.CardMenu(AppTestData.Scripts.DemoId)).Click();
+        cut.FindByTestId(UiTestIds.Library.Move(AppTestData.Scripts.DemoId, roadshowsFolder.Id)).Click();
 
         cut.WaitForAssertion(() =>
         {
-            var document = _harness.Repository.GetAsync(SampleScriptCatalog.DemoSampleId).GetAwaiter().GetResult();
+            var document = _harness.Repository.GetAsync(AppTestData.Scripts.DemoId).GetAwaiter().GetResult();
             Assert.Equal(roadshowsFolder.Id, document?.FolderId);
         });
 
@@ -103,7 +103,7 @@ public sealed class LibraryFolderInteractionTests : BunitContext
 
         cut.WaitForAssertion(() => Assert.Contains(AppTestData.Scripts.DemoTitle, cut.Markup));
 
-        var tedTalksChip = cut.FindByTestId(UiTestIds.Library.FolderChip(SampleLibraryFolderCatalog.TedTalksFolderId));
+        var tedTalksChip = cut.FindByTestId(UiTestIds.Library.FolderChip(AppTestData.Folders.TedTalksId));
         tedTalksChip.Click();
 
         cut.WaitForAssertion(() =>
@@ -119,20 +119,20 @@ public sealed class LibraryFolderInteractionTests : BunitContext
     {
         const string nestedFolderName = "Launch Decks";
 
-        await _harness.FolderRepository.InitializeAsync(SampleLibraryFolderCatalog.CreateSeedFolders());
-        await _harness.Repository.InitializeAsync(SampleScriptCatalog.CreateSeedDocuments());
+        await _harness.FolderRepository.InitializeAsync(AppTestLibrarySeedData.CreateFolders());
+        await _harness.Repository.InitializeAsync(AppTestLibrarySeedData.CreateDocuments());
         var nestedFolder = await _harness.FolderRepository.CreateAsync(
             nestedFolderName,
-            SampleLibraryFolderCatalog.ProductFolderId);
+            AppTestData.Folders.ProductId);
         var cut = Render<LibraryPage>();
 
         cut.WaitForAssertion(() =>
         {
-            Assert.Contains(UiTestIds.Library.Folder(SampleLibraryFolderCatalog.ProductFolderId), cut.Markup, StringComparison.Ordinal);
+            Assert.Contains(UiTestIds.Library.Folder(AppTestData.Folders.ProductId), cut.Markup, StringComparison.Ordinal);
             Assert.DoesNotContain(UiTestIds.Library.Folder(nestedFolder.Id), cut.Markup, StringComparison.Ordinal);
         });
 
-        cut.FindByTestId(UiTestIds.Library.Folder(SampleLibraryFolderCatalog.ProductFolderId)).Click();
+        cut.FindByTestId(UiTestIds.Library.Folder(AppTestData.Folders.ProductId)).Click();
 
         cut.WaitForAssertion(() =>
         {
@@ -140,7 +140,7 @@ public sealed class LibraryFolderInteractionTests : BunitContext
             Assert.Contains(nestedFolderName, cut.Markup, StringComparison.Ordinal);
         });
 
-        cut.FindByTestId(UiTestIds.Library.Folder(SampleLibraryFolderCatalog.ProductFolderId)).Click();
+        cut.FindByTestId(UiTestIds.Library.Folder(AppTestData.Folders.ProductId)).Click();
 
         cut.WaitForAssertion(() =>
             Assert.DoesNotContain(UiTestIds.Library.Folder(nestedFolder.Id), cut.Markup, StringComparison.Ordinal));
@@ -149,16 +149,16 @@ public sealed class LibraryFolderInteractionTests : BunitContext
     [Fact]
     public async Task LibraryPage_RestoresPersistedFolderSelectionAfterReload()
     {
-        await _harness.FolderRepository.InitializeAsync(SampleLibraryFolderCatalog.CreateSeedFolders());
-        await _harness.Repository.InitializeAsync(SampleScriptCatalog.CreateSeedDocuments());
+        await _harness.FolderRepository.InitializeAsync(AppTestLibrarySeedData.CreateFolders());
+        await _harness.Repository.InitializeAsync(AppTestLibrarySeedData.CreateDocuments());
         var roadshowsFolder = await _harness.FolderRepository.CreateAsync(
             AppTestData.Folders.Roadshows,
-            SampleLibraryFolderCatalog.PresentationsFolderId);
-        await _harness.Repository.MoveToFolderAsync(SampleScriptCatalog.DemoSampleId, roadshowsFolder.Id);
+            AppTestData.Folders.PresentationsId);
+        await _harness.Repository.MoveToFolderAsync(AppTestData.Scripts.DemoId, roadshowsFolder.Id);
         _harness.JsRuntime.SavedValues["prompterlive.library"] = new LibraryViewState(
             SelectedFolderId: roadshowsFolder.Id,
             SortMode: LibrarySortMode.Date,
-            ExpandedFolderIds: [SampleLibraryFolderCatalog.PresentationsFolderId, roadshowsFolder.Id]);
+            ExpandedFolderIds: [AppTestData.Folders.PresentationsId, roadshowsFolder.Id]);
 
         var cut = Render<LibraryPage>();
 

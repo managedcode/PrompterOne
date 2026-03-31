@@ -19,10 +19,10 @@ internal static partial class BrowserTestConstants
 
     public static class Scripts
     {
-        public const string DemoId = "rsvp-tech-demo";
-        public const string LeadershipId = "ted-leadership";
-        public const string QuantumId = "quantum-computing";
-        public const string SecurityIncidentId = "security-incident";
+        public const string DemoId = "test-product-launch-script";
+        public const string LeadershipId = "test-ted-leadership-script";
+        public const string QuantumId = "test-quantum-computing-script";
+        public const string SecurityIncidentId = "test-security-incident-script";
         public const string ProductLaunchTitle = "Product Launch";
         public const string LeadershipTitle = "TED: Leadership";
         public const string QuantumTitle = "Quantum Computing";
@@ -55,13 +55,22 @@ internal static partial class BrowserTestConstants
         public const int OverlapViewportWidth = 1082;
         public const int MidFlowStepLarge = 5;
         public const int MidFlowStepSmall = 2;
-        public const int ContextWordCount = 5;
+        public const int ContextWordCount = 2;
+    }
+
+    public static class Teleprompter
+    {
+        public const int AlignmentPollDelayMs = 50;
+        public const int AlignmentTolerancePx = 6;
+        public const string AdjustedFocalPointPercent = "45";
+        public static readonly Regex AdjustedFocalGuideStyle = new("top:\\s*45%", RegexOptions.Compiled);
+        public const int AlignmentTimeoutMs = 1000;
     }
 
     public static class Folders
     {
-        public const string PresentationsId = "presentations";
-        public const string TedTalksId = "ted";
+        public const string PresentationsId = "test-presentations";
+        public const string TedTalksId = "test-ted-talks";
         public const string RoadshowsId = "roadshows";
         public const string RoadshowsName = "Roadshows";
         public const string TedTalksName = "TED Talks";
@@ -149,14 +158,80 @@ internal static partial class BrowserTestConstants
     {
         public const string FirstSourceId = "scene-cam-a";
         public const string FrontCameraLabel = "Front camera";
+        public const string HostParticipantName = "Host";
+        public const string LegacyNetworkUploadMetric = "8.2 Mbps";
+        public const string LiveKitHarnessGlobal = "__prompterLiveKitHarness";
         public const string LiveKitRoom = "launch-room";
         public const string LiveKitServer = "wss://livekit.example.com";
         public const string LiveKitToken = "lk-test-token";
+        public const string MicChannelId = "mic";
+        public const string PrimaryParticipantId = "host";
+        public const string PrompterUtilitySourceId = "prompter-display";
         public const string RecordingStateValue = "recording";
+        public const string RuntimeSessionId = "go-live-program";
         public const string SceneStorageKey = "prompterlive.settings.prompterlive.scene";
         public const string SecondSourceId = "scene-cam-b";
         public const string SideCameraLabel = "Side camera";
         public const string WidgetReturnScreenshotPath = "output/playwright/go-live-widget-return.png";
+        public const string InstallLiveKitHarnessScript = """
+            () => {
+                const harness = {
+                    connectCalls: [],
+                    publishCalls: [],
+                    unpublishCalls: [],
+                    disconnectCount: 0
+                };
+
+                class FakeRoom {
+                    constructor() {
+                        this.localParticipant = {
+                            publishTrack: async (track, options) => {
+                                harness.publishCalls.push({
+                                    kind: track?.kind ?? null,
+                                    source: options?.source ?? null,
+                                    name: options?.name ?? null
+                                });
+                                return {};
+                            },
+                            unpublishTrack: async (track) => {
+                                harness.unpublishCalls.push({
+                                    kind: track?.kind ?? null
+                                });
+                                return {};
+                            }
+                        };
+                    }
+
+                    async connect(url, token) {
+                        harness.connectCalls.push({ url, token });
+                    }
+
+                    disconnect() {
+                        harness.disconnectCount += 1;
+                    }
+                }
+
+                window.__prompterLiveKitHarness = harness;
+                window.LivekitClient = {
+                    Room: FakeRoom,
+                    Track: {
+                        Source: {
+                            Camera: "camera",
+                            Microphone: "microphone"
+                        }
+                    }
+                };
+            }
+            """;
+        public const string GetLiveKitHarnessScript = "() => window.__prompterLiveKitHarness";
+        public const string LiveKitHarnessReadyScript =
+            "() => Boolean(window.__prompterLiveKitHarness && window.__prompterLiveKitHarness.connectCalls.length === 1 && window.__prompterLiveKitHarness.publishCalls.length >= 2)";
+        public const string EnableObsStudioScript = "() => { window.obsstudio = {}; }";
+        public const string GetRuntimeStateScript = "sessionId => window.PrompterLiveGoLiveOutput.getSessionState(sessionId)";
+        public const string RecordingRuntimeActiveScript =
+            "sessionId => Boolean(window.PrompterLiveGoLiveOutput.getSessionState(sessionId)?.recording?.active)";
+        public const string ObsRuntimeAudioAttachedScript =
+            "sessionId => Boolean(window.PrompterLiveGoLiveOutput.getSessionState(sessionId)?.obs?.audioAttached)";
         public const string ResolveCameraDeviceScript = """
             async () => {
                 const mediaDevices = navigator.mediaDevices;
@@ -285,6 +360,7 @@ internal static partial class BrowserTestConstants
     {
         public const string ConnectivityOfflineTitle = "Connection lost";
         public const string ConnectivityOnlineTitle = "Connection restored";
+        public const string FolderCreateFailureToggleGlobal = "__prompterFailFolderCreate";
         public const string ForcedFailureDetail = "Forced diagnostics failure from browser test.";
         public const string CreateFolderFailure = "Unable to create this folder.";
         public const string FolderStorageKey = "prompterlive.folders.v1";

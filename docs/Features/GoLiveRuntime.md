@@ -12,6 +12,22 @@ The current page layout is a production-style studio surface:
 - right rail for live preview plus stream, audio, and network telemetry
 - lower routing decks for local outputs and cloud destinations
 
+The runtime now owns real browser media outputs for the composed program scene and the current audio bus:
+
+- `Go Live` builds one browser-side program stream from the scene camera cards by drawing the selected primary camera full-frame and then layering additional included cameras as positioned overlays on a canvas
+- the scene `AudioBus` is mixed into one program audio track through `AudioContext`, delay, and gain nodes before the final program stream is published or recorded
+- OBS browser output stays browser-only and exposes the composed program audio inside an OBS Browser Source environment
+- LiveKit publishing uses the vendored browser SDK and publishes real composed `MediaStreamTrack` objects for video and audio
+- local recording uses the browser `MediaRecorder` API against the same composed program stream and prefers `showSaveFilePicker()` for real local file writing when the browser allows it, with download fallback otherwise
+- recording export profiles are honest browser probes only: the runtime checks `MediaRecorder.isTypeSupported()` and `MediaCapabilities.encodingInfo()` before choosing the resolved MIME type and falls back to a supported browser codec/container when the requested profile is unavailable
+- stream start, stop, recording start, recording stop, and source switching update the active browser output session instead of only flipping local UI state
+- the session timer and right-rail `Status` / `Runtime` cards are driven from live session/runtime state, not hardcoded demo telemetry
+
+Relay-only destinations stay configuration surfaces:
+
+- YouTube, Twitch, custom RTMP, and similar RTMP-style targets still persist credentials and routing in browser storage
+- these targets do not publish directly from the browser runtime; they require an external relay or ingest layer outside this standalone WASM app
+
 It is separate from:
 
 - `Settings`, which owns device setup such as camera selection, resolution, FPS, microphones, and audio sync
@@ -28,7 +44,9 @@ sequenceDiagram
     participant Routing as "GoLiveDestinationRouting"
     participant Studio as "StudioSettingsStore"
     participant Scene as "IMediaSceneService"
-    participant Providers as "Streaming providers"
+    participant Runtime as "GoLiveOutputRuntimeService"
+    participant Browser as "go-live-output.js"
+    participant Providers as "LiveKit / OBS runtime"
     participant Reader as "TeleprompterPage"
 
     User->>Settings: Configure camera, FPS, mic, sync
@@ -43,6 +61,17 @@ sequenceDiagram
     User->>GoLive: Arm one or more destinations
     User->>GoLive: Select scene cameras per destination
     GoLive->>Studio: Persist output targets
+    User->>GoLive: Start stream
+    GoLive->>Runtime: Build request from scene snapshot + audio bus + recording export prefs
+    Runtime->>Browser: Start or update browser output session
+    Browser->>Browser: Compose program canvas + mix audio bus
+    Browser->>Providers: Publish LiveKit tracks / attach OBS browser audio
+    User->>GoLive: Start recording
+    GoLive->>Runtime: Build request from scene snapshot + audio bus + recording export prefs
+    Runtime->>Browser: Start MediaRecorder on the composed program session
+    User->>GoLive: Switch source
+    GoLive->>Runtime: Update scene-backed program request
+    Browser->>Browser: Recompose the same program stream with the new primary source
     User->>Reader: Open teleprompter
     Reader->>Scene: Reuse same scene cameras under text
 ```
@@ -61,10 +90,18 @@ flowchart LR
     Studio["StreamStudioSettings"]
     Routing["GoLiveDestinationRouting"]
     Scene["MediaSceneState"]
+    AudioBus["AudioBusState"]
     CameraInterop["CameraPreviewInterop"]
+    Runtime["GoLiveOutputRuntimeService"]
+    RuntimeInterop["GoLiveOutputInterop"]
+    OutputSupport["go-live-output-support.js"]
+    BrowserRuntime["go-live-output.js"]
+    Composer["go-live-media-compositor.js"]
     LiveKit["LiveKitOutputProvider"]
     Vdo["VdoNinjaOutputProvider"]
     Rtmp["RtmpStreamingOutputProvider"]
+    LiveKitSdk["vendored livekit-client"]
+    ObsBrowser["OBS Browser Source"]
 
     Page --> SessionBar
     Page --> PreviewRail
@@ -75,10 +112,51 @@ flowchart LR
     Page --> Studio
     Page --> Routing
     Page --> Scene
+    Page --> AudioBus
+    Page --> Runtime
     Preview --> CameraInterop
+    Runtime --> RuntimeInterop
+    RuntimeInterop --> OutputSupport
+    RuntimeInterop --> BrowserRuntime
+    BrowserRuntime --> Composer
+    BrowserRuntime --> LiveKitSdk
+    BrowserRuntime --> ObsBrowser
     Page --> LiveKit
     Page --> Vdo
     Page --> Rtmp
+```
+
+## Runtime Pipeline
+
+```mermaid
+flowchart LR
+    Scene["Scene cameras + transforms"]
+    Audio["Audio bus inputs + gains + delay"]
+    Factory["GoLiveOutputRequestFactory"]
+    Runtime["GoLiveOutputRuntimeService"]
+    Support["go-live-output-support.js"]
+    Composer["go-live-media-compositor.js"]
+    Canvas["canvas.captureStream()"]
+    Mix["AudioContext + MediaStreamDestination"]
+    Program["Composed MediaStream"]
+    Recorder["MediaRecorder"]
+    Save["File picker or download fallback"]
+    LiveKit["LiveKit publishTrack(...)"]
+    Obs["OBS browser audio bridge"]
+
+    Scene --> Factory
+    Audio --> Factory
+    Factory --> Runtime
+    Runtime --> Support
+    Runtime --> Composer
+    Composer --> Canvas
+    Composer --> Mix
+    Canvas --> Program
+    Mix --> Program
+    Program --> Recorder
+    Recorder --> Save
+    Program --> LiveKit
+    Program --> Obs
 ```
 
 ## Rules
@@ -93,6 +171,20 @@ flowchart LR
 - any shared `Go Live` localized copy must come from `PrompterLive.Shared.Localization.UiTextCatalog`, so supported browser cultures localize the studio surface without feature-local string copies.
 - each live destination must persist its own selected scene cameras, independent of the shared program feed source list
 - legacy streaming settings must normalize to the current included program cameras so existing browser storage keeps working
+- `VirtualCamera` mode normalizes to OBS armed by default, so browser sessions keep the legacy desktop-capture workflow unless the user explicitly turns OBS off
 - Camera source inclusion is persisted through `MediaSceneState`.
 - Destination credentials and endpoints are persisted only in browser storage for this standalone runtime.
+- LiveKit browser publishing must use the vendored SDK shipped in the repo, not a CDN copy.
+- OBS browser integration must stay a thin browser bridge; no server relay or backend media graph is introduced.
+- local recording must stay browser-local and use the same active program media session as OBS / LiveKit so record and source switching stay in sync
+- local recording must prefer real local file writing through the File System Access API when the browser exposes it, but must fall back to browser download instead of pretending save-to-disk is universally available
+- recording codec/container export must never advertise unsupported browser encoders as if they are guaranteed; the runtime must probe support and choose a real fallback profile
+- right-rail telemetry must never show fake packet-loss, jitter, ping, or upload metrics when the browser runtime does not actually own those measurements
+- remote room UI must not render fake guest personas; when no real remote guest transport exists, it may only show honest local-host state and persisted room identity
 - Browser acceptance verifies `Go Live` preview and source switching against deterministic synthetic cameras, not only against static DOM state.
+- Browser acceptance for LiveKit and OBS verifies real `getUserMedia` audio/video requests and runtime session state, not only button labels.
+
+## Exception Notes
+
+- `src/PrompterLive.Shared/wwwroot/media/go-live-media-compositor.js` temporarily exceeds the root `file_max_loc` limit because canvas compositing, shared device capture, and audio-bus graph ownership are tightly coupled around browser-only APIs. Scope: only the browser program graph. Removal plan: split video composition and audio graph helpers once the pipeline stabilizes and the recording/export profile surface is no longer moving.
+- `src/PrompterLive.Shared/wwwroot/media/go-live-output-support.js` temporarily exceeds the root `file_max_loc` limit because request normalization, codec probing, and local-save recording helpers must currently stay aligned with the browser runtime contract in one place. Scope: request normalization and browser recording/export helpers. Removal plan: split request normalization from recording/export helpers after the profile mapping rules settle.

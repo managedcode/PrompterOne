@@ -1,4 +1,3 @@
-using PrompterLive.Core.Samples;
 using PrompterLive.Core.Services;
 using PrompterLive.Core.Services.Preview;
 using PrompterLive.Core.Services.Workspace;
@@ -11,7 +10,7 @@ public sealed class ScriptSessionServiceTests
     private const string UntitledScriptTitle = "Untitled Script";
 
     [Fact]
-    public async Task InitializeAsync_SeedsLibraryAndBuildsEmptyDraft()
+    public async Task InitializeAsync_DoesNotSeedLibraryAndBuildsEmptyDraft()
     {
         var repository = new InMemoryScriptRepository();
         var session = CreateSession(repository);
@@ -20,7 +19,7 @@ public sealed class ScriptSessionServiceTests
 
         var library = await repository.ListAsync();
 
-        Assert.Equal(5, library.Count);
+        Assert.Empty(library);
         Assert.Equal(UntitledScriptTitle, session.State.Title);
         Assert.Equal(UntitledScriptDocumentName, session.State.DocumentName);
         Assert.Equal(string.Empty, session.State.Text);
@@ -48,15 +47,17 @@ public sealed class ScriptSessionServiceTests
     }
 
     [Fact]
-    public async Task LoadSampleAsync_UsesEmbeddedDemoScript()
+    public async Task OpenAsync_LoadsProvidedDocument()
     {
         var repository = new InMemoryScriptRepository();
         var session = CreateSession(repository);
+        var document = CoreTestSeedData.CreateDocuments()
+            .Single(item => string.Equals(item.Id, CoreTestSeedData.Scripts.DemoId, StringComparison.Ordinal));
 
         await session.InitializeAsync();
-        await session.LoadSampleAsync(SampleScriptCatalog.DemoSampleId);
+        await session.OpenAsync(document);
 
-        Assert.Equal(SampleScriptCatalog.DemoSampleId, session.State.ScriptId);
+        Assert.Equal(CoreTestSeedData.Scripts.DemoId, session.State.ScriptId);
         Assert.Equal("Product Launch", session.State.Title);
         Assert.Contains(session.State.PreviewSegments, segment => segment.Title == "Intro");
         Assert.Contains(session.State.PreviewSegments, segment => segment.Title == "Call to Action");

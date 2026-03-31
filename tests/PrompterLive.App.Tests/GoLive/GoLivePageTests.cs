@@ -192,6 +192,65 @@ public sealed class GoLivePageTests : BunitContext
         Assert.Equal([AppTestData.Camera.SecondSourceId], youtubeSelection.SourceIds);
     }
 
+    [Fact]
+    public void GoLivePage_RendersStudioParitySurfaceAndRemoteRoomFlow()
+    {
+        SeedSceneState(CreateTwoCameraScene());
+
+        Services.GetRequiredService<NavigationManager>()
+            .NavigateTo(AppTestData.Routes.GoLiveDemo);
+
+        var cut = Render<GoLivePage>();
+
+        cut.WaitForAssertion(() =>
+        {
+            Assert.NotNull(cut.FindByTestId(UiTestIds.GoLive.ModeDirector));
+            Assert.NotNull(cut.FindByTestId(UiTestIds.GoLive.SceneControls));
+            Assert.NotNull(cut.FindByTestId(UiTestIds.GoLive.StreamTab));
+            Assert.NotNull(cut.FindByTestId(UiTestIds.GoLive.UtilitySource(AppTestData.GoLive.PrompterUtilitySourceId)));
+        });
+
+        cut.FindByTestId(UiTestIds.GoLive.RoomTab).Click();
+        cut.FindByTestId(UiTestIds.GoLive.CreateRoom).Click();
+
+        cut.WaitForAssertion(() =>
+        {
+            Assert.NotNull(cut.FindByTestId(UiTestIds.GoLive.RoomActive));
+            Assert.NotNull(cut.FindByTestId(UiTestIds.GoLive.RoomInvite));
+            var participant = cut.FindByTestId(UiTestIds.GoLive.RoomParticipant(AppTestData.GoLive.PrimaryParticipantId));
+            Assert.NotNull(participant);
+            Assert.Contains(AppTestData.GoLive.PrimaryParticipantName, participant.TextContent, StringComparison.Ordinal);
+            Assert.Contains(AppTestData.GoLive.PrimaryParticipantRole, participant.TextContent, StringComparison.Ordinal);
+            Assert.DoesNotContain(AppTestData.GoLive.LegacyNetworkUploadMetric, cut.Markup, StringComparison.Ordinal);
+        });
+    }
+
+    [Fact]
+    public void GoLivePage_ShowsElapsedTimerForActiveRecordingSession()
+    {
+        SeedSceneState(CreateTwoCameraScene());
+
+        Services.GetRequiredService<NavigationManager>()
+            .NavigateTo(AppTestData.Routes.GoLiveDemo);
+
+        var cut = Render<GoLivePage>();
+        cut.WaitForAssertion(() => Assert.NotNull(cut.FindByTestId(UiTestIds.GoLive.Page)));
+
+        var sessionService = Services.GetRequiredService<GoLiveSessionService>();
+        var current = sessionService.State;
+        sessionService.SetState(current with
+        {
+            IsRecordingActive = true,
+            RecordingStartedAt = DateTimeOffset.UtcNow.AddMinutes(-2).AddSeconds(-3)
+        });
+
+        cut.WaitForAssertion(() =>
+        {
+            var timerText = cut.FindByTestId(UiTestIds.GoLive.SessionTimer).TextContent.Trim();
+            Assert.StartsWith(AppTestData.GoLive.SessionTimerPrefix, timerText, StringComparison.Ordinal);
+        });
+    }
+
     private static MediaSceneState CreateTwoCameraScene() =>
         new(
             [

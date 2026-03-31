@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Components;
 using PrompterLive.Core.Abstractions;
 using PrompterLive.Core.Models.Media;
 using PrompterLive.Core.Models.Workspace;
-using PrompterLive.Core.Samples;
 using PrompterLive.Core.Services;
 using PrompterLive.Shared.Contracts;
 using PrompterLive.Shared.Services;
@@ -46,6 +45,7 @@ public partial class TeleprompterPage : IAsyncDisposable
     [Inject] private IScriptRepository ScriptRepository { get; set; } = null!;
     [Inject] private IScriptSessionService SessionService { get; set; } = null!;
     [Inject] private StudioSettingsStore StudioSettingsStore { get; set; } = null!;
+    [Inject] private TeleprompterReaderInterop ReaderInterop { get; set; } = null!;
 
     [SupplyParameterFromQuery(Name = AppRoutes.ScriptIdQueryKey)]
     public string? ScriptId { get; set; }
@@ -83,6 +83,7 @@ public partial class TeleprompterPage : IAsyncDisposable
     protected override Task OnParametersSetAsync()
     {
         StopReaderPlaybackLoop();
+        ResetReaderAlignmentState();
         _loadState = true;
         _focusScreenAfterRender = true;
         return Task.CompletedTask;
@@ -118,6 +119,8 @@ public partial class TeleprompterPage : IAsyncDisposable
             _activateReaderCameraAfterRender = false;
             await AttachReaderCameraAsync();
         }
+
+        await AlignActiveReaderTextAsync();
     }
 
     private async Task EnsureSessionLoadedAsync()
@@ -136,13 +139,14 @@ public partial class TeleprompterPage : IAsyncDisposable
 
         if (string.IsNullOrWhiteSpace(SessionService.State.ScriptId))
         {
-            await SessionService.LoadSampleAsync(SampleScriptCatalog.DemoSampleId);
+            return;
         }
     }
 
     private async Task PopulateReaderStateAsync()
     {
         var nextCards = await BuildReaderCardsAsync();
+        ResetReaderAlignmentState();
         _cards = nextCards.Count > 0 ? nextCards : [ReaderCardViewModel.Empty];
         _screenTitle = SessionService.State.Title;
         _readerFontSize = NormalizeReaderFontSize(SessionService.State.ReaderSettings.FontScale);

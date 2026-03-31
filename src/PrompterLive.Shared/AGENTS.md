@@ -25,6 +25,8 @@
 ## Boundaries
 
 - Keep markup aligned with `new-design`.
+- Use `new-design` only as a static HTML/CSS reference. Final routed UI must be authored as Blazor components and C#-owned state in this project.
+- When a screen has a `new-design/*.html` counterpart, parity work must port the whole screen structure and intended interactions into Blazor instead of approximating only selected sections.
 - Keep routed pages, feature components, renderers, and feature-local services inside their owning slice folders.
 - Keep app-specific UI logic here, but keep business rules in `PrompterLive.Core`.
 - Preserve `data-testid` selectors used by Playwright.

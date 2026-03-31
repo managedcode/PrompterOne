@@ -90,7 +90,7 @@
     justify-content: center;
     width: 100%;
     max-width: 1100px;
-    gap: 16px;
+    gap: 0;
 }
 
 .rsvp-ctx-left, .rsvp-ctx-right {
@@ -101,7 +101,7 @@
     color: rgba(232,213,176,.4);
     white-space: nowrap;
     overflow: hidden;
-    flex: 1;
+    flex: 1 1 0;
     min-width: 0;
 }
 .rsvp-ctx-left {
@@ -117,8 +117,8 @@
     display: flex;
     align-items: baseline;
     justify-content: center;
-    flex: 0 0 clamp(580px, 60vw, 780px);
-    min-width: min(580px, 100%);
+    flex: 0 1 clamp(340px, 38vw, 480px);
+    min-width: min(340px, 100%);
     max-width: 100%;
     overflow: hidden;
 }

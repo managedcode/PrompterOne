@@ -60,10 +60,13 @@
                 </div>
             </div>
 
-            <div class="rd-stage" id="@UiDomIds.Teleprompter.Stage">
+            <div class="rd-stage"
+                 id="@UiDomIds.Teleprompter.Stage"
+                 data-testid="@UiTestIds.Teleprompter.Stage">
                 <div class="rd-center-guide"></div>
                 <div class="@BuildFocalGuideCssClass()"
                      id="@UiDomIds.Teleprompter.FocalGuide"
+                     data-testid="@UiTestIds.Teleprompter.FocalGuide"
                      style="@BuildFocalGuideStyle()"></div>
                 <div class="@BuildWidthGuideCssClass(true)"
                      id="@UiDomIds.Teleprompter.WidthGuideLeft"
@@ -84,6 +87,8 @@
                                     <span class="rd-emo-wpm">@entry.card.TargetWpm <small>WPM</small></span>
                                 </div>
                                 <p class="rd-cluster-text"
+                                   id="@UiDomIds.Teleprompter.CardText(entry.index)"
+                                   style="@BuildReaderCardTextStyle(entry.index)"
                                    data-testid="@UiTestIds.Teleprompter.CardText(entry.index)">
                                     @for (var chunkIndex = 0; chunkIndex < entry.card.Chunks.Count; chunkIndex++)
                                     {
@@ -99,8 +104,10 @@
                                                 {
                                                     var word = group.Words[wordIndex];
                                                     <span class="@BuildReaderWordCssClass(entry.index, chunkIndex, wordIndex)"
+                                                          id="@UiDomIds.Teleprompter.CardWord(entry.index, chunkIndex, wordIndex)"
                                                           data-ms="@word.DurationMs"
-                                                          data-pause-ms="@word.PauseAfterMs">@word.Text</span>
+                                                          data-pause-ms="@word.PauseAfterMs"
+                                                          data-testid="@UiTestIds.Teleprompter.CardWord(entry.index, chunkIndex, wordIndex)">@word.Text</span>
                                                     @if (wordIndex < group.Words.Count - 1)
                                                     {
                                                         @(" ")

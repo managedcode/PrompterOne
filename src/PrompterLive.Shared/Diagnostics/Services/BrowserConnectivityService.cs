@@ -2,7 +2,7 @@ using Microsoft.JSInterop;
 
 namespace PrompterLive.Shared.Services.Diagnostics;
 
-public sealed class BrowserConnectivityService(IJSRuntime jsRuntime) : IAsyncDisposable
+public sealed class BrowserConnectivityService(IJSRuntime jsRuntime) : IDisposable, IAsyncDisposable
 {
     private const string ConnectivityOfflineMessage = "Prompter.live is offline. Live routing, cloud sync, and remote publishing will resume when the browser reconnects.";
     private const string ConnectivityOfflineTitle = "Connection lost";
@@ -20,6 +20,7 @@ public sealed class BrowserConnectivityService(IJSRuntime jsRuntime) : IAsyncDis
     private CancellationTokenSource? _monitorCts;
     private bool? _lastKnownOnline;
     private Task? _monitorTask;
+    private bool _disposed;
 
     public event EventHandler? Changed;
 
@@ -62,29 +63,29 @@ public sealed class BrowserConnectivityService(IJSRuntime jsRuntime) : IAsyncDis
         UpdateState(isVisible: false, state: string.Empty, title: string.Empty, message: string.Empty);
     }
 
+    public void Dispose()
+    {
+        DisposeMonitorResources();
+        GC.SuppressFinalize(this);
+    }
+
     public async ValueTask DisposeAsync()
     {
-        CancelPendingHide();
+        var monitorTask = _monitorTask;
+        DisposeMonitorResources();
 
-        if (_monitorCts is not null)
-        {
-            _monitorCts.Cancel();
-            _monitorCts.Dispose();
-            _monitorCts = null;
-        }
-
-        if (_monitorTask is not null)
+        if (monitorTask is not null)
         {
             try
             {
-                await _monitorTask;
+                await monitorTask;
             }
             catch (OperationCanceledException)
             {
             }
         }
 
-        _startGate.Dispose();
+        GC.SuppressFinalize(this);
     }
 
     private async Task MonitorAsync(CancellationToken cancellationToken)
@@ -172,6 +173,26 @@ public sealed class BrowserConnectivityService(IJSRuntime jsRuntime) : IAsyncDis
         _hideCts?.Cancel();
         _hideCts?.Dispose();
         _hideCts = null;
+    }
+
+    private void DisposeMonitorResources()
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        _disposed = true;
+        CancelPendingHide();
+
+        if (_monitorCts is not null)
+        {
+            _monitorCts.Cancel();
+            _monitorCts.Dispose();
+            _monitorCts = null;
+        }
+
+        _startGate.Dispose();
     }
 
     private void UpdateState(bool isVisible, string state, string title, string message)

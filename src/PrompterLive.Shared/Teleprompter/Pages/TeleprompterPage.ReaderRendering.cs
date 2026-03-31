@@ -48,6 +48,7 @@ public partial class TeleprompterPage
         _edgeSectionLabel = activeCard.DisplayName;
         _readerProgressFillWidth = $"{BuildProgressPercent():0.##}%";
         _elapsedLabel = $"{FormatDurationLabel(GetElapsedMilliseconds())} / {FormatDurationLabel(_totalDurationMilliseconds)}";
+        RequestReaderAlignment();
 
         Shell.ShowTeleprompter(_screenTitle, _screenSubtitle, SessionService.State.ScriptId);
     }

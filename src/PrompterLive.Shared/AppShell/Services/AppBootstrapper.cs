@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging.Abstractions;
 using PrompterLive.Core.Abstractions;
 using PrompterLive.Core.Models.Media;
 using PrompterLive.Core.Models.Workspace;
-using PrompterLive.Core.Samples;
 
 namespace PrompterLive.Shared.Services;
 
@@ -45,7 +44,7 @@ public sealed class AppBootstrapper(
             }
 
             _logger.LogInformation("Initializing PrompterLive browser state.");
-            await _libraryFolderRepository.InitializeAsync(SampleLibraryFolderCatalog.CreateSeedFolders(), cancellationToken);
+            await _libraryFolderRepository.InitializeAsync([], cancellationToken);
             await _sessionService.InitializeAsync(cancellationToken);
 
             var readerSettings = await _settingsStore.LoadAsync<ReaderSettings>(ReaderSettingsKey, cancellationToken);

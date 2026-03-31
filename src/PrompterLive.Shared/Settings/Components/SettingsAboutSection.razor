@@ -1,0 +1,156 @@
+@namespace PrompterLive.Shared.Components.Settings
+
+<section class="set-section set-panel"
+         id="set-about"
+         style="@DisplayStyle"
+         data-testid="@UiTestIds.Settings.AboutPanel">
+    <h3 class="set-section-title">About</h3>
+    <p class="set-section-desc">Prompter.live — professional teleprompter for creators, broadcasters, and public speakers.</p>
+
+    <div class="set-about-hero">
+        <div class="set-about-logo-wrap">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                <path d="M4 6h16M4 12h12M4 18h14" stroke="url(#about-logo-gradient)" stroke-width="2.5" stroke-linecap="round" />
+                <defs>
+                    <linearGradient id="about-logo-gradient" x1="4" y1="6" x2="20" y2="18">
+                        <stop stop-color="#F5E6D0" />
+                        <stop offset="1" stop-color="#C4A882" />
+                    </linearGradient>
+                </defs>
+            </svg>
+        </div>
+        <div class="set-about-hero-info">
+            <div class="set-about-appname">Prompter.live</div>
+            <div class="set-about-version">Standalone browser build</div>
+            <div class="set-about-build">Version 0.1.0-dev · Blazor WebAssembly</div>
+        </div>
+    </div>
+
+    <div class="set-device-list">
+        <SettingsExpandableCard Title="Prompter.live"
+                                Subtitle="Version 0.1.0-dev · Local browser workspace"
+                                StatusLabel="Licensed"
+                                StatusClass="set-dest-ok"
+                                IconStyle="background:rgba(196,160,96,.10); color:var(--gold);"
+                                IsOpen="@IsCardOpen(AppCardId)"
+                                OnToggle="@(() => ToggleCard.InvokeAsync(AppCardId))">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 6h16M4 12h12M4 18h14" />
+            </svg>
+            <p class="set-about-text">Prompter.live runs fully in the browser for this runtime shape, keeping scripts, studio settings, and playback state inside local browser storage.</p>
+            <p class="set-about-text">Media setup, teleprompter playback, RSVP learning, and GO LIVE routing stay client-side so the app boots directly from the WebAssembly host.</p>
+        </SettingsExpandableCard>
+
+        <SettingsExpandableCard Title="Our Team"
+                                Subtitle="Built with care from Kyiv"
+                                IconStyle="background:rgba(196,160,96,.10); color:var(--gold);"
+                                IsOpen="@IsCardOpen(TeamCardId)"
+                                OnToggle="@(() => ToggleCard.InvokeAsync(TeamCardId))">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+            </svg>
+            <div class="set-about-team">
+                @foreach (var member in TeamMembers)
+                {
+                    <div class="set-about-member">
+                        <div class="set-about-avatar" style="@member.AvatarStyle">@member.Initials</div>
+                        <div>
+                            <div class="set-about-mname">@member.Name</div>
+                            <div class="set-about-mrole">@member.Role</div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </SettingsExpandableCard>
+
+        <SettingsExpandableCard Title="Open Source"
+                                Subtitle="Libraries &amp; licenses"
+                                IconStyle="background:rgba(99,102,241,.10); color:#818CF8;"
+                                IsOpen="@IsCardOpen(OpenSourceCardId)"
+                                OnToggle="@(() => ToggleCard.InvokeAsync(OpenSourceCardId))">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="16,18 22,12 16,6" />
+                <polyline points="8,6 2,12 8,18" />
+            </svg>
+            <div class="set-oss-list">
+                @foreach (var library in Libraries)
+                {
+                    <div class="set-oss-item">
+                        <div class="set-oss-info">
+                            <span class="set-oss-name">@library.Name</span>
+                            <span class="set-oss-desc">@library.Description</span>
+                        </div>
+                        <span class="set-oss-license">@library.License</span>
+                    </div>
+                }
+            </div>
+        </SettingsExpandableCard>
+
+        <SettingsExpandableCard Title="Help &amp; Resources"
+                                Subtitle="Docs, changelog, feedback"
+                                IconStyle="background:rgba(59,130,246,.10); color:#60A5FA;"
+                                IsOpen="@IsCardOpen(ResourcesCardId)"
+                                OnToggle="@(() => ToggleCard.InvokeAsync(ResourcesCardId))">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+            <div class="set-device-fields">
+                @foreach (var link in ResourceLinks)
+                {
+                    <div class="set-field set-field-toggle">
+                        <label>@link</label>
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--t4)" stroke-width="2">
+                            <polyline points="9,18 15,12 9,6" />
+                        </svg>
+                    </div>
+                }
+            </div>
+        </SettingsExpandableCard>
+    </div>
+
+    <div class="set-about-footer">Made with care in Ukraine · © 2026 Prompter.live</div>
+</section>
+
+@code {
+    private const string AppCardId = "about-app";
+    private const string OpenSourceCardId = "about-open-source";
+    private const string ResourcesCardId = "about-resources";
+    private const string TeamCardId = "about-team";
+
+    private static readonly string[] ResourceLinks =
+    [
+        "What's New",
+        "Help & Documentation",
+        "Report a Bug",
+        "Privacy Policy"
+    ];
+
+    private static readonly AboutItem[] Libraries =
+    [
+        new("Inter", "UI typeface · Rasmus Andersson", "OFL"),
+        new("JetBrains Mono", "Monospace · JetBrains", "OFL"),
+        new("Playfair Display", "Display serif · Claus Eggers Sorensen", "OFL"),
+        new("Feather Icons", "Open source icon set", "MIT"),
+        new("WebRTC", "Real-time communication APIs", "BSD"),
+        new("Web Audio API", "High-level audio processing", "W3C")
+    ];
+
+    private static readonly TeamMember[] TeamMembers =
+    [
+        new("M", "Mykola Kovalenko", "Founder · Product & Design", "background:linear-gradient(135deg,#C4A060,#8B6A3A);"),
+        new("A", "Anna Petrenko", "Lead Engineer", "background:linear-gradient(135deg,#60A5FA,#2563EB);"),
+        new("D", "Dmytro Shevchenko", "Backend & Infrastructure", "background:linear-gradient(135deg,#34D399,#059669);")
+    ];
+
+    [Parameter] public string DisplayStyle { get; set; } = string.Empty;
+    [Parameter] public Func<string, bool> IsCardOpen { get; set; } = static _ => false;
+    [Parameter] public EventCallback<string> ToggleCard { get; set; }
+
+    private sealed record AboutItem(string Name, string Description, string License);
+
+    private sealed record TeamMember(string Initials, string Name, string Role, string AvatarStyle);
+}

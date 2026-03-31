@@ -6,11 +6,12 @@
             <h3 class="live-card-title">@Title</h3>
             <p class="live-card-desc">@Description</p>
         </div>
-        <div class="set-toggle @(IsEnabled ? "on" : null)"
-             @onclick="OnToggle"
-             data-testid="@ToggleTestId">
+        <button type="button"
+                class="set-toggle @(IsEnabled ? "on" : null)"
+                @onclick="HandleToggleAsync"
+                data-testid="@ToggleTestId">
             <div class="set-toggle-thumb"></div>
-        </div>
+        </button>
     </div>
 
     <div class="live-status-row">
@@ -49,4 +50,6 @@
     [Parameter] public string Title { get; set; } = string.Empty;
 
     [Parameter] public string ToggleTestId { get; set; } = string.Empty;
+
+    private Task HandleToggleAsync() => OnToggle.InvokeAsync();
 }

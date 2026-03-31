@@ -14,26 +14,36 @@ public sealed class DiagnosticsUiTests(StandaloneAppFixture fixture) : IClassFix
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.Library);
-            await Expect(page.GetByTestId(UiTestIds.Library.Page)).ToBeVisibleAsync();
-
-            await page.EvaluateAsync(
+            await page.AddInitScriptAsync(
                 $$"""
-                ({ detail, storageKey }) => {
+                (() => {
+                    const storageKey = {{System.Text.Json.JsonSerializer.Serialize(BrowserTestConstants.Diagnostics.FolderStorageKey)}};
+                    const detail = {{System.Text.Json.JsonSerializer.Serialize(BrowserTestConstants.Diagnostics.ForcedFailureDetail)}};
+                    const toggleGlobal = {{System.Text.Json.JsonSerializer.Serialize(BrowserTestConstants.Diagnostics.FolderCreateFailureToggleGlobal)}};
                     const originalSetItem = Storage.prototype.setItem;
+
                     Storage.prototype.setItem = function (key, value) {
-                        if (key === storageKey) {
+                        if (window[toggleGlobal] === true && key === storageKey) {
                             throw new Error(detail);
                         }
 
                         return originalSetItem.call(this, key, value);
                     };
+                })();
+                """);
+
+            await page.GotoAsync(BrowserTestConstants.Routes.Library);
+            await Expect(page.GetByTestId(UiTestIds.Library.Page)).ToBeVisibleAsync();
+
+            await page.EvaluateAsync(
+                $$"""
+                ({ toggleGlobal }) => {
+                    window[toggleGlobal] = true;
                 }
                 """,
                 new
                 {
-                    detail = BrowserTestConstants.Diagnostics.ForcedFailureDetail,
-                    storageKey = BrowserTestConstants.Diagnostics.FolderStorageKey
+                    toggleGlobal = BrowserTestConstants.Diagnostics.FolderCreateFailureToggleGlobal
                 });
 
             await page.GetByTestId(UiTestIds.Library.FolderCreateStart).ClickAsync();

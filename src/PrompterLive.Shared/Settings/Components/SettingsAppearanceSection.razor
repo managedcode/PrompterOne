@@ -1,0 +1,279 @@
+@namespace PrompterLive.Shared.Components.Settings
+
+<section class="set-section set-panel"
+         id="set-appearance"
+         style="@DisplayStyle"
+         data-testid="@UiTestIds.Settings.AppearancePanel">
+    <h3 class="set-section-title">Appearance</h3>
+    <p class="set-section-desc">Customize the look and feel of the app and the teleprompter reader.</p>
+
+    <div class="set-device-list">
+        <SettingsExpandableCard Title="Theme"
+                                Subtitle="@ThemeSubtitle"
+                                IconStyle="background:rgba(196,160,96,.10); color:var(--gold);"
+                                IsOpen="@IsCardOpen(ThemeCardId)"
+                                OnToggle="@(() => ToggleCard.InvokeAsync(ThemeCardId))">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="5" />
+                <line x1="12" y1="1" x2="12" y2="3" />
+                <line x1="12" y1="21" x2="12" y2="23" />
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                <line x1="1" y1="12" x2="3" y2="12" />
+                <line x1="21" y1="12" x2="23" y2="12" />
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+            </svg>
+            <div class="set-device-fields">
+                <div class="set-field">
+                    <label>Color Scheme</label>
+                    <div class="set-theme-options">
+                        @foreach (var option in ThemeOptions)
+                        {
+                            <label class="@(option.Value == ColorScheme ? "set-theme-opt active" : "set-theme-opt")"
+                                   @onclick:stopPropagation="true">
+                                <input type="radio"
+                                       name="theme"
+                                       checked="@(option.Value == ColorScheme)"
+                                       @onchange="@(() => UpdateColorScheme.InvokeAsync(option.Value))" />
+                                <div class="set-theme-swatch" style="@option.SwatchStyle">@((MarkupString)option.IconMarkup)</div>
+                                <span>@option.Label</span>
+                            </label>
+                        }
+                    </div>
+                </div>
+                <div class="set-field">
+                    <label>Accent Color</label>
+                    <div class="set-accent-options">
+                        @foreach (var accent in AccentOptions)
+                        {
+                            <button class="@(accent.Value == AccentColor ? "set-accent-swatch active" : "set-accent-swatch")"
+                                    style="@($"background:{accent.Value}")"
+                                    title="@accent.Label"
+                                    type="button"
+                                    @onclick="() => UpdateAccentColor.InvokeAsync(accent.Value)"
+                                    @onclick:stopPropagation="true"></button>
+                        }
+                    </div>
+                </div>
+            </div>
+        </SettingsExpandableCard>
+
+        <SettingsExpandableCard Title="Teleprompter Display"
+                                Subtitle="@($"{TeleprompterFont} · {TeleprompterFontSize}px")"
+                                IconStyle="background:rgba(59,130,246,.10); color:#60A5FA;"
+                                IsOpen="@IsCardOpen(TeleprompterCardId)"
+                                OnToggle="@(() => ToggleCard.InvokeAsync(TeleprompterCardId))">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 6h16M4 12h12M4 18h14" />
+            </svg>
+            <div class="set-device-fields">
+                <div class="set-field">
+                    <label>Font</label>
+                    <select class="set-select" value="@TeleprompterFont" @onchange="OnFontChanged" @onclick:stopPropagation="true">
+                        <option value="Inter (Default)">Inter (Default)</option>
+                        <option value="Playfair Display">Playfair Display</option>
+                        <option value="JetBrains Mono">JetBrains Mono</option>
+                        <option value="Georgia">Georgia</option>
+                        <option value="System Serif">System Serif</option>
+                    </select>
+                </div>
+                <div class="set-field">
+                    <label>Default Font Size</label>
+                    <div class="set-size-row">
+                        <span class="set-size-label">A</span>
+                        <input type="range"
+                               class="set-range"
+                               min="24"
+                               max="96"
+                               value="@TeleprompterFontSize"
+                               @oninput="UpdateTeleprompterFontSize"
+                               @onclick:stopPropagation="true" />
+                        <span class="set-size-label set-size-label-lg">A</span>
+                    </div>
+                </div>
+                <div class="set-field">
+                    <label>Text Color</label>
+                    <div class="set-accent-options">
+                        @foreach (var swatch in TextColorOptions)
+                        {
+                            <button class="@(swatch.Value == TeleprompterTextColor ? "set-accent-swatch active" : "set-accent-swatch")"
+                                    style="@($"background:{swatch.Value}")"
+                                    title="@swatch.Label"
+                                    type="button"
+                                    @onclick="() => UpdateTeleprompterTextColor.InvokeAsync(swatch.Value)"
+                                    @onclick:stopPropagation="true"></button>
+                        }
+                    </div>
+                </div>
+                <div class="set-field set-field-toggle">
+                    <label>Mirror Text (Horizontal Flip)</label>
+                    <div class="set-toggle @(MirrorTeleprompterText ? "on" : null)"
+                         @onclick="ToggleMirrorTeleprompterText"
+                         @onclick:stopPropagation="true">
+                        <div class="set-toggle-thumb"></div>
+                    </div>
+                </div>
+                <div class="set-field set-field-toggle">
+                    <label>Show Word Highlight</label>
+                    <div class="set-toggle @(ShowWordHighlight ? "on" : null)"
+                         @onclick="ToggleShowWordHighlight"
+                         @onclick:stopPropagation="true">
+                        <div class="set-toggle-thumb"></div>
+                    </div>
+                </div>
+            </div>
+        </SettingsExpandableCard>
+
+        <SettingsExpandableCard Title="Interface"
+                                Subtitle="Density · Motion · Shortcuts"
+                                IconStyle="background:rgba(139,92,246,.10); color:#A78BFA;"
+                                IsOpen="@IsCardOpen(InterfaceCardId)"
+                                OnToggle="@(() => ToggleCard.InvokeAsync(InterfaceCardId))">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <path d="M3 9h18M9 21V9" />
+            </svg>
+            <div class="set-device-fields">
+                <div class="set-field">
+                    <label>UI Density</label>
+                    <div class="set-theme-options">
+                        @foreach (var density in DensityOptions)
+                        {
+                            <label class="@(density.Value == UiDensity ? "set-theme-opt active" : "set-theme-opt")"
+                                   @onclick:stopPropagation="true">
+                                <input type="radio"
+                                       name="density"
+                                       checked="@(density.Value == UiDensity)"
+                                       @onchange="@(() => UpdateUiDensity.InvokeAsync(density.Value))" />
+                                <div class="set-theme-swatch set-density-swatch">@((MarkupString)density.IconMarkup)</div>
+                                <span>@density.Label</span>
+                            </label>
+                        }
+                    </div>
+                </div>
+                <div class="set-field set-field-toggle">
+                    <label>Reduce Motion</label>
+                    <div class="set-toggle @(ReduceMotion ? "on" : null)"
+                         @onclick="ToggleReduceMotion"
+                         @onclick:stopPropagation="true">
+                        <div class="set-toggle-thumb"></div>
+                    </div>
+                </div>
+                <div class="set-field set-field-toggle">
+                    <label>Show keyboard shortcuts overlay</label>
+                    <div class="set-toggle @(ShowShortcutOverlay ? "on" : null)"
+                         @onclick="ToggleShowShortcutOverlay"
+                         @onclick:stopPropagation="true">
+                        <div class="set-toggle-thumb"></div>
+                    </div>
+                </div>
+                <div class="set-field set-field-toggle">
+                    <label>Show Header Chrome</label>
+                    <div class="@ShowHeaderChromeToggleCssClass"
+                         @onclick="ToggleShowHeaderChrome"
+                         @onclick:stopPropagation="true">
+                        <div class="set-toggle-thumb"></div>
+                    </div>
+                </div>
+                <div class="set-field set-field-toggle">
+                    <label>Use Ambient Gradient Motion</label>
+                    <div class="@AmbientGradientMotionToggleCssClass"
+                         @onclick="ToggleAmbientGradientMotion"
+                         @onclick:stopPropagation="true">
+                        <div class="set-toggle-thumb"></div>
+                    </div>
+                </div>
+            </div>
+        </SettingsExpandableCard>
+    </div>
+</section>
+
+@code {
+    private const string InterfaceCardId = "appearance-interface";
+    private const string TeleprompterCardId = "appearance-teleprompter";
+    private const string ThemeCardId = "appearance-theme";
+
+    private static readonly ThemeOption[] AccentOptions =
+    [
+        new("Gold", "#C4A060"),
+        new("Blue", "#60A5FA"),
+        new("Emerald", "#34D399"),
+        new("Pink", "#F472B6"),
+        new("Purple", "#A78BFA"),
+        new("Orange", "#FB923C")
+    ];
+
+    private static readonly ThemeOption[] DensityOptions =
+    [
+        new("compact", "Compact", "background:rgba(196,160,96,.08);display:flex;align-items:center;justify-content:center;", "<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" style=\"color:var(--t3)\"><line x1=\"4\" y1=\"6\" x2=\"20\" y2=\"6\"/><line x1=\"4\" y1=\"12\" x2=\"20\" y2=\"12\"/><line x1=\"4\" y1=\"18\" x2=\"20\" y2=\"18\"/></svg>"),
+        new("default", "Default", "background:rgba(196,160,96,.08);display:flex;align-items:center;justify-content:center;", "<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" style=\"color:var(--gold)\"><line x1=\"4\" y1=\"7\" x2=\"20\" y2=\"7\"/><line x1=\"4\" y1=\"14\" x2=\"20\" y2=\"14\"/></svg>"),
+        new("spacious", "Spacious", "background:rgba(196,160,96,.08);display:flex;align-items:center;justify-content:center;", "<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" style=\"color:var(--t3)\"><line x1=\"4\" y1=\"8\" x2=\"20\" y2=\"8\"/><line x1=\"4\" y1=\"16\" x2=\"20\" y2=\"16\"/></svg>")
+    ];
+
+    private static readonly ThemeOption[] TextColorOptions =
+    [
+        new("White", "#FFFFFF"),
+        new("Warm White", "#F5E6D0"),
+        new("Amber", "#FDE68A"),
+        new("Mint", "#6EE7B7")
+    ];
+
+    private static readonly ThemeOption[] ThemeOptions =
+    [
+        new("dark", "Dark", "background:linear-gradient(135deg,#0a0e14,#141c28)", "<svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" style=\"color:rgba(196,160,96,.7)\"><path d=\"M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z\"/></svg>"),
+        new("light", "Light", "background:linear-gradient(135deg,#f0ebe4,#e0d8cc)", "<svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#8B7355\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"5\"/><line x1=\"12\" y1=\"1\" x2=\"12\" y2=\"3\"/><line x1=\"12\" y1=\"21\" x2=\"12\" y2=\"23\"/></svg>"),
+        new("system", "System", "background:linear-gradient(135deg,#0a0e14 50%,#f0ebe4 50%)", "<svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" style=\"color:rgba(196,160,96,.9)\"><rect x=\"2\" y=\"3\" width=\"20\" height=\"14\" rx=\"2\"/><line x1=\"8\" y1=\"21\" x2=\"16\" y2=\"21\"/><line x1=\"12\" y1=\"17\" x2=\"12\" y2=\"21\"/></svg>")
+    ];
+
+    private string ThemeSubtitle =>
+        ColorScheme switch
+        {
+            "light" => "Light · Custom accent",
+            "system" => "System · Custom accent",
+            _ => "Dark · Gold accent"
+        };
+
+    [Parameter] public string AccentColor { get; set; } = string.Empty;
+    [Parameter] public string AmbientGradientMotionToggleCssClass { get; set; } = string.Empty;
+    [Parameter] public string ColorScheme { get; set; } = string.Empty;
+    [Parameter] public string DisplayStyle { get; set; } = string.Empty;
+    [Parameter] public Func<string, bool> IsCardOpen { get; set; } = static _ => false;
+    [Parameter] public bool MirrorTeleprompterText { get; set; }
+    [Parameter] public bool ReduceMotion { get; set; }
+    [Parameter] public bool ShowShortcutOverlay { get; set; }
+    [Parameter] public string ShowHeaderChromeToggleCssClass { get; set; } = string.Empty;
+    [Parameter] public bool ShowWordHighlight { get; set; }
+    [Parameter] public string TeleprompterFont { get; set; } = string.Empty;
+    [Parameter] public int TeleprompterFontSize { get; set; }
+    [Parameter] public string TeleprompterTextColor { get; set; } = string.Empty;
+    [Parameter] public string UiDensity { get; set; } = string.Empty;
+    [Parameter] public EventCallback<string> ToggleCard { get; set; }
+    [Parameter] public EventCallback ToggleAmbientGradientMotion { get; set; }
+    [Parameter] public EventCallback ToggleMirrorTeleprompterText { get; set; }
+    [Parameter] public EventCallback ToggleReduceMotion { get; set; }
+    [Parameter] public EventCallback ToggleShowHeaderChrome { get; set; }
+    [Parameter] public EventCallback ToggleShowShortcutOverlay { get; set; }
+    [Parameter] public EventCallback ToggleShowWordHighlight { get; set; }
+    [Parameter] public EventCallback<string> UpdateAccentColor { get; set; }
+    [Parameter] public EventCallback<string> UpdateColorScheme { get; set; }
+    [Parameter] public EventCallback<string> UpdateTeleprompterFont { get; set; }
+    [Parameter] public EventCallback<ChangeEventArgs> UpdateTeleprompterFontSize { get; set; }
+    [Parameter] public EventCallback<string> UpdateTeleprompterTextColor { get; set; }
+    [Parameter] public EventCallback<string> UpdateUiDensity { get; set; }
+
+    private Task OnFontChanged(ChangeEventArgs args) =>
+        UpdateTeleprompterFont.InvokeAsync(args.Value?.ToString() ?? string.Empty);
+
+    private sealed record ThemeOption(string Value, string Label)
+    {
+        public ThemeOption(string value, string label, string swatchStyle, string iconMarkup) : this(value, label)
+        {
+            SwatchStyle = swatchStyle;
+            IconMarkup = iconMarkup;
+        }
+
+        public string IconMarkup { get; init; } = string.Empty;
+        public string SwatchStyle { get; init; } = string.Empty;
+    }
+}

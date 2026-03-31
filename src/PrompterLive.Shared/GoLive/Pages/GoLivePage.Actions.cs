@@ -4,6 +4,8 @@ public partial class GoLivePage
 {
     private async Task ToggleSceneOutputAsync(string sourceId)
     {
+        await EnsurePageReadyAsync();
+
         var camera = SceneCameras.FirstOrDefault(item => string.Equals(item.SourceId, sourceId, StringComparison.Ordinal));
         if (camera is null)
         {

@@ -64,7 +64,7 @@ flowchart LR
 ## Vertical Slice Layout
 
 - `src/PrompterLive.Shared` keeps routed UI in feature slices: `AppShell`, `Diagnostics`, `Editor`, `Library`, `Learn`, `Teleprompter`, `GoLive`, `Settings`, and `Media`.
-- `src/PrompterLive.Core` keeps host-neutral behavior in matching domain slices: `Tps`, `Editor`, `Workspace`, `Library`, `Rsvp`, `Media`, `Streaming`, `Localization`, and `Samples`.
+- `src/PrompterLive.Core` keeps host-neutral behavior in matching domain slices: `Tps`, `Editor`, `Workspace`, `Library`, `Rsvp`, `Media`, `Streaming`, and `Localization`.
 - `tests/PrompterLive.Core.Tests`, `tests/PrompterLive.App.Tests`, and `tests/PrompterLive.App.UITests` mirror those feature slices and reserve `Support` or `Infrastructure` for shared harness code.
 
 ## Design And Structure Principles

@@ -33,6 +33,7 @@ public partial class TeleprompterPage
     private Task ChangeReaderFontSizeAsync(int delta)
     {
         _readerFontSize = Math.Clamp(_readerFontSize + delta, ReaderMinFontSize, ReaderMaxFontSize);
+        RequestReaderAlignment();
         return Task.CompletedTask;
     }
 
@@ -43,6 +44,7 @@ public partial class TeleprompterPage
             ReaderMinFocalPointPercent,
             ReaderMaxFocalPointPercent,
             _readerFocalPointPercent);
+        RequestReaderAlignment();
         _isFocalGuideActive = true;
         _focalGuideVersion++;
         var guideVersion = _focalGuideVersion;
@@ -62,6 +64,7 @@ public partial class TeleprompterPage
             ReaderMinTextWidth,
             ReaderMaxTextWidth,
             _readerTextWidth);
+        RequestReaderAlignment();
         _areWidthGuidesActive = true;
         _widthGuideVersion++;
         var widthGuideVersion = _widthGuideVersion;

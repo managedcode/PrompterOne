@@ -1,3 +1,4 @@
+using System.Globalization;
 using PrompterLive.Core.Models.Media;
 using PrompterLive.Core.Models.Workspace;
 
@@ -7,6 +8,10 @@ public partial class GoLivePage
 {
     private const string CameraFallbackLabel = "No camera selected";
     private const string DefaultProgramTimerLabel = "00:00:00";
+    private const string GoLiveStartRecordingMessage = "Unable to start recording right now.";
+    private const string GoLiveStartRecordingOperation = "Go Live start recording";
+    private const string GoLiveStopRecordingMessage = "Unable to stop recording right now.";
+    private const string GoLiveStopRecordingOperation = "Go Live stop recording";
     private const string ProgramBadgeIdleLabel = "Ready";
     private const string ProgramBadgeLiveLabel = "Live";
     private const string ProgramBadgeRecordingLabel = "Rec";
@@ -39,7 +44,7 @@ public partial class GoLivePage
     private bool CanControlProgram => SelectedCamera is not null;
 
     private bool CanSwitchProgram => SelectedCamera is not null
-        && IsOperationalCamera(SelectedCamera)
+        && SelectedCamera.Transform.Visible
         && !string.Equals(SelectedCamera.SourceId, ActiveCamera?.SourceId, StringComparison.Ordinal);
 
     private string PrimarySessionBadge => (GoLiveSession.State.IsStreamActive, GoLiveSession.State.IsRecordingActive) switch
@@ -52,7 +57,7 @@ public partial class GoLivePage
 
     private string ProgramResolutionLabel => $"{ResolveResolutionDimensions(_studioSettings.Streaming.OutputResolution)} • {ActiveSourceLabel}";
 
-    private static string ProgramTimerLabel => DefaultProgramTimerLabel;
+    private string ProgramTimerLabel => FormatSessionElapsed(SessionStartedAt);
 
     private string RecordingBadgeText => GoLiveSession.State.IsRecordingActive ? RecordingStopLabel : RecordingButtonLabel;
 
@@ -68,6 +73,10 @@ public partial class GoLivePage
 
     private string BitrateTelemetry => $"{_studioSettings.Streaming.BitrateKbps} kbps";
 
+    private DateTimeOffset? SessionStartedAt => GoLiveSession.State.IsRecordingActive
+        ? GoLiveSession.State.RecordingStartedAt ?? GoLiveSession.State.StreamStartedAt
+        : GoLiveSession.State.StreamStartedAt;
+
     private void SyncGoLiveSessionState()
     {
         GoLiveSession.EnsureSession(
@@ -81,26 +90,91 @@ public partial class GoLivePage
 
     private Task SelectSourceAsync(string sourceId)
     {
+        return SelectSourceAfterReadyAsync(sourceId);
+    }
+
+    private async Task SelectSourceAfterReadyAsync(string sourceId)
+    {
+        await EnsurePageReadyAsync();
         GoLiveSession.SelectSource(SceneCameras, sourceId);
-        return Task.CompletedTask;
     }
 
-    private Task SwitchSelectedSourceAsync()
+    private async Task SwitchSelectedSourceAsync()
     {
-        GoLiveSession.SwitchToSelectedSource(SceneCameras);
-        return Task.CompletedTask;
+        await EnsurePageReadyAsync();
+        await EnsureSelectedCameraReadyForProgramAsync();
+        await Diagnostics.RunAsync(
+            GoLiveSwitchProgramOperation,
+            GoLiveSwitchProgramMessage,
+            async () =>
+            {
+                var nextCamera = SelectedCamera;
+                if ((GoLiveSession.State.IsStreamActive || GoLiveSession.State.IsRecordingActive) && nextCamera is not null)
+                {
+                    await GoLiveOutputRuntime.UpdateProgramSourceAsync(BuildRuntimeRequest(nextCamera));
+                }
+
+                GoLiveSession.SwitchToSelectedSource(SceneCameras);
+            });
     }
 
-    private Task ToggleStreamSessionAsync()
+    private async Task ToggleStreamSessionAsync()
     {
-        GoLiveSession.ToggleStream(SceneCameras);
-        return Task.CompletedTask;
+        await RunSerializedInteractionAsync(async () =>
+        {
+            if (GoLiveSession.State.IsStreamActive)
+            {
+                await Diagnostics.RunAsync(
+                    GoLiveStopStreamOperation,
+                    GoLiveStopStreamMessage,
+                    async () =>
+                    {
+                        await GoLiveOutputRuntime.StopStreamAsync();
+                        GoLiveSession.ToggleStream(SceneCameras);
+                    });
+                return;
+            }
+
+            await EnsureSelectedCameraReadyForProgramAsync();
+            await Diagnostics.RunAsync(
+                GoLiveStartStreamOperation,
+                GoLiveStartStreamMessage,
+                async () =>
+                {
+                    await GoLiveOutputRuntime.StartStreamAsync(BuildRuntimeRequest(SelectedCamera));
+                    GoLiveSession.ToggleStream(SceneCameras);
+                });
+        });
     }
 
-    private Task ToggleRecordingSessionAsync()
+    private async Task ToggleRecordingSessionAsync()
     {
-        GoLiveSession.ToggleRecording(SceneCameras);
-        return Task.CompletedTask;
+        await RunSerializedInteractionAsync(async () =>
+        {
+            if (GoLiveSession.State.IsRecordingActive)
+            {
+                await Diagnostics.RunAsync(
+                    GoLiveStopRecordingOperation,
+                    GoLiveStopRecordingMessage,
+                    async () =>
+                    {
+                        await GoLiveOutputRuntime.StopRecordingAsync();
+                        GoLiveSession.ToggleRecording(SceneCameras);
+                    });
+                return;
+            }
+
+            await EnsureSelectedCameraReadyForProgramAsync();
+            await EnsureRecordingOutputEnabledAsync();
+            await Diagnostics.RunAsync(
+                GoLiveStartRecordingOperation,
+                GoLiveStartRecordingMessage,
+                async () =>
+                {
+                    await GoLiveOutputRuntime.StartRecordingAsync(BuildRuntimeRequest(SelectedCamera));
+                    GoLiveSession.ToggleRecording(SceneCameras);
+                });
+        });
     }
 
     private SceneCameraSource? ResolveSessionSource(string sourceId)
@@ -136,6 +210,53 @@ public partial class GoLivePage
         _ => StageFrameRate30Label
     };
 
-    private static bool IsOperationalCamera(SceneCameraSource camera) =>
-        camera.Transform.Visible && camera.Transform.IncludeInOutput;
+    private static string FormatSessionElapsed(DateTimeOffset? startedAt)
+    {
+        if (startedAt is null)
+        {
+            return DefaultProgramTimerLabel;
+        }
+
+        var elapsed = DateTimeOffset.UtcNow - startedAt.Value;
+        if (elapsed < TimeSpan.Zero)
+        {
+            elapsed = TimeSpan.Zero;
+        }
+
+        return elapsed.TotalHours >= 1
+            ? elapsed.ToString(@"hh\:mm\:ss", CultureInfo.InvariantCulture)
+            : elapsed.ToString(@"mm\:ss", CultureInfo.InvariantCulture).Insert(0, "00:");
+    }
+
+    private async Task EnsureSelectedCameraReadyForProgramAsync()
+    {
+        if (SelectedCamera is null ||
+            !SelectedCamera.Transform.Visible ||
+            SelectedCamera.Transform.IncludeInOutput)
+        {
+            return;
+        }
+
+        MediaSceneService.SetIncludeInOutput(SelectedCamera.SourceId, true);
+        await PersistSceneAsync();
+    }
+
+    private async Task EnsureRecordingOutputEnabledAsync()
+    {
+        if (_studioSettings.Streaming.LocalRecordingEnabled)
+        {
+            return;
+        }
+
+        _studioSettings = _studioSettings with
+        {
+            Streaming = _studioSettings.Streaming with
+            {
+                LocalRecordingEnabled = true,
+                OutputMode = StreamingOutputMode.LocalRecording
+            }
+        };
+
+        await PersistStudioSettingsAsync();
+    }
 }

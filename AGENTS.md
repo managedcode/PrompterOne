@@ -286,7 +286,9 @@ Repo-specific design rules:
 - Keep shared package versions in `Directory.Packages.props`.
 - Keep the pinned SDK version in `global.json`.
 - Treat `new-design/index.html`, `new-design/tokens.css`, `new-design/components.css`, `new-design/styles.css`, and `new-design/app.js` as the exact design reference.
+- Treat every file under `new-design/` as a static design/prototype reference only. Production UI must be implemented as Blazor components in `src/PrompterLive.Shared`; do not ship raw `new-design` HTML as runtime UI.
 - Do not re-invent the UI when the answer should be “port the markup and classes from `new-design`”.
+- For parity tasks, port the full routed screen from its matching `new-design/*.html` reference, not just isolated high-signal blocks. Settings, Editor, Learn, Teleprompter, and Go Live must match the reference screen in layout and intended interaction while staying Blazor/C# owned.
 - Do not introduce a server host for the app runtime.
 - Preserve stable `data-testid` selectors on core flows because the Playwright suite depends on them.
 - Keep UI routes in shared route constants and keep `data-testid` names in shared UI contract constants.

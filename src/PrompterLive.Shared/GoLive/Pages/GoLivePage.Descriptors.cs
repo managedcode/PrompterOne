@@ -1,5 +1,4 @@
 using PrompterLive.Core.Models.Media;
-using PrompterLive.Core.Services.Streaming;
 
 namespace PrompterLive.Shared.Pages;
 
@@ -12,14 +11,6 @@ public partial class GoLivePage
             AudioRouteTarget.Stream => "Stream only",
             _ => DefaultMicRouteLabel
         };
-
-    private static string BuildSelectedSourceSummary(int selectedSourceCount)
-    {
-        return string.Concat(
-            selectedSourceCount.ToString(System.Globalization.CultureInfo.InvariantCulture),
-            " ",
-            selectedSourceCount == 1 ? SelectedCameraSingularLabel : SelectedCameraPluralLabel);
-    }
 
     private sealed record GoLiveDestinationState(
         bool IsEnabled,

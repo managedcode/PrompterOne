@@ -1,6 +1,9 @@
 using Bunit;
+using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.DependencyInjection;
 using PrompterLive.Core.Models.Media;
 using PrompterLive.Core.Models.Workspace;
+using PrompterLive.Shared.Contracts;
 using PrompterLive.Shared.Pages;
 using PrompterLive.Shared.Tests;
 
@@ -57,6 +60,8 @@ public sealed class TeleprompterSceneTests : BunitContext
     public void TeleprompterPage_RendersReadableWordSpacingInsideReaderCards()
     {
         var harness = TestHarnessFactory.Create(this);
+        var navigation = Services.GetRequiredService<NavigationManager>();
+        navigation.NavigateTo(navigation.GetUriWithQueryParameter(AppRoutes.ScriptIdQueryKey, AppTestData.Scripts.DemoId));
         var cut = Render<TeleprompterPage>();
 
         cut.WaitForAssertion(() =>

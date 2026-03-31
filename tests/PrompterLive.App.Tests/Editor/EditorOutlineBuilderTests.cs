@@ -1,6 +1,7 @@
 using PrompterLive.Core.Services;
 using PrompterLive.Core.Services.Editor;
 using PrompterLive.Shared.Services.Editor;
+using PrompterLive.Shared.Tests;
 
 namespace PrompterLive.App.Tests;
 
@@ -13,7 +14,9 @@ public sealed class EditorOutlineBuilderTests
     [Fact]
     public void Build_MapsOutlineNavigationToRawSourceCharacterOffsets()
     {
-        var source = SampleScriptCatalog.GetById(SampleScriptCatalog.DemoSampleId).Text;
+        var source = AppTestLibrarySeedData.CreateDocuments()
+            .Single(document => string.Equals(document.Id, AppTestData.Scripts.DemoId, StringComparison.Ordinal))
+            .Text;
         var document = _frontMatter.Parse(source);
         var script = _parser.ParseTps(source);
 

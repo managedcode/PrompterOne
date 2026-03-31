@@ -36,6 +36,7 @@
 
 .go-live-session-actions {
     justify-self: end;
+    flex-wrap: wrap;
 }
 
 .go-live-session-bar-left strong {
@@ -45,6 +46,8 @@
 }
 
 .go-live-back-link,
+.go-live-panel-toggle,
+.go-live-settings-shortcut,
 .go-live-live-badge,
 .go-live-record-pill,
 .go-live-stream-pill {
@@ -65,6 +68,19 @@
     border: 1px solid rgba(214, 166, 91, .1);
     color: rgba(248, 241, 226, .68);
     background: rgba(255, 255, 255, .02);
+}
+
+.go-live-panel-toggle,
+.go-live-settings-shortcut {
+    border: 1px solid rgba(214, 166, 91, .1);
+    color: rgba(248, 241, 226, .52);
+    background: rgba(255, 255, 255, .02);
+}
+
+.go-live-panel-toggle.active {
+    color: rgba(255, 245, 224, .9);
+    border-color: rgba(214, 166, 91, .22);
+    background: rgba(111, 43, 20, .24);
 }
 
 .go-live-live-badge,
@@ -95,6 +111,34 @@
     letter-spacing: .18em;
 }
 
+.go-live-mode-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px;
+    border: 1px solid rgba(214, 166, 91, .08);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .02);
+}
+
+.go-live-mode-button {
+    min-height: 28px;
+    padding: 0 12px;
+    border: none;
+    border-radius: 999px;
+    background: transparent;
+    color: rgba(248, 241, 226, .42);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.go-live-mode-button.active {
+    color: rgba(255, 245, 224, .96);
+    background: rgba(111, 43, 20, .3);
+}
+
 .go-live-studio-shell {
     position: relative;
     z-index: 1;
@@ -111,10 +155,29 @@
     min-width: 0;
 }
 
+.go-live-center-stage {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
 .go-live-right-rail {
     display: flex;
     flex-direction: column;
     gap: 12px;
+}
+
+.go-live-page-shell[data-left-open="False"][data-right-open="True"][data-full-program="False"] .go-live-studio-shell {
+    grid-template-columns: minmax(0, 1fr) 176px;
+}
+
+.go-live-page-shell[data-left-open="True"][data-right-open="False"][data-full-program="False"] .go-live-studio-shell {
+    grid-template-columns: 124px minmax(0, 1fr);
+}
+
+.go-live-page-shell[data-left-open="False"][data-right-open="False"][data-full-program="False"] .go-live-studio-shell,
+.go-live-page-shell[data-full-program="True"] .go-live-studio-shell {
+    grid-template-columns: minmax(0, 1fr);
 }
 
 .go-live-rail-card {
@@ -211,6 +274,7 @@
     flex-direction: column;
     gap: 16px;
     padding: 0 10px 10px;
+    border-top: 1px solid rgba(214, 166, 91, .06);
 }
 
 .go-live-routing-copy {
@@ -237,14 +301,22 @@
     display: grid;
     grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.45fr);
     gap: 18px;
+    align-items: start;
 }
 
 .go-live-output-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
     min-height: 100%;
 }
 
 .go-live-output-fields {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.go-live-targets-grid {
+    align-content: start;
 }
 
 .live-session-links {
@@ -276,6 +348,15 @@
 
     .go-live-stream-pill {
         margin-left: 0;
+    }
+
+    .go-live-mode-switch {
+        width: 100%;
+        justify-content: stretch;
+    }
+
+    .go-live-mode-button {
+        flex: 1;
     }
 }
 

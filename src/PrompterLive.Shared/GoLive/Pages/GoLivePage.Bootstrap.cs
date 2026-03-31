@@ -1,7 +1,7 @@
 using PrompterLive.Core.Models.Media;
 using PrompterLive.Core.Models.Workspace;
-using PrompterLive.Core.Samples;
 using PrompterLive.Shared.Services;
+using PrompterLive.Shared.Settings.Models;
 
 namespace PrompterLive.Shared.Pages;
 
@@ -15,6 +15,12 @@ public partial class GoLivePage
         }
 
         _loadState = false;
+        _bootstrapTask ??= BootstrapPageAsync();
+        await _bootstrapTask;
+    }
+
+    private async Task BootstrapPageAsync()
+    {
         await Diagnostics.RunAsync(
             GoLiveLoadOperation,
             GoLiveLoadMessage,
@@ -23,10 +29,42 @@ public partial class GoLivePage
                 await Bootstrapper.EnsureReadyAsync();
                 await EnsureSessionLoadedAsync();
                 await EnsureSceneDefaultsAsync();
+                await LoadRecordingPreferencesAsync();
                 await LoadStudioSettingsAsync();
                 UpdateScreenMetadata();
                 StateHasChanged();
             });
+    }
+
+    private async Task EnsurePageReadyAsync()
+    {
+        if (_bootstrapTask is null && _loadState)
+        {
+            _loadState = false;
+            _bootstrapTask = BootstrapPageAsync();
+        }
+
+        if (_bootstrapTask is null)
+        {
+            return;
+        }
+
+        await _bootstrapTask;
+    }
+
+    private async Task RunSerializedInteractionAsync(Func<Task> action)
+    {
+        await EnsurePageReadyAsync();
+        await _interactionGate.WaitAsync();
+
+        try
+        {
+            await action();
+        }
+        finally
+        {
+            _interactionGate.Release();
+        }
     }
 
     private async Task LoadStudioSettingsAsync()
@@ -38,6 +76,12 @@ public partial class GoLivePage
             _studioSettings = normalized;
             await PersistStudioSettingsAsync();
         }
+    }
+
+    private async Task LoadRecordingPreferencesAsync()
+    {
+        _recordingPreferences = await SettingsStore.LoadAsync<SettingsPagePreferences>(SettingsPagePreferences.StorageKey)
+            ?? SettingsPagePreferences.Default;
     }
 
     private async Task EnsureSceneDefaultsAsync()
@@ -85,7 +129,7 @@ public partial class GoLivePage
 
         if (string.IsNullOrWhiteSpace(SessionService.State.ScriptId))
         {
-            await SessionService.LoadSampleAsync(SampleScriptCatalog.DemoSampleId);
+            return;
         }
     }
 
@@ -96,6 +140,7 @@ public partial class GoLivePage
             ? SessionService.State.PreviewSegments[0].Title
             : StreamingSubtitle;
         SyncGoLiveSessionState();
+        EnsureStudioSurfaceState();
         Shell.ShowGoLive(_screenTitle, _screenSubtitle, SessionService.State.ScriptId);
     }
 

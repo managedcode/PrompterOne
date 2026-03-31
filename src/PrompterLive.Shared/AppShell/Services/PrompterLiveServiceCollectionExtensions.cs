@@ -41,10 +41,13 @@ public static class PrompterLiveServiceCollectionExtensions
         services.AddScoped<StudioSettingsStore>();
         services.AddScoped<CameraPreviewInterop>();
         services.AddScoped<MicrophoneLevelInterop>();
+        services.AddScoped<TeleprompterReaderInterop>();
         services.AddScoped<AppBootstrapper>();
         services.AddScoped<AppShellService>();
         services.AddScoped<BrowserConnectivityService>();
         services.AddScoped<GoLiveSessionService>();
+        services.AddScoped<GoLiveOutputInterop>();
+        services.AddScoped<GoLiveOutputRuntimeService>();
         services.AddScoped<UiDiagnosticsService>();
 
         services.AddSingleton<IStreamingOutputProvider, LiveKitOutputProvider>();

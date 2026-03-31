@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using PrompterLive.Core.Abstractions;
+using PrompterLive.Core.Models.Workspace;
 using PrompterLive.Core.Services;
 using PrompterLive.Core.Services.Editor;
 using PrompterLive.Shared.Components.Editor;
@@ -38,7 +39,7 @@ public partial class EditorPage
     private string _displayDuration = "0:00";
     private string? _errorMessage;
     private string _profile = DefaultProfileActor;
-    private string _screenTitle = "Product Launch";
+    private string _screenTitle = ScriptWorkspaceState.UntitledScriptTitle;
     private EditorSelectionViewModel _selection = EditorSelectionViewModel.Empty;
     private IReadOnlyList<EditorOutlineSegmentViewModel> _segments = [];
     private bool _skipNextRenderFromTyping;

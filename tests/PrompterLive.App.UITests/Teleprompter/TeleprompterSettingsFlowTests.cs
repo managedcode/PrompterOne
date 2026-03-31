@@ -82,6 +82,9 @@ public sealed class TeleprompterSettingsFlowTests(StandaloneAppFixture fixture) 
         await Expect(page.GetByTestId(UiTestIds.Settings.FilesPanel)).ToBeVisibleAsync();
         await page.GetByTestId(UiTestIds.Settings.FileAutoSave).ClickAsync();
         await Expect(page.GetByTestId(UiTestIds.Settings.FileAutoSave)).Not.ToHaveClassAsync(BrowserTestConstants.Regexes.ToggleOnClass);
+        await page.GetByTestId(UiTestIds.Settings.NavRecording).ClickAsync();
+        await Expect(page.GetByTestId(UiTestIds.Settings.RecordingPanel)).ToBeVisibleAsync();
+        await Expect(page.GetByTestId(UiTestIds.Settings.RecordingAutoRecord)).ToBeVisibleAsync();
 
         var readerCameraWasOn = await VerifyCameraSettingsAsync(page);
         await VerifyMicrophoneSettingsAsync(page);

@@ -53,8 +53,7 @@ public sealed class LearnFidelityTests(StandaloneAppFixture fixture) : IClassFix
                 await page.GetByTestId(UiTestIds.Learn.StepForward).ClickAsync();
             }
 
-            await Expect(page.GetByTestId(UiTestIds.Learn.Word))
-                .ToHaveTextAsync(BrowserTestConstants.Learn.MidFlowWord);
+            await ExpectFocusWordAsync(page, BrowserTestConstants.Learn.MidFlowWord);
             await Expect(page.GetByTestId(UiTestIds.Learn.NextPhrase))
                 .Not.ToHaveTextAsync(BrowserTestConstants.Learn.EndOfScriptText);
             await Expect(page.GetByTestId(UiTestIds.Learn.NextPhrase))
@@ -203,8 +202,8 @@ public sealed class LearnFidelityTests(StandaloneAppFixture fixture) : IClassFix
     {
         for (var stepIndex = 0; stepIndex < stepLimit; stepIndex++)
         {
-            var currentWord = await page.GetByTestId(UiTestIds.Learn.Word).InnerTextAsync();
-            if (string.Equals(currentWord.Trim(), targetWord, StringComparison.OrdinalIgnoreCase))
+            var currentWord = await ReadFocusWordAsync(page);
+            if (string.Equals(currentWord, targetWord, StringComparison.OrdinalIgnoreCase))
             {
                 return;
             }
@@ -213,6 +212,21 @@ public sealed class LearnFidelityTests(StandaloneAppFixture fixture) : IClassFix
         }
 
         Assert.Fail($"Did not reach the learn probe word '{targetWord}' within {stepLimit} steps.");
+    }
+
+    private static async Task ExpectFocusWordAsync(Microsoft.Playwright.IPage page, string expectedWord)
+    {
+        await Expect(page.GetByTestId(UiTestIds.Learn.Word))
+            .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
+
+        var actualWord = await ReadFocusWordAsync(page);
+        Assert.Equal(expectedWord, actualWord, ignoreCase: true);
+    }
+
+    private static async Task<string> ReadFocusWordAsync(Microsoft.Playwright.IPage page)
+    {
+        var rawWord = await page.GetByTestId(UiTestIds.Learn.Word).TextContentAsync();
+        return string.Concat((rawWord ?? string.Empty).Where(character => !char.IsWhiteSpace(character)));
     }
 
     private static Task<ContextGapMeasurement> MeasureContextGapsAsync(Microsoft.Playwright.IPage page) =>

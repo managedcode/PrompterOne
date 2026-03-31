@@ -2,7 +2,6 @@ using System.Text.Json;
 using Microsoft.JSInterop;
 using PrompterLive.Core.Abstractions;
 using PrompterLive.Core.Models.Library;
-using PrompterLive.Core.Samples;
 
 namespace PrompterLive.Shared.Services;
 
@@ -15,37 +14,32 @@ public sealed class BrowserLibraryFolderRepository(IJSRuntime jsRuntime) : ILibr
 
     private readonly IJSRuntime _jsRuntime = jsRuntime;
 
-    public async Task InitializeAsync(IEnumerable<StoredLibraryFolder> seedFolders, CancellationToken cancellationToken = default)
+    public async Task InitializeAsync(IEnumerable<StoredLibraryFolder> initialFolders, CancellationToken cancellationToken = default)
     {
-        var currentVersion = await LoadStorageValueAsync(BrowserStorageKeys.FolderSeedVersion, cancellationToken);
-        var folders = await ListAsync(cancellationToken);
-
-        if (!string.Equals(currentVersion, SampleLibraryFolderCatalog.SeedVersion, StringComparison.Ordinal))
-        {
-            var nextFolders = await LoadFoldersAsync(cancellationToken);
-            foreach (var seedFolder in seedFolders)
-            {
-                var seedFolderDto = ToDto(seedFolder);
-                nextFolders.RemoveAll(folder => string.Equals(folder.Id, seedFolderDto.Id, StringComparison.Ordinal));
-                nextFolders.Add(seedFolderDto);
-            }
-
-            await SaveFoldersAsync(nextFolders, cancellationToken);
-            await SaveStorageValueAsync(BrowserStorageKeys.FolderSeedVersion, SampleLibraryFolderCatalog.SeedVersion, cancellationToken);
-            return;
-        }
-
-        var nextFolderDtos = await LoadFoldersAsync(cancellationToken);
-        var existingIds = folders
+        var folders = await LoadFoldersAsync(cancellationToken);
+        var nextFolderDtos = folders
+            .Where(folder => !LegacyLibrarySeedCatalog.IsLegacyFolder(folder))
+            .ToList();
+        var existingIds = nextFolderDtos
             .Select(folder => folder.Id)
             .ToHashSet(StringComparer.Ordinal);
 
-        foreach (var seedFolder in seedFolders.Where(folder => !existingIds.Contains(folder.Id)))
+        foreach (var folder in initialFolders.Where(folder => !existingIds.Contains(folder.Id)).Select(ToDto))
         {
-            nextFolderDtos.Add(ToDto(seedFolder));
+            nextFolderDtos.Add(folder);
         }
 
-        await SaveFoldersAsync(nextFolderDtos, cancellationToken);
+        var shouldPersist = nextFolderDtos.Count != folders.Count ||
+            !string.Equals(
+                await LoadStorageValueAsync(BrowserStorageKeys.FolderSeedVersion, cancellationToken),
+                LegacyLibrarySeedCatalog.CleanupVersion,
+                StringComparison.Ordinal);
+
+        if (shouldPersist)
+        {
+            await SaveFoldersAsync(nextFolderDtos, cancellationToken);
+            await SaveStorageValueAsync(BrowserStorageKeys.FolderSeedVersion, LegacyLibrarySeedCatalog.CleanupVersion, cancellationToken);
+        }
     }
 
     public async Task<IReadOnlyList<StoredLibraryFolder>> ListAsync(CancellationToken cancellationToken = default)

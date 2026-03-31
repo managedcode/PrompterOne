@@ -171,6 +171,7 @@ public static class UiTestIds
         public const string CameraToggle = "teleprompter-camera-toggle";
         public const string EdgeSection = "teleprompter-edge-section";
         public const string FocalSlider = "teleprompter-focal-slider";
+        public const string FocalGuide = "teleprompter-focal-guide";
         public const string FontDown = "teleprompter-font-down";
         public const string FontUp = "teleprompter-font-up";
         public const string NextBlock = "teleprompter-next-block";
@@ -179,6 +180,7 @@ public static class UiTestIds
         public const string PlayToggle = "teleprompter-play-toggle";
         public const string PreviousBlock = "teleprompter-previous-block";
         public const string PreviousWord = "teleprompter-previous-word";
+        public const string Stage = "teleprompter-stage";
         public const string WidthSlider = "teleprompter-width-slider";
 
         public static string Card(int index) => $"teleprompter-card-{index}";
@@ -188,6 +190,9 @@ public static class UiTestIds
         public static string CardGroupPrefix(int cardIndex) => $"teleprompter-card-group-{cardIndex}-";
 
         public static string CardText(int index) => $"{Card(index)}-text";
+
+        public static string CardWord(int cardIndex, int groupIndex, int wordIndex) =>
+            $"teleprompter-card-word-{cardIndex}-{groupIndex}-{wordIndex}";
     }
 
     public static class Settings
@@ -225,10 +230,16 @@ public static class UiTestIds
         public const string NavCloud = "settings-nav-cloud";
         public const string NavFiles = "settings-nav-files";
         public const string NavMics = "settings-nav-mics";
+        public const string NavRecording = "settings-nav-recording";
         public const string NavStreaming = "settings-nav-streaming";
         public const string NoiseSuppression = "settings-noise-suppression";
         public const string Page = "settings-page";
         public const string PrimaryMic = "settings-primary-mic";
+        public const string RecordingAudioBitrate = "settings-recording-audio-bitrate";
+        public const string RecordingAutoRecord = "settings-recording-auto-record";
+        public const string RecordingPanel = "settings-recording-panel";
+        public const string RecordingSplit = "settings-recording-split";
+        public const string RecordingVideoBitrate = "settings-recording-video-bitrate";
         public const string ReaderCameraToggle = "settings-reader-camera-toggle";
         public const string RequestMedia = "settings-request-media";
         public const string NoCameras = "settings-no-cameras";
@@ -290,15 +301,21 @@ public static class UiTestIds
     public static class GoLive
     {
         public const string ActiveSourceLabel = "go-live-active-source-label";
+        public const string AudioMixer = "go-live-audio-mixer";
         public const string Bitrate = "go-live-bitrate";
+        public const string CreateRoom = "go-live-create-room";
         public const string CustomRtmpKey = "go-live-custom-rtmp-key";
         public const string CustomRtmpName = "go-live-custom-rtmp-name";
         public const string CustomRtmpToggle = "go-live-custom-rtmp-toggle";
         public const string CustomRtmpUrl = "go-live-custom-rtmp-url";
+        public const string FullProgramToggle = "go-live-full-program-toggle";
+        public const string LeftPanelToggle = "go-live-left-panel-toggle";
         public const string LiveKitRoom = "go-live-livekit-room";
         public const string LiveKitServer = "go-live-livekit-server";
         public const string LiveKitToggle = "go-live-livekit-toggle";
         public const string LiveKitToken = "go-live-livekit-token";
+        public const string ModeDirector = "go-live-mode-director";
+        public const string ModeStudio = "go-live-mode-studio";
         public const string NdiToggle = "go-live-ndi-toggle";
         public const string ObsToggle = "go-live-obs-toggle";
         public const string OpenLearn = "go-live-open-learn";
@@ -315,7 +332,17 @@ public static class UiTestIds
         public const string PreviewSourceLabel = "go-live-preview-source-label";
         public const string PreviewVideo = "go-live-preview-video";
         public const string RecordingToggle = "go-live-recording-toggle";
+        public const string RightPanelToggle = "go-live-right-panel-toggle";
+        public const string RoomActive = "go-live-room-active";
+        public const string RoomEmpty = "go-live-room-empty";
+        public const string RoomInvite = "go-live-room-invite";
+        public const string RoomTab = "go-live-room-tab";
+        public const string AudioTab = "go-live-audio-tab";
+        public const string StreamTab = "go-live-stream-tab";
+        public const string SceneBar = "go-live-scene-bar";
+        public const string SceneControls = "go-live-scene-controls";
         public const string SessionBar = "go-live-session-bar";
+        public const string SessionTimer = "go-live-session-timer";
         public const string SourceRail = "go-live-source-rail";
         public const string Stage = "go-live-stage";
         public const string SelectedSourceLabel = "go-live-selected-source-label";
@@ -326,6 +353,7 @@ public static class UiTestIds
         public const string SwitchSelectedSource = "go-live-switch-selected-source";
         public const string StreamIncludeCamera = "go-live-stream-include-camera";
         public const string StreamTextOverlay = "go-live-stream-text-overlay";
+        public const string TakeToAir = "go-live-take-to-air";
         public const string TwitchKey = "go-live-twitch-key";
         public const string TwitchToggle = "go-live-twitch-toggle";
         public const string TwitchUrl = "go-live-twitch-url";
@@ -347,5 +375,13 @@ public static class UiTestIds
         public static string SourceCameraAction(string deviceId) => $"go-live-source-camera-action-{deviceId}";
 
         public static string SourceVideo(string sourceId) => $"go-live-source-video-{sourceId}";
+
+        public static string AudioChannel(string channelId) => $"go-live-audio-channel-{channelId}";
+
+        public static string RoomParticipant(string participantId) => $"go-live-room-participant-{participantId}";
+
+        public static string SceneChip(string sceneId) => $"go-live-scene-chip-{sceneId}";
+
+        public static string UtilitySource(string sourceId) => $"go-live-utility-source-{sourceId}";
     }
 }

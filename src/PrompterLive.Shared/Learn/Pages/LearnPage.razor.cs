@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using PrompterLive.Core.Abstractions;
 using PrompterLive.Core.Models.Workspace;
-using PrompterLive.Core.Samples;
 using PrompterLive.Core.Services.Rsvp;
 using PrompterLive.Shared.Contracts;
 using PrompterLive.Shared.Services;
@@ -109,7 +108,7 @@ public partial class LearnPage : IAsyncDisposable
         var learnSettings = SessionService.State.LearnSettings;
 
         _screenTitle = SessionService.State.Title;
-        _screenSubtitle = segments.FirstOrDefault()?.Title ?? "Intro / Opening Block";
+        _screenSubtitle = segments.FirstOrDefault()?.Title ?? string.Empty;
         _speed = learnSettings.WordsPerMinute > 0
             ? learnSettings.WordsPerMinute
             : fallbackSpeed;
@@ -312,10 +311,6 @@ public partial class LearnPage : IAsyncDisposable
             return;
         }
 
-        if (string.IsNullOrWhiteSpace(SessionService.State.ScriptId))
-        {
-            await SessionService.LoadSampleAsync(SampleScriptCatalog.DemoSampleId);
-        }
     }
 
     private async Task PersistLearnSettingsAsync(Func<LearnSettings, LearnSettings> update)

@@ -1,0 +1,69 @@
+using Microsoft.JSInterop;
+
+namespace PrompterLive.Shared.Services;
+
+public sealed class GoLiveOutputInterop(IJSRuntime jsRuntime)
+{
+    private readonly IJSRuntime _jsRuntime = jsRuntime;
+
+    public Task StartLocalRecordingAsync(
+        string sessionId,
+        GoLiveOutputRuntimeRequest request)
+    {
+        return _jsRuntime.InvokeVoidAsync(
+            GoLiveOutputInteropMethodNames.StartLocalRecording,
+            sessionId,
+            request).AsTask();
+    }
+
+    public Task StartLiveKitAsync(
+        string sessionId,
+        GoLiveOutputRuntimeRequest request)
+    {
+        return _jsRuntime.InvokeVoidAsync(
+            GoLiveOutputInteropMethodNames.StartLiveKitSession,
+            sessionId,
+            request).AsTask();
+    }
+
+    public Task StopLiveKitAsync(string sessionId)
+    {
+        return _jsRuntime.InvokeVoidAsync(
+            GoLiveOutputInteropMethodNames.StopLiveKitSession,
+            sessionId).AsTask();
+    }
+
+    public Task StopLocalRecordingAsync(string sessionId)
+    {
+        return _jsRuntime.InvokeVoidAsync(
+            GoLiveOutputInteropMethodNames.StopLocalRecording,
+            sessionId).AsTask();
+    }
+
+    public Task StartObsBrowserOutputAsync(
+        string sessionId,
+        GoLiveOutputRuntimeRequest request)
+    {
+        return _jsRuntime.InvokeVoidAsync(
+            GoLiveOutputInteropMethodNames.StartObsBrowserOutput,
+            sessionId,
+            request).AsTask();
+    }
+
+    public Task StopObsBrowserOutputAsync(string sessionId)
+    {
+        return _jsRuntime.InvokeVoidAsync(
+            GoLiveOutputInteropMethodNames.StopObsBrowserOutput,
+            sessionId).AsTask();
+    }
+
+    public Task UpdateSessionDevicesAsync(
+        string sessionId,
+        GoLiveOutputRuntimeRequest request)
+    {
+        return _jsRuntime.InvokeVoidAsync(
+            GoLiveOutputInteropMethodNames.UpdateSessionDevices,
+            sessionId,
+            request).AsTask();
+    }
+}

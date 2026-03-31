@@ -4,7 +4,6 @@ using PrompterLive.Core.Abstractions;
 using PrompterLive.Core.Models.CompiledScript;
 using PrompterLive.Core.Models.Documents;
 using PrompterLive.Core.Models.Workspace;
-using PrompterLive.Core.Samples;
 using PrompterLive.Core.Services.Preview;
 
 namespace PrompterLive.Core.Services.Workspace;
@@ -29,7 +28,7 @@ public sealed class ScriptSessionService(
     public async Task InitializeAsync(CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Initializing script session repository and empty draft.");
-        await _repository.InitializeAsync(SampleScriptCatalog.CreateSeedDocuments(), cancellationToken);
+        await _repository.InitializeAsync([], cancellationToken);
         await NewAsync(cancellationToken);
     }
 
@@ -41,13 +40,6 @@ public sealed class ScriptSessionService(
             documentName: ScriptWorkspaceState.UntitledScriptDocumentName,
             scriptId: string.Empty,
             cancellationToken: cancellationToken);
-    }
-
-    public Task LoadSampleAsync(string sampleId, CancellationToken cancellationToken = default)
-    {
-        var sample = SampleScriptCatalog.GetById(sampleId);
-        _logger.LogInformation("Loading sample script {SampleId}.", sampleId);
-        return OpenAsync(sample, cancellationToken);
     }
 
     public Task OpenAsync(StoredScriptDocument document, CancellationToken cancellationToken = default)

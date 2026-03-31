@@ -4,6 +4,7 @@ using PrompterLive.Core.Models.Workspace;
 using PrompterLive.Shared.Contracts;
 using PrompterLive.Shared.Pages;
 using PrompterLive.Shared.Services;
+using PrompterLive.Shared.Settings.Models;
 using PrompterLive.Shared.Tests;
 
 namespace PrompterLive.App.Tests;
@@ -37,6 +38,19 @@ public sealed class SettingsInteractionTests : BunitContext
     }
 
     [Fact]
+    public void SettingsPage_DoesNotStartMicrophoneMonitor_WhenMicSectionIsInactive()
+    {
+        var cut = Render<SettingsPage>();
+
+        cut.WaitForAssertion(() => Assert.Contains(UiTestIds.Settings.NavCloud, cut.Markup, StringComparison.Ordinal));
+
+        Assert.DoesNotContain(
+            AppTestData.Microphone.StartLevelMonitorInvocation,
+            _harness.JsRuntime.Invocations,
+            StringComparer.Ordinal);
+    }
+
+    [Fact]
     public void MicrophoneDelaySlider_UpdatesAudioBusState()
     {
         var cut = Render<SettingsPage>();
@@ -52,6 +66,24 @@ public sealed class SettingsInteractionTests : BunitContext
         Assert.Equal(AudioRouteTarget.Both, audioInput.RouteTarget);
         var savedScene = _harness.JsRuntime.GetSavedValue<MediaSceneState>(SceneSettingsKey);
         Assert.Contains(savedScene.AudioBus.Inputs, input => input.DeviceId == "mic-1" && input.DelayMs == 320);
+    }
+
+    [Fact]
+    public void RecordingSection_PersistsRecordingPreferences()
+    {
+        var cut = Render<SettingsPage>();
+
+        cut.WaitForAssertion(() => Assert.Contains(UiTestIds.Settings.NavRecording, cut.Markup, StringComparison.Ordinal));
+
+        cut.FindByTestId(UiTestIds.Settings.NavRecording).Click();
+        cut.FindByTestId(UiTestIds.Settings.RecordingAutoRecord).Click();
+        cut.FindByTestId(UiTestIds.Settings.RecordingVideoBitrate).Input(6400);
+        cut.FindByTestId(UiTestIds.Settings.RecordingAudioBitrate).Input(256);
+
+        var savedPreferences = _harness.JsRuntime.GetSavedValue<SettingsPagePreferences>(SettingsPagePreferences.StorageKey);
+        Assert.False(savedPreferences.AutoRecordWhenStreaming);
+        Assert.Equal(6400, savedPreferences.RecordingVideoBitrateKbps);
+        Assert.Equal(256, savedPreferences.RecordingAudioBitrateKbps);
     }
 
     [Fact]

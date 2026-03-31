@@ -1,4 +1,3 @@
-using PrompterLive.Core.Samples;
 using PrompterLive.Core.Services.Rsvp;
 
 namespace PrompterLive.Core.Tests;
@@ -10,7 +9,8 @@ public sealed class RsvpTextProcessorTimelineTests
     [Fact]
     public void ParseScript_TpsSampleBuildsPhraseGroupsForLearnTimeline()
     {
-        var sample = SampleScriptCatalog.GetById(SampleScriptCatalog.SecuritySampleId);
+        var sample = CoreTestSeedData.CreateDocuments()
+            .Single(document => string.Equals(document.Id, CoreTestSeedData.Scripts.SecurityIncidentId, StringComparison.Ordinal));
 
         var processed = _processor.ParseScript(sample.Text);
 

@@ -26,8 +26,8 @@ public sealed class LibraryCardColorTests : BunitContext
         cut.WaitForAssertion(() =>
         {
             AssertCardAccent(cut, AppTestData.Scripts.QuantumId, NeutralAccentCssValue);
-            AssertCardAccent(cut, SampleScriptCatalog.LeadershipSampleId, MotivationalAccentCssValue);
-            AssertCardAccent(cut, SampleScriptCatalog.ArchitectureSampleId, CalmAccentCssValue);
+            AssertCardAccent(cut, AppTestData.Scripts.LeadershipId, MotivationalAccentCssValue);
+            AssertCardAccent(cut, AppTestData.Scripts.ArchitectureId, CalmAccentCssValue);
             AssertCardAccent(cut, AppTestData.Scripts.SecurityIncidentId, UrgentAccentCssValue);
         });
     }

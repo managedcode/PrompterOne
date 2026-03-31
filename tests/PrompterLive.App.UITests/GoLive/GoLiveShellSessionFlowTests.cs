@@ -48,6 +48,11 @@ public sealed class GoLiveShellSessionFlowTests(StandaloneAppFixture fixture) : 
             await page.GotoAsync(BrowserTestConstants.Routes.GoLiveDemo);
             await page.GetByTestId(UiTestIds.GoLive.StartRecording).ClickAsync();
 
+            await page.WaitForFunctionAsync(
+                BrowserTestConstants.GoLive.RecordingRuntimeActiveScript,
+                BrowserTestConstants.GoLive.RuntimeSessionId,
+                new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
+
             await Expect(page.GetByTestId(UiTestIds.Header.GoLive))
                 .ToHaveAttributeAsync("data-live-state", BrowserTestConstants.GoLive.RecordingStateValue);
         }

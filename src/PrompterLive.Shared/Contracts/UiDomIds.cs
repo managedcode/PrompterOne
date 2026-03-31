@@ -64,6 +64,11 @@ public static class UiDomIds
         public const string WidthGuideRight = "rd-guide-v-r";
         public const string WidthValue = "rd-width-val";
 
+        public static string CardText(int index) => $"rd-card-text-{index}";
+
+        public static string CardWord(int cardIndex, int groupIndex, int wordIndex) =>
+            $"rd-card-word-{cardIndex}-{groupIndex}-{wordIndex}";
+
         public static string CameraOverlay(int order) => $"rd-camera-overlay-{order}";
     }
 }

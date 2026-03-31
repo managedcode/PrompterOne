@@ -4,7 +4,7 @@ namespace PrompterLive.Core.Abstractions;
 
 public interface IScriptRepository
 {
-    Task InitializeAsync(IEnumerable<StoredScriptDocument> seedDocuments, CancellationToken cancellationToken = default);
+    Task InitializeAsync(IEnumerable<StoredScriptDocument> initialDocuments, CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<StoredScriptSummary>> ListAsync(CancellationToken cancellationToken = default);
 

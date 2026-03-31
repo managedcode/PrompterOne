@@ -1,22 +1,53 @@
 @page "/go-live"
 @namespace PrompterLive.Shared.Pages
+@using PrompterLive.Core.Models.Workspace
 @using PrompterLive.Shared.Components.GoLive
 
 <div id="screen-go-live"
      class="screen active"
      data-testid="@UiTestIds.GoLive.Page">
-    <div class="go-live-page-shell">
+    <div class="go-live-page-shell"
+         data-left-open="@_showLeftRail"
+         data-right-open="@_showRightRail"
+         data-full-program="@_fullProgramView"
+         data-studio-mode="@_activeStudioMode">
         <section class="go-live-session-bar"
                  data-testid="@UiTestIds.GoLive.SessionBar">
             <div class="go-live-session-bar-left">
                 <a class="go-live-back-link" href="@ReadRoute">Back</a>
                 <strong>@_screenTitle</strong>
                 <span class="go-live-live-badge">@PrimarySessionBadge</span>
+                <button type="button"
+                        class="go-live-panel-toggle @(_showLeftRail ? "active" : null)"
+                        data-testid="@UiTestIds.GoLive.LeftPanelToggle"
+                        @onclick="ToggleLeftRailAsync">Inputs</button>
             </div>
 
-            <div class="go-live-session-timer">@ProgramTimerLabel</div>
+            <div class="go-live-session-timer"
+                 data-testid="@UiTestIds.GoLive.SessionTimer">@ProgramTimerLabel</div>
 
             <div class="go-live-session-actions">
+                <button type="button"
+                        class="go-live-panel-toggle @(_fullProgramView ? "active" : null)"
+                        data-testid="@UiTestIds.GoLive.FullProgramToggle"
+                        @onclick="ToggleFullProgramViewAsync">Canvas</button>
+                <button type="button"
+                        class="go-live-panel-toggle @(_showRightRail ? "active" : null)"
+                        data-testid="@UiTestIds.GoLive.RightPanelToggle"
+                        @onclick="ToggleRightRailAsync">Info</button>
+                <div class="go-live-mode-switch">
+                    <button type="button"
+                            class="go-live-mode-button @(_activeStudioMode == GoLiveStudioMode.Director ? "active" : null)"
+                            data-testid="@UiTestIds.GoLive.ModeDirector"
+                            @onclick="() => SelectStudioModeAsync(GoLiveStudioMode.Director)">Director</button>
+                    <button type="button"
+                            class="go-live-mode-button @(_activeStudioMode == GoLiveStudioMode.Studio ? "active" : null)"
+                            data-testid="@UiTestIds.GoLive.ModeStudio"
+                            @onclick="() => SelectStudioModeAsync(GoLiveStudioMode.Studio)">Studio</button>
+                </div>
+                <a class="go-live-settings-shortcut"
+                   href="@AppRoutes.Settings"
+                   data-testid="@UiTestIds.GoLive.OpenSettings">Settings</a>
                 <button type="button"
                         class="go-live-record-pill"
                         @onclick="ToggleRecordingSessionAsync"
@@ -31,17 +62,23 @@
         </section>
 
         <section class="go-live-studio-shell">
-            <div class="go-live-left-rail">
-                <GoLiveSourcesCard Sources="@SceneCameras"
-                                   ActiveSourceId="@ActiveCamera?.SourceId"
-                                   SelectedSourceId="@SelectedCamera?.SourceId"
-                                   SettingsRoute="@AppRoutes.Settings"
-                                   HasPrimaryMicrophone="@HasPrimaryMicrophone"
-                                   MicrophoneName="@PrimaryMicrophoneLabel"
-                                   MicrophoneRouteLabel="@(HasPrimaryMicrophone ? PrimaryMicrophoneRoute : NoMicrophoneLabel)"
-                                   SelectSource="SelectSourceAsync"
-                                   ToggleSource="ToggleSceneOutputAsync" />
-            </div>
+            @if (_showLeftRail)
+            {
+                <div class="go-live-left-rail">
+                    <GoLiveSourcesCard Sources="@SceneCameras"
+                                       ActiveSourceId="@ActiveCamera?.SourceId"
+                                       SelectedSourceId="@SelectedCamera?.SourceId"
+                                       CurrentScriptTitle="@_screenTitle"
+                                       CurrentScriptProgressLabel="@CurrentScriptProgressLabel"
+                                       UtilitySources="@UtilitySources"
+                                       SettingsRoute="@AppRoutes.Settings"
+                                       HasPrimaryMicrophone="@HasPrimaryMicrophone"
+                                       MicrophoneName="@PrimaryMicrophoneLabel"
+                                       MicrophoneRouteLabel="@(HasPrimaryMicrophone ? PrimaryMicrophoneRoute : NoMicrophoneLabel)"
+                                       SelectSource="SelectSourceAsync"
+                                       ToggleSource="ToggleSceneOutputAsync" />
+                </div>
+            }
 
             <div class="go-live-center-stage">
                 <GoLiveProgramFeedCard ActiveSourceLabel="@ActiveSourceLabel"
@@ -53,83 +90,47 @@
                                        ProgramResolutionLabel="@ProgramResolutionLabel"
                                        SelectedSourceLabel="@SelectedSourceLabel"
                                        StageFrameRateLabel="@StageFrameRateLabel" />
+                <GoLiveSceneControls Scenes="@SceneChips"
+                                     ActiveSceneId="@_activeSceneId"
+                                     AddScene="AddSceneAsync"
+                                     SelectScene="SelectSceneAsync"
+                                     ActiveLayout="@_activeSceneLayout"
+                                     SelectLayout="SelectSceneLayoutAsync"
+                                     ActiveTransitionKind="@_activeTransitionKind"
+                                     SelectTransitionKind="SelectTransitionKindAsync"
+                                     ActiveTransitionDuration="@_activeTransitionDuration"
+                                     SelectTransitionDuration="SelectTransitionDurationAsync"
+                                     TakeToAir="SwitchSelectedSourceAsync"
+                                     TakeToAirLabel="@SwitchActionLabel" />
             </div>
 
-            <aside class="go-live-right-rail"
-                   data-testid="@UiTestIds.GoLive.PreviewRail">
-                <GoLiveCameraPreviewCard Camera="@ActiveCamera"
-                                         CanSwitchProgram="@CanSwitchProgram"
-                                         ShowSwitchAction="true"
-                                         SwitchActionLabel="@SwitchActionLabel"
-                                         SwitchSelectedSource="SwitchSelectedSourceAsync" />
+            @if (_showRightRail && !_fullProgramView)
+            {
+                <aside class="go-live-right-rail"
+                       data-testid="@UiTestIds.GoLive.PreviewRail">
+                    <GoLiveCameraPreviewCard Camera="@ActiveCamera"
+                                             CanSwitchProgram="@CanSwitchProgram"
+                                             ShowSwitchAction="true"
+                                             SwitchActionLabel="@SwitchActionLabel"
+                                             SwitchSelectedSource="SwitchSelectedSourceAsync" />
 
-                <section class="go-live-rail-card">
-                    <div class="go-live-sidebar-header">
-                        <span class="go-live-sidebar-title">Stream</span>
-                        <span class="live-status @(HasAnyLiveOutput ? "ready" : "pending")">@ActiveSessionLabel</span>
-                    </div>
-
-                    <div class="go-live-stat-grid">
-                        <div>
-                            <span>Status</span>
-                            <strong>@PrimarySessionBadge</strong>
-                        </div>
-                        <div>
-                            <span>Bitrate</span>
-                            <strong>@BitrateTelemetry</strong>
-                        </div>
-                        <div>
-                            <span>Resolution</span>
-                            <strong>@FormatOutputResolution(_studioSettings.Streaming.OutputResolution)</strong>
-                        </div>
-                        <div>
-                            <span>Dropped</span>
-                            <strong>0 frames</strong>
-                        </div>
-                    </div>
-
-                    <div class="go-live-meter-grid">
-                        <div class="go-live-meter-row">
-                            <span>Mic</span>
-                            <div class="go-live-meter"><span class="go-live-meter-fill go-live-meter-fill-primary"></span></div>
-                            <strong>-12 dB</strong>
-                        </div>
-                        <div class="go-live-meter-row">
-                            <span>Sys</span>
-                            <div class="go-live-meter"><span class="go-live-meter-fill go-live-meter-fill-secondary"></span></div>
-                            <strong>-28 dB</strong>
-                        </div>
-                        <div class="go-live-meter-row">
-                            <span>Bus</span>
-                            <div class="go-live-meter"><span class="go-live-meter-fill go-live-meter-fill-tertiary"></span></div>
-                            <strong>-16 dB</strong>
-                        </div>
-                    </div>
-
-                    <div class="go-live-stat-grid go-live-stat-grid-compact">
-                        <div>
-                            <span>Network</span>
-                            <strong>25 ms</strong>
-                        </div>
-                        <div>
-                            <span>Upload</span>
-                            <strong>8.0 Mbps</strong>
-                        </div>
-                        <div>
-                            <span>Jitter</span>
-                            <strong>3 ms</strong>
-                        </div>
-                        <div>
-                            <span>Packet Loss</span>
-                            <strong>0.0%</strong>
-                        </div>
-                    </div>
-
-                    <div class="go-live-settings-hint">
-                        <span class="set-section-label">Configured in Settings</span>
-                        <a class="set-btn-outline"
-                           href="@AppRoutes.Settings">Manage outputs</a>
-                    </div>
+                    <GoLiveStudioSidebar ActiveTab="@_activeStudioTab"
+                                         AudioChannels="@AudioChannels"
+                                         CreateRoom="CreateRoomAsync"
+                                         CueArmed="@_cueArmed"
+                                         Destinations="@DestinationSummary"
+                                         IsRoomActive="@IsRoomActive"
+                                         MuteAllGuests="@_muteAllGuests"
+                                         Participants="@Participants"
+                                          RoomCode="@RoomCode"
+                                         RuntimeMetrics="@RuntimeMetrics"
+                                         SelectTab="SelectStudioTabAsync"
+                                         SendCue="SendCueAsync"
+                                         StatusMetrics="@StatusMetrics"
+                                         TalkbackEnabled="@_talkbackEnabled"
+                                         ToggleDestination="ToggleDestinationSummaryAsync"
+                                         ToggleMuteAllGuests="ToggleMuteAllGuestsAsync"
+                                         ToggleTalkback="ToggleTalkbackAsync" />
 
                     @if (HasScriptContext)
                     {
@@ -142,8 +143,164 @@
                                data-testid="@UiTestIds.GoLive.OpenRead">Open Read</a>
                         </div>
                     }
+                </aside>
+            }
+        </section>
+
+        <section class="go-live-routing-section">
+            <div class="go-live-routing-copy">
+                <span class="set-section-label">@RoutingControlsEyebrow</span>
+                <h3>@RoutingControlsTitle</h3>
+                <p>@RoutingControlsDescription</p>
+            </div>
+
+            <div class="go-live-routing-grid">
+                <section class="go-live-rail-card go-live-output-panel">
+                    <div class="go-live-sidebar-header">
+                        <div>
+                            <span class="go-live-sidebar-title">@GoLiveProgramControlTitle</span>
+                            <div class="live-card-desc">@GoLiveProgramControlDescription</div>
+                        </div>
+                        <span class="live-status @(HasAnyLiveOutput ? "ready" : "pending")">@RoutingControlsSubtitle</span>
+                    </div>
+
+                    <div class="set-devices go-live-output-fields">
+                        <div class="set-field">
+                            <label>@OutputResolutionFieldLabel</label>
+                            <select class="set-select"
+                                    value="@_studioSettings.Streaming.OutputResolution"
+                                    @onchange="OnGoLiveOutputResolutionChanged"
+                                    data-testid="@UiTestIds.GoLive.OutputResolution">
+                                <option value="@StreamingResolutionPreset.FullHd1080p30">1920 x 1080 &#64; 30fps</option>
+                                <option value="@StreamingResolutionPreset.FullHd1080p60">1920 x 1080 &#64; 60fps</option>
+                                <option value="@StreamingResolutionPreset.Hd720p30">1280 x 720 &#64; 30fps</option>
+                                <option value="@StreamingResolutionPreset.UltraHd2160p30">3840 x 2160 &#64; 30fps</option>
+                            </select>
+                        </div>
+
+                        <div class="set-field">
+                            <label>@BitrateFieldLabel</label>
+                            <input type="number"
+                                   class="set-input"
+                                   value="@_studioSettings.Streaming.BitrateKbps"
+                                   @oninput="UpdateStreamingBitrateAsync"
+                                   data-testid="@UiTestIds.GoLive.Bitrate" />
+                        </div>
+
+                        <div class="set-field set-field-toggle">
+                            <label>@ShowTextOverlayFieldLabel</label>
+                            <div class="set-toggle @(_studioSettings.Streaming.ShowTextOverlay ? "on" : null)"
+                                 @onclick="ToggleGoLiveTextOverlayAsync"
+                                 data-testid="@UiTestIds.GoLive.StreamTextOverlay">
+                                <div class="set-toggle-thumb"></div>
+                            </div>
+                        </div>
+
+                        <div class="set-field set-field-toggle">
+                            <label>@IncludeCameraInOutputFieldLabel</label>
+                            <div class="set-toggle @(_studioSettings.Streaming.IncludeCameraInOutput ? "on" : null)"
+                                 @onclick="ToggleGoLiveIncludeCameraAsync"
+                                 data-testid="@UiTestIds.GoLive.StreamIncludeCamera">
+                                <div class="set-toggle-thumb"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="live-targets-grid go-live-targets-grid">
+                        <GoLiveDestinationCard Title="@GoLiveTargetCatalog.TargetNames.Obs"
+                                               Description="@ObsStudioDescription"
+                                               Summary="@BuildLocalSummary(GoLiveTargetCatalog.TargetIds.Obs)"
+                                               StatusLabel="@BuildTargetStatusLabel(_studioSettings.Streaming.ObsVirtualCameraEnabled, GoLiveTargetCatalog.TargetIds.Obs)"
+                                               IsEnabled="@_studioSettings.Streaming.ObsVirtualCameraEnabled"
+                                               IsReady="@BuildDestinationIsReady(_studioSettings.Streaming.ObsVirtualCameraEnabled, GoLiveTargetCatalog.TargetIds.Obs)"
+                                               ToggleTestId="@UiTestIds.GoLive.ObsToggle"
+                                               CardTestId="@UiTestIds.GoLive.ProviderCard(GoLiveTargetCatalog.TargetIds.Obs)"
+                                               OnToggle="ToggleObsOutputAsync" />
+
+                        <GoLiveDestinationCard Title="@GoLiveTargetCatalog.TargetNames.Recording"
+                                               Description="@GoLiveRecordingDescription"
+                                               Summary="@BuildLocalSummary(GoLiveTargetCatalog.TargetIds.Recording)"
+                                               StatusLabel="@BuildTargetStatusLabel(_studioSettings.Streaming.LocalRecordingEnabled, GoLiveTargetCatalog.TargetIds.Recording)"
+                                               IsEnabled="@_studioSettings.Streaming.LocalRecordingEnabled"
+                                               IsReady="@BuildDestinationIsReady(_studioSettings.Streaming.LocalRecordingEnabled, GoLiveTargetCatalog.TargetIds.Recording)"
+                                               ToggleTestId="@UiTestIds.GoLive.RecordingToggle"
+                                               CardTestId="@UiTestIds.GoLive.ProviderCard(GoLiveTargetCatalog.TargetIds.Recording)"
+                                               OnToggle="ToggleRecordingOutputAsync" />
+                    </div>
                 </section>
-            </aside>
+
+                <div class="live-targets-grid go-live-targets-grid">
+                    <GoLiveDestinationCard Title="@GoLiveTargetCatalog.TargetNames.LiveKit"
+                                           Description="@GoLiveLiveKitDescription"
+                                           Summary="@BuildRemoteSummary(_studioSettings.Streaming.LiveKitEnabled, GoLiveTargetCatalog.TargetIds.LiveKit, _studioSettings.Streaming.LiveKitServerUrl, _studioSettings.Streaming.LiveKitRoomName, _studioSettings.Streaming.LiveKitToken)"
+                                           StatusLabel="@BuildTargetStatusLabel(_studioSettings.Streaming.LiveKitEnabled, GoLiveTargetCatalog.TargetIds.LiveKit, _studioSettings.Streaming.LiveKitServerUrl, _studioSettings.Streaming.LiveKitRoomName, _studioSettings.Streaming.LiveKitToken)"
+                                           IsEnabled="@_studioSettings.Streaming.LiveKitEnabled"
+                                           IsReady="@BuildDestinationIsReady(_studioSettings.Streaming.LiveKitEnabled, GoLiveTargetCatalog.TargetIds.LiveKit, _studioSettings.Streaming.LiveKitServerUrl, _studioSettings.Streaming.LiveKitRoomName, _studioSettings.Streaming.LiveKitToken)"
+                                           ToggleTestId="@UiTestIds.GoLive.LiveKitToggle"
+                                           CardTestId="@UiTestIds.GoLive.ProviderCard(GoLiveTargetCatalog.TargetIds.LiveKit)"
+                                           OnToggle="ToggleLiveKitSettingsAsync">
+                        <GoLiveDestinationSourcePicker TargetId="@GoLiveTargetCatalog.TargetIds.LiveKit"
+                                                       Sources="@SceneCameras"
+                                                       SelectedSourceIds="@GetSelectedSourceIds(GoLiveTargetCatalog.TargetIds.LiveKit)"
+                                                       ToggleSource="@(sourceId => ToggleDestinationSourceAsync((GoLiveTargetCatalog.TargetIds.LiveKit, sourceId)))" />
+                        <div class="set-field">
+                            <label>@LiveKitServerFieldLabel</label>
+                            <input type="text"
+                                   class="set-input"
+                                   value="@_studioSettings.Streaming.LiveKitServerUrl"
+                                   @oninput="UpdateLiveKitServerAsync"
+                                   data-testid="@UiTestIds.GoLive.LiveKitServer" />
+                        </div>
+                        <div class="set-field">
+                            <label>@LiveKitRoomFieldLabel</label>
+                            <input type="text"
+                                   class="set-input"
+                                   value="@_studioSettings.Streaming.LiveKitRoomName"
+                                   @oninput="UpdateLiveKitRoomAsync"
+                                   data-testid="@UiTestIds.GoLive.LiveKitRoom" />
+                        </div>
+                        <div class="set-field">
+                            <label>@LiveKitTokenFieldLabel</label>
+                            <input type="password"
+                                   class="set-input"
+                                   value="@_studioSettings.Streaming.LiveKitToken"
+                                   @oninput="UpdateLiveKitTokenAsync"
+                                   data-testid="@UiTestIds.GoLive.LiveKitToken" />
+                        </div>
+                    </GoLiveDestinationCard>
+
+                    <GoLiveDestinationCard Title="@GoLiveTargetCatalog.TargetNames.Youtube"
+                                           Description="@GoLiveYoutubeDescription"
+                                           Summary="@BuildRemoteSummary(_studioSettings.Streaming.YoutubeEnabled, GoLiveTargetCatalog.TargetIds.Youtube, _studioSettings.Streaming.YoutubeRtmpUrl, _studioSettings.Streaming.YoutubeStreamKey)"
+                                           StatusLabel="@BuildTargetStatusLabel(_studioSettings.Streaming.YoutubeEnabled, GoLiveTargetCatalog.TargetIds.Youtube, _studioSettings.Streaming.YoutubeRtmpUrl, _studioSettings.Streaming.YoutubeStreamKey)"
+                                           IsEnabled="@_studioSettings.Streaming.YoutubeEnabled"
+                                           IsReady="@BuildDestinationIsReady(_studioSettings.Streaming.YoutubeEnabled, GoLiveTargetCatalog.TargetIds.Youtube, _studioSettings.Streaming.YoutubeRtmpUrl, _studioSettings.Streaming.YoutubeStreamKey)"
+                                           ToggleTestId="@UiTestIds.GoLive.YoutubeToggle"
+                                           CardTestId="@UiTestIds.GoLive.ProviderCard(GoLiveTargetCatalog.TargetIds.Youtube)"
+                                           OnToggle="ToggleYoutubeSettingsAsync">
+                        <GoLiveDestinationSourcePicker TargetId="@GoLiveTargetCatalog.TargetIds.Youtube"
+                                                       Sources="@SceneCameras"
+                                                       SelectedSourceIds="@GetSelectedSourceIds(GoLiveTargetCatalog.TargetIds.Youtube)"
+                                                       ToggleSource="@(sourceId => ToggleDestinationSourceAsync((GoLiveTargetCatalog.TargetIds.Youtube, sourceId)))" />
+                        <div class="set-field">
+                            <label>@YoutubeUrlFieldLabel</label>
+                            <input type="text"
+                                   class="set-input"
+                                   value="@_studioSettings.Streaming.YoutubeRtmpUrl"
+                                   @oninput="UpdateYoutubeUrlAsync"
+                                   data-testid="@UiTestIds.GoLive.YoutubeUrl" />
+                        </div>
+                        <div class="set-field">
+                            <label>@YoutubeKeyFieldLabel</label>
+                            <input type="password"
+                                   class="set-input"
+                                   value="@_studioSettings.Streaming.YoutubeStreamKey"
+                                   @oninput="UpdateYoutubeKeyAsync"
+                                   data-testid="@UiTestIds.GoLive.YoutubeKey" />
+                        </div>
+                    </GoLiveDestinationCard>
+                </div>
+            </div>
         </section>
     </div>
 </div>

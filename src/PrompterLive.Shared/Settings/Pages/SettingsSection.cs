@@ -7,6 +7,7 @@ public enum SettingsSection
     Cameras,
     Mics,
     Streaming,
+    Recording,
     Ai,
     Appearance,
     About
