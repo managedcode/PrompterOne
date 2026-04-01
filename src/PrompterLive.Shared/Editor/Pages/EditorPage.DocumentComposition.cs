@@ -11,7 +11,7 @@ public partial class EditorPage
         var mutation = LocalAssistant.Apply(_sourceText, _selection.Range, action);
         _selection = _selection with { Range = mutation.Selection };
         _history.TryRecord(mutation.Text, mutation.Selection);
-        await PersistDraftAsync(mutation.Text);
+        PersistDraftInBackground(mutation.Text);
 
         if (_sourcePanel is not null)
         {

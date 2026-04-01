@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -11,14 +12,24 @@ internal sealed class StaticSpaServer(
     string sharedWwwrootDirectory,
     string appScopedStylesheetPath,
     string sharedScopedStylesheetPath,
+    string staticWebAssetsManifestPath,
     string? hotReloadStaticAssetsDirectory,
     string requestedBaseAddress) : IAsyncDisposable
 {
+    private const string ContentRootIndexPropertyName = "ContentRootIndex";
+    private const string AssetPropertyName = "Asset";
+    private const string ChildrenPropertyName = "Children";
+    private const string ContentRootsPropertyName = "ContentRoots";
+    private const string RootPropertyName = "Root";
+    private const string ContentPrefixPropertyName = "_content";
+    private const string SharedContentPackageName = "PrompterLive.Shared";
+    private const string HotReloadContentPackageName = "Microsoft.DotNet.HotReload.WebAssembly.Browser";
     private readonly string _appWwwrootDirectory = appWwwrootDirectory;
     private readonly string _appScopedStylesheetPath = appScopedStylesheetPath;
     private readonly string _frameworkDirectory = frameworkDirectory;
     private readonly string _sharedScopedStylesheetPath = sharedScopedStylesheetPath;
     private readonly string _sharedWwwrootDirectory = sharedWwwrootDirectory;
+    private readonly string _staticWebAssetsManifestPath = staticWebAssetsManifestPath;
     private readonly string? _hotReloadStaticAssetsDirectory = hotReloadStaticAssetsDirectory;
     private readonly string _requestedBaseAddress = requestedBaseAddress;
     private WebApplication? _app;
@@ -52,6 +63,7 @@ internal sealed class StaticSpaServer(
         EnsureDirectoryExists(_sharedWwwrootDirectory, "Shared wwwroot directory");
         EnsureFileExists(_appScopedStylesheetPath, "App scoped stylesheet");
         EnsureFileExists(_sharedScopedStylesheetPath, "Shared scoped stylesheet");
+        EnsureFileExists(_staticWebAssetsManifestPath, "Static web assets manifest");
     }
 
     private WebApplication BuildApplication()
@@ -67,17 +79,127 @@ internal sealed class StaticSpaServer(
 
     private void MapApplicationAssets(WebApplication app, FileExtensionContentTypeProvider provider)
     {
+        app.MapGet(UiTestHostConstants.BlankPagePath, context =>
+        {
+            context.Response.ContentType = "text/html; charset=utf-8";
+            return context.Response.WriteAsync("<!doctype html><html><head><meta charset=\"utf-8\"><title>PrompterLive UI Test Blank</title></head><body></body></html>");
+        });
+
         MapStaticDirectory(app, "/_framework", _frameworkDirectory, provider);
         MapSharedStaticDirectory(app, provider, _sharedWwwrootDirectory, _sharedScopedStylesheetPath);
+        MapPackageStaticDirectories(app, provider);
 
         if (!string.IsNullOrWhiteSpace(_hotReloadStaticAssetsDirectory) && Directory.Exists(_hotReloadStaticAssetsDirectory))
         {
-            MapStaticDirectory(app, "/_content/Microsoft.DotNet.HotReload.WebAssembly.Browser", _hotReloadStaticAssetsDirectory, provider);
+            MapStaticDirectory(app, $"/{ContentPrefixPropertyName}/{HotReloadContentPackageName}", _hotReloadStaticAssetsDirectory, provider);
         }
 
         app.MapGet($"/{Path.GetFileName(_appScopedStylesheetPath)}", context =>
             SendFileIfPresentAsync(context, _appScopedStylesheetPath, provider));
         app.MapGet("/{**path}", context => ServeAppAssetAsync(context, provider));
+    }
+
+    private void MapPackageStaticDirectories(WebApplication app, FileExtensionContentTypeProvider contentTypeProvider)
+    {
+        foreach (var (packageName, physicalDirectory) in LoadPackageStaticDirectories())
+        {
+            MapStaticDirectory(app, $"/{ContentPrefixPropertyName}/{packageName}", physicalDirectory, contentTypeProvider);
+        }
+    }
+
+    private IReadOnlyDictionary<string, string> LoadPackageStaticDirectories()
+    {
+        using var stream = File.OpenRead(_staticWebAssetsManifestPath);
+        using var document = JsonDocument.Parse(stream);
+
+        if (!TryGetContentChildren(document.RootElement, out var contentChildren))
+        {
+            return new Dictionary<string, string>(StringComparer.Ordinal);
+        }
+
+        var contentRoots = document.RootElement
+            .GetProperty(ContentRootsPropertyName)
+            .EnumerateArray()
+            .Select(element => element.GetString())
+            .ToArray();
+
+        var packageDirectories = new Dictionary<string, string>(StringComparer.Ordinal);
+
+        foreach (var package in contentChildren.EnumerateObject())
+        {
+            if (package.Name is SharedContentPackageName or HotReloadContentPackageName)
+            {
+                continue;
+            }
+
+            var contentRootIndex = FindContentRootIndex(package.Value);
+            if (contentRootIndex is null || contentRootIndex.Value < 0 || contentRootIndex.Value >= contentRoots.Length)
+            {
+                continue;
+            }
+
+            var physicalDirectory = contentRoots[contentRootIndex.Value];
+            if (string.IsNullOrWhiteSpace(physicalDirectory) || !Directory.Exists(physicalDirectory))
+            {
+                continue;
+            }
+
+            packageDirectories[package.Name] = physicalDirectory;
+        }
+
+        return packageDirectories;
+    }
+
+    private static bool TryGetContentChildren(JsonElement root, out JsonElement contentChildren)
+    {
+        contentChildren = default;
+
+        if (!root.TryGetProperty(RootPropertyName, out var rootNode) ||
+            !rootNode.TryGetProperty(ChildrenPropertyName, out var rootChildren) ||
+            !rootChildren.TryGetProperty(ContentPrefixPropertyName, out var contentNode) ||
+            !contentNode.TryGetProperty(ChildrenPropertyName, out contentChildren))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private static int? FindContentRootIndex(JsonElement node)
+    {
+        if (TryGetContentRootIndex(node, out var contentRootIndex))
+        {
+            return contentRootIndex;
+        }
+
+        if (!node.TryGetProperty(ChildrenPropertyName, out var children) || children.ValueKind is not JsonValueKind.Object)
+        {
+            return null;
+        }
+
+        foreach (var child in children.EnumerateObject())
+        {
+            var descendantContentRootIndex = FindContentRootIndex(child.Value);
+            if (descendantContentRootIndex is not null)
+            {
+                return descendantContentRootIndex;
+            }
+        }
+
+        return null;
+    }
+
+    private static bool TryGetContentRootIndex(JsonElement node, out int contentRootIndex)
+    {
+        contentRootIndex = default;
+
+        if (!node.TryGetProperty(AssetPropertyName, out var asset) || asset.ValueKind is not JsonValueKind.Object)
+        {
+            return false;
+        }
+
+        return asset.TryGetProperty(ContentRootIndexPropertyName, out var contentRootNode)
+            && contentRootNode.TryGetInt32(out contentRootIndex);
     }
 
     private static void EnsureDirectoryExists(string path, string description)

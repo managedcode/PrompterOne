@@ -34,11 +34,15 @@ public partial class LibraryPage
                 StateHasChanged();
             });
 
-    private async Task LoadLibraryAsync()
+    private async Task LoadLibraryAsync(bool restoreViewState = true)
     {
         await Bootstrapper.EnsureReadyAsync();
 
-        await RestoreViewStateAsync();
+        if (restoreViewState)
+        {
+            await RestoreViewStateAsync();
+        }
+
         _folders = await LibraryFolderRepository.ListAsync();
 
         var summaries = await ScriptRepository.ListAsync();

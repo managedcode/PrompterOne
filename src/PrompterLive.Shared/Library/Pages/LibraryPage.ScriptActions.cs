@@ -63,7 +63,7 @@ public partial class LibraryPage
                     documentName: null,
                     existingId: null,
                     folderId: document.FolderId);
-                await LoadLibraryAsync();
+                await LoadLibraryAsync(restoreViewState: false);
             });
 
     private Task MoveScriptAsync(LibraryMoveRequest request) =>
@@ -74,7 +74,8 @@ public partial class LibraryPage
             {
                 await Bootstrapper.EnsureReadyAsync();
                 await ScriptRepository.MoveToFolderAsync(request.ScriptId, request.FolderId);
-                await LoadLibraryAsync();
+                ApplyMovedScript(request);
+                await PersistViewStateAsync();
             });
 
     private Task DeleteScriptAsync(string id) =>
@@ -91,6 +92,17 @@ public partial class LibraryPage
                     await SessionService.NewAsync();
                 }
 
-                await LoadLibraryAsync();
+                await LoadLibraryAsync(restoreViewState: false);
             });
+
+    private void ApplyMovedScript(LibraryMoveRequest request)
+    {
+        _allCards = _allCards
+            .Select(card => string.Equals(card.Id, request.ScriptId, StringComparison.Ordinal)
+                ? card with { FolderId = request.FolderId }
+                : card)
+            .ToList();
+
+        RebuildLibraryView();
+    }
 }

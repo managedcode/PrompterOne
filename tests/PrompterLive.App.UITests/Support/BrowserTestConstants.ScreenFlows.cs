@@ -22,6 +22,11 @@ internal static partial class BrowserTestConstants
     {
         public const string HtmlThemeAttribute = "data-theme";
         public const string LightTheme = "light";
+        public const string CloudStorageScenario = "settings-cloud-storage";
+        public const string CloudStorageConfiguredStep = "01-cloud-storage-configured";
+        public const string CloudStorageReloadedStep = "02-cloud-storage-reloaded";
+        public const string DropboxLabel = "Managed Dropbox";
+        public const string DropboxValidationMessage = "Dropbox requires an access token or a refresh token with app key.";
         public const string OpenAiProviderId = "openai";
         public const string MicLevelPercentText = "82%";
         public const string MicLevelValue = "82";

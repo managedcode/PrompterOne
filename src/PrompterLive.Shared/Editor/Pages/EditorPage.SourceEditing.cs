@@ -102,7 +102,7 @@ public partial class EditorPage
     {
         _selection = _selection with { Range = selection };
         _history.TryRecord(text, selection);
-        await PersistDraftAsync(text);
+        PersistDraftInBackground(text);
         await FocusSourceRangeAsync(selection.Start, selection.End);
     }
 

@@ -14,16 +14,6 @@ internal static class LegacyLibrarySeedCatalog
         "comprehensive-demo"
     };
 
-    private static readonly HashSet<string> LegacyDocumentNames = new(StringComparer.OrdinalIgnoreCase)
-    {
-        "test-script.tps",
-        "ted-leadership.tps",
-        "security-incident.tps",
-        "green-architecture.tps",
-        "quantum-computing.tps",
-        "comprehensive-demo.tps"
-    };
-
     private static readonly HashSet<string> LegacyFolderIds = new(StringComparer.Ordinal)
     {
         "presentations",
@@ -37,8 +27,7 @@ internal static class LegacyLibrarySeedCatalog
 
     public static bool IsLegacyDocument(BrowserStoredScriptDocumentDto document)
     {
-        return LegacyDocumentIds.Contains(document.Id ?? string.Empty) ||
-               LegacyDocumentNames.Contains(document.DocumentName ?? string.Empty);
+        return LegacyDocumentIds.Contains(document.Id ?? string.Empty);
     }
 
     public static bool IsLegacyFolder(BrowserStoredLibraryFolderDto folder)

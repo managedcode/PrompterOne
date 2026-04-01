@@ -21,6 +21,7 @@ public partial class EditorPage
     private const int DraftAnalysisDelayMilliseconds = 1_000;
     private const int AutosaveDelayMilliseconds = 1_500;
     private const int UntitledDraftAutosaveDelayMilliseconds = 1_500;
+    private const int UntitledDraftAutosaveCharacterThreshold = 2;
     private const string DefaultAuthor = "PrompterLive";
     private const string DefaultProfileActor = "Actor";
     private const string DefaultProfileRsvp = "RSVP";
@@ -30,6 +31,8 @@ public partial class EditorPage
     private readonly TpsFrontMatterDocumentService _frontMatterService = new();
     private CancellationTokenSource? _draftAnalysisCancellationSource;
     private CancellationTokenSource? _autosaveCancellationSource;
+    private long _draftRevision;
+    private bool _isEditorReady;
     private bool _loadState = true;
     private int? _activeBlockIndex;
     private int _activeSegmentIndex;

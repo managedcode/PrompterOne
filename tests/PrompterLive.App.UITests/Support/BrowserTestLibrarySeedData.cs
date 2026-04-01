@@ -12,14 +12,20 @@ internal static class BrowserTestLibrarySeedData
         var documentsJson = JsonSerializer.Serialize(CreateDocuments(), JsonOptions);
         var foldersJson = JsonSerializer.Serialize(CreateFolders(), JsonOptions);
         var documentLibraryKey = JsonSerializer.Serialize("prompterlive.library.v1");
+        var documentSeedVersionKey = JsonSerializer.Serialize("prompterlive.library.seed-version");
         var folderLibraryKey = JsonSerializer.Serialize("prompterlive.folders.v1");
+        var folderSeedVersionKey = JsonSerializer.Serialize("prompterlive.folders.seed-version");
+        var materializationVersion = JsonSerializer.Serialize("2026-04-01-browser-library-materialized-v1");
 
         return $$"""
             (() => {
                 const documentLibraryKey = {{documentLibraryKey}};
+                const documentSeedVersionKey = {{documentSeedVersionKey}};
                 const folderLibraryKey = {{folderLibraryKey}};
+                const folderSeedVersionKey = {{folderSeedVersionKey}};
                 const documentsJson = {{JsonSerializer.Serialize(documentsJson)}};
                 const foldersJson = {{JsonSerializer.Serialize(foldersJson)}};
+                const materializationVersion = {{materializationVersion}};
 
                 if (!window.localStorage.getItem(folderLibraryKey)) {
                     window.localStorage.setItem(folderLibraryKey, foldersJson);
@@ -28,6 +34,9 @@ internal static class BrowserTestLibrarySeedData
                 if (!window.localStorage.getItem(documentLibraryKey)) {
                     window.localStorage.setItem(documentLibraryKey, documentsJson);
                 }
+
+                window.localStorage.setItem(documentSeedVersionKey, materializationVersion);
+                window.localStorage.setItem(folderSeedVersionKey, materializationVersion);
             })();
             """;
     }

@@ -1,3 +1,6 @@
+using ManagedCode.Storage.Browser.Extensions;
+using ManagedCode.Storage.Core.Extensions;
+using ManagedCode.Storage.VirtualFileSystem.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using PrompterLive.Core.Abstractions;
 using PrompterLive.Core.Services;
@@ -9,6 +12,8 @@ using PrompterLive.Core.Services.Streaming;
 using PrompterLive.Core.Services.Workspace;
 using PrompterLive.Shared.Services.Diagnostics;
 using PrompterLive.Shared.Services.Editor;
+using PrompterLive.Shared.Storage;
+using PrompterLive.Shared.Storage.Cloud;
 
 namespace PrompterLive.Shared.Services;
 
@@ -16,6 +21,19 @@ public static class PrompterLiveServiceCollectionExtensions
 {
     public static IServiceCollection AddPrompterLiveShared(this IServiceCollection services)
     {
+        services.AddStorageFactory();
+        services.AddBrowserStorageAsDefault(options =>
+        {
+            options.ContainerName = PrompterStorageDefaults.LocalBrowserContainerName;
+            options.DatabaseName = PrompterStorageDefaults.LocalBrowserDatabaseName;
+            options.ChunkSizeBytes = PrompterStorageDefaults.BrowserChunkSizeBytes;
+            options.ChunkBatchSize = PrompterStorageDefaults.BrowserChunkBatchSize;
+        });
+        services.AddVirtualFileSystem(options =>
+        {
+            options.DefaultContainer = PrompterStorageDefaults.LocalBrowserContainerName;
+        });
+
         services.AddScoped<TpsParser>();
         services.AddScoped<ScriptCompiler>();
         services.AddScoped<TpsExporter>();
@@ -38,7 +56,10 @@ public static class PrompterLiveServiceCollectionExtensions
         services.AddScoped<IMediaDeviceService, BrowserMediaDeviceService>();
         services.AddScoped<IMediaSceneService, MediaSceneService>();
         services.AddScoped<BrowserSettingsStore>();
+        services.AddScoped<BrowserCloudStorageStore>();
         services.AddScoped<BrowserThemeService>();
+        services.AddScoped<CloudStorageProviderFactory>();
+        services.AddScoped<CloudStorageTransferService>();
         services.AddScoped<StudioSettingsStore>();
         services.AddScoped<CameraPreviewInterop>();
         services.AddScoped<LearnRsvpLayoutInterop>();

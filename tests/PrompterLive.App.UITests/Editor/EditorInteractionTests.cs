@@ -106,7 +106,7 @@ public sealed class EditorInteractionTests(StandaloneAppFixture fixture) : IClas
                 """
                 element => {
                     const text = element.value;
-                    const target = "transformative moment";
+                    const target = "welcome";
                     const start = text.indexOf(target);
                     element.focus();
                     element.setSelectionRange(start, start + target.length);
@@ -118,13 +118,14 @@ public sealed class EditorInteractionTests(StandaloneAppFixture fixture) : IClas
             await Expect(page.GetByTestId(UiTestIds.Editor.FloatingBar)).ToBeVisibleAsync();
             await Expect(page.GetByTestId(UiTestIds.Editor.FloatingAi)).ToBeVisibleAsync();
 
-            await page.GetByTestId(UiTestIds.Editor.FloatingSlow).ClickAsync();
+            await page.GetByTestId(UiTestIds.Editor.FloatEmphasis).ClickAsync();
             await Expect(page.GetByTestId(UiTestIds.Editor.SourceInput)).ToHaveValueAsync(
-                new Regex(Regex.Escape(BrowserTestConstants.Editor.SlowFragment)));
+                new Regex(Regex.Escape(BrowserTestConstants.Editor.EmphasisFragment)));
 
+            await page.WaitForTimeoutAsync(BrowserTestConstants.Timing.PersistDelayMs);
             await page.ReloadAsync();
             await Expect(page.GetByTestId(UiTestIds.Editor.SourceInput)).ToHaveValueAsync(
-                new Regex(Regex.Escape(BrowserTestConstants.Editor.SlowFragment)));
+                new Regex(Regex.Escape(BrowserTestConstants.Editor.EmphasisFragment)));
         }
         finally
         {
@@ -220,10 +221,18 @@ public sealed class EditorInteractionTests(StandaloneAppFixture fixture) : IClas
             await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
             await Expect(page.GetByTestId(UiTestIds.Editor.Duration)).ToBeVisibleAsync();
 
-            await page.GetByTestId(UiTestIds.Editor.Duration).FillAsync(BrowserTestConstants.Editor.DisplayDuration);
-            await page.GetByTestId(UiTestIds.Editor.Version).ClickAsync();
+            await page.GetByTestId(UiTestIds.Editor.Duration).EvaluateAsync(
+                """
+                (element, value) => {
+                    element.focus();
+                    element.value = value;
+                    element.dispatchEvent(new Event("change", { bubbles: true }));
+                }
+                """,
+                BrowserTestConstants.Editor.DisplayDuration);
 
             await Expect(page.GetByTestId(UiTestIds.Editor.Duration)).ToHaveValueAsync(BrowserTestConstants.Editor.DisplayDuration);
+            await page.WaitForTimeoutAsync(BrowserTestConstants.Timing.PersistReloadDelayMs);
             await page.ReloadAsync();
             await Expect(page.GetByTestId(UiTestIds.Editor.Duration)).ToHaveValueAsync(BrowserTestConstants.Editor.DisplayDuration);
 

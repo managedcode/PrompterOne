@@ -62,8 +62,8 @@ public partial class LibraryPage
                 var folder = await LibraryFolderRepository.CreateAsync(folderName, parentId);
                 ExpandCreatedFolderPath(folder.Id, parentId);
                 ResetFolderDraftState(folder.Id);
+                ApplyCreatedFolder(folder);
                 Logger.LogInformation(FolderCreatedLogTemplate, folder.Id, parentId ?? LibrarySelectionKeys.Root);
-                await LoadLibraryAsync();
                 await PersistViewStateAsync();
             });
     }
@@ -84,6 +84,18 @@ public partial class LibraryPage
         _folderDraftName = string.Empty;
         _folderDraftParentId = ResolveDraftParentId();
         _selectedFolderId = selectedFolderId;
+    }
+
+    private void ApplyCreatedFolder(StoredLibraryFolder folder)
+    {
+        _folders = _folders
+            .Where(existingFolder => !string.Equals(existingFolder.Id, folder.Id, StringComparison.Ordinal))
+            .Append(folder)
+            .OrderBy(existingFolder => existingFolder.DisplayOrder)
+            .ThenBy(existingFolder => existingFolder.Name, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        RebuildLibraryView();
     }
 
     private string ResolveDraftParentId() =>

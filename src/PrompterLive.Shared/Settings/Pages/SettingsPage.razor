@@ -65,13 +65,9 @@
         <div class="set-main">
             <SettingsCloudSection DisplayStyle="@GetSectionDisplayStyle(SettingsSection.Cloud)"
                                   IsCardOpen="IsCardOpen"
-                                  OneDriveSyncFolder="@_pagePreferences.OneDriveSyncFolder"
-                                  OneDriveSyncFolderChanged="UpdateOneDriveSyncFolderAsync"
-                                  CloudAutoSyncOnSave="@_pagePreferences.CloudAutoSyncOnSave"
-                                  CloudSyncOnStartup="@_pagePreferences.CloudSyncOnStartup"
+                                  SettingsImported="ReloadPreferencesAsync"
                                   ToggleCard="TogglePreferenceCardAsync"
-                                  ToggleAutoSyncOnSave="ToggleCloudAutoSyncOnSaveAsync"
-                                  ToggleSyncOnStartup="ToggleCloudSyncOnStartupAsync" />
+                                  />
 
             <SettingsFilesSection DisplayStyle="@GetSectionDisplayStyle(SettingsSection.Files)"
                                   IsCardOpen="IsCardOpen"

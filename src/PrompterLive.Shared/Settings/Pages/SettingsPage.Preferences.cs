@@ -39,6 +39,12 @@ public partial class SettingsPage
         await ThemeService.ApplyAsync(_pagePreferences);
     }
 
+    private async Task ReloadPreferencesAsync()
+    {
+        await LoadPreferencesAsync();
+        await InvokeAsync(StateHasChanged);
+    }
+
     private Task PersistPreferencesAsync() =>
         Diagnostics.RunAsync(
             PersistPreferencesOperation,
@@ -71,24 +77,6 @@ public partial class SettingsPage
         }
 
         await InvokeAsync(StateHasChanged);
-    }
-
-    private async Task UpdateOneDriveSyncFolderAsync(string value)
-    {
-        _pagePreferences = _pagePreferences with { OneDriveSyncFolder = value };
-        await PersistPreferencesAsync();
-    }
-
-    private async Task ToggleCloudAutoSyncOnSaveAsync()
-    {
-        _pagePreferences = _pagePreferences with { CloudAutoSyncOnSave = !_pagePreferences.CloudAutoSyncOnSave };
-        await PersistPreferencesAsync();
-    }
-
-    private async Task ToggleCloudSyncOnStartupAsync()
-    {
-        _pagePreferences = _pagePreferences with { CloudSyncOnStartup = !_pagePreferences.CloudSyncOnStartup };
-        await PersistPreferencesAsync();
     }
 
     private async Task UpdateExportFormatAsync(string value)

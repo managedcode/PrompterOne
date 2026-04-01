@@ -56,7 +56,17 @@ public sealed partial class StandaloneAppFixture : IAsyncLifetime
         var page = await context.NewPageAsync();
         page.SetDefaultNavigationTimeout(BrowserTestConstants.Timing.DefaultNavigationTimeoutMs);
         page.SetDefaultTimeout(BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs);
+        await PrimeIsolatedBrowserStorageAsync(page);
         return page;
+    }
+
+    private async Task PrimeIsolatedBrowserStorageAsync(IPage page)
+    {
+        await page.GotoAsync($"{BaseAddress}{UiTestHostConstants.BlankPagePath}");
+        await page.EvaluateAsync(
+            UiTestHostConstants.ResetBrowserStorageScript,
+            UiTestHostConstants.BrowserStorageDatabaseName);
+        await page.EvaluateAsync(BrowserTestLibrarySeedData.CreateInitializationScript());
     }
 
     private static class SharedRuntime
@@ -111,6 +121,7 @@ public sealed partial class StandaloneAppFixture : IAsyncLifetime
                 GetSharedWwwrootDirectory(),
                 GetAppScopedStylesheetPath(),
                 GetSharedScopedStylesheetPath(),
+                GetStaticWebAssetsManifestPath(),
                 GetHotReloadStaticAssetsDirectory(),
                 UiTestHostConstants.LoopbackBaseAddressTemplate);
         }
@@ -243,6 +254,11 @@ public sealed partial class StandaloneAppFixture : IAsyncLifetime
         Path.GetFullPath(Path.Combine(
             AppContext.BaseDirectory,
             "../../../../../src/PrompterLive.Shared/obj/Debug/net10.0/scopedcss/projectbundle/PrompterLive.Shared.bundle.scp.css"));
+
+    private static string GetStaticWebAssetsManifestPath() =>
+        Path.GetFullPath(Path.Combine(
+            AppContext.BaseDirectory,
+            "../../../../../src/PrompterLive.App/obj/Debug/net10.0/staticwebassets.development.json"));
 
     private static string? GetHotReloadStaticAssetsDirectory()
     {

@@ -97,6 +97,7 @@ flowchart LR
 | `Teleprompter` | Read-mode playback surface | Presents the script for live reading with camera-backed composition | `src/PrompterLive.Shared/Teleprompter` | reading layout, background camera composition, runtime reading flow | script persistence rules, destination setup screens |
 | `GoLive` | Live production and routing surface | Arms outputs, switches sources, previews cameras, and exposes live telemetry | `src/PrompterLive.Shared/GoLive`, `src/PrompterLive.Core/Streaming` | studio layout, output controls, destination routing, live session state | server-side stream processing, unrelated editor or library concerns |
 | `Settings` | Device and scene setup surface | Configures cameras, microphones, overlays, and base scene state | `src/PrompterLive.Shared/Settings`, `src/PrompterLive.Core/Media` | device selection UI, scene transforms, scene persistence flows | live output orchestration policy, document editing |
+| `Storage` | Browser persistence and cloud transfer orchestration | Keeps scripts and settings local-first while exposing provider-backed import/export | `src/PrompterLive.Shared/Storage`, `src/PrompterLive.Shared/Library/Services/Storage` | browser `IStorage` and VFS registration, authoritative browser repositories for scripts/folders, provider credential persistence, scripts/settings snapshot transfer | routed page layout, teleprompter rendering, video-stream upload workflows |
 | `Diagnostics` | Error and operation feedback layer | Makes recoverable and fatal issues visible in the shell | `src/PrompterLive.Shared/Diagnostics` | banners, error boundary reporting, operation status wiring | owning business logic of the failing feature |
 | `Localization` | Culture and UI text contract | Keeps supported runtime languages consistent and browser-driven | `src/PrompterLive.Shared/Localization`, `src/PrompterLive.Core/Localization` | text catalogs, culture bootstrap, supported culture rules | feature behavior or screen-specific layout ownership |
 | `Workspace` | Active script/session state model | Gives editor, learn, read, and go-live one shared script context | `src/PrompterLive.Core/Workspace` | loaded script state, previews, estimated duration, active session metadata | feature-specific rendering details |
@@ -122,8 +123,9 @@ flowchart TD
     Ui["PrompterLive.Shared"]
     Domain["PrompterLive.Core"]
     Localization["Culture bootstrap + localized UI catalog"]
-    BrowserStorage["Browser storage adapters<br/>documents + folders + settings"]
-    WebApis["localStorage / MediaDevices / Canvas / JS helpers"]
+    BrowserStorage["Browser storage + repository adapters<br/>scripts + folders + settings"]
+    CloudStorage["Cloud provider orchestration<br/>snapshot import/export"]
+    WebApis["localStorage / IndexedDB / OPFS / MediaDevices / Canvas / JS helpers"]
 
     Browser --> WasmHost
     WasmHost --> Ui
@@ -131,7 +133,9 @@ flowchart TD
     WasmHost --> Localization
     Ui --> Localization
     Ui --> BrowserStorage
+    Ui --> CloudStorage
     BrowserStorage --> WebApis
+    CloudStorage --> WebApis
     Ui --> WebApis
 ```
 
@@ -145,16 +149,55 @@ flowchart LR
     FolderRepo["ILibraryFolderRepository"]
     CardFactory["LibraryCardFactory"]
     TreeBuilder["LibraryFolderTreeBuilder"]
-    LocalStorage["localStorage adapters"]
+    BrowserRepo["Authoritative browser repositories<br/>localStorage JSON + materialization"]
+    BrowserStorage["ManagedCode.Storage.Browser<br/>IndexedDB + OPFS"]
+    LegacySeed["Seed materialization + legacy cleanup"]
 
     LibraryPage --> FolderChips
     LibraryPage --> ScriptRepo
     LibraryPage --> FolderRepo
     LibraryPage --> CardFactory
     LibraryPage --> TreeBuilder
-    ScriptRepo --> LocalStorage
-    FolderRepo --> LocalStorage
+    ScriptRepo --> BrowserRepo
+    FolderRepo --> BrowserRepo
+    BrowserRepo --> BrowserStorage
+    ScriptRepo --> LegacySeed
+    FolderRepo --> LegacySeed
 ```
+
+## Storage And Cloud Contracts
+
+```mermaid
+flowchart LR
+    Settings["SettingsCloudSection"]
+    BrowserStore["BrowserCloudStorageStore"]
+    Preferences["CloudStoragePreferences"]
+    BrowserKeys["BrowserSettingsStore<br/>localStorage keys only"]
+    Transfer["CloudStorageTransferService"]
+    ProviderFactory["CloudStorageProviderFactory"]
+    LocalRepo["BrowserScriptRepository + BrowserLibraryFolderRepository"]
+    LocalVfs["IVirtualFileSystem"]
+    ScriptRepo["BrowserScriptRepository"]
+    FolderRepo["BrowserLibraryFolderRepository"]
+    BrowserProvider["ManagedCode.Storage.Browser"]
+    Providers["Dropbox / OneDrive / Google Drive / GCS / CloudKit"]
+
+    Settings --> BrowserStore
+    Settings --> Transfer
+    BrowserStore --> Preferences
+    BrowserStore --> BrowserKeys
+    Transfer --> ProviderFactory
+    Transfer --> LocalVfs
+    ScriptRepo --> LocalRepo
+    FolderRepo --> LocalRepo
+    LocalVfs --> BrowserProvider
+    ProviderFactory --> Providers
+```
+
+- Scripts and folders persist through authoritative browser repositories backed by versioned JSON/localStorage materialization.
+- Browser `localStorage` is reserved for provider credentials, provider metadata, and lightweight settings values that must survive reloads.
+- Browser storage plus VFS stay registered for cloud import/export and future stream-export work, but they are not the primary editor/library persistence path today.
+- Cloud import/export currently moves one scripts-and-settings snapshot at a time; it is not a live sync engine and does not own recorded video upload.
 
 ## Editor Authoring Contracts
 
@@ -391,7 +434,7 @@ sequenceDiagram
 
     Shared->>Core: Parse / compile TPS
     Shared->>Core: Calculate RSVP and reader state
-    Shared->>Browser: Persist settings and local documents
+    Shared->>Browser: Persist settings, authoritative browser documents, and cloud credentials
     Shared->>Browser: Drive design interactions from app.js
 ```
 

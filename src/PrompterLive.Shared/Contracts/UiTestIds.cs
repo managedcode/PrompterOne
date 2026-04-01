@@ -223,8 +223,11 @@ public static class UiTestIds
         public const string CameraRoutingCta = Header.GoLive;
         public const string CameraMirrorToggle = "settings-camera-mirror-toggle";
         public const string CameraResolution = "settings-camera-resolution";
+        public const string CloudAutoSyncOnSave = "settings-cloud-auto-sync-on-save";
+        public const string CloudDefaultProvider = "settings-cloud-default-provider";
         public const string CamerasPanel = "settings-cameras-panel";
         public const string CloudPanel = "settings-cloud-panel";
+        public const string CloudSyncOnStartup = "settings-cloud-sync-on-startup";
         public const string DefaultCamera = "settings-default-camera";
         public const string EchoCancellation = "settings-echo-cancellation";
         public const string FileAutoSave = "settings-file-autosave";
@@ -295,6 +298,22 @@ public static class UiTestIds
         public static string CameraDeviceAction(string deviceId) => $"settings-camera-device-action-{deviceId}";
 
         public static string CameraPrimaryAction(string deviceId) => $"settings-camera-primary-{deviceId}";
+
+        public static string CloudProviderCard(string providerId) => $"settings-cloud-{providerId}-card";
+
+        public static string CloudProviderConnect(string providerId) => $"settings-cloud-{providerId}-connect";
+
+        public static string CloudProviderDisconnect(string providerId) => $"settings-cloud-{providerId}-disconnect";
+
+        public static string CloudProviderExport(string providerId) => $"settings-cloud-{providerId}-export";
+
+        public static string CloudProviderField(string providerId, string fieldId) => $"settings-cloud-{providerId}-{fieldId}";
+
+        public static string CloudProviderImport(string providerId) => $"settings-cloud-{providerId}-import";
+
+        public static string CloudProviderMessage(string providerId) => $"settings-cloud-{providerId}-message";
+
+        public static string CloudProviderSubtitle(string providerId) => $"settings-cloud-{providerId}-subtitle";
 
         public static string MicDelay(string deviceId) => $"settings-mic-delay-{deviceId}";
 

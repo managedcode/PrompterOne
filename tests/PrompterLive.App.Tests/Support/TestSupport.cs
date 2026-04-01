@@ -20,6 +20,7 @@ using PrompterLive.Shared.Services.Diagnostics;
 using PrompterLive.Shared.Services.Editor;
 using PrompterLive.Shared.Settings.Models;
 using PrompterLive.Shared.Settings.Services;
+using PrompterLive.Shared.Storage.Cloud;
 
 namespace PrompterLive.Shared.Tests;
 
@@ -99,7 +100,10 @@ internal static class TestHarnessFactory
         context.Services.AddSingleton<RsvpEmotionAnalyzer>();
         context.Services.AddSingleton<RsvpPlaybackEngine>();
         context.Services.AddSingleton(settingsStore);
+        context.Services.AddSingleton<BrowserCloudStorageStore>();
         context.Services.AddSingleton<BrowserThemeService>();
+        context.Services.AddSingleton<CloudStorageProviderFactory>();
+        context.Services.AddSingleton<CloudStorageTransferService>();
         context.Services.AddSingleton<IAppVersionProvider>(
             new StaticAppVersionProvider(
                 new AppVersionInfo(

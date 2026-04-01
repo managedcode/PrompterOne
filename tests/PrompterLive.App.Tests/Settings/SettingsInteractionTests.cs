@@ -5,6 +5,7 @@ using PrompterLive.Shared.Contracts;
 using PrompterLive.Shared.Pages;
 using PrompterLive.Shared.Services;
 using PrompterLive.Shared.Settings.Models;
+using PrompterLive.Shared.Storage.Cloud;
 using PrompterLive.Shared.Tests;
 
 namespace PrompterLive.App.Tests;
@@ -16,6 +17,9 @@ public sealed class SettingsInteractionTests : BunitContext
     private const string FakeInfrastructureName = "Dmytro Shevchenko";
     private const string ReaderSettingsKey = "prompterlive.reader";
     private const string SceneSettingsKey = "prompterlive.scene";
+    private const string DropboxLabel = "Managed Dropbox";
+    private const string DropboxValidationMessage = "Dropbox requires an access token or a refresh token with app key.";
+    private const string NotConnectedLabel = "Not connected";
 
     private readonly AppHarness _harness;
 
@@ -38,6 +42,87 @@ public sealed class SettingsInteractionTests : BunitContext
         Assert.Equal(!initialValue, _harness.Session.State.ReaderSettings.ShowCameraScene);
         var readerSettings = _harness.JsRuntime.GetSavedValue<ReaderSettings>(ReaderSettingsKey);
         Assert.Equal(!initialValue, readerSettings.ShowCameraScene);
+    }
+
+    [Fact]
+    public void CloudSection_SaveAndTest_PersistsDropboxPreferences_AndShowsValidationMessage()
+    {
+        var cut = Render<SettingsPage>();
+
+        cut.WaitForAssertion(() => Assert.Contains(UiTestIds.Settings.CloudPanel, cut.Markup, StringComparison.Ordinal));
+
+        cut.FindByTestId(UiTestIds.Settings.CloudProviderField(CloudStorageProviderIds.Dropbox, CloudStorageFieldIds.AccountLabel))
+            .Change(DropboxLabel);
+        cut.FindByTestId(UiTestIds.Settings.CloudDefaultProvider).Change(CloudStorageProviderIds.Dropbox);
+        cut.FindByTestId(UiTestIds.Settings.CloudAutoSyncOnSave).Click();
+        cut.FindByTestId(UiTestIds.Settings.CloudProviderConnect(CloudStorageProviderIds.Dropbox)).Click();
+
+        var preferences = _harness.JsRuntime.GetSavedValue<CloudStoragePreferences>(CloudStorageStoreKeys.Preferences);
+        var credentials = _harness.JsRuntime.GetSavedValue<DropboxCloudStorageCredentials>(CloudStorageStoreKeys.DropboxCredentials);
+
+        Assert.Equal(CloudStorageProviderIds.Dropbox, preferences.PrimaryProviderId);
+        Assert.False(preferences.AutoSyncOnSave);
+        Assert.Equal(DropboxLabel, preferences.Dropbox.Connection.AccountLabel);
+        Assert.False(preferences.Dropbox.Connection.IsConnected);
+        Assert.Equal(string.Empty, credentials.AccessToken);
+        Assert.Equal(
+            DropboxValidationMessage,
+            cut.FindByTestId(UiTestIds.Settings.CloudProviderMessage(CloudStorageProviderIds.Dropbox)).TextContent.Trim());
+    }
+
+    [Fact]
+    public void CloudSection_Disconnect_ClearsStoredCredentials_AndResetsSubtitle()
+    {
+        var preferences = CloudStoragePreferences.CreateDefault();
+        preferences.PrimaryProviderId = CloudStorageProviderIds.Dropbox;
+        preferences.Dropbox = new DropboxCloudStorageProfile
+        {
+            Connection = new CloudStorageConnectionState
+            {
+                AccountLabel = DropboxLabel,
+                IsConnected = true,
+                RootPath = "/apps/prompterlive"
+            }
+        };
+        _harness.JsRuntime.SavedValues[CloudStorageStoreKeys.Preferences] = preferences;
+        _harness.JsRuntime.SavedValues[CloudStorageStoreKeys.DropboxCredentials] = new DropboxCloudStorageCredentials
+        {
+            AccessToken = "secret-token"
+        };
+
+        var cut = Render<SettingsPage>();
+
+        cut.WaitForAssertion(() =>
+            Assert.Equal(
+                DropboxLabel,
+                cut.FindByTestId(UiTestIds.Settings.CloudProviderSubtitle(CloudStorageProviderIds.Dropbox)).TextContent.Trim()));
+
+        cut.FindByTestId(UiTestIds.Settings.CloudProviderDisconnect(CloudStorageProviderIds.Dropbox)).Click();
+
+        Assert.Throws<KeyNotFoundException>(() => _harness.JsRuntime.GetSavedValue<DropboxCloudStorageCredentials>(CloudStorageStoreKeys.DropboxCredentials));
+
+        var savedPreferences = _harness.JsRuntime.GetSavedValue<CloudStoragePreferences>(CloudStorageStoreKeys.Preferences);
+        Assert.False(savedPreferences.Dropbox.Connection.IsConnected);
+        Assert.Equal(string.Empty, savedPreferences.Dropbox.Connection.AccountLabel);
+        Assert.Equal(
+            NotConnectedLabel,
+            cut.FindByTestId(UiTestIds.Settings.CloudProviderSubtitle(CloudStorageProviderIds.Dropbox)).TextContent.Trim());
+    }
+
+    [Fact]
+    public void CloudSection_LoadsPrimaryProviderCard_AsOpen()
+    {
+        var preferences = CloudStoragePreferences.CreateDefault();
+        preferences.PrimaryProviderId = CloudStorageProviderIds.Dropbox;
+        _harness.JsRuntime.SavedValues[CloudStorageStoreKeys.Preferences] = preferences;
+
+        var cut = Render<SettingsPage>();
+
+        cut.WaitForAssertion(() =>
+        {
+            var dropboxCard = cut.FindByTestId(UiTestIds.Settings.CloudProviderCard(CloudStorageProviderIds.Dropbox));
+            Assert.Contains("open", dropboxCard.GetAttribute("class") ?? string.Empty, StringComparison.Ordinal);
+        });
     }
 
     [Fact]

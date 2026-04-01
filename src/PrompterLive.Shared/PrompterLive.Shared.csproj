@@ -5,6 +5,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.Identity" />
+    <PackageReference Include="ManagedCode.Storage.Browser" />
+    <PackageReference Include="ManagedCode.Storage.CloudKit" />
+    <PackageReference Include="ManagedCode.Storage.Dropbox" />
+    <PackageReference Include="ManagedCode.Storage.Gcp" />
+    <PackageReference Include="ManagedCode.Storage.GoogleDrive" />
+    <PackageReference Include="ManagedCode.Storage.OneDrive" />
+    <PackageReference Include="ManagedCode.Storage.VirtualFileSystem" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" />
     <PackageReference Include="Microsoft.Extensions.Localization" />
   </ItemGroup>

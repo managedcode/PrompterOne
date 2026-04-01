@@ -55,6 +55,23 @@ public sealed class BrowserSettingsStore(IJSRuntime jsRuntime, ILogger<BrowserSe
         }
     }
 
+    public async Task RemoveAsync(string key, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            _logger.LogDebug("Removing browser setting {Key}.", key);
+            await _jsRuntime.InvokeVoidAsync(
+                BrowserStorageMethodNames.RemoveStorageValue,
+                cancellationToken,
+                ResolveStorageKey(key));
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, "Failed to remove browser setting {Key}.", key);
+            throw;
+        }
+    }
+
     private static string ResolveStorageKey(string key) =>
         string.Concat(BrowserStorageKeys.SettingsPrefix, key);
 }

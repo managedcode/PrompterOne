@@ -27,8 +27,7 @@ public sealed class ScriptSessionService(
 
     public async Task InitializeAsync(CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Initializing script session repository and empty draft.");
-        await _repository.InitializeAsync([], cancellationToken);
+        _logger.LogInformation("Initializing script session draft state.");
         await NewAsync(cancellationToken);
     }
 

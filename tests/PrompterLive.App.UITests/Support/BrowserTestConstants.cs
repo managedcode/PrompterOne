@@ -9,6 +9,7 @@ internal static partial class BrowserTestConstants
     public static class Css
     {
         public const string ActiveClass = "active";
+        public const string OnClass = "on";
     }
 
     public static class Html
@@ -137,6 +138,7 @@ internal static partial class BrowserTestConstants
         public const string EmphasisFragment = "[emphasis]welcome[/emphasis]";
         public const string GreenFragment = "[green]welcome[/green]";
         public const string ProfessionalFragment = "[professional]transformative moment[/professional]";
+        public const string ProfessionalCompanyFragment = "[professional]our company[/professional]";
         public const string SlowFragment = "[slow]transformative moment[/slow]";
         public const string SlowCompanyFragment = "[slow]our company[/slow]";
         public const string PauseFragment = "[pause:2s]";
@@ -431,6 +433,7 @@ internal static partial class BrowserTestConstants
         public const int ReaderAutomaticTransitionTimeoutMs = 14_000;
         public const int ReaderCameraInitDelayMs = 750;
         public const int PersistDelayMs = 1_800;
+        public const int PersistReloadDelayMs = 10_000;
         public const int TypingProbeSettleDelayMs = 300;
     }
 

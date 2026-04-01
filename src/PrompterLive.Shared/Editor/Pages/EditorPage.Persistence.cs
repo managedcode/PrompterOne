@@ -1,3 +1,5 @@
+using PrompterLive.Core.Services.Workspace;
+
 namespace PrompterLive.Shared.Pages;
 
 public partial class EditorPage
@@ -6,14 +8,38 @@ public partial class EditorPage
     {
         CancelDraftAnalysis();
         CancelAutosave();
-        await UpdateDraftStateAsync(text, persistDocument: true, CancellationToken.None);
+        var revision = PrepareDraftPersistence(text);
+        await PersistPreparedDraftAsync(text, revision, CancellationToken.None);
     }
 
-    private async Task UpdateDraftStateAsync(string text, bool persistDocument, CancellationToken cancellationToken)
+    private long PrepareDraftPersistence(string text)
     {
         _sourceText = text ?? string.Empty;
+        RefreshDraftViewFromSource();
+        _ = InvokeAsync(StateHasChanged);
+        return checked(++_draftRevision);
+    }
+
+    private void PersistDraftInBackground(string text)
+    {
+        CancelDraftAnalysis();
+        CancelAutosave();
+        var revision = PrepareDraftPersistence(text);
+        _ = InvokeAsync(() => PersistPreparedDraftAsync(text, revision, CancellationToken.None));
+    }
+
+    private Task PersistPreparedDraftAsync(string text, long revision, CancellationToken cancellationToken) =>
+        UpdateDraftStateAsync(text, persistDocument: true, cancellationToken, revision);
+
+    private async Task UpdateDraftStateAsync(
+        string text,
+        bool persistDocument,
+        CancellationToken cancellationToken,
+        long revision)
+    {
         var persistedText = BuildPersistedDocument(_sourceText);
         var title = _screenTitle;
+        var assignScriptId = string.IsNullOrWhiteSpace(ScriptId);
         await Diagnostics.RunAsync(
             PersistDraftOperation,
             PersistDraftMessage,
@@ -29,21 +55,56 @@ public partial class EditorPage
                 if (persistDocument)
                 {
                     var savedDocument = await SessionService.SaveAsync(cancellationToken);
-                    if (string.IsNullOrWhiteSpace(ScriptId))
+                    if (assignScriptId)
                     {
+                        if (revision != _draftRevision)
+                        {
+                            StageDraftIdentity(savedDocument.Id, savedDocument.DocumentName);
+                        }
+
                         ScriptId = savedDocument.Id;
                         Navigation.NavigateTo($"/editor?id={Uri.EscapeDataString(savedDocument.Id)}", replace: true);
                     }
                 }
 
-                PopulateEditorState();
+                ApplyPersistedDraftState(revision);
             },
             clearRecoverableOnSuccess: string.IsNullOrWhiteSpace(SessionService.State.ErrorMessage));
+    }
+
+    private void StageDraftIdentity(string scriptId, string documentName)
+    {
+        if (SessionService is not ScriptSessionService sessionService)
+        {
+            return;
+        }
+
+        sessionService.StageDraftText(
+            _screenTitle,
+            BuildPersistedDocument(_sourceText),
+            documentName,
+            scriptId,
+            _errorMessage);
+    }
+
+    private void ApplyPersistedDraftState(long revision)
+    {
+        if (revision != _draftRevision)
+        {
+            return;
+        }
+
+        PopulateEditorState();
     }
 
     private void QueueAutosave()
     {
         CancelAutosave();
+        if (!ShouldQueueAutosave())
+        {
+            return;
+        }
+
         _autosaveCancellationSource = new CancellationTokenSource();
         _ = RunAutosaveAsync(_autosaveCancellationSource.Token);
     }
@@ -128,4 +189,14 @@ public partial class EditorPage
         string.IsNullOrWhiteSpace(SessionService.State.ScriptId)
             ? UntitledDraftAutosaveDelayMilliseconds
             : AutosaveDelayMilliseconds;
+
+    private bool ShouldQueueAutosave()
+    {
+        if (!string.IsNullOrWhiteSpace(SessionService.State.ScriptId))
+        {
+            return true;
+        }
+
+        return _sourceText.Trim().Length >= UntitledDraftAutosaveCharacterThreshold;
+    }
 }

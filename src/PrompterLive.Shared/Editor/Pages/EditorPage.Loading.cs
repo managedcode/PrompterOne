@@ -7,6 +7,7 @@ public partial class EditorPage
 {
     protected override Task OnParametersSetAsync()
     {
+        _isEditorReady = false;
         _loadState = true;
         return Task.CompletedTask;
     }
@@ -29,6 +30,9 @@ public partial class EditorPage
                 PopulateEditorState(resetHistory: true);
                 StateHasChanged();
             });
+
+        _isEditorReady = true;
+        StateHasChanged();
     }
 
     private async Task EnsureSessionLoadedAsync()
@@ -60,6 +64,11 @@ public partial class EditorPage
         var document = _frontMatterService.Parse(state.Text);
         var metadata = document.Metadata;
         var computedDuration = FormatDuration(state.EstimatedDuration);
+
+        if (resetHistory)
+        {
+            _draftRevision = checked(_draftRevision + 1);
+        }
 
         _sourceText = document.Body;
         _screenTitle = _frontMatterService.ResolveTitle(state.Text, state.Title);

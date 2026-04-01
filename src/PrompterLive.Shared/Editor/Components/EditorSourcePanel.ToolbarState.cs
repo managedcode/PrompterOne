@@ -24,6 +24,11 @@ public partial class EditorSourcePanel
 
     private async Task ExecuteToolbarActionAsync(EditorToolbarActionDescriptor action)
     {
+        if (action.ActionType != EditorToolbarActionType.ToggleMenu)
+        {
+            await RefreshSelectionAsync(requestComponentRender: false);
+        }
+
         switch (action.ActionType)
         {
             case EditorToolbarActionType.ToggleMenu:
