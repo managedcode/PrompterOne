@@ -879,3 +879,6 @@ Tests/**/LocalModels/
 Apps/**/LocalModels/
 .markitdown
 .quickdup
+
+#AI Plans
+*.plan.md
