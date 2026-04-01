@@ -5,7 +5,6 @@
          data-live-state="@LiveState">
     <div class="gl-monitor-label-top gl-label-canvas">
         <span>@Title</span>
-        <span class="gl-program-session-copy">@ActiveSessionLabel</span>
     </div>
 
     <div class="gl-monitor gl-monitor-program"
@@ -40,20 +39,13 @@
         </div>
     </div>
 
-    <div class="gl-monitor-info">
-        <span class="gl-monitor-info-label">@LiveLabel</span>
-        <strong data-testid="@UiTestIds.GoLive.ActiveSourceLabel">@ActiveSourceLabel</strong>
-        <span class="gl-monitor-info-sep"></span>
-        <span class="gl-monitor-info-label">@CanvasLabel</span>
-        <strong>@SelectedSourceLabel</strong>
-    </div>
+    <span class="gl-visually-hidden"
+          data-testid="@UiTestIds.GoLive.ActiveSourceLabel">@ActiveSourceLabel</span>
 </section>
 
 @code {
-    private const string CanvasLabel = "Canvas";
     private const string DefaultTitle = "Canvas";
     private const string IdleStateCss = "idle";
-    private const string LiveLabel = "On Air";
     private const string NoCameraDescription = "Select or add a camera source to build the live canvas.";
     private const string NoCameraTitle = "No canvas source";
     private const string RecordingStateCss = "recording";

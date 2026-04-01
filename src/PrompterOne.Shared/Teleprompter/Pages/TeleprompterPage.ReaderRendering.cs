@@ -22,7 +22,7 @@ public partial class TeleprompterPage
     private const string ReaderWordCssClass = "rd-w";
     private const string ReaderWordReadCssClass = "rd-read";
 
-    private void UpdateReaderDisplayState(bool instantAlignment = false)
+    private void UpdateReaderDisplayState(bool instantAlignment = false, bool requestAlignment = true)
     {
         if (_cards.Count == 0)
         {
@@ -48,7 +48,11 @@ public partial class TeleprompterPage
         _edgeSectionLabel = activeCard.DisplayName;
         _readerProgressFillWidth = $"{BuildProgressPercent():0.##}%";
         _elapsedLabel = $"{FormatDurationLabel(GetElapsedMilliseconds())} / {FormatDurationLabel(_totalDurationMilliseconds)}";
-        RequestReaderAlignment(instantAlignment);
+
+        if (requestAlignment)
+        {
+            RequestReaderAlignment(instantAlignment);
+        }
 
         Shell.ShowTeleprompter(_screenTitle, _screenSubtitle, SessionService.State.ScriptId);
     }

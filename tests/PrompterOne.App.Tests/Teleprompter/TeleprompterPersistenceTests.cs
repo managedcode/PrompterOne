@@ -15,6 +15,7 @@ public sealed class TeleprompterPersistenceTests : BunitContext
     private const int PersistedFocalPointPercent = 42;
     private const int PersistedFontSize = 40;
     private const int PersistedTextWidthPixels = 900;
+    private const string EnabledCameraAttribute = "true";
     private const int UpdatedFocalPointPercent = 37;
     private const int UpdatedFontSize = 40;
     private const int UpdatedTextWidthPixels = 980;
@@ -54,6 +55,7 @@ public sealed class TeleprompterPersistenceTests : BunitContext
     public void TeleprompterPage_PersistsReaderLayoutAndCameraPreferenceChanges()
     {
         var harness = TestHarnessFactory.Create(this);
+        var initialShowCameraScene = harness.Session.State.ReaderSettings.ShowCameraScene;
         Services.GetRequiredService<NavigationManager>()
             .NavigateTo(AppTestData.Routes.TeleprompterDemo);
         var cut = Render<TeleprompterPage>();
@@ -68,6 +70,10 @@ public sealed class TeleprompterPersistenceTests : BunitContext
         cut.WaitForAssertion(() =>
         {
             var savedSettings = harness.JsRuntime.GetSavedValue<ReaderSettings>(BrowserAppSettingsKeys.ReaderSettings);
+            var expectedShowCameraScene = !initialShowCameraScene;
+            var expectedCameraAttribute = expectedShowCameraScene
+                ? EnabledCameraAttribute
+                : DisabledCameraAttribute;
 
             Assert.Equal(UpdatedFontSize, int.Parse(cut.Find($"#{UiDomIds.Teleprompter.FontLabel}").TextContent.Trim(), CultureInfo.InvariantCulture));
             Assert.Equal(UpdatedTextWidthPixels, int.Parse(cut.Find($"#{UiDomIds.Teleprompter.WidthValue}").TextContent.Trim(), CultureInfo.InvariantCulture));
@@ -76,9 +82,9 @@ public sealed class TeleprompterPersistenceTests : BunitContext
             Assert.Equal(PersistedFontScale, savedSettings.FontScale, 2);
             Assert.Equal(UpdatedTextWidthRatio, savedSettings.TextWidth, 4);
             Assert.Equal(UpdatedFocalPointPercent, savedSettings.FocalPointPercent);
-            Assert.False(savedSettings.ShowCameraScene);
-            Assert.Equal(DisabledCameraAttribute, cut.Find($"#{UiDomIds.Teleprompter.Camera}").GetAttribute("data-camera-autostart"));
-            Assert.False(harness.Session.State.ReaderSettings.ShowCameraScene);
+            Assert.Equal(expectedShowCameraScene, savedSettings.ShowCameraScene);
+            Assert.Equal(expectedCameraAttribute, cut.Find($"#{UiDomIds.Teleprompter.Camera}").GetAttribute("data-camera-autostart"));
+            Assert.Equal(expectedShowCameraScene, harness.Session.State.ReaderSettings.ShowCameraScene);
         });
     }
 }

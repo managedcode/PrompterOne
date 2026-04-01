@@ -62,6 +62,61 @@ public sealed class GoLiveShellSessionFlowTests(StandaloneAppFixture fixture) : 
         }
     }
 
+    [Fact]
+    public async Task GoLivePage_RecordingState_PropagatesAcrossSharedTabsAndReturnsToIdleAfterStop()
+    {
+        UiScenarioArtifacts.ResetScenario(BrowserTestConstants.GoLive.CrossTabIndicatorScenario);
+
+        var pages = await _fixture.NewSharedPagesAsync(BrowserTestConstants.GoLive.SharedContextPageCount);
+        var primaryPage = pages[0];
+        var secondaryPage = pages[1];
+
+        try
+        {
+            await GoLiveFlowTests.SeedGoLiveSceneForReuseAsync(primaryPage);
+
+            await secondaryPage.GotoAsync(BrowserTestConstants.Routes.Settings);
+            await Expect(secondaryPage.GetByTestId(UiTestIds.Settings.Page)).ToBeVisibleAsync();
+            await Expect(secondaryPage.GetByTestId(UiTestIds.Header.GoLive))
+                .ToHaveAttributeAsync("data-live-state", BrowserTestConstants.GoLive.IdleStateValue);
+
+            await primaryPage.GotoAsync(BrowserTestConstants.Routes.GoLiveDemo);
+            await Expect(primaryPage.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
+
+            await primaryPage.GetByTestId(UiTestIds.GoLive.StartRecording).ClickAsync();
+            await primaryPage.WaitForFunctionAsync(
+                BrowserTestConstants.GoLive.RecordingRuntimeActiveScript,
+                BrowserTestConstants.GoLive.RuntimeSessionId,
+                new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
+
+            await Expect(secondaryPage.GetByTestId(UiTestIds.Header.GoLive))
+                .ToHaveAttributeAsync("data-live-state", BrowserTestConstants.GoLive.RecordingStateValue);
+
+            await UiScenarioArtifacts.CapturePageAsync(
+                secondaryPage,
+                BrowserTestConstants.GoLive.CrossTabIndicatorScenario,
+                BrowserTestConstants.GoLive.CrossTabIndicatorActiveStep);
+
+            await primaryPage.GetByTestId(UiTestIds.GoLive.StartRecording).ClickAsync();
+            await primaryPage.WaitForFunctionAsync(
+                BrowserTestConstants.GoLive.RecordingRuntimeInactiveScript,
+                BrowserTestConstants.GoLive.RuntimeSessionId,
+                new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
+
+            await Expect(secondaryPage.GetByTestId(UiTestIds.Header.GoLive))
+                .ToHaveAttributeAsync("data-live-state", BrowserTestConstants.GoLive.IdleStateValue);
+
+            await UiScenarioArtifacts.CapturePageAsync(
+                secondaryPage,
+                BrowserTestConstants.GoLive.CrossTabIndicatorScenario,
+                BrowserTestConstants.GoLive.CrossTabIndicatorIdleStep);
+        }
+        finally
+        {
+            await primaryPage.Context.CloseAsync();
+        }
+    }
+
     private static async Task CaptureScreenshotAsync(Microsoft.Playwright.IPage page, string relativePath)
     {
         var fullPath = Path.Combine(AppContext.BaseDirectory, relativePath);

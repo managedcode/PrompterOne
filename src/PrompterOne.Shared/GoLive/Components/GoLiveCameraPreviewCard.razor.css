@@ -1,9 +1,7 @@
 .gl-preview-section {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
+    flex-shrink: 0;
     padding: 8px;
-    border-bottom: 1px solid rgba(255, 255, 255, .06);
+    border-bottom: 1px solid var(--gold-06);
 }
 
 .gl-monitor {
@@ -24,6 +22,27 @@
     position: relative;
     overflow: hidden;
     background: #050508;
+}
+
+.gl-preview-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: flex-end;
+    padding: 10px;
+    pointer-events: none;
+    background: linear-gradient(to top, rgba(5, 5, 8, .62), transparent 46%);
+}
+
+.gl-preview-caption {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 6px 8px;
+    border: 1px solid rgba(255, 255, 255, .08);
+    border-radius: 8px;
+    background: rgba(6, 10, 18, .76);
+    backdrop-filter: blur(10px);
 }
 
 .gl-preview-video {
@@ -81,23 +100,6 @@
     line-height: 1.45;
 }
 
-.gl-monitor-bottom {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 6px 12px;
-    border-top: 1px solid rgba(239, 68, 68, .15);
-    background: rgba(239, 68, 68, .04);
-}
-
-.gl-preview-copy {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    min-width: 0;
-}
-
 .gl-preview-label {
     color: rgba(248, 241, 226, .34);
     font-size: 9px;
@@ -106,14 +108,8 @@
     text-transform: uppercase;
 }
 
-.gl-preview-copy strong {
+.gl-preview-caption strong {
     color: rgba(255, 245, 224, .9);
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
-}
-
-.gl-preview-status {
-    color: rgba(248, 241, 226, .4);
-    font-size: 10px;
-    text-align: right;
 }

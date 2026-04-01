@@ -98,6 +98,7 @@ flowchart LR
 | `GoLive` | Operational browser studio surface | Arms outputs, switches sources, previews cameras, and exposes honest live/runtime status | `src/PrompterOne.Shared/GoLive`, `src/PrompterOne.Core/Streaming` | studio layout, output quick toggles, selected vs on-air source state, live session state | provider credential editing, server-side stream processing, unrelated editor or library concerns |
 | `Settings` | Device, scene, and provider setup surface | Configures cameras, microphones, overlays, base scene state, and persisted destination credentials | `src/PrompterOne.Shared/Settings`, `src/PrompterOne.Core/Media` | device selection UI, scene transforms, provider credentials/endpoints, scene persistence flows | live output orchestration policy, document editing |
 | `Storage` | Browser persistence and cloud transfer orchestration | Keeps scripts and settings local-first while exposing provider-backed import/export | `src/PrompterOne.Shared/Storage`, `src/PrompterOne.Shared/Library/Services/Storage` | browser `IStorage` and VFS registration, authoritative browser repositories for scripts/folders, provider credential persistence, scripts/settings snapshot transfer | routed page layout, teleprompter rendering, video-stream upload workflows |
+| `Cross-Tab Messaging` | Same-origin browser runtime coordination | Lets separate WASM tabs coordinate browser-owned state without a backend | `src/PrompterOne.Shared/AppShell/Services`, `src/PrompterOne.Shared/Settings/Services`, `src/PrompterOne.Shared/wwwroot/app` | `BroadcastChannel` bridge, typed envelopes, settings fan-out, same-origin tab sync | server state, cross-origin transport, collaborative editor conflict resolution |
 | `Diagnostics` | Error and operation feedback layer | Makes recoverable and fatal issues visible in the shell | `src/PrompterOne.Shared/Diagnostics` | banners, error boundary reporting, operation status wiring | owning business logic of the failing feature |
 | `Localization` | Culture and UI text contract | Keeps supported runtime languages consistent and browser-driven | `src/PrompterOne.Shared/Localization`, `src/PrompterOne.Core/Localization` | text catalogs, culture bootstrap, supported culture rules | feature behavior or screen-specific layout ownership |
 | `Workspace` | Active script/session state model | Gives editor, learn, read, and go-live one shared script context | `src/PrompterOne.Core/Workspace` | loaded script state, previews, estimated duration, active session metadata | feature-specific rendering details |
@@ -138,6 +139,41 @@ flowchart TD
     CloudStorage --> WebApis
     Ui --> WebApis
 ```
+
+- Same-origin tab coordination is a browser-runtime concern owned in `PrompterOne.Shared`; it uses `BroadcastChannel` as a best-effort browser transport and does not change the browser-only runtime shape.
+
+## Cross-Tab Runtime Contracts
+
+```mermaid
+flowchart LR
+    SettingsPage["SettingsPage"]
+    SettingsStore["BrowserSettingsStore"]
+    GoLivePage["GoLivePage"]
+    GoLiveSession["GoLiveSessionService"]
+    MessageBus["CrossTabMessageBus"]
+    JsBridge["wwwroot/app/cross-tab-message-bus.js"]
+    OtherTabStore["BrowserSettingsStore<br/>other tab"]
+    OtherTabSession["GoLiveSessionService<br/>other tab"]
+    ThemeService["BrowserThemeService"]
+    Shell["MainLayout"]
+
+    SettingsPage --> SettingsStore
+    GoLivePage --> GoLiveSession
+    SettingsStore --> MessageBus
+    GoLiveSession --> MessageBus
+    MessageBus --> JsBridge
+    JsBridge --> OtherTabStore
+    JsBridge --> OtherTabSession
+    OtherTabStore --> ThemeService
+    OtherTabSession --> Shell
+```
+
+- `CrossTabMessageBus` is the reusable same-origin messaging entry point for browser tabs.
+- `BrowserSettingsStore` is the current publisher and fan-out point for remote settings refresh.
+- `BrowserThemeService` is the first concrete remote consumer and keeps shell appearance aligned across tabs without reload.
+- `GoLiveSessionService` is the current publisher and consumer for active `Go Live` session snapshots, including startup catch-up requests.
+- `MainLayout` consumes `GoLiveSessionService` and renders the global shell `Go Live` status for every screen.
+- The contract must stay message-based; tabs do not share live .NET memory.
 
 ## Library Contracts
 

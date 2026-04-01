@@ -2,15 +2,15 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
-    height: 100%;
     min-height: 0;
+    height: 100%;
 }
 
 .gl-sources-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 4px;
+    margin-bottom: 12px;
 }
 
 .gl-add-src-btn {
@@ -50,7 +50,6 @@
 .gl-mic-card {
     display: flex;
     flex-direction: column;
-    gap: 8px;
     overflow: hidden;
     border: 1px solid rgba(196, 160, 96, .08);
     border-radius: 10px;
@@ -87,7 +86,6 @@
 .gl-cam-main {
     display: flex;
     flex-direction: column;
-    gap: 0;
     padding: 0;
     border: none;
     background: transparent;
@@ -98,8 +96,9 @@
 
 .gl-cam-thumb {
     position: relative;
-    overflow: hidden;
+    width: 100%;
     aspect-ratio: 16 / 9;
+    overflow: hidden;
     background: rgba(2, 5, 10, 1);
 }
 
@@ -121,86 +120,122 @@
 .gl-cam-status-badge,
 .gl-utility-badge {
     position: absolute;
-    top: 8px;
-    right: 8px;
+    top: 6px;
+    left: 6px;
     display: inline-flex;
     align-items: center;
+    gap: 4px;
     min-height: 22px;
     padding: 0 8px;
     border-radius: 999px;
     font-size: 9px;
-    font-weight: 700;
-    letter-spacing: .08em;
+    font-weight: 800;
+    letter-spacing: .06em;
     text-transform: uppercase;
 }
 
 .gl-cam-status-badge {
-    border: 1px solid rgba(255, 255, 255, .1);
     background: rgba(6, 10, 18, .72);
     color: rgba(255, 245, 224, .88);
+    border: 1px solid rgba(255, 255, 255, .1);
 }
 
 .gl-badge-onair {
-    border-color: rgba(239, 68, 68, .28);
-    background: rgba(239, 68, 68, .16);
-    color: #ff8d8d;
+    background: rgba(239, 68, 68, .85);
+    color: white;
+    box-shadow: 0 0 10px rgba(239, 68, 68, .4);
 }
 
 .gl-badge-idle {
     border-color: rgba(196, 160, 96, .16);
-    background: rgba(6, 10, 18, .72);
     color: rgba(255, 245, 224, .84);
 }
 
 .gl-utility-badge {
-    position: static;
-    border: 1px solid rgba(196, 160, 96, .18);
     background: rgba(196, 160, 96, .1);
     color: rgba(255, 245, 224, .84);
+    border: 1px solid rgba(196, 160, 96, .18);
 }
 
 .gl-cam-meta,
 .gl-mic-card {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    padding: 10px;
+    gap: 5px;
+    padding: 8px 10px 10px;
 }
 
 .gl-cam-top {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
+    align-items: baseline;
+    gap: 6px;
 }
 
 .gl-cam-name,
 .gl-mic-card strong {
     color: rgba(255, 245, 224, .92);
     font-size: 12px;
-    font-weight: 700;
-    line-height: 1.3;
+    font-weight: 600;
 }
 
 .gl-cam-hw,
-.gl-cam-script-tag,
 .gl-mic-card span {
     color: rgba(248, 241, 226, .4);
-    font-size: 10px;
-    line-height: 1.35;
+    font-size: 9px;
+    font-family: var(--font-mono);
 }
 
 .gl-cam-row2 {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
-    padding: 0 10px;
+    gap: 6px;
+}
+
+.gl-cam-reader {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+}
+
+.gl-cam-avatar {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 9px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.gl-cam-avatar-live {
+    background: linear-gradient(135deg, #c4a060, #8b6a3a);
+}
+
+.gl-cam-avatar-preview {
+    background: linear-gradient(135deg, #60a5fa, #2563eb);
+}
+
+.gl-cam-avatar-idle {
+    background: linear-gradient(135deg, #8b96a6, #475569);
+}
+
+.gl-cam-reader-name {
+    color: var(--text-2);
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .gl-crop-btns {
     display: flex;
-    gap: 6px;
+    gap: 2px;
     flex-wrap: wrap;
 }
 
@@ -209,46 +244,71 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 26px;
-    padding: 0 10px;
     border: 1px solid rgba(255, 255, 255, .08);
-    border-radius: 8px;
-    background: rgba(255, 255, 255, .03);
-    color: rgba(248, 241, 226, .74);
-    font-size: 10px;
+    background: rgba(255, 255, 255, .04);
+    color: rgba(255, 255, 255, .35);
+    transition: all .15s;
+}
+
+.gl-crop-btn {
+    min-height: 22px;
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-size: 8px;
     font-weight: 700;
-    letter-spacing: .08em;
+    letter-spacing: .04em;
     text-transform: uppercase;
 }
 
+.gl-crop-btn:hover,
+.gl-cam-action:hover {
+    background: rgba(196, 160, 96, .10);
+    color: rgba(196, 160, 96, .8);
+    border-color: rgba(196, 160, 96, .2);
+}
+
 .gl-crop-btn.active {
-    border-color: rgba(196, 160, 96, .28);
-    background: rgba(196, 160, 96, .14);
-    color: rgba(255, 245, 224, .96);
+    background: rgba(196, 160, 96, .12);
+    color: rgba(196, 160, 96, .9);
+    border-color: rgba(196, 160, 96, .3);
 }
 
 .gl-cam-script-tag {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    padding: 8px 10px;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, .03);
+    gap: 5px;
+    padding: 3px 8px;
+    border: 1px solid rgba(196, 160, 96, .1);
+    border-radius: 6px;
+    background: rgba(196, 160, 96, .06);
+    color: rgba(248, 241, 226, .4);
+    font-size: 10px;
 }
 
 .gl-script-active {
-    color: rgba(255, 245, 224, .88);
+    color: rgba(196, 160, 96, .8);
     background: rgba(196, 160, 96, .08);
+    border-color: rgba(196, 160, 96, .2);
 }
 
 .gl-script-progress {
+    margin-left: auto;
     color: rgba(255, 245, 224, .74);
     font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 700;
 }
 
 .gl-cam-action {
+    align-self: flex-end;
+    min-height: 24px;
     margin: 0 10px 10px;
+    padding: 0 10px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
 }
 
 .gl-empty-panel {

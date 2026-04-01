@@ -53,24 +53,38 @@
                                 <span class="gl-cam-hw">@GetSourceStatus(source)</span>
                             </div>
 
-                            <div class="gl-cam-script-tag @(IsSelected(source) ? "gl-script-active" : null)">
+                            <div class="gl-cam-row2">
+                                <div class="gl-cam-reader">
+                                    <div class="@GetSourceAvatarCssClass(source)">@GetSourceAvatarInitial(source)</div>
+                                    <span class="gl-cam-reader-name">@GetSourceReaderLabel(source)</span>
+                                </div>
+
+                                <div class="gl-crop-btns">
+                                    @foreach (var crop in CropOptions)
+                                    {
+                                        var cropIsActive = GetCropSelection(source.SourceId) == crop;
+                                        <button type="button"
+                                                class="gl-crop-btn @(cropIsActive ? "active" : null)"
+                                                @onclick="() => SetCropSelection(source.SourceId, crop)">@GetCropLabel(crop)</button>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="gl-cam-script-tag @GetSourceScriptTagCssClass(source)">
+                                <svg width="10"
+                                     height="10"
+                                     viewBox="0 0 24 24"
+                                     fill="none"
+                                     stroke="currentColor"
+                                     stroke-width="2"
+                                     aria-hidden="true">
+                                    <path d="M4 6h16M4 12h12M4 18h14" />
+                                </svg>
                                 <span>@CurrentScriptTitle</span>
                                 <span class="gl-script-progress">@CurrentScriptProgressLabel</span>
                             </div>
                         </div>
                     </button>
-
-                    <div class="gl-cam-row2">
-                        <div class="gl-crop-btns">
-                            @foreach (var crop in CropOptions)
-                            {
-                                var cropIsActive = GetCropSelection(source.SourceId) == crop;
-                                <button type="button"
-                                        class="gl-crop-btn @(cropIsActive ? "active" : null)"
-                                        @onclick="() => SetCropSelection(source.SourceId, crop)">@GetCropLabel(crop)</button>
-                            }
-                        </div>
-                    </div>
 
                     <button type="button"
                             class="gl-cam-action"
@@ -169,6 +183,41 @@
             _ => "Full"
         };
 
+    private static string GetSourceAvatarInitial(SceneCameraSource source)
+    {
+        return string.IsNullOrWhiteSpace(source.Label)
+            ? "C"
+            : source.Label[..1].ToUpperInvariant();
+    }
+
+    private string GetSourceAvatarCssClass(SceneCameraSource source)
+    {
+        var classes = new List<string> { "gl-cam-avatar" };
+        classes.Add(IsActive(source)
+            ? "gl-cam-avatar-live"
+            : IsSelected(source)
+                ? "gl-cam-avatar-preview"
+                : "gl-cam-avatar-idle");
+        return string.Join(' ', classes);
+    }
+
+    private string GetSourceReaderLabel(SceneCameraSource source)
+    {
+        if (IsActive(source))
+        {
+            return SourceOnAirLabel;
+        }
+
+        if (IsSelected(source))
+        {
+            return SourceLiveLabel;
+        }
+
+        return source.Transform.IncludeInOutput
+            ? SourceIncludedLabel
+            : SourceSceneOnlyLabel;
+    }
+
     private string GetSourceBadge(SceneCameraSource source)
     {
         if (IsActive(source))
@@ -181,6 +230,13 @@
             : source.Transform.IncludeInOutput
                 ? SourceIncludedLabel
                 : SourceSceneOnlyLabel;
+    }
+
+    private string GetSourceScriptTagCssClass(SceneCameraSource source)
+    {
+        return IsActive(source) || IsSelected(source)
+            ? "gl-script-active"
+            : string.Empty;
     }
 
     private GoLiveCropPreset GetCropSelection(string sourceId)

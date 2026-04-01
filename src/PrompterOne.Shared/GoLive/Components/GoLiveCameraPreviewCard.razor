@@ -10,6 +10,14 @@
                              VideoClass="gl-preview-video"
                              VideoDomId="@UiDomIds.GoLive.PreviewVideo"
                              VideoTestId="@UiTestIds.GoLive.PreviewVideo">
+            <OverlayContent>
+                <div class="gl-preview-overlay">
+                    <div class="gl-preview-caption">
+                        <span class="gl-preview-label">@Title</span>
+                        <strong data-testid="@UiTestIds.GoLive.PreviewSourceLabel">@Camera?.Label</strong>
+                    </div>
+                </div>
+            </OverlayContent>
             <EmptyContent>
                 <div id="@UiDomIds.GoLive.PreviewEmpty"
                      class="gl-preview-empty"
@@ -22,14 +30,6 @@
         <div class="gl-air-dot-wrap">
             <span class="gl-air-dot @(HasCamera ? LiveDotCssClass : null)"></span>
         </div>
-    </div>
-
-    <div class="gl-monitor-bottom">
-        <div class="gl-preview-copy">
-            <span class="gl-preview-label">@Title</span>
-            <strong data-testid="@UiTestIds.GoLive.PreviewSourceLabel">@(Camera?.Label ?? EmptyTitle)</strong>
-        </div>
-        <span class="gl-preview-status">@Description</span>
     </div>
 </section>
 

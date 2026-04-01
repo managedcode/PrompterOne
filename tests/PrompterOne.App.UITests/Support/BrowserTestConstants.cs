@@ -6,6 +6,12 @@ namespace PrompterOne.App.UITests;
 
 internal static partial class BrowserTestConstants
 {
+    public static class Viewport
+    {
+        public const int DefaultHeight = 768;
+        public const int DefaultWidth = 1366;
+    }
+
     public static class Css
     {
         public const string ActiveClass = "active";
@@ -98,6 +104,10 @@ internal static partial class BrowserTestConstants
         public const string AdjustedFocalPointPercent = "45";
         public static readonly Regex AdjustedFocalGuideStyle = new("top:\\s*45%", RegexOptions.Compiled);
         public const int AlignmentTimeoutMs = 1000;
+        public const int TransitionProbeIntervalMs = 50;
+        public const int TransitionProbeSampleCount = 28;
+        public const double TransitionReversalTolerancePx = 6;
+        public const double TransitionMinimumTravelPx = 80;
         public const string PauseToggleIconSelector = "[data-toggle-icon='pause']";
     }
 
@@ -197,9 +207,13 @@ internal static partial class BrowserTestConstants
         public const string AutoSeedStudioStep = "01-default-studio-shell";
         public const string CameraSwitchScenario = "go-live-camera-switch";
         public const string CameraSwitchStep = "01-secondary-on-air";
+        public const string CrossTabIndicatorActiveStep = "01-recording-active";
+        public const string CrossTabIndicatorIdleStep = "02-recording-idle";
+        public const string CrossTabIndicatorScenario = "go-live-cross-tab-indicator";
         public const string FirstSourceId = "scene-cam-a";
         public const string FrontCameraLabel = "Front camera";
         public const string HostParticipantName = "Host";
+        public const string IdleStateValue = "idle";
         public const string LegacyNetworkUploadMetric = "8.2 Mbps";
         public const string LiveKitHarnessGlobal = "__prompterOneLiveKitHarness";
         public const string LiveKitRoom = "launch-room";
@@ -209,10 +223,12 @@ internal static partial class BrowserTestConstants
         public const string PrimaryParticipantId = "host";
         public const string PrompterUtilitySourceId = "prompter-display";
         public const string RecordingStateValue = "recording";
+        public const int SharedContextPageCount = 2;
         public const string RuntimeSessionId = "go-live-program";
         public const string SceneStorageKey = "prompterone.settings.prompterone.scene";
         public const string SecondSourceId = "scene-cam-b";
         public const string SideCameraLabel = "Side camera";
+        public const string StreamingStateValue = "streaming";
         public const string WidgetReturnScreenshotPath = "output/playwright/go-live-widget-return.png";
         public const string InstallLiveKitHarnessScript = """
             () => {
@@ -271,6 +287,8 @@ internal static partial class BrowserTestConstants
         public const string GetRuntimeStateScript = "sessionId => window.PrompterOneGoLiveOutput.getSessionState(sessionId)";
         public const string RecordingRuntimeActiveScript =
             "sessionId => Boolean(window.PrompterOneGoLiveOutput.getSessionState(sessionId)?.recording?.active)";
+        public const string RecordingRuntimeInactiveScript =
+            "sessionId => !Boolean(window.PrompterOneGoLiveOutput.getSessionState(sessionId)?.recording?.active)";
         public const string ObsRuntimeAudioAttachedScript =
             "sessionId => Boolean(window.PrompterOneGoLiveOutput.getSessionState(sessionId)?.obs?.audioAttached)";
         public const string ResolveCameraDeviceScript = """

@@ -1,7 +1,7 @@
 .gl-program-monitor-shell {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
     min-width: 0;
     min-height: 0;
     flex: 1;
@@ -20,13 +20,6 @@
 
 .gl-label-canvas {
     color: rgba(196, 160, 96, .6);
-}
-
-.gl-program-session-copy {
-    color: rgba(248, 241, 226, .38);
-    font-size: 10px;
-    letter-spacing: .08em;
-    text-transform: uppercase;
 }
 
 .gl-monitor {
@@ -144,32 +137,16 @@
     text-overflow: ellipsis;
 }
 
-.gl-monitor-info {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 2px 4px 0;
-    color: var(--text-4);
-    font-size: 10px;
-}
-
-.gl-monitor-info strong {
-    color: rgba(255, 245, 224, .88);
-    font-size: 11px;
-    font-weight: 700;
-}
-
-.gl-monitor-info-label {
-    color: rgba(248, 241, 226, .36);
-    text-transform: uppercase;
-    letter-spacing: .08em;
-}
-
-.gl-monitor-info-sep {
+.gl-visually-hidden {
+    position: absolute;
     width: 1px;
-    height: 12px;
-    background: rgba(255, 255, 255, .08);
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
 }
 
 .gl-program-monitor-shell[data-live-state="recording"] .gl-monitor-program {
@@ -178,10 +155,4 @@
 
 .gl-program-monitor-shell[data-live-state="streaming"] .gl-monitor-program {
     border-color: rgba(16, 185, 129, .26);
-}
-
-@media (max-width: 920px) {
-    .gl-monitor-info {
-        flex-wrap: wrap;
-    }
 }

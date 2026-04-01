@@ -124,4 +124,40 @@ public sealed class TpsRoundTripTests
         Assert.True(words["charm"].DisplayDuration > words["eagle"].DisplayDuration);
         Assert.True(words["eagle"].DisplayDuration > words["fable"].DisplayDuration);
     }
+
+    [Fact]
+    public async Task CompileAsync_TracksInlineEmotionScopesSeparatelyFromInheritedSectionTone()
+    {
+        var parser = new TpsParser();
+        var compiler = new ScriptCompiler();
+        const string source = """
+        ---
+        title: "Inline emotion"
+        base_wpm: 140
+        ---
+
+        ## [Signal|140WPM|focused]
+
+        ### [Reader Block|140WPM]
+
+        Neutral [warm]welcome[/warm] [urgent]act[/urgent]
+        """;
+
+        var document = await parser.ParseAsync(source);
+        var compiled = await compiler.CompileAsync(document);
+        var words = compiled.Segments
+            .SelectMany(segment => segment.Blocks)
+            .SelectMany(block => block.Words)
+            .Where(word => !string.IsNullOrWhiteSpace(word.CleanText))
+            .ToDictionary(word => word.CleanText, StringComparer.Ordinal);
+
+        Assert.Equal("focused", words["Neutral"].Metadata.EmotionHint);
+        Assert.Null(words["Neutral"].Metadata.InlineEmotionHint);
+
+        Assert.Equal("warm", words["welcome"].Metadata.EmotionHint);
+        Assert.Equal("warm", words["welcome"].Metadata.InlineEmotionHint);
+
+        Assert.Equal("urgent", words["act"].Metadata.EmotionHint);
+        Assert.Equal("urgent", words["act"].Metadata.InlineEmotionHint);
+    }
 }

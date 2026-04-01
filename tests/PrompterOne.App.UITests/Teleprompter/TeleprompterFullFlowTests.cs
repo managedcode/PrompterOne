@@ -9,6 +9,7 @@ public sealed class TeleprompterFullFlowTests(StandaloneAppFixture fixture) : IC
     private const int BenefitsCardIndex = 5;
     private const int ClosingCardIndex = 7;
     private const int OpeningCardIndex = 0;
+    private const int PurposeCardIndex = 1;
     private const int SpeedOffsetsCardIndex = 0;
     private const int StatisticsCardIndex = 2;
     private const int InspirationCardIndex = 6;
@@ -106,15 +107,33 @@ public sealed class TeleprompterFullFlowTests(StandaloneAppFixture fixture) : IC
     private static async Task AssertProductLaunchTpsRenderingAsync(Microsoft.Playwright.IPage page)
     {
         var neutralWord = await GetWordProbeAsync(page, OpeningCardIndex, BrowserTestConstants.TeleprompterFlow.NeutralWord);
+        var greenWord = await GetWordProbeAsync(page, OpeningCardIndex, BrowserTestConstants.TeleprompterFlow.ProductLaunchGreenWord);
+        var highlightWord = await GetWordProbeAsync(page, PurposeCardIndex, BrowserTestConstants.TeleprompterFlow.ProductLaunchHighlightWord);
         var slowWord = await GetWordProbeAsync(page, StatisticsCardIndex, BrowserTestConstants.TeleprompterFlow.ProductLaunchSlowWord);
         var fastWord = await GetWordProbeAsync(page, BenefitsCardIndex, BrowserTestConstants.TeleprompterFlow.FastWord);
+        var warmWord = await GetWordProbeAsync(page, InspirationCardIndex, BrowserTestConstants.TeleprompterFlow.ProductLaunchWarmWord);
+        var urgentWord = await GetWordProbeAsync(page, ClosingCardIndex, BrowserTestConstants.TeleprompterFlow.ProductLaunchUrgentWord);
         var visionWord = await GetWordProbeAsync(page, InspirationCardIndex, BrowserTestConstants.TeleprompterFlow.ProductLaunchVisionWord);
         var purpleWord = await GetWordProbeAsync(page, InspirationCardIndex, BrowserTestConstants.TeleprompterFlow.ProductLaunchPurpleWord);
         var teleprompterWord = await GetWordProbeAsync(page, ClosingCardIndex, BrowserTestConstants.TeleprompterFlow.ProductLaunchTeleprompterWord);
 
+        Assert.DoesNotContain("tps-warm", neutralWord.Classes, StringComparison.Ordinal);
+        Assert.DoesNotContain("tps-focused", neutralWord.Classes, StringComparison.Ordinal);
+
+        Assert.Contains("tps-green", greenWord.Classes, StringComparison.Ordinal);
+        Assert.DoesNotContain("tps-warm", greenWord.Classes, StringComparison.Ordinal);
+
+        Assert.Contains("tps-highlight", highlightWord.Classes, StringComparison.Ordinal);
+        Assert.NotEqual(BrowserTestConstants.TeleprompterFlow.TransparentBackgroundColor, highlightWord.BackgroundColor);
+
         Assert.Contains("tps-xslow", slowWord.Classes, StringComparison.Ordinal);
         Assert.Contains("tps-xfast", fastWord.Classes, StringComparison.Ordinal);
+        Assert.Contains("tps-warm", warmWord.Classes, StringComparison.Ordinal);
+        Assert.DoesNotContain("tps-motivational", warmWord.Classes, StringComparison.Ordinal);
+        Assert.Contains("tps-urgent", urgentWord.Classes, StringComparison.Ordinal);
+        Assert.DoesNotContain("tps-energetic", urgentWord.Classes, StringComparison.Ordinal);
         Assert.Contains("tps-purple", purpleWord.Classes, StringComparison.Ordinal);
+        Assert.DoesNotContain("tps-energetic", teleprompterWord.Classes, StringComparison.Ordinal);
 
         Assert.Equal(BrowserTestConstants.TeleprompterFlow.ProductLaunchVisionPronunciation, visionWord.Pronunciation);
         Assert.Contains(
@@ -130,6 +149,9 @@ public sealed class TeleprompterFullFlowTests(StandaloneAppFixture fixture) : IC
             StringComparison.Ordinal);
 
         Assert.True(ParseMilliseconds(slowWord.DurationMs) > ParseMilliseconds(fastWord.DurationMs));
+        Assert.NotEqual(neutralWord.Color, greenWord.Color);
+        Assert.NotEqual(neutralWord.Color, warmWord.Color);
+        Assert.NotEqual(neutralWord.Color, urgentWord.Color);
         Assert.True(ParsePixels(slowWord.LetterSpacing) > ParsePixels(neutralWord.LetterSpacing));
         Assert.True(ParsePixels(fastWord.LetterSpacing) < ParsePixels(neutralWord.LetterSpacing));
     }
@@ -219,7 +241,9 @@ public sealed class TeleprompterFullFlowTests(StandaloneAppFixture fixture) : IC
                     pronunciation: word.getAttribute('data-pronunciation') ?? '',
                     effectiveWpm: word.getAttribute('data-effective-wpm') ?? '',
                     durationMs: word.getAttribute('data-ms') ?? '',
-                    letterSpacing: computed.letterSpacing ?? ''
+                    letterSpacing: computed.letterSpacing ?? '',
+                    color: computed.color ?? '',
+                    backgroundColor: computed.backgroundColor ?? ''
                 };
             }
             """,
@@ -251,5 +275,7 @@ public sealed class TeleprompterFullFlowTests(StandaloneAppFixture fixture) : IC
         public string EffectiveWpm { get; set; } = string.Empty;
         public string DurationMs { get; set; } = string.Empty;
         public string LetterSpacing { get; set; } = string.Empty;
+        public string Color { get; set; } = string.Empty;
+        public string BackgroundColor { get; set; } = string.Empty;
     }
 }

@@ -12,7 +12,14 @@ public sealed class TeleprompterFidelityTests : BunitContext
 {
     private const int BenefitsCardIndex = 5;
     private const int ClosingCardIndex = 7;
+    private const string GreenWord = "transformative";
+    private const string HighlightWord = "solution";
+    private const int IntroductionCardIndex = 4;
+    private const string IntroductionWord = "comes";
     private const int InspirationCardIndex = 6;
+    private const string NeutralWord = "Good";
+    private const int OpeningCardIndex = 0;
+    private const int PurposeCardIndex = 1;
     private const int SpeedOffsetsCardIndex = 0;
     private const int StatisticsCardIndex = 2;
     private const string FastWord = "Full";
@@ -25,7 +32,9 @@ public sealed class TeleprompterFidelityTests : BunitContext
     private const string SpeedOffsetsSlowWpm = "126";
     private const string SpeedOffsetsFastWpm = "154";
     private const string TeleprompterWord = "teleprompter";
+    private const string UrgentWord = "time";
     private const string VisionWord = "vision";
+    private const string WarmWord = "Let";
 
     [Fact]
     public void TeleprompterPage_UsesReferenceSizedReaderGroupsForSecurityIncident()
@@ -129,6 +138,63 @@ public sealed class TeleprompterFidelityTests : BunitContext
             Assert.True(GetWordDurationMilliseconds(slowWord) > GetWordDurationMilliseconds(normalWord));
             Assert.True(GetWordDurationMilliseconds(resumedSlowWord) > GetWordDurationMilliseconds(normalWord));
             Assert.True(GetWordDurationMilliseconds(normalWord) > GetWordDurationMilliseconds(fastWord));
+        });
+    }
+
+    [Fact]
+    public void TeleprompterPage_StylesOnlyExplicitInlineTpsEmotionAndColorTags()
+    {
+        var harness = TestHarnessFactory.Create(this);
+        Services.GetRequiredService<NavigationManager>()
+            .NavigateTo(AppTestData.Routes.TeleprompterDemo);
+        var cut = Render<TeleprompterPage>();
+
+        cut.WaitForAssertion(() =>
+        {
+            var neutralWord = FindReaderWordByText(cut, OpeningCardIndex, NeutralWord);
+            var greenWord = FindReaderWordByText(cut, OpeningCardIndex, GreenWord);
+            var highlightWord = FindReaderWordByText(cut, PurposeCardIndex, HighlightWord);
+            var warmWord = FindReaderWordByText(cut, InspirationCardIndex, WarmWord);
+            var urgentWord = FindReaderWordByText(cut, ClosingCardIndex, UrgentWord);
+            var teleprompterWord = FindReaderWordByText(cut, ClosingCardIndex, TeleprompterWord);
+            var introductionWord = FindReaderWordByText(cut, IntroductionCardIndex, IntroductionWord);
+
+            Assert.DoesNotContain("tps-warm", neutralWord.ClassName, StringComparison.Ordinal);
+            Assert.DoesNotContain("tps-focused", neutralWord.ClassName, StringComparison.Ordinal);
+
+            Assert.Contains("tps-green", greenWord.ClassName, StringComparison.Ordinal);
+            Assert.DoesNotContain("tps-warm", greenWord.ClassName, StringComparison.Ordinal);
+
+            Assert.Contains("tps-highlight", highlightWord.ClassName, StringComparison.Ordinal);
+            Assert.DoesNotContain("tps-warm", highlightWord.ClassName, StringComparison.Ordinal);
+
+            Assert.Contains("tps-warm", warmWord.ClassName, StringComparison.Ordinal);
+            Assert.DoesNotContain("tps-motivational", warmWord.ClassName, StringComparison.Ordinal);
+
+            Assert.Contains("tps-urgent", urgentWord.ClassName, StringComparison.Ordinal);
+            Assert.DoesNotContain("tps-energetic", urgentWord.ClassName, StringComparison.Ordinal);
+
+            Assert.DoesNotContain("tps-focused", introductionWord.ClassName, StringComparison.Ordinal);
+            Assert.DoesNotContain("tps-energetic", teleprompterWord.ClassName, StringComparison.Ordinal);
+        });
+    }
+
+    [Fact]
+    public void TeleprompterPage_UsesDarkReaderBackgroundForGreenArchitectureRoute()
+    {
+        var harness = TestHarnessFactory.Create(this);
+        Services.GetRequiredService<NavigationManager>()
+            .NavigateTo(AppTestData.Routes.TeleprompterArchitecture);
+        var cut = Render<TeleprompterPage>();
+
+        cut.WaitForAssertion(() =>
+        {
+            var gradient = cut.Find("#rd-gradient");
+            var className = gradient.ClassName ?? string.Empty;
+
+            Assert.DoesNotContain("focused", className, StringComparison.Ordinal);
+            Assert.DoesNotContain("calm", className, StringComparison.Ordinal);
+            Assert.Contains("professional", className, StringComparison.Ordinal);
         });
     }
 

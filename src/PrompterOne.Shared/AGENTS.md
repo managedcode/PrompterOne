@@ -29,6 +29,7 @@
 - When a screen has a `new-design/*.html` counterpart, parity work must port the whole screen structure and intended interactions into Blazor instead of approximating only selected sections.
 - Keep routed pages, feature components, renderers, and feature-local services inside their owning slice folders.
 - Keep app-specific UI logic here, but keep business rules in `PrompterOne.Core`.
+- Keep feature styles owned by their routed screen; `Learn` and `Teleprompter` must not share one feature stylesheet manifest.
 - Preserve `data-testid` selectors used by Playwright.
 - Do not add server-only dependencies.
 - Keep keyboard shortcuts, screen ids/selectors, and reusable UI constants in Blazor/C# contracts when possible; leave JS only with unavoidable browser API interop and direct DOM work that Blazor cannot replace cleanly.

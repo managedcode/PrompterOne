@@ -177,10 +177,11 @@ public sealed class EditorSourceInteractionTests : BunitContext
 
         await Task.Delay(EditorSourceInteractionTestSource.PostAutosaveObservationDelay);
 
-        cut.WaitForAssertion(() =>
-        {
-            Assert.True(_harness.Session.State.WordCount > initialSessionWordCount);
-        });
+        cut.WaitForState(
+            () => _harness.Session.State.WordCount > initialSessionWordCount,
+            TimeSpan.FromMilliseconds(EditorSourceInteractionTestSource.AutosaveAssertionTimeout));
+
+        Assert.True(_harness.Session.State.WordCount > initialSessionWordCount);
     }
 
     [Fact]
@@ -251,6 +252,7 @@ public sealed class EditorSourceInteractionTests : BunitContext
 
     private static class EditorSourceInteractionTestSource
     {
+        public const int AutosaveAssertionTimeout = 5_000;
         public const string AuthorField = "author:";
         public const string AuthorPersistenceLine = "author: \"Jane Doe\"";
         public const string BaseWpm210 = "210";

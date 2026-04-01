@@ -45,6 +45,7 @@ internal static class AppTestData
         public static string EditorQuantum => AppRoutes.EditorWithId(Scripts.QuantumId);
         public static string GoLiveDemo => AppRoutes.GoLiveWithId(Scripts.DemoId);
         public static string LearnQuantum => AppRoutes.LearnWithId(Scripts.QuantumId);
+        public static string TeleprompterArchitecture => AppRoutes.TeleprompterWithId(Scripts.ArchitectureId);
         public static string TeleprompterDemo => AppRoutes.TeleprompterWithId(Scripts.DemoId);
         public static string TeleprompterQuantum => AppRoutes.TeleprompterWithId(Scripts.QuantumId);
         public static string TeleprompterSecurityIncident => AppRoutes.TeleprompterWithId(Scripts.SecurityIncidentId);

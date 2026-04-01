@@ -38,6 +38,47 @@
         return parseTransformTranslateY(window.getComputedStyle(element).transform);
     }
 
+    function measureOffset(stage, targetWord, text) {
+        const stageRect = stage.getBoundingClientRect();
+        const wordRect = targetWord.getBoundingClientRect();
+        const focalPoint = stageRect.top + (stageRect.height * (Number(this.focalPointPercent) / 100));
+        const currentWordCenter = wordRect.top + (wordRect.height / 2);
+        const currentTextTranslateY = getCurrentTranslateY(text);
+        const offset = focalPoint - currentWordCenter + currentTextTranslateY;
+
+        return Number.isFinite(offset) ? offset : null;
+    }
+
+    function withNeutralizedCard(card, text, callback) {
+        if (!(card instanceof HTMLElement) || !(text instanceof HTMLElement)) {
+            return callback();
+        }
+
+        const previousCardOpacity = card.style.opacity;
+        const previousCardTransform = card.style.transform;
+        const previousCardTransition = card.style.transition;
+        const previousTextTransform = text.style.transform;
+        const previousTextTransition = text.style.transition;
+
+        card.style.opacity = "0";
+        card.style.transition = "none";
+        card.style.transform = "translateY(0)";
+        text.style.transition = "none";
+        text.style.transform = "none";
+        void text.offsetHeight;
+
+        try {
+            return callback();
+        } finally {
+            text.style.transform = previousTextTransform;
+            text.style.transition = previousTextTransition;
+            card.style.transform = previousCardTransform;
+            card.style.transition = previousCardTransition;
+            card.style.opacity = previousCardOpacity;
+            void card.offsetHeight;
+        }
+    }
+
     window[teleprompterReaderNamespace] = {
         measureClusterOffset(stageId, textId, targetWordId, focalPointPercent, neutralizeCard) {
             const stage = document.getElementById(stageId);
@@ -53,15 +94,12 @@
                 return null;
             }
 
-            const stageRect = stage.getBoundingClientRect();
-            const wordRect = targetWord.getBoundingClientRect();
-            const focalPoint = stageRect.top + (stageRect.height * (Number(focalPointPercent) / 100));
-            const currentWordCenter = wordRect.top + (wordRect.height / 2);
-            const currentTextTranslateY = getCurrentTranslateY(text);
-            const currentCardTranslateY = Boolean(neutralizeCard) ? getCurrentTranslateY(card) : 0;
-            const offset = focalPoint - currentWordCenter + currentTextTranslateY + currentCardTranslateY;
+            const context = { focalPointPercent };
+            const readOffset = () => measureOffset.call(context, stage, targetWord, text);
 
-            return Number.isFinite(offset) ? offset : null;
+            return Boolean(neutralizeCard)
+                ? withNeutralizedCard(card, text, readOffset)
+                : readOffset();
         }
     };
 })();

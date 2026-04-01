@@ -11,6 +11,9 @@ namespace PrompterOne.App.Tests;
 
 public sealed class MainLayoutGoLiveSessionTests : BunitContext
 {
+    private const string IdleStateValue = "idle";
+    private const string StreamingStateValue = "streaming";
+
     [Fact]
     public void MainLayout_RendersGoLiveIndicator_OnGoLiveScreenToo()
     {
@@ -19,7 +22,12 @@ public sealed class MainLayoutGoLiveSessionTests : BunitContext
 
         var cut = RenderLayout();
 
-        cut.WaitForAssertion(() => Assert.NotNull(cut.FindByTestId(UiTestIds.Header.GoLive)));
+        cut.WaitForAssertion(() =>
+        {
+            var indicator = cut.FindByTestId(UiTestIds.Header.GoLive);
+            Assert.NotNull(indicator);
+            Assert.Equal(IdleStateValue, indicator.GetAttribute("data-live-state"));
+        });
     }
 
     [Fact]
@@ -51,6 +59,21 @@ public sealed class MainLayoutGoLiveSessionTests : BunitContext
         cut.WaitForAssertion(() =>
             Assert.Equal(
                 "recording",
+                cut.FindByTestId(UiTestIds.Header.GoLive).GetAttribute("data-live-state")));
+    }
+
+    [Fact]
+    public void MainLayout_MarksGoLiveIndicator_AsStreaming_WhenStreamSessionIsActive()
+    {
+        _ = TestHarnessFactory.Create(this);
+        Services.GetRequiredService<NavigationManager>().NavigateTo(AppRoutes.Library);
+        Services.GetRequiredService<GoLiveSessionService>().SetState(CreateActiveSession(isRecordingActive: false));
+
+        var cut = RenderLayout();
+
+        cut.WaitForAssertion(() =>
+            Assert.Equal(
+                StreamingStateValue,
                 cut.FindByTestId(UiTestIds.Header.GoLive).GetAttribute("data-live-state")));
     }
 

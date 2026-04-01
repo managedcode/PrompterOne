@@ -154,7 +154,7 @@ public class ScriptCompiler
 
         var blockState = parentState.Clone();
         blockState.BaseWpm = blockWpm;
-        SetEmotion(blockState, emotion);
+        SetInheritedEmotion(blockState, emotion);
 
         var compiledBlock = new CompiledBlock
         {
@@ -351,7 +351,7 @@ public class ScriptCompiler
 
         if (lowered == "emotion")
         {
-            PushScope(scopeStack, lowered, state => SetEmotion(state, argument));
+            PushScope(scopeStack, lowered, state => SetInlineEmotion(state, argument));
             return true;
         }
 
@@ -433,6 +433,12 @@ public class ScriptCompiler
             return true;
         }
 
+        if (IsKnownEmotion(lowered))
+        {
+            PushScope(scopeStack, lowered, state => SetInlineEmotion(state, lowered));
+            return true;
+        }
+
         if (AvailableColors.TryGetValue(lowered, out var colorHex))
         {
             PushScope(scopeStack, lowered, state =>
@@ -502,7 +508,7 @@ public class ScriptCompiler
 
         if (lowered == "emotion")
         {
-            PushScope(scopeStack, lowered, state => SetEmotion(state, argument));
+            PushScope(scopeStack, lowered, state => SetInlineEmotion(state, argument));
             return;
         }
 
@@ -668,6 +674,7 @@ public class ScriptCompiler
             IsEmphasis = state.IsEmphasis,
             Color = state.Color,
             EmotionHint = state.Emotion,
+            InlineEmotionHint = state.InlineEmotion,
             PronunciationGuide = state.Pronunciation
         };
 
@@ -731,7 +738,7 @@ public class ScriptCompiler
             XFastFactor = speedProfile.XFastFactor
         };
 
-        SetEmotion(state, emotion);
+        SetInheritedEmotion(state, emotion);
         return state;
     }
 
@@ -786,10 +793,22 @@ public class ScriptCompiler
         return true;
     }
 
-    private static void SetEmotion(FormattingState state, string? emotion)
+    private static bool IsKnownEmotion(string? emotion) =>
+        !string.IsNullOrWhiteSpace(emotion) && EmotionStyles.ContainsKey(emotion);
+
+    private static void SetInheritedEmotion(FormattingState state, string? emotion)
     {
         var normalized = NormalizeEmotion(emotion);
         state.Emotion = normalized;
+        state.HeadCueId = HeadCueCatalog.ResolveForEmotion(normalized);
+        state.InlineEmotion = null;
+    }
+
+    private static void SetInlineEmotion(FormattingState state, string? emotion)
+    {
+        var normalized = NormalizeEmotion(emotion);
+        state.Emotion = normalized;
+        state.InlineEmotion = normalized;
         state.HeadCueId = HeadCueCatalog.ResolveForEmotion(normalized);
     }
 
@@ -894,6 +913,7 @@ public class ScriptCompiler
     {
         public int BaseWpm { get; set; }
         public string? Emotion { get; set; }
+        public string? InlineEmotion { get; set; }
         public string? Color { get; set; }
         public bool IsEmphasis { get; set; }
         public int? SpeedOverride { get; set; }
@@ -911,6 +931,7 @@ public class ScriptCompiler
             {
                 BaseWpm = BaseWpm,
                 Emotion = Emotion,
+                InlineEmotion = InlineEmotion,
                 Color = Color,
                 IsEmphasis = IsEmphasis,
                 SpeedOverride = SpeedOverride,

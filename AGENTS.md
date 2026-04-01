@@ -101,6 +101,7 @@ Useful focused commands:
 - component tests: `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.Tests/PrompterOne.App.Tests.csproj`
 - ui tests: `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.UITests/PrompterOne.App.UITests.csproj`
 - playwright browser install: `node /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.UITests/bin/Debug/net10.0/.playwright/package/cli.js install chromium`
+- Build the relevant project immediately before starting a local dev server so `dotnet run` cannot serve stale WASM assets or binaries.
 
 Browser test execution rules:
 
@@ -118,7 +119,7 @@ Browser test execution rules:
 - When the user reports an editor regression on a specific script or exact `/editor?id=...` URL, reproduce on that same live script before treating browser-suite results as sufficient.
 - Editor surface changes must ship with real-browser checks for scroll behavior, floating toolbar dropdowns, and TPS section controls when those areas are touched; static component tests alone are not enough.
 
-Do not override the production app runtime URL with `--urls` or random ports. Media permissions are origin-bound, so local development must stay on the stable launch-settings origin. If `dotnet run` fails because that port is already in use, stop the existing dev-server process instead of switching the app host to a new port. The browser-test harness is the exception: it must resolve a fresh dynamic loopback port and propagate the actual origin into Playwright `BaseURL` and permission grants.
+Do not hijack shared user dev ports for agent-run preview servers. The user's stable local app ports, including `5041`, stay user-owned. When the agent needs an isolated local preview or manual-check server, run it only on ports in the `5050-5070` range. Keep the default stable launch-settings origin for the user's own dev workflow, and do not reclaim that origin for agent work when it is already in use. The browser-test harness is the exception: it must resolve a fresh dynamic loopback port and propagate the actual origin into Playwright `BaseURL` and permission grants.
 
 Selector and constant rules:
 
@@ -302,8 +303,10 @@ Repo-specific design rules:
 - Third-party runtime JavaScript SDKs MUST be sourced only from explicitly pinned GitHub Release tags and assets, copied into the repo, bundled locally with their runtime dependencies, and never loaded from CDNs, package registries, `latest` endpoints, or ad-hoc remote downloads at app runtime.
 - Repo-owned manifests, scripts, workflows, and project files that track third-party runtime JavaScript SDKs MUST point to concrete GitHub release versions and asset URLs, never floating references.
 - Any vendored runtime JavaScript SDK that tracks an upstream GitHub repo MUST have an automated watcher job that checks new GitHub releases and opens a repo issue describing the required update when a newer release appears.
-- Teleprompter TPS speed modifiers MUST affect both playback timing and subtle word-level letter spacing, so slower spans open up slightly and faster spans tighten slightly without hurting readability.
+- Teleprompter TPS speed modifiers MUST affect both playback timing and subtle word- or phrase-level letter spacing, so slower spans open up slightly and faster spans tighten slightly without hurting readability.
+- Teleprompter reader word styling MUST mirror TPS/editor inline semantics: explicit inline TPS tags control per-word emphasis and color, while section or block emotion sets card context and must not recolor every reader word.
 - Teleprompter block transitions MUST stay visually consistent: outgoing cards move upward and incoming cards rise from below in the same direction every time; alternating up/down travel is forbidden.
+- Learn and Teleprompter are separate screens with separate style ownership; do not bundle RSVP and teleprompter reader feature styles into one shared screen stylesheet or let one page inherit the other page's visual treatment.
 - User preferences persistence MUST sit behind a platform-agnostic user-settings abstraction, with browser storage implemented via local storage and room for other platform-specific implementations; theme, teleprompter layout preferences, camera/scene preferences, and similar saved settings belong there instead of ad-hoc feature stores.
 - Build quality gates must stay green under `-warnaserror`.
 - GitHub Pages is the expected CI publish target for the standalone WebAssembly app; publish automation must keep the app browser-only and Pages-compatible.
@@ -356,14 +359,19 @@ Ask first:
 ### Dislikes
 
 - backend creep in the standalone runtime
-- random-port local startup
+- agent-started local servers taking shared user ports or using ports outside the reserved `5050-5070` agent range
 - brittle selectors without `data-testid`
+- progress updates that imply a fix is done before there is concrete implementation and verification evidence; keep status factual and let the user verify final behavior personally
+- automated test or coverage runs for UI-behavior fixes before the user has manually checked the change locally; wait for the user's confirmation before resuming automation
 - mixed-language root README or public entry docs; keep them English-only unless the user explicitly asks otherwise
 - design drift from `new-design`
 - made-up About/team content or stale attribution; About must point to real Managed Code ownership and official links
 - any visible typing latency in the editor; plain input must feel immediate with no observable delay
 - teleprompter controls that fade so much they become hard to see during real reading
 - teleprompter paragraph repositioning or per-word vertical transform updates that make the text jump; `new-design/teleprompter.html` motion is the required reference
+- any green teleprompter shell or background treatment; Teleprompter must stay on its dark reader palette and use emotion only for accents, not green screen-wide fills
+- Learn and Teleprompter style boundaries bleeding through a shared feature stylesheet; their visuals must stay isolated by page-owned style manifests
+- teleprompter camera starting enabled by default; default reader startup should keep the camera off until the user explicitly enables it
 - editor keystroke paths that persist, compile, or rebuild shared session state; keep plain typing in memory and move heavier local sync to debounce or autosave
 - murky JavaScript or interop layers that keep product UI behavior in JS when Blazor can own it cleanly
 - runtime dependencies fetched from random external sources instead of vendored release artifacts

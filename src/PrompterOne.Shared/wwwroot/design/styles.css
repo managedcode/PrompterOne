@@ -1,6 +1,6 @@
 /* ============================================
-   TELEPROMPTER — REFINED DESIGN SYSTEM
-   Modular manifest for feature-oriented design CSS.
+   SHARED DESIGN SYSTEM
+   Global manifest for cross-screen design CSS only.
    ============================================ */
 
 /* Base */
@@ -19,14 +19,6 @@
 @import url("./modules/editor/00-layout.css");
 @import url("./modules/editor/10-metadata-toolbar.css");
 @import url("./modules/editor/20-content.css");
-
-/* RSVP */
-@import url("./modules/30-rsvp.css");
-
-/* Reader */
-@import url("./modules/reader/00-shell.css");
-@import url("./modules/reader/10-reading-states.css");
-@import url("./modules/reader/20-controls.css");
 
 /* Settings */
 @import url("./modules/settings/00-layout.css");

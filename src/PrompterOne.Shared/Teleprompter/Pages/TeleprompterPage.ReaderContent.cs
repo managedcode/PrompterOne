@@ -68,7 +68,7 @@ public partial class TeleprompterPage
                     DisplayName: string.IsNullOrWhiteSpace(block.Name) ? segment.Name : block.Name,
                     EmotionKey: emotionKey,
                     EmotionLabel: FormatEmotionLabel(emotionKey),
-                    BackgroundClass: emotionKey,
+                    BackgroundClass: ResolveReaderBackgroundClass(emotionKey),
                     AccentColor: segmentAccent,
                     TargetWpm: targetWpm,
                     WordCount: wordCount,
@@ -263,7 +263,7 @@ public partial class TeleprompterPage
             classes.Add(colorClass);
         }
 
-        var emotionClass = ResolveEmotionWordClass(metadata.EmotionHint, TpsClassPrefix);
+        var emotionClass = ResolveEmotionWordClass(metadata.InlineEmotionHint, TpsClassPrefix);
         if (!string.IsNullOrWhiteSpace(emotionClass))
         {
             classes.Add(emotionClass);
@@ -322,6 +322,13 @@ public partial class TeleprompterPage
             _ => "#2563EB"
         };
     }
+
+    private static string ResolveReaderBackgroundClass(string emotionKey) =>
+        emotionKey switch
+        {
+            "focused" => "professional",
+            _ => emotionKey
+        };
 
     private static string ResolveEmotionKey(string? emotion)
     {

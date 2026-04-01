@@ -38,8 +38,16 @@ public sealed record GoLiveSessionState(
     public bool HasActiveSession => IsStreamActive || IsRecordingActive;
 }
 
-public sealed class GoLiveSessionService
+internal sealed partial class GoLiveSessionService : IDisposable
 {
+    private readonly CrossTabMessageBus _crossTabMessageBus;
+
+    public GoLiveSessionService(CrossTabMessageBus crossTabMessageBus)
+    {
+        _crossTabMessageBus = crossTabMessageBus;
+        _crossTabMessageBus.MessageReceived += HandleCrossTabMessageAsync;
+    }
+
     public event Action? StateChanged;
 
     public GoLiveSessionState State { get; private set; } = GoLiveSessionState.Default;
@@ -59,7 +67,7 @@ public sealed class GoLiveSessionService
             ?? ResolveOperationalSource(sceneCameras, selectedSource?.SourceId ?? string.Empty)
             ?? ResolveDefaultSource(sceneCameras);
 
-        SetState(State with
+        ApplyState(State with
         {
             ScriptId = scriptId ?? string.Empty,
             ScriptTitle = scriptTitle ?? string.Empty,
@@ -71,7 +79,7 @@ public sealed class GoLiveSessionService
             PrimaryMicrophoneLabel = primaryMicrophoneLabel ?? string.Empty,
             OutputResolution = streaming.OutputResolution,
             BitrateKbps = streaming.BitrateKbps
-        });
+        }, publishToCrossTab: false);
     }
 
     public void SelectSource(IReadOnlyList<SceneCameraSource> sceneCameras, string sourceId)
@@ -82,11 +90,11 @@ public sealed class GoLiveSessionService
             return;
         }
 
-        SetState(State with
+        ApplyState(State with
         {
             SelectedSourceId = source.SourceId,
             SelectedSourceLabel = source.Label
-        });
+        }, publishToCrossTab: false);
     }
 
     public void SwitchToSelectedSource(IReadOnlyList<SceneCameraSource> sceneCameras)
@@ -98,54 +106,59 @@ public sealed class GoLiveSessionService
             return;
         }
 
-        SetState(State with
+        ApplyState(State with
         {
             ActiveSourceId = source.SourceId,
             ActiveSourceLabel = source.Label
-        });
+        }, publishToCrossTab: State.HasActiveSession);
     }
 
     public void ToggleStream(IReadOnlyList<SceneCameraSource> sceneCameras)
     {
         if (State.IsStreamActive)
         {
-            SetState(State with
+            ApplyState(State with
             {
                 IsStreamActive = false,
                 StreamStartedAt = null
-            });
+            }, publishToCrossTab: true);
             return;
         }
 
         SwitchToSelectedSource(sceneCameras);
-        SetState(State with
+        ApplyState(State with
         {
             IsStreamActive = true,
             StreamStartedAt = DateTimeOffset.UtcNow
-        });
+        }, publishToCrossTab: true);
     }
 
     public void ToggleRecording(IReadOnlyList<SceneCameraSource> sceneCameras)
     {
         if (State.IsRecordingActive)
         {
-            SetState(State with
+            ApplyState(State with
             {
                 IsRecordingActive = false,
                 RecordingStartedAt = null
-            });
+            }, publishToCrossTab: true);
             return;
         }
 
         SwitchToSelectedSource(sceneCameras);
-        SetState(State with
+        ApplyState(State with
         {
             IsRecordingActive = true,
             RecordingStartedAt = DateTimeOffset.UtcNow
-        });
+        }, publishToCrossTab: true);
     }
 
     public void SetState(GoLiveSessionState nextState)
+    {
+        ApplyState(nextState, publishToCrossTab: false);
+    }
+
+    private void ApplyState(GoLiveSessionState nextState, bool publishToCrossTab)
     {
         if (EqualityComparer<GoLiveSessionState>.Default.Equals(State, nextState))
         {
@@ -154,6 +167,11 @@ public sealed class GoLiveSessionService
 
         State = nextState;
         StateChanged?.Invoke();
+
+        if (publishToCrossTab)
+        {
+            PublishStateInBackground(nextState);
+        }
     }
 
     private static SceneCameraSource? ResolveDefaultSource(IReadOnlyList<SceneCameraSource> sceneCameras)

@@ -6,6 +6,7 @@ namespace PrompterOne.App.UITests;
 
 public sealed partial class StandaloneAppFixture : IAsyncLifetime
 {
+    private const int MinimumPageCount = 1;
     private const int ServerStartupTimeoutSeconds = 60;
     private const int ServerProbeDelayMilliseconds = 500;
     private readonly ConcurrentBag<IBrowserContext> _contexts = [];
@@ -42,9 +43,41 @@ public sealed partial class StandaloneAppFixture : IAsyncLifetime
 
     public async Task<IPage> NewPageAsync()
     {
+        var context = await NewContextAsync();
+        var page = await context.NewPageAsync();
+        PreparePage(page);
+        await PrimeIsolatedBrowserStorageAsync(page);
+        return page;
+    }
+
+    public async Task<IReadOnlyList<IPage>> NewSharedPagesAsync(int pageCount)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(pageCount, MinimumPageCount);
+
+        var context = await NewContextAsync();
+        var pages = new List<IPage>(pageCount);
+
+        for (var pageIndex = 0; pageIndex < pageCount; pageIndex++)
+        {
+            var page = await context.NewPageAsync();
+            PreparePage(page);
+            pages.Add(page);
+        }
+
+        await PrimeIsolatedBrowserStorageAsync(pages[0]);
+        return pages;
+    }
+
+    private async Task<IBrowserContext> NewContextAsync()
+    {
         var context = await Browser.NewContextAsync(new BrowserNewContextOptions
         {
-            BaseURL = BaseAddress
+            BaseURL = BaseAddress,
+            ViewportSize = new()
+            {
+                Width = BrowserTestConstants.Viewport.DefaultWidth,
+                Height = BrowserTestConstants.Viewport.DefaultHeight
+            }
         });
         await context.AddInitScriptAsync(BrowserTestLibrarySeedData.CreateInitializationScript());
         await context.GrantPermissionsAsync(UiTestHostConstants.GrantedPermissions, new BrowserContextGrantPermissionsOptions
@@ -53,11 +86,7 @@ public sealed partial class StandaloneAppFixture : IAsyncLifetime
         });
         await ConfigureMediaHarnessAsync(context);
         _contexts.Add(context);
-        var page = await context.NewPageAsync();
-        page.SetDefaultNavigationTimeout(BrowserTestConstants.Timing.DefaultNavigationTimeoutMs);
-        page.SetDefaultTimeout(BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs);
-        await PrimeIsolatedBrowserStorageAsync(page);
-        return page;
+        return context;
     }
 
     private async Task PrimeIsolatedBrowserStorageAsync(IPage page)
@@ -67,6 +96,12 @@ public sealed partial class StandaloneAppFixture : IAsyncLifetime
             UiTestHostConstants.ResetBrowserStorageScript,
             UiTestHostConstants.BrowserStorageDatabaseName);
         await page.EvaluateAsync(BrowserTestLibrarySeedData.CreateInitializationScript());
+    }
+
+    private static void PreparePage(IPage page)
+    {
+        page.SetDefaultNavigationTimeout(BrowserTestConstants.Timing.DefaultNavigationTimeoutMs);
+        page.SetDefaultTimeout(BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs);
     }
 
     private static class SharedRuntime

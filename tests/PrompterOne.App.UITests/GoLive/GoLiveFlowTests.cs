@@ -6,6 +6,8 @@ namespace PrompterOne.App.UITests;
 
 public sealed class GoLiveFlowTests(StandaloneAppFixture fixture) : IClassFixture<StandaloneAppFixture>
 {
+    private const int LayoutViewportHeight = 768;
+    private const int LayoutViewportWidth = 1366;
     private const double MaxPreviewRailWidth = 360d;
     private const double MaxProgramAspectRatio = 1.95d;
     private const double MaxSourcesRailWidth = 260d;
@@ -27,6 +29,7 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture) : IClassFixtur
 
         try
         {
+            await page.SetViewportSizeAsync(LayoutViewportWidth, LayoutViewportHeight);
             await SeedGoLiveSceneForReuseAsync(page);
             await page.GotoAsync(BrowserTestConstants.Routes.GoLiveDemo);
             await Expect(page.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();

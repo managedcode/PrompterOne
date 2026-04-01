@@ -82,6 +82,16 @@
             <div class="gl-tab-content active"
                  data-testid="@UiTestIds.GoLive.AudioMixer">
                 <div class="gl-audio-mixer">
+                    <div class="gl-mix-scale">
+                        <span>-60</span>
+                        <span>-50</span>
+                        <span>-40</span>
+                        <span>-30</span>
+                        <span>-20</span>
+                        <span>-10</span>
+                        <span>0</span>
+                    </div>
+
                     @foreach (var channel in AudioChannels)
                     {
                         <div class="gl-mix-ch"
@@ -89,10 +99,46 @@
                             <div class="gl-mix-ch-top">
                                 <span class="gl-mix-name">@channel.Name</span>
                                 <span class="gl-mix-db-val">@channel.DetailLabel</span>
+                                <span class="gl-mix-mute"
+                                      aria-hidden="true">
+                                    @if (string.Equals(channel.Id, MicrophoneChannelId, StringComparison.Ordinal))
+                                    {
+                                        <svg width="11"
+                                             height="11"
+                                             viewBox="0 0 24 24"
+                                             fill="none"
+                                             stroke="currentColor"
+                                             stroke-width="2">
+                                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                                            <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                                        </svg>
+                                    }
+                                    else
+                                    {
+                                        <svg width="11"
+                                             height="11"
+                                             viewBox="0 0 24 24"
+                                             fill="none"
+                                             stroke="currentColor"
+                                             stroke-width="2">
+                                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                                            <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                                        </svg>
+                                    }
+                                </span>
                             </div>
                             <div class="gl-mix-track">
                                 <div class="gl-mix-meter-bg"></div>
                                 <div class="gl-mix-level" style="@($"width:{channel.LevelPercent}%")"></div>
+                                <div class="gl-mix-ticks"></div>
+                                <input type="range"
+                                       class="gl-mix-fader"
+                                       min="0"
+                                       max="100"
+                                       value="@channel.LevelPercent"
+                                       disabled
+                                       tabindex="-1"
+                                       aria-hidden="true" />
                             </div>
                         </div>
                     }
@@ -106,12 +152,38 @@
                 {
                     <div class="gl-room-empty"
                          data-testid="@UiTestIds.GoLive.RoomEmpty">
-                        <strong>@RoomTitle</strong>
-                        <p>@RoomDescription</p>
+                        <div class="gl-room-empty-icon">
+                            <svg width="32"
+                                 height="32"
+                                 viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.5"
+                                 aria-hidden="true">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                <circle cx="9" cy="7" r="4" />
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                            </svg>
+                        </div>
+                        <div class="gl-room-empty-title">@RoomTitle</div>
+                        <div class="gl-room-empty-desc">@RoomDescription</div>
                         <button type="button"
                                 class="gl-room-create-btn"
                                 data-testid="@UiTestIds.GoLive.CreateRoom"
-                                @onclick="CreateRoom">@CreateRoomLabel</button>
+                                @onclick="CreateRoom">
+                            <svg width="14"
+                                 height="14"
+                                 viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="2.5"
+                                 aria-hidden="true">
+                                <line x1="12" y1="5" x2="12" y2="19" />
+                                <line x1="5" y1="12" x2="19" y2="12" />
+                            </svg>
+                            <span>@CreateRoomLabel</span>
+                        </button>
                     </div>
                 }
                 else
@@ -123,19 +195,67 @@
                             <span class="gl-room-code-val">@RoomCode</span>
                             <button type="button"
                                     class="gl-room-invite-btn"
-                                    data-testid="@UiTestIds.GoLive.RoomInvite">@InviteLabel</button>
+                                    data-testid="@UiTestIds.GoLive.RoomInvite">
+                                <svg width="12"
+                                     height="12"
+                                     viewBox="0 0 24 24"
+                                     fill="none"
+                                     stroke="currentColor"
+                                     stroke-width="2"
+                                     aria-hidden="true">
+                                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                    <circle cx="8.5" cy="7" r="4" />
+                                    <line x1="20" y1="8" x2="20" y2="14" />
+                                    <line x1="23" y1="11" x2="17" y2="11" />
+                                </svg>
+                                <span>@InviteLabel</span>
+                            </button>
                         </div>
 
                         <div class="gl-dir-toolbar">
                             <button type="button"
                                     class="gl-dir-btn @(_muteAllGuests ? "active" : null)"
-                                    @onclick="ToggleMuteAllGuests">@MuteAllLabel</button>
+                                    @onclick="ToggleMuteAllGuests">
+                                <svg width="13"
+                                     height="13"
+                                     viewBox="0 0 24 24"
+                                     fill="none"
+                                     stroke="currentColor"
+                                     stroke-width="2"
+                                     aria-hidden="true">
+                                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                                    <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                                </svg>
+                                <span>@MuteAllLabel</span>
+                            </button>
                             <button type="button"
                                     class="gl-dir-btn @(_talkbackEnabled ? "active" : null)"
-                                    @onclick="ToggleTalkback">@TalkLabel</button>
+                                    @onclick="ToggleTalkback">
+                                <svg width="13"
+                                     height="13"
+                                     viewBox="0 0 24 24"
+                                     fill="none"
+                                     stroke="currentColor"
+                                     stroke-width="2"
+                                     aria-hidden="true">
+                                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                                </svg>
+                                <span>@TalkLabel</span>
+                            </button>
                             <button type="button"
                                     class="gl-dir-btn gl-dir-btn-cue @(_cueArmed ? "active" : null)"
-                                    @onclick="SendCue">@CueLabel</button>
+                                    @onclick="SendCue">
+                                <svg width="13"
+                                     height="13"
+                                     viewBox="0 0 24 24"
+                                     fill="none"
+                                     stroke="currentColor"
+                                     stroke-width="2.5"
+                                     aria-hidden="true">
+                                    <polygon points="5 3 19 12 5 21 5 3" />
+                                </svg>
+                                <span>@CueLabel</span>
+                            </button>
                         </div>
 
                         <div class="gl-room-participants">
@@ -172,6 +292,7 @@
     private const string CueLabel = "Cue";
     private const string DestinationsLabel = "Destinations";
     private const string InviteLabel = "Invite";
+    private const string MicrophoneChannelId = "mic";
     private const string MuteAllLabel = "Mute All";
     private const string RoomDescription = "Invite remote guests to send their camera, mic, or screen. You control everything from here.";
     private const string RoomTitle = "Remote Room";

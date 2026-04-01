@@ -1,4 +1,4 @@
-.gl-page-shell {
+#screen-go-live {
     min-height: 100%;
     border: 1px solid rgba(255, 255, 255, .06);
     border-radius: 24px;
@@ -63,19 +63,10 @@
 .gl-rec-btn,
 .gl-stream-btn,
 .gl-mode-btn {
-    text-decoration: none;
-}
-
-.gl-back-btn,
-.gl-settings-btn,
-.gl-panel-toggle,
-.gl-rec-btn,
-.gl-stream-btn,
-.gl-mode-btn,
-.gl-topbar button {
     appearance: none;
     cursor: pointer;
     font-family: var(--font-sans);
+    text-decoration: none;
 }
 
 .gl-back-btn {
@@ -83,8 +74,8 @@
     align-items: center;
     gap: 4px;
     padding: 6px 12px 6px 8px;
-    border-radius: var(--radius-md);
     border: 1px solid var(--gold-08);
+    border-radius: var(--radius-md);
     background: var(--gold-06);
     color: var(--text-3);
     font-size: 12px;
@@ -146,8 +137,8 @@
     width: 28px;
     height: 28px;
     padding: 0;
-    border-radius: var(--radius-sm);
     border: 1px solid rgba(255, 255, 255, .08);
+    border-radius: var(--radius-sm);
     background: rgba(255, 255, 255, .04);
     color: var(--text-4);
     transition: all .15s;
@@ -338,7 +329,8 @@
     padding: 12px;
     background: rgba(6, 8, 16, .25);
     border-right: 1px solid var(--border-subtle);
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .gl-program {
@@ -347,7 +339,7 @@
     min-width: 0;
     min-height: 0;
     padding: 8px 12px;
-    gap: 8px;
+    gap: 0;
     overflow: hidden;
 }
 
@@ -356,14 +348,14 @@
     flex-direction: column;
     min-width: 0;
     min-height: 0;
-    padding: 0;
-    gap: 0;
     background: rgba(6, 8, 16, .35);
     border-left: 1px solid var(--border-subtle);
     overflow: hidden;
 }
 
-.gl-content.gl-layout-fullpgm {
+.gl-content.gl-layout-fullpgm,
+.gl-content.gl-hide-left.gl-hide-right,
+.gl-content.gl-layout-fullpgm.gl-hide-left.gl-hide-right {
     grid-template-columns: 0 1fr 0;
 }
 
@@ -375,23 +367,14 @@
     grid-template-columns: minmax(180px, 240px) 1fr 0;
 }
 
-.gl-content.gl-hide-left.gl-hide-right,
-.gl-content.gl-layout-fullpgm.gl-hide-left.gl-hide-right {
-    grid-template-columns: 0 1fr 0;
-}
-
 @keyframes gl-session-pulse {
-    0%, 100% {
-        opacity: 1;
-    }
-
-    50% {
-        opacity: .65;
-    }
+    0%, 100% { opacity: 1; }
+    50% { opacity: .65; }
 }
 
 @media (max-width: 1360px) {
-    .gl-content {
+    .gl-content,
+    .gl-content.gl-hide-right {
         grid-template-columns: minmax(172px, 220px) 1fr minmax(260px, 300px);
     }
 

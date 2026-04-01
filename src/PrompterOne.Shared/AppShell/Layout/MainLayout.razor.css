@@ -1,3 +1,52 @@
+.btn-golive-header[data-live-state="idle"] {
+    color: var(--t1);
+    background: rgba(255, 255, 255, .03);
+    border-color: rgba(214, 166, 91, .18);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .03);
+}
+
+.btn-golive-header[data-live-state="idle"]:hover {
+    background: rgba(255, 255, 255, .06);
+    border-color: rgba(214, 166, 91, .26);
+    box-shadow: 0 0 18px rgba(214, 166, 91, .08);
+}
+
+.btn-golive-header[data-live-state="idle"] svg {
+    stroke: var(--t1);
+}
+
+.btn-golive-header[data-live-state="idle"] .btn-golive-dot {
+    background: rgba(214, 166, 91, .92);
+    box-shadow: 0 0 8px rgba(214, 166, 91, .52);
+    animation: none;
+}
+
+.btn-golive-header[data-live-state="streaming"],
+.btn-golive-header[data-live-state="recording"] {
+    color: #FF8A8A;
+    background: rgba(255, 68, 68, .08);
+    border-color: rgba(255, 68, 68, .22);
+    box-shadow: 0 0 20px rgba(255, 68, 68, .10);
+}
+
+.btn-golive-header[data-live-state="streaming"]:hover,
+.btn-golive-header[data-live-state="recording"]:hover {
+    background: rgba(255, 68, 68, .14);
+    border-color: rgba(255, 68, 68, .35);
+}
+
+.btn-golive-header[data-live-state="streaming"] svg,
+.btn-golive-header[data-live-state="recording"] svg {
+    stroke: #FF8A8A;
+}
+
+.btn-golive-header[data-live-state="streaming"] .btn-golive-dot,
+.btn-golive-header[data-live-state="recording"] .btn-golive-dot {
+    background: #FF4444;
+    box-shadow: 0 0 6px #FF4444;
+    animation: golive-pulse 1.5s ease-in-out infinite;
+}
+
 .btn-live-shell {
     display: inline-flex;
     align-items: center;
@@ -16,11 +65,7 @@
     transform: translateY(-1px);
 }
 
-.btn-live-shell[data-live-state="streaming"] {
-    border-color: rgba(196, 168, 130, .3);
-    box-shadow: 0 0 18px rgba(196, 168, 130, .08);
-}
-
+.btn-live-shell[data-live-state="streaming"],
 .btn-live-shell[data-live-state="recording"] {
     border-color: rgba(248, 113, 113, .42);
     background: rgba(127, 29, 29, .14);
@@ -38,9 +83,15 @@
     color: var(--t1);
 }
 
+.btn-live-shell[data-live-state="streaming"] .btn-live-shell-icon,
 .btn-live-shell[data-live-state="recording"] .btn-live-shell-icon {
     background: rgba(248, 113, 113, .18);
     color: #FCA5A5;
+}
+
+.btn-live-shell[data-live-state="streaming"] .btn-live-shell-status,
+.btn-live-shell[data-live-state="recording"] .btn-live-shell-status {
+    color: rgba(252, 165, 165, .86);
 }
 
 .btn-live-shell-copy {
@@ -84,6 +135,7 @@
     transform: translateY(-2px);
 }
 
+.app-live-widget[data-live-state="streaming"],
 .app-live-widget[data-live-state="recording"] {
     border-color: rgba(248, 113, 113, .34);
     box-shadow: 0 24px 48px rgba(54, 10, 10, .36), inset 0 1px 0 rgba(255, 255, 255, .04);

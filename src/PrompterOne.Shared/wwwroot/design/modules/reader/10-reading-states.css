@@ -250,7 +250,7 @@ span.rd-pause.rd-pause-long {
 .rd-g-active > .rd-w.tps-calm:not(.rd-now):not(.rd-read) { color: rgba(56,217,169,.75); }
 .rd-g-active > .rd-w.tps-energetic:not(.rd-now):not(.rd-read) { color: rgba(255,99,71,.78); }
 .rd-g-active > .rd-w.tps-professional:not(.rd-now):not(.rd-read) { color: rgba(91,127,255,.78); }
-.rd-g-active > .rd-w.tps-emphasis:not(.rd-now):not(.rd-read) { color: rgba(232,213,176,.80); }
+.rd-g-active > .rd-w.tps-emphasis:not(.rd-now):not(.rd-read) { text-decoration-color: rgba(232,213,176,.45); }
 .rd-g-active > .rd-w.tps-highlight:not(.rd-now):not(.rd-read) { background: rgba(255,224,102,.18); }
 
 /* Word states — NO font-size changes to prevent layout jumping */
@@ -313,6 +313,6 @@ span.rd-pause.rd-pause-long {
 /* Active word with emphasis/strong */
 .rd-w.rd-now.tps-emphasis,
 .rd-w.rd-now.tps-strong {
-    color: var(--accent);
-    text-shadow: 0 0 50px rgba(232,130,92,.3);
+    text-decoration-color: var(--accent);
+    text-shadow: 0 0 50px rgba(232,130,92,.22);
 }

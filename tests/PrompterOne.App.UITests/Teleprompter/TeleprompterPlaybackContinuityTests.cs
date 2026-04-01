@@ -1,5 +1,6 @@
 using Microsoft.Playwright;
 using PrompterOne.Shared.Contracts;
+using System.Globalization;
 using static Microsoft.Playwright.Assertions;
 
 namespace PrompterOne.App.UITests;
@@ -7,6 +8,8 @@ namespace PrompterOne.App.UITests;
 public sealed class TeleprompterPlaybackContinuityTests(StandaloneAppFixture fixture)
     : AppUiTestBase(fixture), IClassFixture<StandaloneAppFixture>
 {
+    private readonly record struct ReaderTransitionSample(double OutgoingTop, double IncomingTop);
+
     [Fact]
     public Task Teleprompter_PlaybackContinuesAfterManualBlockJump() =>
         RunPageAsync(async page =>
@@ -36,6 +39,34 @@ public sealed class TeleprompterPlaybackContinuityTests(StandaloneAppFixture fix
                     new() { Timeout = BrowserTestConstants.Timing.ReaderAutomaticTransitionTimeoutMs });
 
             await AssertReaderTimeContinuesAdvancingAsync(page);
+        });
+
+    [Fact]
+    public Task Teleprompter_NextBlockTransitionKeepsReaderTextMovingUpwardOnLeadershipScript() =>
+        RunPageAsync(async page =>
+        {
+            await OpenLeadershipTeleprompterAsync(page);
+            var outgoingText = page.GetByTestId(UiTestIds.Teleprompter.CardText(0));
+            var incomingText = page.GetByTestId(UiTestIds.Teleprompter.CardText(1));
+            await Expect(outgoingText).ToBeVisibleAsync();
+
+            var samples = new List<ReaderTransitionSample>
+            {
+                await CaptureReaderTransitionSampleAsync(outgoingText, incomingText)
+            };
+
+            await page.GetByTestId(UiTestIds.Teleprompter.NextBlock).ClickAsync();
+
+            for (var sampleIndex = 0; sampleIndex < BrowserTestConstants.Teleprompter.TransitionProbeSampleCount; sampleIndex++)
+            {
+                await page.WaitForTimeoutAsync(BrowserTestConstants.Teleprompter.TransitionProbeIntervalMs);
+                samples.Add(await CaptureReaderTransitionSampleAsync(outgoingText, incomingText));
+            }
+
+            AssertMovesUpWithoutReversal(samples.Select(sample => sample.OutgoingTop).ToArray(), "Outgoing leadership block");
+            AssertMovesUpWithoutReversal(samples.Select(sample => sample.IncomingTop).ToArray(), "Incoming leadership block");
+            await Expect(page.Locator($"#{UiDomIds.Teleprompter.BlockIndicator}"))
+                .ToHaveTextAsync(BrowserTestConstants.Regexes.ReaderSecondBlockIndicator);
         });
 
     private static async Task OpenLeadershipTeleprompterAsync(IPage page)
@@ -73,4 +104,35 @@ public sealed class TeleprompterPlaybackContinuityTests(StandaloneAppFixture fix
             }
             """,
             value);
+
+    private static async Task<ReaderTransitionSample> CaptureReaderTransitionSampleAsync(ILocator outgoingText, ILocator incomingText)
+    {
+        var outgoingTop = await GetElementTopAsync(outgoingText);
+        var incomingTop = await GetElementTopAsync(incomingText);
+        return new ReaderTransitionSample(outgoingTop, incomingTop);
+    }
+
+    private static Task<double> GetElementTopAsync(ILocator locator) =>
+        locator.EvaluateAsync<double>("element => element.getBoundingClientRect().top");
+
+    private static void AssertMovesUpWithoutReversal(IReadOnlyList<double> positions, string label)
+    {
+        Assert.NotEmpty(positions);
+
+        var minimumPosition = positions.Min();
+        var totalTravel = positions[0] - minimumPosition;
+        Assert.True(
+            totalTravel >= BrowserTestConstants.Teleprompter.TransitionMinimumTravelPx,
+            $"{label} did not travel upward enough. Samples: {FormatPositions(positions)}");
+
+        for (var index = 1; index < positions.Count; index++)
+        {
+            Assert.True(
+                positions[index] <= positions[index - 1] + BrowserTestConstants.Teleprompter.TransitionReversalTolerancePx,
+                $"{label} moved back down. Samples: {FormatPositions(positions)}");
+        }
+    }
+
+    private static string FormatPositions(IReadOnlyList<double> positions) =>
+        string.Join(", ", positions.Select(position => position.ToString("0.##", CultureInfo.InvariantCulture)));
 }

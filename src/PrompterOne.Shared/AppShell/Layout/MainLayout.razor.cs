@@ -139,6 +139,7 @@ public partial class MainLayout : LayoutComponentBase, IDisposable
             return;
         }
 
+        await GoLiveSession.StartCrossTabSyncAsync();
         await ThemeService.InitializeAsync();
         await Connectivity.StartAsync();
         await Bootstrapper.EnsureReadyAsync();

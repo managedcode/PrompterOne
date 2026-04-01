@@ -20,14 +20,14 @@
     opacity: 1;
     z-index: 0;
     transition: background 3s ease;
-    background: linear-gradient(180deg, #0D2818 0%, #1A4D33 30%, #0F3025 70%, #0A1C15 100%);
+    background: linear-gradient(180deg, #08101C 0%, #0E1A2E 30%, #08101C 70%, #040A10 100%);
 }
 /* Warm — golden amber */
 .rd-gradient.warm { background: linear-gradient(180deg, #1C1408 0%, #2E2210 30%, #1C1408 70%, #100E06 100%); }
 /* Concerned — deep red */
 .rd-gradient.concerned { background: linear-gradient(180deg, #1C0E0E 0%, #2E1616 30%, #1C0E0E 70%, #120808 100%); }
-/* Focused — emerald green */
-.rd-gradient.focused { background: linear-gradient(180deg, #0D2818 0%, #1A4D33 30%, #0F3025 70%, #0A1C15 100%); }
+/* Focused — dark reader blue */
+.rd-gradient.focused { background: linear-gradient(180deg, #08101C 0%, #0E1A2E 30%, #08101C 70%, #040A10 100%); }
 /* Motivational — deep purple */
 .rd-gradient.motivational { background: linear-gradient(180deg, #150D1C 0%, #251640 30%, #1A0F2E 70%, #0E0818 100%); }
 /* Neutral — slate blue */
@@ -40,8 +40,8 @@
 .rd-gradient.excited { background: linear-gradient(180deg, #1C0C14 0%, #2E1224 30%, #1C0C14 70%, #12060C 100%); }
 /* Sad — deep indigo */
 .rd-gradient.sad { background: linear-gradient(180deg, #0C0C1C 0%, #121230 30%, #0C0C1C 70%, #060610 100%); }
-/* Calm — teal */
-.rd-gradient.calm { background: linear-gradient(180deg, #081C1C 0%, #0E2E2E 30%, #081C1C 70%, #041010 100%); }
+/* Calm — cool steel blue */
+.rd-gradient.calm { background: linear-gradient(180deg, #08141C 0%, #102230 30%, #08141C 70%, #040A10 100%); }
 /* Energetic — orange-red */
 .rd-gradient.energetic { background: linear-gradient(180deg, #1C1008 0%, #2E1A0E 30%, #1C1008 70%, #100A04 100%); }
 /* Professional — navy */

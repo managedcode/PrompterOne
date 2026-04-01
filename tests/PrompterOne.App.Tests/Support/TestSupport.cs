@@ -58,8 +58,12 @@ internal static class TestHarnessFactory
         var sceneService = new MediaSceneService();
         var permissionService = new FakeMediaPermissionService();
         var deviceService = new FakeMediaDeviceService(devices ?? DefaultDevices);
+        var crossTabMessageBus = new CrossTabMessageBus(
+            jsRuntime,
+            loggerFactory.CreateLogger<CrossTabMessageBus>());
         var settingsStore = new BrowserSettingsStore(
             jsRuntime,
+            crossTabMessageBus,
             loggerFactory.CreateLogger<BrowserSettingsStore>());
         var shell = new AppShellService();
         var bootstrapper = new AppBootstrapper(
@@ -95,12 +99,14 @@ internal static class TestHarnessFactory
         context.Services.AddSingleton<IMediaSceneService>(sceneService);
         context.Services.AddSingleton<IMediaPermissionService>(permissionService);
         context.Services.AddSingleton<IMediaDeviceService>(deviceService);
+        context.Services.AddSingleton(crossTabMessageBus);
         context.Services.AddSingleton<RsvpOrpCalculator>();
         context.Services.AddSingleton<RsvpTextProcessor>();
         context.Services.AddSingleton<RsvpEmotionAnalyzer>();
         context.Services.AddSingleton<RsvpPlaybackEngine>();
         context.Services.AddSingleton(settingsStore);
         context.Services.AddSingleton<IUserSettingsStore>(settingsStore);
+        context.Services.AddSingleton<IBrowserSettingsChangeNotifier>(settingsStore);
         context.Services.AddSingleton<BrowserCloudStorageStore>();
         context.Services.AddSingleton<BrowserThemeService>();
         context.Services.AddSingleton<CloudStorageProviderFactory>();
@@ -134,6 +140,7 @@ internal static class TestHarnessFactory
             sceneService,
             permissionService,
             deviceService,
+            crossTabMessageBus,
             loggerFactory);
     }
 
@@ -152,6 +159,7 @@ internal sealed record AppHarness(
     MediaSceneService SceneService,
     FakeMediaPermissionService PermissionService,
     FakeMediaDeviceService DeviceService,
+    CrossTabMessageBus CrossTabMessageBus,
     ILoggerFactory LoggerFactory);
 
 internal sealed record JsInvocationRecord(
@@ -160,6 +168,9 @@ internal sealed record JsInvocationRecord(
 
 internal sealed class TestJsRuntime(TimeSpan? invocationDelay = null) : IJSRuntime
 {
+    private const string CrossTabDisposeIdentifier = "PrompterOneCrossTabInterop.dispose";
+    private const string CrossTabInitializeIdentifier = "PrompterOneCrossTabInterop.initialize";
+    private const string CrossTabPublishIdentifier = "PrompterOneCrossTabInterop.publish";
     private const string EvaluateIdentifier = "eval";
     private const string LoadSettingJsonIdentifier = "localStorage.getItem";
     private const string RemoveStorageValueIdentifier = "localStorage.removeItem";
@@ -203,6 +214,9 @@ internal sealed class TestJsRuntime(TimeSpan? invocationDelay = null) : IJSRunti
 
         var result = identifier switch
         {
+            CrossTabDisposeIdentifier => null,
+            CrossTabInitializeIdentifier => true,
+            CrossTabPublishIdentifier => null,
             EvaluateIdentifier => Evaluate(args),
             LoadSettingJsonIdentifier => LoadJson(args),
             SaveSettingJsonIdentifier => SaveJson(args),

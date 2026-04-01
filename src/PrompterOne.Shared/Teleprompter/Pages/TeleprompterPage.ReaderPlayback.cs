@@ -343,7 +343,7 @@ public partial class TeleprompterPage
         _activeReaderCardIndex = nextCardIndex;
         _activeReaderWordIndex = -1;
         _preparedReaderCardIndex = null;
-        UpdateReaderDisplayState(instantAlignment: true);
+        UpdateReaderDisplayState(requestAlignment: false);
         await InvokeAsync(StateHasChanged);
 
         try
