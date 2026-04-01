@@ -6,6 +6,7 @@
 @using PrompterOne.Core.Models.Workspace
 @using PrompterOne.Shared.Components.Settings
 @using PrompterOne.Shared.Services.Diagnostics
+@using PrompterOne.Shared.Settings.Components
 @using PrompterOne.Shared.Storage
 
 @inject AppBootstrapper Bootstrapper
@@ -150,15 +151,10 @@
                                             <div class="set-device-fields">
                                                 <div class="set-field">
                                                     <label>Resolution</label>
-                                                    <select class="set-select"
-                                                            value="@_studioSettings.Camera.Resolution"
-                                                            @onchange="OnCameraResolutionChanged"
-                                                            data-testid="@(isPrimary ? UiTestIds.Settings.CameraResolution : null)">
-                                                        <option value="@CameraResolutionPreset.FullHd1080">1920 x 1080 (Full HD)</option>
-                                                        <option value="@CameraResolutionPreset.Hd720">1280 x 720 (HD)</option>
-                                                        <option value="@CameraResolutionPreset.UltraHd4K">3840 x 2160 (4K)</option>
-                                                        <option value="@CameraResolutionPreset.Sd480">640 x 480 (SD)</option>
-                                                    </select>
+                                                    <SettingsSelect Value="@_studioSettings.Camera.Resolution.ToString()"
+                                                                   Options="@CameraResolutionOptions"
+                                                                   OnChange="OnCameraResolutionChanged"
+                                                                   TestId="@(isPrimary ? UiTestIds.Settings.CameraResolution : null)" />
                                                 </div>
                                                 <div class="set-field set-field-toggle">
                                                     <label>Mirror (Flip Horizontal)</label>
@@ -549,6 +545,15 @@
     private const string UsbConnectionLabel = "USB";
     private const string VirtualConnectionLabel = "Virtual";
     private const string WideSampleRateLabel = "48 kHz";
+
+    private static readonly IReadOnlyList<SettingsSelectOption> CameraResolutionOptions =
+    [
+        new(nameof(CameraResolutionPreset.FullHd1080), "1920 x 1080 (Full HD)"),
+        new(nameof(CameraResolutionPreset.Hd720), "1280 x 720 (HD)"),
+        new(nameof(CameraResolutionPreset.UltraHd4K), "3840 x 2160 (4K)"),
+        new(nameof(CameraResolutionPreset.Sd480), "640 x 480 (SD)"),
+    ];
+
     private bool _loadState = true;
     private MediaPermissionsState _permissions = new(false, false);
     private IReadOnlyList<MediaDeviceInfo> _devices = [];

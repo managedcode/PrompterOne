@@ -40,8 +40,6 @@ public partial class GoLivePage
     private const string RecordingReadyDetailLabel = "Ready";
     private const string RecordingReadyMetricValue = "Armed";
     private const string RelayPlatformLabel = "Relay preset";
-    private const string RemoteTalentSourceId = "prompter-display";
-    private const string RemoteTalentTitle = "Prompter Display";
     private const string RoomCodeFallback = "local-studio";
     private const string RuntimeEngineIdleValue = "Idle";
     private const string RuntimeEngineLabel = "Runtime";
@@ -51,32 +49,18 @@ public partial class GoLivePage
     private const string RuntimeEngineRecorderValue = "Recorder";
     private const string SceneSlidesId = "scene-slides";
     private const string SceneSlidesLabel = "Slides";
-    private const string ScreenShareSourceId = "screen-share";
-    private const string ScreenShareTitle = "Share Screen";
     private const string SecondarySceneId = "scene-secondary";
     private const string SettingsPlatformLabel = "Settings preset";
     private const string StatusBitrateLabel = "Bitrate";
     private const string StatusOutputLabel = "Output";
+    private const string StudioSourcesTitle = "Sources";
     private const string SessionMetricLabel = "Session";
-    private const string SlidesSourceId = "slides";
-    private const string SlidesSourceTitle = "Slides";
-    private const string UtilitySourceClickLabel = "Click to share";
-    private const string UtilitySourcePrompterBadge = "Prompter";
-    private const string UtilitySourceShareBadge = "Add";
-    private const string UtilitySourceSlidesBadge = "Slides";
-    private const string UtilitySourceSlidesLabel = "Keynote";
-    private const string UtilitySourceTalentFacingLabel = "Talent-facing only";
+    private const string DirectorSourcesTitle = "Cameras";
     private const string GoLiveContentBaseClass = "gl-content";
     private const string GoLiveFullProgramClass = "gl-layout-fullpgm";
     private const string GoLiveHideLeftClass = "gl-hide-left";
     private const string GoLiveHideRightClass = "gl-hide-right";
 
-    private static readonly IReadOnlyList<GoLiveUtilitySourceViewModel> StudioUtilitySources =
-    [
-        new(RemoteTalentSourceId, RemoteTalentTitle, UtilitySourceTalentFacingLabel, UtilitySourcePrompterBadge),
-        new(SlidesSourceId, SlidesSourceTitle, UtilitySourceSlidesLabel, UtilitySourceSlidesBadge),
-        new(ScreenShareSourceId, ScreenShareTitle, UtilitySourceClickLabel, UtilitySourceShareBadge)
-    ];
 
     private string _activeSceneId = PrimarySceneId;
     private GoLiveSceneLayout _activeSceneLayout = GoLiveSceneLayout.Full;
@@ -113,7 +97,17 @@ public partial class GoLivePage
 
     private IReadOnlyList<GoLiveMetricViewModel> StatusMetrics => BuildStatusMetrics();
 
-    private static IReadOnlyList<GoLiveUtilitySourceViewModel> UtilitySources => StudioUtilitySources;
+    private static IReadOnlyList<GoLiveUtilitySourceViewModel> UtilitySources => [];
+
+    private IReadOnlyList<SceneCameraSource> VisibleSceneCameras =>
+        _activeStudioMode == GoLiveStudioMode.Studio && SceneCameras.Count > 0
+            ? [SceneCameras[0]]
+            : SceneCameras;
+
+    private string SourcesHeaderTitle =>
+        _activeStudioMode == GoLiveStudioMode.Director
+            ? DirectorSourcesTitle
+            : StudioSourcesTitle;
 
     private string GoLiveContentClass
     {

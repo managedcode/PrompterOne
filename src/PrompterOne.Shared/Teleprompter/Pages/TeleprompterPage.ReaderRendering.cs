@@ -14,6 +14,7 @@ public partial class TeleprompterPage
     private const string ReaderCountdownCssClass = "rd-countdown";
     private const string ReaderGroupActiveCssClass = "rd-g-active";
     private const string ReaderGroupCssClass = "rd-g";
+    private const string ReaderGroupEmphasisCssClass = "rd-g-emphasis";
     private const string ReaderHorizontalGuideCssClass = "rd-guide-h";
     private const string ReaderVerticalGuideCssClass = "rd-guide-v";
     private const string ReaderVerticalGuideLeftCssClass = "rd-guide-v-l";
@@ -118,9 +119,12 @@ public partial class TeleprompterPage
 
     private string BuildReaderGroupCssClass(int cardIndex, int chunkIndex)
     {
+        var group = (ReaderGroupViewModel)_cards[cardIndex].Chunks[chunkIndex];
         if (cardIndex != _activeReaderCardIndex || _activeReaderWordIndex < 0)
         {
-            return ReaderGroupCssClass;
+            return BuildClassList(
+                ReaderGroupCssClass,
+                group.IsEmphasis ? ReaderGroupEmphasisCssClass : null);
         }
 
         var groupStartIndex = GetChunkWordStartIndex(cardIndex, chunkIndex);
@@ -128,7 +132,10 @@ public partial class TeleprompterPage
         var isActiveGroup = _activeReaderWordIndex >= groupStartIndex &&
             _activeReaderWordIndex < groupStartIndex + groupWordCount;
 
-        return BuildClassList(ReaderGroupCssClass, isActiveGroup ? ReaderGroupActiveCssClass : null);
+        return BuildClassList(
+            ReaderGroupCssClass,
+            group.IsEmphasis ? ReaderGroupEmphasisCssClass : null,
+            isActiveGroup ? ReaderGroupActiveCssClass : null);
     }
 
     private string BuildReaderWordCssClass(int cardIndex, int chunkIndex, int wordIndex)

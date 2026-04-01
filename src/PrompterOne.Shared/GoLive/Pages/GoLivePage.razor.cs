@@ -19,6 +19,7 @@ public partial class GoLivePage : ComponentBase
     private const string GoLiveSceneOperation = "Go Live save scene";
     private const string GoLiveStudioMessage = "Unable to save live routing settings.";
     private const string GoLiveStudioOperation = "Go Live save studio";
+    private const string HomeRoute = AppRoutes.Library;
     private const string NoMicrophoneLabel = "No microphone";
     private const string StreamingSubtitle = "Program routing";
 
@@ -74,10 +75,6 @@ public partial class GoLivePage : ComponentBase
                 : FormatRouteTarget(route.Value);
         }
     }
-
-    private string ReadRoute => HasScriptContext
-        ? AppRoutes.TeleprompterWithId(SessionService.State.ScriptId)
-        : AppRoutes.Teleprompter;
 
     private IReadOnlyList<SceneCameraSource> SceneCameras => MediaSceneService.State.Cameras;
 

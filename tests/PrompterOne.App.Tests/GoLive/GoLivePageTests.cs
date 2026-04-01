@@ -76,6 +76,23 @@ public sealed class GoLivePageTests : BunitContext
     }
 
     [Fact]
+    public void GoLivePage_TopLeftHomeControl_TargetsLibraryRoute()
+    {
+        SeedSceneState(CreateTwoCameraScene());
+
+        Services.GetRequiredService<NavigationManager>()
+            .NavigateTo(AppTestData.Routes.GoLiveDemo);
+
+        var cut = Render<GoLivePage>();
+
+        cut.WaitForAssertion(() =>
+        {
+            var homeLink = cut.FindByTestId(UiTestIds.GoLive.OpenHome);
+            Assert.Equal(AppRoutes.Library, homeLink.GetAttribute("href"));
+        });
+    }
+
+    [Fact]
     public void GoLivePage_TogglesProgramSourcesAndPersistsScene()
     {
         SeedSceneState(CreateTwoCameraScene());

@@ -59,7 +59,7 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture) : IClassFixtur
     }
 
     [Fact]
-    public async Task GoLivePage_TogglesSceneCameraMembershipAndLinksBackToRead()
+    public async Task GoLivePage_TogglesSceneCameraMembershipAndRoutesTopLeftHomeControlToLibrary()
     {
         var page = await _fixture.NewPageAsync();
 
@@ -76,9 +76,9 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture) : IClassFixtur
             await sourceButton.ClickAsync();
             await Expect(sourceButton).ToContainTextAsync(RemoveActionLabel);
 
-            await page.GetByTestId(UiTestIds.GoLive.OpenRead).ClickAsync();
-            await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(BrowserTestConstants.Routes.TeleprompterDemo));
-            await Expect(page.GetByTestId(UiTestIds.Teleprompter.Page)).ToBeVisibleAsync();
+            await page.GetByTestId(UiTestIds.GoLive.OpenHome).ClickAsync();
+            await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(BrowserTestConstants.Routes.Library));
+            await Expect(page.GetByTestId(UiTestIds.Library.Page)).ToBeVisibleAsync();
         }
         finally
         {

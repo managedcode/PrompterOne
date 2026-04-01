@@ -99,7 +99,7 @@ internal static partial class BrowserTestConstants
                 localStorage.setItem('prompterone.settings.prompterone.reader', JSON.stringify({
                     CountdownSeconds: 3,
                     FontScale: 1,
-                    TextWidth: 0.72,
+                    TextWidth: 1,
                     ScrollSpeed: 1,
                     MirrorText: false,
                     ShowFocusLine: true,

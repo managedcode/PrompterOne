@@ -14,7 +14,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform .8s cubic-bezier(.4,0,.2,1), opacity .8s ease;
+    transition: transform .56s cubic-bezier(.22,.84,.24,1), opacity .32s ease-out;
     will-change: transform, opacity;
     overflow: visible;
 }
@@ -94,11 +94,10 @@
     word-spacing: 0.08em;
     overflow-wrap: break-word;
     hyphens: none;
+    font-kerning: normal;
+    font-feature-settings: "kern" 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    /* Smooth line centering */
-    transition: transform 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
-    will-change: transform;
 }
 
 /* ── Semantic phrase groups ── */
@@ -115,6 +114,14 @@
 .rd-g {
     display: inline;
     white-space: nowrap;
+}
+
+.rd-g-emphasis {
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-underline-offset: 4px;
+    text-decoration-thickness: 2px;
+    text-decoration-skip-ink: auto;
 }
 
 /* ── Pause markers — visual breathing points between phrases ──
@@ -250,7 +257,7 @@ span.rd-pause.rd-pause-long {
 .rd-g-active > .rd-w.tps-calm:not(.rd-now):not(.rd-read) { color: rgba(56,217,169,.75); }
 .rd-g-active > .rd-w.tps-energetic:not(.rd-now):not(.rd-read) { color: rgba(255,99,71,.78); }
 .rd-g-active > .rd-w.tps-professional:not(.rd-now):not(.rd-read) { color: rgba(91,127,255,.78); }
-.rd-g-active > .rd-w.tps-emphasis:not(.rd-now):not(.rd-read) { text-decoration-color: rgba(232,213,176,.45); }
+.rd-g-active.rd-g-emphasis { text-decoration-color: rgba(232,213,176,.45); }
 .rd-g-active > .rd-w.tps-highlight:not(.rd-now):not(.rd-read) { background: rgba(255,224,102,.18); }
 
 /* Word states — NO font-size changes to prevent layout jumping */
@@ -310,8 +317,11 @@ span.rd-pause.rd-pause-long {
 .rd-w.rd-now.tps-energetic { color: #FF6347; text-shadow: 0 0 40px rgba(255,99,71,.3); }
 .rd-w.rd-now.tps-professional { color: #5B7FFF; text-shadow: 0 0 40px rgba(91,127,255,.3); }
 
-/* Active word with emphasis/strong */
-.rd-w.rd-now.tps-emphasis,
+/* Active word with strong emphasis */
+.rd-g-emphasis .rd-w.rd-now {
+    text-decoration: none;
+}
+
 .rd-w.rd-now.tps-strong {
     text-decoration-color: var(--accent);
     text-shadow: 0 0 50px rgba(232,130,92,.22);

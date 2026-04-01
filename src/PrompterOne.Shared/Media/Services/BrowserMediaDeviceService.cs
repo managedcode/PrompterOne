@@ -1,11 +1,13 @@
+using System.Text.RegularExpressions;
 using Microsoft.JSInterop;
 using PrompterOne.Core.Abstractions;
 using PrompterOne.Core.Models.Media;
 
 namespace PrompterOne.Shared.Services;
 
-public sealed class BrowserMediaDeviceService(IJSRuntime jsRuntime) : IMediaDeviceService
+public sealed partial class BrowserMediaDeviceService(IJSRuntime jsRuntime) : IMediaDeviceService
 {
+    private const string UnnamedDeviceLabel = "Unnamed device";
     private readonly IJSRuntime _jsRuntime = jsRuntime;
 
     public async Task<IReadOnlyList<MediaDeviceInfo>> GetDevicesAsync(CancellationToken cancellationToken = default)
@@ -16,7 +18,7 @@ public sealed class BrowserMediaDeviceService(IJSRuntime jsRuntime) : IMediaDevi
 
         return devices.Select(device => new MediaDeviceInfo(
             device.DeviceId,
-            string.IsNullOrWhiteSpace(device.Label) ? "Unnamed device" : device.Label,
+            SanitizeLabel(device.Label),
             device.Kind switch
             {
                 "videoinput" => MediaDeviceKind.Camera,
@@ -26,6 +28,20 @@ public sealed class BrowserMediaDeviceService(IJSRuntime jsRuntime) : IMediaDevi
             },
             device.IsDefault)).ToList();
     }
+
+    private static string SanitizeLabel(string? rawLabel)
+    {
+        if (string.IsNullOrWhiteSpace(rawLabel))
+        {
+            return UnnamedDeviceLabel;
+        }
+
+        var cleaned = VendorIdPattern().Replace(rawLabel, string.Empty).Trim();
+        return string.IsNullOrWhiteSpace(cleaned) ? UnnamedDeviceLabel : cleaned;
+    }
+
+    [GeneratedRegex(@"\s*\([0-9a-fA-F]{4}:[0-9a-fA-F]{4}\)")]
+    private static partial Regex VendorIdPattern();
 
     private sealed record BrowserMediaDeviceDto(string DeviceId, string Label, string Kind, bool IsDefault);
 }

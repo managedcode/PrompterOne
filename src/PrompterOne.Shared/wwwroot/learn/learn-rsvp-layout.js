@@ -2,7 +2,8 @@
     const interopNamespace = "LearnRsvpLayoutInterop";
     const focusSelector = ".rsvp-focus";
     const orpSelector = ".rsvp-focus-orp";
-    const focusShiftPropertyName = "--rsvp-focus-shift";
+    const focusLeftExtentPropertyName = "--rsvp-focus-left-extent";
+    const focusRightExtentPropertyName = "--rsvp-focus-right-extent";
     const fontSyncReadyAttributeName = "data-rsvp-layout-font-sync-ready";
     const pixelUnitSuffix = "px";
     const zeroPixels = "0px";
@@ -12,12 +13,9 @@
         target.style.setProperty(propertyName, `${roundedValue}${pixelUnitSuffix}`);
     }
 
-    function readCenter(rect) {
-        return rect.left + (rect.width / 2);
-    }
-
     function applyDefaultLayout(rowElement) {
-        rowElement.style.setProperty(focusShiftPropertyName, zeroPixels);
+        rowElement.style.setProperty(focusLeftExtentPropertyName, zeroPixels);
+        rowElement.style.setProperty(focusRightExtentPropertyName, zeroPixels);
     }
 
     function syncLayoutNow(rowElement) {
@@ -34,9 +32,12 @@
 
         const focusRect = focusElement.getBoundingClientRect();
         const orpRect = orpElement.getBoundingClientRect();
-        const focusShiftPx = readCenter(focusRect) - readCenter(orpRect);
+        const orpCenterPx = orpRect.left + (orpRect.width / 2);
+        const focusLeftExtentPx = Math.max(orpCenterPx - focusRect.left, 0);
+        const focusRightExtentPx = Math.max(focusRect.right - orpCenterPx, 0);
 
-        setPixelProperty(rowElement, focusShiftPropertyName, focusShiftPx);
+        setPixelProperty(rowElement, focusLeftExtentPropertyName, focusLeftExtentPx);
+        setPixelProperty(rowElement, focusRightExtentPropertyName, focusRightExtentPx);
     }
 
     function scheduleFontReadySync(rowElement) {

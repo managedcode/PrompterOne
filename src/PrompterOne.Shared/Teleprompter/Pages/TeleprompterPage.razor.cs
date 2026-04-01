@@ -13,7 +13,6 @@ public partial class TeleprompterPage : IAsyncDisposable
 {
     private const int DefaultReaderFontSize = 36;
     private const int DefaultReaderFocalPointPercent = 30;
-    private const int DefaultReaderTextWidth = 750;
     private const int MaxReaderGroupCharacterCount = 24;
     private const int MaxReaderGroupWordCount = 5;
     private const string LoadReaderMessage = "Unable to prepare teleprompter playback.";
@@ -33,6 +32,7 @@ public partial class TeleprompterPage : IAsyncDisposable
     private const int ReaderMinFontSize = 24;
     private const int ReaderMinTextWidth = 400;
     private const int ReaderMinFocalPointPercent = 15;
+    private const int DefaultReaderTextWidth = ReaderMaxTextWidth;
 
     [Inject] private AppBootstrapper Bootstrapper { get; set; } = null!;
     [Inject] private CameraPreviewInterop CameraPreviewInterop { get; set; } = null!;
@@ -124,6 +124,7 @@ public partial class TeleprompterPage : IAsyncDisposable
         }
 
         await AlignActiveReaderTextAsync();
+        await RestorePendingReaderTextTransitionsAsync();
     }
 
     private async Task EnsureSessionLoadedAsync()

@@ -1,5 +1,4 @@
 @namespace PrompterOne.Shared.Components.GoLive
-@using PrompterOne.Core.Models.Workspace
 
 <section class="gl-sources-panel">
     <div class="gl-sources-header">
@@ -52,37 +51,6 @@
                                 <span class="gl-cam-name">@source.Label</span>
                                 <span class="gl-cam-hw">@GetSourceStatus(source)</span>
                             </div>
-
-                            <div class="gl-cam-row2">
-                                <div class="gl-cam-reader">
-                                    <div class="@GetSourceAvatarCssClass(source)">@GetSourceAvatarInitial(source)</div>
-                                    <span class="gl-cam-reader-name">@GetSourceReaderLabel(source)</span>
-                                </div>
-
-                                <div class="gl-crop-btns">
-                                    @foreach (var crop in CropOptions)
-                                    {
-                                        var cropIsActive = GetCropSelection(source.SourceId) == crop;
-                                        <button type="button"
-                                                class="gl-crop-btn @(cropIsActive ? "active" : null)"
-                                                @onclick="() => SetCropSelection(source.SourceId, crop)">@GetCropLabel(crop)</button>
-                                    }
-                                </div>
-                            </div>
-
-                            <div class="gl-cam-script-tag @GetSourceScriptTagCssClass(source)">
-                                <svg width="10"
-                                     height="10"
-                                     viewBox="0 0 24 24"
-                                     fill="none"
-                                     stroke="currentColor"
-                                     stroke-width="2"
-                                     aria-hidden="true">
-                                    <path d="M4 6h16M4 12h12M4 18h14" />
-                                </svg>
-                                <span>@CurrentScriptTitle</span>
-                                <span class="gl-script-progress">@CurrentScriptProgressLabel</span>
-                            </div>
                         </div>
                     </button>
 
@@ -128,25 +96,14 @@
     private const string PrompterUtilitySourceId = "prompter-display";
     private const string RemoveLabel = "Remove";
     private const string ScreenShareUtilitySourceId = "screen-share";
-    private const string ScriptProgressDefaultLabel = "No script loaded";
     private const string SourceIncludedLabel = "Armed for output";
     private const string SourceLiveLabel = "Ready for canvas";
     private const string SourceOnAirLabel = "On air";
     private const string SourceSceneOnlyLabel = "Scene only";
-    private static readonly IReadOnlyList<GoLiveCropPreset> CropOptions =
-    [
-        GoLiveCropPreset.Full,
-        GoLiveCropPreset.HeadAndShoulders,
-        GoLiveCropPreset.Face
-    ];
-
-    private readonly Dictionary<string, GoLiveCropPreset> _cropSelections = new(StringComparer.Ordinal);
 
     [Parameter] public EventCallback AddCamera { get; set; }
     [Parameter] public string? ActiveSourceId { get; set; }
     [Parameter] public bool CanAddCamera { get; set; }
-    [Parameter] public string CurrentScriptProgressLabel { get; set; } = ScriptProgressDefaultLabel;
-    [Parameter] public string CurrentScriptTitle { get; set; } = ScriptWorkspaceState.UntitledScriptTitle;
     [Parameter] public bool HasPrimaryMicrophone { get; set; }
     [Parameter] public string MicrophoneName { get; set; } = string.Empty;
     [Parameter] public string MicrophoneRouteLabel { get; set; } = string.Empty;
@@ -175,49 +132,6 @@
             : SourceSceneOnlyLabel;
     }
 
-    private static string GetCropLabel(GoLiveCropPreset crop) =>
-        crop switch
-        {
-            GoLiveCropPreset.HeadAndShoulders => "H&S",
-            GoLiveCropPreset.Face => "Face",
-            _ => "Full"
-        };
-
-    private static string GetSourceAvatarInitial(SceneCameraSource source)
-    {
-        return string.IsNullOrWhiteSpace(source.Label)
-            ? "C"
-            : source.Label[..1].ToUpperInvariant();
-    }
-
-    private string GetSourceAvatarCssClass(SceneCameraSource source)
-    {
-        var classes = new List<string> { "gl-cam-avatar" };
-        classes.Add(IsActive(source)
-            ? "gl-cam-avatar-live"
-            : IsSelected(source)
-                ? "gl-cam-avatar-preview"
-                : "gl-cam-avatar-idle");
-        return string.Join(' ', classes);
-    }
-
-    private string GetSourceReaderLabel(SceneCameraSource source)
-    {
-        if (IsActive(source))
-        {
-            return SourceOnAirLabel;
-        }
-
-        if (IsSelected(source))
-        {
-            return SourceLiveLabel;
-        }
-
-        return source.Transform.IncludeInOutput
-            ? SourceIncludedLabel
-            : SourceSceneOnlyLabel;
-    }
-
     private string GetSourceBadge(SceneCameraSource source)
     {
         if (IsActive(source))
@@ -230,23 +144,6 @@
             : source.Transform.IncludeInOutput
                 ? SourceIncludedLabel
                 : SourceSceneOnlyLabel;
-    }
-
-    private string GetSourceScriptTagCssClass(SceneCameraSource source)
-    {
-        return IsActive(source) || IsSelected(source)
-            ? "gl-script-active"
-            : string.Empty;
-    }
-
-    private GoLiveCropPreset GetCropSelection(string sourceId)
-    {
-        return _cropSelections.TryGetValue(sourceId, out var crop) ? crop : GoLiveCropPreset.Full;
-    }
-
-    private void SetCropSelection(string sourceId, GoLiveCropPreset crop)
-    {
-        _cropSelections[sourceId] = crop;
     }
 
     private string GetSourceCardCssClass(SceneCameraSource source)

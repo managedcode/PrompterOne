@@ -304,8 +304,14 @@ Repo-specific design rules:
 - Repo-owned manifests, scripts, workflows, and project files that track third-party runtime JavaScript SDKs MUST point to concrete GitHub release versions and asset URLs, never floating references.
 - Any vendored runtime JavaScript SDK that tracks an upstream GitHub repo MUST have an automated watcher job that checks new GitHub releases and opens a repo issue describing the required update when a newer release appears.
 - Teleprompter TPS speed modifiers MUST affect both playback timing and subtle word- or phrase-level letter spacing, so slower spans open up slightly and faster spans tighten slightly without hurting readability.
+- Teleprompter default reader width MUST start at the maximum readable width from the design unless the user explicitly narrows it; shipping a visibly narrower default is a regression.
+- Teleprompter speed styling MUST produce a visible but tasteful letter-spacing or kerning change: slower text opens up slightly and faster text tightens slightly, not a no-op.
 - Teleprompter reader word styling MUST mirror TPS/editor inline semantics: explicit inline TPS tags control per-word emphasis and color, while section or block emotion sets card context and must not recolor every reader word.
+- Teleprompter underline or highlight treatments that span a phrase or block MUST render as one continuous block-level treatment; separate per-word underlines inside the same phrase are forbidden.
+- Teleprompter reader text MUST appear on the focal guide immediately when a word or block becomes active; visible post-appearance drift or settling onto the guide is forbidden.
 - Teleprompter block transitions MUST stay visually consistent: outgoing cards move upward and incoming cards rise from below in the same direction every time; alternating up/down travel is forbidden, and extra settling, bounce, or intermediate card states are forbidden.
+- Reader and Learn tokenization MUST treat punctuation-only tokens such as commas, periods, and dashes as punctuation attached to nearby words or pauses, never as standalone counted words.
+- App-shell logo navigation MUST always lead to the main home/library screen; it must not deep-link into Go Live, Teleprompter, or another feature-specific route.
 - Learn and Teleprompter are separate screens with separate style ownership; do not bundle RSVP and teleprompter reader feature styles into one shared screen stylesheet or let one page inherit the other page's visual treatment.
 - User preferences persistence MUST sit behind a platform-agnostic user-settings abstraction, with browser storage implemented via local storage and room for other platform-specific implementations; theme, teleprompter layout preferences, camera/scene preferences, and similar saved settings belong there instead of ad-hoc feature stores.
 - Build quality gates must stay green under `-warnaserror`.
@@ -368,8 +374,14 @@ Ask first:
 - made-up About/team content or stale attribution; About must point to real Managed Code ownership and official links
 - any visible typing latency in the editor; plain input must feel immediate with no observable delay
 - teleprompter controls that fade so much they become hard to see during real reading
+- teleprompter starting with a narrowed text width instead of the design-max default
 - teleprompter paragraph repositioning, line hopping, or per-word vertical transform updates that make the text jump; `design/teleprompter.html` motion is the required reference, with steady bottom-to-top movement and no extra animation layers beyond the reference
+- teleprompter words or blocks appearing away from the focus line and only then drifting onto it; activation must look immediate
+- teleprompter section changes that introduce odd transition motion instead of the straight reference direction
 - any green teleprompter shell or background treatment; Teleprompter must stay on its dark reader palette and use emotion only for accents, not green screen-wide fills
+- fragmented per-word underline styling where the intended emphasis should read as one continuous block
+- punctuation showing up or being counted as standalone words in Learn or Teleprompter flows
+- app logo clicks landing on a feature route instead of the main home/library screen
 - Learn and Teleprompter style boundaries bleeding through a shared feature stylesheet; their visuals must stay isolated by page-owned style manifests
 - Learn RSVP compositions that shift when shorter or longer words render; changing word length must not move the overall RSVP component or its anchored centerline
 - teleprompter camera starting enabled by default; default reader startup should keep the camera off until the user explicitly enables it

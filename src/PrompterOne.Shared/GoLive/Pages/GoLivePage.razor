@@ -11,8 +11,8 @@
                  data-testid="@UiTestIds.GoLive.SessionBar">
             <div class="gl-topbar-left">
                 <a class="gl-back-btn"
-                   href="@ReadRoute"
-                   data-testid="@UiTestIds.GoLive.OpenRead">
+                   href="@HomeRoute"
+                   data-testid="@UiTestIds.GoLive.OpenHome">
                     <svg width="16"
                          height="16"
                          viewBox="0 0 24 24"
@@ -168,11 +168,10 @@
             {
                 <aside class="gl-sources"
                        data-testid="@UiTestIds.GoLive.SourceRail">
-                    <GoLiveSourcesCard Sources="@SceneCameras"
+                    <GoLiveSourcesCard Sources="@VisibleSceneCameras"
                                        ActiveSourceId="@ActiveCamera?.SourceId"
                                        SelectedSourceId="@SelectedCamera?.SourceId"
-                                       CurrentScriptTitle="@_screenTitle"
-                                       CurrentScriptProgressLabel="@CurrentScriptProgressLabel"
+                                       Title="@SourcesHeaderTitle"
                                        UtilitySources="@UtilitySources"
                                        HasPrimaryMicrophone="@HasPrimaryMicrophone"
                                        MicrophoneName="@PrimaryMicrophoneLabel"

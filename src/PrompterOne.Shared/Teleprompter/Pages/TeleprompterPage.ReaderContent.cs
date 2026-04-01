@@ -161,6 +161,7 @@ public partial class TeleprompterPage
         var chunks = new List<ReaderChunkViewModel>();
         var currentGroup = new List<ReaderWordViewModel>();
         var currentCharacterCount = 0;
+        bool? currentGroupIsEmphasis = null;
 
         foreach (var word in words)
         {
@@ -173,8 +174,9 @@ public partial class TeleprompterPage
                     currentGroup[^1] = lastWord with { PauseAfterMs = pauseDuration };
                 }
 
-                FlushGroup(chunks, currentGroup);
+                FlushGroup(chunks, currentGroup, currentGroupIsEmphasis ?? false);
                 currentCharacterCount = 0;
+                currentGroupIsEmphasis = null;
                 chunks.Add(new ReaderPauseViewModel(
                     pauseDuration,
                     pauseDuration >= LongPauseThresholdMilliseconds
@@ -190,6 +192,17 @@ public partial class TeleprompterPage
                 continue;
             }
 
+            var isEmphasisWord = IsReaderWordEmphasis(word.Metadata);
+            if (currentGroup.Count > 0 &&
+                currentGroupIsEmphasis.HasValue &&
+                currentGroupIsEmphasis.Value != isEmphasisWord)
+            {
+                FlushGroup(chunks, currentGroup, currentGroupIsEmphasis.Value);
+                currentCharacterCount = 0;
+                currentGroupIsEmphasis = null;
+            }
+
+            currentGroupIsEmphasis ??= isEmphasisWord;
             currentCharacterCount += word.CleanText.Length;
             if (currentGroup.Count > 0)
             {
@@ -208,12 +221,13 @@ public partial class TeleprompterPage
 
             if (ShouldEndReaderGroup(word.CleanText, currentGroup.Count, currentCharacterCount))
             {
-                FlushGroup(chunks, currentGroup);
+                FlushGroup(chunks, currentGroup, currentGroupIsEmphasis ?? false);
                 currentCharacterCount = 0;
+                currentGroupIsEmphasis = null;
             }
         }
 
-        FlushGroup(chunks, currentGroup);
+        FlushGroup(chunks, currentGroup, currentGroupIsEmphasis ?? false);
         return chunks;
     }
 
@@ -232,16 +246,19 @@ public partial class TeleprompterPage
         return HasClausePunctuation(cleanText) && wordCount >= 3;
     }
 
-    private static void FlushGroup(List<ReaderChunkViewModel> chunks, List<ReaderWordViewModel> currentGroup)
+    private static void FlushGroup(List<ReaderChunkViewModel> chunks, List<ReaderWordViewModel> currentGroup, bool isEmphasis)
     {
         if (currentGroup.Count == 0)
         {
             return;
         }
 
-        chunks.Add(new ReaderGroupViewModel(currentGroup.ToArray()));
+        chunks.Add(new ReaderGroupViewModel(currentGroup.ToArray(), isEmphasis));
         currentGroup.Clear();
     }
+
+    private static bool IsReaderWordEmphasis(WordMetadata? metadata) =>
+        metadata?.IsEmphasis == true;
 
     private static string BuildReaderWordBaseClass(WordMetadata? metadata, int targetWpm)
     {
@@ -251,11 +268,6 @@ public partial class TeleprompterPage
         }
 
         var classes = new List<string>();
-
-        if (metadata.IsEmphasis)
-        {
-            classes.Add("tps-emphasis");
-        }
 
         var colorClass = ResolveColorClass(metadata.Color, TpsClassPrefix);
         if (!string.IsNullOrWhiteSpace(colorClass))

@@ -358,6 +358,7 @@ public static class UiTestIds
         public const string ModeStudio = "go-live-mode-studio";
         public const string NdiToggle = "go-live-ndi-toggle";
         public const string ObsToggle = "go-live-obs-toggle";
+        public const string OpenHome = "go-live-open-home";
         public const string OpenLearn = "go-live-open-learn";
         public const string OpenRead = "go-live-open-read";
         public const string OpenSettings = "go-live-open-settings";
