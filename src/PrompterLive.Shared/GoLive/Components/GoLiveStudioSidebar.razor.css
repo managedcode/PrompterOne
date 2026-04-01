@@ -2,7 +2,8 @@
 .go-live-sidebar-panel,
 .go-live-sidebar-section,
 .go-live-destination-copy,
-.go-live-room-copy {
+.go-live-room-copy,
+.go-live-audio-copy {
     display: flex;
     flex-direction: column;
 }
@@ -23,9 +24,9 @@
 .go-live-room-invite,
 .go-live-room-action,
 .go-live-destination-row {
-    border: 1px solid rgba(214, 166, 91, .1);
+    border: 1px solid rgba(255, 255, 255, .08);
     border-radius: 12px;
-    background: rgba(6, 9, 18, .88);
+    background: rgba(8, 11, 18, .78);
     color: rgba(248, 241, 226, .72);
 }
 
@@ -39,22 +40,36 @@
 
 .go-live-sidebar-tab.active,
 .go-live-room-action.active {
+    border-color: rgba(196, 160, 96, .28);
+    background: rgba(196, 160, 96, .14);
     color: rgba(255, 245, 224, .96);
-    border-color: rgba(214, 166, 91, .24);
-    background: rgba(111, 43, 20, .3);
 }
 
 .go-live-room-action.cue.active {
-    color: #7ff3bf;
-    border-color: rgba(127, 243, 191, .18);
-    background: rgba(11, 60, 48, .28);
+    border-color: rgba(16, 185, 129, .24);
+    background: rgba(16, 185, 129, .12);
+    color: #59d8a7;
 }
 
 .go-live-sidebar-panel {
     padding: 12px;
-    border: 1px solid rgba(214, 166, 91, .08);
+    border: 1px solid rgba(255, 255, 255, .06);
     border-radius: 18px;
-    background: rgba(6, 9, 18, .88);
+    background: rgba(8, 11, 18, .78);
+}
+
+.go-live-sidebar-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.go-live-sidebar-link {
+    color: #8ebcf8;
+    font-size: 11px;
+    font-weight: 700;
+    text-decoration: none;
 }
 
 .go-live-sidebar-label {
@@ -72,59 +87,90 @@
     gap: 10px;
 }
 
-.go-live-destination-row,
-.go-live-room-participant {
-    display: grid;
-    align-items: center;
-    gap: 10px;
+.go-live-destination-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px;
+    border: 1px solid rgba(255, 255, 255, .05);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, .02);
 }
 
 .go-live-destination-row {
+    display: grid;
     grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
     padding: 10px 12px;
     text-align: left;
+}
+
+.go-live-destination-row.on {
+    border-color: rgba(16, 185, 129, .24);
 }
 
 .go-live-destination-dot {
     width: 10px;
     height: 10px;
     border-radius: 999px;
-    background: #ff4444;
+    background: #8b96a6;
 }
 
-.go-live-destination-dot.twitch {
-    background: #9146ff;
+.go-live-destination-dot.youtube {
+    background: #ff4444;
 }
 
 .go-live-destination-dot.livekit {
     background: #60a5fa;
 }
 
-.go-live-destination-dot.custom {
-    background: #c4a060;
+.go-live-destination-dot.local {
+    background: #8b96a6;
+}
+
+.go-live-destination-dot.recording {
+    background: #ff8d8d;
 }
 
 .go-live-destination-copy strong,
 .go-live-room-copy strong,
-.go-live-room-empty strong {
+.go-live-room-empty strong,
+.go-live-audio-copy strong {
     color: rgba(255, 245, 224, .92);
     font-size: 12px;
 }
 
 .go-live-destination-copy span,
+.go-live-destination-meta span,
 .go-live-room-copy span,
-.go-live-room-empty p {
-    color: rgba(248, 241, 226, .38);
+.go-live-room-empty p,
+.go-live-audio-copy span {
+    color: rgba(248, 241, 226, .4);
     font-size: 11px;
     line-height: 1.45;
 }
 
+.go-live-destination-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 0 4px;
+}
+
+.go-live-destination-meta strong {
+    color: rgba(255, 245, 224, .86);
+    font-size: 11px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
 .go-live-destination-toggle {
     position: relative;
-    width: 34px;
+    width: 36px;
     height: 20px;
     border-radius: 999px;
-    background: rgba(255, 255, 255, .08);
+    background: rgba(255, 255, 255, .12);
 }
 
 .go-live-destination-toggle > span {
@@ -134,17 +180,17 @@
     width: 16px;
     height: 16px;
     border-radius: 999px;
-    background: rgba(255, 245, 224, .8);
+    background: rgba(255, 245, 224, .82);
     transition: transform .18s ease;
 }
 
 .go-live-destination-toggle.on {
-    background: rgba(127, 243, 191, .2);
+    background: rgba(16, 185, 129, .24);
 }
 
 .go-live-destination-toggle.on > span {
-    transform: translateX(14px);
-    background: #7ff3bf;
+    transform: translateX(16px);
+    background: #59d8a7;
 }
 
 .go-live-sidebar-metrics {
@@ -156,9 +202,9 @@
 .go-live-sidebar-metrics div {
     display: grid;
     gap: 4px;
-    padding: 10px 12px;
-    border: 1px solid rgba(214, 166, 91, .08);
-    border-radius: 12px;
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, .05);
+    border-radius: 14px;
     background: rgba(255, 255, 255, .02);
 }
 
@@ -176,19 +222,8 @@
 
 .go-live-audio-row {
     display: grid;
-    grid-template-columns: 64px minmax(0, 1fr);
-    gap: 12px;
-    align-items: center;
-}
-
-.go-live-audio-copy strong {
-    color: rgba(255, 245, 224, .9);
-    font-size: 12px;
-}
-
-.go-live-audio-copy span {
-    color: rgba(248, 241, 226, .34);
-    font-size: 10px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
 }
 
 .go-live-audio-meter,
@@ -238,10 +273,10 @@
     align-items: center;
     min-height: 34px;
     padding: 0 12px;
-    border: 1px solid rgba(127, 243, 191, .18);
+    border: 1px solid rgba(16, 185, 129, .24);
     border-radius: 12px;
-    background: rgba(11, 60, 48, .28);
-    color: #7ff3bf;
+    background: rgba(16, 185, 129, .12);
+    color: #59d8a7;
     font-family: var(--font-mono);
     font-size: 12px;
     font-weight: 700;
@@ -249,9 +284,12 @@
 }
 
 .go-live-room-participant {
-    grid-template-columns: auto minmax(0, 1fr) minmax(0, 80px) auto;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) minmax(0, 88px) auto;
+    align-items: center;
+    gap: 10px;
     padding: 10px 12px;
-    border: 1px solid rgba(214, 166, 91, .08);
+    border: 1px solid rgba(255, 255, 255, .05);
     border-radius: 12px;
     background: rgba(255, 255, 255, .02);
 }
@@ -277,5 +315,11 @@
 }
 
 .go-live-room-dot.online {
-    background: #7ff3bf;
+    background: #59d8a7;
+}
+
+@media (max-width: 720px) {
+    .go-live-sidebar-metrics {
+        grid-template-columns: 1fr;
+    }
 }

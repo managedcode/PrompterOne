@@ -4,9 +4,14 @@
 <section class="go-live-sources-shell"
          data-testid="@UiTestIds.GoLive.SourceRail">
     <div class="go-live-sidebar-header">
-        <span class="go-live-sidebar-title">Inputs</span>
-        <a class="go-live-sidebar-action"
-           href="@SettingsRoute">+</a>
+        <span class="go-live-sidebar-title">@Title</span>
+        <div class="go-live-sources-actions">
+            <button type="button"
+                    class="go-live-sidebar-action"
+                    disabled="@(!CanAddCamera)"
+                    data-testid="@UiTestIds.GoLive.AddSource"
+                    @onclick="AddCamera">+</button>
+        </div>
     </div>
 
     <div class="go-live-sources-stack"
@@ -20,13 +25,13 @@
             @foreach (var source in Sources)
             {
                 <article class="go-live-source-tile"
+                         data-active="@IsActive(source)"
+                         data-selected="@IsSelected(source)"
                          data-testid="@UiTestIds.GoLive.SourceCamera(source.SourceId)">
                     <button type="button"
                             class="go-live-source-select"
-                            data-active="@IsActive(source)"
-                            data-selected="@IsSelected(source)"
-                            @onclick="() => SelectSource.InvokeAsync(source.SourceId)"
-                            data-testid="@UiTestIds.GoLive.SourceCameraSelect(source.SourceId)">
+                            data-testid="@UiTestIds.GoLive.SourceCameraSelect(source.SourceId)"
+                            @onclick="() => SelectSource.InvokeAsync(source.SourceId)">
                         <GoLiveCameraSurface Camera="@source"
                                              ContainerClass="go-live-source-video-shell"
                                              VideoClass="go-live-source-video"
@@ -35,6 +40,7 @@
                                 <span class="go-live-source-badge">@GetSourceBadge(source)</span>
                             </OverlayContent>
                         </GoLiveCameraSurface>
+
                         <span class="go-live-source-copy">
                             <strong>@source.Label</strong>
                             <span>@GetSourceStatus(source)</span>
@@ -81,41 +87,23 @@
         }
     </div>
 
-    <div class="go-live-participants-shell">
-        <div class="go-live-sidebar-header go-live-participants-header">
-            <span class="go-live-sidebar-title">Participants</span>
-            <span class="go-live-participants-icon">+</span>
-        </div>
-
-        <article class="go-live-participant-card">
-            <div>
-                <strong>@HostLabel</strong>
-                <span>@ParticipantRoleLabel</span>
-            </div>
-            <span class="go-live-participant-badge">@DirectorLabel</span>
-        </article>
-
-        <div class="go-live-participant-actions">
-            <a class="go-live-source-action"
-               href="@SettingsRoute">@InviteLabel</a>
-        </div>
+    <div class="go-live-mic-card">
+        <span class="go-live-sidebar-title">@MicrophoneTitle</span>
+        <strong>@MicrophoneName</strong>
+        <span>@MicrophoneRouteLabel</span>
     </div>
 </section>
 
 @code {
-    private const string AddLabel = "Add To Live Feed";
-    private const string DefaultDescription = "Pick the camera that should be ready for the next switch, while keeping inclusion controls nearby.";
-    private const string DefaultTitle = "Live Cameras";
-    private const string DirectorLabel = "Director";
+    private const string AddLabel = "Include";
+    private const string DefaultTitle = "Inputs";
     private const string EmptyStateMessage = "No scene cameras are configured yet. Add them in Settings first.";
-    private const string HostLabel = "You (Host)";
-    private const string InviteLabel = "Invite to session";
-    private const string ParticipantRoleLabel = "Primary control room";
-    private const string RemoveLabel = "Remove From Live Feed";
+    private const string MicrophoneTitle = "Microphone";
+    private const string RemoveLabel = "Remove";
     private const string ScriptProgressDefaultLabel = "No script loaded";
-    private const string SourceIncludedLabel = "Included in program output";
-    private const string SourceLiveLabel = "Ready for live switch";
-    private const string SourceOnAirLabel = "On Air";
+    private const string SourceIncludedLabel = "Armed for output";
+    private const string SourceLiveLabel = "Ready for canvas";
+    private const string SourceOnAirLabel = "On air";
     private const string SourceSceneOnlyLabel = "Scene only";
     private static readonly IReadOnlyList<GoLiveCropPreset> CropOptions =
     [
@@ -126,16 +114,16 @@
 
     private readonly Dictionary<string, GoLiveCropPreset> _cropSelections = new(StringComparer.Ordinal);
 
+    [Parameter] public EventCallback AddCamera { get; set; }
     [Parameter] public string? ActiveSourceId { get; set; }
+    [Parameter] public bool CanAddCamera { get; set; }
     [Parameter] public string CurrentScriptProgressLabel { get; set; } = ScriptProgressDefaultLabel;
     [Parameter] public string CurrentScriptTitle { get; set; } = ScriptWorkspaceState.UntitledScriptTitle;
-    [Parameter] public string Description { get; set; } = DefaultDescription;
     [Parameter] public bool HasPrimaryMicrophone { get; set; }
     [Parameter] public string MicrophoneName { get; set; } = string.Empty;
     [Parameter] public string MicrophoneRouteLabel { get; set; } = string.Empty;
     [Parameter] public EventCallback<string> SelectSource { get; set; }
     [Parameter] public string? SelectedSourceId { get; set; }
-    [Parameter] public string SettingsRoute { get; set; } = AppRoutes.Settings;
     [Parameter] public IReadOnlyList<SceneCameraSource> Sources { get; set; } = [];
     [Parameter] public string Title { get; set; } = DefaultTitle;
     [Parameter] public EventCallback<string> ToggleSource { get; set; }
@@ -174,7 +162,11 @@
             return SourceOnAirLabel;
         }
 
-        return source.Transform.IncludeInOutput ? SourceIncludedLabel : SourceSceneOnlyLabel;
+        return IsSelected(source)
+            ? SourceLiveLabel
+            : source.Transform.IncludeInOutput
+                ? SourceIncludedLabel
+                : SourceSceneOnlyLabel;
     }
 
     private GoLiveCropPreset GetCropSelection(string sourceId)

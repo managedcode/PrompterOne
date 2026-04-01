@@ -1,29 +1,26 @@
-.go-live-page {
-    padding: 0;
-}
-
 .go-live-page-shell {
     display: flex;
     flex-direction: column;
-    gap: 18px;
     min-height: 100%;
-    padding: 4px;
-    background: linear-gradient(180deg, rgba(6, 8, 14, .98), rgba(3, 5, 10, 1));
-    border: 1px solid rgba(214, 166, 91, .08);
+    background:
+        radial-gradient(circle at top right, rgba(96, 165, 250, .12), transparent 30%),
+        linear-gradient(180deg, rgba(4, 8, 15, .98), rgba(5, 8, 16, 1));
+    border: 1px solid rgba(255, 255, 255, .06);
     border-radius: 24px;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05);
+    overflow: hidden;
 }
 
 .go-live-session-bar {
     position: relative;
-    z-index: 2;
     display: grid;
     grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: center;
-    gap: 16px;
-    min-height: 54px;
-    padding: 0 10px;
-    border-bottom: 1px solid rgba(214, 166, 91, .06);
+    gap: 18px;
+    min-height: 56px;
+    padding: 0 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, .06);
+    background: rgba(8, 11, 18, .78);
+    backdrop-filter: blur(16px);
 }
 
 .go-live-session-bar-left,
@@ -41,7 +38,9 @@
 
 .go-live-session-bar-left strong {
     color: rgba(255, 245, 224, .92);
-    font-size: 13px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -.02em;
     white-space: nowrap;
 }
 
@@ -54,47 +53,43 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 28px;
+    min-height: 32px;
     padding: 0 12px;
-    border-radius: 999px;
-    text-decoration: none;
-    font-size: 10px;
+    border-radius: 10px;
+    font-size: 11px;
     font-weight: 700;
     letter-spacing: .08em;
+    text-decoration: none;
     text-transform: uppercase;
 }
 
-.go-live-back-link {
-    border: 1px solid rgba(214, 166, 91, .1);
-    color: rgba(248, 241, 226, .68);
-    background: rgba(255, 255, 255, .02);
-}
-
+.go-live-back-link,
 .go-live-panel-toggle,
 .go-live-settings-shortcut {
-    border: 1px solid rgba(214, 166, 91, .1);
-    color: rgba(248, 241, 226, .52);
-    background: rgba(255, 255, 255, .02);
+    border: 1px solid rgba(255, 255, 255, .08);
+    background: rgba(255, 255, 255, .03);
+    color: rgba(248, 241, 226, .64);
 }
 
-.go-live-panel-toggle.active {
-    color: rgba(255, 245, 224, .9);
-    border-color: rgba(214, 166, 91, .22);
-    background: rgba(111, 43, 20, .24);
+.go-live-panel-toggle.active,
+.go-live-settings-shortcut:hover,
+.go-live-back-link:hover {
+    color: rgba(255, 245, 224, .94);
+    border-color: rgba(196, 160, 96, .28);
+    background: rgba(196, 160, 96, .12);
 }
 
 .go-live-live-badge,
 .go-live-record-pill {
-    border: 1px solid rgba(255, 120, 120, .14);
-    color: #f28e8e;
-    background: rgba(90, 24, 24, .22);
+    border: 1px solid rgba(255, 107, 107, .22);
+    background: rgba(255, 68, 68, .1);
+    color: #ff8d8d;
 }
 
 .go-live-stream-pill {
-    margin-left: auto;
-    border: 1px solid rgba(214, 166, 91, .14);
-    color: #f4d9b0;
-    background: rgba(111, 43, 20, .22);
+    border: 1px solid rgba(16, 185, 129, .28);
+    background: rgba(16, 185, 129, .1);
+    color: #59d8a7;
 }
 
 .go-live-record-pill:disabled,
@@ -104,11 +99,11 @@
 
 .go-live-session-timer {
     justify-self: center;
-    color: #f28e8e;
+    color: #ff8d8d;
     font-family: var(--font-mono);
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: .18em;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: .2em;
 }
 
 .go-live-mode-switch {
@@ -116,19 +111,19 @@
     align-items: center;
     gap: 4px;
     padding: 3px;
-    border: 1px solid rgba(214, 166, 91, .08);
-    border-radius: 999px;
-    background: rgba(255, 255, 255, .02);
+    border-radius: 12px;
+    background: rgba(0, 0, 0, .3);
+    border: 1px solid rgba(255, 255, 255, .06);
 }
 
 .go-live-mode-button {
-    min-height: 28px;
+    min-height: 30px;
     padding: 0 12px;
-    border: none;
-    border-radius: 999px;
+    border: 1px solid transparent;
+    border-radius: 9px;
     background: transparent;
     color: rgba(248, 241, 226, .42);
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 700;
     letter-spacing: .08em;
     text-transform: uppercase;
@@ -136,43 +131,53 @@
 
 .go-live-mode-button.active {
     color: rgba(255, 245, 224, .96);
-    background: rgba(111, 43, 20, .3);
+    border-color: rgba(255, 255, 255, .08);
+    background: rgba(255, 255, 255, .08);
 }
 
 .go-live-studio-shell {
-    position: relative;
-    z-index: 1;
+    flex: 1;
     display: grid;
-    grid-template-columns: 124px minmax(0, 1fr) 176px;
-    gap: 14px;
+    grid-template-columns: minmax(220px, 280px) minmax(0, 1fr) minmax(290px, 340px);
     min-height: 720px;
-    padding: 12px 6px 6px;
 }
 
 .go-live-left-rail,
-.go-live-right-rail,
-.go-live-center-stage {
+.go-live-center-stage,
+.go-live-right-rail {
     min-width: 0;
+    min-height: 0;
+}
+
+.go-live-left-rail {
+    padding: 12px;
+    border-right: 1px solid rgba(255, 255, 255, .05);
+    background: rgba(255, 255, 255, .01);
 }
 
 .go-live-center-stage {
     display: flex;
     flex-direction: column;
     gap: 12px;
+    padding: 12px;
+    min-height: 0;
 }
 
 .go-live-right-rail {
     display: flex;
     flex-direction: column;
     gap: 12px;
+    padding: 12px;
+    border-left: 1px solid rgba(255, 255, 255, .05);
+    background: rgba(255, 255, 255, .01);
 }
 
 .go-live-page-shell[data-left-open="False"][data-right-open="True"][data-full-program="False"] .go-live-studio-shell {
-    grid-template-columns: minmax(0, 1fr) 176px;
+    grid-template-columns: minmax(0, 1fr) minmax(290px, 340px);
 }
 
 .go-live-page-shell[data-left-open="True"][data-right-open="False"][data-full-program="False"] .go-live-studio-shell {
-    grid-template-columns: 124px minmax(0, 1fr);
+    grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
 }
 
 .go-live-page-shell[data-left-open="False"][data-right-open="False"][data-full-program="False"] .go-live-studio-shell,
@@ -180,198 +185,58 @@
     grid-template-columns: minmax(0, 1fr);
 }
 
-.go-live-rail-card {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    padding: 10px;
-    border: 1px solid rgba(214, 166, 91, .08);
-    border-radius: 18px;
-    background: rgba(6, 9, 18, .88);
-}
-
-.go-live-stat-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px 12px;
-}
-
-.go-live-stat-grid div,
-.go-live-meter-row {
-    display: grid;
-    gap: 4px;
-}
-
-.go-live-stat-grid span,
-.go-live-meter-row span {
-    color: rgba(248, 241, 226, .34);
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: .1em;
-    text-transform: uppercase;
-}
-
-.go-live-stat-grid strong,
-.go-live-meter-row strong {
-    color: rgba(255, 245, 224, .84);
-    font-size: 11px;
-    line-height: 1.35;
-}
-
-.go-live-stat-grid-compact strong:last-child {
-    color: #7ff3bf;
-}
-
-.go-live-meter-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.go-live-meter-row {
-    grid-template-columns: 28px minmax(0, 1fr) auto;
-    align-items: center;
-    gap: 8px;
-}
-
-.go-live-meter {
-    position: relative;
-    overflow: hidden;
-    height: 3px;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, .08);
-}
-
-.go-live-meter-fill {
-    display: block;
-    height: 100%;
-    border-radius: inherit;
-    background: linear-gradient(90deg, #36caa0, #7ff3bf);
-}
-
-.go-live-meter-fill-primary {
-    width: 78%;
-}
-
-.go-live-meter-fill-secondary {
-    width: 46%;
-}
-
-.go-live-meter-fill-tertiary {
-    width: 58%;
-}
-
-.go-live-settings-hint {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding-top: 4px;
-    border-top: 1px solid rgba(214, 166, 91, .08);
-}
-
-.go-live-routing-section {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    padding: 0 10px 10px;
-    border-top: 1px solid rgba(214, 166, 91, .06);
-}
-
-.go-live-routing-copy {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.go-live-routing-copy h3 {
-    margin: 0;
-    color: rgba(255, 245, 224, .92);
-    font-size: 18px;
-    font-weight: 700;
-}
-
-.go-live-routing-copy p {
-    margin: 0;
-    color: rgba(248, 241, 226, .48);
-    font-size: 13px;
-    line-height: 1.5;
-}
-
-.go-live-routing-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.45fr);
-    gap: 18px;
-    align-items: start;
-}
-
-.go-live-output-panel {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    min-height: 100%;
-}
-
-.go-live-output-fields {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.go-live-targets-grid {
-    align-content: start;
-}
-
 .live-session-links {
     display: flex;
-    flex-wrap: wrap;
     gap: 10px;
+}
+
+.live-session-links > a {
+    flex: 1;
+    justify-content: center;
 }
 
 @media (max-width: 1320px) {
-    .go-live-studio-shell,
-    .go-live-routing-grid,
-    .live-targets-grid,
-    .live-local-grid {
-        grid-template-columns: 1fr;
-    }
-
     .go-live-studio-shell {
-        min-height: auto;
+        grid-template-columns: minmax(210px, 250px) minmax(0, 1fr) minmax(260px, 300px);
     }
+}
 
+@media (max-width: 1120px) {
     .go-live-session-bar {
         grid-template-columns: 1fr;
         justify-items: stretch;
+        padding: 12px;
     }
 
     .go-live-session-timer {
         justify-self: start;
     }
 
-    .go-live-stream-pill {
-        margin-left: 0;
+    .go-live-studio-shell,
+    .go-live-page-shell[data-left-open="False"][data-right-open="True"][data-full-program="False"] .go-live-studio-shell,
+    .go-live-page-shell[data-left-open="True"][data-right-open="False"][data-full-program="False"] .go-live-studio-shell {
+        grid-template-columns: 1fr;
     }
 
-    .go-live-mode-switch {
-        width: 100%;
-        justify-content: stretch;
-    }
-
-    .go-live-mode-button {
-        flex: 1;
+    .go-live-left-rail,
+    .go-live-right-rail {
+        border: none;
+        border-top: 1px solid rgba(255, 255, 255, .05);
     }
 }
 
 @media (max-width: 720px) {
-    .go-live-page-shell {
-        padding: 2px;
-    }
-
-    .go-live-session-bar-left,
-    .go-live-session-actions {
+    .go-live-session-actions,
+    .go-live-session-bar-left {
         flex-wrap: wrap;
     }
 
-    .go-live-output-fields,
-    .go-live-stat-grid {
-        grid-template-columns: 1fr;
+    .go-live-session-timer {
+        font-size: 15px;
+        letter-spacing: .12em;
+    }
+
+    .live-session-links {
+        flex-direction: column;
     }
 }

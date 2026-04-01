@@ -1,14 +1,9 @@
 .go-live-stage-shell {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
     min-width: 0;
-    height: 100%;
-    padding: 10px;
-    border: 1px solid rgba(214, 166, 91, .12);
-    border-radius: 22px;
-    background: rgba(6, 9, 18, .82);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04);
+    min-height: 0;
 }
 
 .go-live-stage-header {
@@ -16,57 +11,94 @@
     align-items: flex-start;
     justify-content: space-between;
     gap: 16px;
-    padding: 6px 8px 0;
+}
+
+.go-live-monitor-label {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    padding: 0 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(96, 165, 250, .2);
+    background: rgba(96, 165, 250, .08);
+    color: #8ebcf8;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .14em;
+    text-transform: uppercase;
 }
 
 .go-live-stage-title {
-    margin: 6px 0 0;
+    margin: 8px 0 0;
     color: rgba(255, 245, 224, .96);
-    font-size: 15px;
+    font-size: 20px;
     font-weight: 700;
-    letter-spacing: .02em;
+    letter-spacing: -.02em;
 }
 
 .go-live-stage-viewport {
     position: relative;
     overflow: hidden;
-    min-height: 640px;
-    border: 1px solid rgba(214, 166, 91, .08);
-    border-radius: 18px;
-    background: rgba(8, 12, 18, .96);
+    flex: 1;
+    min-height: 520px;
+    border: 1px solid rgba(255, 255, 255, .08);
+    border-radius: 22px;
+    background:
+        radial-gradient(circle at center, rgba(255, 255, 255, .03), transparent 55%),
+        rgba(3, 6, 12, 1);
 }
 
 .go-live-stage-video {
     width: 100%;
     height: 100%;
-    min-height: 640px;
+    min-height: 520px;
     object-fit: cover;
     display: block;
-    background: rgba(8, 12, 18, .96);
+    background: rgba(3, 6, 12, 1);
+}
+
+.go-live-stage-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 16px;
+    pointer-events: none;
+}
+
+.go-live-stage-chip {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    padding: 0 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(196, 160, 96, .24);
+    background: rgba(196, 160, 96, .12);
+    color: rgba(255, 245, 224, .92);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
 }
 
 .go-live-stage-empty {
-    min-height: 640px;
+    min-height: 520px;
     display: flex;
     flex-direction: column;
     justify-content: center;
 }
 
 .go-live-stage-footer {
-    position: absolute;
-    right: 16px;
-    bottom: 12px;
-    left: 16px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    color: rgba(248, 241, 226, .34);
-    font-size: 10px;
+    color: rgba(248, 241, 226, .5);
+    font-size: 11px;
     letter-spacing: .08em;
     text-transform: uppercase;
-    z-index: 1;
-    pointer-events: none;
 }
 
 .go-live-stage-meta {
@@ -81,9 +113,9 @@
     gap: 6px;
     min-width: 0;
     padding: 14px 16px;
-    border: 1px solid rgba(214, 166, 91, .08);
+    border: 1px solid rgba(255, 255, 255, .06);
     border-radius: 16px;
-    background: rgba(255, 255, 255, .02);
+    background: rgba(8, 11, 18, .78);
 }
 
 .go-live-stage-meta-card strong {
@@ -92,31 +124,32 @@
     line-height: 1.35;
 }
 
-.go-live-stage-shell[data-live-state="recording"] {
-    border-color: rgba(255, 120, 120, .22);
+.go-live-stage-shell[data-live-state="recording"] .go-live-stage-viewport {
+    border-color: rgba(255, 107, 107, .28);
 }
 
-@media (max-width: 1200px) {
+.go-live-stage-shell[data-live-state="streaming"] .go-live-stage-viewport {
+    border-color: rgba(16, 185, 129, .26);
+}
+
+@media (max-width: 1120px) {
     .go-live-stage-viewport,
     .go-live-stage-video,
     .go-live-stage-empty {
-        min-height: 520px;
+        min-height: 440px;
     }
 }
 
 @media (max-width: 720px) {
-    .go-live-stage-meta {
-        grid-template-columns: 1fr;
-    }
-
-    .go-live-stage-viewport,
-    .go-live-stage-video,
-    .go-live-stage-empty {
-        min-height: 380px;
-    }
-
     .go-live-stage-header {
         flex-direction: column;
-        align-items: stretch;
+    }
+
+    .go-live-stage-title {
+        font-size: 17px;
+    }
+
+    .go-live-stage-meta {
+        grid-template-columns: 1fr;
     }
 }

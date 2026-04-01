@@ -191,6 +191,10 @@ internal static partial class BrowserTestConstants
 
     public static class GoLive
     {
+        public const string AutoSeedScenario = "go-live-auto-seed";
+        public const string AutoSeedStudioStep = "01-default-studio-shell";
+        public const string CameraSwitchScenario = "go-live-camera-switch";
+        public const string CameraSwitchStep = "01-secondary-on-air";
         public const string FirstSourceId = "scene-cam-a";
         public const string FrontCameraLabel = "Front camera";
         public const string HostParticipantName = "Host";
@@ -279,12 +283,12 @@ internal static partial class BrowserTestConstants
             }
             """;
         public const string SeedSceneScript = """
-            ([sceneStorageKey, firstSourceId, secondSourceId, cameraDeviceId]) => {
+            ([sceneStorageKey, firstSourceId, secondSourceId, primaryCameraId, secondaryCameraId]) => {
                 window.localStorage.setItem(sceneStorageKey, JSON.stringify({
                     Cameras: [
                         {
                             SourceId: firstSourceId,
-                            DeviceId: cameraDeviceId,
+                            DeviceId: primaryCameraId,
                             Label: 'Front camera',
                             Transform: {
                                 X: 0.82,
@@ -302,7 +306,7 @@ internal static partial class BrowserTestConstants
                         },
                         {
                             SourceId: secondSourceId,
-                            DeviceId: cameraDeviceId,
+                            DeviceId: secondaryCameraId,
                             Label: 'Side camera',
                             Transform: {
                                 X: 0.18,
@@ -361,8 +365,62 @@ internal static partial class BrowserTestConstants
                 ];
             }
             """;
-        public const string PersistedTargetsScript = """
-            ([storageKey, liveKitServer, liveKitRoom, youtubeUrl, liveKitTargetId, youtubeTargetId]) => {
+        public const string SeedOperationalStudioSettingsScript = """
+            ([storageKey, liveKitServer, liveKitRoom, liveKitToken, youtubeUrl, youtubeKey, primarySourceId]) => {
+                window.localStorage.setItem(storageKey, JSON.stringify({
+                    Camera: {
+                        DefaultCameraId: null,
+                        Resolution: 0,
+                        FrameRate: 1,
+                        MirrorCamera: true,
+                        AutoStartOnRead: true
+                    },
+                    Microphone: {
+                        DefaultMicrophoneId: null,
+                        InputLevelPercent: 65,
+                        NoiseSuppression: true,
+                        EchoCancellation: true
+                    },
+                    Streaming: {
+                        OutputMode: 0,
+                        OutputResolution: 0,
+                        BitrateKbps: 6000,
+                        ShowTextOverlay: true,
+                        IncludeCameraInOutput: true,
+                        DestinationSourceSelections: [
+                            { TargetId: 'obs-studio', SourceIds: [primarySourceId] },
+                            { TargetId: 'local-recording', SourceIds: [primarySourceId] },
+                            { TargetId: 'livekit', SourceIds: [primarySourceId] },
+                            { TargetId: 'youtube-live', SourceIds: [primarySourceId] }
+                        ],
+                        RtmpUrl: '',
+                        StreamKey: '',
+                        ObsVirtualCameraEnabled: true,
+                        NdiOutputEnabled: false,
+                        LocalRecordingEnabled: true,
+                        LiveKitEnabled: true,
+                        LiveKitServerUrl: liveKitServer,
+                        LiveKitRoomName: liveKitRoom,
+                        LiveKitToken: liveKitToken,
+                        VdoNinjaEnabled: false,
+                        VdoNinjaRoomName: '',
+                        VdoNinjaPublishUrl: '',
+                        YoutubeEnabled: true,
+                        YoutubeRtmpUrl: youtubeUrl,
+                        YoutubeStreamKey: youtubeKey,
+                        TwitchEnabled: false,
+                        TwitchRtmpUrl: '',
+                        TwitchStreamKey: '',
+                        CustomRtmpEnabled: false,
+                        CustomRtmpName: 'Custom RTMP',
+                        CustomRtmpUrl: '',
+                        CustomRtmpStreamKey: ''
+                    }
+                }));
+            }
+            """;
+        public const string PersistedToggleTargetsScript = """
+            (storageKey) => {
                 const raw = window.localStorage.getItem(storageKey);
                 if (!raw) {
                     return false;
@@ -370,17 +428,11 @@ internal static partial class BrowserTestConstants
 
                 const parsed = JSON.parse(raw);
                 const streaming = parsed?.Streaming;
-                const selections = streaming?.DestinationSourceSelections ?? [];
-                const liveKitSources = selections.find(selection => selection.TargetId === liveKitTargetId)?.SourceIds ?? [];
-                const youtubeSources = selections.find(selection => selection.TargetId === youtubeTargetId)?.SourceIds ?? [];
                 return Boolean(
+                    streaming?.ObsVirtualCameraEnabled === true &&
+                    streaming?.LocalRecordingEnabled === true &&
                     streaming?.LiveKitEnabled === true &&
-                    streaming?.YoutubeEnabled === true &&
-                    streaming?.LiveKitServerUrl === liveKitServer &&
-                    streaming?.LiveKitRoomName === liveKitRoom &&
-                    streaming?.YoutubeRtmpUrl === youtubeUrl &&
-                    liveKitSources.length >= 1 &&
-                    youtubeSources.length === 0);
+                    streaming?.YoutubeEnabled === true);
             }
             """;
         public const string PreviewReadyScript = "(element) => Boolean(element && element.srcObject && element.readyState >= 2)";

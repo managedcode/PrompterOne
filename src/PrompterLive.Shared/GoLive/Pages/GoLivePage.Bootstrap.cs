@@ -96,8 +96,17 @@ public partial class GoLivePage
             return;
         }
 
+        _mediaDevices = devices;
+        var cameraDevices = devices.Where(device => device.Kind == MediaDeviceKind.Camera).ToList();
         var microphoneDevices = devices.Where(device => device.Kind == MediaDeviceKind.Microphone).ToList();
         var changed = false;
+
+        if (SceneCameras.Count == 0 && cameraDevices.Count > 0)
+        {
+            var defaultCamera = cameraDevices.FirstOrDefault(device => device.IsDefault) ?? cameraDevices[0];
+            MediaSceneService.AddCamera(defaultCamera.DeviceId, defaultCamera.Label);
+            changed = true;
+        }
 
         if (string.IsNullOrWhiteSpace(MediaSceneService.State.PrimaryMicrophoneId) && microphoneDevices.Count > 0)
         {

@@ -60,7 +60,11 @@ public sealed record GoLiveDestinationSummaryViewModel(
     string Id,
     string Name,
     string PlatformLabel,
-    bool IsEnabled);
+    bool IsEnabled,
+    bool IsReady,
+    string Summary,
+    string StatusLabel,
+    string Tone);
 
 public sealed record GoLiveMetricViewModel(
     string Value,

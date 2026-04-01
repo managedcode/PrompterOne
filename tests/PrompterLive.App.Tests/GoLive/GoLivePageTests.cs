@@ -35,24 +35,16 @@ public sealed class GoLivePageTests : BunitContext
         cut.WaitForAssertion(() => Assert.Contains(UiTestIds.GoLive.Page, cut.Markup, StringComparison.Ordinal));
 
         cut.FindByTestId(UiTestIds.GoLive.LiveKitToggle).Click();
-        cut.FindByTestId(UiTestIds.GoLive.LiveKitServer).Input(AppTestData.GoLive.LiveKitServer);
-        cut.FindByTestId(UiTestIds.GoLive.LiveKitRoom).Input(AppTestData.GoLive.LiveKitRoom);
-        cut.FindByTestId(UiTestIds.GoLive.LiveKitToken).Input(AppTestData.GoLive.LiveKitToken);
         cut.FindByTestId(UiTestIds.GoLive.YoutubeToggle).Click();
-        cut.FindByTestId(UiTestIds.GoLive.YoutubeUrl).Input(AppTestData.GoLive.YoutubeUrl);
-        cut.FindByTestId(UiTestIds.GoLive.YoutubeKey).Input(AppTestData.GoLive.YoutubeKey);
-        cut.FindByTestId(UiTestIds.GoLive.Bitrate).Input(AppTestData.Streaming.BitrateKbps);
+        cut.FindByTestId(UiTestIds.GoLive.RecordingToggle).Click();
 
-        var settings = _harness.JsRuntime.GetSavedValue<StudioSettings>(StudioSettingsStore.StorageKey);
-
-        Assert.True(settings.Streaming.LiveKitEnabled);
-        Assert.Equal(AppTestData.GoLive.LiveKitServer, settings.Streaming.LiveKitServerUrl);
-        Assert.Equal(AppTestData.GoLive.LiveKitRoom, settings.Streaming.LiveKitRoomName);
-        Assert.Equal(AppTestData.GoLive.LiveKitToken, settings.Streaming.LiveKitToken);
-        Assert.True(settings.Streaming.YoutubeEnabled);
-        Assert.Equal(AppTestData.GoLive.YoutubeUrl, settings.Streaming.YoutubeRtmpUrl);
-        Assert.Equal(AppTestData.GoLive.YoutubeKey, settings.Streaming.YoutubeStreamKey);
-        Assert.Equal(AppTestData.Streaming.BitrateKbps, settings.Streaming.BitrateKbps);
+        cut.WaitForAssertion(() =>
+        {
+            var settings = _harness.JsRuntime.GetSavedValue<StudioSettings>(StudioSettingsStore.StorageKey);
+            Assert.True(settings.Streaming.LiveKitEnabled);
+            Assert.True(settings.Streaming.YoutubeEnabled);
+            Assert.True(settings.Streaming.LocalRecordingEnabled);
+        });
     }
 
     [Fact]
@@ -127,15 +119,6 @@ public sealed class GoLivePageTests : BunitContext
 
         cut.WaitForAssertion(() =>
         {
-            Assert.Equal(
-                AppTestData.GoLive.LiveKitServer,
-                cut.FindByTestId(UiTestIds.GoLive.LiveKitServer).GetAttribute("value"));
-            Assert.Equal(
-                AppTestData.GoLive.LiveKitRoom,
-                cut.FindByTestId(UiTestIds.GoLive.LiveKitRoom).GetAttribute("value"));
-            Assert.Equal(
-                AppTestData.GoLive.YoutubeUrl,
-                cut.FindByTestId(UiTestIds.GoLive.YoutubeUrl).GetAttribute("value"));
             Assert.Contains(
                 "on",
                 cut.FindByTestId(UiTestIds.GoLive.LiveKitToggle).ClassName,
@@ -144,23 +127,19 @@ public sealed class GoLivePageTests : BunitContext
                 "on",
                 cut.FindByTestId(UiTestIds.GoLive.YoutubeToggle).ClassName,
                 StringComparison.Ordinal);
-            Assert.DoesNotContain(
-                "on",
-                cut.FindByTestId(UiTestIds.GoLive.ProviderSourceToggle(
-                    GoLiveTargetCatalog.TargetIds.LiveKit,
-                    AppTestData.Camera.FirstSourceId)).ClassName!.Split(' ', StringSplitOptions.RemoveEmptyEntries),
-                StringComparer.Ordinal);
             Assert.Contains(
-                "on",
-                cut.FindByTestId(UiTestIds.GoLive.ProviderSourceToggle(
-                    GoLiveTargetCatalog.TargetIds.LiveKit,
-                    AppTestData.Camera.SecondSourceId)).ClassName!.Split(' ', StringSplitOptions.RemoveEmptyEntries),
-                StringComparer.Ordinal);
+                "Credentials and source routing are ready in Settings.",
+                cut.FindByTestId(UiTestIds.GoLive.ProviderCard(GoLiveTargetCatalog.TargetIds.LiveKit)).TextContent,
+                StringComparison.Ordinal);
+            Assert.Contains(
+                "Credentials and source routing are ready in Settings.",
+                cut.FindByTestId(UiTestIds.GoLive.ProviderCard(GoLiveTargetCatalog.TargetIds.Youtube)).TextContent,
+                StringComparison.Ordinal);
         });
     }
 
     [Fact]
-    public void GoLivePage_PersistsPerDestinationSourceRouting()
+    public void GoLivePage_SelectsSecondCameraForCanvas()
     {
         SeedSceneState(CreateTwoCameraScene());
 
@@ -170,26 +149,14 @@ public sealed class GoLivePageTests : BunitContext
         var cut = Render<GoLivePage>();
 
         cut.WaitForAssertion(() =>
-            Assert.NotNull(cut.FindByTestId(UiTestIds.GoLive.ProviderSourcePicker(GoLiveTargetCatalog.TargetIds.LiveKit))));
+            Assert.Equal(2, cut.FindAll($"[data-testid^='{UiTestIds.GoLive.SourceCameraSelect(string.Empty)}']").Count));
 
-        cut.FindByTestId(UiTestIds.GoLive.ProviderSourceToggle(
-            GoLiveTargetCatalog.TargetIds.LiveKit,
-            AppTestData.Camera.SecondSourceId)).Click();
-        cut.FindByTestId(UiTestIds.GoLive.ProviderSourceToggle(
-            GoLiveTargetCatalog.TargetIds.Youtube,
-            AppTestData.Camera.SecondSourceId)).Click();
-        cut.FindByTestId(UiTestIds.GoLive.ProviderSourceToggle(
-            GoLiveTargetCatalog.TargetIds.Youtube,
-            AppTestData.Camera.FirstSourceId)).Click();
+        cut.FindByTestId(UiTestIds.GoLive.SourceCameraSelect(AppTestData.Camera.SecondSourceId)).Click();
 
-        var settings = _harness.JsRuntime.GetSavedValue<StudioSettings>(StudioSettingsStore.StorageKey);
-        var liveKitSelection = settings.Streaming.DestinationSourceSelections!
-            .Single(selection => selection.TargetId == GoLiveTargetCatalog.TargetIds.LiveKit);
-        var youtubeSelection = settings.Streaming.DestinationSourceSelections!
-            .Single(selection => selection.TargetId == GoLiveTargetCatalog.TargetIds.Youtube);
-
-        Assert.Equal([AppTestData.Camera.FirstSourceId, AppTestData.Camera.SecondSourceId], liveKitSelection.SourceIds);
-        Assert.Equal([AppTestData.Camera.SecondSourceId], youtubeSelection.SourceIds);
+        cut.WaitForAssertion(() =>
+            Assert.Equal(
+                AppTestData.Camera.SideCamera,
+                cut.FindByTestId(UiTestIds.GoLive.SelectedSourceLabel).TextContent.Trim()));
     }
 
     [Fact]

@@ -1,4 +1,5 @@
 using System.Globalization;
+using PrompterLive.Core.Models.Media;
 using PrompterLive.Core.Models.Workspace;
 using PrompterLive.Shared.Components.GoLive;
 
@@ -17,6 +18,10 @@ public partial class GoLivePage
     private const string CustomScenePrefix = "custom-scene-";
     private const string CustomSceneTitlePrefix = "Scene ";
     private const string DetailLocalProgramLabel = "Local program";
+    private const string DestinationToneLiveKit = "livekit";
+    private const string DestinationToneLocal = "local";
+    private const string DestinationToneRecording = "recording";
+    private const string DestinationToneYoutube = "youtube";
     private const string GuestRoomLabel = "Guest room";
     private const string HostParticipantId = "host";
     private const string HostParticipantInitial = "H";
@@ -34,6 +39,7 @@ public partial class GoLivePage
     private const string RecordingMetricLabel = "Recording";
     private const string RecordingReadyDetailLabel = "Ready";
     private const string RecordingReadyMetricValue = "Armed";
+    private const string RelayPlatformLabel = "Relay preset";
     private const string RemoteTalentSourceId = "prompter-display";
     private const string RemoteTalentTitle = "Prompter Display";
     private const string RoomCodeFallback = "local-studio";
@@ -48,12 +54,12 @@ public partial class GoLivePage
     private const string ScreenShareSourceId = "screen-share";
     private const string ScreenShareTitle = "Share Screen";
     private const string SecondarySceneId = "scene-secondary";
+    private const string SettingsPlatformLabel = "Settings preset";
     private const string StatusBitrateLabel = "Bitrate";
     private const string StatusOutputLabel = "Output";
     private const string SessionMetricLabel = "Session";
     private const string SlidesSourceId = "slides";
     private const string SlidesSourceTitle = "Slides";
-    private const string StreamPlatformLabel = "Broadcast";
     private const string UtilitySourceClickLabel = "Click to share";
     private const string UtilitySourcePrompterBadge = "Prompter";
     private const string UtilitySourceShareBadge = "Add";
@@ -85,13 +91,7 @@ public partial class GoLivePage
 
     private IReadOnlyList<GoLiveAudioChannelViewModel> AudioChannels => BuildAudioChannels();
 
-    private IReadOnlyList<GoLiveDestinationSummaryViewModel> DestinationSummary =>
-    [
-        new(GoLiveTargetCatalog.TargetIds.Youtube, GoLiveTargetCatalog.TargetNames.Youtube, StreamPlatformLabel, _studioSettings.Streaming.YoutubeEnabled),
-        new(GoLiveTargetCatalog.TargetIds.Obs, GoLiveTargetCatalog.TargetNames.Obs, StreamPlatformLabel, _studioSettings.Streaming.ObsVirtualCameraEnabled),
-        new(GoLiveTargetCatalog.TargetIds.LiveKit, GoLiveTargetCatalog.TargetNames.LiveKit, GuestRoomLabel, _studioSettings.Streaming.LiveKitEnabled),
-        new(GoLiveTargetCatalog.TargetIds.Recording, GoLiveTargetCatalog.TargetNames.Recording, ActiveWorkLabel, _studioSettings.Streaming.LocalRecordingEnabled)
-    ];
+    private IReadOnlyList<GoLiveDestinationSummaryViewModel> DestinationSummary => BuildDestinationSummary();
 
     private bool IsRoomActive =>
         _roomCreated
@@ -110,6 +110,11 @@ public partial class GoLivePage
     private IReadOnlyList<GoLiveMetricViewModel> StatusMetrics => BuildStatusMetrics();
 
     private static IReadOnlyList<GoLiveUtilitySourceViewModel> UtilitySources => StudioUtilitySources;
+
+    private bool CanAddSceneCamera =>
+        _mediaDevices.Any(device =>
+            device.Kind == MediaDeviceKind.Camera
+            && SceneCameras.All(camera => !string.Equals(camera.DeviceId, device.DeviceId, StringComparison.Ordinal)));
 
     private void EnsureStudioSurfaceState()
     {
@@ -253,6 +258,81 @@ public partial class GoLivePage
             (false, false, true) => RuntimeEngineRecorderValue,
             _ => RuntimeEngineIdleValue
         };
+    }
+
+    private IReadOnlyList<GoLiveDestinationSummaryViewModel> BuildDestinationSummary()
+    {
+        return
+        [
+            BuildDestinationSummary(
+                GoLiveTargetCatalog.TargetIds.Obs,
+                GoLiveTargetCatalog.TargetNames.Obs,
+                SettingsPlatformLabel,
+                _studioSettings.Streaming.ObsVirtualCameraEnabled,
+                DestinationToneLocal),
+            BuildDestinationSummary(
+                GoLiveTargetCatalog.TargetIds.Recording,
+                GoLiveTargetCatalog.TargetNames.Recording,
+                ActiveWorkLabel,
+                _studioSettings.Streaming.LocalRecordingEnabled,
+                DestinationToneRecording),
+            BuildRemoteDestinationSummary(
+                GoLiveTargetCatalog.TargetIds.LiveKit,
+                GoLiveTargetCatalog.TargetNames.LiveKit,
+                GuestRoomLabel,
+                _studioSettings.Streaming.LiveKitEnabled,
+                DestinationToneLiveKit,
+                _studioSettings.Streaming.LiveKitServerUrl,
+                _studioSettings.Streaming.LiveKitRoomName,
+                _studioSettings.Streaming.LiveKitToken),
+            BuildRemoteDestinationSummary(
+                GoLiveTargetCatalog.TargetIds.Youtube,
+                GoLiveTargetCatalog.TargetNames.Youtube,
+                RelayPlatformLabel,
+                _studioSettings.Streaming.YoutubeEnabled,
+                DestinationToneYoutube,
+                _studioSettings.Streaming.YoutubeRtmpUrl,
+                _studioSettings.Streaming.YoutubeStreamKey)
+        ];
+    }
+
+    private GoLiveDestinationSummaryViewModel BuildDestinationSummary(
+        string targetId,
+        string name,
+        string platformLabel,
+        bool isEnabled,
+        string tone)
+    {
+        var isReady = BuildDestinationIsReady(isEnabled, targetId);
+        return new GoLiveDestinationSummaryViewModel(
+            targetId,
+            name,
+            platformLabel,
+            isEnabled,
+            isReady,
+            BuildLocalSummary(targetId),
+            BuildTargetStatusLabel(isEnabled, targetId),
+            tone);
+    }
+
+    private GoLiveDestinationSummaryViewModel BuildRemoteDestinationSummary(
+        string targetId,
+        string name,
+        string platformLabel,
+        bool isEnabled,
+        string tone,
+        params string[] requiredValues)
+    {
+        var isReady = BuildDestinationIsReady(isEnabled, targetId, requiredValues);
+        return new GoLiveDestinationSummaryViewModel(
+            targetId,
+            name,
+            platformLabel,
+            isEnabled,
+            isReady,
+            BuildRemoteSummary(isEnabled, targetId, requiredValues),
+            BuildTargetStatusLabel(isEnabled, targetId, requiredValues),
+            tone);
     }
 
     private async Task ToggleDestinationSummaryAsync(string targetId)

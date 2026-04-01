@@ -222,6 +222,19 @@ public sealed class StudioWorkflowScenarioTests(StandaloneAppFixture fixture) : 
         await SetRangeValueAsync(page.GetByTestId(UiTestIds.Settings.MicLevel), BrowserTestConstants.LiveWorkflow.MicLevelPercent);
         await page.GetByTestId(UiTestIds.Settings.MicDelay(BrowserTestConstants.Media.PrimaryMicrophoneId))
             .FillAsync(BrowserTestConstants.LiveWorkflow.MicDelayMilliseconds);
+
+        await page.EvaluateAsync(
+            BrowserTestConstants.GoLive.SeedOperationalStudioSettingsScript,
+            new object[]
+            {
+                BrowserTestConstants.GoLive.StoredStudioSettingsKey,
+                BrowserTestConstants.GoLive.LiveKitServer,
+                BrowserTestConstants.GoLive.LiveKitRoom,
+                BrowserTestConstants.GoLive.LiveKitToken,
+                BrowserTestConstants.GoLive.YoutubeUrl,
+                BrowserTestConstants.GoLive.YoutubeKey,
+                BrowserTestConstants.GoLive.FirstSourceId
+            });
         await UiScenarioArtifacts.CapturePageAsync(page, BrowserTestConstants.LiveWorkflow.Name, BrowserTestConstants.LiveWorkflow.SettingsConfiguredStep);
     }
 
@@ -235,17 +248,10 @@ public sealed class StudioWorkflowScenarioTests(StandaloneAppFixture fixture) : 
 
     private static async Task ConfigureGoLiveDestinationsAsync(IPage page)
     {
-        await page.GetByTestId(UiTestIds.GoLive.ObsToggle).ClickAsync();
-        await page.GetByTestId(UiTestIds.GoLive.RecordingToggle).ClickAsync();
-        await page.GetByTestId(UiTestIds.GoLive.LiveKitToggle).ClickAsync();
-        await page.GetByTestId(UiTestIds.GoLive.LiveKitServer).FillAsync(BrowserTestConstants.GoLive.LiveKitServer);
-        await page.GetByTestId(UiTestIds.GoLive.LiveKitRoom).FillAsync(BrowserTestConstants.GoLive.LiveKitRoom);
-        await page.GetByTestId(UiTestIds.GoLive.LiveKitToken).FillAsync(BrowserTestConstants.GoLive.LiveKitToken);
-        await page.GetByTestId(UiTestIds.GoLive.YoutubeToggle).ClickAsync();
-        await page.GetByTestId(UiTestIds.GoLive.YoutubeUrl).FillAsync(BrowserTestConstants.GoLive.YoutubeUrl);
-        await page.GetByTestId(UiTestIds.GoLive.YoutubeKey).FillAsync(BrowserTestConstants.GoLive.YoutubeKey);
-        await page.GetByTestId(UiTestIds.GoLive.StreamTextOverlay).ClickAsync();
-        await page.GetByTestId(UiTestIds.GoLive.StreamIncludeCamera).ClickAsync();
+        await Expect(page.GetByTestId(UiTestIds.GoLive.ObsToggle)).ToHaveClassAsync(BrowserTestConstants.Regexes.ToggleOnClass);
+        await Expect(page.GetByTestId(UiTestIds.GoLive.RecordingToggle)).ToHaveClassAsync(BrowserTestConstants.Regexes.ToggleOnClass);
+        await Expect(page.GetByTestId(UiTestIds.GoLive.LiveKitToggle)).ToHaveClassAsync(BrowserTestConstants.Regexes.ToggleOnClass);
+        await Expect(page.GetByTestId(UiTestIds.GoLive.YoutubeToggle)).ToHaveClassAsync(BrowserTestConstants.Regexes.ToggleOnClass);
         await UiScenarioArtifacts.CapturePageAsync(page, BrowserTestConstants.LiveWorkflow.Name, BrowserTestConstants.LiveWorkflow.GoLiveConfiguredStep);
     }
 
@@ -259,7 +265,24 @@ public sealed class StudioWorkflowScenarioTests(StandaloneAppFixture fixture) : 
                 BrowserTestConstants.Media.PrimaryCameraId
             },
             new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
-        await page.GetByTestId(UiTestIds.GoLive.SourceCameraAction(BrowserTestConstants.Media.PrimaryCameraId)).ClickAsync();
+
+        var sourceButtons = page.Locator($"[data-testid^='{UiTestIds.GoLive.SourceCameraSelect(string.Empty)}']");
+        if (await sourceButtons.CountAsync() < 2)
+        {
+            await page.GetByTestId(UiTestIds.GoLive.AddSource).ClickAsync();
+            await Expect(sourceButtons).ToHaveCountAsync(2);
+        }
+
+        await sourceButtons.Nth(1).ClickAsync();
+        await page.WaitForFunctionAsync(
+            BrowserTestConstants.Media.ElementUsesVideoDeviceScript,
+            new object[]
+            {
+                UiDomIds.GoLive.ProgramVideo,
+                BrowserTestConstants.Media.SecondaryCameraId
+            },
+            new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
+        await page.GetByTestId(UiTestIds.GoLive.TakeToAir).ClickAsync();
         await page.WaitForFunctionAsync(
             BrowserTestConstants.Media.ElementUsesVideoDeviceScript,
             new object[]

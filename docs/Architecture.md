@@ -95,8 +95,8 @@ flowchart LR
 | `Editor` | TPS authoring surface | Creates and reshapes scripts with structure-aware tooling | `src/PrompterLive.Shared/Editor`, `src/PrompterLive.Core/Editor`, `src/PrompterLive.Core/Tps` | source editing UI, toolbar actions, front matter, TPS transforms | shell navigation policy, teleprompter playback, live runtime wiring |
 | `Learn` | RSVP rehearsal mode | Trains delivery with timing and context | `src/PrompterLive.Shared/Learn`, `src/PrompterLive.Core/Rsvp` | ORP playback, rehearsal pacing, next-phrase context | document storage, scene routing, destination configuration |
 | `Teleprompter` | Read-mode playback surface | Presents the script for live reading with camera-backed composition | `src/PrompterLive.Shared/Teleprompter` | reading layout, background camera composition, runtime reading flow | script persistence rules, destination setup screens |
-| `GoLive` | Live production and routing surface | Arms outputs, switches sources, previews cameras, and exposes live telemetry | `src/PrompterLive.Shared/GoLive`, `src/PrompterLive.Core/Streaming` | studio layout, output controls, destination routing, live session state | server-side stream processing, unrelated editor or library concerns |
-| `Settings` | Device and scene setup surface | Configures cameras, microphones, overlays, and base scene state | `src/PrompterLive.Shared/Settings`, `src/PrompterLive.Core/Media` | device selection UI, scene transforms, scene persistence flows | live output orchestration policy, document editing |
+| `GoLive` | Operational browser studio surface | Arms outputs, switches sources, previews cameras, and exposes honest live/runtime status | `src/PrompterLive.Shared/GoLive`, `src/PrompterLive.Core/Streaming` | studio layout, output quick toggles, selected vs on-air source state, live session state | provider credential editing, server-side stream processing, unrelated editor or library concerns |
+| `Settings` | Device, scene, and provider setup surface | Configures cameras, microphones, overlays, base scene state, and persisted destination credentials | `src/PrompterLive.Shared/Settings`, `src/PrompterLive.Core/Media` | device selection UI, scene transforms, provider credentials/endpoints, scene persistence flows | live output orchestration policy, document editing |
 | `Storage` | Browser persistence and cloud transfer orchestration | Keeps scripts and settings local-first while exposing provider-backed import/export | `src/PrompterLive.Shared/Storage`, `src/PrompterLive.Shared/Library/Services/Storage` | browser `IStorage` and VFS registration, authoritative browser repositories for scripts/folders, provider credential persistence, scripts/settings snapshot transfer | routed page layout, teleprompter rendering, video-stream upload workflows |
 | `Diagnostics` | Error and operation feedback layer | Makes recoverable and fatal issues visible in the shell | `src/PrompterLive.Shared/Diagnostics` | banners, error boundary reporting, operation status wiring | owning business logic of the failing feature |
 | `Localization` | Culture and UI text contract | Keeps supported runtime languages consistent and browser-driven | `src/PrompterLive.Shared/Localization`, `src/PrompterLive.Core/Localization` | text catalogs, culture bootstrap, supported culture rules | feature behavior or screen-specific layout ownership |
@@ -391,16 +391,16 @@ sequenceDiagram
 
 ```mermaid
 flowchart LR
-    Settings["SettingsPage<br/>device setup only"]
-    GoLive["GoLivePage<br/>studio layout + destination routing"]
+    Settings["SettingsPage<br/>devices + provider setup"]
+    GoLive["GoLivePage<br/>operational studio surface"]
     SessionBar["GO Live session bar<br/>back, title, timer, record, stream"]
-    PreviewRail["preview + stats rail"]
+    PreviewRail["preview + studio rail"]
     Preview["GoLiveCameraPreviewCard"]
     Program["GoLiveProgramFeedCard"]
     Sources["GoLiveSourcesCard"]
-    TargetSources["GoLiveDestinationSourcePicker"]
+    SceneControls["GoLiveSceneControls"]
+    Sidebar["GoLiveStudioSidebar"]
     Studio["StudioSettingsStore"]
-    Routing["GoLiveDestinationRouting"]
     Scene["IMediaSceneService"]
     CameraInterop["CameraPreviewInterop"]
     Providers["IStreamingOutputProvider[]"]
@@ -411,7 +411,6 @@ flowchart LR
     Settings --> GoLive
     GoLive --> Studio
     GoLive --> Scene
-    GoLive --> Routing
     GoLive --> Providers
     GoLive --> Reader
     GoLive --> SessionBar
@@ -419,11 +418,14 @@ flowchart LR
     GoLive --> Preview
     GoLive --> Program
     GoLive --> Sources
-    GoLive --> TargetSources
+    GoLive --> SceneControls
+    GoLive --> Sidebar
     Preview --> CameraInterop
     Preview --> Scene
-    Routing --> Studio
-    Routing --> Scene
+    Sidebar --> Studio
+    Sidebar --> Providers
+    Sources --> Scene
+    SceneControls --> Scene
 ```
 
 ```mermaid

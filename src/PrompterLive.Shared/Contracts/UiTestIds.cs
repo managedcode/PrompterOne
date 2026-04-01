@@ -339,6 +339,7 @@ public static class UiTestIds
     public static class GoLive
     {
         public const string ActiveSourceLabel = "go-live-active-source-label";
+        public const string AddSource = "go-live-add-source";
         public const string AudioMixer = "go-live-audio-mixer";
         public const string Bitrate = "go-live-bitrate";
         public const string CreateRoom = "go-live-create-room";

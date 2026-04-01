@@ -3,9 +3,9 @@
     flex-direction: column;
     gap: 12px;
     padding: 12px;
-    border: 1px solid rgba(214, 166, 91, .08);
+    border: 1px solid rgba(255, 255, 255, .06);
     border-radius: 18px;
-    background: rgba(6, 9, 18, .88);
+    background: rgba(8, 11, 18, .78);
 }
 
 .go-live-scenes-bar,
@@ -34,23 +34,23 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-    min-height: 34px;
+    min-height: 36px;
     padding: 0 12px;
-    border: 1px solid rgba(214, 166, 91, .1);
-    border-radius: 10px;
-    background: rgba(255, 255, 255, .02);
+    border: 1px solid rgba(255, 255, 255, .08);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, .03);
     color: rgba(248, 241, 226, .72);
     font-size: 11px;
     font-weight: 700;
-    letter-spacing: .05em;
+    letter-spacing: .06em;
     text-transform: uppercase;
 }
 
 .go-live-scene-chip.active,
 .go-live-toolbar-button.active {
+    border-color: rgba(196, 160, 96, .28);
+    background: rgba(196, 160, 96, .14);
     color: rgba(255, 245, 224, .96);
-    border-color: rgba(214, 166, 91, .24);
-    background: rgba(111, 43, 20, .3);
 }
 
 .go-live-scene-chip-name {
@@ -58,15 +58,10 @@
     letter-spacing: 0;
 }
 
-.go-live-scene-chip-icon {
-    color: #f4d9b0;
-    font-size: 12px;
-}
-
 .go-live-scene-add {
-    min-width: 34px;
+    min-width: 36px;
     padding: 0;
-    font-size: 16px;
+    font-size: 18px;
 }
 
 .go-live-scene-toolbar {
@@ -88,12 +83,12 @@
 }
 
 .go-live-take-to-air {
-    color: #7ff3bf;
-    border-color: rgba(127, 243, 191, .18);
-    background: rgba(11, 60, 48, .28);
+    border-color: rgba(16, 185, 129, .26);
+    background: rgba(16, 185, 129, .12);
+    color: #59d8a7;
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 960px) {
     .go-live-scene-toolbar {
         flex-direction: column;
         align-items: stretch;

@@ -4,19 +4,14 @@
 .go-live-source-copy,
 .go-live-utility-stack,
 .go-live-utility-copy,
-.go-live-participants-shell,
-.go-live-participant-actions {
+.go-live-mic-card {
     display: flex;
     flex-direction: column;
 }
 
 .go-live-sources-shell {
-    gap: 16px;
+    gap: 12px;
     height: 100%;
-    padding: 10px;
-    border: 1px solid rgba(214, 166, 91, .08);
-    border-radius: 22px;
-    background: rgba(6, 9, 18, .88);
 }
 
 .go-live-sidebar-header {
@@ -24,60 +19,78 @@
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    padding: 4px 2px 0;
 }
 
 .go-live-sidebar-title {
-    color: rgba(248, 241, 226, .36);
+    color: rgba(248, 241, 226, .34);
     font-size: 10px;
     font-weight: 700;
     letter-spacing: .16em;
     text-transform: uppercase;
 }
 
+.go-live-sources-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
 .go-live-sidebar-action,
-.go-live-participants-icon,
 .go-live-source-crop,
 .go-live-source-action,
 .go-live-utility-badge {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid rgba(214, 166, 91, .14);
-    border-radius: 8px;
-    color: rgba(248, 241, 226, .72);
+    border: 1px solid rgba(255, 255, 255, .08);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, .03);
+    color: rgba(248, 241, 226, .74);
 }
 
-.go-live-sidebar-action,
-.go-live-participants-icon {
-    width: 18px;
-    height: 18px;
+.go-live-sidebar-action {
+    width: 28px;
+    height: 28px;
+    padding: 0;
     text-decoration: none;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 700;
 }
 
-.go-live-sources-stack,
-.go-live-utility-stack,
-.go-live-participants-shell,
-.go-live-participant-actions {
-    gap: 10px;
+.go-live-sidebar-action:disabled {
+    opacity: .35;
+}
+
+.go-live-sources-stack {
+    gap: 8px;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 4px;
 }
 
 .go-live-source-tile,
 .go-live-utility-tile,
-.go-live-participant-card {
+.go-live-mic-card {
     gap: 8px;
-    padding: 10px;
-    border: 1px solid rgba(214, 166, 91, .06);
+    padding: 8px;
+    border: 1px solid rgba(255, 255, 255, .06);
     border-radius: 14px;
-    background: rgba(255, 255, 255, .02);
+    background: rgba(8, 11, 18, .76);
+}
+
+.go-live-source-tile[data-active="True"] {
+    border-color: rgba(255, 107, 107, .32);
+    background: rgba(255, 68, 68, .08);
+}
+
+.go-live-source-tile[data-selected="True"] {
+    border-color: rgba(196, 160, 96, .3);
+    background: rgba(196, 160, 96, .08);
 }
 
 .go-live-source-select {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 10px;
+    gap: 8px;
     padding: 0;
     border: none;
     background: transparent;
@@ -88,53 +101,47 @@
 .go-live-source-video-shell {
     position: relative;
     overflow: hidden;
-    min-height: 90px;
-    border-radius: 10px;
-    border: 1px solid rgba(255, 255, 255, .04);
-    background: rgba(8, 12, 18, .96);
+    aspect-ratio: 16 / 9;
+    border-radius: 12px;
+    background: rgba(2, 5, 10, 1);
 }
 
 .go-live-source-video {
     width: 100%;
-    height: 90px;
+    height: 100%;
     object-fit: cover;
     display: block;
-    background: rgba(8, 12, 18, .96);
+    background: rgba(2, 5, 10, 1);
 }
 
-.go-live-source-badge,
-.go-live-utility-badge,
-.go-live-participant-badge {
+.go-live-source-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: inline-flex;
+    align-items: center;
     min-height: 22px;
     padding: 0 8px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, .1);
+    background: rgba(6, 10, 18, .72);
+    color: rgba(255, 245, 224, .88);
     font-size: 9px;
     font-weight: 700;
     letter-spacing: .08em;
     text-transform: uppercase;
 }
 
-.go-live-source-badge {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    display: inline-flex;
-    align-items: center;
-    padding: 0 8px;
-    border: 1px solid rgba(127, 243, 191, .18);
-    border-radius: 999px;
-    background: rgba(11, 60, 48, .28);
-    color: #7ff3bf;
-}
-
 .go-live-source-copy,
-.go-live-utility-copy {
+.go-live-utility-copy,
+.go-live-mic-card {
     gap: 2px;
 }
 
 .go-live-source-copy strong,
 .go-live-utility-copy strong,
-.go-live-participant-card strong {
-    color: rgba(255, 245, 224, .9);
+.go-live-mic-card strong {
+    color: rgba(255, 245, 224, .92);
     font-size: 12px;
     line-height: 1.3;
 }
@@ -142,20 +149,16 @@
 .go-live-source-copy span,
 .go-live-utility-copy span,
 .go-live-source-script span,
-.go-live-participant-card span {
-    color: rgba(248, 241, 226, .34);
+.go-live-mic-card span {
+    color: rgba(248, 241, 226, .4);
     font-size: 10px;
     line-height: 1.35;
 }
 
-.go-live-source-select[data-selected="True"] .go-live-source-copy strong {
-    color: #f4dfb7;
-}
-
 .go-live-source-crops {
     display: flex;
-    flex-wrap: wrap;
     gap: 6px;
+    flex-wrap: wrap;
 }
 
 .go-live-source-crop,
@@ -163,7 +166,6 @@
 .go-live-utility-badge {
     min-height: 28px;
     padding: 0 10px;
-    background: rgba(255, 255, 255, .02);
     font-size: 10px;
     font-weight: 700;
     letter-spacing: .08em;
@@ -171,52 +173,40 @@
 }
 
 .go-live-source-crop.active {
+    border-color: rgba(196, 160, 96, .28);
+    background: rgba(196, 160, 96, .14);
     color: rgba(255, 245, 224, .96);
-    border-color: rgba(214, 166, 91, .24);
-    background: rgba(111, 43, 20, .3);
 }
 
 .go-live-source-script {
-    display: grid;
+    display: flex;
+    flex-direction: column;
     gap: 4px;
-    padding: 10px;
-    border: 1px solid rgba(214, 166, 91, .06);
+    padding: 8px 10px;
     border-radius: 12px;
-    background: rgba(255, 255, 255, .015);
+    background: rgba(255, 255, 255, .03);
 }
 
 .go-live-source-script strong {
-    color: rgba(255, 245, 224, .84);
+    color: rgba(255, 245, 224, .88);
     font-size: 11px;
 }
 
-.go-live-utility-tile,
-.go-live-participant-card {
+.go-live-utility-stack {
+    gap: 8px;
+}
+
+.go-live-utility-tile {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
+    gap: 10px;
 }
 
 .go-live-utility-badge {
     color: #f4d9b0;
 }
 
-.go-live-participants-shell {
+.go-live-mic-card {
     margin-top: auto;
-}
-
-.go-live-participant-card span {
-    display: block;
-}
-
-.go-live-participant-badge {
-    color: #7ff3bf;
-    border: 1px solid rgba(214, 166, 91, .1);
-    border-radius: 999px;
-}
-
-.go-live-participant-actions > a {
-    justify-content: center;
-    text-decoration: none;
 }

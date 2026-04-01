@@ -40,6 +40,7 @@ public partial class GoLivePage : ComponentBase
 
     private Task? _bootstrapTask;
     private readonly SemaphoreSlim _interactionGate = new(1, 1);
+    private IReadOnlyList<MediaDeviceInfo> _mediaDevices = [];
     private bool _loadState = true;
     private SettingsPagePreferences _recordingPreferences = SettingsPagePreferences.Default;
     private string _screenSubtitle = StreamingSubtitle;
