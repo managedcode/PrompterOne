@@ -2,7 +2,7 @@
 
 Status: Implemented  
 Date: 2026-04-01  
-Related Features: [Go Live Runtime](/Users/ksemenenko/Developer/PrompterLive/docs/Features/GoLiveRuntime.md), [Architecture Overview](/Users/ksemenenko/Developer/PrompterLive/docs/Architecture.md)
+Related Features: [Go Live Runtime](/Users/ksemenenko/Developer/PrompterOne/docs/Features/GoLiveRuntime.md), [Architecture Overview](/Users/ksemenenko/Developer/PrompterOne/docs/Architecture.md)
 
 ## Implementation plan (step-by-step)
 
@@ -116,12 +116,12 @@ flowchart LR
 ### Code
 
 - Affected modules and services:
-  - `src/PrompterLive.Shared/GoLive/Pages/*`
-  - `src/PrompterLive.Shared/GoLive/Components/*`
-  - `src/PrompterLive.Shared/Contracts/UiTestIds.cs`
-  - `tests/PrompterLive.App.Tests/GoLive/GoLivePageTests.cs`
-  - `tests/PrompterLive.App.UITests/GoLive/GoLiveFlowTests.cs`
-  - `tests/PrompterLive.App.UITests/Scenarios/StudioWorkflowScenarioTests.cs`
+  - `src/PrompterOne.Shared/GoLive/Pages/*`
+  - `src/PrompterOne.Shared/GoLive/Components/*`
+  - `src/PrompterOne.Shared/Contracts/UiTestIds.cs`
+  - `tests/PrompterOne.App.Tests/GoLive/GoLivePageTests.cs`
+  - `tests/PrompterOne.App.UITests/GoLive/GoLiveFlowTests.cs`
+  - `tests/PrompterOne.App.UITests/Scenarios/StudioWorkflowScenarioTests.cs`
 - New boundaries and responsibilities:
   - `GoLivePage` owns the operational studio layout and quick toggles.
   - `Settings` owns provider configuration and detailed streaming setup.
@@ -129,8 +129,8 @@ flowchart LR
 
 ### Documentation
 
-- [docs/Features/GoLiveRuntime.md](/Users/ksemenenko/Developer/PrompterLive/docs/Features/GoLiveRuntime.md) now documents the operational-studio boundary.
-- [docs/Architecture.md](/Users/ksemenenko/Developer/PrompterLive/docs/Architecture.md) now maps `Go Live` and `Settings` responsibilities more explicitly.
+- [docs/Features/GoLiveRuntime.md](/Users/ksemenenko/Developer/PrompterOne/docs/Features/GoLiveRuntime.md) now documents the operational-studio boundary.
+- [docs/Architecture.md](/Users/ksemenenko/Developer/PrompterOne/docs/Architecture.md) now maps `Go Live` and `Settings` responsibilities more explicitly.
 
 ## Verification
 
@@ -142,10 +142,10 @@ flowchart LR
 
 ### Test commands
 
-- `dotnet build /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx -warnaserror`
-- `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.Tests/PrompterLive.App.Tests.csproj --filter "FullyQualifiedName~GoLivePageTests"`
-- `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj --filter "FullyQualifiedName~GoLiveFlowTests"`
-- `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj --filter "FullyQualifiedName~StudioWorkflow_SettingsAndGoLiveStudio_CapturesArtifacts"`
+- `dotnet build /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx -warnaserror`
+- `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.Tests/PrompterOne.App.Tests.csproj --filter "FullyQualifiedName~GoLivePageTests"`
+- `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.UITests/PrompterOne.App.UITests.csproj --filter "FullyQualifiedName~GoLiveFlowTests"`
+- `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.UITests/PrompterOne.App.UITests.csproj --filter "FullyQualifiedName~StudioWorkflow_SettingsAndGoLiveStudio_CapturesArtifacts"`
 
 ### New or changed tests
 
@@ -157,6 +157,6 @@ flowchart LR
 
 ## References
 
-- [new-design/golive.html](/Users/ksemenenko/Developer/PrompterLive/new-design/golive.html)
-- [docs/Features/GoLiveRuntime.md](/Users/ksemenenko/Developer/PrompterLive/docs/Features/GoLiveRuntime.md)
-- [docs/Architecture.md](/Users/ksemenenko/Developer/PrompterLive/docs/Architecture.md)
+- [new-design/golive.html](/Users/ksemenenko/Developer/PrompterOne/new-design/golive.html)
+- [docs/Features/GoLiveRuntime.md](/Users/ksemenenko/Developer/PrompterOne/docs/Features/GoLiveRuntime.md)
+- [docs/Architecture.md](/Users/ksemenenko/Developer/PrompterOne/docs/Architecture.md)

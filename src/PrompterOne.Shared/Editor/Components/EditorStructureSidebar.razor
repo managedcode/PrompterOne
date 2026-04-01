@@ -1,0 +1,47 @@
+@namespace PrompterOne.Shared.Components.Editor
+
+<div class="ed-sidebar">
+    <div class="ed-structure">
+        <div class="ed-section-label">STRUCTURE</div>
+        <div class="ed-tree">
+            @foreach (var segment in Segments)
+            {
+                var segmentIsActive = segment.Index == ActiveSegmentIndex;
+                <button class="ed-tree-seg @(segmentIsActive ? "active" : null)"
+                        style="--sc:@segment.AccentColor"
+                        data-nav="seg-@segment.Index"
+                        data-testid="@UiTestIds.Editor.SegmentNavigation(segment.Index)"
+                        type="button"
+                        @onclick="() => OnNavigate.InvokeAsync(new EditorNavigationTarget(segment.Index, null, segment.StartIndex, segment.EndIndex))">
+                    <div class="ed-tree-dot"></div>
+                    <span>@segment.Name</span>
+                    <small>@segment.EmotionLabel</small>
+                </button>
+                <div class="ed-tree-children">
+                    @foreach (var block in segment.Blocks)
+                    {
+                        var blockIsActive = segment.Index == ActiveSegmentIndex && block.Index == ActiveBlockIndex;
+                        <button class="ed-tree-block @(blockIsActive ? "active" : null)"
+                                data-nav="blk-@segment.Index-@block.Index"
+                                data-testid="@UiTestIds.Editor.BlockNavigation(segment.Index, block.Index)"
+                                type="button"
+                                @onclick="() => OnNavigate.InvokeAsync(new EditorNavigationTarget(segment.Index, block.Index, block.StartIndex, block.EndIndex))">
+                            <span>@block.Name</span>
+                            <code>@block.TargetWpmLabel</code>
+                        </button>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public int? ActiveBlockIndex { get; set; }
+
+    [Parameter] public int ActiveSegmentIndex { get; set; }
+
+    [Parameter] public EventCallback<EditorNavigationTarget> OnNavigate { get; set; }
+
+    [Parameter] public IReadOnlyList<EditorOutlineSegmentViewModel> Segments { get; set; } = [];
+}

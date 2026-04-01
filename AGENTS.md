@@ -1,15 +1,15 @@
 # AGENTS.md
 
-Project: `PrompterLive`
+Project: `PrompterOne`
 Stack: `.NET 10`, Blazor WebAssembly, Razor Class Library, xUnit, bUnit, Playwright
 
 ## Current Shape
 
-`PrompterLive` is a standalone browser-first WebAssembly app.
+`PrompterOne` is a standalone browser-first WebAssembly app.
 
-- `src/PrompterLive.App` is the only runnable host.
-- `src/PrompterLive.Shared` contains routed Razor UI, exact `new-design` styling, and browser interop.
-- `src/PrompterLive.Core` contains TPS, RSVP, preview, workspace, media-scene, and streaming domain logic.
+- `src/PrompterOne.App` is the only runnable host.
+- `src/PrompterOne.Shared` contains routed Razor UI, exact `new-design` styling, and browser interop.
+- `src/PrompterOne.Core` contains TPS, RSVP, preview, workspace, media-scene, and streaming domain logic.
 - `tests/` contains all automated test projects.
 - `new-design/` is the visual and interaction source of truth.
 
@@ -76,14 +76,16 @@ Rule format:
 - capture the why, not only the literal wording
 - remove obsolete rules when a better one replaces them
 
+- Use `PrompterOne` as the canonical product, solution, namespace, and folder name across code, docs, tests, and build paths; do not reintroduce legacy product-name variants after the rename.
+
 ## Rules to Follow (Mandatory)
 
 ### Commands
 
-- `build`: `dotnet build /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx -warnaserror`
-- `test`: `dotnet test /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx`
-- `format`: `dotnet format /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx`
-- `coverage`: `dotnet test /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx --collect:"XPlat Code Coverage"`
+- `build`: `dotnet build /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx -warnaserror`
+- `test`: `dotnet test /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx`
+- `format`: `dotnet format /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx`
+- `coverage`: `dotnet test /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx --collect:"XPlat Code Coverage"`
 
 For this `.NET` repo:
 
@@ -94,11 +96,11 @@ For this `.NET` repo:
 
 Useful focused commands:
 
-- app run: `cd /Users/ksemenenko/Developer/PrompterLive/src/PrompterLive.App && dotnet run`
-- core tests: `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.Core.Tests/PrompterLive.Core.Tests.csproj`
-- component tests: `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.Tests/PrompterLive.App.Tests.csproj`
-- ui tests: `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj`
-- playwright browser install: `node /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/bin/Debug/net10.0/.playwright/package/cli.js install chromium`
+- app run: `cd /Users/ksemenenko/Developer/PrompterOne/src/PrompterOne.App && dotnet run`
+- core tests: `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.Core.Tests/PrompterOne.Core.Tests.csproj`
+- component tests: `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.Tests/PrompterOne.App.Tests.csproj`
+- ui tests: `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.UITests/PrompterOne.App.UITests.csproj`
+- playwright browser install: `node /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.UITests/bin/Debug/net10.0/.playwright/package/cli.js install chromium`
 
 Browser test execution rules:
 
@@ -106,7 +108,7 @@ Browser test execution rules:
 - The browser suite self-hosts the built WASM assets on a dynamically assigned loopback HTTP origin.
 - Each browser-suite host startup MUST request a fresh OS-assigned loopback port via `http://127.0.0.1:0`. Never pin or reuse a fixed browser-test port across runs.
 - Inside that single process, the browser suite may run up to `4` parallel xUnit workers.
-- Do not run `PrompterLive.App.UITests` in parallel with another `dotnet build` or `dotnet test` command.
+- Do not run `PrompterOne.App.UITests` in parallel with another `dotnet build` or `dotnet test` command.
 - If a prior build already ran, prefer `dotnet test ... --no-build` for the browser suite.
 - Do not add Python or ad-hoc runner scripts to bootstrap browser verification. The repo test commands must self-host the app and execute the flows end to end on their own.
 - Browser UI scenarios are the primary acceptance gate for this repo. Component and core tests are supporting layers, not the release bar.
@@ -126,7 +128,7 @@ Selector and constant rules:
 - Routes, route patterns, test ids, DOM ids, storage keys, keyboard shortcuts, seeded values, wait durations, and other repeated test inputs MUST come from named constants.
 - URLs in tests MUST come from shared route helpers or constants, never inline literals.
 - Magic numbers in tests are forbidden. Put timeouts, delays, counts, percentages, and seeded numeric inputs behind named constants.
-- Prefer production-owned UI contract constants in `PrompterLive.Shared.Contracts` over duplicating selector strings in test projects.
+- Prefer production-owned UI contract constants in `PrompterOne.Shared.Contracts` over duplicating selector strings in test projects.
 - Browser-localization storage keys, JS interop identifiers, and culture names MUST come from named constants.
 
 ### Project AGENTS Policy
@@ -143,12 +145,12 @@ Selector and constant rules:
 
 Current local `AGENTS.md` files:
 
-- [src/PrompterLive.App/AGENTS.md](/Users/ksemenenko/Developer/PrompterLive/src/PrompterLive.App/AGENTS.md)
-- [src/PrompterLive.Core/AGENTS.md](/Users/ksemenenko/Developer/PrompterLive/src/PrompterLive.Core/AGENTS.md)
-- [src/PrompterLive.Shared/AGENTS.md](/Users/ksemenenko/Developer/PrompterLive/src/PrompterLive.Shared/AGENTS.md)
-- [tests/PrompterLive.Core.Tests/AGENTS.md](/Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.Core.Tests/AGENTS.md)
-- [tests/PrompterLive.App.Tests/AGENTS.md](/Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.Tests/AGENTS.md)
-- [tests/PrompterLive.App.UITests/AGENTS.md](/Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/AGENTS.md)
+- [src/PrompterOne.App/AGENTS.md](/Users/ksemenenko/Developer/PrompterOne/src/PrompterOne.App/AGENTS.md)
+- [src/PrompterOne.Core/AGENTS.md](/Users/ksemenenko/Developer/PrompterOne/src/PrompterOne.Core/AGENTS.md)
+- [src/PrompterOne.Shared/AGENTS.md](/Users/ksemenenko/Developer/PrompterOne/src/PrompterOne.Shared/AGENTS.md)
+- [tests/PrompterOne.Core.Tests/AGENTS.md](/Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.Core.Tests/AGENTS.md)
+- [tests/PrompterOne.App.Tests/AGENTS.md](/Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.Tests/AGENTS.md)
+- [tests/PrompterOne.App.UITests/AGENTS.md](/Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.UITests/AGENTS.md)
 
 ### Maintainability Limits
 
@@ -162,9 +164,9 @@ Local `AGENTS.md` files may tighten these values, but they must not loosen them 
 
 ### Task Delivery
 
-- Start from [docs/Architecture.md](/Users/ksemenenko/Developer/PrompterLive/docs/Architecture.md) and the nearest local `AGENTS.md`.
-- Treat [docs/Architecture.md](/Users/ksemenenko/Developer/PrompterLive/docs/Architecture.md) as the architecture map for every non-trivial task.
-- Read [docs/Architecture.md](/Users/ksemenenko/Developer/PrompterLive/docs/Architecture.md) before implementation to identify the owning component, the allowed boundary, where code should be added, and where related code should be searched first.
+- Start from [docs/Architecture.md](/Users/ksemenenko/Developer/PrompterOne/docs/Architecture.md) and the nearest local `AGENTS.md`.
+- Treat [docs/Architecture.md](/Users/ksemenenko/Developer/PrompterOne/docs/Architecture.md) as the architecture map for every non-trivial task.
+- Read [docs/Architecture.md](/Users/ksemenenko/Developer/PrompterOne/docs/Architecture.md) before implementation to identify the owning component, the allowed boundary, where code should be added, and where related code should be searched first.
 - If the overview is missing, stale, or diagram-free, update it before implementation.
 - Define scope before coding:
   - in scope
@@ -221,10 +223,10 @@ Local `AGENTS.md` files may tighten these values, but they must not loosen them 
 ### Documentation
 
 - All durable docs live in `docs/`.
-- [docs/Architecture.md](/Users/ksemenenko/Developer/PrompterLive/docs/Architecture.md) is the required global map and the first stop for agents.
-- [docs/Architecture.md](/Users/ksemenenko/Developer/PrompterLive/docs/Architecture.md) MUST describe all major components and feature slices with what they are, why they exist, where they live, what they own, and what they must not own.
-- [docs/Architecture.md](/Users/ksemenenko/Developer/PrompterLive/docs/Architecture.md) MUST document the app structure, design principles, and code-placement principles clearly enough that contributors can use it to decide where new code belongs and where existing behavior should be found.
-- [docs/Architecture.md](/Users/ksemenenko/Developer/PrompterLive/docs/Architecture.md) MUST contain Mermaid diagrams for:
+- [docs/Architecture.md](/Users/ksemenenko/Developer/PrompterOne/docs/Architecture.md) is the required global map and the first stop for agents.
+- [docs/Architecture.md](/Users/ksemenenko/Developer/PrompterOne/docs/Architecture.md) MUST describe all major components and feature slices with what they are, why they exist, where they live, what they own, and what they must not own.
+- [docs/Architecture.md](/Users/ksemenenko/Developer/PrompterOne/docs/Architecture.md) MUST document the app structure, design principles, and code-placement principles clearly enough that contributors can use it to decide where new code belongs and where existing behavior should be found.
+- [docs/Architecture.md](/Users/ksemenenko/Developer/PrompterOne/docs/Architecture.md) MUST contain Mermaid diagrams for:
   - system or module boundaries
   - interfaces or contracts between boundaries
   - key classes or types for the changed area
@@ -251,7 +253,7 @@ Local `AGENTS.md` files may tighten these values, but they must not loosen them 
 - Tests should be as realistic as possible and exercise the system through real flows, contracts, and dependencies.
 - Tests must cover positive flows, negative flows, edge cases, and unexpected paths from multiple relevant angles when the behaviour can fail in different ways.
 - Prefer integration/API/UI tests over isolated unit tests when behaviour crosses boundaries.
-- For `PrompterLive`, prioritize browser UI tests first, then supporting component/core tests only where they help isolate failures.
+- For `PrompterOne`, prioritize browser UI tests first, then supporting component/core tests only where they help isolate failures.
 - Do not use mocks, fakes, stubs, or service doubles in verification.
 - Exercise internal and external dependencies through real containers, test instances, or sandbox environments that match the real contract.
 - Flaky tests are failures. Fix the cause.
@@ -280,14 +282,14 @@ Local `AGENTS.md` files may tighten these values, but they must not loosen them 
 
 Repo-specific design rules:
 
-- Keep the solution in `PrompterLive.slnx`.
+- Keep the solution in `PrompterOne.slnx`.
 - Keep all production projects under `src/`.
 - Keep all test projects under `tests/`.
 - Keep shared build settings in `Directory.Build.props`.
 - Keep shared package versions in `Directory.Packages.props`.
 - Keep the pinned SDK version in `global.json`.
 - Treat `new-design/index.html`, `new-design/tokens.css`, `new-design/components.css`, `new-design/styles.css`, and `new-design/app.js` as the exact design reference.
-- Treat every file under `new-design/` as a static design/prototype reference only. Production UI must be implemented as Blazor components in `src/PrompterLive.Shared`; do not ship raw `new-design` HTML as runtime UI.
+- Treat every file under `new-design/` as a static design/prototype reference only. Production UI must be implemented as Blazor components in `src/PrompterOne.Shared`; do not ship raw `new-design` HTML as runtime UI.
 - Do not re-invent the UI when the answer should be “port the markup and classes from `new-design`”.
 - For parity tasks, port the full routed screen from its matching `new-design/*.html` reference, not just isolated high-signal blocks. Settings, Editor, Learn, Teleprompter, and Go Live must match the reference screen in layout and intended interaction while staying Blazor/C# owned.
 - About content must stay factual and current: do not invent team members or contributor names; use Managed Code attribution and official company links only.
@@ -358,6 +360,7 @@ Ask first:
 - made-up About/team content or stale attribution; About must point to real Managed Code ownership and official links
 - any visible typing latency in the editor; plain input must feel immediate with no observable delay
 - teleprompter controls that fade so much they become hard to see during real reading
+- teleprompter paragraph repositioning or per-word vertical transform updates that make the text jump; `new-design/teleprompter.html` motion is the required reference
 - editor keystroke paths that persist, compile, or rebuild shared session state; keep plain typing in memory and move heavier local sync to debounce or autosave
 - murky JavaScript or interop layers that keep product UI behavior in JS when Blazor can own it cleanly
 - runtime dependencies fetched from random external sources instead of vendored release artifacts

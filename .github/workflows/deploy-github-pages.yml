@@ -16,11 +16,11 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  APP_TEST_PROJECT: tests/PrompterLive.App.Tests/PrompterLive.App.Tests.csproj
-  CORE_TEST_PROJECT: tests/PrompterLive.Core.Tests/PrompterLive.Core.Tests.csproj
-  PLAYWRIGHT_CLI: tests/PrompterLive.App.UITests/bin/Debug/net10.0/.playwright/package/cli.js
-  SOLUTION_FILE: PrompterLive.slnx
-  UI_TEST_PROJECT: tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj
+  APP_TEST_PROJECT: tests/PrompterOne.App.Tests/PrompterOne.App.Tests.csproj
+  CORE_TEST_PROJECT: tests/PrompterOne.Core.Tests/PrompterOne.Core.Tests.csproj
+  PLAYWRIGHT_CLI: tests/PrompterOne.App.UITests/bin/Debug/net10.0/.playwright/package/cli.js
+  SOLUTION_FILE: PrompterOne.slnx
+  UI_TEST_PROJECT: tests/PrompterOne.App.UITests/PrompterOne.App.UITests.csproj
 
 jobs:
   validate_release:
@@ -58,7 +58,7 @@ jobs:
     needs: validate_release
     runs-on: ubuntu-latest
     env:
-      APP_PROJECT: src/PrompterLive.App/PrompterLive.App.csproj
+      APP_PROJECT: src/PrompterOne.App/PrompterOne.App.csproj
 
     permissions:
       contents: read
@@ -79,7 +79,7 @@ jobs:
       - name: Resolve release version
         id: release_version
         run: |
-          release_version="$(dotnet msbuild "$APP_PROJECT" -getProperty:VersionPrefix -p:PrompterLiveBuildNumber=${{ github.run_number }} | tr -d '\r')"
+          release_version="$(dotnet msbuild "$APP_PROJECT" -getProperty:VersionPrefix -p:PrompterOneBuildNumber=${{ github.run_number }} | tr -d '\r')"
           release_tag="v${release_version}"
           echo "release_version=$release_version" >> "$GITHUB_OUTPUT"
           echo "release_tag=$release_tag" >> "$GITHUB_OUTPUT"
@@ -89,13 +89,13 @@ jobs:
     needs: prepare_release
     runs-on: ubuntu-latest
     env:
-      APP_PROJECT: src/PrompterLive.App/PrompterLive.App.csproj
-      PAGES_ARTIFACT_ROOT: .artifacts/prompterlive-pages
+      APP_PROJECT: src/PrompterOne.App/PrompterOne.App.csproj
+      PAGES_ARTIFACT_ROOT: .artifacts/prompterone-pages
       PAGES_BASE_PATH: /
       PAGES_CNAME: prompter.managed-code.com
-      PUBLISH_ROOT: .artifacts/prompterlive-publish
-      RELEASE_ARCHIVE_NAME: prompterlive-pages.zip
-      RELEASE_ARTIFACT_NAME: prompterlive-release-package
+      PUBLISH_ROOT: .artifacts/prompterone-publish
+      RELEASE_ARCHIVE_NAME: prompterone-pages.zip
+      RELEASE_ARTIFACT_NAME: prompterone-release-package
       RELEASE_ARTIFACT_ROOT: .artifacts/release-artifact
 
     permissions:
@@ -116,7 +116,7 @@ jobs:
           "$APP_PROJECT"
           -c Release
           -o "$PUBLISH_ROOT"
-          -p:PrompterLiveBuildNumber=${{ github.run_number }}
+          -p:PrompterOneBuildNumber=${{ github.run_number }}
 
       - name: Prepare GitHub Pages artifact
         run: |
@@ -151,8 +151,8 @@ jobs:
       - publish_release_build
     runs-on: ubuntu-latest
     env:
-      RELEASE_ARCHIVE_NAME: prompterlive-pages.zip
-      RELEASE_ARTIFACT_NAME: prompterlive-release-package
+      RELEASE_ARCHIVE_NAME: prompterone-pages.zip
+      RELEASE_ARTIFACT_NAME: prompterone-release-package
       RELEASE_ARTIFACT_ROOT: .artifacts/release-artifact
 
     permissions:
@@ -184,7 +184,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
           RELEASE_TAG: ${{ needs.prepare_release.outputs.release_tag }}
-          RELEASE_TITLE: PrompterLive ${{ needs.prepare_release.outputs.release_version }}
+          RELEASE_TITLE: PrompterOne ${{ needs.prepare_release.outputs.release_version }}
         run: |
           release_asset="${{ steps.release_asset.outputs.release_asset }}"
           if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then

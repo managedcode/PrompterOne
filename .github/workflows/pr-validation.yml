@@ -14,11 +14,11 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  APP_TEST_PROJECT: tests/PrompterLive.App.Tests/PrompterLive.App.Tests.csproj
-  CORE_TEST_PROJECT: tests/PrompterLive.Core.Tests/PrompterLive.Core.Tests.csproj
-  PLAYWRIGHT_CLI: tests/PrompterLive.App.UITests/bin/Debug/net10.0/.playwright/package/cli.js
-  SOLUTION_FILE: PrompterLive.slnx
-  UI_TEST_PROJECT: tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj
+  APP_TEST_PROJECT: tests/PrompterOne.App.Tests/PrompterOne.App.Tests.csproj
+  CORE_TEST_PROJECT: tests/PrompterOne.Core.Tests/PrompterOne.Core.Tests.csproj
+  PLAYWRIGHT_CLI: tests/PrompterOne.App.UITests/bin/Debug/net10.0/.playwright/package/cli.js
+  SOLUTION_FILE: PrompterOne.slnx
+  UI_TEST_PROJECT: tests/PrompterOne.App.UITests/PrompterOne.App.UITests.csproj
 
 jobs:
   build_and_test:

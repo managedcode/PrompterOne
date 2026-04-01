@@ -2,7 +2,7 @@
 
 ## Intent
 
-`learn` and `teleprompter` must follow `/Users/ksemenenko/Developer/PrompterLive/new-design/index.html` closely at runtime, not only in static markup.
+`learn` and `teleprompter` must follow `/Users/ksemenenko/Developer/PrompterOne/new-design/index.html` closely at runtime, not only in static markup.
 
 The important contracts are:
 

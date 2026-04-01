@@ -1,0 +1,181 @@
+@namespace PrompterOne.Shared.Components.GoLive
+@using PrompterOne.Core.Models.Workspace
+
+<section class="go-live-sources-shell"
+         data-testid="@UiTestIds.GoLive.SourceRail">
+    <div class="go-live-sidebar-header">
+        <span class="go-live-sidebar-title">@Title</span>
+        <div class="go-live-sources-actions">
+            <button type="button"
+                    class="go-live-sidebar-action"
+                    disabled="@(!CanAddCamera)"
+                    data-testid="@UiTestIds.GoLive.AddSource"
+                    @onclick="AddCamera">+</button>
+        </div>
+    </div>
+
+    <div class="go-live-sources-stack"
+         data-testid="@UiTestIds.GoLive.SourcesCard">
+        @if (Sources.Count == 0)
+        {
+            <div class="set-empty-card">@EmptyStateMessage</div>
+        }
+        else
+        {
+            @foreach (var source in Sources)
+            {
+                <article class="go-live-source-tile"
+                         data-active="@IsActive(source)"
+                         data-selected="@IsSelected(source)"
+                         data-testid="@UiTestIds.GoLive.SourceCamera(source.SourceId)">
+                    <button type="button"
+                            class="go-live-source-select"
+                            data-testid="@UiTestIds.GoLive.SourceCameraSelect(source.SourceId)"
+                            @onclick="() => SelectSource.InvokeAsync(source.SourceId)">
+                        <GoLiveCameraSurface Camera="@source"
+                                             ContainerClass="go-live-source-video-shell"
+                                             VideoClass="go-live-source-video"
+                                             VideoTestId="@UiTestIds.GoLive.SourceVideo(source.SourceId)">
+                            <OverlayContent>
+                                <span class="go-live-source-badge">@GetSourceBadge(source)</span>
+                            </OverlayContent>
+                        </GoLiveCameraSurface>
+
+                        <span class="go-live-source-copy">
+                            <strong>@source.Label</strong>
+                            <span>@GetSourceStatus(source)</span>
+                        </span>
+                    </button>
+
+                    <div class="go-live-source-crops">
+                        @foreach (var crop in CropOptions)
+                        {
+                            var cropIsActive = GetCropSelection(source.SourceId) == crop;
+                            <button type="button"
+                                    class="go-live-source-crop @(cropIsActive ? "active" : null)"
+                                    @onclick="() => SetCropSelection(source.SourceId, crop)">@GetCropLabel(crop)</button>
+                        }
+                    </div>
+
+                    <div class="go-live-source-script">
+                        <strong>@CurrentScriptTitle</strong>
+                        <span>@CurrentScriptProgressLabel</span>
+                    </div>
+
+                    <button type="button"
+                            class="go-live-source-action"
+                            @onclick="() => ToggleSource.InvokeAsync(source.SourceId)"
+                            data-testid="@UiTestIds.GoLive.SourceCameraAction(source.DeviceId)">
+                        @(source.Transform.IncludeInOutput ? RemoveLabel : AddLabel)
+                    </button>
+                </article>
+            }
+        }
+    </div>
+
+    <div class="go-live-utility-stack">
+        @foreach (var utilitySource in UtilitySources)
+        {
+            <article class="go-live-utility-tile"
+                     data-testid="@UiTestIds.GoLive.UtilitySource(utilitySource.Id)">
+                <div class="go-live-utility-copy">
+                    <strong>@utilitySource.Title</strong>
+                    <span>@utilitySource.Subtitle</span>
+                </div>
+                <span class="go-live-utility-badge">@utilitySource.BadgeLabel</span>
+            </article>
+        }
+    </div>
+
+    <div class="go-live-mic-card">
+        <span class="go-live-sidebar-title">@MicrophoneTitle</span>
+        <strong>@MicrophoneName</strong>
+        <span>@MicrophoneRouteLabel</span>
+    </div>
+</section>
+
+@code {
+    private const string AddLabel = "Include";
+    private const string DefaultTitle = "Inputs";
+    private const string EmptyStateMessage = "No scene cameras are configured yet. Add them in Settings first.";
+    private const string MicrophoneTitle = "Microphone";
+    private const string RemoveLabel = "Remove";
+    private const string ScriptProgressDefaultLabel = "No script loaded";
+    private const string SourceIncludedLabel = "Armed for output";
+    private const string SourceLiveLabel = "Ready for canvas";
+    private const string SourceOnAirLabel = "On air";
+    private const string SourceSceneOnlyLabel = "Scene only";
+    private static readonly IReadOnlyList<GoLiveCropPreset> CropOptions =
+    [
+        GoLiveCropPreset.Full,
+        GoLiveCropPreset.HeadAndShoulders,
+        GoLiveCropPreset.Face
+    ];
+
+    private readonly Dictionary<string, GoLiveCropPreset> _cropSelections = new(StringComparer.Ordinal);
+
+    [Parameter] public EventCallback AddCamera { get; set; }
+    [Parameter] public string? ActiveSourceId { get; set; }
+    [Parameter] public bool CanAddCamera { get; set; }
+    [Parameter] public string CurrentScriptProgressLabel { get; set; } = ScriptProgressDefaultLabel;
+    [Parameter] public string CurrentScriptTitle { get; set; } = ScriptWorkspaceState.UntitledScriptTitle;
+    [Parameter] public bool HasPrimaryMicrophone { get; set; }
+    [Parameter] public string MicrophoneName { get; set; } = string.Empty;
+    [Parameter] public string MicrophoneRouteLabel { get; set; } = string.Empty;
+    [Parameter] public EventCallback<string> SelectSource { get; set; }
+    [Parameter] public string? SelectedSourceId { get; set; }
+    [Parameter] public IReadOnlyList<SceneCameraSource> Sources { get; set; } = [];
+    [Parameter] public string Title { get; set; } = DefaultTitle;
+    [Parameter] public EventCallback<string> ToggleSource { get; set; }
+    [Parameter] public IReadOnlyList<GoLiveUtilitySourceViewModel> UtilitySources { get; set; } = [];
+
+    private bool IsActive(SceneCameraSource source) =>
+        string.Equals(source.SourceId, ActiveSourceId, StringComparison.Ordinal);
+
+    private bool IsSelected(SceneCameraSource source) =>
+        string.Equals(source.SourceId, SelectedSourceId, StringComparison.Ordinal);
+
+    private static string GetSourceStatus(SceneCameraSource source)
+    {
+        if (source.Transform.IncludeInOutput)
+        {
+            return SourceIncludedLabel;
+        }
+
+        return source.Transform.Visible
+            ? SourceLiveLabel
+            : SourceSceneOnlyLabel;
+    }
+
+    private static string GetCropLabel(GoLiveCropPreset crop) =>
+        crop switch
+        {
+            GoLiveCropPreset.HeadAndShoulders => "H&S",
+            GoLiveCropPreset.Face => "Face",
+            _ => "Full"
+        };
+
+    private string GetSourceBadge(SceneCameraSource source)
+    {
+        if (IsActive(source))
+        {
+            return SourceOnAirLabel;
+        }
+
+        return IsSelected(source)
+            ? SourceLiveLabel
+            : source.Transform.IncludeInOutput
+                ? SourceIncludedLabel
+                : SourceSceneOnlyLabel;
+    }
+
+    private GoLiveCropPreset GetCropSelection(string sourceId)
+    {
+        return _cropSelections.TryGetValue(sourceId, out var crop) ? crop : GoLiveCropPreset.Full;
+    }
+
+    private void SetCropSelection(string sourceId, GoLiveCropPreset crop)
+    {
+        _cropSelections[sourceId] = crop;
+    }
+}

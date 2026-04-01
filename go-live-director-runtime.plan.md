@@ -48,9 +48,9 @@ Port the full `new-design/golive.html` studio screen into the routed Blazor `Go 
 
 - [x] Step 2. Run the relevant baseline verification before production changes.
   - Run:
-    - `dotnet build /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx -warnaserror`
-    - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.Tests/PrompterLive.App.Tests.csproj`
-    - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj --no-build`
+    - `dotnet build /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx -warnaserror`
+    - `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.Tests/PrompterOne.App.Tests.csproj`
+    - `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.UITests/PrompterOne.App.UITests.csproj --no-build`
   - Track any failing test explicitly under `## Baseline Failures` before fixing code.
   - Verification before moving on:
     - Baseline status is recorded and any inherited failure has a root-cause note and a fix path.
@@ -92,16 +92,16 @@ Port the full `new-design/golive.html` studio screen into the routed Blazor `Go 
     - The center monitor now tracks the selected source while the right preview rail tracks the on-air source until `TakeToAir`.
 
 - [x] Step 6. Add failing tests for the new contracts, then make them pass.
-  - Add or update bUnit tests under `tests/PrompterLive.App.Tests/GoLive/` for the design-shaped top bar, rails, source/program status, and honest runtime info.
-  - Add or update Playwright tests under `tests/PrompterLive.App.UITests/GoLive/` for the full director/studio flow with deterministic media, including screenshots under `output/playwright/`.
+  - Add or update bUnit tests under `tests/PrompterOne.App.Tests/GoLive/` for the design-shaped top bar, rails, source/program status, and honest runtime info.
+  - Add or update Playwright tests under `tests/PrompterOne.App.UITests/GoLive/` for the full director/studio flow with deterministic media, including screenshots under `output/playwright/`.
   - Keep constants and selectors in shared contracts/test constants rather than inline literals.
   - Verification before moving on:
     - New or updated tests fail before the code fix and pass after the implementation.
     - Browser coverage proves real interactions, not just static DOM.
   - Completed evidence:
-    - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.Tests/PrompterLive.App.Tests.csproj --filter "FullyQualifiedName~GoLivePageTests"` passed with `7/7`.
-    - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj --filter "FullyQualifiedName~GoLiveFlowTests"` passed with `10/10`.
-    - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj --filter "FullyQualifiedName~StudioWorkflow_SettingsAndGoLiveStudio_CapturesArtifacts"` passed with `1/1`.
+    - `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.Tests/PrompterOne.App.Tests.csproj --filter "FullyQualifiedName~GoLivePageTests"` passed with `7/7`.
+    - `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.UITests/PrompterOne.App.UITests.csproj --filter "FullyQualifiedName~GoLiveFlowTests"` passed with `10/10`.
+    - `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.UITests/PrompterOne.App.UITests.csproj --filter "FullyQualifiedName~StudioWorkflow_SettingsAndGoLiveStudio_CapturesArtifacts"` passed with `1/1`.
 
 - [x] Step 7. Update docs and record the runtime/design decision.
   - Update `docs/Features/GoLiveRuntime.md` if the flow, runtime honesty policy, or contracts changed.
@@ -117,30 +117,30 @@ Port the full `new-design/golive.html` studio screen into the routed Blazor `Go 
 
 - [x] Step 8. Run final validation and prepare the change for shipping.
   - Run the final validation in order:
-    - `dotnet build /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx -warnaserror`
-    - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.Tests/PrompterLive.App.Tests.csproj`
-    - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj --no-build`
-    - `dotnet test /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx`
-    - `dotnet test /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx --collect:"XPlat Code Coverage"`
-    - `dotnet format /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx`
+    - `dotnet build /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx -warnaserror`
+    - `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.Tests/PrompterOne.App.Tests.csproj`
+    - `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.UITests/PrompterOne.App.UITests.csproj --no-build`
+    - `dotnet test /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx`
+    - `dotnet test /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx --collect:"XPlat Code Coverage"`
+    - `dotnet format /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx`
   - Review the final diff for intentionality and update this plan with the completed validation evidence.
   - Verification before moving on:
     - All relevant tests are green.
     - The working tree contains only intentional `Go Live` task changes.
   - Completed evidence:
-    - `dotnet build /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx -warnaserror` passed before and after the final cleanup pass.
-    - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.Tests/PrompterLive.App.Tests.csproj` passed with `100/100`.
-    - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj --no-build` passed with `79/79`.
-    - `dotnet test /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx` passed with `34` core tests, `100` app tests, and `79` UI tests green.
-    - `dotnet test /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx --collect:"XPlat Code Coverage"` passed and emitted fresh Cobertura reports for core, app, and UI suites.
-    - `dotnet format /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx` completed successfully; the only console note was the existing `IDE0060` no-code-fix message, which did not fail the command.
+    - `dotnet build /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx -warnaserror` passed before and after the final cleanup pass.
+    - `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.Tests/PrompterOne.App.Tests.csproj` passed with `100/100`.
+    - `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.UITests/PrompterOne.App.UITests.csproj --no-build` passed with `79/79`.
+    - `dotnet test /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx` passed with `34` core tests, `100` app tests, and `79` UI tests green.
+    - `dotnet test /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx --collect:"XPlat Code Coverage"` passed and emitted fresh Cobertura reports for core, app, and UI suites.
+    - `dotnet format /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx` completed successfully; the only console note was the existing `IDE0060` no-code-fix message, which did not fail the command.
 
 ## Baseline Failures
 
 - [x] No pre-existing baseline failures in the relevant build, component, or browser suites.
-  - Build: `dotnet build /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx -warnaserror` passed.
-  - App tests: `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.Tests/PrompterLive.App.Tests.csproj` passed with `100/100`.
-  - UI tests: `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj --no-build` passed with `77/77`.
+  - Build: `dotnet build /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx -warnaserror` passed.
+  - App tests: `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.Tests/PrompterOne.App.Tests.csproj` passed with `100/100`.
+  - UI tests: `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.UITests/PrompterOne.App.UITests.csproj --no-build` passed with `77/77`.
   - Root-cause note: the current baseline is stable enough to start failing-forward on `Go Live` without inherited product failures.
   - Fix status: no baseline failures to clear before implementation.
 

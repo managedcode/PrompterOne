@@ -2,7 +2,7 @@
 
 ## Intent
 
-PrompterLive stays browser-only, so local debugging has to be visible inside the UI. Recoverable failures should surface as a dismissible banner, while unhandled render exceptions should land in a fatal fallback instead of failing silently.
+PrompterOne stays browser-only, so local debugging has to be visible inside the UI. Recoverable failures should surface as a dismissible banner, while unhandled render exceptions should land in a fatal fallback instead of failing silently.
 
 ## Main Flow
 
@@ -31,6 +31,6 @@ flowchart LR
 
 ## Verification
 
-- `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.Tests/PrompterLive.App.Tests.csproj --filter "FullyQualifiedName~DiagnosticsTests"`
-- `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj --filter "FullyQualifiedName~DiagnosticsUiTests" --no-build`
-- `dotnet test /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx`
+- `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.Tests/PrompterOne.App.Tests.csproj --filter "FullyQualifiedName~DiagnosticsTests"`
+- `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.UITests/PrompterOne.App.UITests.csproj --filter "FullyQualifiedName~DiagnosticsUiTests" --no-build`
+- `dotnet test /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx`

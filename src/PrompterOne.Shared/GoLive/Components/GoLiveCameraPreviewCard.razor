@@ -1,0 +1,68 @@
+@namespace PrompterOne.Shared.Components.GoLive
+
+<section id="@UiDomIds.GoLive.PreviewCard"
+         class="go-live-preview-shell"
+         data-testid="@UiTestIds.GoLive.PreviewCard">
+    <div class="go-live-preview-heading">
+        <div>
+            <span class="go-live-sidebar-title">@Title</span>
+            <div class="set-account-name">@Description</div>
+        </div>
+        <span class="live-status @(HasCamera ? ReadyStatusCssClass : PendingStatusCssClass)">
+            @(HasCamera ? LiveStatusLabel : EmptyStatusLabel)
+        </span>
+    </div>
+
+    <GoLiveCameraSurface Camera="@Camera"
+                         ContainerClass="go-live-preview-stage"
+                         ContainerDomId="@UiDomIds.GoLive.PreviewStage"
+                         VideoClass="go-live-preview-video"
+                         VideoDomId="@UiDomIds.GoLive.PreviewVideo"
+                         VideoTestId="@UiTestIds.GoLive.PreviewVideo">
+        <EmptyContent>
+            <div id="@UiDomIds.GoLive.PreviewEmpty"
+                 class="set-empty-card go-live-preview-empty"
+                 data-testid="@UiTestIds.GoLive.PreviewEmpty">
+                <div class="set-account-name">@EmptyTitle</div>
+                <div class="live-card-desc">@EmptyDescription</div>
+            </div>
+        </EmptyContent>
+    </GoLiveCameraSurface>
+
+    <div class="go-live-preview-footer">
+        <div>
+            <span class="set-section-label">Program camera</span>
+            <div class="set-account-name" data-testid="@UiTestIds.GoLive.PreviewSourceLabel">@(Camera?.Label ?? EmptyTitle)</div>
+        </div>
+
+        @if (ShowSwitchAction)
+        {
+            <button type="button"
+                    class="go-live-preview-switch"
+                    @onclick="SwitchSelectedSource"
+                    disabled="@(!CanSwitchProgram)"
+                    data-testid="@UiTestIds.GoLive.SwitchSelectedSource">@SwitchActionLabel</button>
+        }
+    </div>
+</section>
+
+@code {
+    private const string DefaultDescription = "Preview the current live scene camera before arming or switching destinations.";
+    private const string DefaultTitle = "Preview";
+    private const string EmptyDescription = "Add a scene camera in Settings or include one in the live output to preview it here.";
+    private const string EmptyStatusLabel = "Idle";
+    private const string EmptyTitle = "No camera";
+    private const string LiveStatusLabel = "Live Preview";
+    private const string PendingStatusCssClass = "pending";
+    private const string ReadyStatusCssClass = "ready";
+
+    [Parameter] public SceneCameraSource? Camera { get; set; }
+    [Parameter] public bool CanSwitchProgram { get; set; }
+    [Parameter] public string Description { get; set; } = DefaultDescription;
+    [Parameter] public bool ShowSwitchAction { get; set; }
+    [Parameter] public EventCallback SwitchSelectedSource { get; set; }
+    [Parameter] public string SwitchActionLabel { get; set; } = string.Empty;
+    [Parameter] public string Title { get; set; } = DefaultTitle;
+
+    private bool HasCamera => Camera is not null;
+}

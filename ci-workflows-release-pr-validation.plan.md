@@ -2,7 +2,7 @@
 
 ## Task Goal
 
-Reshape the repository CI/CD so `PrompterLive` has:
+Reshape the repository CI/CD so `PrompterOne` has:
 
 - a clearly named pull-request validation workflow that runs build and tests for PRs
 - a clearly named release workflow that builds the standalone app, creates or updates the release tag, publishes a GitHub Release, and keeps GitHub Pages deployment aligned with the release flow
@@ -26,11 +26,11 @@ Reshape the repository CI/CD so `PrompterLive` has:
 
 ## Current State
 
-- The existing GitHub Pages workflow now deploys successfully, but the deployed runtime is broken on `prompter.managed-code.com` because the artifact rewrote `<base href>` to `"/PrompterLive/"`.
+- The existing GitHub Pages workflow now deploys successfully, but the deployed runtime is broken on `prompter.managed-code.com` because the artifact rewrote `<base href>` to `"/PrompterOne/"`.
 - A dedicated PR validation workflow has been added locally but not pushed yet.
 - The release workflow has been expanded locally into build/test -> publish -> GitHub Release -> GitHub Pages stages, but GitHub has not run that shape yet.
 - Workflow naming is being normalized across repository automation.
-- GitHub run `23814159539` proved that `dotnet test PrompterLive.slnx --no-build` is not a safe CI test shape for this repo because it launches the UI browser suite alongside the supporting test assemblies.
+- GitHub run `23814159539` proved that `dotnet test PrompterOne.slnx --no-build` is not a safe CI test shape for this repo because it launches the UI browser suite alongside the supporting test assemblies.
 
 ## Constraints
 
@@ -77,49 +77,49 @@ Quality bar:
   - Intended fix path: rename workflows to purpose-specific names and update docs that reference them.
   - Fix status: implemented locally
 
-- [x] `Broken custom-domain boot`: the deployed Pages artifact rewrote `<base href>` to `"/PrompterLive/"`, causing `_content` and `_framework` assets to resolve under a non-existent repo subpath on the custom domain.
+- [x] `Broken custom-domain boot`: the deployed Pages artifact rewrote `<base href>` to `"/PrompterOne/"`, causing `_content` and `_framework` assets to resolve under a non-existent repo subpath on the custom domain.
   - Root cause note: the workflow still assumed repository Pages path hosting while the repo is configured for a custom-domain root deployment.
   - Intended fix path: keep `PAGES_BASE_PATH` at `/`, preserve root-relative asset loading, and ship `CNAME` in the Pages artifact.
   - Fix status: implemented locally, pending GitHub deploy verification
 
-- [ ] `CI browser-suite contention`: GitHub run `23814159539` failed while `dotnet test PrompterLive.slnx --no-build` launched the browser suite in parallel with the supporting test assemblies.
-  - Root cause note: `PrompterLive.App.UITests` self-hosts shared WASM build assets and the repo rules require it to own those assets inside a dedicated `dotnet test` process.
+- [ ] `CI browser-suite contention`: GitHub run `23814159539` failed while `dotnet test PrompterOne.slnx --no-build` launched the browser suite in parallel with the supporting test assemblies.
+  - Root cause note: `PrompterOne.App.UITests` self-hosts shared WASM build assets and the repo rules require it to own those assets inside a dedicated `dotnet test` process.
   - Intended fix path: split CI validation into sequential project-scoped `dotnet test` steps and keep the browser suite isolated after the supporting suites pass.
   - Fix status: implemented locally, pending GitHub verification
 
 ## GitHub Run 23814159539 Failing Tests
 
-- [ ] `PrompterLive.App.UITests.EditorFloatingToolbarLayoutTests.EditorScreen_FloatingToolbarKeepsFullHeightWhenSelectionIsActive`
-- [ ] `PrompterLive.App.UITests.EditorFloatingToolbarLayoutTests.EditorScreen_FloatingToolbarStaysAboveMultiLineSelection`
-- [ ] `PrompterLive.App.UITests.EditorFloatingToolbarLayoutTests.EditorScreen_FloatingToolbarStaysPinnedAfterFloatingFormatAction`
-- [ ] `PrompterLive.App.UITests.EditorInteractionTests.EditorScreen_ClickableMenusAndAiButtonsApplyCommands`
-- [ ] `PrompterLive.App.UITests.EditorInteractionTests.EditorScreen_FloatingEmotionMenuAppliesSelectedEmotion`
-- [ ] `PrompterLive.App.UITests.EditorInteractionTests.EditorScreen_FloatingToolbarShowsAiAndPersistsSelectionFormatting`
-- [ ] `PrompterLive.App.UITests.EditorInteractionTests.EditorScreen_FullToolbarSurfaceSupportsExtendedCommands`
-- [ ] `PrompterLive.App.UITests.EditorInteractionTests.EditorScreen_HidesFrontMatterFromVisibleEditorBody`
-- [ ] `PrompterLive.App.UITests.EditorInteractionTests.EditorScreen_MetadataDurationPersistsAfterReload`
-- [ ] `PrompterLive.App.UITests.EditorInteractionTests.EditorScreen_ShowsFloatingBarAndAppliesFormattingToSelectedSourceText`
-- [ ] `PrompterLive.App.UITests.EditorInteractionTests.EditorScreen_ToolbarDropdownsCloseCentrallyAcrossCommandsAndOutsideClicks`
-- [ ] `PrompterLive.App.UITests.EditorInteractionTests.EditorScreen_UndoAndRedoWorkFromToolbarAndKeyboard`
-- [ ] `PrompterLive.App.UITests.EditorLayoutTests.EditorScreen_MetadataRailStaysDockedToRightOfMainPanel`
-- [ ] `PrompterLive.App.UITests.EditorOverlayInteractionTests.EditorScreen_HidesFloatingBarWhileToolbarDropdownIsOpen`
-- [ ] `PrompterLive.App.UITests.EditorSourceSyncTests.EditorScreen_DirectSourceHeaderEditsRefreshStructureTree`
-- [ ] `PrompterLive.App.UITests.EditorTypingTests.EditorScreen_QuantumTypingKeepsStyledOverlayVisibleResponsive`
-- [ ] `PrompterLive.App.UITests.EditorTypingTests.EditorScreen_RapidTypingUpdatesStructureAndPersistsAfterReload`
-- [ ] `PrompterLive.App.UITests.EditorTypingTests.EditorScreen_SequentialTypingIntoSourceInputCompletesWithoutTimeout`
-- [ ] `PrompterLive.App.UITests.GoLiveFlowTests.GoLivePage_ArmsDestinationsAndPersistsValuesInBrowserStorage`
-- [ ] `PrompterLive.App.UITests.GoLiveFlowTests.GoLivePage_ShowsEmptyPreviewStateWhenSceneHasNoCamera`
-- [ ] `PrompterLive.App.UITests.GoLiveFlowTests.GoLivePage_ShowsLiveCameraPreviewForProgramFeed`
-- [ ] `PrompterLive.App.UITests.GoLiveFlowTests.GoLivePage_StartStream_WithLiveKitArmed_PublishesProgramVideoAndAudio`
-- [ ] `PrompterLive.App.UITests.GoLiveFlowTests.GoLivePage_StartStream_WithObsArmed_RoutesMicrophoneAudioForObsBrowserSource`
-- [ ] `PrompterLive.App.UITests.GoLiveFlowTests.GoLivePage_SwitchesStudioTabsAndCreatesRemoteRoom`
-- [ ] `PrompterLive.App.UITests.GoLiveFlowTests.GoLivePage_TogglesSceneCameraMembershipAndLinksBackToRead`
-- [ ] `PrompterLive.App.UITests.MediaRuntimeIntegrationTests.TeleprompterCameraToggle_AttachesSyntheticBackgroundVideoStream`
-- [ ] `PrompterLive.App.UITests.NavigationFlowTests.ScreenNavigation_UsesSpaRoutingWithoutReloadingBrowserContext`
-- [ ] `PrompterLive.App.UITests.StudioWorkflowScenarioTests.StudioWorkflow_LearnAndTeleprompterReader_CapturesArtifacts`
-- [ ] `PrompterLive.App.UITests.StudioWorkflowScenarioTests.StudioWorkflow_LibraryToEditorAuthoring_CapturesArtifacts`
-- [ ] `PrompterLive.App.UITests.StudioWorkflowScenarioTests.StudioWorkflow_NewScriptStartsEmpty_CapturesArtifacts`
-- [ ] `PrompterLive.App.UITests.TeleprompterSettingsFlowTests.TeleprompterAndSettingsScreens_RespondToCoreControls`
+- [ ] `PrompterOne.App.UITests.EditorFloatingToolbarLayoutTests.EditorScreen_FloatingToolbarKeepsFullHeightWhenSelectionIsActive`
+- [ ] `PrompterOne.App.UITests.EditorFloatingToolbarLayoutTests.EditorScreen_FloatingToolbarStaysAboveMultiLineSelection`
+- [ ] `PrompterOne.App.UITests.EditorFloatingToolbarLayoutTests.EditorScreen_FloatingToolbarStaysPinnedAfterFloatingFormatAction`
+- [ ] `PrompterOne.App.UITests.EditorInteractionTests.EditorScreen_ClickableMenusAndAiButtonsApplyCommands`
+- [ ] `PrompterOne.App.UITests.EditorInteractionTests.EditorScreen_FloatingEmotionMenuAppliesSelectedEmotion`
+- [ ] `PrompterOne.App.UITests.EditorInteractionTests.EditorScreen_FloatingToolbarShowsAiAndPersistsSelectionFormatting`
+- [ ] `PrompterOne.App.UITests.EditorInteractionTests.EditorScreen_FullToolbarSurfaceSupportsExtendedCommands`
+- [ ] `PrompterOne.App.UITests.EditorInteractionTests.EditorScreen_HidesFrontMatterFromVisibleEditorBody`
+- [ ] `PrompterOne.App.UITests.EditorInteractionTests.EditorScreen_MetadataDurationPersistsAfterReload`
+- [ ] `PrompterOne.App.UITests.EditorInteractionTests.EditorScreen_ShowsFloatingBarAndAppliesFormattingToSelectedSourceText`
+- [ ] `PrompterOne.App.UITests.EditorInteractionTests.EditorScreen_ToolbarDropdownsCloseCentrallyAcrossCommandsAndOutsideClicks`
+- [ ] `PrompterOne.App.UITests.EditorInteractionTests.EditorScreen_UndoAndRedoWorkFromToolbarAndKeyboard`
+- [ ] `PrompterOne.App.UITests.EditorLayoutTests.EditorScreen_MetadataRailStaysDockedToRightOfMainPanel`
+- [ ] `PrompterOne.App.UITests.EditorOverlayInteractionTests.EditorScreen_HidesFloatingBarWhileToolbarDropdownIsOpen`
+- [ ] `PrompterOne.App.UITests.EditorSourceSyncTests.EditorScreen_DirectSourceHeaderEditsRefreshStructureTree`
+- [ ] `PrompterOne.App.UITests.EditorTypingTests.EditorScreen_QuantumTypingKeepsStyledOverlayVisibleResponsive`
+- [ ] `PrompterOne.App.UITests.EditorTypingTests.EditorScreen_RapidTypingUpdatesStructureAndPersistsAfterReload`
+- [ ] `PrompterOne.App.UITests.EditorTypingTests.EditorScreen_SequentialTypingIntoSourceInputCompletesWithoutTimeout`
+- [ ] `PrompterOne.App.UITests.GoLiveFlowTests.GoLivePage_ArmsDestinationsAndPersistsValuesInBrowserStorage`
+- [ ] `PrompterOne.App.UITests.GoLiveFlowTests.GoLivePage_ShowsEmptyPreviewStateWhenSceneHasNoCamera`
+- [ ] `PrompterOne.App.UITests.GoLiveFlowTests.GoLivePage_ShowsLiveCameraPreviewForProgramFeed`
+- [ ] `PrompterOne.App.UITests.GoLiveFlowTests.GoLivePage_StartStream_WithLiveKitArmed_PublishesProgramVideoAndAudio`
+- [ ] `PrompterOne.App.UITests.GoLiveFlowTests.GoLivePage_StartStream_WithObsArmed_RoutesMicrophoneAudioForObsBrowserSource`
+- [ ] `PrompterOne.App.UITests.GoLiveFlowTests.GoLivePage_SwitchesStudioTabsAndCreatesRemoteRoom`
+- [ ] `PrompterOne.App.UITests.GoLiveFlowTests.GoLivePage_TogglesSceneCameraMembershipAndLinksBackToRead`
+- [ ] `PrompterOne.App.UITests.MediaRuntimeIntegrationTests.TeleprompterCameraToggle_AttachesSyntheticBackgroundVideoStream`
+- [ ] `PrompterOne.App.UITests.NavigationFlowTests.ScreenNavigation_UsesSpaRoutingWithoutReloadingBrowserContext`
+- [ ] `PrompterOne.App.UITests.StudioWorkflowScenarioTests.StudioWorkflow_LearnAndTeleprompterReader_CapturesArtifacts`
+- [ ] `PrompterOne.App.UITests.StudioWorkflowScenarioTests.StudioWorkflow_LibraryToEditorAuthoring_CapturesArtifacts`
+- [ ] `PrompterOne.App.UITests.StudioWorkflowScenarioTests.StudioWorkflow_NewScriptStartsEmpty_CapturesArtifacts`
+- [ ] `PrompterOne.App.UITests.TeleprompterSettingsFlowTests.TeleprompterAndSettingsScreens_RespondToCoreControls`
 
 Root-cause note:
 - The failing list spans library, editor, teleprompter, navigation, media, and go-live flows, which points to shared browser-harness contention rather than a single routed feature regression.
@@ -176,16 +176,16 @@ Root-cause note:
 - [x] Refine workflow naming so each workflow purpose is explicit.
 - [x] Update architecture and feature docs for the new CI/CD ownership.
 - [x] Run `actionlint` on the edited workflows.
-- [x] Run `dotnet build /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx -warnaserror`.
-- [x] Run `dotnet test /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx`.
-- [x] Run `dotnet format /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx`.
+- [x] Run `dotnet build /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx -warnaserror`.
+- [x] Run `dotnet test /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx`.
+- [x] Run `dotnet format /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx`.
 - [ ] Commit and push only the in-scope changes.
 - [ ] Watch the resulting GitHub Actions runs and record final status.
 - [ ] Update the tracked gap items with final fix notes.
 
 ## Results So Far
 
-- Confirmed via `curl` that the broken public deploy served `<base href="/PrompterLive/">` on `prompter.managed-code.com`, which produced 404s for `/_content/*` and `/_framework/*` assets under the wrong subpath.
+- Confirmed via `curl` that the broken public deploy served `<base href="/PrompterOne/">` on `prompter.managed-code.com`, which produced 404s for `/_content/*` and `/_framework/*` assets under the wrong subpath.
 - Added `.github/workflows/pr-validation.yml` with a dedicated `Build And Test` job for pull requests.
 - Converted `.github/workflows/deploy-github-pages.yml` into a staged `Release Pipeline` that now performs build/test first, resolves the release version from `Directory.Build.props`, publishes the release bundle, publishes a GitHub Release, and only then deploys GitHub Pages.
 - Updated all `actions/*` usages in repo workflows to the latest official major versions currently published by GitHub:
@@ -201,29 +201,29 @@ Root-cause note:
   - `actions/github-script@v8`
 - Local verification passed:
   - `actionlint .github/workflows/*.yml`
-  - `dotnet build /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx -warnaserror`
-  - `dotnet test /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx`
-  - `dotnet format /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx`
-- GitHub run `23814159539` failed in `Build And Test` because solution-level `dotnet test` launched `PrompterLive.App.UITests` alongside the supporting test assemblies; the next fix is to split CI test execution into sequential project-scoped steps.
+  - `dotnet build /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx -warnaserror`
+  - `dotnet test /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx`
+  - `dotnet format /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx`
+- GitHub run `23814159539` failed in `Build And Test` because solution-level `dotnet test` launched `PrompterOne.App.UITests` alongside the supporting test assemblies; the next fix is to split CI test execution into sequential project-scoped steps.
 - Updated `.github/workflows/pr-validation.yml` and `.github/workflows/deploy-github-pages.yml` so CI now runs:
-  - `dotnet test tests/PrompterLive.Core.Tests/PrompterLive.Core.Tests.csproj --no-build`
-  - `dotnet test tests/PrompterLive.App.Tests/PrompterLive.App.Tests.csproj --no-build`
-  - `dotnet test tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj --no-build`
+  - `dotnet test tests/PrompterOne.Core.Tests/PrompterOne.Core.Tests.csproj --no-build`
+  - `dotnet test tests/PrompterOne.App.Tests/PrompterOne.App.Tests.csproj --no-build`
+  - `dotnet test tests/PrompterOne.App.UITests/PrompterOne.App.UITests.csproj --no-build`
 - Local validation for the split test shape passed:
   - `actionlint .github/workflows/*.yml`
-  - `dotnet build /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx -warnaserror`
-  - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.Core.Tests/PrompterLive.Core.Tests.csproj --no-build`
-  - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.Tests/PrompterLive.App.Tests.csproj --no-build`
-  - `node /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/bin/Debug/net10.0/.playwright/package/cli.js install chromium`
-  - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj --no-build`
-  - `dotnet format /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx`
+  - `dotnet build /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx -warnaserror`
+  - `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.Core.Tests/PrompterOne.Core.Tests.csproj --no-build`
+  - `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.Tests/PrompterOne.App.Tests.csproj --no-build`
+  - `node /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.UITests/bin/Debug/net10.0/.playwright/package/cli.js install chromium`
+  - `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.UITests/PrompterOne.App.UITests.csproj --no-build`
+  - `dotnet format /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx`
 - GitHub runs `23814810144` and `23814814816` proved that workflow-level isolation alone was not enough; the browser suite still failed under GitHub Linux with 25-28 flaky editor, go-live, and teleprompter tests.
 - The remaining GitHub-only root causes were narrowed to:
   - mac-only keyboard shortcuts in UI tests (`Meta+A`, `Meta+Z`, `Meta+Shift+Z`) that broke Linux editor shortcuts and typing flows
   - browser-suite self-contention from `4` parallel xUnit workers inside one process on the slower GitHub runner
   - route/readiness assertions still relying on Playwright's short default timeouts instead of the suite's WASM-specific timeout budget
 - GitHub runs `23815330400` and `23815334683` proved the stability fixes removed all but one browser failure:
-  - `PrompterLive.App.UITests.EditorFloatingToolbarLayoutTests.EditorScreen_FloatingToolbarStaysPinnedAfterFloatingFormatAction`
+  - `PrompterOne.App.UITests.EditorFloatingToolbarLayoutTests.EditorScreen_FloatingToolbarStaysPinnedAfterFloatingFormatAction`
   - Root cause note: the test asserted `getBoundingClientRect().x/y` drift after the format action even though the production floating-toolbar contract preserves the inline/computed anchor (`left` and `top`) and the element itself is centered with `transform: translate(-50%, ...)`. Linux font/layout differences moved the rendered box without breaking the preserved anchor.
   - Intended fix path: assert the preserved computed anchor coordinates instead of bounding-box drift, and keep the visibility check after the floating action.
 - GitHub runs `23815986364` and `23815989928` showed the browser failures were not purely test-level:
@@ -239,33 +239,33 @@ Root-cause note:
   - Root cause note: the release workflow exported Pages and release publishing variables globally, so the validation job did not actually run under the same environment contract as `PR Validation`.
   - Intended fix path: scope release-only environment variables to the release-preparation and publish jobs, leaving the release validation job with the same build/test environment as `PR Validation`.
 - Local validation after the browser-suite stability fixes passed:
-  - `dotnet build /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx -warnaserror`
-  - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.Core.Tests/PrompterLive.Core.Tests.csproj --no-build`
-  - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.Tests/PrompterLive.App.Tests.csproj --no-build`
-  - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj --no-build`
+  - `dotnet build /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx -warnaserror`
+  - `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.Core.Tests/PrompterOne.Core.Tests.csproj --no-build`
+  - `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.Tests/PrompterOne.App.Tests.csproj --no-build`
+  - `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.UITests/PrompterOne.App.UITests.csproj --no-build`
 - Local validation after the floating-toolbar anchor assertion fix passed:
-  - `dotnet build /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx -warnaserror`
-  - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj --no-build`
-  - `dotnet format /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx`
+  - `dotnet build /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx -warnaserror`
+  - `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.UITests/PrompterOne.App.UITests.csproj --no-build`
+  - `dotnet format /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx`
 - Local validation after the runtime floating-toolbar fixes passed:
-  - `dotnet build /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx -warnaserror`
-  - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.Tests/PrompterLive.App.Tests.csproj --no-build`
-  - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj --no-build`
-  - `dotnet format /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx`
+  - `dotnet build /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx -warnaserror`
+  - `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.Tests/PrompterOne.App.Tests.csproj --no-build`
+  - `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.UITests/PrompterOne.App.UITests.csproj --no-build`
+  - `dotnet format /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx`
 - Local validation after the typing-latency probe stabilization passed:
-  - `dotnet build /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx -warnaserror`
-  - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj --no-build`
-  - `dotnet format /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx`
+  - `dotnet build /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx -warnaserror`
+  - `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.UITests/PrompterOne.App.UITests.csproj --no-build`
+  - `dotnet format /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx`
 - Local workflow validation after the release-env scoping fix passed:
-  - `actionlint /Users/ksemenenko/Developer/PrompterLive/.github/workflows/*.yml`
+  - `actionlint /Users/ksemenenko/Developer/PrompterOne/.github/workflows/*.yml`
 - GitHub run `23817606264` proved the release pipeline now reaches the publishing stages cleanly, but it still failed in `Publish GitHub Release`:
-  - Root cause note: the release-publication job did not define `RELEASE_ARTIFACT_NAME`, so `actions/download-artifact` downloaded both `github-pages` and the release bundle. The subsequent `gh release create` step then looked for `.artifacts/release-artifact/prompterlive-pages.zip`, but the real zip sat inside the downloaded artifact subdirectory.
-  - Intended fix path: explicitly request the `prompterlive-release-package` artifact and resolve the archive path dynamically before calling `gh release create` or `gh release upload`.
+  - Root cause note: the release-publication job did not define `RELEASE_ARTIFACT_NAME`, so `actions/download-artifact` downloaded both `github-pages` and the release bundle. The subsequent `gh release create` step then looked for `.artifacts/release-artifact/prompterone-pages.zip`, but the real zip sat inside the downloaded artifact subdirectory.
+  - Intended fix path: explicitly request the `prompterone-release-package` artifact and resolve the archive path dynamically before calling `gh release create` or `gh release upload`.
 - GitHub run `23818013181` proved the release bundle path is now correct, but `Publish GitHub Release` still lacked repository context:
   - Root cause note: `gh release create` ran in a job with no checked-out repository and no explicit `GH_REPO`, so GitHub CLI aborted with `fatal: not a git repository`.
   - Intended fix path: restore checkout in the release-publication job and pass `GH_REPO` explicitly to the release commands.
 - GitHub run `23818023225` showed `PR Validation` still has one remaining Linux-only browser flake:
-  - `PrompterLive.App.UITests.EditorTypingTests.EditorScreen_QuantumTypingKeepsStyledOverlayVisibleResponsive`
+  - `PrompterOne.App.UITests.EditorTypingTests.EditorScreen_QuantumTypingKeepsStyledOverlayVisibleResponsive`
   - Root cause note: the test kept the strong `no visible input` and `no long tasks` requirements, but the `p95 <= 120ms` threshold was still too tight for occasional GitHub-hosted Linux runner jitter even after the earlier stabilization.
   - Intended fix path: keep the existing UX guards, preserve the `max spike <= 300ms` bound, and relax the `p95` threshold to a runner-stable value that still catches meaningful latency regressions.
 
@@ -286,15 +286,15 @@ Root-cause note:
 
 4. Repo build
    - Reason: prove the PR validation workflow’s build command is green.
-   - Command: `dotnet build /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx -warnaserror`
+   - Command: `dotnet build /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx -warnaserror`
    - Concrete outcome: successful solution build.
 
 5. Repo test
    - Reason: prove the PR validation workflow’s test command is green.
-   - Command: `dotnet test /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx`
+   - Command: `dotnet test /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx`
    - Concrete outcome: successful repo test pass.
 
 6. Repo format
    - Reason: satisfy the repo-required quality pass after workflow/docs changes.
-   - Command: `dotnet format /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx`
+   - Command: `dotnet format /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx`
    - Concrete outcome: successful formatting pass.

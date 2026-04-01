@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="DiagnosticsDismiss" xml:space="preserve">
+    <value>Chiudi</value>
+  </data>
+  <data name="DiagnosticsRetry" xml:space="preserve">
+    <value>Riprova</value>
+  </data>
+  <data name="DiagnosticsLibrary" xml:space="preserve">
+    <value>Libreria</value>
+  </data>
+  <data name="DiagnosticsFatalTitle" xml:space="preserve">
+    <value>Errore imprevisto</value>
+  </data>
+  <data name="DiagnosticsFatalMessage" xml:space="preserve">
+    <value>PrompterOne ha rilevato un errore imprevisto. Riprova questa schermata o torna alla libreria.</value>
+  </data>
+  <data name="DiagnosticsRecoverableTitle" xml:space="preserve">
+    <value>Azione non riuscita</value>
+  </data>
+  <data name="LibraryAllScripts" xml:space="preserve">
+    <value>Tutti gli script</value>
+  </data>
+  <data name="LibraryRecent" xml:space="preserve">
+    <value>Recenti</value>
+  </data>
+  <data name="LibraryFavorites" xml:space="preserve">
+    <value>Preferiti</value>
+  </data>
+  <data name="LibraryFolders" xml:space="preserve">
+    <value>Cartelle</value>
+  </data>
+  <data name="LibraryNewFolder" xml:space="preserve">
+    <value>Nuova cartella</value>
+  </data>
+  <data name="LibrarySettings" xml:space="preserve">
+    <value>Impostazioni</value>
+  </data>
+  <data name="LibrarySortBy" xml:space="preserve">
+    <value>Ordina per</value>
+  </data>
+  <data name="LibrarySortName" xml:space="preserve">
+    <value>Nome</value>
+  </data>
+  <data name="LibrarySortDate" xml:space="preserve">
+    <value>Data</value>
+  </data>
+  <data name="LibrarySortDuration" xml:space="preserve">
+    <value>Durata</value>
+  </data>
+  <data name="LibrarySortWpm" xml:space="preserve">
+    <value>PPM</value>
+  </data>
+  <data name="LibraryCreateFolderTitle" xml:space="preserve">
+    <value>Crea cartella</value>
+  </data>
+  <data name="LibraryCreateFolderDescription" xml:space="preserve">
+    <value>Organizza gli script in raccolte annidate senza alterare la griglia della libreria.</value>
+  </data>
+  <data name="HeaderSearchPlaceholder" xml:space="preserve">
+    <value>Cerca...</value>
+  </data>
+  <data name="HeaderNewScript" xml:space="preserve">
+    <value>Nuovo script</value>
+  </data>
+  <data name="HeaderLearn" xml:space="preserve">
+    <value>Studia</value>
+  </data>
+  <data name="HeaderRead" xml:space="preserve">
+    <value>Leggi</value>
+  </data>
+  <data name="HeaderGoLive" xml:space="preserve">
+    <value>In diretta</value>
+  </data>
+  <data name="HeaderSettings" xml:space="preserve">
+    <value>Impostazioni</value>
+  </data>
+  <data name="GoLiveHeroEyebrow" xml:space="preserve">
+    <value>INSTRADAMENTO IN DIRETTA</value>
+  </data>
+  <data name="GoLiveHeroDescription" xml:space="preserve">
+    <value>Prepara le destinazioni per il feed programma corrente, lasciando teleprompter e RSVP pronti in schede separate.</value>
+  </data>
+  <data name="CommonName" xml:space="preserve">
+    <value>Nome</value>
+  </data>
+  <data name="CommonParent" xml:space="preserve">
+    <value>Cartella padre</value>
+  </data>
+  <data name="CommonTopLevel" xml:space="preserve">
+    <value>Livello superiore</value>
+  </data>
+  <data name="CommonCancel" xml:space="preserve">
+    <value>Annulla</value>
+  </data>
+  <data name="CommonCreate" xml:space="preserve">
+    <value>Crea</value>
+  </data>
+  <data name="LibraryFolderPlaceholder" xml:space="preserve">
+    <value>Roadshows</value>
+  </data>
+</root>

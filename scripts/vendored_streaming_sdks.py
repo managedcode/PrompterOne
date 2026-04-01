@@ -14,7 +14,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_MANIFEST = REPO_ROOT / "vendored-streaming-sdks.json"
 GITHUB_API_BASE = "https://api.github.com/repos"
-USER_AGENT = "PrompterLive-vendored-streaming-sdks"
+USER_AGENT = "PrompterOne-vendored-streaming-sdks"
 
 
 def parse_args() -> argparse.Namespace:
@@ -231,7 +231,7 @@ def build_issue_body(manifest: dict, updates: list[dict]) -> str:
             "",
             "1. Update the pinned tags and URLs in `vendored-streaming-sdks.json`.",
             "2. Run `python scripts/vendored_streaming_sdks.py sync`.",
-            "3. Review the vendored files under `src/PrompterLive.Shared/wwwroot/vendor/`.",
+            "3. Review the vendored files under `src/PrompterOne.Shared/wwwroot/vendor/`.",
             "4. Commit the manifest and vendored file changes together.",
             "",
             f"Manifest issue title: `{manifest['issueTitle']}`",

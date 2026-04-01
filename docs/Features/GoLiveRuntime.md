@@ -182,7 +182,7 @@ flowchart LR
 - `Go Live` must auto-seed the first available browser camera into the scene when the scene is empty and devices are available.
 - `Go Live` must show the selected program source in the center monitor and the currently on-air source in the right preview rail until the operator explicitly takes the selected source live.
 - `Go Live` must show a stable empty preview state instead of mounting camera interop when the current scene has no cameras.
-- any shared `Go Live` localized copy must come from `PrompterLive.Shared.Localization.UiTextCatalog`, so supported browser cultures localize the studio surface without feature-local string copies.
+- any shared `Go Live` localized copy must come from `PrompterOne.Shared.Localization.UiTextCatalog`, so supported browser cultures localize the studio surface without feature-local string copies.
 - quick destination cards must only expose honest readiness summaries and arm/disarm toggles; fake in-page credential editors are forbidden on the operational studio surface
 - legacy streaming settings must normalize to the current included program cameras so existing browser storage keeps working
 - `VirtualCamera` mode normalizes to OBS armed by default, so browser sessions keep the legacy desktop-capture workflow unless the user explicitly turns OBS off
@@ -200,5 +200,5 @@ flowchart LR
 
 ## Exception Notes
 
-- `src/PrompterLive.Shared/wwwroot/media/go-live-media-compositor.js` temporarily exceeds the root `file_max_loc` limit because canvas compositing, shared device capture, and audio-bus graph ownership are tightly coupled around browser-only APIs. Scope: only the browser program graph. Removal plan: split video composition and audio graph helpers once the pipeline stabilizes and the recording/export profile surface is no longer moving.
-- `src/PrompterLive.Shared/wwwroot/media/go-live-output-support.js` temporarily exceeds the root `file_max_loc` limit because request normalization, codec probing, and local-save recording helpers must currently stay aligned with the browser runtime contract in one place. Scope: request normalization and browser recording/export helpers. Removal plan: split request normalization from recording/export helpers after the profile mapping rules settle.
+- `src/PrompterOne.Shared/wwwroot/media/go-live-media-compositor.js` temporarily exceeds the root `file_max_loc` limit because canvas compositing, shared device capture, and audio-bus graph ownership are tightly coupled around browser-only APIs. Scope: only the browser program graph. Removal plan: split video composition and audio graph helpers once the pipeline stabilizes and the recording/export profile surface is no longer moving.
+- `src/PrompterOne.Shared/wwwroot/media/go-live-output-support.js` temporarily exceeds the root `file_max_loc` limit because request normalization, codec probing, and local-save recording helpers must currently stay aligned with the browser runtime contract in one place. Scope: request normalization and browser recording/export helpers. Removal plan: split request normalization from recording/export helpers after the profile mapping rules settle.

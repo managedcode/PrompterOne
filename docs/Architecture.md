@@ -1,8 +1,8 @@
-# PrompterLive Architecture
+# PrompterOne Architecture
 
 ## Intent
 
-`PrompterLive` is a standalone Blazor WebAssembly teleprompter app.
+`PrompterOne` is a standalone Blazor WebAssembly teleprompter app.
 
 The acceptance target is a browser-only runtime that:
 
@@ -46,9 +46,9 @@ If a change introduces a new major component, moves ownership, or changes how co
 
 ```mermaid
 flowchart LR
-    App["src/PrompterLive.App<br/>Standalone WASM host"]
-    Shared["src/PrompterLive.Shared<br/>Razor pages, layout, CSS, JS interop"]
-    Core["src/PrompterLive.Core<br/>TPS, RSVP, workspace, media, streaming"]
+    App["src/PrompterOne.App<br/>Standalone WASM host"]
+    Shared["src/PrompterOne.Shared<br/>Razor pages, layout, CSS, JS interop"]
+    Core["src/PrompterOne.Core<br/>TPS, RSVP, workspace, media, streaming"]
     NewDesign["new-design/<br/>HTML/CSS/JS reference + parser sources"]
     Tests["tests/*<br/>xUnit + bUnit + Playwright"]
 
@@ -63,9 +63,9 @@ flowchart LR
 
 ## Vertical Slice Layout
 
-- `src/PrompterLive.Shared` keeps routed UI in feature slices: `AppShell`, `Diagnostics`, `Editor`, `Library`, `Learn`, `Teleprompter`, `GoLive`, `Settings`, and `Media`.
-- `src/PrompterLive.Core` keeps host-neutral behavior in matching domain slices: `Tps`, `Editor`, `Workspace`, `Library`, `Rsvp`, `Media`, `Streaming`, and `Localization`.
-- `tests/PrompterLive.Core.Tests`, `tests/PrompterLive.App.Tests`, and `tests/PrompterLive.App.UITests` mirror those feature slices and reserve `Support` or `Infrastructure` for shared harness code.
+- `src/PrompterOne.Shared` keeps routed UI in feature slices: `AppShell`, `Diagnostics`, `Editor`, `Library`, `Learn`, `Teleprompter`, `GoLive`, `Settings`, and `Media`.
+- `src/PrompterOne.Core` keeps host-neutral behavior in matching domain slices: `Tps`, `Editor`, `Workspace`, `Library`, `Rsvp`, `Media`, `Streaming`, and `Localization`.
+- `tests/PrompterOne.Core.Tests`, `tests/PrompterOne.App.Tests`, and `tests/PrompterOne.App.UITests` mirror those feature slices and reserve `Support` or `Infrastructure` for shared harness code.
 
 ## Design And Structure Principles
 
@@ -79,9 +79,9 @@ flowchart LR
 
 ### Code Structure Principles
 
-- `src/PrompterLive.App` hosts only bootstrapping and runtime startup concerns.
-- `src/PrompterLive.Shared` owns routed pages, Razor components, CSS, UI state wiring, and browser interop.
-- `src/PrompterLive.Core` owns reusable domain logic, parsing, workspace state, media models, and streaming logic.
+- `src/PrompterOne.App` hosts only bootstrapping and runtime startup concerns.
+- `src/PrompterOne.Shared` owns routed pages, Razor components, CSS, UI state wiring, and browser interop.
+- `src/PrompterOne.Core` owns reusable domain logic, parsing, workspace state, media models, and streaming logic.
 - `tests/` mirrors production ownership and proves behavior through real UI, component, and core flows.
 - New code should be added where the owning boundary already lives; do not create duplicate feature centers.
 
@@ -89,20 +89,20 @@ flowchart LR
 
 | Component / Slice | What It Is | Why It Exists | Where It Lives | Owns | Must Not Own |
 | --- | --- | --- | --- | --- | --- |
-| `PrompterLive.App` | Browser host and startup shell | Boots the standalone WASM app on the stable local origin | `src/PrompterLive.App` | startup, host config, app shell entrypoint | domain logic, feature behavior, server runtime code |
-| `AppShell` | Shared routed layout and navigation shell | Keeps one navigation, header, widget, and screen-frame contract across the app | `src/PrompterLive.Shared/AppShell` | layout chrome, route-aware header state, persistent shell widgets | feature-specific editing, streaming, or document logic |
-| `Library` | Script and folder browsing surface | Lets users discover, search, and organize scripts | `src/PrompterLive.Shared/Library`, `src/PrompterLive.Core/Library` | cards, folder tree UI, repository-backed browse flows | TPS authoring rules, reader rendering, streaming orchestration |
-| `Editor` | TPS authoring surface | Creates and reshapes scripts with structure-aware tooling | `src/PrompterLive.Shared/Editor`, `src/PrompterLive.Core/Editor`, `src/PrompterLive.Core/Tps` | source editing UI, toolbar actions, front matter, TPS transforms | shell navigation policy, teleprompter playback, live runtime wiring |
-| `Learn` | RSVP rehearsal mode | Trains delivery with timing and context | `src/PrompterLive.Shared/Learn`, `src/PrompterLive.Core/Rsvp` | ORP playback, rehearsal pacing, next-phrase context | document storage, scene routing, destination configuration |
-| `Teleprompter` | Read-mode playback surface | Presents the script for live reading with camera-backed composition | `src/PrompterLive.Shared/Teleprompter` | reading layout, background camera composition, runtime reading flow | script persistence rules, destination setup screens |
-| `GoLive` | Operational browser studio surface | Arms outputs, switches sources, previews cameras, and exposes honest live/runtime status | `src/PrompterLive.Shared/GoLive`, `src/PrompterLive.Core/Streaming` | studio layout, output quick toggles, selected vs on-air source state, live session state | provider credential editing, server-side stream processing, unrelated editor or library concerns |
-| `Settings` | Device, scene, and provider setup surface | Configures cameras, microphones, overlays, base scene state, and persisted destination credentials | `src/PrompterLive.Shared/Settings`, `src/PrompterLive.Core/Media` | device selection UI, scene transforms, provider credentials/endpoints, scene persistence flows | live output orchestration policy, document editing |
-| `Storage` | Browser persistence and cloud transfer orchestration | Keeps scripts and settings local-first while exposing provider-backed import/export | `src/PrompterLive.Shared/Storage`, `src/PrompterLive.Shared/Library/Services/Storage` | browser `IStorage` and VFS registration, authoritative browser repositories for scripts/folders, provider credential persistence, scripts/settings snapshot transfer | routed page layout, teleprompter rendering, video-stream upload workflows |
-| `Diagnostics` | Error and operation feedback layer | Makes recoverable and fatal issues visible in the shell | `src/PrompterLive.Shared/Diagnostics` | banners, error boundary reporting, operation status wiring | owning business logic of the failing feature |
-| `Localization` | Culture and UI text contract | Keeps supported runtime languages consistent and browser-driven | `src/PrompterLive.Shared/Localization`, `src/PrompterLive.Core/Localization` | text catalogs, culture bootstrap, supported culture rules | feature behavior or screen-specific layout ownership |
-| `Workspace` | Active script/session state model | Gives editor, learn, read, and go-live one shared script context | `src/PrompterLive.Core/Workspace` | loaded script state, previews, estimated duration, active session metadata | feature-specific rendering details |
-| `Media` | Browser media and scene domain | Models cameras, microphones, transforms, and audio bus state | `src/PrompterLive.Core/Media`, `src/PrompterLive.Shared/Media` | media device models, scene state, browser media interop | routed screen layout ownership |
-| `Streaming` | Output and target routing domain | Defines how program output is described and routed to destinations | `src/PrompterLive.Core/Streaming` | stream settings, target descriptors, routing normalization | Razor UI or page layout concerns |
+| `PrompterOne.App` | Browser host and startup shell | Boots the standalone WASM app on the stable local origin | `src/PrompterOne.App` | startup, host config, app shell entrypoint | domain logic, feature behavior, server runtime code |
+| `AppShell` | Shared routed layout and navigation shell | Keeps one navigation, header, widget, and screen-frame contract across the app | `src/PrompterOne.Shared/AppShell` | layout chrome, route-aware header state, persistent shell widgets | feature-specific editing, streaming, or document logic |
+| `Library` | Script and folder browsing surface | Lets users discover, search, and organize scripts | `src/PrompterOne.Shared/Library`, `src/PrompterOne.Core/Library` | cards, folder tree UI, repository-backed browse flows | TPS authoring rules, reader rendering, streaming orchestration |
+| `Editor` | TPS authoring surface | Creates and reshapes scripts with structure-aware tooling | `src/PrompterOne.Shared/Editor`, `src/PrompterOne.Core/Editor`, `src/PrompterOne.Core/Tps` | source editing UI, toolbar actions, front matter, TPS transforms | shell navigation policy, teleprompter playback, live runtime wiring |
+| `Learn` | RSVP rehearsal mode | Trains delivery with timing and context | `src/PrompterOne.Shared/Learn`, `src/PrompterOne.Core/Rsvp` | ORP playback, rehearsal pacing, next-phrase context | document storage, scene routing, destination configuration |
+| `Teleprompter` | Read-mode playback surface | Presents the script for live reading with camera-backed composition | `src/PrompterOne.Shared/Teleprompter` | reading layout, background camera composition, runtime reading flow | script persistence rules, destination setup screens |
+| `GoLive` | Operational browser studio surface | Arms outputs, switches sources, previews cameras, and exposes honest live/runtime status | `src/PrompterOne.Shared/GoLive`, `src/PrompterOne.Core/Streaming` | studio layout, output quick toggles, selected vs on-air source state, live session state | provider credential editing, server-side stream processing, unrelated editor or library concerns |
+| `Settings` | Device, scene, and provider setup surface | Configures cameras, microphones, overlays, base scene state, and persisted destination credentials | `src/PrompterOne.Shared/Settings`, `src/PrompterOne.Core/Media` | device selection UI, scene transforms, provider credentials/endpoints, scene persistence flows | live output orchestration policy, document editing |
+| `Storage` | Browser persistence and cloud transfer orchestration | Keeps scripts and settings local-first while exposing provider-backed import/export | `src/PrompterOne.Shared/Storage`, `src/PrompterOne.Shared/Library/Services/Storage` | browser `IStorage` and VFS registration, authoritative browser repositories for scripts/folders, provider credential persistence, scripts/settings snapshot transfer | routed page layout, teleprompter rendering, video-stream upload workflows |
+| `Diagnostics` | Error and operation feedback layer | Makes recoverable and fatal issues visible in the shell | `src/PrompterOne.Shared/Diagnostics` | banners, error boundary reporting, operation status wiring | owning business logic of the failing feature |
+| `Localization` | Culture and UI text contract | Keeps supported runtime languages consistent and browser-driven | `src/PrompterOne.Shared/Localization`, `src/PrompterOne.Core/Localization` | text catalogs, culture bootstrap, supported culture rules | feature behavior or screen-specific layout ownership |
+| `Workspace` | Active script/session state model | Gives editor, learn, read, and go-live one shared script context | `src/PrompterOne.Core/Workspace` | loaded script state, previews, estimated duration, active session metadata | feature-specific rendering details |
+| `Media` | Browser media and scene domain | Models cameras, microphones, transforms, and audio bus state | `src/PrompterOne.Core/Media`, `src/PrompterOne.Shared/Media` | media device models, scene state, browser media interop | routed screen layout ownership |
+| `Streaming` | Output and target routing domain | Defines how program output is described and routed to destinations | `src/PrompterOne.Core/Streaming` | stream settings, target descriptors, routing normalization | Razor UI or page layout concerns |
 | `tests` | Verification layers | Protects behavior with browser, component, and core assertions | `tests/*` | acceptance flows, component contracts, domain verification | production logic ownership |
 
 ## Build Governance
@@ -111,7 +111,7 @@ flowchart LR
 - `Directory.Build.props` is the canonical source for shared target framework, analyzer policy, and assembly/app version settings.
 - `global.json` pins the expected .NET SDK for local and CI builds.
 - `.github/workflows/pr-validation.yml` is the canonical pull-request validation flow for repo build and test gates; it runs the browser-realistic Playwright suite in a dedicated `dotnet test` step after the non-browser test projects finish.
-- `.github/workflows/deploy-github-pages.yml` is the canonical release pipeline for the standalone WASM app: build and test, resolve the release version from `Directory.Build.props`, publish the release artifact, publish the GitHub Release, and deploy GitHub Pages on the custom-domain root. Its validation job isolates `PrompterLive.App.UITests` from the supporting test projects so the self-hosted browser harness owns the test assets during its run.
+- `.github/workflows/deploy-github-pages.yml` is the canonical release pipeline for the standalone WASM app: build and test, resolve the release version from `Directory.Build.props`, publish the release artifact, publish the GitHub Release, and deploy GitHub Pages on the custom-domain root. Its validation job isolates `PrompterOne.App.UITests` from the supporting test projects so the self-hosted browser harness owns the test assets during its run.
 - Vendored browser SDK release pins live in `vendored-streaming-sdks.json`, and the exact release sync or watch flow is documented in `docs/Features/VendoredStreamingSdkReleases.md`.
 
 ## Runtime Boundaries
@@ -119,9 +119,9 @@ flowchart LR
 ```mermaid
 flowchart TD
     Browser["Browser"]
-    WasmHost["PrompterLive.App"]
-    Ui["PrompterLive.Shared"]
-    Domain["PrompterLive.Core"]
+    WasmHost["PrompterOne.App"]
+    Ui["PrompterOne.Shared"]
+    Domain["PrompterOne.Core"]
     Localization["Culture bootstrap + localized UI catalog"]
     BrowserStorage["Browser storage + repository adapters<br/>scripts + folders + settings"]
     CloudStorage["Cloud provider orchestration<br/>snapshot import/export"]
@@ -229,7 +229,7 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    WasmHost["PrompterLive.App<br/>ILogger configuration"]
+    WasmHost["PrompterOne.App<br/>ILogger configuration"]
     Layout["MainLayout + DiagnosticsBanner + ConnectivityOverlay"]
     Boundary["LoggingErrorBoundary"]
     Bootstrap["index.html bootstrap error shell"]
@@ -288,7 +288,7 @@ sequenceDiagram
 
 ```mermaid
 flowchart LR
-    UITests["PrompterLive.App.UITests"]
+    UITests["PrompterOne.App.UITests"]
     Fixture["StandaloneAppFixture"]
     InitScript["synthetic-media-harness.js<br/>BrowserContext.addInitScript"]
     Browser["Chromium context<br/>dynamic loopback origin + granted permissions"]
@@ -317,14 +317,14 @@ If a native embedded browser host returns later, media access must not rely on s
 
 ## Project Responsibilities
 
-### `src/PrompterLive.App`
+### `src/PrompterOne.App`
 
 - standalone Blazor WebAssembly host
 - serves the app shell and static asset references
 - applies browser-language culture selection before the WASM runtime starts rendering routed UI
 - must stay free of server-only runtime dependencies
 
-### `src/PrompterLive.Shared`
+### `src/PrompterOne.Shared`
 
 - routed Razor screens: `library`, `editor`, `learn`, `teleprompter`, `go-live`, `settings`
 - vertical slices own their routed pages, components, renderers, and feature-local services under folders such as `Editor/`, `Library/`, `Teleprompter/`, and `GoLive/`
@@ -346,7 +346,7 @@ Rules:
 - do not move business logic here if it belongs in `Core`
 - preserve `data-testid` selectors for browser tests
 
-### `src/PrompterLive.Core`
+### `src/PrompterOne.Core`
 
 - feature slices keep related abstractions, models, previews, and services together under `Tps/`, `Editor/`, `Workspace/`, `Library/`, `Rsvp/`, `Media/`, and `Streaming/`
 - TPS parser, compiler, exporter
@@ -430,8 +430,8 @@ flowchart LR
 
 ```mermaid
 sequenceDiagram
-    participant Shared as PrompterLive.Shared
-    participant Core as PrompterLive.Core
+    participant Shared as PrompterOne.Shared
+    participant Core as PrompterOne.Core
     participant Browser as Browser APIs
 
     Shared->>Core: Parse / compile TPS
@@ -444,20 +444,20 @@ sequenceDiagram
 
 ```mermaid
 flowchart LR
-    CoreTests["tests/PrompterLive.Core.Tests"]
-    AppTests["tests/PrompterLive.App.Tests"]
-    UiTests["tests/PrompterLive.App.UITests"]
+    CoreTests["tests/PrompterOne.Core.Tests"]
+    AppTests["tests/PrompterOne.App.Tests"]
+    UiTests["tests/PrompterOne.App.UITests"]
 
-    CoreTests --> Core["src/PrompterLive.Core"]
-    AppTests --> Shared["src/PrompterLive.Shared"]
-    UiTests --> App["src/PrompterLive.App"]
+    CoreTests --> Core["src/PrompterOne.Core"]
+    AppTests --> Shared["src/PrompterOne.Shared"]
+    UiTests --> App["src/PrompterOne.App"]
 ```
 
 ## Test Strategy
 
-- `PrompterLive.Core.Tests`: domain correctness and regression tests grouped by core slice plus `Support/`
-- `PrompterLive.App.Tests`: bUnit coverage grouped by routed feature slice plus `Support/`
-- `PrompterLive.App.UITests`: Playwright browser flows grouped by browser feature slice plus `Infrastructure/`, `Scenarios/`, `Media/`, and `Support/`
+- `PrompterOne.Core.Tests`: domain correctness and regression tests grouped by core slice plus `Support/`
+- `PrompterOne.App.Tests`: bUnit coverage grouped by routed feature slice plus `Support/`
+- `PrompterOne.App.UITests`: Playwright browser flows grouped by browser feature slice plus `Infrastructure/`, `Scenarios/`, `Media/`, and `Support/`
 
 ## Constraints
 

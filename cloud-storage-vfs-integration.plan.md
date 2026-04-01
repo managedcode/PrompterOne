@@ -61,17 +61,17 @@ Integrate `ManagedCode.Storage.Browser` plus `ManagedCode.Storage.VirtualFileSys
 - [x] Step 1. Establish the exact baseline for the affected solution areas.
   - Read the current browser repositories, Settings Cloud UI, storage keys/method names, and app DI registration.
   - Run the relevant baseline commands in order:
-    - `dotnet build /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx -warnaserror`
-    - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.Core.Tests/PrompterLive.Core.Tests.csproj`
-    - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.Tests/PrompterLive.App.Tests.csproj`
-    - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj --no-build`
+    - `dotnet build /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx -warnaserror`
+    - `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.Core.Tests/PrompterOne.Core.Tests.csproj`
+    - `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.Tests/PrompterOne.App.Tests.csproj`
+    - `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.UITests/PrompterOne.App.UITests.csproj --no-build`
   - Verification before moving on:
     - Record any pre-existing failures below with symptoms and intended handling.
     - Confirm the current Settings Cloud section is still only stub content before refactoring.
 
 - [x] Step 2. Add the Storage package dependencies and runtime wiring.
   - Update `Directory.Packages.props` and project files with `ManagedCode.Storage.Browser`, `ManagedCode.Storage.CloudKit`, `ManagedCode.Storage.Dropbox`, `ManagedCode.Storage.Google`, `ManagedCode.Storage.GoogleDrive`, `ManagedCode.Storage.OneDrive`, and `ManagedCode.Storage.VirtualFileSystem`.
-  - Extend `PrompterLiveServiceCollectionExtensions` with browser storage and VFS registration that matches the WASM runtime and keeps local browser storage as the default local provider.
+  - Extend `PrompterOneServiceCollectionExtensions` with browser storage and VFS registration that matches the WASM runtime and keeps local browser storage as the default local provider.
   - Verification before moving on:
     - Build succeeds.
     - New services resolve in the bUnit harness without startup failures.
@@ -118,32 +118,32 @@ Integrate `ManagedCode.Storage.Browser` plus `ManagedCode.Storage.VirtualFileSys
   - Add or update a real Playwright Settings scenario that exercises the Cloud section, persists provider values, and proves scripts/settings import-export through the browser-backed provider.
   - Capture screenshots under `output/playwright/`.
   - Run the final validation in order:
-    - `dotnet build /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx -warnaserror`
-    - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.Core.Tests/PrompterLive.Core.Tests.csproj`
-    - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.Tests/PrompterLive.App.Tests.csproj`
-    - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj --no-build`
-    - `dotnet test /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx`
-    - `dotnet test /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx --collect:"XPlat Code Coverage"`
-    - `dotnet format /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx`
+    - `dotnet build /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx -warnaserror`
+    - `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.Core.Tests/PrompterOne.Core.Tests.csproj`
+    - `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.Tests/PrompterOne.App.Tests.csproj`
+    - `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.UITests/PrompterOne.App.UITests.csproj --no-build`
+    - `dotnet test /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx`
+    - `dotnet test /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx --collect:"XPlat Code Coverage"`
+    - `dotnet format /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx`
   - Verification before moving on:
     - All checklist items are complete.
     - Working tree contains only intentional changes.
   - Completed validation:
-    - `dotnet build /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx -warnaserror`
-    - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.Core.Tests/PrompterLive.Core.Tests.csproj`
-    - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.Tests/PrompterLive.App.Tests.csproj`
-    - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj --no-build`
-    - `dotnet test /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx`
-    - `dotnet test /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx --collect:"XPlat Code Coverage"`
-    - `dotnet format /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx`
+    - `dotnet build /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx -warnaserror`
+    - `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.Core.Tests/PrompterOne.Core.Tests.csproj`
+    - `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.Tests/PrompterOne.App.Tests.csproj`
+    - `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.UITests/PrompterOne.App.UITests.csproj --no-build`
+    - `dotnet test /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx`
+    - `dotnet test /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx --collect:"XPlat Code Coverage"`
+    - `dotnet format /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx`
 
 ## Baseline Failures
 
 - [x] No pre-existing baseline failures in the relevant build, core, component, or browser suites.
-  - Build: `dotnet build /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx -warnaserror` passed.
-  - Core tests: `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.Core.Tests/PrompterLive.Core.Tests.csproj --no-build` passed with `34/34`.
-  - App tests: `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.Tests/PrompterLive.App.Tests.csproj --no-build` passed with `95/95`.
-  - UI tests: `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj --no-build` passed with `76/76`.
+  - Build: `dotnet build /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx -warnaserror` passed.
+  - Core tests: `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.Core.Tests/PrompterOne.Core.Tests.csproj --no-build` passed with `34/34`.
+  - App tests: `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.Tests/PrompterOne.App.Tests.csproj --no-build` passed with `95/95`.
+  - UI tests: `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.UITests/PrompterOne.App.UITests.csproj --no-build` passed with `76/76`.
   - Root-cause note: an initial baseline attempt produced file-lock errors because multiple `dotnet` commands were launched in parallel against the same output folders; rerunning sequentially confirmed the repo baseline is green.
   - Fix status: no inherited product failures need to be cleared before implementation.
 
@@ -158,7 +158,7 @@ Integrate `ManagedCode.Storage.Browser` plus `ManagedCode.Storage.VirtualFileSys
 
 ## Review Notes
 
-- [x] UI-test harness now resolves package `_content/*` assets from `staticwebassets.development.json`, which cleared the storage-package bootstrap failure in `PrompterLive.App.UITests`.
+- [x] UI-test harness now resolves package `_content/*` assets from `staticwebassets.development.json`, which cleared the storage-package bootstrap failure in `PrompterOne.App.UITests`.
 - [x] The selected primary cloud provider now auto-opens its settings card so reload and first-use flows expose the active provider state without manual accordion recovery.
 
 ## Validation Failures To Clear

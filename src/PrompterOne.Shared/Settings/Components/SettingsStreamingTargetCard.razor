@@ -1,0 +1,87 @@
+@namespace PrompterOne.Shared.Components.Settings
+
+<article class="@CardCssClass"
+         data-testid="@CardTestId"
+         @onclick="OnCardToggle">
+    <div class="set-dest-header">
+        <div class="@IconCssClass">
+            @if (Icon is not null)
+            {
+                @Icon
+            }
+        </div>
+        <div class="set-dest-info">
+            <span class="set-dest-name">@Title</span>
+            <span class="set-dest-account">@Account</span>
+        </div>
+        <span class="@StatusCssClass">@StatusLabel</span>
+        <svg class="set-dest-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6,9 12,15 18,9" />
+        </svg>
+    </div>
+
+    <div class="set-dest-body" @onclick:stopPropagation="true">
+        <p class="set-card-copy">@Description</p>
+
+        @if (!string.IsNullOrWhiteSpace(Summary))
+        {
+            <div class="live-status-row">
+                <span class="live-status @(IsReady ? ReadyCssClass : PendingCssClass)">@StatusLabel</span>
+                <span class="live-status-text">@Summary</span>
+            </div>
+        }
+
+        <div class="set-field set-field-toggle">
+            <label>Arm destination</label>
+            <div class="set-toggle @(IsEnabled ? OnCssClass : null)"
+                 data-testid="@ToggleTestId"
+                 @onclick="ToggleEnabled"
+                 @onclick:stopPropagation="true">
+                <div class="set-toggle-thumb"></div>
+            </div>
+        </div>
+
+        @if (ChildContent is not null)
+        {
+            <div class="set-device-fields">
+                @ChildContent
+            </div>
+        }
+    </div>
+</article>
+
+@code {
+    private const string OnCssClass = "on";
+    private const string PendingCssClass = "pending";
+    private const string ReadyCssClass = "ready";
+
+    private string CardCssClass =>
+        IsOpen ? "set-dest-card open" : "set-dest-card";
+
+    private string IconCssClass =>
+        string.IsNullOrWhiteSpace(IconClass)
+            ? "set-dest-icon"
+            : $"set-dest-icon {IconClass}";
+
+    private string StatusCssClass =>
+        string.IsNullOrWhiteSpace(StatusClass)
+            ? "set-dest-status"
+            : $"set-dest-status {StatusClass}";
+
+    [Parameter] public string Account { get; set; } = string.Empty;
+    [Parameter] public string CardTestId { get; set; } = string.Empty;
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string Description { get; set; } = string.Empty;
+    [Parameter] public RenderFragment? Icon { get; set; }
+    [Parameter] public string IconClass { get; set; } = string.Empty;
+    [Parameter] public bool IsEnabled { get; set; }
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public bool IsReady { get; set; }
+    [Parameter] public EventCallback OnCardToggle { get; set; }
+    [Parameter] public EventCallback ToggleEnabled { get; set; }
+    [Parameter] public string StatusClass { get; set; } = string.Empty;
+    [Parameter] public string StatusLabel { get; set; } = string.Empty;
+    [Parameter] public string Summary { get; set; } = string.Empty;
+    [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public string ToggleTestId { get; set; } = string.Empty;
+}

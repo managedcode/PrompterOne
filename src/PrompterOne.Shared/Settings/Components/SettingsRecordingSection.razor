@@ -1,0 +1,261 @@
+@namespace PrompterOne.Shared.Components.Settings
+
+<section class="set-section set-panel"
+         id="set-recording"
+         style="@DisplayStyle"
+         data-testid="@UiTestIds.Settings.RecordingPanel">
+    <h3 class="set-section-title">Recording</h3>
+    <p class="set-section-desc">Configure how local recordings are saved during GO LIVE sessions.</p>
+
+    <div class="set-device-list">
+        <SettingsExpandableCard Title="General"
+                                Subtitle="Folder · File naming · Auto-record"
+                                IconStyle="background:rgba(196,160,96,.10); color:var(--gold);"
+                                IsOpen="@IsCardOpen(GeneralCardId)"
+                                OnToggle="@(() => ToggleCard.InvokeAsync(GeneralCardId))">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+            </svg>
+            <div class="set-device-fields">
+                <div class="set-field set-field-toggle">
+                    <label>Auto-record when streaming</label>
+                    <div class="set-toggle @(AutoRecordWhenStreaming ? "on" : null)"
+                         data-testid="@UiTestIds.Settings.RecordingAutoRecord"
+                         @onclick="ToggleAutoRecordWhenStreaming"
+                         @onclick:stopPropagation="true">
+                        <div class="set-toggle-thumb"></div>
+                    </div>
+                </div>
+                <div class="set-field set-field-toggle">
+                    <label>Split recording every hour</label>
+                    <div class="set-toggle @(SplitRecordingHourly ? "on" : null)"
+                         data-testid="@UiTestIds.Settings.RecordingSplit"
+                         @onclick="ToggleSplitRecordingHourly"
+                         @onclick:stopPropagation="true">
+                        <div class="set-toggle-thumb"></div>
+                    </div>
+                </div>
+                <div class="set-field">
+                    <label>Recording Folder</label>
+                    <div class="set-path-field">
+                        <input type="text" class="set-input" value="@RecordingFolder" readonly />
+                        <button class="set-btn-outline set-btn-sm" type="button">Browse</button>
+                    </div>
+                </div>
+                <div class="set-field">
+                    <label>File Naming</label>
+                    <select class="set-select"
+                            value="@RecordingNamingPattern"
+                            @onchange="OnNamingChanged"
+                            @onclick:stopPropagation="true">
+                        <option value="Script Name + Date">Script Name + Date</option>
+                        <option value="Date + Time">Date + Time</option>
+                        <option value="Custom Prefix">Custom Prefix</option>
+                    </select>
+                </div>
+            </div>
+        </SettingsExpandableCard>
+
+        <SettingsExpandableCard Title="Video"
+                                Subtitle="@($"{RecordingVideoCodec} · {RecordingVideoResolution} · {RecordingVideoFrameRate} · {RecordingVideoBitrateKbps} kbps")"
+                                IconStyle="background:rgba(59,130,246,.10); color:#60A5FA;"
+                                IsOpen="@IsCardOpen(VideoCardId)"
+                                OnToggle="@(() => ToggleCard.InvokeAsync(VideoCardId))">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="23,7 16,12 23,17" />
+                <rect x="1" y="5" width="15" height="14" rx="2" />
+            </svg>
+            <div class="set-device-fields">
+                <div class="set-rec-grid">
+                    <div class="set-field">
+                        <label>Container</label>
+                        <select class="set-select" value="@RecordingContainer" @onchange="OnContainerChanged" @onclick:stopPropagation="true">
+                            <option value="MP4">MP4</option>
+                            <option value="MOV">MOV</option>
+                            <option value="MKV">MKV</option>
+                            <option value="WebM">WebM</option>
+                        </select>
+                    </div>
+                    <div class="set-field">
+                        <label>Codec</label>
+                        <select class="set-select" value="@RecordingVideoCodec" @onchange="OnVideoCodecChanged" @onclick:stopPropagation="true">
+                            <option value="H.264 (AVC)">H.264 (AVC)</option>
+                            <option value="H.265 (HEVC)">H.265 (HEVC)</option>
+                            <option value="ProRes 422">ProRes 422</option>
+                            <option value="ProRes 422 HQ">ProRes 422 HQ</option>
+                            <option value="VP9">VP9</option>
+                            <option value="AV1">AV1</option>
+                        </select>
+                    </div>
+                    <div class="set-field">
+                        <label>Resolution</label>
+                        <select class="set-select" value="@RecordingVideoResolution" @onchange="OnVideoResolutionChanged" @onclick:stopPropagation="true">
+                            <option value="Same as source">Same as source</option>
+                            <option value="3840 × 2160 (4K)">3840 × 2160 (4K)</option>
+                            <option value="1920 × 1080 (FHD)">1920 × 1080 (FHD)</option>
+                            <option value="1280 × 720 (HD)">1280 × 720 (HD)</option>
+                        </select>
+                    </div>
+                    <div class="set-field">
+                        <label>Frame Rate</label>
+                        <select class="set-select" value="@RecordingVideoFrameRate" @onchange="OnVideoFrameRateChanged" @onclick:stopPropagation="true">
+                            <option value="30 fps">30 fps</option>
+                            <option value="60 fps">60 fps</option>
+                            <option value="24 fps">24 fps</option>
+                            <option value="Same as source">Same as source</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="set-field">
+                    <label>Bitrate (kbps)</label>
+                    <input type="number"
+                           class="set-input"
+                           value="@RecordingVideoBitrateKbps"
+                           data-testid="@UiTestIds.Settings.RecordingVideoBitrate"
+                           @oninput="UpdateVideoBitrate" />
+                </div>
+            </div>
+        </SettingsExpandableCard>
+
+        <SettingsExpandableCard Title="Audio"
+                                Subtitle="@($"{RecordingAudioCodec} · {RecordingAudioSampleRate} · {RecordingAudioBitrateKbps} kbps · {RecordingAudioChannels}")"
+                                IconStyle="background:rgba(16,185,129,.10); color:#34D399;"
+                                IsOpen="@IsCardOpen(AudioCardId)"
+                                OnToggle="@(() => ToggleCard.InvokeAsync(AudioCardId))">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 18V5l12-2v13" />
+                <circle cx="6" cy="18" r="3" />
+                <circle cx="18" cy="16" r="3" />
+            </svg>
+            <div class="set-device-fields">
+                <div class="set-rec-grid">
+                    <div class="set-field">
+                        <label>Codec</label>
+                        <select class="set-select" value="@RecordingAudioCodec" @onchange="OnAudioCodecChanged" @onclick:stopPropagation="true">
+                            <option value="AAC">AAC</option>
+                            <option value="PCM (Uncompressed)">PCM (Uncompressed)</option>
+                            <option value="FLAC">FLAC</option>
+                            <option value="Opus">Opus</option>
+                            <option value="MP3">MP3</option>
+                        </select>
+                    </div>
+                    <div class="set-field">
+                        <label>Sample Rate</label>
+                        <select class="set-select" value="@RecordingAudioSampleRate" @onchange="OnSampleRateChanged" @onclick:stopPropagation="true">
+                            <option value="48 kHz">48 kHz</option>
+                            <option value="44.1 kHz">44.1 kHz</option>
+                            <option value="96 kHz">96 kHz</option>
+                        </select>
+                    </div>
+                    <div class="set-field">
+                        <label>Bitrate (kbps)</label>
+                        <input type="number"
+                               class="set-input"
+                               value="@RecordingAudioBitrateKbps"
+                               data-testid="@UiTestIds.Settings.RecordingAudioBitrate"
+                               @oninput="UpdateAudioBitrate" />
+                    </div>
+                    <div class="set-field">
+                        <label>Channels</label>
+                        <select class="set-select" value="@RecordingAudioChannels" @onchange="OnAudioChannelsChanged" @onclick:stopPropagation="true">
+                            <option value="Stereo">Stereo</option>
+                            <option value="Mono">Mono</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </SettingsExpandableCard>
+    </div>
+</section>
+
+@code {
+    private const string AudioCardId = "recording-audio";
+    private const string GeneralCardId = "recording-general";
+    private const string VideoCardId = "recording-video";
+
+    [Parameter] public bool AutoRecordWhenStreaming { get; set; }
+
+    [Parameter] public string DisplayStyle { get; set; } = string.Empty;
+
+    [Parameter] public Func<string, bool> IsCardOpen { get; set; } = static _ => false;
+
+    [Parameter] public string RecordingAudioChannels { get; set; } = string.Empty;
+
+    [Parameter] public string RecordingAudioCodec { get; set; } = string.Empty;
+
+    [Parameter] public int RecordingAudioBitrateKbps { get; set; }
+
+    [Parameter] public string RecordingAudioSampleRate { get; set; } = string.Empty;
+
+    [Parameter] public string RecordingContainer { get; set; } = string.Empty;
+
+    [Parameter] public string RecordingFolder { get; set; } = string.Empty;
+
+    [Parameter] public string RecordingNamingPattern { get; set; } = string.Empty;
+
+    [Parameter] public string RecordingVideoCodec { get; set; } = string.Empty;
+
+    [Parameter] public int RecordingVideoBitrateKbps { get; set; }
+
+    [Parameter] public string RecordingVideoFrameRate { get; set; } = string.Empty;
+
+    [Parameter] public string RecordingVideoResolution { get; set; } = string.Empty;
+
+    [Parameter] public bool SplitRecordingHourly { get; set; }
+
+    [Parameter] public EventCallback<string> ToggleCard { get; set; }
+
+    [Parameter] public EventCallback ToggleAutoRecordWhenStreaming { get; set; }
+
+    [Parameter] public EventCallback ToggleSplitRecordingHourly { get; set; }
+
+    [Parameter] public EventCallback<string> UpdateRecordingAudioChannels { get; set; }
+
+    [Parameter] public EventCallback<string> UpdateRecordingAudioCodec { get; set; }
+
+    [Parameter] public EventCallback<ChangeEventArgs> UpdateRecordingAudioBitrate { get; set; }
+
+    [Parameter] public EventCallback<string> UpdateRecordingAudioSampleRate { get; set; }
+
+    [Parameter] public EventCallback<string> UpdateRecordingContainer { get; set; }
+
+    [Parameter] public EventCallback<string> UpdateRecordingNamingPattern { get; set; }
+
+    [Parameter] public EventCallback<string> UpdateRecordingVideoCodec { get; set; }
+
+    [Parameter] public EventCallback<ChangeEventArgs> UpdateRecordingVideoBitrate { get; set; }
+
+    [Parameter] public EventCallback<string> UpdateRecordingVideoFrameRate { get; set; }
+
+    [Parameter] public EventCallback<string> UpdateRecordingVideoResolution { get; set; }
+
+    private Task OnAudioChannelsChanged(ChangeEventArgs args) =>
+        UpdateRecordingAudioChannels.InvokeAsync(args.Value?.ToString() ?? string.Empty);
+
+    private Task OnAudioCodecChanged(ChangeEventArgs args) =>
+        UpdateRecordingAudioCodec.InvokeAsync(args.Value?.ToString() ?? string.Empty);
+
+    private Task OnContainerChanged(ChangeEventArgs args) =>
+        UpdateRecordingContainer.InvokeAsync(args.Value?.ToString() ?? string.Empty);
+
+    private Task OnNamingChanged(ChangeEventArgs args) =>
+        UpdateRecordingNamingPattern.InvokeAsync(args.Value?.ToString() ?? string.Empty);
+
+    private Task OnSampleRateChanged(ChangeEventArgs args) =>
+        UpdateRecordingAudioSampleRate.InvokeAsync(args.Value?.ToString() ?? string.Empty);
+
+    private Task OnVideoCodecChanged(ChangeEventArgs args) =>
+        UpdateRecordingVideoCodec.InvokeAsync(args.Value?.ToString() ?? string.Empty);
+
+    private Task OnVideoFrameRateChanged(ChangeEventArgs args) =>
+        UpdateRecordingVideoFrameRate.InvokeAsync(args.Value?.ToString() ?? string.Empty);
+
+    private Task OnVideoResolutionChanged(ChangeEventArgs args) =>
+        UpdateRecordingVideoResolution.InvokeAsync(args.Value?.ToString() ?? string.Empty);
+
+    private Task UpdateAudioBitrate(ChangeEventArgs args) =>
+        UpdateRecordingAudioBitrate.InvokeAsync(args);
+
+    private Task UpdateVideoBitrate(ChangeEventArgs args) =>
+        UpdateRecordingVideoBitrate.InvokeAsync(args);
+}

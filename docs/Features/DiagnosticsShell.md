@@ -2,7 +2,7 @@
 
 ## Scope
 
-`PrompterLive` uses three branded diagnostics surfaces:
+`PrompterOne` uses three branded diagnostics surfaces:
 
 - recoverable in-app banner via `DiagnosticsBanner`
 - fatal UI crash fallback via `LoggingErrorBoundary`
@@ -32,7 +32,7 @@ flowchart TD
 
 ## Rules
 
-- `#blazor-error-ui` keeps the standard Blazor id, but it must render in PrompterLive styling.
+- `#blazor-error-ui` keeps the standard Blazor id, but it must render in PrompterOne styling.
 - Standalone WASM has no server reconnect modal, so browser connectivity states are surfaced through the branded Blazor overlay instead of a global shell script.
 - Runtime diagnostics must expose stable `data-testid` hooks for browser coverage.
 - Fatal and recoverable diagnostics labels must come from the shared localization catalog.

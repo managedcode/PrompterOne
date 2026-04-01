@@ -17,7 +17,7 @@ Remove invented hardcoded About content, replace it with factual Managed Code at
 
 ### Out Of Scope
 
-- Changing TPS parsing rules in `PrompterLive.Core` unless a concrete renderer gap requires a narrowly scoped compatibility fix.
+- Changing TPS parsing rules in `PrompterOne.Core` unless a concrete renderer gap requires a narrowly scoped compatibility fix.
 - Redesigning routes or app shell behavior outside Settings/About and Teleprompter.
 - Adding a backend or changing runtime hosting shape.
 
@@ -50,25 +50,25 @@ Remove invented hardcoded About content, replace it with factual Managed Code at
 - [x] Step 1. Establish baseline context and failures.
   - Read the exact About and teleprompter implementation/test files that own this work.
   - Run the relevant baseline commands in order:
-    - `dotnet build /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx -warnaserror`
-    - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.Tests/PrompterLive.App.Tests.csproj`
-    - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj --no-build`
+    - `dotnet build /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx -warnaserror`
+    - `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.Tests/PrompterOne.App.Tests.csproj`
+    - `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.UITests/PrompterOne.App.UITests.csproj --no-build`
   - Verification before moving on:
     - Record every failing test and symptom below.
     - Confirm whether teleprompter failures reproduce before code changes.
 
 - [x] Step 2. Replace hardcoded About content with factual Managed Code metadata.
-  - Update `src/PrompterLive.Shared/Settings/Components/SettingsAboutSection.razor` and its code-behind to remove invented people and add factual company attribution plus official links, including GitHub.
+  - Update `src/PrompterOne.Shared/Settings/Components/SettingsAboutSection.razor` and its code-behind to remove invented people and add factual company attribution plus official links, including GitHub.
   - Keep the section visually aligned with Settings design patterns and preserve existing test ids or add stable new ones if needed.
   - Verification before moving on:
-    - Add/update bUnit assertions in `tests/PrompterLive.App.Tests/Settings/SettingsInteractionTests.cs`.
+    - Add/update bUnit assertions in `tests/PrompterOne.App.Tests/Settings/SettingsInteractionTests.cs`.
     - Confirm no stale invented names remain via targeted search.
 
 - [x] Step 3. Expand teleprompter word rendering to honor TPS visual cues.
   - Update teleprompter reader models/rendering so words expose the cues already emitted by `ScriptCompiler`, including stronger distinctions for emphasis/highlight, pronunciation/tooltips, emotion/color mappings, and speed-sensitive spacing.
   - Keep speed-based letter spacing bounded so words never become mush or split into visually disconnected letters.
   - Verification before moving on:
-    - Add/update bUnit tests under `tests/PrompterLive.App.Tests/Teleprompter/`.
+    - Add/update bUnit tests under `tests/PrompterOne.App.Tests/Teleprompter/`.
     - Use TPS-backed sample scripts to prove slow/fast/xslow/xfast, highlight, pronunciation, and emotion styling render as expected.
 
 - [x] Step 4. Remove teleprompter playback jumpiness and align transitions with the design.
@@ -92,11 +92,11 @@ Remove invented hardcoded About content, replace it with factual Managed Code at
 
 - [x] Step 7. Run final validation and ship.
   - Run the required verification in order:
-    - `dotnet build /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx -warnaserror`
-    - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.Tests/PrompterLive.App.Tests.csproj`
-    - `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj --no-build`
-    - `dotnet test /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx`
-    - `dotnet format /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx`
+    - `dotnet build /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx -warnaserror`
+    - `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.Tests/PrompterOne.App.Tests.csproj`
+    - `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.UITests/PrompterOne.App.UITests.csproj --no-build`
+    - `dotnet test /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx`
+    - `dotnet format /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx`
   - If green, commit with a focused message and push the current branch.
   - Verification before moving on:
     - All planned checklist items are complete.
@@ -105,9 +105,9 @@ Remove invented hardcoded About content, replace it with factual Managed Code at
 ## Baseline Failures
 
 - [x] No pre-existing baseline failures in the relevant build, bUnit, or UI suites.
-  - Build: `dotnet build /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx -warnaserror` passed.
-  - bUnit: `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.Tests/PrompterLive.App.Tests.csproj` passed with `94/94`.
-  - UI: `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj --no-build` passed with `75/75`.
+  - Build: `dotnet build /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx -warnaserror` passed.
+  - bUnit: `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.Tests/PrompterOne.App.Tests.csproj` passed with `94/94`.
+  - UI: `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.UITests/PrompterOne.App.UITests.csproj --no-build` passed with `75/75`.
   - Root-cause note: current repo baseline is green; this task will add targeted regression coverage for the requested About and teleprompter behavior.
   - Fix status: no inherited failures to clear before implementation.
 
@@ -131,24 +131,24 @@ Remove invented hardcoded About content, replace it with factual Managed Code at
 
 ## Final Validation Results
 
-- `dotnet build /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx -warnaserror`
+- `dotnet build /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx -warnaserror`
   - Result: passed after implementation and again after formatting.
-- `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.Core.Tests/PrompterLive.Core.Tests.csproj`
+- `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.Core.Tests/PrompterOne.Core.Tests.csproj`
   - Result: passed with `34/34`.
-- `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.Tests/PrompterLive.App.Tests.csproj`
+- `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.Tests/PrompterOne.App.Tests.csproj`
   - Result: passed with `95/95`.
-- `dotnet test /Users/ksemenenko/Developer/PrompterLive/tests/PrompterLive.App.UITests/PrompterLive.App.UITests.csproj --no-build`
+- `dotnet test /Users/ksemenenko/Developer/PrompterOne/tests/PrompterOne.App.UITests/PrompterOne.App.UITests.csproj --no-build`
   - Result: passed with `76/76`.
-- `dotnet test /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx`
+- `dotnet test /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx`
   - Result: passed for the full solution.
-- `dotnet test /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx --collect:"XPlat Code Coverage"`
+- `dotnet test /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx --collect:"XPlat Code Coverage"`
   - Result: passed for the full solution with coverage artifacts emitted for Core, App, and UI suites.
-- `dotnet format /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx`
+- `dotnet format /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx`
   - Result: passed.
 
 ## Notes
 
-- `About` now uses only Managed Code and PrompterLive official links and removes invented roster content from both production UI and the design reference.
+- `About` now uses only Managed Code and PrompterOne official links and removes invented roster content from both production UI and the design reference.
 - Teleprompter playback now pre-centers upcoming content before card activation to avoid visible jump on live reading transitions.
 - TPS shorthand inline speed tags like `[180WPM]...[/180WPM]` are now preserved by the compiler so reader timing matches TPS input.
 - End-to-end browser evidence includes the teleprompter full-flow screenshots under `output/playwright/teleprompter-product-launch/`.

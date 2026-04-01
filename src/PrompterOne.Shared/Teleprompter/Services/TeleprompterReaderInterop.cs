@@ -1,0 +1,22 @@
+using Microsoft.JSInterop;
+
+namespace PrompterOne.Shared.Services;
+
+public sealed class TeleprompterReaderInterop(IJSRuntime jsRuntime)
+{
+    private readonly IJSRuntime _jsRuntime = jsRuntime;
+
+    public ValueTask<double?> MeasureClusterOffsetAsync(
+        string stageId,
+        string textId,
+        string targetWordId,
+        int focalPointPercent,
+        bool neutralizeCard = false) =>
+        _jsRuntime.InvokeAsync<double?>(
+            TeleprompterReaderInteropMethodNames.MeasureClusterOffset,
+            stageId,
+            textId,
+            targetWordId,
+            focalPointPercent,
+            neutralizeCard);
+}

@@ -38,5 +38,5 @@ jobs:
           name: vendored-streaming-sdks
           path: |
             vendored-streaming-sdks.json
-            src/PrompterLive.Shared/wwwroot/vendor/livekit-client/
-            src/PrompterLive.Shared/wwwroot/vendor/vdo.ninja/
+            src/PrompterOne.Shared/wwwroot/vendor/livekit-client/
+            src/PrompterOne.Shared/wwwroot/vendor/vdo.ninja/

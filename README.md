@@ -1,19 +1,19 @@
-# PrompterLive
+# PrompterOne
 
-`PrompterLive` is a browser-first teleprompter and rehearsal tool for authors, speakers, streamers, editors, and production teams.
+`PrompterOne` is a browser-first teleprompter and rehearsal tool for authors, speakers, streamers, editors, and production teams.
 
 It is not a server product and not a desktop wrapper. The current runtime shape is a **standalone Blazor WebAssembly app** that boots directly in the browser, stores working state on the client, uses browser camera and microphone APIs, and can publish its WebAssembly build to GitHub Pages.
 
 ## Production URL
 
-- GitHub Pages target: [https://managedcode.github.io/PrompterLive/](https://managedcode.github.io/PrompterLive/)
+- GitHub Pages target: [https://managedcode.github.io/PrompterOne/](https://managedcode.github.io/PrompterOne/)
 - Publish workflow: [`.github/workflows/deploy-github-pages.yml`](.github/workflows/deploy-github-pages.yml)
 
-`PrompterLive` is published as a repository Pages site. After the publish workflow runs, the WebAssembly artifact is served as a static site with no separate backend.
+`PrompterOne` is published as a repository Pages site. After the publish workflow runs, the WebAssembly artifact is served as a static site with no separate backend.
 
 ## What It Is
 
-`PrompterLive` combines several workflows into a single product:
+`PrompterOne` combines several workflows into a single product:
 
 - `Library` for script and folder management
 - `Editor` for TPS authoring and speech-structure editing
@@ -37,22 +37,22 @@ Architecture map: [docs/Architecture.md](docs/Architecture.md)
 
 ## RSVP Inspiration
 
-`PrompterLive` does not visually copy `Squirt`, but the `Learn` mode is directly inspired by the RSVP logic and pacing approach behind Squirt-style readers.
+`PrompterOne` does not visually copy `Squirt`, but the `Learn` mode is directly inspired by the RSVP logic and pacing approach behind Squirt-style readers.
 
 In practice that means:
 
 - ORP-style focus on a key letter inside each word
 - word timing that reacts to word length and punctuation
 - natural pauses after commas, periods, and stronger phrase boundaries
-- a custom UI and layout adapted to `PrompterLive`, not a raw Squirt clone
+- a custom UI and layout adapted to `PrompterOne`, not a raw Squirt clone
 
 Canonical inspiration: [cameron/squirt](https://github.com/cameron/squirt)
 
 ## Technical Model
 
-- host: [`src/PrompterLive.App`](src/PrompterLive.App)
-- routed UI, CSS, browser interop: [`src/PrompterLive.Shared`](src/PrompterLive.Shared)
-- reusable domain logic: [`src/PrompterLive.Core`](src/PrompterLive.Core)
+- host: [`src/PrompterOne.App`](src/PrompterOne.App)
+- routed UI, CSS, browser interop: [`src/PrompterOne.Shared`](src/PrompterOne.Shared)
+- reusable domain logic: [`src/PrompterOne.Core`](src/PrompterOne.Core)
 - automated tests: [`tests/`](tests/)
 - visual reference: [`new-design/`](new-design/)
 
@@ -76,7 +76,7 @@ Current scheme:
 Version source of truth:
 
 - [`Directory.Build.props`](Directory.Build.props)
-- [`src/PrompterLive.App/Program.cs`](src/PrompterLive.App/Program.cs)
+- [`src/PrompterOne.App/Program.cs`](src/PrompterOne.App/Program.cs)
 
 Versioning and Pages workflow details: [docs/Features/AppVersioningAndGitHubPages.md](docs/Features/AppVersioningAndGitHubPages.md)
 
@@ -89,17 +89,17 @@ Requirements:
 Run:
 
 ```bash
-cd src/PrompterLive.App
+cd src/PrompterOne.App
 dotnet run
 ```
 
 Useful commands:
 
 ```bash
-dotnet build /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx -warnaserror
-dotnet test /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx
-dotnet format /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx
-dotnet test /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx --collect:"XPlat Code Coverage"
+dotnet build /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx -warnaserror
+dotnet test /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx
+dotnet format /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx
+dotnet test /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx --collect:"XPlat Code Coverage"
 ```
 
 ## Deploy
@@ -110,7 +110,7 @@ Publish runs through the GitHub Actions workflow:
 
 What it does:
 
-- builds `src/PrompterLive.App`
+- builds `src/PrompterOne.App`
 - injects the CI build number into the app version
 - takes the published `wwwroot`
 - rewrites `base href` for the repository Pages path
@@ -130,7 +130,7 @@ Official platform reference: [GitHub Pages](https://docs.github.com/en/pages)
 
 ## Browser Media And Streaming Stack
 
-`PrompterLive` is a browser-first media app, so it relies on standard Web APIs and a thin interop layer:
+`PrompterOne` is a browser-first media app, so it relies on standard Web APIs and a thin interop layer:
 
 - [WebRTC API](https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API)
 - [`getUserMedia()`](https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia)
@@ -164,7 +164,7 @@ Currently pinned in the repository:
 
 ## Credits And Inspirations
 
-These are the external projects, APIs, and references that `PrompterLive` builds on:
+These are the external projects, APIs, and references that `PrompterOne` builds on:
 
 ### Platform And Runtime
 

@@ -1,0 +1,108 @@
+@namespace PrompterOne.Shared.Components.GoLive
+
+<section class="go-live-scenes-shell"
+         data-testid="@UiTestIds.GoLive.SceneControls">
+    <div class="go-live-scenes-bar"
+         data-testid="@UiTestIds.GoLive.SceneBar">
+        <div class="go-live-scenes-list">
+            @foreach (var scene in Scenes)
+            {
+                var isActive = string.Equals(scene.Id, ActiveSceneId, StringComparison.Ordinal);
+                <button type="button"
+                        class="go-live-scene-chip @(isActive ? "active" : null)"
+                        data-testid="@UiTestIds.GoLive.SceneChip(scene.Id)"
+                        @onclick="() => SelectScene.InvokeAsync(scene.Id)">
+                    <span class="go-live-scene-chip-icon">@GetSceneIcon(scene.Kind)</span>
+                    <span class="go-live-scene-chip-name">@scene.Name</span>
+                </button>
+            }
+        </div>
+
+        <button type="button"
+                class="go-live-scene-add"
+                @onclick="AddScene">+</button>
+    </div>
+
+    <div class="go-live-scene-toolbar">
+        <div class="go-live-toolbar-group">
+            <span class="go-live-toolbar-label">Layout</span>
+            <button type="button"
+                    class="go-live-toolbar-button @(ActiveLayout == GoLiveSceneLayout.Full ? "active" : null)"
+                    @onclick="() => SelectLayout.InvokeAsync(GoLiveSceneLayout.Full)">Full</button>
+            <button type="button"
+                    class="go-live-toolbar-button @(ActiveLayout == GoLiveSceneLayout.Split ? "active" : null)"
+                    @onclick="() => SelectLayout.InvokeAsync(GoLiveSceneLayout.Split)">Split</button>
+            <button type="button"
+                    class="go-live-toolbar-button @(ActiveLayout == GoLiveSceneLayout.PictureInPicture ? "active" : null)"
+                    @onclick="() => SelectLayout.InvokeAsync(GoLiveSceneLayout.PictureInPicture)">PiP</button>
+        </div>
+
+        <div class="go-live-toolbar-group go-live-toolbar-group-transition">
+            <button type="button"
+                    class="go-live-toolbar-button @(ActiveTransitionKind == GoLiveTransitionKind.Cut ? "active" : null)"
+                    @onclick="() => SelectTransitionKind.InvokeAsync(GoLiveTransitionKind.Cut)">Cut</button>
+            <button type="button"
+                    class="go-live-toolbar-button @(ActiveTransitionKind == GoLiveTransitionKind.Fade ? "active" : null)"
+                    @onclick="() => SelectTransitionKind.InvokeAsync(GoLiveTransitionKind.Fade)">Fade</button>
+            <button type="button"
+                    class="go-live-toolbar-button @(ActiveTransitionKind == GoLiveTransitionKind.Wipe ? "active" : null)"
+                    @onclick="() => SelectTransitionKind.InvokeAsync(GoLiveTransitionKind.Wipe)">Wipe</button>
+            <button type="button"
+                    class="go-live-take-to-air"
+                    data-testid="@UiTestIds.GoLive.TakeToAir"
+                    @onclick="TakeToAir">@TakeToAirLabel</button>
+            <button type="button"
+                    class="go-live-toolbar-button @(ActiveTransitionDuration == GoLiveTransitionDuration.Quick ? "active" : null)"
+                    @onclick="() => SelectTransitionDuration.InvokeAsync(GoLiveTransitionDuration.Quick)">0.5s</button>
+            <button type="button"
+                    class="go-live-toolbar-button @(ActiveTransitionDuration == GoLiveTransitionDuration.Standard ? "active" : null)"
+                    @onclick="() => SelectTransitionDuration.InvokeAsync(GoLiveTransitionDuration.Standard)">1s</button>
+            <button type="button"
+                    class="go-live-toolbar-button @(ActiveTransitionDuration == GoLiveTransitionDuration.Extended ? "active" : null)"
+                    @onclick="() => SelectTransitionDuration.InvokeAsync(GoLiveTransitionDuration.Extended)">2s</button>
+        </div>
+    </div>
+</section>
+
+@code {
+    private const string CameraIcon = "□";
+    private const string CustomIcon = "+";
+    private const string PictureInPictureIcon = "◫";
+    private const string SlidesIcon = "▭";
+    private const string SplitIcon = "◫";
+    private const string TakeToAirDefaultLabel = "Take To Air";
+
+    [Parameter] public EventCallback AddScene { get; set; }
+
+    [Parameter] public GoLiveSceneLayout ActiveLayout { get; set; }
+
+    [Parameter] public string ActiveSceneId { get; set; } = string.Empty;
+
+    [Parameter] public GoLiveTransitionDuration ActiveTransitionDuration { get; set; }
+
+    [Parameter] public GoLiveTransitionKind ActiveTransitionKind { get; set; }
+
+    [Parameter] public IReadOnlyList<GoLiveSceneChipViewModel> Scenes { get; set; } = [];
+
+    [Parameter] public EventCallback<string> SelectScene { get; set; }
+
+    [Parameter] public EventCallback<GoLiveSceneLayout> SelectLayout { get; set; }
+
+    [Parameter] public EventCallback<GoLiveTransitionDuration> SelectTransitionDuration { get; set; }
+
+    [Parameter] public EventCallback<GoLiveTransitionKind> SelectTransitionKind { get; set; }
+
+    [Parameter] public EventCallback TakeToAir { get; set; }
+
+    [Parameter] public string TakeToAirLabel { get; set; } = TakeToAirDefaultLabel;
+
+    private static string GetSceneIcon(GoLiveSceneChipKind kind) =>
+        kind switch
+        {
+            GoLiveSceneChipKind.Split => SplitIcon,
+            GoLiveSceneChipKind.Slides => SlidesIcon,
+            GoLiveSceneChipKind.PictureInPicture => PictureInPictureIcon,
+            GoLiveSceneChipKind.Custom => CustomIcon,
+            _ => CameraIcon
+        };
+}

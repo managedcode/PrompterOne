@@ -1,0 +1,82 @@
+@namespace PrompterOne.Shared.Components.GoLive
+@using PrompterOne.Core.Models.Media
+
+<section class="go-live-stage-shell"
+         data-live-state="@LiveState"
+         data-testid="@UiTestIds.GoLive.ProgramCard">
+    <div class="go-live-stage-header">
+        <div>
+            <span class="go-live-monitor-label">@Title</span>
+            <h2 class="go-live-stage-title"
+                data-testid="@UiTestIds.GoLive.Stage">@SelectedSourceLabel</h2>
+        </div>
+
+        <span class="live-status @(IsArmed ? ReadyCssClass : PendingCssClass)">@ActiveSessionLabel</span>
+    </div>
+
+    <GoLiveCameraSurface Camera="@Camera"
+                         ContainerClass="go-live-stage-viewport"
+                         ContainerDomId="@UiDomIds.GoLive.ProgramStage"
+                         VideoClass="go-live-stage-video"
+                         VideoDomId="@UiDomIds.GoLive.ProgramVideo"
+                         VideoTestId="@UiTestIds.GoLive.ProgramVideo">
+        <OverlayContent>
+            <div class="go-live-stage-overlay">
+                <span class="go-live-stage-chip">@SelectedLabel</span>
+                <div class="go-live-stage-footer">
+                    <span>@ProgramResolutionLabel</span>
+                    <span>@StageFrameRateLabel</span>
+                </div>
+            </div>
+        </OverlayContent>
+        <EmptyContent>
+            <div class="set-empty-card go-live-stage-empty"
+                 data-testid="@UiTestIds.GoLive.ProgramEmpty">
+                <div class="set-account-name">@NoCameraTitle</div>
+                <div class="live-card-desc">@NoCameraDescription</div>
+            </div>
+        </EmptyContent>
+    </GoLiveCameraSurface>
+
+    <div class="go-live-stage-meta">
+        <article class="go-live-stage-meta-card">
+            <span class="set-section-label">@LiveLabel</span>
+            <strong data-testid="@UiTestIds.GoLive.ActiveSourceLabel">@ActiveSourceLabel</strong>
+        </article>
+        <article class="go-live-stage-meta-card">
+            <span class="set-section-label">@CanvasLabel</span>
+            <strong data-testid="@UiTestIds.GoLive.SelectedSourceLabel">@SelectedSourceLabel</strong>
+        </article>
+    </div>
+</section>
+
+@code {
+    private const string CanvasLabel = "Canvas";
+    private const string DefaultTitle = "Canvas";
+    private const string IdleStateCss = "idle";
+    private const string LiveLabel = "On Air";
+    private const string NoCameraDescription = "Select or add a camera source to build the live canvas.";
+    private const string NoCameraTitle = "No canvas source";
+    private const string PendingCssClass = "pending";
+    private const string ReadyCssClass = "ready";
+    private const string RecordingStateCss = "recording";
+    private const string SelectedLabel = "Selected";
+    private const string StreamingStateCss = "streaming";
+
+    [Parameter] public string ActiveSessionLabel { get; set; } = string.Empty;
+    [Parameter] public string ActiveSourceLabel { get; set; } = string.Empty;
+    [Parameter] public SceneCameraSource? Camera { get; set; }
+    [Parameter] public bool IsArmed { get; set; }
+    [Parameter] public bool IsRecordingActive { get; set; }
+    [Parameter] public bool IsStreamActive { get; set; }
+    [Parameter] public string ProgramResolutionLabel { get; set; } = string.Empty;
+    [Parameter] public string SelectedSourceLabel { get; set; } = string.Empty;
+    [Parameter] public string StageFrameRateLabel { get; set; } = string.Empty;
+    [Parameter] public string Title { get; set; } = DefaultTitle;
+
+    private string LiveState => IsRecordingActive
+        ? RecordingStateCss
+        : IsStreamActive
+            ? StreamingStateCss
+            : IdleStateCss;
+}

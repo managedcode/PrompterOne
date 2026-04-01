@@ -938,6 +938,12 @@ function setStudioMode(mode) {
 }
 
 // ── Room Code Management ──
+const roomJoinPathPrefix = '/join/';
+
+function buildRoomInviteUrl(code) {
+    return new URL(`${roomJoinPathPrefix}${code}`, window.location.origin).toString();
+}
+
 function generateRoomCode() {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     let code = '';
@@ -950,7 +956,7 @@ function generateRoomCode() {
 function copyRoomCode() {
     const code = document.getElementById('gl-room-code')?.textContent;
     if (code) {
-        navigator.clipboard.writeText(`https://prompter.live/join/${code}`).then(() => {
+        navigator.clipboard.writeText(buildRoomInviteUrl(code)).then(() => {
             const btn = document.querySelector('.gl-room-copy-btn');
             if (btn) {
                 btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>';
@@ -986,7 +992,7 @@ function endRoom() {
 function copyRoomInvite() {
     const code = document.getElementById('gl-room-code')?.textContent;
     if (code) {
-        navigator.clipboard.writeText(`https://prompter.live/join/${code}`).catch(() => {});
+        navigator.clipboard.writeText(buildRoomInviteUrl(code)).catch(() => {});
         const btn = document.querySelector('.gl-room-invite-btn');
         if (btn) {
             const orig = btn.innerHTML;
@@ -1076,7 +1082,7 @@ async function leaveRoom() {
 // Invite participant (generate invite link)
 function inviteParticipant() {
     const code = document.getElementById('gl-room-code')?.textContent;
-    const inviteUrl = `https://prompter.live/join/${code}`;
+    const inviteUrl = buildRoomInviteUrl(code);
 
     // Show invite modal or copy to clipboard
     navigator.clipboard.writeText(inviteUrl).then(() => {

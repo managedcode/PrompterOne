@@ -2,12 +2,12 @@
 
 ## Purpose
 
-`PrompterLive` vendors the browser-facing JavaScript for:
+`PrompterOne` vendors the browser-facing JavaScript for:
 
 - `livekit/client-sdk-js`
 - `steveseguin/vdo.ninja`
 
-The repo pins both SDKs to exact GitHub release tags and exact GitHub release URLs. The vendored files live under `src/PrompterLive.Shared/wwwroot/vendor/` so the browser runtime does not depend on floating CDN or `latest` endpoints.
+The repo pins both SDKs to exact GitHub release tags and exact GitHub release URLs. The vendored files live under `src/PrompterOne.Shared/wwwroot/vendor/` so the browser runtime does not depend on floating CDN or `latest` endpoints.
 
 ## Source Of Truth
 
@@ -27,7 +27,7 @@ The repo pins both SDKs to exact GitHub release tags and exact GitHub release UR
 flowchart LR
     Manifest["vendored-streaming-sdks.json<br/>exact release tags + URLs"]
     Sync["scripts/vendored_streaming_sdks.py sync"]
-    Vendor["src/PrompterLive.Shared/wwwroot/vendor/<br/>versioned JS trees"]
+    Vendor["src/PrompterOne.Shared/wwwroot/vendor/<br/>versioned JS trees"]
     Watch["watch-vendored-streaming-sdks.yml<br/>scheduled release check"]
     Issue["GitHub issue<br/>when a newer release exists"]
     Refresh["sync-vendored-streaming-sdks.yml<br/>manual refresh job"]
@@ -45,7 +45,7 @@ flowchart LR
 1. Change the pinned release tag and URLs in `vendored-streaming-sdks.json`.
 2. Run `python scripts/vendored_streaming_sdks.py sync`.
 3. Run `python scripts/vendored_streaming_sdks.py verify`.
-4. Review the versioned vendor tree under `src/PrompterLive.Shared/wwwroot/vendor/`.
+4. Review the versioned vendor tree under `src/PrompterOne.Shared/wwwroot/vendor/`.
 5. Commit the manifest and vendored files together.
 
 ## Notes

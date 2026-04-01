@@ -2,7 +2,7 @@
 
 Status: Implemented  
 Date: 2026-04-01  
-Related Features: [Architecture Overview](/Users/ksemenenko/Developer/PrompterLive/docs/Architecture.md)
+Related Features: [Architecture Overview](/Users/ksemenenko/Developer/PrompterOne/docs/Architecture.md)
 
 ## Implementation plan (step-by-step)
 
@@ -16,7 +16,7 @@ Related Features: [Architecture Overview](/Users/ksemenenko/Developer/PrompterLi
 
 ## Context
 
-- `PrompterLive` is a standalone Blazor WebAssembly app with no backend runtime.
+- `PrompterOne` is a standalone Blazor WebAssembly app with no backend runtime.
 - Scripts and folders were persisted through ad-hoc browser localStorage JSON blobs.
 - The product now needs browser-local persistence plus optional cloud import/export for scripts and settings.
 - The user explicitly wants Managed Code storage providers, browser localStorage for provider keys and metadata, and no server-side secret store.
@@ -33,7 +33,7 @@ Non-goals:
 
 - Recorded video upload or archive flows.
 - Background sync engines or multi-device conflict resolution.
-- OAuth popup/redirect orchestration hosted by PrompterLive.
+- OAuth popup/redirect orchestration hosted by PrompterOne.
 
 ## Stakeholders
 
@@ -46,7 +46,7 @@ Non-goals:
 
 ## Decision
 
-PrompterLive will register `ManagedCode.Storage.Browser` plus `ManagedCode.Storage.VirtualFileSystem` inside the WASM host for browser-local blob storage and provider-backed transfers, while the primary day-to-day script and folder runtime store remains an authoritative browser JSON/localStorage repository. Browser `localStorage` also remains the store for provider credentials, provider metadata, and lightweight settings values. Cloud providers are configured in Settings and currently support snapshot import/export of scripts and settings only.
+PrompterOne will register `ManagedCode.Storage.Browser` plus `ManagedCode.Storage.VirtualFileSystem` inside the WASM host for browser-local blob storage and provider-backed transfers, while the primary day-to-day script and folder runtime store remains an authoritative browser JSON/localStorage repository. Browser `localStorage` also remains the store for provider credentials, provider metadata, and lightweight settings values. Cloud providers are configured in Settings and currently support snapshot import/export of scripts and settings only.
 
 Key points:
 
@@ -126,14 +126,14 @@ flowchart LR
 ### Code
 
 - Affected modules and services:
-  - `src/PrompterLive.Shared/AppShell/Services/PrompterLiveServiceCollectionExtensions.cs`
-  - `src/PrompterLive.Shared/Library/Services/Storage/*`
-  - `src/PrompterLive.Shared/Storage/*`
-  - `src/PrompterLive.Shared/Storage/Cloud/*`
-  - `src/PrompterLive.Shared/Settings/Components/SettingsCloudSection.*`
-  - `tests/PrompterLive.App.Tests/Settings/*`
-  - `tests/PrompterLive.App.UITests/Settings/*`
-  - `tests/PrompterLive.App.UITests/Infrastructure/*`
+  - `src/PrompterOne.Shared/AppShell/Services/PrompterOneServiceCollectionExtensions.cs`
+  - `src/PrompterOne.Shared/Library/Services/Storage/*`
+  - `src/PrompterOne.Shared/Storage/*`
+  - `src/PrompterOne.Shared/Storage/Cloud/*`
+  - `src/PrompterOne.Shared/Settings/Components/SettingsCloudSection.*`
+  - `tests/PrompterOne.App.Tests/Settings/*`
+  - `tests/PrompterOne.App.UITests/Settings/*`
+  - `tests/PrompterOne.App.UITests/Infrastructure/*`
 - New boundaries and responsibilities:
   - Browser JSON/localStorage owns primary script and folder runtime persistence.
   - Browser storage plus VFS own the local blob boundary used by cloud import/export and future expansion.
@@ -152,7 +152,7 @@ flowchart LR
 
 ### Documentation
 
-- Architecture docs updated in [docs/Architecture.md](/Users/ksemenenko/Developer/PrompterLive/docs/Architecture.md).
+- Architecture docs updated in [docs/Architecture.md](/Users/ksemenenko/Developer/PrompterOne/docs/Architecture.md).
 - This ADR is the source of truth for the storage boundary and credential policy.
 - Root `AGENTS.md` now records the durable rule that standalone cloud credentials live in browser localStorage.
 
@@ -195,10 +195,10 @@ flowchart LR
 
 ### Test commands
 
-- build: `dotnet build /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx -warnaserror`
-- test: `dotnet test /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx`
-- format: `dotnet format /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx`
-- coverage: `dotnet test /Users/ksemenenko/Developer/PrompterLive/PrompterLive.slnx --collect:"XPlat Code Coverage"`
+- build: `dotnet build /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx -warnaserror`
+- test: `dotnet test /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx`
+- format: `dotnet format /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx`
+- coverage: `dotnet test /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx --collect:"XPlat Code Coverage"`
 
 ### New or changed tests
 
@@ -211,9 +211,9 @@ flowchart LR
 ### Regression and analysis
 
 - Regression suites to run:
-  - `tests/PrompterLive.Core.Tests`
-  - `tests/PrompterLive.App.Tests`
-  - `tests/PrompterLive.App.UITests`
+  - `tests/PrompterOne.Core.Tests`
+  - `tests/PrompterOne.App.Tests`
+  - `tests/PrompterOne.App.UITests`
   - full solution tests
 - Static analysis:
   - repo build under `-warnaserror`
@@ -236,7 +236,7 @@ flowchart LR
 
 - [managedcode/Storage](https://github.com/managedcode/Storage)
 - [ManagedCode Storage docs](https://storage.managed-code.com/)
-- [docs/Architecture.md](/Users/ksemenenko/Developer/PrompterLive/docs/Architecture.md)
+- [docs/Architecture.md](/Users/ksemenenko/Developer/PrompterOne/docs/Architecture.md)
 
 ## Filing checklist
 

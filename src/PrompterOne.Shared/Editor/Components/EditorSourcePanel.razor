@@ -1,0 +1,147 @@
+@namespace PrompterOne.Shared.Components.Editor
+@using PrompterOne.Core.Models.Editor
+@using PrompterOne.Shared.Services.Editor
+@using Microsoft.AspNetCore.Components
+@inject EditorInterop Interop
+
+<div class="ed-main" data-testid="@UiTestIds.Editor.MainPanel">
+    <div class="ed-toolbar">
+        @for (var sectionIndex = 0; sectionIndex < ToolbarSections.Count; sectionIndex++)
+        {
+            var toolbarSection = ToolbarSections[sectionIndex];
+            <div class="@GetToolbarSectionCss(toolbarSection)">
+                <div class="tb-label">@toolbarSection.Label</div>
+                <div class="tb-row">
+                    @foreach (var toolbarAction in toolbarSection.MainActions)
+                    {
+                        <button class="@toolbarAction.CssClass"
+                                type="button"
+                                style="@toolbarAction.Style"
+                                title="@toolbarAction.Tooltip"
+                                data-tip="@toolbarAction.Tooltip"
+                                data-testid="@toolbarAction.TestId"
+                                aria-expanded="@GetActionAriaExpanded(toolbarAction)"
+                                disabled="@GetActionDisabled(toolbarAction)"
+                                @onmousedown:preventDefault="@toolbarAction.PreventMouseDown"
+                                @onclick="() => ExecuteToolbarActionAsync(toolbarAction)">@((MarkupString)toolbarAction.ContentHtml)</button>
+                    }
+                </div>
+
+                @if (toolbarSection.HasDropdown)
+                {
+                    <div class="tb-dropdown" data-testid="@toolbarSection.DropdownTestId" style="@toolbarSection.DropdownStyle">
+                        @for (var groupIndex = 0; groupIndex < toolbarSection.DropdownGroups.Count; groupIndex++)
+                        {
+                            var dropdownGroup = toolbarSection.DropdownGroups[groupIndex];
+                            @if (dropdownGroup.HasSeparatorBefore)
+                            {
+                                <div class="tb-drop-sep"></div>
+                            }
+                            <div class="tb-drop-label">@dropdownGroup.Label</div>
+                            <div class="@GetDropdownListCss(toolbarSection)">
+                                @foreach (var dropdownAction in dropdownGroup.Actions)
+                                {
+                                    <button class="@dropdownAction.CssClass"
+                                            type="button"
+                                            style="@dropdownAction.Style"
+                                            title="@dropdownAction.Tooltip"
+                                            data-tip="@dropdownAction.Tooltip"
+                                            data-testid="@dropdownAction.TestId"
+                                            @onclick="() => ExecuteToolbarActionAsync(dropdownAction)">@((MarkupString)dropdownAction.ContentHtml)</button>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+
+            @if (sectionIndex < ToolbarSections.Count - 1)
+            {
+                <span class="tb-div"></span>
+            }
+        }
+    </div>
+
+    <div class="ed-content ed-source-shell"
+         data-testid="@UiTestIds.Editor.SourceScrollHost">
+        <div class="ed-source-stage"
+             data-testid="@UiTestIds.Editor.SourceStage">
+            <div class="ed-source-highlight"
+                 @ref="_overlayRef"
+                 data-testid="@UiTestIds.Editor.SourceHighlight"></div>
+            <textarea class="ed-source-input"
+                      data-testid="@UiTestIds.Editor.SourceInput"
+                      spellcheck="false"
+                      autocapitalize="off"
+                      autocomplete="off"
+                      autocorrect="off"
+                      value="@Text"
+                      @ref="_textareaRef"
+                      @oninput="OnSourceInputAsync"
+                      @onkeydown="OnSourceKeyDownAsync"
+                      @onmouseup="OnSelectionInteractionAsync"
+                      @onselect="OnSourceSelectAsync"
+                      @onscroll="OnScrollAsync"></textarea>
+
+            @if (ShouldRenderFloatingBar)
+            {
+                <span class="ed-float-bar"
+                      data-testid="@UiTestIds.Editor.FloatingBar"
+                      style="@FloatingBarStyle">
+                    @for (var groupIndex = 0; groupIndex < FloatingActionGroups.Count; groupIndex++)
+                    {
+                        var group = FloatingActionGroups[groupIndex];
+                        @foreach (var action in group)
+                        {
+                            <button class="@action.CssClass"
+                                    type="button"
+                                    title="@action.Tooltip"
+                                    data-testid="@action.TestId"
+                                    @onmousedown:preventDefault="@action.PreventMouseDown"
+                                    @onclick="() => ExecuteToolbarActionAsync(action)">@((MarkupString)action.ContentHtml)</button>
+                        }
+
+                        @if (groupIndex < FloatingActionGroups.Count - 1)
+                        {
+                            <span class="efb-sep"></span>
+                        }
+                    }
+
+                    @if (IsFloatingMenuOpen(EditorToolbarMenuIds.FloatingEmotion))
+                    {
+                        <span class="efb-dropdown"
+                              data-testid="@UiTestIds.Editor.FloatingEmotionMenu">
+                            <span class="efb-dropdown-label">TPS Emotions</span>
+                            <span class="efb-menu-list">
+                                @foreach (var action in FloatingEmotionActions)
+                                {
+                                    <button class="@action.CssClass"
+                                            type="button"
+                                            title="@action.Tooltip"
+                                            data-testid="@action.TestId"
+                                            @onmousedown:preventDefault="@action.PreventMouseDown"
+                                            @onclick="() => ExecuteToolbarActionAsync(action)">@((MarkupString)action.ContentHtml)</button>
+                                }
+                            </span>
+                        </span>
+                    }
+                </span>
+            }
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(ErrorMessage))
+        {
+            <div class="ed-source-error" data-testid="@UiTestIds.Editor.Error">@ErrorMessage</div>
+        }
+    </div>
+
+    <div class="ed-statusbar">
+        <span>Ln @Status.Line, Col @Status.Column</span>
+        <span>@Status.Profile</span>
+        <span>@Status.BaseWpm WPM</span>
+        <span>@Status.SegmentCount Segments</span>
+        <span>~@Status.WordCount Words</span>
+        <span>~@Status.Duration</span>
+        <span>@($"TPS v{Status.Version}")</span>
+    </div>
+</div>
