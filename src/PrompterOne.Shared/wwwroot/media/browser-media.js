@@ -1,6 +1,7 @@
 (function () {
     const audioInputKind = "audioinput";
     const audioOutputKind = "audiooutput";
+    const cameraCaptureMap = new Map();
     const cameraTrackMap = new Map();
     const defaultDeviceId = "default";
     const interopNamespace = "BrowserMediaInterop";
@@ -207,6 +208,10 @@
         return deviceId ? { deviceId } : true;
     }
 
+    function getCaptureKey(deviceId) {
+        return deviceId || defaultDeviceId;
+    }
+
     function getVideoElement(elementId) {
         const element = document.getElementById(elementId);
         return element instanceof HTMLVideoElement ? element : null;
@@ -265,16 +270,52 @@
             } catch {
             }
 
-            try {
-                preview.track.stop();
-            } catch {
-            }
+            await releaseCameraCapture(preview.captureKey);
         }
 
         const element = getVideoElement(elementId);
         if (element) {
             element.pause?.();
             element.srcObject = null;
+        }
+    }
+
+    async function acquireCameraCapture(deviceId) {
+        const captureKey = getCaptureKey(deviceId);
+        let capture = cameraCaptureMap.get(captureKey);
+        if (!capture) {
+            const liveKitClient = getLiveKitClient();
+            capture = {
+                refCount: 0,
+                track: await liveKitClient.createLocalVideoTrack(getTrackCaptureOptions(deviceId))
+            };
+            cameraCaptureMap.set(captureKey, capture);
+        }
+
+        capture.refCount += 1;
+
+        return {
+            captureKey,
+            track: capture.track
+        };
+    }
+
+    async function releaseCameraCapture(captureKey) {
+        const capture = cameraCaptureMap.get(captureKey);
+        if (!capture) {
+            return;
+        }
+
+        capture.refCount = Math.max(0, capture.refCount - 1);
+        if (capture.refCount > 0) {
+            return;
+        }
+
+        cameraCaptureMap.delete(captureKey);
+
+        try {
+            capture.track.stop();
+        } catch {
         }
     }
 
@@ -357,7 +398,6 @@
         },
 
         async attachCamera(elementId, deviceId, muted) {
-            const liveKitClient = getLiveKitClient();
             const element = getVideoElement(elementId);
             if (!element) {
                 return;
@@ -365,19 +405,32 @@
 
             await releaseCameraTrack(elementId);
 
-            const track = await liveKitClient.createLocalVideoTrack(getTrackCaptureOptions(deviceId));
+            const capture = await acquireCameraCapture(deviceId);
             element.autoplay = true;
             element.muted = muted !== false;
             element.playsInline = true;
-            track.attach(element);
-            copySyntheticMetadata(track.mediaStreamTrack, element.srcObject);
+            capture.track.attach(element);
+            copySyntheticMetadata(capture.track.mediaStreamTrack, element.srcObject);
             await element.play().catch(() => {});
 
-            cameraTrackMap.set(elementId, { element, track });
+            cameraTrackMap.set(elementId, { captureKey: capture.captureKey, element, track: capture.track });
+        },
+
+        async createLocalAudioTrack(deviceId) {
+            const liveKitClient = getLiveKitClient();
+            return await liveKitClient.createLocalAudioTrack(getTrackCaptureOptions(deviceId));
+        },
+
+        async createSharedCameraTrack(deviceId) {
+            return await acquireCameraCapture(deviceId);
         },
 
         async detachCamera(elementId) {
             await releaseCameraTrack(elementId);
+        },
+
+        async releaseSharedCameraTrack(captureKey) {
+            await releaseCameraCapture(captureKey);
         },
 
         async startMicrophoneLevelMonitor(elementId, deviceId, observer) {

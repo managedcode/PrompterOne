@@ -1,19 +1,16 @@
 (function () {
+    const browserMediaNamespace = "BrowserMediaInterop";
     const composerNamespace = "PrompterOneGoLiveMediaComposer";
     const audioContextCtor = window.AudioContext || window.webkitAudioContext;
-    const audioFalseConstraint = false;
     const canvasContextType = "2d";
     const hiddenMediaStyle = "position:fixed;left:-10000px;top:-10000px;width:1px;height:1px;opacity:0;pointer-events:none;";
     const maxAudioDelaySeconds = 5;
     const overlayMinimumOpacity = 0;
     const overlayMaximumOpacity = 1;
     const primaryScale = 1;
-    const streamRouteValue = 1;
-    const bothRouteValue = 2;
     const videoReadyStateThreshold = 2;
 
     function ensureSessionInfrastructure(session) {
-        session.combinedCaptureKey ??= "";
         session.videoBindings ??= new Map();
         session.audioBindings ??= new Map();
         session.mediaStream ??= null;
@@ -26,6 +23,15 @@
         session.audioContext ??= null;
         session.audioDestination ??= null;
         session.audioMasterGain ??= null;
+    }
+
+    function getBrowserMedia() {
+        const browserMedia = window[browserMediaNamespace];
+        if (!browserMedia?.createSharedCameraTrack || !browserMedia?.createLocalAudioTrack || !browserMedia?.releaseSharedCameraTrack) {
+            throw new Error("Browser media runtime is not available.");
+        }
+
+        return browserMedia;
     }
 
     function clamp(value, minimum, maximum) {
@@ -98,19 +104,20 @@
         await session.audioContext.resume().catch(() => {});
     }
 
-    function createVideoBinding(stream) {
+    function createVideoBinding(capture) {
         const element = document.createElement("video");
         element.autoplay = true;
         element.muted = true;
         element.playsInline = true;
-        element.srcObject = stream;
         element.style.cssText = hiddenMediaStyle;
         document.body.appendChild(element);
+        capture.track.attach(element);
         void element.play().catch(() => {});
 
         return {
+            captureKey: capture.captureKey,
             element,
-            stream
+            track: capture.track
         };
     }
 
@@ -119,12 +126,8 @@
             return;
         }
 
-        const stream = await navigator.mediaDevices.getUserMedia({
-            audio: audioFalseConstraint,
-            video: deviceId ? { deviceId: { exact: deviceId } } : true
-        });
-
-        session.videoBindings.set(deviceId, createVideoBinding(stream));
+        const capture = await getBrowserMedia().createSharedCameraTrack(deviceId);
+        session.videoBindings.set(deviceId, createVideoBinding(capture));
     }
 
     async function cleanupVideoBindings(session, request) {
@@ -138,7 +141,13 @@
                 continue;
             }
 
-            stopTrackSet(binding.stream);
+            try {
+                binding.track.detach(binding.element);
+            }
+            catch {
+            }
+
+            await getBrowserMedia().releaseSharedCameraTrack(binding.captureKey);
             removeElement(binding.element);
             session.videoBindings.delete(deviceId);
         }
@@ -158,34 +167,13 @@
         }
     }
 
-    async function ensurePrimaryCaptureRequest(session, request) {
-        const primaryVideoDeviceId = request.primaryCameraDeviceId;
-        const primaryAudioDeviceId = request.primaryMicrophoneDeviceId;
-        const nextCaptureKey = `${primaryVideoDeviceId}|${primaryAudioDeviceId}`;
-
-        if (!primaryVideoDeviceId || !primaryAudioDeviceId || session.combinedCaptureKey === nextCaptureKey) {
-            return;
-        }
-
-        const stream = await navigator.mediaDevices.getUserMedia({
-            audio: { deviceId: { exact: primaryAudioDeviceId } },
-            video: { deviceId: { exact: primaryVideoDeviceId } }
-        });
-
-        stopTrackSet(stream);
-        session.combinedCaptureKey = nextCaptureKey;
-    }
-
     async function ensureAudioBinding(session, input) {
         if (session.audioBindings.has(input.deviceId)) {
             return;
         }
 
-        const stream = await navigator.mediaDevices.getUserMedia({
-            audio: input.deviceId ? { deviceId: { exact: input.deviceId } } : true,
-            video: audioFalseConstraint
-        });
-        const sourceNode = session.audioContext.createMediaStreamSource(stream);
+        const track = await getBrowserMedia().createLocalAudioTrack(input.deviceId);
+        const sourceNode = session.audioContext.createMediaStreamSource(new MediaStream([track.mediaStreamTrack]));
         const delayNode = session.audioContext.createDelay(maxAudioDelaySeconds);
         const gainNode = session.audioContext.createGain();
 
@@ -197,7 +185,7 @@
             gainNode,
             outputConnected: false,
             sourceNode,
-            stream
+            track
         });
     }
 
@@ -242,7 +230,7 @@
             disconnectAudioOutput(binding);
             binding.sourceNode.disconnect();
             binding.delayNode.disconnect();
-            stopTrackSet(binding.stream);
+            binding.track.stop();
             session.audioBindings.delete(deviceId);
         }
     }
@@ -435,7 +423,6 @@
         }
 
         session.audioDestination = null;
-        session.combinedCaptureKey = "";
         session.requestSnapshot = null;
     }
 
@@ -445,7 +432,6 @@
 
         ensureProgramCanvas(session, request);
         await ensureAudioInfrastructure(session);
-        await ensurePrimaryCaptureRequest(session, request);
         await ensureVideoBindings(session, request);
         await ensureAudioBindings(session, request);
         ensureProgramMediaStream(session);

@@ -348,6 +348,37 @@ public sealed class SettingsInteractionTests : BunitContext
     }
 
     [Fact]
+    public void CameraDeviceAction_SelectsMatchingPreviewCamera()
+    {
+        var cut = Render<SettingsPage>();
+
+        cut.WaitForAssertion(() => Assert.Contains(UiTestIds.Settings.NavCameras, cut.Markup, StringComparison.Ordinal));
+
+        cut.FindByTestId(UiTestIds.Settings.NavCameras).Click();
+        cut.FindByTestId(UiTestIds.Settings.RequestMedia).Click();
+
+        cut.WaitForAssertion(() =>
+            Assert.Equal(
+                AppTestData.Camera.FrontCamera,
+                cut.FindByTestId(UiTestIds.Settings.CameraPreviewLabel).TextContent.Trim()));
+
+        cut.FindByTestId(UiTestIds.Settings.CameraDeviceAction(AppTestData.Camera.SecondDeviceId)).Click();
+
+        cut.WaitForAssertion(() =>
+        {
+            Assert.Equal(
+                AppTestData.Camera.SideCamera,
+                cut.FindByTestId(UiTestIds.Settings.CameraPreviewLabel).TextContent.Trim());
+
+            var latestAttachInvocation = _harness.JsRuntime.InvocationRecords
+                .Where(record => string.Equals(record.Identifier, AppTestData.Camera.AttachCameraInvocation, StringComparison.Ordinal))
+                .Last();
+
+            Assert.Equal(AppTestData.Camera.SecondDeviceId, latestAttachInvocation.Arguments[1]?.ToString());
+        });
+    }
+
+    [Fact]
     public void MicrophoneSection_StartsLiveMeterForSelectedMicrophoneAfterMediaAccessIsGranted()
     {
         var cut = Render<SettingsPage>();

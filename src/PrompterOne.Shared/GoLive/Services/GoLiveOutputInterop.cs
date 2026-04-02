@@ -6,6 +6,13 @@ public sealed class GoLiveOutputInterop(IJSRuntime jsRuntime)
 {
     private readonly IJSRuntime _jsRuntime = jsRuntime;
 
+    internal Task<GoLiveOutputRuntimeSnapshot?> GetSessionStateAsync(string sessionId)
+    {
+        return _jsRuntime.InvokeAsync<GoLiveOutputRuntimeSnapshot?>(
+            GoLiveOutputInteropMethodNames.GetSessionState,
+            sessionId).AsTask();
+    }
+
     public Task StartLocalRecordingAsync(
         string sessionId,
         GoLiveOutputRuntimeRequest request)

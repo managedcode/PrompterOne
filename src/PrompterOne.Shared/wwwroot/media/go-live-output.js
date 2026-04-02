@@ -1,4 +1,8 @@
 (function () {
+    const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
+    const audioLevelMultiplier = 2800;
+    const audioMeterFftSize = 1024;
+    const audioMeterSmoothingTime = 0.82;
     const composerNamespace = "PrompterOneGoLiveMediaComposer";
     const interopNamespace = "PrompterOneGoLiveOutput";
     const supportNamespace = "PrompterOneGoLiveOutputSupport";
@@ -44,6 +48,10 @@
             : browserEnvironment;
     }
 
+    function clampLevelPercent(value) {
+        return Math.max(0, Math.min(100, Math.round(value)));
+    }
+
     function ensureSession(sessionId) {
         if (!outputSessions.has(sessionId)) {
             outputSessions.set(sessionId, {
@@ -60,7 +68,10 @@
                 obsActive: false,
                 obsAudioElementId: "",
                 obsEnvironment: browserEnvironment,
+                programAudioMeter: null,
+                programLevelPercent: 0,
                 recordingActive: false,
+                recordingBytes: 0,
                 recordingChunks: [],
                 recordingFileHandle: null,
                 recordingFileName: "",
@@ -77,6 +88,68 @@
         }
 
         return outputSessions.get(sessionId);
+    }
+
+    async function releaseProgramAudioMeter(session) {
+        const meter = session.programAudioMeter;
+        session.programAudioMeter = null;
+        session.programLevelPercent = 0;
+
+        if (!meter) {
+            return;
+        }
+
+        if (meter.frameHandle) {
+            window.cancelAnimationFrame(meter.frameHandle);
+        }
+
+        meter.sourceNode.disconnect();
+        meter.analyser.disconnect();
+        meter.track.stop();
+        await meter.audioContext.close().catch(() => {});
+    }
+
+    async function syncProgramAudioMeter(session) {
+        const audioTrack = session.mediaStream?.getAudioTracks()?.[0] ?? null;
+        if (!audioTrack || !AudioContextCtor) {
+            await releaseProgramAudioMeter(session);
+            return;
+        }
+
+        if (session.programAudioMeter?.sourceId === audioTrack.id) {
+            return;
+        }
+
+        await releaseProgramAudioMeter(session);
+
+        const audioContext = new AudioContextCtor({ latencyHint: "interactive" });
+        const track = audioTrack.clone();
+        const sourceNode = audioContext.createMediaStreamSource(new MediaStream([track]));
+        const analyser = audioContext.createAnalyser();
+        analyser.fftSize = audioMeterFftSize;
+        analyser.smoothingTimeConstant = audioMeterSmoothingTime;
+        sourceNode.connect(analyser);
+
+        const data = new Uint8Array(analyser.frequencyBinCount);
+        const meter = { analyser, audioContext, frameHandle: 0, sourceId: audioTrack.id, sourceNode, track };
+        const step = () => {
+            if (session.programAudioMeter !== meter) {
+                return;
+            }
+
+            analyser.getByteFrequencyData(data);
+            let sum = 0;
+            for (const amplitude of data) {
+                sum += Math.pow(amplitude / 255, 2);
+            }
+
+            session.programLevelPercent = clampLevelPercent(Math.sqrt(sum / data.length) * audioLevelMultiplier);
+            meter.frameHandle = window.requestAnimationFrame(step);
+        };
+
+        session.programAudioMeter = meter;
+        await audioContext.resume().catch(() => {});
+        step();
     }
 
     async function republishLiveKitTracks(session, liveKitClient) {
@@ -157,6 +230,7 @@
         }
 
         await detachObsAudio(session);
+        await releaseProgramAudioMeter(session);
         await getComposer().cleanupProgramSession(session);
         outputSessions.delete(sessionId);
     }
@@ -167,6 +241,7 @@
         session.requestSnapshot = request;
         session.videoDeviceId = request.primaryCameraDeviceId;
         session.audioDeviceId = request.primaryMicrophoneDeviceId;
+        await syncProgramAudioMeter(session);
         return request;
     }
 
@@ -174,6 +249,10 @@
         const programState = getComposer().getProgramState(session);
         return {
             audioDeviceId: session.audioDeviceId,
+            audio: {
+                programLevelPercent: session.programLevelPercent,
+                recordingLevelPercent: session.recordingActive ? session.programLevelPercent : 0
+            },
             hasMediaStream: Boolean(session.mediaStream),
             liveKit: {
                 active: session.liveKitActive,
@@ -199,12 +278,15 @@
             },
             recording: {
                 active: session.recordingActive,
+                audioBitrateKbps: session.requestSnapshot?.recording?.audioBitrateKbps ?? 0,
                 fileName: session.recordingFileName,
                 mimeType: session.recordingMimeType,
                 requestedAudioCodec: session.recordingRequestedAudioCodec,
                 requestedContainer: session.recordingRequestedContainer,
                 requestedVideoCodec: session.recordingRequestedVideoCodec,
-                saveMode: session.recordingSaveMode
+                saveMode: session.recordingSaveMode,
+                sizeBytes: session.recordingBytes,
+                videoBitrateKbps: session.requestSnapshot?.recording?.videoBitrateKbps ?? 0
             },
             videoDeviceId: session.videoDeviceId
         };
@@ -294,6 +376,7 @@
             session.recordingRequestedContainer = "";
             session.recordingRequestedVideoCodec = "";
             session.recordingSaveMode = "";
+            session.recordingBytes = 0;
             session.recordingWritable = null;
             session.recordingWritePromise = Promise.resolve();
             await cleanupSessionIfIdle(sessionId, session);

@@ -241,6 +241,7 @@ internal static partial class BrowserTestConstants
         public const string LiveKitToken = "lk-test-token";
         public const string LiveLevelAttributeName = "data-live-level";
         public const string MicChannelId = "mic";
+        public const int MinimumActiveLevelPercent = 1;
         public const string Mp4ContainerLabel = "MP4";
         public const string Mp4MimeFragment = "mp4";
         public const string OutputWidthLabel = "1920";
@@ -258,6 +259,7 @@ internal static partial class BrowserTestConstants
         public const string ByteSuffix = "B";
         public const string WebmContainerLabel = "WEBM";
         public const string WidgetReturnScreenshotPath = "output/playwright/go-live-widget-return.png";
+        public const string ZeroLevelValue = "0";
         public const string InstallLiveKitHarnessScript = """
             () => {
                 const harness = {

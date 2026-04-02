@@ -8,6 +8,12 @@ public sealed class GoLiveOutputRuntimeService(GoLiveOutputInterop interop)
 
     public GoLiveOutputRuntimeState State { get; private set; } = GoLiveOutputRuntimeState.Default;
 
+    public async Task RefreshStateAsync()
+    {
+        var snapshot = await _interop.GetSessionStateAsync(GoLiveOutputRuntimeContract.SessionId);
+        SetState(GoLiveOutputRuntimeState.FromSnapshot(snapshot));
+    }
+
     public async Task StartStreamAsync(GoLiveOutputRuntimeRequest request)
     {
         await SyncLiveOutputsAsync(request);
@@ -23,13 +29,7 @@ public sealed class GoLiveOutputRuntimeService(GoLiveOutputInterop interop)
         await _interop.StartLocalRecordingAsync(
             GoLiveOutputRuntimeContract.SessionId,
             request);
-
-        SetState(State with
-        {
-            RecordingActive = true,
-            CameraDeviceId = request.PrimaryCameraDeviceId,
-            MicrophoneDeviceId = request.PrimaryMicrophoneDeviceId
-        });
+        await RefreshStateAsync();
     }
 
     public async Task UpdateProgramSourceAsync(GoLiveOutputRuntimeRequest request)
@@ -42,39 +42,28 @@ public sealed class GoLiveOutputRuntimeService(GoLiveOutputInterop interop)
         await _interop.UpdateSessionDevicesAsync(
             GoLiveOutputRuntimeContract.SessionId,
             request);
-
-        if (!State.HasLiveOutputs)
+        if (State.HasLiveOutputs)
         {
-            SetState(State with
-            {
-                CameraDeviceId = request.PrimaryCameraDeviceId,
-                MicrophoneDeviceId = request.PrimaryMicrophoneDeviceId
-            });
+            await SyncLiveOutputsAsync(request);
             return;
         }
 
-        await SyncLiveOutputsAsync(request);
+        await RefreshStateAsync();
     }
 
     public async Task StopStreamAsync()
     {
-        var nextState = State;
-
         if (State.LiveKitActive)
         {
             await _interop.StopLiveKitAsync(GoLiveOutputRuntimeContract.SessionId);
-            nextState = nextState with { LiveKitActive = false };
         }
 
         if (State.ObsActive)
         {
             await _interop.StopObsBrowserOutputAsync(GoLiveOutputRuntimeContract.SessionId);
-            nextState = nextState with { ObsActive = false };
         }
 
-        SetState(nextState.HasActiveOutputs
-            ? nextState
-            : GoLiveOutputRuntimeState.Default);
+        await RefreshStateAsync();
     }
 
     public async Task StopRecordingAsync()
@@ -85,31 +74,20 @@ public sealed class GoLiveOutputRuntimeService(GoLiveOutputInterop interop)
         }
 
         await _interop.StopLocalRecordingAsync(GoLiveOutputRuntimeContract.SessionId);
-        var nextState = State with { RecordingActive = false };
-        SetState(nextState.HasActiveOutputs
-            ? nextState
-            : GoLiveOutputRuntimeState.Default);
+        await RefreshStateAsync();
     }
 
     private async Task SyncLiveOutputsAsync(GoLiveOutputRuntimeRequest request)
     {
-        var nextState = State with
-        {
-            CameraDeviceId = request.PrimaryCameraDeviceId,
-            MicrophoneDeviceId = request.PrimaryMicrophoneDeviceId
-        };
-
         if (request.CanStartLiveKit)
         {
             await _interop.StartLiveKitAsync(
                 GoLiveOutputRuntimeContract.SessionId,
                 request);
-            nextState = nextState with { LiveKitActive = true };
         }
         else if (State.LiveKitActive)
         {
             await _interop.StopLiveKitAsync(GoLiveOutputRuntimeContract.SessionId);
-            nextState = nextState with { LiveKitActive = false };
         }
 
         if (request.CanStartObs)
@@ -117,15 +95,13 @@ public sealed class GoLiveOutputRuntimeService(GoLiveOutputInterop interop)
             await _interop.StartObsBrowserOutputAsync(
                 GoLiveOutputRuntimeContract.SessionId,
                 request);
-            nextState = nextState with { ObsActive = true };
         }
         else if (State.ObsActive)
         {
             await _interop.StopObsBrowserOutputAsync(GoLiveOutputRuntimeContract.SessionId);
-            nextState = nextState with { ObsActive = false };
         }
 
-        SetState(nextState);
+        await RefreshStateAsync();
     }
 
     private void SetState(GoLiveOutputRuntimeState nextState)
