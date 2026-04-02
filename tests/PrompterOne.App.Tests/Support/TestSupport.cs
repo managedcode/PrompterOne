@@ -149,8 +149,9 @@ internal static class TestHarnessFactory
 
     private static IReadOnlyList<MediaDeviceInfo> DefaultDevices =>
     [
-        new("cam-1", "Front camera", MediaDeviceKind.Camera, true),
-        new("mic-1", "Broadcast mic", MediaDeviceKind.Microphone, true)
+        new(AppTestData.Camera.FirstDeviceId, AppTestData.Camera.FrontCamera, MediaDeviceKind.Camera, true),
+        new(AppTestData.Camera.SecondDeviceId, AppTestData.Camera.SideCamera, MediaDeviceKind.Camera),
+        new(AppTestData.Microphone.PrimaryDeviceId, AppTestData.Scripts.BroadcastMic, MediaDeviceKind.Microphone, true)
     ];
 }
 
