@@ -14,7 +14,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform .56s cubic-bezier(.22,.84,.24,1), opacity .32s ease-out;
+    transition: transform .72s cubic-bezier(.2,.78,.2,1), opacity .58s ease-out;
     will-change: transform, opacity;
     overflow: visible;
 }
@@ -22,18 +22,18 @@
     transition: none;
 }
 .rd-card-active {
-    transform: translateY(0);
+    transform: translate3d(0,0,0);
     opacity: 1;
     z-index: 2;
 }
 .rd-card-prev {
-    transform: translateY(-110%);
+    transform: translate3d(0,-104%,0);
     opacity: 0;
     z-index: 1;
     pointer-events: none;
 }
 .rd-card-next {
-    transform: translateY(110%);
+    transform: translate3d(0,104%,0);
     opacity: 0;
     z-index: 1;
     pointer-events: none;
@@ -98,6 +98,23 @@
     font-feature-settings: "kern" 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    transition: color .42s ease, text-shadow .42s ease, opacity .42s ease;
+}
+
+.rd-card-prev .rd-cluster-text,
+.rd-card-next .rd-cluster-text {
+    color: rgba(232,213,176,.2);
+    text-shadow: none;
+}
+
+.rd-card-prev .rd-cluster-emotion,
+.rd-card-next .rd-cluster-emotion {
+    opacity: .16;
+}
+
+.rd-card-prev .rd-g-emphasis,
+.rd-card-next .rd-g-emphasis {
+    text-decoration-color: rgba(232,213,176,.08);
 }
 
 /* ── Semantic phrase groups ── */
@@ -122,6 +139,10 @@
     text-underline-offset: 4px;
     text-decoration-thickness: 2px;
     text-decoration-skip-ink: auto;
+}
+
+.rd-g-emphasis:not(.rd-g-active):not(:has(.rd-w:not(.rd-read))) {
+    text-decoration-color: rgba(242,230,204,.08);
 }
 
 /* ── Pause markers — visual breathing points between phrases ──
@@ -265,6 +286,14 @@ span.rd-pause.rd-pause-long {
     display: inline;
     /* instant word state change — no animation */
     position: relative;
+}
+
+.rd-card-prev .rd-w,
+.rd-card-next .rd-w {
+    color: rgba(232,213,176,.22) !important;
+    text-shadow: none !important;
+    text-decoration-color: transparent !important;
+    background: none !important;
 }
 
 /* Read words — flat dim, no decorations, no TPS color.

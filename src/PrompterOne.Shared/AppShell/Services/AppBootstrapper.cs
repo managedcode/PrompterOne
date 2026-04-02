@@ -71,8 +71,15 @@ public sealed class AppBootstrapper(
             var mediaScene = await _settingsStore.LoadAsync<MediaSceneState>(BrowserAppSettingsKeys.SceneSettings, cancellationToken);
             if (mediaScene is not null)
             {
+                var (normalizedMediaScene, mediaSceneChanged) = NormalizeMediaScene(mediaScene);
+                if (mediaSceneChanged)
+                {
+                    _logger.LogInformation("Normalizing media scene labels from browser storage.");
+                    await _settingsStore.SaveAsync(BrowserAppSettingsKeys.SceneSettings, normalizedMediaScene, cancellationToken);
+                }
+
                 _logger.LogInformation("Restoring media scene from browser storage.");
-                _mediaSceneService.ApplyState(mediaScene);
+                _mediaSceneService.ApplyState(normalizedMediaScene);
             }
 
             _initialized = true;
@@ -106,5 +113,68 @@ public sealed class AppBootstrapper(
         }
 
         return wordsPerMinute;
+    }
+
+    private static (MediaSceneState State, bool Changed) NormalizeMediaScene(MediaSceneState state)
+    {
+        var changed = false;
+        var normalizedCameras = state.Cameras
+            .Select(camera =>
+            {
+                var normalizedLabel = MediaDeviceLabelSanitizer.Sanitize(camera.Label);
+                if (string.Equals(normalizedLabel, camera.Label, StringComparison.Ordinal))
+                {
+                    return camera;
+                }
+
+                changed = true;
+                return camera with { Label = normalizedLabel };
+            })
+            .ToList();
+
+        var normalizedPrimaryMicrophoneLabel = NormalizeOptionalLabel(state.PrimaryMicrophoneLabel, ref changed);
+        var normalizedAudioInputs = state.AudioBus.Inputs
+            .Select(input =>
+            {
+                var normalizedLabel = MediaDeviceLabelSanitizer.Sanitize(input.Label);
+                if (string.Equals(normalizedLabel, input.Label, StringComparison.Ordinal))
+                {
+                    return input;
+                }
+
+                changed = true;
+                return input with { Label = normalizedLabel };
+            })
+            .ToList();
+
+        if (!changed)
+        {
+            return (state, false);
+        }
+
+        return (
+            state with
+            {
+                Cameras = normalizedCameras,
+                PrimaryMicrophoneLabel = normalizedPrimaryMicrophoneLabel,
+                AudioBus = state.AudioBus with { Inputs = normalizedAudioInputs }
+            },
+            true);
+    }
+
+    private static string? NormalizeOptionalLabel(string? value, ref bool changed)
+    {
+        if (value is null)
+        {
+            return null;
+        }
+
+        var normalized = MediaDeviceLabelSanitizer.Sanitize(value);
+        if (!string.Equals(normalized, value, StringComparison.Ordinal))
+        {
+            changed = true;
+        }
+
+        return normalized;
     }
 }

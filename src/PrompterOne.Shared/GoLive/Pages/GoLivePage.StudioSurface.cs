@@ -2,6 +2,7 @@ using System.Globalization;
 using PrompterOne.Core.Models.Media;
 using PrompterOne.Shared.Components.GoLive;
 using PrompterOne.Shared.GoLive.Models;
+using PrompterOne.Shared.Services;
 
 namespace PrompterOne.Shared.Pages;
 
@@ -186,8 +187,8 @@ public partial class GoLivePage
         var secondaryCamera = SceneCameras.Count > 1 ? SceneCameras[1] : null;
         var scenes = new List<GoLiveSceneChipViewModel>
         {
-            new(GoLiveText.Surface.PrimarySceneId, primaryCamera?.Label ?? GoLiveText.Session.CameraFallbackLabel, GoLiveSceneChipKind.Camera, primaryCamera?.SourceId),
-            new(GoLiveText.Surface.SecondarySceneId, secondaryCamera?.Label ?? GoLiveText.Surface.InterviewSceneFallback, GoLiveSceneChipKind.Split, secondaryCamera?.SourceId),
+            new(GoLiveText.Surface.PrimarySceneId, primaryCamera is null ? GoLiveText.Session.CameraFallbackLabel : MediaDeviceLabelSanitizer.Sanitize(primaryCamera.Label), GoLiveSceneChipKind.Camera, primaryCamera?.SourceId),
+            new(GoLiveText.Surface.SecondarySceneId, secondaryCamera is null ? GoLiveText.Surface.InterviewSceneFallback : MediaDeviceLabelSanitizer.Sanitize(secondaryCamera.Label), GoLiveSceneChipKind.Split, secondaryCamera?.SourceId),
             new(GoLiveText.Surface.SceneSlidesId, GoLiveText.Surface.SceneSlidesLabel, GoLiveSceneChipKind.Slides, null),
             new(GoLiveText.Surface.PictureInPictureSceneId, GoLiveText.Surface.PictureInPictureSceneLabel, GoLiveSceneChipKind.PictureInPicture, primaryCamera?.SourceId)
         };

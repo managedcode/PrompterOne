@@ -1,4 +1,5 @@
 @namespace PrompterOne.Shared.Components.GoLive
+@using PrompterOne.Shared.Services
 
 <section class="gl-sources-panel">
     <div class="gl-sources-header">
@@ -50,7 +51,7 @@
 
                         <div class="gl-cam-meta">
                             <div class="gl-cam-top">
-                                <span class="gl-cam-name">@source.Label</span>
+                                <span class="gl-cam-name">@FormatSourceLabel(source)</span>
                                 <span class="gl-cam-hw">@GetSourceStatus(source)</span>
                             </div>
                         </div>
@@ -85,7 +86,7 @@
 
     <div class="gl-mic-card">
         <span class="section-label">@MicrophoneTitle</span>
-        <strong>@MicrophoneName</strong>
+        <strong>@DisplayMicrophoneName</strong>
         <span>@MicrophoneRouteLabel</span>
     </div>
 </section>
@@ -117,6 +118,8 @@
     [Parameter] public string Title { get; set; } = DefaultTitle;
     [Parameter] public EventCallback<string> ToggleSource { get; set; }
     [Parameter] public IReadOnlyList<GoLiveUtilitySourceViewModel> UtilitySources { get; set; } = [];
+    private string DisplayMicrophoneName => MediaDeviceLabelSanitizer.Sanitize(MicrophoneName);
+    private static string FormatSourceLabel(SceneCameraSource source) => MediaDeviceLabelSanitizer.Sanitize(source.Label);
 
     private bool IsActive(SceneCameraSource source) =>
         string.Equals(source.SourceId, ActiveSourceId, StringComparison.Ordinal);

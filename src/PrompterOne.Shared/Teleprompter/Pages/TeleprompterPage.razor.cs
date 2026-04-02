@@ -60,6 +60,7 @@ public partial class TeleprompterPage : IAsyncDisposable
     private bool _activateReaderCameraAfterRender;
     private bool _areWidthGuidesActive;
     private bool _focusScreenAfterRender = true;
+    private bool _isReaderGradientTransitionDisabled = true;
     private bool _isFocalGuideActive;
     private bool _isReaderCameraActive;
     private bool _isReaderCountdownActive;
@@ -77,7 +78,7 @@ public partial class TeleprompterPage : IAsyncDisposable
     private long _widthGuideVersion;
     private string _edgeSectionLabel = string.Empty;
     private string _elapsedLabel = "0:00 / 0:01";
-    private string _gradientClass = string.Empty;
+    private string _gradientClass = ReaderGradientDefaultCssClass;
     private string _readerProgressFillWidth = "0%";
     private string _screenSubtitle = string.Empty;
     private string _screenTitle = string.Empty;
@@ -87,6 +88,7 @@ public partial class TeleprompterPage : IAsyncDisposable
         StopReaderPlaybackLoop();
         ResetReaderAlignmentState();
         ResetReaderCardTransitionState();
+        _isReaderGradientTransitionDisabled = true;
         _loadState = true;
         _focusScreenAfterRender = true;
         return Task.CompletedTask;
@@ -125,6 +127,12 @@ public partial class TeleprompterPage : IAsyncDisposable
 
         await AlignActiveReaderTextAsync();
         await RestorePendingReaderTextTransitionsAsync();
+
+        if (_isReaderGradientTransitionDisabled && _cards.Count > 0)
+        {
+            _isReaderGradientTransitionDisabled = false;
+            StateHasChanged();
+        }
     }
 
     private async Task EnsureSessionLoadedAsync()

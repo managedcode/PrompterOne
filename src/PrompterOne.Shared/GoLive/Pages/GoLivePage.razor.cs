@@ -43,7 +43,9 @@ public partial class GoLivePage : ComponentBase
         ?? SceneCameras.FirstOrDefault(camera => camera.Transform.Visible)
         ?? (SceneCameras.Count > 0 ? SceneCameras[0] : null);
 
-    private string PrimaryMicrophoneLabel => MediaSceneService.State.PrimaryMicrophoneLabel ?? GoLiveText.Audio.NoMicrophoneLabel;
+    private string PrimaryMicrophoneLabel => string.IsNullOrWhiteSpace(MediaSceneService.State.PrimaryMicrophoneLabel)
+        ? GoLiveText.Audio.NoMicrophoneLabel
+        : MediaDeviceLabelSanitizer.Sanitize(MediaSceneService.State.PrimaryMicrophoneLabel);
 
     private string BackRoute => Shell.GetGoLiveBackRoute();
 

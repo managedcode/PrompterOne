@@ -19,9 +19,10 @@
     inset: 0;
     opacity: 1;
     z-index: 0;
-    transition: background 3s ease;
-    background: linear-gradient(180deg, #08101C 0%, #0E1A2E 30%, #08101C 70%, #040A10 100%);
+    transition: background 1.15s cubic-bezier(.22,.84,.24,1);
+    background: linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 42%, var(--bg-deep) 100%);
 }
+.rd-gradient-static { transition: none; }
 /* Warm — golden amber */
 .rd-gradient.warm { background: linear-gradient(180deg, #1C1408 0%, #2E2210 30%, #1C1408 70%, #100E06 100%); }
 /* Concerned — deep red */
@@ -57,8 +58,8 @@
     height: 100%;
     object-fit: cover;
     opacity: 0;
-    background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
-    transition: opacity 220ms ease;
+    background: linear-gradient(180deg, var(--bg-3) 0%, var(--bg-2) 38%, var(--bg-deep) 100%);
+    transition: opacity 260ms ease;
     pointer-events: none;
 }
 .rd-camera-off { color: var(--t4); }

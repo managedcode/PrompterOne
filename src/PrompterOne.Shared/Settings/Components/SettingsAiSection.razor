@@ -1,12 +1,13 @@
 @namespace PrompterOne.Shared.Components.Settings
 @using PrompterOne.Shared.Pages
 @using PrompterOne.Shared.Settings.Components
+@using PrompterOne.Shared.Settings.Models
 
 <section class="set-section set-panel"
          id="set-ai"
          style="@DisplayStyle"
          data-testid="@UiTestIds.Settings.AiPanel">
-    <h3 class="set-section-title">AI Provider</h3>
+    <h3 class="set-section-title">@SettingsNavigationText.AiProviderLabel</h3>
     <p class="set-section-desc">Connect an AI provider to enable rewriting, expanding, and formatting scripts with AI.</p>
 
     <div class="set-device-list">

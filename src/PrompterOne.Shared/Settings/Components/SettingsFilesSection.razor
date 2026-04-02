@@ -1,11 +1,12 @@
 @namespace PrompterOne.Shared.Components.Settings
 @using PrompterOne.Shared.Settings.Components
+@using PrompterOne.Shared.Settings.Models
 
 <section class="set-section set-panel"
          id="set-files"
          style="@DisplayStyle"
          data-testid="@UiTestIds.Settings.FilesPanel">
-    <h3 class="set-section-title">File Storage</h3>
+    <h3 class="set-section-title">@SettingsNavigationText.FileStorageLabel</h3>
     <p class="set-section-desc">Where scripts, recordings, and exports are saved locally.</p>
 
     <div class="set-device-list">

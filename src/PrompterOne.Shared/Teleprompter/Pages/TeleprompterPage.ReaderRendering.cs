@@ -12,6 +12,9 @@ public partial class TeleprompterPage
     private const string ReaderCardPreviousCssClass = "rd-card-prev";
     private const string ReaderControlButtonCssClass = "rd-ctrl-btn";
     private const string ReaderCountdownCssClass = "rd-countdown";
+    private const string ReaderGradientCssClass = "rd-gradient";
+    private const string ReaderGradientDefaultCssClass = "neutral";
+    private const string ReaderGradientNoTransitionCssClass = "rd-gradient-static";
     private const string ReaderGroupActiveCssClass = "rd-g-active";
     private const string ReaderGroupCssClass = "rd-g";
     private const string ReaderGroupEmphasisCssClass = "rd-g-emphasis";
@@ -27,7 +30,7 @@ public partial class TeleprompterPage
     {
         if (_cards.Count == 0)
         {
-            _gradientClass = string.Empty;
+            _gradientClass = ReaderGradientDefaultCssClass;
             _edgeSectionLabel = string.Empty;
             _readerProgressFillWidth = "0%";
             _elapsedLabel = "0:00 / 0:00";
@@ -68,6 +71,12 @@ public partial class TeleprompterPage
 
     private string BuildCameraTintCssClass() =>
         BuildClassList(ReaderCameraTintCssClass, _isReaderCameraActive ? ActiveCssClass : null);
+
+    private string BuildReaderGradientCssClass() =>
+        BuildClassList(
+            ReaderGradientCssClass,
+            string.IsNullOrWhiteSpace(_gradientClass) ? ReaderGradientDefaultCssClass : _gradientClass,
+            _isReaderGradientTransitionDisabled ? ReaderGradientNoTransitionCssClass : null);
 
     private string BuildCameraButtonCssClass() =>
         BuildClassList(ReaderControlButtonCssClass, _isReaderCameraActive ? ActiveCssClass : null);

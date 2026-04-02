@@ -1,4 +1,3 @@
-using System.Text.RegularExpressions;
 using Microsoft.JSInterop;
 using PrompterOne.Core.Abstractions;
 using PrompterOne.Core.Models.Media;
@@ -17,7 +16,7 @@ public sealed partial class BrowserMediaDeviceService(IJSRuntime jsRuntime) : IM
 
         return devices.Select(device => new MediaDeviceInfo(
             device.DeviceId,
-            SanitizeLabel(device.Label),
+            MediaDeviceLabelSanitizer.Sanitize(device.Label),
             device.Kind switch
             {
                 "videoinput" => MediaDeviceKind.Camera,
@@ -27,20 +26,6 @@ public sealed partial class BrowserMediaDeviceService(IJSRuntime jsRuntime) : IM
             },
             device.IsDefault)).ToList();
     }
-
-    private static string SanitizeLabel(string? rawLabel)
-    {
-        if (string.IsNullOrWhiteSpace(rawLabel))
-        {
-            return string.Empty;
-        }
-
-        var cleaned = VendorIdPattern().Replace(rawLabel, string.Empty).Trim();
-        return string.IsNullOrWhiteSpace(cleaned) ? string.Empty : cleaned;
-    }
-
-    [GeneratedRegex(@"\s*\([0-9a-fA-F]{4}:[0-9a-fA-F]{4}\)")]
-    private static partial Regex VendorIdPattern();
 
     private sealed record BrowserMediaDeviceDto(string DeviceId, string? Label, string Kind, bool IsDefault);
 }

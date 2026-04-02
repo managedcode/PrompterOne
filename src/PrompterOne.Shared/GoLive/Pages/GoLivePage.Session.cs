@@ -2,6 +2,7 @@ using System.Globalization;
 using PrompterOne.Core.Models.Media;
 using PrompterOne.Core.Models.Workspace;
 using PrompterOne.Shared.GoLive.Models;
+using PrompterOne.Shared.Services;
 
 namespace PrompterOne.Shared.Pages;
 
@@ -21,7 +22,9 @@ public partial class GoLivePage
         _ => GoLiveText.Session.SessionIdleLabel
     };
 
-    private string ActiveSourceLabel => ActiveCamera?.Label ?? GoLiveText.Session.CameraFallbackLabel;
+    private string ActiveSourceLabel => ActiveCamera is null
+        ? GoLiveText.Session.CameraFallbackLabel
+        : MediaDeviceLabelSanitizer.Sanitize(ActiveCamera.Label);
 
     private bool CanControlProgram => SelectedCamera is not null;
 
@@ -58,7 +61,9 @@ public partial class GoLivePage
         _ => SessionBadgeIdleCssClass
     };
 
-    private string SelectedSourceLabel => SelectedCamera?.Label ?? GoLiveText.Session.CameraFallbackLabel;
+    private string SelectedSourceLabel => SelectedCamera is null
+        ? GoLiveText.Session.CameraFallbackLabel
+        : MediaDeviceLabelSanitizer.Sanitize(SelectedCamera.Label);
 
     private SceneCameraSource? SelectedCamera => ResolveSessionSource(GoLiveSession.State.SelectedSourceId) ?? ActiveCamera;
 

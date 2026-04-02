@@ -310,6 +310,7 @@ Repo-specific design rules:
 - Teleprompter speed styling MUST produce a visible but tasteful letter-spacing or kerning change: slower text opens up slightly and faster text tightens slightly, not a no-op.
 - Teleprompter reader word styling MUST mirror TPS/editor inline semantics: explicit inline TPS tags control per-word emphasis and color, while section or block emotion sets card context and must not recolor every reader word.
 - Teleprompter underline or highlight treatments that span a phrase or block MUST render as one continuous block-level treatment; separate per-word underlines inside the same phrase are forbidden.
+- Teleprompter read-state styling MUST mute phrase-level underline or highlight accents once the emphasized text has been read; bright lingering underline accents on already-read text are forbidden.
 - Teleprompter reader text MUST appear on the focal guide immediately when a word or block becomes active; visible post-appearance drift or settling onto the guide is forbidden.
 - Teleprompter route styles MUST be present on the first paint; a flash of unstyled or late-styled reader UI during route entry is a regression.
 - Teleprompter block transitions MUST stay visually consistent: outgoing cards move upward and incoming cards rise from below in the same direction every time; alternating up/down travel is forbidden, and extra settling, bounce, or intermediate card states are forbidden.
