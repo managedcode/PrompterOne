@@ -40,7 +40,13 @@ internal static partial class BrowserTestConstants
 
     public static class TeleprompterFlow
     {
+        public const string BackgroundColorProperty = "backgroundColor";
+        public const string ColorProperty = "color";
         public const double ControlsMinimumOpacity = 0.9;
+        public const string MirrorScenarioName = "teleprompter-mirror-controls";
+        public const string MirrorStep = "01-mirror-controls";
+        public const string MirrorHorizontalTransform = "scaleX(-1)";
+        public const string MirrorVerticalTransform = "scaleY(-1)";
         public const string OpeningBlock = "Opening Block";
         public const string OpeningLine = "Good morning everyone";
         public const string CollapsedOpeningLine = "Goodmorningeveryone";
@@ -75,6 +81,7 @@ internal static partial class BrowserTestConstants
         public const string PrimaryCameraRole = "primary";
         public const string EnabledClass = "on";
         public const string FalseText = "false";
+        public const string StyleAttribute = "style";
         public const string TrueText = "true";
         public const string WidthInputScript =
             "element => { element.value = '900'; element.dispatchEvent(new Event('input', { bubbles: true })); }";

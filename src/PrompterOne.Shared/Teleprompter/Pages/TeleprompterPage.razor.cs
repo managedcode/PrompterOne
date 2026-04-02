@@ -26,12 +26,16 @@ public partial class TeleprompterPage : IAsyncDisposable
     private const int ReaderFontStep = 4;
     private const int ReaderForwardStep = 1;
     private const int ReaderGuideActiveDurationMilliseconds = 800;
+    private const string ReaderMirrorHorizontalLabel = "H";
+    private const string ReaderMirrorHorizontalTitle = "Mirror horizontally";
     private const int ReaderMaxFontSize = 56;
     private const int ReaderMaxTextWidth = 1100;
     private const int ReaderMaxFocalPointPercent = 55;
     private const int ReaderMinFontSize = 24;
     private const int ReaderMinTextWidth = 400;
     private const int ReaderMinFocalPointPercent = 15;
+    private const string ReaderMirrorVerticalLabel = "V";
+    private const string ReaderMirrorVerticalTitle = "Mirror vertically";
     private const int DefaultReaderTextWidth = ReaderMaxTextWidth;
 
     [Inject] private AppBootstrapper Bootstrapper { get; set; } = null!;
@@ -61,6 +65,8 @@ public partial class TeleprompterPage : IAsyncDisposable
     private bool _areWidthGuidesActive;
     private bool _focusScreenAfterRender = true;
     private bool _isReaderGradientTransitionDisabled = true;
+    private bool _isReaderMirrorHorizontal;
+    private bool _isReaderMirrorVertical;
     private bool _isFocalGuideActive;
     private bool _isReaderCameraActive;
     private bool _isReaderCountdownActive;
@@ -164,6 +170,8 @@ public partial class TeleprompterPage : IAsyncDisposable
         _screenTitle = SessionService.State.Title;
         _readerFontSize = NormalizeReaderFontSize(SessionService.State.ReaderSettings.FontScale);
         _readerFocalPointPercent = NormalizeReaderFocalPointPercent(SessionService.State.ReaderSettings.FocalPointPercent);
+        _isReaderMirrorHorizontal = SessionService.State.ReaderSettings.MirrorText;
+        _isReaderMirrorVertical = SessionService.State.ReaderSettings.MirrorVertical;
         _readerTextWidth = NormalizeReaderTextWidth(SessionService.State.ReaderSettings.TextWidth);
         _activeReaderCardIndex = 0;
         _activeReaderWordIndex = -1;

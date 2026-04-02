@@ -16,6 +16,8 @@ public sealed class TeleprompterPersistenceTests : BunitContext
     private const int PersistedFontSize = 40;
     private const int PersistedTextWidthPixels = 900;
     private const string EnabledCameraAttribute = "true";
+    private const string HorizontalMirrorTransform = "scaleX(-1)";
+    private const string VerticalMirrorTransform = "scaleY(-1)";
     private const int UpdatedFocalPointPercent = 37;
     private const int UpdatedFontSize = 40;
     private const int UpdatedTextWidthPixels = 980;
@@ -31,6 +33,8 @@ public sealed class TeleprompterPersistenceTests : BunitContext
         harness.JsRuntime.SavedValues[BrowserAppSettingsKeys.ReaderSettings] = new ReaderSettings(
             FontScale: PersistedFontScale,
             TextWidth: PersistedTextWidthRatio,
+            MirrorText: true,
+            MirrorVertical: true,
             FocalPointPercent: PersistedFocalPointPercent);
 
         Services.GetRequiredService<NavigationManager>()
@@ -48,6 +52,9 @@ public sealed class TeleprompterPersistenceTests : BunitContext
             Assert.Equal(
                 $"top:{PersistedFocalPointPercent}%;",
                 cut.FindByTestId(UiTestIds.Teleprompter.FocalGuide).GetAttribute("style"));
+            var clusterWrapStyle = cut.FindByTestId(UiTestIds.Teleprompter.ClusterWrap).GetAttribute("style") ?? string.Empty;
+            Assert.Contains(HorizontalMirrorTransform, clusterWrapStyle, StringComparison.Ordinal);
+            Assert.Contains(VerticalMirrorTransform, clusterWrapStyle, StringComparison.Ordinal);
         });
     }
 
@@ -65,6 +72,8 @@ public sealed class TeleprompterPersistenceTests : BunitContext
         cut.FindByTestId(UiTestIds.Teleprompter.FontUp).Click();
         cut.FindByTestId(UiTestIds.Teleprompter.WidthSlider).Input(UpdatedTextWidthPixels);
         cut.FindByTestId(UiTestIds.Teleprompter.FocalSlider).Input(UpdatedFocalPointPercent);
+        cut.FindByTestId(UiTestIds.Teleprompter.MirrorHorizontalToggle).Click();
+        cut.FindByTestId(UiTestIds.Teleprompter.MirrorVerticalToggle).Click();
         cut.FindByTestId(UiTestIds.Teleprompter.CameraToggle).Click();
 
         cut.WaitForAssertion(() =>
@@ -78,12 +87,19 @@ public sealed class TeleprompterPersistenceTests : BunitContext
             Assert.Equal(UpdatedFontSize, int.Parse(cut.Find($"#{UiDomIds.Teleprompter.FontLabel}").TextContent.Trim(), CultureInfo.InvariantCulture));
             Assert.Equal(UpdatedTextWidthPixels, int.Parse(cut.Find($"#{UiDomIds.Teleprompter.WidthValue}").TextContent.Trim(), CultureInfo.InvariantCulture));
             Assert.Equal($"top:{UpdatedFocalPointPercent}%;", cut.FindByTestId(UiTestIds.Teleprompter.FocalGuide).GetAttribute("style"));
+            var clusterWrapStyle = cut.FindByTestId(UiTestIds.Teleprompter.ClusterWrap).GetAttribute("style") ?? string.Empty;
+            Assert.Contains(HorizontalMirrorTransform, clusterWrapStyle, StringComparison.Ordinal);
+            Assert.Contains(VerticalMirrorTransform, clusterWrapStyle, StringComparison.Ordinal);
 
             Assert.Equal(PersistedFontScale, savedSettings.FontScale, 2);
             Assert.Equal(UpdatedTextWidthRatio, savedSettings.TextWidth, 4);
             Assert.Equal(UpdatedFocalPointPercent, savedSettings.FocalPointPercent);
+            Assert.True(savedSettings.MirrorText);
+            Assert.True(savedSettings.MirrorVertical);
             Assert.Equal(expectedShowCameraScene, savedSettings.ShowCameraScene);
             Assert.Equal(expectedCameraAttribute, cut.Find($"#{UiDomIds.Teleprompter.Camera}").GetAttribute("data-camera-autostart"));
+            Assert.True(harness.Session.State.ReaderSettings.MirrorText);
+            Assert.True(harness.Session.State.ReaderSettings.MirrorVertical);
             Assert.Equal(expectedShowCameraScene, harness.Session.State.ReaderSettings.ShowCameraScene);
         });
     }

@@ -19,6 +19,10 @@ public partial class TeleprompterPage
     private const string ReaderGroupCssClass = "rd-g";
     private const string ReaderGroupEmphasisCssClass = "rd-g-emphasis";
     private const string ReaderHorizontalGuideCssClass = "rd-guide-h";
+    private const string ReaderMirrorButtonCssClass = "rd-mirror-btn";
+    private const string ReaderMirrorHorizontalTransform = "scaleX(-1)";
+    private const string ReaderMirrorTransformOrigin = "center center";
+    private const string ReaderMirrorVerticalTransform = "scaleY(-1)";
     private const string ReaderVerticalGuideCssClass = "rd-guide-v";
     private const string ReaderVerticalGuideLeftCssClass = "rd-guide-v-l";
     private const string ReaderVerticalGuideRightCssClass = "rd-guide-v-r";
@@ -81,6 +85,9 @@ public partial class TeleprompterPage
     private string BuildCameraButtonCssClass() =>
         BuildClassList(ReaderControlButtonCssClass, _isReaderCameraActive ? ActiveCssClass : null);
 
+    private static string BuildReaderMirrorButtonCssClass(bool isActive) =>
+        BuildClassList(ReaderControlButtonCssClass, ReaderMirrorButtonCssClass, isActive ? ActiveCssClass : null);
+
     private string BuildCountdownCssClass() =>
         BuildClassList(ReaderCountdownCssClass, _isReaderCountdownActive ? ActiveCssClass : null);
 
@@ -105,8 +112,40 @@ public partial class TeleprompterPage
         return $"left:calc(50% {sign} {halfWidth}px);";
     }
 
-    private string BuildClusterWrapStyle() =>
-        $"max-width:{_readerTextWidth.ToString(CultureInfo.InvariantCulture)}px;--rd-font-size:{_readerFontSize.ToString(CultureInfo.InvariantCulture)}px;";
+    private string BuildClusterWrapStyle()
+    {
+        var styleParts = new List<string>
+        {
+            $"max-width:{_readerTextWidth.ToString(CultureInfo.InvariantCulture)}px",
+            $"--rd-font-size:{_readerFontSize.ToString(CultureInfo.InvariantCulture)}px"
+        };
+        var mirrorTransform = BuildReaderMirrorTransform();
+
+        if (!string.IsNullOrWhiteSpace(mirrorTransform))
+        {
+            styleParts.Add($"transform-origin:{ReaderMirrorTransformOrigin}");
+            styleParts.Add($"transform:{mirrorTransform}");
+        }
+
+        return string.Join(';', styleParts) + ';';
+    }
+
+    private string BuildReaderMirrorTransform()
+    {
+        var transforms = new List<string>();
+
+        if (_isReaderMirrorHorizontal)
+        {
+            transforms.Add(ReaderMirrorHorizontalTransform);
+        }
+
+        if (_isReaderMirrorVertical)
+        {
+            transforms.Add(ReaderMirrorVerticalTransform);
+        }
+
+        return string.Join(' ', transforms);
+    }
 
     private string BuildReaderCardCssClass(int index)
     {

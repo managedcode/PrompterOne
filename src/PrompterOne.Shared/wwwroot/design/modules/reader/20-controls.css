@@ -161,10 +161,10 @@
     background: rgba(10,10,15,.60);
 }
 
-/* ── Right-edge vertical sliders (focal point + text width) ── */
-.rd-sliders {
+/* ── Side control rails ── */
+.rd-sliders,
+.rd-mirror-controls {
     position: absolute;
-    right: 12px;
     top: 50%;
     transform: translateY(-50%);
     z-index: 12;
@@ -180,7 +180,16 @@
     opacity: .66;
     transition: opacity .4s;
 }
-.rd-sliders:hover {
+.rd-sliders {
+    right: 12px;
+}
+.rd-mirror-controls {
+    left: 12px;
+    gap: 10px;
+    padding: 10px 6px;
+}
+.rd-sliders:hover,
+.rd-mirror-controls:hover {
     opacity: .96;
 }
 .rd-slider-group {
@@ -188,6 +197,11 @@
     flex-direction: column;
     align-items: center;
     gap: 6px;
+}
+.rd-mirror-btn {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
 }
 .rd-slider-icon {
     color: rgba(232,213,176,.72);

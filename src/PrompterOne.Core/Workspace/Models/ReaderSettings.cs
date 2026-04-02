@@ -6,6 +6,7 @@ public sealed record ReaderSettings(
     double TextWidth = ReaderSettingsDefaults.TextWidth,
     double ScrollSpeed = ReaderSettingsDefaults.ScrollSpeed,
     bool MirrorText = ReaderSettingsDefaults.MirrorText,
+    bool MirrorVertical = ReaderSettingsDefaults.MirrorVertical,
     bool ShowFocusLine = ReaderSettingsDefaults.ShowFocusLine,
     bool ShowProgress = ReaderSettingsDefaults.ShowProgress,
     bool ShowCameraScene = ReaderSettingsDefaults.ShowCameraScene,

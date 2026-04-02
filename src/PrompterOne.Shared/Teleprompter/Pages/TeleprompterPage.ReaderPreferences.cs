@@ -11,7 +11,9 @@ public partial class TeleprompterPage
         {
             FontScale = BuildReaderFontScale(_readerFontSize),
             TextWidth = BuildReaderTextWidthRatio(_readerTextWidth),
-            FocalPointPercent = _readerFocalPointPercent
+            FocalPointPercent = _readerFocalPointPercent,
+            MirrorText = _isReaderMirrorHorizontal,
+            MirrorVertical = _isReaderMirrorVertical
         });
     }
 

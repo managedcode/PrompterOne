@@ -175,6 +175,7 @@ public static class UiTestIds
         public const string Back = "teleprompter-back";
         public const string CameraBackground = "teleprompter-camera-layer-primary";
         public const string CameraToggle = "teleprompter-camera-toggle";
+        public const string ClusterWrap = "teleprompter-cluster-wrap";
         public const string Controls = "teleprompter-controls";
         public const string EdgeSection = "teleprompter-edge-section";
         public const string EdgeInfo = "teleprompter-edge-info";
@@ -182,6 +183,9 @@ public static class UiTestIds
         public const string FocalGuide = "teleprompter-focal-guide";
         public const string FontDown = "teleprompter-font-down";
         public const string FontUp = "teleprompter-font-up";
+        public const string MirrorControls = "teleprompter-mirror-controls";
+        public const string MirrorHorizontalToggle = "teleprompter-mirror-horizontal";
+        public const string MirrorVerticalToggle = "teleprompter-mirror-vertical";
         public const string NextBlock = "teleprompter-next-block";
         public const string NextWord = "teleprompter-next-word";
         public const string Page = "teleprompter-page";

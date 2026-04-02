@@ -23,15 +23,6 @@ Most speaking and live-delivery workflows are fragmented:
 
 That makes it useful for founders, presenters, streamers, coaches, production operators, and teams who want one product to cover authoring, rehearsal, reading, and browser-side live operation.
 
-## What It Is Not
-
-`PrompterOne` is not:
-
-- a server-hosted teleprompter SaaS
-- an OBS companion or Browser Source wrapper
-- a desktop shell around a web page
-- a fake “generic RTMP everywhere” broadcaster that hides unsupported transport paths
-
 ## Product Gallery
 
 ### Library
@@ -227,10 +218,9 @@ The quality stack is:
 Canonical local commands:
 
 ```bash
-dotnet build /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx -warnaserror
-dotnet test /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx
-dotnet format /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx
-dotnet test /Users/ksemenenko/Developer/PrompterOne/PrompterOne.slnx --collect:"XPlat Code Coverage"
+dotnet build -warnaserror
+dotnet test
+dotnet test --collect:"XPlat Code Coverage"
 ```
 
 ## Run Locally
@@ -242,7 +232,6 @@ Requirements:
 Run the standalone app host:
 
 ```bash
-cd /Users/ksemenenko/Developer/PrompterOne/src/PrompterOne.App
 dotnet run
 ```
 
@@ -251,8 +240,6 @@ dotnet run
 `PrompterOne` is deployed as a static GitHub Pages build of the standalone WebAssembly app.
 
 - production domain target: [https://prompter.managed-code.com/](https://prompter.managed-code.com/)
-- PR validation workflow: [`.github/workflows/pr-validation.yml`](.github/workflows/pr-validation.yml)
-- release and Pages workflow: [`.github/workflows/deploy-github-pages.yml`](.github/workflows/deploy-github-pages.yml)
 
 The Pages artifact ships the browser app only. There is no PrompterOne server deployment behind it.
 

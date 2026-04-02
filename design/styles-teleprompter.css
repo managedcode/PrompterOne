@@ -109,19 +109,20 @@
     width: 38px;
     height: 38px;
     border-radius: 10px;
-    background: transparent;
-    color: rgba(232,213,176,.15);
+    background: rgba(20,18,12,.84);
+    color: rgba(232,213,176,.74);
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid rgba(232,213,176,.06);
+    border: 1px solid var(--gold-14);
+    backdrop-filter: blur(18px);
     cursor: pointer;
     transition: all .3s;
 }
 .rd-back:hover {
-    color: rgba(232,213,176,.5);
-    background: var(--gold-06);
-    border-color: var(--gold-10);
+    color: #E8D5B0;
+    background: rgba(28,26,18,.92);
+    border-color: var(--gold-18);
 }
 
 /* Stage — active cluster always centered vertically */
@@ -709,10 +710,10 @@ span.rd-pause.rd-pause-long {
     background: rgba(10,10,15,.60);
 }
 
-/* ── Right-edge vertical sliders (focal point + text width) ── */
-.rd-sliders {
+/* ── Side control rails ── */
+.rd-sliders,
+.rd-mirror-controls {
     position: absolute;
-    right: 12px;
     top: 50%;
     transform: translateY(-50%);
     z-index: 12;
@@ -728,7 +729,16 @@ span.rd-pause.rd-pause-long {
     opacity: .66;
     transition: opacity .4s;
 }
-.rd-sliders:hover {
+.rd-sliders {
+    right: 12px;
+}
+.rd-mirror-controls {
+    left: 12px;
+    gap: 10px;
+    padding: 10px 6px;
+}
+.rd-sliders:hover,
+.rd-mirror-controls:hover {
     opacity: .96;
 }
 .rd-slider-group {
@@ -736,6 +746,11 @@ span.rd-pause.rd-pause-long {
     flex-direction: column;
     align-items: center;
     gap: 6px;
+}
+.rd-mirror-btn {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
 }
 .rd-slider-icon {
     color: rgba(232,213,176,.72);

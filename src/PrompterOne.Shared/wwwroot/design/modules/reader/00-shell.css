@@ -113,19 +113,20 @@
     width: 38px;
     height: 38px;
     border-radius: 10px;
-    background: transparent;
-    color: rgba(232,213,176,.15);
+    background: rgba(20,18,12,.84);
+    color: rgba(232,213,176,.74);
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid rgba(232,213,176,.06);
+    border: 1px solid var(--gold-14);
+    backdrop-filter: blur(18px);
     cursor: pointer;
     transition: all .3s;
 }
 .rd-back:hover {
-    color: rgba(232,213,176,.5);
-    background: var(--gold-06);
-    border-color: var(--gold-10);
+    color: #E8D5B0;
+    background: rgba(28,26,18,.92);
+    border-color: var(--gold-18);
 }
 
 /* Stage — active cluster always centered vertically */

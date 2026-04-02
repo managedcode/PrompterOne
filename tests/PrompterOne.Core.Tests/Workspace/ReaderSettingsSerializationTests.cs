@@ -26,6 +26,7 @@ public sealed class ReaderSettingsSerializationTests
 
         Assert.NotNull(settings);
         Assert.Equal(ReaderSettingsDefaults.FocalPointPercent, settings.FocalPointPercent);
+        Assert.Equal(ReaderSettingsDefaults.MirrorVertical, settings.MirrorVertical);
         Assert.Equal(1.11d, settings.FontScale);
         Assert.Equal(0.8182d, settings.TextWidth);
     }
