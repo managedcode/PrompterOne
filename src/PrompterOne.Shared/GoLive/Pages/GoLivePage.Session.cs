@@ -79,8 +79,6 @@ public partial class GoLivePage
         ? GoLiveText.Session.SwitchButtonLabel
         : GoLiveText.Session.SwitchButtonDisabledLabel;
 
-    private string BitrateTelemetry => $"{_studioSettings.Streaming.BitrateKbps} kbps";
-
     private DateTimeOffset? SessionStartedAt => GoLiveSession.State.IsRecordingActive
         ? GoLiveSession.State.RecordingStartedAt ?? GoLiveSession.State.StreamStartedAt
         : GoLiveSession.State.StreamStartedAt;

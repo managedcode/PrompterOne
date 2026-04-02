@@ -19,6 +19,7 @@ public partial class GoLivePage
         _loadState = false;
         _bootstrapTask ??= BootstrapPageAsync();
         await _bootstrapTask;
+        await SyncPrimaryMicrophoneMonitorAsync();
     }
 
     private async Task BootstrapPageAsync()

@@ -67,6 +67,7 @@ public sealed record GoLiveDestinationSummaryViewModel(
     string Tone);
 
 public sealed record GoLiveMetricViewModel(
+    string Id,
     string Value,
     string Label);
 

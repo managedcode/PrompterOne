@@ -189,6 +189,13 @@
     pointer-events: none;
 }
 
+.rsvp-display[data-rsvp-layout-ready="false"] .rsvp-crosshair,
+.rsvp-display[data-rsvp-layout-ready="false"] .rsvp-h-row,
+.rsvp-display[data-rsvp-layout-ready="false"] .rsvp-orp-line {
+    opacity: 0;
+    visibility: hidden;
+}
+
 /* Phrase preview below */
 .rsvp-phrase {
     margin-top: 40px;

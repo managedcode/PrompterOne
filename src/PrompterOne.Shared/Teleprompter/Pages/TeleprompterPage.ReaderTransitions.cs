@@ -5,12 +5,14 @@ public partial class TeleprompterPage
     private const string ReaderCardNoTransitionCssClass = "rd-card-static";
 
     private readonly HashSet<int> _readerCardsWithoutMotionTransition = [];
+    private int? _readerCardTransitionDirection;
     private int? _preparedReaderCardIndex;
     private int? _readerTransitionSourceCardIndex;
 
     private void ResetReaderCardTransitionState()
     {
         _readerCardsWithoutMotionTransition.Clear();
+        _readerCardTransitionDirection = null;
         _preparedReaderCardIndex = null;
         _readerTransitionSourceCardIndex = null;
     }
@@ -22,6 +24,9 @@ public partial class TeleprompterPage
             return;
         }
 
+        _readerCardTransitionDirection = nextCardIndex > _activeReaderCardIndex
+            ? ReaderCardForwardStep
+            : ReaderCardBackwardStep;
         _preparedReaderCardIndex = nextCardIndex;
         _readerCardsWithoutMotionTransition.Add(nextCardIndex);
         await InvokeAsync(StateHasChanged);
@@ -37,6 +42,7 @@ public partial class TeleprompterPage
         }
 
         _readerCardsWithoutMotionTransition.Add(previousCardIndex);
+        _readerCardTransitionDirection = null;
         _readerTransitionSourceCardIndex = null;
         await InvokeAsync(StateHasChanged);
         await Task.Yield();

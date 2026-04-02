@@ -56,7 +56,8 @@
                     <div class="gl-stats-compact">
                         @foreach (var metric in StatusMetrics)
                         {
-                            <div class="gl-stat-item">
+                            <div class="gl-stat-item"
+                                 data-testid="@UiTestIds.GoLive.StatusMetric(metric.Id)">
                                 <span class="gl-stat-val">@metric.Value</span>
                                 <span class="gl-stat-lbl">@metric.Label</span>
                             </div>
@@ -69,7 +70,8 @@
                     <div class="gl-stats-compact">
                         @foreach (var metric in RuntimeMetrics)
                         {
-                            <div class="gl-stat-item">
+                            <div class="gl-stat-item"
+                                 data-testid="@UiTestIds.GoLive.RuntimeMetric(metric.Id)">
                                 <span class="gl-stat-val">@metric.Value</span>
                                 <span class="gl-stat-lbl">@metric.Label</span>
                             </div>
@@ -96,6 +98,8 @@
                     @foreach (var channel in AudioChannels)
                     {
                         <div class="gl-mix-ch"
+                             data-live-level="@channel.LevelPercent"
+                             data-live-state="@(channel.LevelPercent > 0 ? ActiveMeterStateValue : GoLiveText.Session.IdleStateValue)"
                              data-testid="@UiTestIds.GoLive.AudioChannel(channel.Id)">
                             <div class="gl-mix-ch-top">
                                 <span class="gl-mix-name">@channel.Name</span>
@@ -289,6 +293,8 @@
 </section>
 
 @code {
+    private const string ActiveMeterStateValue = "active";
+
     [Parameter] public GoLiveStudioTab ActiveTab { get; set; }
     [Parameter] public IReadOnlyList<GoLiveAudioChannelViewModel> AudioChannels { get; set; } = [];
     [Parameter] public EventCallback CreateRoom { get; set; }

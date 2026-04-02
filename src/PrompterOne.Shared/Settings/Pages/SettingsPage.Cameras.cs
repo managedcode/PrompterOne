@@ -37,6 +37,7 @@ public partial class SettingsPage
             MediaSceneService.RemoveCamera(existing.SourceId);
         }
 
+        SelectCameraPreview(camera);
         await PersistSceneAsync();
         await NormalizeStudioSettingsAsync();
         EnsureCameraPreviewSelection();
@@ -173,6 +174,8 @@ public partial class SettingsPage
             _ => "1920×1080"
         };
 
+    private bool IsPreviewCamera(MediaDeviceInfo camera) =>
+        string.Equals(PreviewCamera?.DeviceId, camera.DeviceId, StringComparison.Ordinal);
     private bool IsPrimaryCamera(MediaDeviceInfo camera) =>
         string.Equals(SelectedCameraId, camera.DeviceId, StringComparison.Ordinal);
 

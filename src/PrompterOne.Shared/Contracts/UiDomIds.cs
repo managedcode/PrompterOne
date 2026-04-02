@@ -28,6 +28,7 @@ public static class UiDomIds
 
     public static class GoLive
     {
+        public const string MicrophoneLevelMonitor = "go-live-microphone-level-monitor";
         public const string ProgramStage = "go-live-program-stage";
         public const string ProgramVideo = "go-live-program-video";
         public const string PreviewCard = "go-live-preview-card";

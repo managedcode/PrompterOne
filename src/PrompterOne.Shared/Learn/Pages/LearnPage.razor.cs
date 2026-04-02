@@ -41,6 +41,7 @@ public partial class LearnPage : IAsyncDisposable
     public string? ScriptId { get; set; }
 
     private CancellationTokenSource? _playbackCts;
+    private ElementReference _displayRoot;
     private ElementReference _focusOrp;
     private ElementReference _focusRow;
     private ElementReference _focusWord;
@@ -101,7 +102,7 @@ public partial class LearnPage : IAsyncDisposable
         if (_syncFocusLayoutAfterRender)
         {
             _syncFocusLayoutAfterRender = false;
-            await LearnRsvpLayoutInterop.SyncLayoutAsync(_focusRow, _focusWord, _focusOrp);
+            await LearnRsvpLayoutInterop.SyncLayoutAsync(_displayRoot, _focusRow, _focusWord, _focusOrp);
         }
 
         if (_startPlaybackAfterLayoutSync)

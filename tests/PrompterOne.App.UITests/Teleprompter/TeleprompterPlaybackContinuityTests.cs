@@ -69,6 +69,38 @@ public sealed class TeleprompterPlaybackContinuityTests(StandaloneAppFixture fix
                 .ToHaveTextAsync(BrowserTestConstants.Regexes.ReaderSecondBlockIndicator);
         });
 
+    [Fact]
+    public Task Teleprompter_PreviousBlockTransition_ReversesAndBringsTheReturningBlockFromAbove() =>
+        RunPageAsync(async page =>
+        {
+            await OpenLeadershipTeleprompterAsync(page);
+            await page.GetByTestId(UiTestIds.Teleprompter.NextBlock).ClickAsync();
+            await Expect(page.Locator($"#{UiDomIds.Teleprompter.BlockIndicator}"))
+                .ToHaveTextAsync(BrowserTestConstants.Regexes.ReaderSecondBlockIndicator);
+
+            var outgoingText = page.GetByTestId(UiTestIds.Teleprompter.CardText(1));
+            var returningText = page.GetByTestId(UiTestIds.Teleprompter.CardText(0));
+            await Expect(outgoingText).ToBeVisibleAsync();
+
+            var samples = new List<ReaderTransitionSample>
+            {
+                await CaptureReaderTransitionSampleAsync(outgoingText, returningText)
+            };
+
+            await page.GetByTestId(UiTestIds.Teleprompter.PreviousBlock).ClickAsync();
+
+            for (var sampleIndex = 0; sampleIndex < BrowserTestConstants.Teleprompter.TransitionProbeSampleCount; sampleIndex++)
+            {
+                await page.WaitForTimeoutAsync(BrowserTestConstants.Teleprompter.TransitionProbeIntervalMs);
+                samples.Add(await CaptureReaderTransitionSampleAsync(outgoingText, returningText));
+            }
+
+            AssertMovesDownWithoutReversal(samples.Select(sample => sample.OutgoingTop).ToArray(), "Outgoing current block");
+            AssertMovesDownWithoutReversal(samples.Select(sample => sample.IncomingTop).ToArray(), "Returning previous block");
+            await Expect(page.Locator($"#{UiDomIds.Teleprompter.BlockIndicator}"))
+                .ToHaveTextAsync(BrowserTestConstants.Regexes.ReaderFirstBlockIndicator);
+        });
+
     private static async Task OpenLeadershipTeleprompterAsync(IPage page)
     {
         await page.GotoAsync(BrowserTestConstants.Routes.TeleprompterLeadership);
@@ -130,6 +162,24 @@ public sealed class TeleprompterPlaybackContinuityTests(StandaloneAppFixture fix
             Assert.True(
                 positions[index] <= positions[index - 1] + BrowserTestConstants.Teleprompter.TransitionReversalTolerancePx,
                 $"{label} moved back down. Samples: {FormatPositions(positions)}");
+        }
+    }
+
+    private static void AssertMovesDownWithoutReversal(IReadOnlyList<double> positions, string label)
+    {
+        Assert.NotEmpty(positions);
+
+        var maximumPosition = positions.Max();
+        var totalTravel = maximumPosition - positions[0];
+        Assert.True(
+            totalTravel >= BrowserTestConstants.Teleprompter.TransitionMinimumTravelPx,
+            $"{label} did not travel downward enough. Samples: {FormatPositions(positions)}");
+
+        for (var index = 1; index < positions.Count; index++)
+        {
+            Assert.True(
+                positions[index] >= positions[index - 1] - BrowserTestConstants.Teleprompter.TransitionReversalTolerancePx,
+                $"{label} moved back up. Samples: {FormatPositions(positions)}");
         }
     }
 

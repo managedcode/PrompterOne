@@ -20,7 +20,10 @@
                  style="width:@_progressFillWidth"></div>
         </div>
 
-        <div class="rsvp-display" data-testid="@UiTestIds.Learn.Display">
+        <div class="rsvp-display"
+             @ref="_displayRoot"
+             data-rsvp-layout-ready="false"
+             data-testid="@UiTestIds.Learn.Display">
             <div class="rsvp-crosshair">
                 <svg width="16" height="16" viewBox="0 0 16 16">
                     <line x1="8" y1="0" x2="8" y2="16" stroke="rgba(255,82,82,.3)" stroke-width="1.5" stroke-dasharray="3,2" />

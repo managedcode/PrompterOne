@@ -279,6 +279,7 @@
 
     async function prepareRecordingSink(session, request, mimeType) {
         session.recordingFileName = buildRecordingFileName(request.recording.fileStem, mimeType);
+        session.recordingBytes = 0;
         session.recordingSaveMode = "download";
         session.recordingWritable = null;
         session.recordingFileHandle = null;
@@ -316,6 +317,7 @@
     }
 
     function queueRecordingWrite(session, data) {
+        session.recordingBytes += data.size;
         session.recordingWritePromise = session.recordingWritePromise.then(() => session.recordingWritable.write(data));
         return session.recordingWritePromise;
     }
@@ -342,6 +344,7 @@
             }
 
             session.recordingChunks.push(event.data);
+            session.recordingBytes += event.data.size;
         });
 
         session.mediaRecorder = recorder;

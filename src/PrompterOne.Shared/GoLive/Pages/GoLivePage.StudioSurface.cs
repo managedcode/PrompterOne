@@ -1,6 +1,7 @@
 using System.Globalization;
 using PrompterOne.Core.Models.Media;
 using PrompterOne.Shared.Components.GoLive;
+using PrompterOne.Shared.Contracts;
 using PrompterOne.Shared.GoLive.Models;
 using PrompterOne.Shared.Services;
 
@@ -12,6 +13,13 @@ public partial class GoLivePage
     private const string GoLiveFullProgramClass = "gl-layout-fullpgm";
     private const string GoLiveHideLeftClass = "gl-hide-left";
     private const string GoLiveHideRightClass = "gl-hide-right";
+    private const long KilobyteSize = 1024;
+    private const long MegabyteSize = 1024 * KilobyteSize;
+    private const long GigabyteSize = 1024 * MegabyteSize;
+    private const string DownloadSaveMode = "download";
+    private const string FileSystemSaveMode = "file-system";
+    private const string MetricSeparator = " • ";
+    private const string ResolutionSeparator = " × ";
 
     private string _activeSceneId = GoLiveText.Surface.PrimarySceneId;
     private GoLiveSceneLayout _activeSceneLayout = GoLiveSceneLayout.Full;
@@ -102,13 +110,9 @@ public partial class GoLivePage
 
     private IReadOnlyList<GoLiveAudioChannelViewModel> BuildAudioChannels()
     {
-        var microphoneLevel = HasPrimaryMicrophone ? 100 : 0;
-        var programLevel = GoLiveSession.State.HasActiveSession ? 100 : 0;
-        var recordingLevel = GoLiveOutputRuntime.State.RecordingActive
-            ? 100
-            : _studioSettings.Streaming.LocalRecordingEnabled
-                ? 55
-                : 0;
+        var microphoneLevel = HasPrimaryMicrophone ? _primaryMicrophoneLevelPercent : 0;
+        var programLevel = GoLiveOutputRuntime.State.Audio.ProgramLevelPercent;
+        var recordingLevel = GoLiveOutputRuntime.State.Audio.RecordingLevelPercent;
 
         return
         [
@@ -174,10 +178,22 @@ public partial class GoLivePage
     {
         return
         [
-            new(string.IsNullOrWhiteSpace(ActiveSourceLabel) ? GoLiveText.Session.CameraFallbackLabel : ActiveSourceLabel, GoLiveText.Surface.ProgramMetricLabel),
-            new(PrimaryMicrophoneLabel, GoLiveText.Surface.MicrophoneMetricLabel),
-            new(BuildRecordingMetricValue(), GoLiveText.Surface.RecordingMetricLabel),
-            new(BuildRuntimeEngineValue(), GoLiveText.Surface.RuntimeEngineLabel)
+            new(
+                GoLiveMetricIds.RuntimeCamera,
+                string.IsNullOrWhiteSpace(ActiveSourceLabel) ? GoLiveText.Session.CameraFallbackLabel : ActiveSourceLabel,
+                GoLiveText.Surface.ProgramMetricLabel),
+            new(
+                GoLiveMetricIds.RuntimeMicrophone,
+                PrimaryMicrophoneLabel,
+                GoLiveText.Surface.MicrophoneMetricLabel),
+            new(
+                GoLiveMetricIds.RuntimeRecording,
+                BuildRecordingMetricValue(),
+                GoLiveText.Surface.RecordingMetricLabel),
+            new(
+                GoLiveMetricIds.RuntimeEngine,
+                BuildRuntimeEngineValue(),
+                GoLiveText.Surface.RuntimeEngineLabel)
         ];
     }
 
@@ -210,18 +226,31 @@ public partial class GoLivePage
         var enabledDestinations = DestinationSummary.Count(destination => destination.IsEnabled);
         return
         [
-            new(BitrateTelemetry, GoLiveText.Surface.StatusBitrateLabel),
-            new(FormatOutputResolution(_studioSettings.Streaming.OutputResolution), GoLiveText.Surface.StatusOutputLabel),
-            new(enabledDestinations.ToString(CultureInfo.InvariantCulture), GoLiveText.Surface.ActiveDestinationsMetricLabel),
-            new(ActiveSessionLabel, GoLiveText.Surface.SessionMetricLabel)
+            new(
+                GoLiveMetricIds.StatusBitrate,
+                BuildBitrateMetricValue(),
+                GoLiveText.Surface.StatusBitrateLabel),
+            new(
+                GoLiveMetricIds.StatusOutput,
+                BuildOutputMetricValue(),
+                GoLiveText.Surface.StatusOutputLabel),
+            new(
+                GoLiveMetricIds.StatusDestinations,
+                enabledDestinations.ToString(CultureInfo.InvariantCulture),
+                GoLiveText.Surface.ActiveDestinationsMetricLabel),
+            new(
+                GoLiveMetricIds.StatusSession,
+                ActiveSessionLabel,
+                GoLiveText.Surface.SessionMetricLabel)
         ];
     }
 
     private string BuildRecordingMetricValue()
     {
+        var recording = GoLiveOutputRuntime.State.Recording;
         if (GoLiveOutputRuntime.State.RecordingActive)
         {
-            return GoLiveText.Surface.RecordingActiveMetricValue;
+            return FormatFileSize(recording.SizeBytes);
         }
 
         return _studioSettings.Streaming.LocalRecordingEnabled
@@ -231,6 +260,18 @@ public partial class GoLivePage
 
     private string BuildRuntimeEngineValue()
     {
+        if (GoLiveOutputRuntime.State.RecordingActive)
+        {
+            var profileParts = new[]
+            {
+                GoLiveText.Surface.RuntimeEngineRecorderValue,
+                ResolveRecordingContainerValue(),
+                ResolveRecordingSaveModeValue()
+            }.Where(value => !string.IsNullOrWhiteSpace(value));
+
+            return string.Join(MetricSeparator, profileParts);
+        }
+
         return (GoLiveOutputRuntime.State.ObsActive, GoLiveOutputRuntime.State.LiveKitActive, GoLiveOutputRuntime.State.RecordingActive) switch
         {
             (true, true, _) => GoLiveText.Surface.RuntimeEngineObsLiveKitValue,
@@ -241,6 +282,78 @@ public partial class GoLivePage
         };
     }
 
+    private string BuildBitrateMetricValue()
+    {
+        var videoBitrateKbps = GoLiveOutputRuntime.State.RecordingActive && GoLiveOutputRuntime.State.Recording.VideoBitrateKbps > 0
+            ? GoLiveOutputRuntime.State.Recording.VideoBitrateKbps
+            : _studioSettings.Streaming.BitrateKbps;
+
+        return string.Concat(videoBitrateKbps.ToString(CultureInfo.InvariantCulture), " kbps");
+    }
+
+    private string BuildOutputMetricValue()
+    {
+        var program = GoLiveOutputRuntime.State.Program;
+        if (program.Width > 0 && program.Height > 0)
+        {
+            return string.Concat(
+                program.Width.ToString(CultureInfo.InvariantCulture),
+                ResolutionSeparator,
+                program.Height.ToString(CultureInfo.InvariantCulture));
+        }
+
+        return ResolveResolutionDimensions(_studioSettings.Streaming.OutputResolution);
+    }
+
+    private static string FormatFileSize(long sizeBytes)
+    {
+        if (sizeBytes >= GigabyteSize)
+        {
+            return string.Concat(
+                (sizeBytes / (double)GigabyteSize).ToString("0.0", CultureInfo.InvariantCulture),
+                " GB");
+        }
+
+        if (sizeBytes >= MegabyteSize)
+        {
+            return string.Concat(
+                (sizeBytes / (double)MegabyteSize).ToString("0.0", CultureInfo.InvariantCulture),
+                " MB");
+        }
+
+        if (sizeBytes >= KilobyteSize)
+        {
+            return string.Concat(
+                (sizeBytes / (double)KilobyteSize).ToString("0.0", CultureInfo.InvariantCulture),
+                " KB");
+        }
+
+        return string.Concat(sizeBytes.ToString(CultureInfo.InvariantCulture), " B");
+    }
+
+    private string ResolveRecordingContainerValue()
+    {
+        var mimeType = GoLiveOutputRuntime.State.Recording.MimeType;
+        if (mimeType.Contains("mp4", StringComparison.OrdinalIgnoreCase))
+        {
+            return GoLiveText.Surface.RecordingContainerMp4Value;
+        }
+
+        if (mimeType.Contains("webm", StringComparison.OrdinalIgnoreCase))
+        {
+            return GoLiveText.Surface.RecordingContainerWebmValue;
+        }
+
+        return GoLiveOutputRuntime.State.Recording.RequestedContainer;
+    }
+
+    private string ResolveRecordingSaveModeValue() => GoLiveOutputRuntime.State.Recording.SaveMode switch
+    {
+        FileSystemSaveMode => GoLiveText.Surface.RecordingSaveModeLocalFileValue,
+        DownloadSaveMode => GoLiveText.Surface.RecordingSaveModeBrowserDownloadValue,
+        _ => string.Empty
+    };
+
     private Task SelectStudioModeAsync(GoLiveStudioMode mode)
     {
         _activeStudioMode = mode;
@@ -250,7 +363,7 @@ public partial class GoLivePage
     private Task SelectStudioTabAsync(GoLiveStudioTab tab)
     {
         _activeStudioTab = tab;
-        return Task.CompletedTask;
+        return SyncPrimaryMicrophoneMonitorAsync();
     }
 
     private Task ToggleLeftRailAsync()

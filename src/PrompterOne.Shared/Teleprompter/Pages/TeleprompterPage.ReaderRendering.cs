@@ -113,9 +113,9 @@ public partial class TeleprompterPage
         var stateClass = index == _activeReaderCardIndex
             ? ReaderCardActiveCssClass
             : index == _readerTransitionSourceCardIndex
-                ? ReaderCardPreviousCssClass
+                ? ResolveTransitionSourceCardCssClass()
                 : index == _preparedReaderCardIndex
-                    ? ReaderCardNextCssClass
+                    ? ResolvePreparedReaderCardCssClass()
                     : index < _activeReaderCardIndex
                         ? ReaderCardPreviousCssClass
                         : ReaderCardNextCssClass;
@@ -125,6 +125,16 @@ public partial class TeleprompterPage
 
         return BuildClassList(ReaderCardCssClass, stateClass, transitionClass);
     }
+
+    private string ResolvePreparedReaderCardCssClass() =>
+        _readerCardTransitionDirection == ReaderCardBackwardStep
+            ? ReaderCardPreviousCssClass
+            : ReaderCardNextCssClass;
+
+    private string ResolveTransitionSourceCardCssClass() =>
+        _readerCardTransitionDirection == ReaderCardBackwardStep
+            ? ReaderCardNextCssClass
+            : ReaderCardPreviousCssClass;
 
     private string BuildReaderGroupCssClass(int cardIndex, int chunkIndex)
     {

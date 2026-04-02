@@ -9,12 +9,13 @@ using PrompterOne.Shared.Settings.Models;
 
 namespace PrompterOne.Shared.Pages;
 
-public partial class GoLivePage : ComponentBase
+public partial class GoLivePage : ComponentBase, IDisposable, IAsyncDisposable
 {
     [Inject] private AppBootstrapper Bootstrapper { get; set; } = null!;
     [Inject] private AppShellService Shell { get; set; } = null!;
     [Inject] private GoLiveSessionService GoLiveSession { get; set; } = null!;
     [Inject] private GoLiveOutputRuntimeService GoLiveOutputRuntime { get; set; } = null!;
+    [Inject] private MicrophoneLevelInterop MicrophoneLevelInterop { get; set; } = null!;
     [Inject] private StreamingPublishDescriptorResolver StreamingDescriptorResolver { get; set; } = null!;
     [Inject] private UiDiagnosticsService Diagnostics { get; set; } = null!;
     [Inject] private IMediaDeviceService MediaDeviceService { get; set; } = null!;

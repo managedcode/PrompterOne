@@ -93,9 +93,13 @@ public static class GoLiveText
         public const string ProgramMetricLabel = "Camera";
         public const string ProgramStandbyDetailLabel = "Program idle";
         public const string RecordingActiveMetricValue = "Saving";
+        public const string RecordingContainerMp4Value = "MP4";
         public const string RecordingMetricLabel = "Recording";
         public const string RecordingReadyDetailLabel = "Ready";
         public const string RecordingReadyMetricValue = "Armed";
+        public const string RecordingSaveModeBrowserDownloadValue = "Browser download";
+        public const string RecordingSaveModeLocalFileValue = "Local file";
+        public const string RecordingContainerWebmValue = "WEBM";
         public const string ResolutionDimensionsFullHd = "1920 × 1080";
         public const string ResolutionDimensionsHd = "1280 × 720";
         public const string ResolutionDimensionsUltraHd = "3840 × 2160";

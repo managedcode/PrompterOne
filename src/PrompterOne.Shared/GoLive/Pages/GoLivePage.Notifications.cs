@@ -1,9 +1,12 @@
 namespace PrompterOne.Shared.Pages;
 
-public partial class GoLivePage : IDisposable
+public partial class GoLivePage
 {
+    private static readonly TimeSpan SessionRefreshInterval = TimeSpan.FromMilliseconds(200);
+
     private CancellationTokenSource? _sessionRefreshCancellation;
     private PeriodicTimer? _sessionRefreshTimer;
+    private bool _disposed;
 
     protected override void OnInitialized()
     {
@@ -14,10 +17,28 @@ public partial class GoLivePage : IDisposable
 
     public void Dispose()
     {
-        GoLiveSession.StateChanged -= HandleGoLiveSessionChanged;
-        GoLiveOutputRuntime.StateChanged -= HandleGoLiveOutputRuntimeChanged;
-        StopSessionRefreshLoop();
-        _interactionGate.Dispose();
+        if (_disposed)
+        {
+            return;
+        }
+
+        _disposed = true;
+        _ = StopPrimaryMicrophoneMonitorAsync();
+        DisposeCore();
+        GC.SuppressFinalize(this);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        _disposed = true;
+        await StopPrimaryMicrophoneMonitorAsync();
+        DisposeCore();
+        GC.SuppressFinalize(this);
     }
 
     private void HandleGoLiveSessionChanged()
@@ -50,7 +71,7 @@ public partial class GoLivePage : IDisposable
         }
 
         _sessionRefreshCancellation = new CancellationTokenSource();
-        _sessionRefreshTimer = new PeriodicTimer(TimeSpan.FromSeconds(1));
+        _sessionRefreshTimer = new PeriodicTimer(SessionRefreshInterval);
         _ = RunSessionRefreshLoopAsync(_sessionRefreshTimer, _sessionRefreshCancellation.Token);
     }
 
@@ -60,6 +81,7 @@ public partial class GoLivePage : IDisposable
         {
             while (await timer.WaitForNextTickAsync(cancellationToken))
             {
+                await InvokeAsync(GoLiveOutputRuntime.RefreshStateAsync);
                 await InvokeAsync(StateHasChanged);
             }
         }
@@ -75,5 +97,14 @@ public partial class GoLivePage : IDisposable
         _sessionRefreshCancellation = null;
         _sessionRefreshTimer?.Dispose();
         _sessionRefreshTimer = null;
+    }
+
+    private void DisposeCore()
+    {
+        GoLiveSession.StateChanged -= HandleGoLiveSessionChanged;
+        GoLiveOutputRuntime.StateChanged -= HandleGoLiveOutputRuntimeChanged;
+        StopSessionRefreshLoop();
+        DisposePrimaryMicrophoneObserver();
+        _interactionGate.Dispose();
     }
 }
