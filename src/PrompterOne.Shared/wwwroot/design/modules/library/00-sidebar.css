@@ -18,7 +18,8 @@
     flex-direction: column;
     padding: 16px 20px;
     flex-shrink: 0;
-    overflow-y: auto;
+    min-height: 0;
+    overflow: hidden;
     overflow-x: hidden;
 }
 
@@ -55,12 +56,12 @@
 
 /* Nav + Folder tree */
 .lib-nav { display: flex; flex-direction: column; gap: 2px; }
-.lib-nav-spacer { flex: 1; }
 
 /* Folder tree in sidebar */
 .lib-folders-section {
     margin-top: 20px;
-    flex: 1;
+    flex: 1 1 auto;
+    min-height: 0;
     overflow-y: auto;
 }
 .lib-folders-header {
@@ -149,7 +150,12 @@
     -webkit-text-fill-color: transparent;
 }
 .bc-sep { color: var(--t4); }
-.lib-nav-bottom { border-top: 1px solid var(--border); padding-top: 12px; }
+.lib-nav-bottom {
+    margin-top: auto;
+    flex-shrink: 0;
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+}
 
 .nav-item {
     display: flex;
@@ -179,4 +185,3 @@
     border-radius: 7px;
     font-family: var(--mono);
 }
-
