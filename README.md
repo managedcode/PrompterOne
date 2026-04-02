@@ -1,268 +1,194 @@
-# PrompterOne
+<p align="center">
+  <img src="docs/screenshots/readme/library.png" alt="PrompterOne" width="100%" />
+</p>
 
-`PrompterOne` is a browser-first writing, rehearsal, teleprompter, and live-session studio for people who need to move from script to delivery without bouncing between disconnected tools.
+<h1 align="center">PrompterOne</h1>
 
-It is built as a standalone Blazor WebAssembly app that runs directly in the browser. There is no PrompterOne backend in the runtime shape, no desktop wrapper, and no hidden media server tier. The product goal is simple: keep the whole flow client-side, honest, and operational.
+<p align="center">
+  <strong>Write. Rehearse. Read. Go live. All from the browser.</strong><br/>
+  An open-source teleprompter studio that takes your script from first draft to live delivery — no backend, no installs, no accounts.
+</p>
 
-## Why PrompterOne Exists
+<p align="center">
+  <a href="https://prompter.managed-code.com/">Try it now</a> &middot;
+  <a href="docs/Architecture.md">Architecture</a> &middot;
+  <a href="#quick-start">Run locally</a> &middot;
+  <a href="#license">License</a>
+</p>
 
-Most speaking and live-delivery workflows are fragmented:
+<p align="center">
+  <img src="https://img.shields.io/badge/.NET-10-512BD4?logo=dotnet" alt=".NET 10" />
+  <img src="https://img.shields.io/badge/Blazor-WebAssembly-512BD4?logo=blazor" alt="Blazor WASM" />
+  <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License" />
+</p>
 
-- scripts live in one tool
-- rehearsal happens in another
-- teleprompter reading happens somewhere else
-- live output, recording, and destination setup happen in a different control surface
+---
 
-`PrompterOne` brings those stages together into one browser workspace so the same script can move through:
+## The Problem
 
-1. `Library`
-2. `Editor`
-3. `Learn`
-4. `Teleprompter`
-5. `Go Live`
+If you speak on camera, stream, or present live — you already know how fragmented the workflow is. Scripts live in Google Docs. Rehearsal is reading out loud. The teleprompter is a separate app. Recording and streaming need yet another tool. Every switch means context loss, copy-paste, and broken flow.
 
-That makes it useful for founders, presenters, streamers, coaches, production operators, and teams who want one product to cover authoring, rehearsal, reading, and browser-side live operation.
+**PrompterOne** puts the entire journey in one place. You write a script, rehearse it at speed, read it on camera, and go live — all without leaving the browser tab. Your script carries its pacing, emphasis, and structure through every stage, so what you author is exactly what you deliver.
 
-## Product Gallery
+No server. No desktop install. No sign-up. Open the app, start writing, and everything stays in your browser.
 
-### Library
+## What You Get
 
-The library is the launch surface for the whole workflow: browse scripts, organize folders, and jump into learn mode, reader mode, or authoring from the same card.
+### Script Library
 
-![PrompterOne Library](docs/screenshots/readme/library.png)
+The starting point. Browse your scripts, organize them into folders, and jump straight into editing, rehearsal, or reading from the same card. Everything persists in browser storage — your scripts are yours and stay local.
 
-### Editor
+![Library](docs/screenshots/readme/library.png)
 
-The editor uses a TPS-oriented authoring surface with structure-aware writing, pace markers, semantic emphasis, and metadata that carry through into rehearsal and reading.
+---
 
-![PrompterOne Editor](docs/screenshots/readme/editor.png)
+### Smart Script Editor
 
-### Learn
+Not just a text box. The editor understands **TPS** (Teleprompter Script) — a format designed for delivery. You write with structure: segments, blocks, pacing markers, emphasis, emotion tags, pronunciation guides, and speed modifiers. All of that metadata travels with the script into rehearsal and live reading.
 
-`Learn` is the rapid rehearsal mode. It presents one word at a time with an ORP-style focal point so the user can tighten delivery, pacing, and confidence without reading line-by-line.
+The authoring surface includes a toolbar with formatting, structure navigation in the sidebar, a metadata rail for front matter and speed offsets, and syntax-aware highlighting — all inline, without switching between edit and preview modes.
 
-![PrompterOne Learn](docs/screenshots/readme/learn.png)
+![Editor](docs/screenshots/readme/editor.png)
+
+---
+
+### RSVP Rehearsal (Learn)
+
+**Learn** is rapid-fire rehearsal. It presents one word at a time using RSVP (Rapid Serial Visual Presentation) with an ORP-style focal point — the letter your eye naturally lands on is always centered.
+
+Context rails show the words before and after the current one, so you never feel lost. Speed is adjustable, phrase-aware pauses are built in from your TPS script, and you can loop or stop at the end. It is the fastest way to internalize delivery before stepping in front of the camera.
+
+![Learn](docs/screenshots/readme/learn.png)
+
+---
 
 ### Teleprompter
 
-The teleprompter reader is the delivery surface: large readable type, phrase-aware emphasis, focal controls, and a clean stage designed for on-camera use.
+The delivery surface. Large readable text, phrase-aware emphasis, adjustable font size, text width, and a focal guide you can position where you need it. TPS formatting carries through — speed modifiers affect letter spacing, emotion tags tint accents, and inline emphasis stays visible as you read.
 
-![PrompterOne Teleprompter](docs/screenshots/readme/teleprompter.png)
+A live camera feed runs behind the text as a background layer, so you can see yourself while reading. Horizontal and vertical mirror toggles handle reflected-glass and tablet setups without leaving the screen. Smooth block-to-block transitions keep the reading flow natural.
 
-### Go Live And Settings
+All reader preferences — font scale, width, focal position, camera setting — persist between sessions.
 
-`Settings` owns the operational setup. `Go Live` owns the session. That keeps configuration explicit and the runtime surface focused.
+![Teleprompter](docs/screenshots/readme/teleprompter.png)
+
+---
+
+### Go Live
+
+A browser-owned studio session. PrompterOne captures a composed program feed directly in the browser — canvas composition, audio mixing, and source switching happen client-side.
+
+**Local recording** saves the composed feed to a file on your machine. **Live publishing** connects through [LiveKit](https://livekit.io/) and [VDO.Ninja](https://vdo.ninja/) — real transport protocols, not fake broadcast buttons. Both transports can run concurrently. Source switching, scene controls, and runtime telemetry live in the operator surface.
+
+Distribution targets like YouTube, Twitch, and custom RTMP are capability-gated: if the active transport path does not support a target, the UI blocks it instead of pretending it works. No hidden media server, no relay tier — the browser is the only runtime.
 
 | Settings | Go Live |
-| --- | --- |
-| ![PrompterOne Settings](docs/screenshots/readme/settings.png) | ![PrompterOne Go Live](docs/screenshots/readme/go-live.png) |
+| :---: | :---: |
+| ![Settings](docs/screenshots/readme/settings.png) | ![Go Live](docs/screenshots/readme/go-live.png) |
 
-## Core Workflows
+---
 
-### 1. Script Library
+### Settings
 
-Why it exists:
+Device configuration lives here: camera selection with live preview, microphone setup with real-time level meters, mirror toggles, delay and sync offsets, output quality profiles, recording defaults, and transport connection credentials. Everything is explicit and persisted — so when you open Go Live, the session is already shaped.
 
-- gives teams a single place to start a session
-- keeps scripts, folders, and launch actions close together
-- makes rehearsal and delivery feel like two views of the same content, not two separate products
+---
 
-Example:
+### Localization
 
-- a presenter keeps keynote scripts, investor pitches, and incident-response notes in one library, then opens the same script in `Editor`, `Learn`, or `Teleprompter` depending on the task
+PrompterOne negotiates the initial language from your browser and remembers your choice. Currently supported: **English**, **Ukrainian**, **French**, **Spanish**, **Portuguese**, **Italian**, and **German**.
 
-### 2. TPS Authoring In Editor
+## The Full Flow
 
-Why it exists:
+```
+ Library  ───>  Editor  ───>  Learn  ───>  Teleprompter  ───>  Go Live
+ browse &       write with     rehearse     read on camera     record &
+ organize       TPS markup     at speed     with live feed     stream live
+```
 
-- plain text is not enough for delivery work
-- scripts need pacing, structure, emotion, emphasis, and pronunciation hints that survive into playback
-
-Example:
-
-- a product launch script marks intros, blocks, pace changes, pauses, and emphasis so rehearsal timing and live reading stay aligned with the authored intent
-
-### 3. RSVP Rehearsal In Learn
-
-Why it exists:
-
-- rehearsal needs speed and focus
-- the user should be able to practice phrasing, cadence, and timing without the full teleprompter stage
-
-Example:
-
-- a speaker uses `Learn` to practice at higher WPM, then slows down for the final read without changing the underlying script
-
-### 4. Delivery In Teleprompter
-
-Why it exists:
-
-- final delivery needs a calmer, more readable surface than RSVP rehearsal
-- the user needs focal controls, readable width, and phrase-aware emphasis for real speaking conditions
-
-Example:
-
-- a host reads a script on camera with the teleprompter stage while preserving the same authored emphasis and pacing prepared in the editor
-
-### 5. Browser-Side Session Operation In Go Live
-
-Why it exists:
-
-- recording and session operation should happen from the same browser workspace as the script
-- the operator should see the actual state of the session instead of fictional destination states
-
-Example:
-
-- a producer opens `Go Live`, selects the browser-owned program feed, records locally, and arms transport connections such as `VDO.Ninja` and `LiveKit` when the chosen path actually supports the session
-
-### 6. Explicit Media And Streaming Setup In Settings
-
-Why it exists:
-
-- device choice, sync, capture profiles, recording defaults, and transport configuration should not be hidden in screen-local state
-- the live surface should operate a prepared configuration, not invent it on the fly
-
-Example:
-
-- a creator sets output resolution, local recording behavior, and transport connection details in `Settings`, then opens `Go Live` with the runtime already shaped for the session
+Every stage works with the same script. Pacing, emphasis, structure, and metadata you add in the editor show up in rehearsal, in the teleprompter, and in the live session. No re-importing, no copy-paste, no format conversion.
 
 ## Product Status
 
-`PrompterOne` is in active alpha. The product is already usable for authoring, rehearsal, teleprompter delivery, and browser-side session control, but some advanced workflows are intentionally still constrained.
+PrompterOne is in **active alpha** — usable today for real work, with some areas still expanding.
 
-### Ready Now
+### Ready
 
-| Area | Status | What is ready |
-| --- | --- | --- |
-| Library | `Ready` | browse scripts, organize folders, open workflows from the same surface |
-| Editor | `Ready` | TPS-oriented authoring, structure navigation, metadata rail, formatting and pacing controls |
-| Learn | `Ready` | RSVP rehearsal flow, ORP-style display, pacing controls, context-aware playback |
-| Teleprompter | `Ready` | browser reader stage, focus controls, phrase-aware emphasis, delivery surface |
-| Settings | `Ready` | media setup, recording defaults, transport configuration, distribution-target modeling |
-| Local recording | `Ready` | browser-side recording from the composed program feed |
-| Go Live core runtime | `Working` | browser-owned program feed, source rails, runtime telemetry, transport orchestration |
-| Localization | `Working` | browser-driven language negotiation with supported runtime cultures and persisted preference |
+| Feature | What works |
+| --- | --- |
+| **Library** | Script browsing, folder organization, script creation, workflow launch |
+| **Editor** | TPS authoring with structure, formatting, pacing, emphasis, metadata, speed offsets, AI-assisted rewriting helpers, and inline syntax highlighting |
+| **Learn** | RSVP rehearsal with ORP focal point, adjustable speed, phrase-aware timing, context rails, loop toggle |
+| **Teleprompter** | Browser reader with focal controls, camera background, mirror toggles, TPS formatting parity, block transitions, persisted preferences |
+| **Settings** | Camera and microphone setup with live feedback, device sync, output profiles, recording defaults, transport configuration, distribution targets |
+| **Local recording** | Browser-side recording of the composed program feed |
+| **Localization** | 7 languages with browser negotiation and persisted user override |
 
-### Working But Still Expanding
+### Working, Still Expanding
 
-| Area | Status | What exists today |
-| --- | --- | --- |
-| `VDO.Ninja` integration | `Working` | transport-aware connection and publish model inside the browser runtime |
-| `LiveKit` integration | `Working` | transport-aware connection and publish model inside the browser runtime |
-| Distribution targets | `Working` | target modeling and capability-gated routing instead of fake “broadcast everywhere” claims |
-| Cloud and provider panels | `Working` | explicit configuration surfaces that are browser-local and credential-driven |
+| Feature | Current state |
+| --- | --- |
+| **Go Live core** | Browser program feed, source rails, scene controls, runtime telemetry, session bar |
+| **VDO.Ninja** | Transport-aware connection and publish from the browser |
+| **LiveKit** | Transport-aware connection and publish from the browser |
+| **Distribution targets** | Capability-gated routing with honest blocking of unsupported paths |
+| **Cloud storage** | Provider-backed snapshot import/export for scripts and settings |
 
-### Not Finished Yet
+### Intentional Constraints
 
-- `PrompterOne` does not claim generic direct browser RTMP fan-out to every platform.
-- downstream targets such as `YouTube`, `Twitch`, and custom RTMP are only valid when the active transport path supports them honestly
-- the live runtime is intentionally stricter than many streaming dashboards; unsupported paths stay blocked instead of being faked
-- AI and cloud-provider experiences are configuration-first today, not turnkey managed services
+- PrompterOne does not claim generic browser RTMP fan-out to every platform. Downstream targets work only when the active transport path genuinely supports them.
+- The live runtime is stricter than most streaming dashboards — unsupported paths stay blocked instead of being faked.
+- There is no PrompterOne backend. Recording, streaming, and media processing are browser-only. If a feature needs server infrastructure, it comes from the chosen third-party transport (LiveKit or VDO.Ninja), not from PrompterOne.
 
 ## Roadmap
 
-These are the current product directions, not release-date promises.
+These are product directions, not release-date promises.
 
-### Near Term
+**Near term:**
+- Go Live operational polish — source switching, destination health indicators, session telemetry depth
+- Smoother transport setup flows for VDO.Ninja and LiveKit
+- Better onboarding for first-time users through the write-rehearse-read-live flow
+- Broader documentation and real-world usage examples
 
-- stronger `Go Live` operational polish for source switching, destination health, and session telemetry
-- better transport setup flows for `VDO.Ninja` and `LiveKit`
-- sharper product onboarding so first-time users understand the script -> rehearse -> read -> go-live flow faster
-- broader product docs and examples around real presenter and streaming scenarios
+**After that:**
+- Export, sync, and portability workflows for scripts and settings
+- Remote guest workflows and destination routing
+- AI-assisted writing and transformation once provider integration is mature enough to be honest by default
 
-### After That
+## Quick Start
 
-- deeper export, sync, and portability workflows for scripts and settings
-- richer operator workflows around remote guests and destination routing
-- more complete AI-assisted writing and transformation flows once provider integration is mature enough to be honest by default
-
-## Technology Stack
-
-- [.NET 10](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
-- [Blazor WebAssembly](https://dotnet.microsoft.com/en-us/apps/aspnet/web-apps/blazor)
-- Razor Class Library
-- browser media APIs: `MediaDevices`, `WebRTC`, `MediaRecorder`, `Web Audio`
-- automated testing with [xUnit](https://xunit.net/), [bUnit](https://bunit.dev/), and [Playwright](https://playwright.dev/)
-- transport integrations with [LiveKit](https://livekit.com/) and [VDO.Ninja](https://vdo.ninja/)
-
-## Architecture At A Glance
-
-- host: [`src/PrompterOne.App`](src/PrompterOne.App)
-- routed UI and browser interop: [`src/PrompterOne.Shared`](src/PrompterOne.Shared)
-- reusable domain logic: [`src/PrompterOne.Core`](src/PrompterOne.Core)
-- automated tests: [`tests/`](tests/)
-- design reference: [`design/`](design/)
-- architecture map: [`docs/Architecture.md`](docs/Architecture.md)
-
-Useful deeper docs:
-
-- [`docs/Features/EditorAuthoring.md`](docs/Features/EditorAuthoring.md)
-- [`docs/Features/ReaderRuntime.md`](docs/Features/ReaderRuntime.md)
-- [`docs/Features/GoLiveRuntime.md`](docs/Features/GoLiveRuntime.md)
-- [`docs/Features/SettingsMediaFeedback.md`](docs/Features/SettingsMediaFeedback.md)
-- [`docs/Features/AppVersioningAndGitHubPages.md`](docs/Features/AppVersioningAndGitHubPages.md)
-- [`docs/Features/VendoredStreamingSdkReleases.md`](docs/Features/VendoredStreamingSdkReleases.md)
-
-## Quality And Testing
-
-`PrompterOne` treats real browser verification as the primary acceptance bar.
-
-The quality stack is:
-
-- solution build with warnings as errors
-- core domain tests
-- component and UI contract tests
-- Playwright browser acceptance tests for the main user flows
-- GitHub Actions PR validation before merge
-
-Canonical local commands:
+**Requirements:** [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
 
 ```bash
-dotnet build -warnaserror
-dotnet test
-dotnet test --collect:"XPlat Code Coverage"
+git clone https://github.com/managedcode/PrompterOne.git
+cd PrompterOne
+dotnet run --project src/PrompterOne.App
 ```
 
-## Run Locally
+Or just open [prompter.managed-code.com](https://prompter.managed-code.com/) — no install needed.
 
-Requirements:
+## Technology
 
-- [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
+PrompterOne is a standalone [Blazor WebAssembly](https://dotnet.microsoft.com/en-us/apps/aspnet/web-apps/blazor) app on [.NET 10](https://dotnet.microsoft.com/en-us/download/dotnet/10.0). The browser is the entire runtime — media capture, composition, recording, and streaming all happen through browser APIs (MediaDevices, WebRTC, MediaRecorder, Web Audio, Canvas). Transport integrations use [LiveKit](https://livekit.io/) and [VDO.Ninja](https://vdo.ninja/). Testing uses [xUnit](https://xunit.net/), [bUnit](https://bunit.dev/), and [Playwright](https://playwright.dev/). Deployment is a static GitHub Pages build.
 
-Run the standalone app host:
+## For Contributors
 
 ```bash
-dotnet run
+dotnet build -warnaserror          # build with warnings as errors
+dotnet test                        # run all tests
+dotnet test --collect:"XPlat Code Coverage"  # with coverage
 ```
 
-## Deployment
+Architecture and ownership boundaries are documented in [docs/Architecture.md](docs/Architecture.md). Each project has a local `AGENTS.md` that describes purpose, entry points, and rules for that area. Feature docs live in [docs/Features/](docs/Features/).
 
-`PrompterOne` is deployed as a static GitHub Pages build of the standalone WebAssembly app.
+## Credits
 
-- production domain target: [https://prompter.managed-code.com/](https://prompter.managed-code.com/)
-
-The Pages artifact ships the browser app only. There is no PrompterOne server deployment behind it.
-
-## Versioning
-
-The app version is shown inside `Settings > About`.
-
-Version source of truth:
-
-- [`Directory.Build.props`](Directory.Build.props)
-- [`src/PrompterOne.App/Program.cs`](src/PrompterOne.App/Program.cs)
-
-## Credits And Inspirations
-
-- [LiveKit](https://livekit.com/)
-- [VDO.Ninja](https://vdo.ninja/)
+- [LiveKit](https://livekit.io/) and [VDO.Ninja](https://vdo.ninja/) for transport infrastructure
 - [cameron/squirt](https://github.com/cameron/squirt) for RSVP inspiration
-- [GitHub Pages](https://docs.github.com/en/pages)
-- [Inter](https://rsms.me/inter/)
-- [JetBrains Mono](https://www.jetbrains.com/lp/mono/)
-- [Playfair Display](https://fonts.google.com/specimen/Playfair+Display)
+- [Inter](https://rsms.me/inter/), [JetBrains Mono](https://www.jetbrains.com/lp/mono/), [Playfair Display](https://fonts.google.com/specimen/Playfair+Display)
 - [Feather Icons](https://feathericons.com/)
+- Deployed on [GitHub Pages](https://docs.github.com/en/pages)
 
 ## License
 
-This project is licensed under [MIT](LICENSE).
+[MIT](LICENSE)
