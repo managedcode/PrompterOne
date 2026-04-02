@@ -33,6 +33,7 @@
             @foreach (var source in Sources)
             {
                 <article class="@GetSourceCardCssClass(source)"
+                         @attributes="GetSourceDiagnostics(source)"
                          data-testid="@UiTestIds.GoLive.SourceCamera(source.SourceId)">
                     <button type="button"
                             class="gl-cam-main"
@@ -193,6 +194,15 @@
             PrompterUtilitySourceId => "gl-cam-card gl-cam-prompter",
             ScreenShareUtilitySourceId => "gl-cam-card gl-src-screen",
             _ => "gl-cam-card"
+        };
+    }
+
+    private static IReadOnlyDictionary<string, object> GetSourceDiagnostics(SceneCameraSource source)
+    {
+        return new Dictionary<string, object>(StringComparer.Ordinal)
+        {
+            [UiTestIds.GoLive.SourceIdAttribute] = source.SourceId,
+            [UiTestIds.GoLive.SourceDeviceIdAttribute] = source.DeviceId
         };
     }
 }

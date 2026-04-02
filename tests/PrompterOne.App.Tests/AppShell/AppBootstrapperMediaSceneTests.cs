@@ -55,6 +55,50 @@ public sealed class AppBootstrapperMediaSceneTests : BunitContext
         Assert.Equal(SanitizedMicrophoneLabel, persistedState.AudioBus.Inputs.Single().Label);
     }
 
+    [Fact]
+    public async Task AppBootstrapper_PrunesPersistedCameraSources_WithoutDeviceIds()
+    {
+        var harness = TestHarnessFactory.Create(this);
+        var bootstrapper = Services.GetRequiredService<AppBootstrapper>();
+        var savedScene = new MediaSceneState(
+            Cameras:
+            [
+                new SceneCameraSource(
+                    SourceId: "invalid-source",
+                    DeviceId: string.Empty,
+                    Label: string.Empty,
+                    Transform: new MediaSourceTransform()),
+                new SceneCameraSource(
+                    SourceId: "cam-source",
+                    DeviceId: "cam-1",
+                    Label: SanitizedCameraLabel,
+                    Transform: new MediaSourceTransform())
+            ],
+            PrimaryMicrophoneId: "mic-1",
+            PrimaryMicrophoneLabel: SanitizedMicrophoneLabel,
+            AudioBus: new AudioBusState(
+            [
+                new AudioInputState(
+                    DeviceId: "mic-1",
+                    Label: SanitizedMicrophoneLabel)
+            ]));
+
+        harness.JsRuntime.SavedJsonValues[BuildSettingsStorageKey(BrowserAppSettingsKeys.SceneSettings)] =
+            JsonSerializer.Serialize(savedScene);
+
+        await bootstrapper.EnsureReadyAsync();
+
+        var restoredState = Services.GetRequiredService<IMediaSceneService>().State;
+        var restoredCamera = Assert.Single(restoredState.Cameras);
+        Assert.Equal("cam-source", restoredCamera.SourceId);
+        Assert.Equal("cam-1", restoredCamera.DeviceId);
+
+        var persistedState = harness.JsRuntime.GetSavedValue<MediaSceneState>(BrowserAppSettingsKeys.SceneSettings);
+        var persistedCamera = Assert.Single(persistedState.Cameras);
+        Assert.Equal("cam-source", persistedCamera.SourceId);
+        Assert.Equal("cam-1", persistedCamera.DeviceId);
+    }
+
     private static string BuildSettingsStorageKey(string key) =>
         string.Concat(BrowserStorageKeys.SettingsPrefix, key);
 }

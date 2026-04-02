@@ -334,6 +334,47 @@ public sealed class GoLivePageTests : BunitContext
     }
 
     [Fact]
+    public void GoLivePage_PrunesAnonymousPersistedSources_AndExposesCameraDiagnostics()
+    {
+        var sceneState = new MediaSceneState(
+            [
+                new SceneCameraSource(
+                    "invalid-source",
+                    string.Empty,
+                    string.Empty,
+                    new MediaSourceTransform(IncludeInOutput: true)),
+                new SceneCameraSource(
+                    AppTestData.Camera.FirstSourceId,
+                    AppTestData.Camera.FirstDeviceId,
+                    AppTestData.Camera.FrontCamera,
+                    new MediaSourceTransform(IncludeInOutput: true)),
+                new SceneCameraSource(
+                    AppTestData.Camera.SecondSourceId,
+                    AppTestData.Camera.SecondDeviceId,
+                    AppTestData.Camera.SideCamera,
+                    new MediaSourceTransform(IncludeInOutput: false))
+            ],
+            "mic-1",
+            AppTestData.Scripts.BroadcastMic,
+            new AudioBusState([new AudioInputState("mic-1", AppTestData.Scripts.BroadcastMic)]));
+
+        SeedSceneState(sceneState);
+
+        Services.GetRequiredService<NavigationManager>()
+            .NavigateTo(AppTestData.Routes.GoLiveDemo);
+
+        var cut = Render<GoLivePage>();
+
+        cut.WaitForAssertion(() =>
+        {
+            var sourceCards = cut.FindAll($"article[data-testid^='{UiTestIds.GoLive.SourceCamera(string.Empty)}']");
+            Assert.Equal(2, sourceCards.Count);
+            Assert.DoesNotContain(sourceCards, card => string.IsNullOrWhiteSpace(card.GetAttribute(UiTestIds.GoLive.SourceIdAttribute)));
+            Assert.DoesNotContain(sourceCards, card => string.IsNullOrWhiteSpace(card.GetAttribute(UiTestIds.GoLive.SourceDeviceIdAttribute)));
+        });
+    }
+
+    [Fact]
     public void GoLivePage_RendersStudioParitySurfaceAndRemoteRoomFlow()
     {
         SeedSceneState(CreateTwoCameraScene());

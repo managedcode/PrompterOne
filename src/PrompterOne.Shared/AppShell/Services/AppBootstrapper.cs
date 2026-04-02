@@ -119,6 +119,16 @@ public sealed class AppBootstrapper(
     {
         var changed = false;
         var normalizedCameras = state.Cameras
+            .Where(camera =>
+            {
+                var isValid = IsValidCameraSource(camera);
+                if (!isValid)
+                {
+                    changed = true;
+                }
+
+                return isValid;
+            })
             .Select(camera =>
             {
                 var normalizedLabel = MediaDeviceLabelSanitizer.Sanitize(camera.Label);
@@ -176,5 +186,11 @@ public sealed class AppBootstrapper(
         }
 
         return normalized;
+    }
+
+    private static bool IsValidCameraSource(SceneCameraSource camera)
+    {
+        return !string.IsNullOrWhiteSpace(camera.SourceId)
+            && !string.IsNullOrWhiteSpace(camera.DeviceId);
     }
 }

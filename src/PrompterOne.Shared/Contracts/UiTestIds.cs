@@ -437,6 +437,8 @@ public static class UiTestIds
         public const string SourcesCard = "go-live-sources-card";
         public const string StartRecording = "go-live-start-recording";
         public const string StartStream = "go-live-start-stream";
+        public const string SourceDeviceIdAttribute = "data-device-id";
+        public const string SourceIdAttribute = "data-source-id";
         public const string SourcePickerEmpty = "go-live-source-picker-empty";
         public const string SwitchSelectedSource = "go-live-switch-selected-source";
         public const string StreamIncludeCamera = "go-live-stream-include-camera";
