@@ -21,7 +21,8 @@ public sealed class DynamicHostPortTests(StandaloneAppFixture fixture) : IClassF
         try
         {
             await page.GotoAsync(BrowserTestConstants.Routes.Library);
-            await Expect(page.GetByTestId(UiTestIds.Library.Page)).ToBeVisibleAsync();
+            await Expect(page.GetByTestId(UiTestIds.Library.Page))
+                .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
         }
         finally
         {

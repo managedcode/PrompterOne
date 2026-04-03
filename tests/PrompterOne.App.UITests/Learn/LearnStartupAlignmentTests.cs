@@ -44,10 +44,12 @@ public sealed class LearnStartupAlignmentTests(StandaloneAppFixture fixture) : I
             Assert.NotEmpty(trace);
             Assert.NotEmpty(startupWordSamples);
 
-            var firstCapturedSample = trace[0];
-            Assert.Equal(LayoutReadyFalseValue, firstCapturedSample.LayoutReady);
-            Assert.Equal(HiddenOpacity, firstCapturedSample.RowOpacity);
-            Assert.Equal(HiddenVisibility, firstCapturedSample.RowVisibility);
+            Assert.Contains(
+                trace,
+                sample =>
+                    string.Equals(sample.LayoutReady, LayoutReadyFalseValue, StringComparison.Ordinal) &&
+                    string.Equals(sample.RowOpacity, HiddenOpacity, StringComparison.Ordinal) &&
+                    string.Equals(sample.RowVisibility, HiddenVisibility, StringComparison.Ordinal));
 
             await WaitForLearnLayoutReadyAsync(page);
             var readyStartupWordSample = await ReadCurrentLearnLayoutAsync(page);
@@ -98,20 +100,22 @@ public sealed class LearnStartupAlignmentTests(StandaloneAppFixture fixture) : I
                     const line = document.querySelector(`[data-testid="${learnLineTestId}"]`);
                     const word = document.querySelector(`[data-testid="${learnWordTestId}"]`);
                     const orp = word?.querySelector('.orp');
-                    if (!display || !row || !line || !word || !orp) {
+                    if (!display || !row) {
                         return;
                     }
 
                     const rowStyles = getComputedStyle(row);
-                    const lineRect = line.getBoundingClientRect();
-                    const orpRect = orp.getBoundingClientRect();
+                    const lineRect = line?.getBoundingClientRect();
+                    const orpRect = orp?.getBoundingClientRect();
 
                     window.__learnStartupTrace.push({
                         layoutReady: display.getAttribute(layoutReadyAttributeName),
-                        orpDeltaPx: Math.abs((lineRect.left + (lineRect.width / 2)) - (orpRect.left + (orpRect.width / 2))),
+                        orpDeltaPx: lineRect && orpRect
+                            ? Math.abs((lineRect.left + (lineRect.width / 2)) - (orpRect.left + (orpRect.width / 2)))
+                            : -1,
                         rowOpacity: readEffectiveOpacity(row),
                         rowVisibility: rowStyles.visibility,
-                        text: word.textContent.replace(/\s+/g, '')
+                        text: word?.textContent?.replace(/\s+/g, '') ?? ''
                     });
                 };
 

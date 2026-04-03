@@ -104,10 +104,10 @@ public sealed class EditorLargeDraftPerformanceTests(StandaloneAppFixture fixtur
                 result.PasteMaxLongTaskMs,
                 0,
                 EditorLargeDraftPerformanceTestData.MaxPasteLongTaskMs);
-            Assert.InRange(
-                result.TypingLatencyMs,
-                0,
-                EditorLargeDraftPerformanceTestData.MaxTypingLatencyMs);
+            Assert.True(
+                result.TypingLatencyMs >= 0 &&
+                result.TypingLatencyMs <= EditorLargeDraftPerformanceTestData.MaxTypingLatencyMs,
+                $"Large draft typing latency exceeded the acceptance budget. TypingLatencyMs: {result.TypingLatencyMs}; MaxTypingLatencyMs: {EditorLargeDraftPerformanceTestData.MaxTypingLatencyMs}; PasteMaxLongTaskMs: {result.PasteMaxLongTaskMs}; TypingSampleCount: {result.TypingSampleCount}; FinalInputLength: {result.FinalInputLength}; FinalRenderedLength: {result.FinalRenderedLength}.");
         }
         finally
         {
