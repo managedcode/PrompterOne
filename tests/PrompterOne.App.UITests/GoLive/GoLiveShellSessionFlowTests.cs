@@ -231,15 +231,18 @@ public sealed class GoLiveShellSessionFlowTests(StandaloneAppFixture fixture) : 
 
             var savedRecording = await page.EvaluateAsync<JsonElement>(BrowserTestConstants.Media.GetSavedRecordingStateScript);
             var savedAnalysis = await page.EvaluateAsync<JsonElement>(BrowserTestConstants.Media.AnalyzeSavedRecordingScript);
+            var savedAnalysisJson = savedAnalysis.GetRawText();
 
             Assert.True(savedRecording.GetProperty("pickerCallCount").GetInt32() >= 1);
             Assert.True(savedRecording.GetProperty("sizeBytes").GetInt64() > 0);
-            Assert.True(savedAnalysis.GetProperty("width").GetInt32() > 0);
-            Assert.True(savedAnalysis.GetProperty("height").GetInt32() > 0);
-            Assert.True(savedAnalysis.GetProperty("hasAudioTrack").GetBoolean());
-            Assert.True(savedAnalysis.GetProperty("hasAudibleAudio").GetBoolean());
-            Assert.True(savedAnalysis.GetProperty("hasVisibleVideo").GetBoolean());
-            Assert.True(savedAnalysis.GetProperty("nonBlackPixelCount").GetInt32() >= BrowserTestConstants.Media.MinimumVisiblePixelCount);
+            Assert.True(savedAnalysis.GetProperty("width").GetInt32() > 0, savedAnalysisJson);
+            Assert.True(savedAnalysis.GetProperty("height").GetInt32() > 0, savedAnalysisJson);
+            Assert.True(savedAnalysis.GetProperty("hasAudioTrack").GetBoolean(), savedAnalysisJson);
+            Assert.True(savedAnalysis.GetProperty("hasAudibleAudio").GetBoolean(), savedAnalysisJson);
+            Assert.True(savedAnalysis.GetProperty("hasVisibleVideo").GetBoolean(), savedAnalysisJson);
+            Assert.True(
+                savedAnalysis.GetProperty("nonBlackPixelCount").GetInt32() >= BrowserTestConstants.Media.MinimumVisiblePixelCount,
+                savedAnalysisJson);
         }
         finally
         {

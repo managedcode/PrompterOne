@@ -1,9 +1,12 @@
 (() => {
     const audioContextCtor = window.AudioContext || window.webkitAudioContext;
+    const audibleAudioProbeTimeoutMs = 1500;
+    const audibleAudioPollDelayMs = 100;
     const harnessGlobalName = "__prompterOneRecordingFileHarness";
     const audioSampleWaitMs = 100;
     const blobMimeFallback = "video/webm";
     const minimumAudibleFrequencyValue = 8;
+    const minimumAudibleWaveDelta = 2;
     const minimumVisibleChannelValue = 12;
     const minimumVisiblePixelCount = 16;
     const visibleVideoProbeTimeoutMs = 1500;
@@ -71,11 +74,27 @@
 
         try {
             await audioContext.resume().catch(() => {});
-            await new Promise(resolve => window.setTimeout(resolve, audioSampleWaitMs));
+            const frequencySamples = new Uint8Array(analyser.frequencyBinCount);
+            const waveformSamples = new Uint8Array(analyser.fftSize);
+            const deadline = Date.now() + audibleAudioProbeTimeoutMs;
 
-            const samples = new Uint8Array(analyser.frequencyBinCount);
-            analyser.getByteFrequencyData(samples);
-            return samples.some(value => value >= minimumAudibleFrequencyValue);
+            while (Date.now() <= deadline) {
+                await new Promise(resolve => window.setTimeout(resolve, audioSampleWaitMs));
+
+                analyser.getByteFrequencyData(frequencySamples);
+                if (frequencySamples.some(value => value >= minimumAudibleFrequencyValue)) {
+                    return true;
+                }
+
+                analyser.getByteTimeDomainData(waveformSamples);
+                if (waveformSamples.some(value => Math.abs(value - 128) >= minimumAudibleWaveDelta)) {
+                    return true;
+                }
+
+                await new Promise(resolve => window.setTimeout(resolve, audibleAudioPollDelayMs));
+            }
+
+            return false;
         }
         finally {
             sourceNode.disconnect();
