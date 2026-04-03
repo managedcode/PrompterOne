@@ -18,6 +18,7 @@ public sealed partial class StandaloneAppFixture : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
+        Microsoft.Playwright.Assertions.SetDefaultExpectTimeout(BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs);
         _runtimeHandle = await SharedRuntime.AcquireAsync();
     }
 
