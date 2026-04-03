@@ -484,7 +484,8 @@ const KEY_PROVIDER_DEFAULTS = {
   ratchetSalt: SALT,
   ratchetWindowSize: 8,
   failureTolerance: DECRYPTION_FAILURE_TOLERANCE,
-  keyringSize: 16
+  keyringSize: 16,
+  keySize: 128
 };
 
 /** Base error that all LiveKit specific custom errors inherit from. */
@@ -639,14 +640,14 @@ function getAlgoOptions(algorithmName, salt) {
  * Derives a set of keys from the master key.
  * See https://tools.ietf.org/html/draft-omara-sframe-00#section-4.3.1
  */
-function deriveKeys(material, salt) {
+function deriveKeys(material, options) {
   return __awaiter(this, void 0, void 0, function* () {
-    const algorithmOptions = getAlgoOptions(material.algorithm.name, salt);
+    const algorithmOptions = getAlgoOptions(material.algorithm.name, options.ratchetSalt);
     // https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/deriveKey#HKDF
     // https://developer.mozilla.org/en-US/docs/Web/API/HkdfParams
     const encryptionKey = yield crypto.subtle.deriveKey(algorithmOptions, material, {
       name: ENCRYPTION_ALGORITHM,
-      length: 128
+      length: options.keySize
     }, false, ['encrypt', 'decrypt']);
     return {
       material,
@@ -773,7 +774,7 @@ class DataCryptor {
                 // only ratchet if the currently set key is still the same as the one used to decrypt this frame
                 // if not, it might be that a different frame has already ratcheted and we try with that one first
                 ratchetResult = yield keys.ratchetKey(keyIndex, false);
-                ratchetedKeySet = yield deriveKeys(ratchetResult.cryptoKey, keys.keyProviderOptions.ratchetSalt);
+                ratchetedKeySet = yield deriveKeys(ratchetResult.cryptoKey, keys.keyProviderOptions);
               }
               const decryptedData = yield DataCryptor.decrypt(data, iv, keys, keyIndex, initialMaterial, {
                 ratchetCount: ratchetOpts.ratchetCount + 1,
@@ -1913,7 +1914,7 @@ class FrameCryptor extends BaseFrameCryptor {
                 // only ratchet if the currently set key is still the same as the one used to decrypt this frame
                 // if not, it might be that a different frame has already ratcheted and we try with that one first
                 ratchetResult = yield _this.keys.ratchetKey(keyIndex, false);
-                ratchetedKeySet = yield deriveKeys(ratchetResult.cryptoKey, _this.keyProviderOptions.ratchetSalt);
+                ratchetedKeySet = yield deriveKeys(ratchetResult.cryptoKey, _this.keyProviderOptions);
               }
               const frame = yield _this.decryptFrame(encodedFrame, keyIndex, initialMaterial || keySet, {
                 ratchetCount: ratchetOpts.ratchetCount + 1,
@@ -2207,7 +2208,7 @@ class ParticipantKeyHandler extends eventsExports.EventEmitter {
       let ratchetedResult = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
       let updateCurrentKeyIndex = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
       return function* () {
-        const keySet = yield deriveKeys(material, _this2.keyProviderOptions.ratchetSalt);
+        const keySet = yield deriveKeys(material, _this2.keyProviderOptions);
         const newIndex = keyIndex >= 0 ? keyIndex % _this2.cryptoKeyRing.length : _this2.currentKeyIndex;
         workerLogger.debug("setting new key with index ".concat(keyIndex), {
           usage: material.usages,

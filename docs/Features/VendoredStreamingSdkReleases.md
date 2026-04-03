@@ -19,7 +19,7 @@ The repo pins these runtime artifacts to exact GitHub release tags and exact Git
 
 ## Current Pins
 
-- LiveKit Client SDK JS: `v2.18.0`
+- LiveKit Client SDK JS: `v2.18.1`
 - VDO.Ninja: `v29.0`
 - VDO.Ninja SDK: `v1.3.18`
 

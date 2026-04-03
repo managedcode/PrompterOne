@@ -4170,7 +4170,7 @@ const ParticipantInfo = /* @__PURE__ */proto3.makeMessageType("livekit.Participa
   no: 19,
   name: "data_tracks",
   kind: "message",
-  T: DataTrackInfo,
+  T: DataTrackInfo$1,
   repeated: true
 }]);
 const ParticipantInfo_State = /* @__PURE__ */proto3.makeEnum("livekit.ParticipantInfo.State", [{
@@ -4386,7 +4386,7 @@ const TrackInfo = /* @__PURE__ */proto3.makeMessageType("livekit.TrackInfo", () 
   kind: "enum",
   T: proto3.getEnumType(BackupCodecPolicy$1)
 }]);
-const DataTrackInfo = /* @__PURE__ */proto3.makeMessageType("livekit.DataTrackInfo", () => [{
+const DataTrackInfo$1 = /* @__PURE__ */proto3.makeMessageType("livekit.DataTrackInfo", () => [{
   no: 1,
   name: "pub_handle",
   kind: "scalar",
@@ -5855,7 +5855,7 @@ const PublishDataTrackResponse = /* @__PURE__ */proto3.makeMessageType("livekit.
   no: 1,
   name: "info",
   kind: "message",
-  T: DataTrackInfo
+  T: DataTrackInfo$1
 }]);
 const UnpublishDataTrackRequest = /* @__PURE__ */proto3.makeMessageType("livekit.UnpublishDataTrackRequest", () => [{
   no: 1,
@@ -5868,7 +5868,7 @@ const UnpublishDataTrackResponse = /* @__PURE__ */proto3.makeMessageType("liveki
   no: 1,
   name: "info",
   kind: "message",
-  T: DataTrackInfo
+  T: DataTrackInfo$1
 }]);
 const DataTrackSubscriberHandles = /* @__PURE__ */proto3.makeMessageType("livekit.DataTrackSubscriberHandles", () => [{
   no: 1,
@@ -8180,6 +8180,29 @@ function __values(o) {
     throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
 }
 
+function __await(v) {
+    return this instanceof __await ? (this.v = v, this) : new __await(v);
+}
+
+function __asyncGenerator(thisArg, _arguments, generator) {
+    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
+    var g = generator.apply(thisArg, _arguments || []), i, q = [];
+    return i = Object.create((typeof AsyncIterator === "function" ? AsyncIterator : Object).prototype), verb("next"), verb("throw"), verb("return", awaitReturn), i[Symbol.asyncIterator] = function () { return this; }, i;
+    function awaitReturn(f) { return function (v) { return Promise.resolve(v).then(f, reject); }; }
+    function verb(n, f) { if (g[n]) { i[n] = function (v) { return new Promise(function (a, b) { q.push([n, v, a, b]) > 1 || resume(n, v); }); }; if (f) i[n] = f(i[n]); } }
+    function resume(n, v) { try { step(g[n](v)); } catch (e) { settle(q[0][3], e); } }
+    function step(r) { r.value instanceof __await ? Promise.resolve(r.value.v).then(fulfill, reject) : settle(q[0][2], r); }
+    function fulfill(value) { resume("next", value); }
+    function reject(value) { resume("throw", value); }
+    function settle(f, v) { if (f(v), q.shift(), q.length) resume(q[0][0], q[0][1]); }
+}
+
+function __asyncDelegator(o) {
+    var i, p;
+    return i = {}, verb("next"), verb("throw", function (e) { throw e; }), verb("return"), i[Symbol.iterator] = function () { return this; }, i;
+    function verb(n, f) { i[n] = o[n] ? function (v) { return (p = !p) ? { value: __await(o[n](v)), done: false } : f ? f(v) : v; } : f; }
+}
+
 function __asyncValues(o) {
     if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
     var m = o[Symbol.asyncIterator], i;
@@ -8681,7 +8704,7 @@ function disableWarnings(bool) {
   deprecationWarnings_ = !bool;
   return 'adapter.js deprecation warnings ' + (bool ? 'disabled' : 'enabled');
 }
-function log() {
+function log$4() {
   if (typeof window === 'object') {
     if (logDisabled_) {
       return;
@@ -8840,7 +8863,7 @@ function filterStats(result, track, outbound) {
  *  tree.
  */
 /* eslint-env node */
-const logging = log;
+const logging = log$4;
 function shimGetUserMedia$2(window, browserDetails) {
   const navigator = window && window.navigator;
   if (!navigator.mediaDevices) {
@@ -11403,7 +11426,7 @@ function adapterFactory() {
     shimSafari: true
   };
   // Utils.
-  const logging = log;
+  const logging = log$4;
   const browserDetails = detectBrowser(window);
   const adapter = {
     browserDetails,
@@ -11606,7 +11629,7 @@ function getMatch(exp, ua) {
 }
 function getOSVersion(ua) {
   return ua.includes('mac os') ? getMatch(/\(.+?(\d+_\d+(:?_\d+)?)/, ua, 1).replace(/_/g, '.') : undefined;
-}var version$1 = "2.18.0";const version = version$1;
+}var version$1 = "2.18.1";const version = version$1;
 const protocolVersion = 16;/** Base error that all LiveKit specific custom errors inherit from. */
 class LivekitError extends Error {
   constructor(code, message, options) {
@@ -12097,7 +12120,7 @@ var RoomEvent;
   RoomEvent["EncryptionError"] = "encryptionError";
   /**
    * Emits whenever the current buffer status of a data channel changes
-   * args: (isLow: boolean, kind: [[DataPacket_Kind]])
+   * args: (isLow: boolean, kind: [[DataChannelKind]])
    */
   RoomEvent["DCBufferStatusChanged"] = "dcBufferStatusChanged";
   /**
@@ -12114,6 +12137,22 @@ var RoomEvent;
    * fired when the client receives connection metrics from other participants
    */
   RoomEvent["MetricsReceived"] = "metricsReceived";
+  /**
+   * Emits when a new data track has been published by a downstream participant.
+   */
+  RoomEvent["DataTrackPublished"] = "dataTrackPublished";
+  /**
+   * Emits when a new data track has been unpublished by a downstream participant.
+   */
+  RoomEvent["DataTrackUnpublished"] = "dataTrackUnpublished";
+  /**
+   * Emits when a new data track has been published locally.
+   */
+  RoomEvent["LocalDataTrackPublished"] = "localDataTrackPublished";
+  /**
+   * Emits when a new data track has been unpublished locally.
+   */
+  RoomEvent["LocalDataTrackUnpublished"] = "localDataTrackUnpublished";
 })(RoomEvent || (RoomEvent = {}));
 var ParticipantEvent;
 (function (ParticipantEvent) {
@@ -12339,6 +12378,11 @@ var EngineEvent;
   EngineEvent["SignalRequestResponse"] = "signalRequestResponse";
   EngineEvent["SignalConnected"] = "signalConnected";
   EngineEvent["RoomMoved"] = "roomMoved";
+  EngineEvent["PublishDataTrackResponse"] = "publishDataTrackResponse";
+  EngineEvent["UnPublishDataTrackResponse"] = "unPublishDataTrackResponse";
+  EngineEvent["DataTrackSubscriberHandles"] = "dataTrackSubscriberHandles";
+  EngineEvent["DataTrackPacketReceived"] = "dataTrackPacketReceived";
+  EngineEvent["Joined"] = "joined";
 })(EngineEvent || (EngineEvent = {}));
 var TrackEvent;
 (function (TrackEvent) {
@@ -13808,6 +13852,9 @@ function extractMaxAgeFromRequestHeaders(headers) {
     }
   }
   return undefined;
+}
+function isCompressionStreamSupported() {
+  return typeof CompressionStream !== 'undefined';
 }function createRtcUrl(url, searchParams) {
   let useV0Path = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
   const v0Url = createV0RtcUrl(url, searchParams);
@@ -13870,7 +13917,8 @@ const KEY_PROVIDER_DEFAULTS = {
   ratchetSalt: SALT,
   ratchetWindowSize: 8,
   failureTolerance: DECRYPTION_FAILURE_TOLERANCE,
-  keyringSize: 16
+  keyringSize: 16,
+  keySize: 128
 };var KeyProviderEvent;
 (function (KeyProviderEvent) {
   KeyProviderEvent["SetKey"] = "setKey";
@@ -13964,14 +14012,14 @@ function getAlgoOptions(algorithmName, salt) {
  * Derives a set of keys from the master key.
  * See https://tools.ietf.org/html/draft-omara-sframe-00#section-4.3.1
  */
-function deriveKeys(material, salt) {
+function deriveKeys(material, options) {
   return __awaiter(this, void 0, void 0, function* () {
-    const algorithmOptions = getAlgoOptions(material.algorithm.name, salt);
+    const algorithmOptions = getAlgoOptions(material.algorithm.name, options.ratchetSalt);
     // https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/deriveKey#HKDF
     // https://developer.mozilla.org/en-US/docs/Web/API/HkdfParams
     const encryptionKey = yield crypto.subtle.deriveKey(algorithmOptions, material, {
       name: ENCRYPTION_ALGORITHM,
-      length: 128
+      length: options.keySize
     }, false, ['encrypt', 'decrypt']);
     return {
       material,
@@ -14756,7 +14804,218 @@ class DeviceManager {
   }
 }
 DeviceManager.mediaDeviceKinds = ['audioinput', 'audiooutput', 'videoinput'];
-DeviceManager.userMediaPromiseMap = new Map();var QueueTaskStatus;
+DeviceManager.userMediaPromiseMap = new Map();const U16_MAX_SIZE = 0xffff;
+const U32_MAX_SIZE = 0xffffffff;
+/**
+ * A number of fields withing the data tracks packet specification assume wrap around behavior when
+ * an unsigned type is incremented beyond its max size (ie, the packet `sequence` field). This
+ * wrapper type manually reimplements this wrap around behavior given javascript's lack of fixed
+ * size integer types.
+ */
+class WrapAroundUnsignedInt {
+  static u16(raw) {
+    return new WrapAroundUnsignedInt(raw, U16_MAX_SIZE);
+  }
+  static u32(raw) {
+    return new WrapAroundUnsignedInt(raw, U32_MAX_SIZE);
+  }
+  constructor(raw, maxSize) {
+    this.value = raw;
+    if (raw < 0) {
+      throw new Error('WrapAroundUnsignedInt: cannot faithfully represent an integer smaller than 0');
+    }
+    if (maxSize > Number.MAX_SAFE_INTEGER) {
+      throw new Error('WrapAroundUnsignedInt: cannot faithfully represent an integer bigger than MAX_SAFE_INTEGER.');
+    }
+    this.maxSize = maxSize;
+    this.clamp();
+  }
+  /** Manually clamp the given containing value according to the wrap around max size bounds. Use
+   * this after out of bounds modification to the contained value by external code. */
+  clamp() {
+    while (this.value > this.maxSize) {
+      this.value -= this.maxSize + 1;
+    }
+    while (this.value < 0) {
+      this.value += this.maxSize + 1;
+    }
+  }
+  clone() {
+    return new WrapAroundUnsignedInt(this.value, this.maxSize);
+  }
+  /** When called, maps the containing value to a new containing value. After mapping, the wrap
+   * around external max size bounds are applied. Note that this is a mutative operation. */
+  update(updateFn) {
+    this.value = updateFn(this.value);
+    this.clamp();
+  }
+  /** Increments the given `n` to the inner value. Note that this is a mutative operation. */
+  increment() {
+    let n = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+    this.update(value => value + n);
+  }
+  /** Decrements the given `n` from the inner value. Note that this is a mutative operation. */
+  decrement() {
+    let n = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+    this.update(value => value - n);
+  }
+  getThenIncrement() {
+    const previousValue = this.value;
+    this.increment();
+    return new WrapAroundUnsignedInt(previousValue, this.maxSize);
+  }
+  /** Returns true if {@link this} is before the passed other {@link WrapAroundUnsignedInt}. */
+  isBefore(other) {
+    const a = this.value >>> 0;
+    const b = other.value >>> 0;
+    const diff = b - a >>> 0;
+    return diff !== 0 && diff < this.maxSize + 1;
+  }
+}
+class DataTrackTimestamp {
+  static fromRtpTicks(rtpTicks) {
+    return new DataTrackTimestamp(rtpTicks, 90000);
+  }
+  /** Generates a timestamp initialized to a non cryptographically secure random value, so that
+   * different streams are more difficult to correlate in packet capture. */
+  static rtpRandom() {
+    const randomValue = Math.round(Math.random() * U32_MAX_SIZE);
+    return DataTrackTimestamp.fromRtpTicks(randomValue);
+  }
+  constructor(raw, rateInHz) {
+    this.timestamp = WrapAroundUnsignedInt.u32(raw);
+    this.rateInHz = rateInHz;
+  }
+  asTicks() {
+    return this.timestamp.value;
+  }
+  clone() {
+    return new DataTrackTimestamp(this.timestamp.value, this.rateInHz);
+  }
+  wrappingAdd(n) {
+    this.timestamp.increment(n);
+  }
+  /** Returns true if {@link this} is before the passed other {@link DataTrackTimestamp}. */
+  isBefore(other) {
+    return this.timestamp.isBefore(other.timestamp);
+  }
+}
+class DataTrackClock {
+  constructor(rateInHz, epoch, base) {
+    this.epoch = epoch;
+    this.base = base;
+    this.previous = base.clone();
+    this.rateInHz = rateInHz;
+  }
+  static startingNow(base, rateInHz) {
+    return new DataTrackClock(rateInHz, new Date(), base);
+  }
+  static startingAtTime(epoch, base, rateInHz) {
+    return new DataTrackClock(rateInHz, epoch, base);
+  }
+  static rtpStartingNow(base) {
+    return DataTrackClock.startingNow(base, 90000);
+  }
+  static rtpStartingAtTime(epoch, base) {
+    return DataTrackClock.startingAtTime(epoch, base, 90000);
+  }
+  now() {
+    return this.at(new Date());
+  }
+  at(timestamp) {
+    let elapsedMs = timestamp.getTime() - this.epoch.getTime();
+    let durationTicks = DataTrackClock.durationInMsToTicks(elapsedMs, this.rateInHz);
+    let result = this.base.clone();
+    result.wrappingAdd(durationTicks);
+    // Enforce monotonicity in RTP wraparound space
+    if (result.isBefore(this.previous)) {
+      result = this.previous;
+    }
+    this.previous = result.clone();
+    return result.clone();
+  }
+  /** Convert a duration since the epoch into clock ticks. */
+  static durationInMsToTicks(durationMilliseconds, rateInHz) {
+    // round(nanos * rate_hz / 1e9)
+    let durationNanoseconds = durationMilliseconds * 1e6;
+    let ticks = (durationNanoseconds * rateInHz + 500000000) / 1000000000;
+    return Math.round(ticks);
+  }
+}
+function coerceToDataView(input) {
+  if (input instanceof DataView) {
+    return input;
+  } else if (input instanceof ArrayBuffer) {
+    return new DataView(input);
+  } else if (input instanceof Uint8Array) {
+    return new DataView(input.buffer, input.byteOffset, input.byteLength);
+  } else {
+    throw new Error("Error coercing ".concat(input, " to DataView - input was not DataView, ArrayBuffer, or Uint8Array."));
+  }
+}var DataTrackHandleErrorReason;
+(function (DataTrackHandleErrorReason) {
+  DataTrackHandleErrorReason[DataTrackHandleErrorReason["Reserved"] = 0] = "Reserved";
+  DataTrackHandleErrorReason[DataTrackHandleErrorReason["TooLarge"] = 1] = "TooLarge";
+})(DataTrackHandleErrorReason || (DataTrackHandleErrorReason = {}));
+class DataTrackHandleError extends LivekitReasonedError {
+  constructor(message, reason) {
+    super(19, message);
+    this.name = 'DataTrackHandleError';
+    this.reason = reason;
+    this.reasonName = DataTrackHandleErrorReason[reason];
+  }
+  isReason(reason) {
+    return this.reason === reason;
+  }
+  static tooLarge() {
+    return new DataTrackHandleError('Value too large to be a valid track handle', DataTrackHandleErrorReason.TooLarge);
+  }
+  static reserved(value) {
+    return new DataTrackHandleError("0x".concat(value.toString(16), " is a reserved value."), DataTrackHandleErrorReason.Reserved);
+  }
+}
+const DataTrackHandle = {
+  fromNumber(raw) {
+    if (raw === 0) {
+      throw DataTrackHandleError.reserved(raw);
+    }
+    if (raw > U16_MAX_SIZE) {
+      throw DataTrackHandleError.tooLarge();
+    }
+    return raw;
+  }
+};
+/** Manage allocating new handles which don't conflict over the lifetime of the client. */
+class DataTrackHandleAllocator {
+  constructor() {
+    this.value = 0;
+  }
+  /** Returns a unique track handle for the next publication, if one can be obtained. */
+  get() {
+    this.value += 1;
+    if (this.value > U16_MAX_SIZE) {
+      return null;
+    }
+    return this.value;
+  }
+}const DataTrackInfo = {
+  from(protocolInfo) {
+    return {
+      sid: protocolInfo.sid,
+      pubHandle: protocolInfo.pubHandle,
+      name: protocolInfo.name,
+      usesE2ee: protocolInfo.encryption !== Encryption_Type.NONE
+    };
+  },
+  toProtobuf(info) {
+    return new DataTrackInfo$1({
+      sid: info.sid,
+      pubHandle: info.pubHandle,
+      name: info.name,
+      encryption: info.usesE2ee ? Encryption_Type.GCM : Encryption_Type.NONE
+    });
+  }
+};var QueueTaskStatus;
 (function (QueueTaskStatus) {
   QueueTaskStatus[QueueTaskStatus["WAITING"] = 0] = "WAITING";
   QueueTaskStatus[QueueTaskStatus["RUNNING"] = 1] = "RUNNING";
@@ -14969,12 +15228,13 @@ class SignalClient {
     return __awaiter(this, arguments, void 0, function (url, token, opts, abortSignal) {
       var _this = this;
       let useV0Path = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
+      let publisherOffer = arguments.length > 5 ? arguments[5] : undefined;
       return function* () {
         // during a full reconnect, we'd want to start the sequence even if currently
         // connected
         _this.state = SignalConnectionState.CONNECTING;
         _this.options = opts;
-        const res = yield _this.connect(url, token, opts, abortSignal, useV0Path);
+        const res = yield _this.connect(url, token, opts, abortSignal, useV0Path, publisherOffer);
         return res;
       }();
     });
@@ -15000,12 +15260,13 @@ class SignalClient {
     return __awaiter(this, arguments, void 0, function (url, token, opts, abortSignal) {
       var _this2 = this;
       let useV0Path = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
+      let publisherOffer = arguments.length > 5 ? arguments[5] : undefined;
       return function* () {
         const unlock = yield _this2.connectionLock.lock();
         _this2.connectOptions = opts;
         _this2.useV0SignalPath = useV0Path;
         const clientInfo = getClientInfo();
-        const params = useV0Path ? createConnectionParams(token, clientInfo, opts) : createJoinRequestConnectionParams(token, clientInfo, opts);
+        const params = useV0Path ? createConnectionParams(token, clientInfo, opts) : yield createJoinRequestConnectionParams(token, clientInfo, opts, publisherOffer);
         const rtcUrl = createRtcUrl(url, params, useV0Path).toString();
         const validateUrl = createValidateUrl(rtcUrl).toString();
         return new Promise((resolve, reject) => __awaiter(_this2, void 0, void 0, function* () {
@@ -15108,8 +15369,9 @@ class SignalClient {
                 reject(validation.error);
                 return;
               }
-              // Handle join response - set up ping configuration
+              // Handle join response
               if (((_b = firstSignalResponse.message) === null || _b === void 0 ? void 0 : _b.case) === 'join') {
+                // Set up ping configuration
                 this.pingTimeoutDuration = firstSignalResponse.message.value.pingTimeout;
                 this.pingIntervalDuration = firstSignalResponse.message.value.pingInterval;
                 if (this.pingTimeoutDuration && this.pingTimeoutDuration > 0) {
@@ -15117,6 +15379,9 @@ class SignalClient {
                     timeout: this.pingTimeoutDuration,
                     interval: this.pingIntervalDuration
                   }));
+                }
+                if (this.onJoined) {
+                  this.onJoined(firstSignalResponse.message.value);
                 }
               }
               // Handle successful connection
@@ -15336,6 +15601,36 @@ class SignalClient {
       })
     });
   }
+  sendPublishDataTrackRequest(handle, name, usesE2ee) {
+    return this.sendRequest({
+      case: 'publishDataTrackRequest',
+      value: new PublishDataTrackRequest({
+        pubHandle: handle,
+        name: name,
+        encryption: usesE2ee ? Encryption_Type.GCM : Encryption_Type.NONE
+      })
+    });
+  }
+  sendUnPublishDataTrackRequest(handle) {
+    return this.sendRequest({
+      case: 'unpublishDataTrackRequest',
+      value: new UnpublishDataTrackRequest({
+        pubHandle: handle
+      })
+    });
+  }
+  sendUpdateDataSubscription(sid, subscribe) {
+    return this.sendRequest({
+      case: 'updateDataSubscription',
+      value: new UpdateDataSubscription({
+        // FIXME: consider refactoring to allow caller to pass an array of events through
+        updates: [new UpdateDataSubscription_Update({
+          trackSid: sid,
+          subscribe
+        })]
+      })
+    });
+  }
   sendRequest(message_1) {
     return __awaiter(this, arguments, void 0, function (message) {
       var _this5 = this;
@@ -15481,6 +15776,18 @@ class SignalClient {
     } else if (msg.case === 'mediaSectionsRequirement') {
       if (this.onMediaSectionsRequirement) {
         this.onMediaSectionsRequirement(msg.value);
+      }
+    } else if (msg.case === 'publishDataTrackResponse') {
+      if (this.onPublishDataTrackResponse) {
+        this.onPublishDataTrackResponse(msg.value);
+      }
+    } else if (msg.case === 'unpublishDataTrackResponse') {
+      if (this.onUnPublishDataTrackResponse) {
+        this.onUnPublishDataTrackResponse(msg.value);
+      }
+    } else if (msg.case === 'dataTrackSubscriberHandles') {
+      if (this.onDataTrackSubscriberHandles) {
+        this.onDataTrackSubscriberHandles(msg.value);
       }
     } else {
       this.log.debug('unsupported message', Object.assign(Object.assign({}, this.logContext), {
@@ -15720,26 +16027,66 @@ function createConnectionParams(token, info, opts) {
   }
   return params;
 }
-function createJoinRequestConnectionParams(token, info, opts) {
-  const params = new URLSearchParams();
-  params.set('access_token', token);
-  const joinRequest = new JoinRequest({
-    clientInfo: info,
-    connectionSettings: new ConnectionSettings({
-      autoSubscribe: !!opts.autoSubscribe,
-      adaptiveStream: !!opts.adaptiveStream
-    }),
-    reconnect: !!opts.reconnect,
-    participantSid: opts.sid ? opts.sid : undefined
+function createJoinRequestConnectionParams(token, info, opts, publisherOffer) {
+  return __awaiter(this, void 0, void 0, function* () {
+    const params = new URLSearchParams();
+    params.set('access_token', token);
+    const joinRequest = new JoinRequest({
+      clientInfo: info,
+      connectionSettings: new ConnectionSettings({
+        autoSubscribe: !!opts.autoSubscribe,
+        adaptiveStream: !!opts.adaptiveStream
+      }),
+      reconnect: !!opts.reconnect,
+      participantSid: opts.sid ? opts.sid : undefined,
+      publisherOffer: publisherOffer
+    });
+    if (opts.reconnectReason) {
+      joinRequest.reconnectReason = opts.reconnectReason;
+    }
+    const joinRequestBytes = joinRequest.toBinary();
+    let requestBytes;
+    let compression;
+    if (isCompressionStreamSupported()) {
+      const stream = new CompressionStream('gzip');
+      const writer = stream.writable.getWriter();
+      writer.write(new Uint8Array(joinRequestBytes));
+      writer.close();
+      const chunks = [];
+      const reader = stream.readable.getReader();
+      while (true) {
+        const {
+          done,
+          value
+        } = yield reader.read();
+        if (done) break;
+        chunks.push(value);
+      }
+      const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
+      const result = new Uint8Array(totalLength);
+      let offset = 0;
+      for (const chunk of chunks) {
+        result.set(chunk, offset);
+        offset += chunk.length;
+      }
+      requestBytes = result;
+      compression = WrappedJoinRequest_Compression.GZIP;
+    } else {
+      requestBytes = joinRequestBytes;
+      compression = WrappedJoinRequest_Compression.NONE;
+    }
+    const wrappedJoinRequest = new WrappedJoinRequest({
+      joinRequest: requestBytes,
+      compression
+    });
+    const wrappedBytes = wrappedJoinRequest.toBinary();
+    const bytesToBase64 = bytes => {
+      const binString = Array.from(bytes, byte => String.fromCodePoint(byte)).join('');
+      return btoa(binString);
+    };
+    params.set('join_request', bytesToBase64(wrappedBytes).replace(/\+/g, '-').replace(/\//g, '_'));
+    return params;
   });
-  if (opts.reconnectReason) {
-    joinRequest.reconnectReason = opts.reconnectReason;
-  }
-  const wrappedJoinRequest = new WrappedJoinRequest({
-    joinRequest: joinRequest.toBinary()
-  });
-  params.set('join_request', btoa(new TextDecoder('utf-8').decode(wrappedJoinRequest.toBinary())));
-  return params;
 }class DataPacketBuffer {
   constructor() {
     this.buffer = [];
@@ -16766,7 +17113,7 @@ class PCTransport extends eventsExports.EventEmitter {
   }
   setRemoteDescription(sd, offerId) {
     return __awaiter(this, void 0, void 0, function* () {
-      var _a;
+      var _a, _b;
       if (sd.type === 'answer' && this.latestOfferId > 0 && offerId > 0 && offerId !== this.latestOfferId) {
         this.log.warn('ignoring answer for old offer', Object.assign(Object.assign({}, this.logContext), {
           offerId,
@@ -16783,7 +17130,17 @@ class PCTransport extends eventsExports.EventEmitter {
         this.remoteStereoMids = stereoMids;
         this.remoteNackMids = nackMids;
       } else if (sd.type === 'answer') {
-        const sdpParsed = libExports.parse((_a = sd.sdp) !== null && _a !== void 0 ? _a : '');
+        if (this.pendingInitialOffer) {
+          const initialOffer = this.pendingInitialOffer;
+          this.pendingInitialOffer = undefined;
+          const sdpParsed = libExports.parse((_a = initialOffer.sdp) !== null && _a !== void 0 ? _a : '');
+          sdpParsed.media.forEach(media => {
+            ensureIPAddrMatchVersion(media);
+          });
+          this.log.debug('setting pending initial offer before processing answer', this.logContext);
+          yield this.setMungedSDP(initialOffer, libExports.write(sdpParsed));
+        }
+        const sdpParsed = libExports.parse((_b = sd.sdp) !== null && _b !== void 0 ? _b : '');
         sdpParsed.media.forEach(media => {
           const mid = getMidString(media.mid);
           if (media.type === 'audio') {
@@ -16851,6 +17208,36 @@ class PCTransport extends eventsExports.EventEmitter {
       return true;
     });
   }
+  createInitialOffer() {
+    return __awaiter(this, void 0, void 0, function* () {
+      var _a;
+      const unlock = yield this.offerLock.lock();
+      try {
+        if (this.pc.signalingState !== 'stable') {
+          this.log.warn('signaling state is not stable, cannot create initial offer', this.logContext);
+          return;
+        }
+        const offerId = this.latestOfferId + 1;
+        this.latestOfferId = offerId;
+        const offer = yield this.pc.createOffer();
+        this.pendingInitialOffer = {
+          sdp: offer.sdp,
+          type: offer.type
+        };
+        const sdpParsed = libExports.parse((_a = offer.sdp) !== null && _a !== void 0 ? _a : '');
+        sdpParsed.media.forEach(media => {
+          ensureIPAddrMatchVersion(media);
+        });
+        offer.sdp = libExports.write(sdpParsed);
+        return {
+          offer,
+          offerId
+        };
+      } finally {
+        unlock();
+      }
+    });
+  }
   createAndSendOffer(options) {
     return __awaiter(this, void 0, void 0, function* () {
       var _a;
@@ -16863,7 +17250,7 @@ class PCTransport extends eventsExports.EventEmitter {
           this.log.debug('restarting ICE', this.logContext);
           this.restartingIce = true;
         }
-        if (this._pc && this._pc.signalingState === 'have-local-offer') {
+        if (this._pc && (this._pc.signalingState === 'have-local-offer' || this.pendingInitialOffer)) {
           // we're waiting for the peer to accept our offer, so we'll just wait
           // the only exception to this is when ICE restart is needed
           const currentSD = this._pc.remoteDescription;
@@ -17293,7 +17680,7 @@ class PCTransportManager {
   get mode() {
     return this._mode;
   }
-  constructor(rtcConfig, mode, loggerOptions) {
+  constructor(mode, loggerOptions, rtcConfig) {
     var _a;
     this.peerConnectionTimeout = roomConnectOptionDefaults.peerConnectionTimeout;
     this.log = livekitLogger;
@@ -19812,11 +20199,14 @@ function videoLayersFromEncodings(width, height, encodings, svc) {
   });
 }const lossyDataChannel = '_lossy';
 const reliableDataChannel = '_reliable';
+const dataTrackDataChannel = '_data_track';
 const minReconnectWait = 2 * 1000;
 const leaveReconnect = 'leave-reconnect';
 const reliabeReceiveStateTTL = 30000;
 const lossyDataChannelBufferThresholdMin = 8 * 1024;
 const lossyDataChannelBufferThresholdMax = 256 * 1024;
+const initialMediaSectionsAudio = 3;
+const initialMediaSectionsVideo = 3;
 var PCState;
 (function (PCState) {
   PCState[PCState["New"] = 0] = "New";
@@ -19825,6 +20215,12 @@ var PCState;
   PCState[PCState["Reconnecting"] = 3] = "Reconnecting";
   PCState[PCState["Closed"] = 4] = "Closed";
 })(PCState || (PCState = {}));
+var DataChannelKind;
+(function (DataChannelKind) {
+  DataChannelKind[DataChannelKind["RELIABLE"] = 0] = "RELIABLE";
+  DataChannelKind[DataChannelKind["LOSSY"] = 1] = "LOSSY";
+  DataChannelKind[DataChannelKind["DATA_TRACK_LOSSY"] = 2] = "DATA_TRACK_LOSSY";
+})(DataChannelKind || (DataChannelKind = {}));
 /** @internal */
 class RTCEngine extends eventsExports.EventEmitter {
   get isClosed() {
@@ -19879,15 +20275,21 @@ class RTCEngine extends eventsExports.EventEmitter {
         if (!channel) {
           return;
         }
+        let handler;
         if (channel.label === reliableDataChannel) {
           _this.reliableDCSub = channel;
+          handler = _this.handleDataMessage;
         } else if (channel.label === lossyDataChannel) {
           _this.lossyDCSub = channel;
+          handler = _this.handleDataMessage;
+        } else if (channel.label === dataTrackDataChannel) {
+          _this.dataTrackDCSub = channel;
+          handler = _this.handleDataTrackMessage;
         } else {
           return;
         }
         _this.log.debug("on data channel ".concat(channel.id, ", ").concat(channel.label), _this.logContext);
-        channel.onmessage = _this.handleDataMessage;
+        channel.onmessage = handler;
       }();
     });
     this.handleDataMessage = message => __awaiter(this, void 0, void 0, function* () {
@@ -19947,6 +20349,21 @@ class RTCEngine extends eventsExports.EventEmitter {
         unlock();
       }
     });
+    this.handleDataTrackMessage = message => __awaiter(this, void 0, void 0, function* () {
+      // Decode / normalize into a common format
+      let buffer;
+      if (message.data instanceof ArrayBuffer) {
+        buffer = message.data;
+      } else if (message.data instanceof Blob) {
+        buffer = yield message.data.arrayBuffer();
+      } else {
+        this.log.error('unsupported data type', Object.assign(Object.assign({}, this.logContext), {
+          data: message.data
+        }));
+        return;
+      }
+      this.emit('dataTrackPacketReceived', new Uint8Array(buffer));
+    });
     this.handleDataError = event => {
       const channel = event.currentTarget;
       const channelKind = channel.maxRetransmits === 0 ? 'lossy' : 'reliable';
@@ -19963,9 +20380,7 @@ class RTCEngine extends eventsExports.EventEmitter {
         }));
       }
     };
-    this.handleBufferedAmountLow = event => {
-      const channel = event.currentTarget;
-      const channelKind = channel.maxRetransmits === 0 ? DataPacket_Kind.LOSSY : DataPacket_Kind.RELIABLE;
+    this.handleBufferedAmountLow = channelKind => {
       this.updateAndEmitDCBufferStatus(channelKind);
     };
     // websocket reconnect behavior. if websocket is interrupted, and the PeerConnection
@@ -20024,7 +20439,7 @@ class RTCEngine extends eventsExports.EventEmitter {
       });
     };
     this.updateAndEmitDCBufferStatus = kind => {
-      if (kind === DataPacket_Kind.RELIABLE) {
+      if (kind === DataChannelKind.RELIABLE) {
         const dc = this.dataChannelForKind(kind);
         if (dc) {
           this.reliableMessageBuffer.alignBufferedAmount(dc.bufferedAmount);
@@ -20091,7 +20506,7 @@ class RTCEngine extends eventsExports.EventEmitter {
     this.reconnectPolicy = this.options.reconnectPolicy;
     this.closingLock = new _();
     this.dataProcessLock = new _();
-    this.dcBufferStatus = new Map([[DataPacket_Kind.LOSSY, true], [DataPacket_Kind.RELIABLE, true]]);
+    this.dcBufferStatus = new Map([[DataChannelKind.RELIABLE, true], [DataChannelKind.LOSSY, true], [DataChannelKind.DATA_TRACK_LOSSY, true]]);
     this.client.onParticipantUpdate = updates => this.emit(EngineEvent.ParticipantUpdate, updates);
     this.client.onConnectionQuality = update => this.emit(EngineEvent.ConnectionQualityUpdate, update);
     this.client.onRoomUpdate = update => this.emit(EngineEvent.RoomUpdate, update);
@@ -20100,6 +20515,8 @@ class RTCEngine extends eventsExports.EventEmitter {
     this.client.onSpeakersChanged = update => this.emit(EngineEvent.SpeakersChanged, update);
     this.client.onStreamStateUpdate = update => this.emit(EngineEvent.StreamStateChanged, update);
     this.client.onRequestResponse = response => this.emit(EngineEvent.SignalRequestResponse, response);
+    this.client.onParticipantUpdate = updates => this.emit(EngineEvent.ParticipantUpdate, updates);
+    this.client.onJoined = joinResponse => this.emit(EngineEvent.Joined, joinResponse);
   }
   /** @internal */
   get logContext() {
@@ -20116,6 +20533,7 @@ class RTCEngine extends eventsExports.EventEmitter {
       var _this2 = this;
       let useV0Path = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
       return function* () {
+        var _a, _b, _c;
         _this2._isNewlyCreated = false;
         _this2.url = url;
         _this2.token = token;
@@ -20124,18 +20542,38 @@ class RTCEngine extends eventsExports.EventEmitter {
         try {
           _this2.joinAttempts += 1;
           _this2.setupSignalClientCallbacks();
-          const joinResponse = yield _this2.client.join(url, token, opts, abortSignal, useV0Path);
+          let offerProto;
+          if (!useV0Path && isCompressionStreamSupported()) {
+            if (!_this2.pcManager) {
+              yield _this2.configure();
+              _this2.createDataChannels();
+              _this2.addMediaSections(initialMediaSectionsAudio, initialMediaSectionsVideo);
+            }
+            const offer = yield (_a = _this2.pcManager) === null || _a === void 0 ? void 0 : _a.publisher.createInitialOffer();
+            if (offer) {
+              offerProto = toProtoSessionDescription(offer.offer, offer.offerId);
+            }
+          }
+          if (abortSignal === null || abortSignal === void 0 ? void 0 : abortSignal.aborted) {
+            throw ConnectionError.cancelled('Connection aborted');
+          }
+          const joinResponse = yield _this2.client.join(url, token, opts, abortSignal, useV0Path, offerProto);
           _this2._isClosed = false;
           _this2.latestJoinResponse = joinResponse;
+          _this2.participantSid = (_b = joinResponse.participant) === null || _b === void 0 ? void 0 : _b.sid;
           _this2.subscriberPrimary = joinResponse.subscriberPrimary;
-          if (!_this2.pcManager) {
-            yield _this2.configure(joinResponse, !useV0Path);
-          }
-          // create offer
-          if (!_this2.subscriberPrimary || joinResponse.fastPublish) {
-            _this2.negotiate().catch(err => {
-              livekitLogger.error(err, _this2.logContext);
-            });
+          if (!useV0Path && isCompressionStreamSupported()) {
+            (_c = _this2.pcManager) === null || _c === void 0 ? void 0 : _c.updateConfiguration(_this2.makeRTCConfiguration(joinResponse));
+          } else {
+            if (!_this2.pcManager) {
+              yield _this2.configure(joinResponse, !useV0Path);
+            }
+            // create offer
+            if (!_this2.subscriberPrimary || joinResponse.fastPublish) {
+              _this2.negotiate().catch(err => {
+                livekitLogger.error(err, _this2.logContext);
+              });
+            }
           }
           _this2.registerOnLineListener();
           _this2.clientConfiguration = joinResponse.clientConfiguration;
@@ -20199,10 +20637,14 @@ class RTCEngine extends eventsExports.EventEmitter {
       dcCleanup(this.lossyDCSub);
       dcCleanup(this.reliableDC);
       dcCleanup(this.reliableDCSub);
+      dcCleanup(this.dataTrackDC);
+      dcCleanup(this.dataTrackDCSub);
       this.lossyDC = undefined;
       this.lossyDCSub = undefined;
       this.reliableDC = undefined;
       this.reliableDCSub = undefined;
+      this.dataTrackDC = undefined;
+      this.dataTrackDCSub = undefined;
       this.reliableMessageBuffer = new DataPacketBuffer();
       this.reliableDataSequence = 1;
       this.reliableReceivedState.clear();
@@ -20290,14 +20732,19 @@ class RTCEngine extends eventsExports.EventEmitter {
   }
   configure(joinResponse, useSinglePeerConnection) {
     return __awaiter(this, void 0, void 0, function* () {
-      var _a, _b;
+      var _a;
       // already configured
       if (this.pcManager && this.pcManager.currentState !== PCTransportState.NEW) {
         return;
       }
-      this.participantSid = (_a = joinResponse.participant) === null || _a === void 0 ? void 0 : _a.sid;
-      const rtcConfig = this.makeRTCConfiguration(joinResponse);
-      this.pcManager = new PCTransportManager(rtcConfig, useSinglePeerConnection ? 'publisher-only' : joinResponse.subscriberPrimary ? 'subscriber-primary' : 'publisher-primary', this.loggerOptions);
+      if (!joinResponse) {
+        const rtcConfig = this.makeRTCConfiguration();
+        this.pcManager = new PCTransportManager('publisher-only', this.loggerOptions, rtcConfig);
+      } else {
+        this.participantSid = (_a = joinResponse.participant) === null || _a === void 0 ? void 0 : _a.sid;
+        const rtcConfig = this.makeRTCConfiguration(joinResponse);
+        this.pcManager = new PCTransportManager(useSinglePeerConnection ? 'publisher-only' : joinResponse.subscriberPrimary ? 'subscriber-primary' : 'publisher-primary', this.loggerOptions, rtcConfig);
+      }
       this.emit(EngineEvent.TransportsCreated, this.pcManager.publisher, this.pcManager.subscriber);
       this.pcManager.onIceCandidate = (candidate, target) => {
         this.client.sendIceCandidate(candidate, target);
@@ -20316,7 +20763,7 @@ class RTCEngine extends eventsExports.EventEmitter {
           const shouldEmit = this.pcState === PCState.New;
           this.pcState = PCState.Connected;
           if (shouldEmit) {
-            this.emit(EngineEvent.Connected, joinResponse);
+            this.emit(EngineEvent.Connected, this.latestJoinResponse);
           }
         } else if (connectionState === PCTransportState.FAILED) {
           // on Safari, PeerConnection will switch to 'disconnected' during renegotiation
@@ -20338,9 +20785,6 @@ class RTCEngine extends eventsExports.EventEmitter {
         if (ev.streams.length === 0) return;
         this.emit(EngineEvent.MediaTrackAdded, ev.track, ev.streams[0], ev.receiver);
       };
-      if (!supportOptionalDatachannel((_b = joinResponse.serverInfo) === null || _b === void 0 ? void 0 : _b.protocol)) {
-        this.createDataChannels();
-      }
     });
   }
   setupSignalClientCallbacks() {
@@ -20424,17 +20868,17 @@ class RTCEngine extends eventsExports.EventEmitter {
       this.emit(EngineEvent.RoomMoved, res);
     };
     this.client.onMediaSectionsRequirement = requirement => {
-      var _a, _b;
-      const transceiverInit = {
-        direction: 'recvonly'
-      };
-      for (let i = 0; i < requirement.numAudios; i++) {
-        (_a = this.pcManager) === null || _a === void 0 ? void 0 : _a.addPublisherTransceiverOfKind('audio', transceiverInit);
-      }
-      for (let i = 0; i < requirement.numVideos; i++) {
-        (_b = this.pcManager) === null || _b === void 0 ? void 0 : _b.addPublisherTransceiverOfKind('video', transceiverInit);
-      }
+      this.addMediaSections(requirement.numAudios, requirement.numVideos);
       this.negotiate();
+    };
+    this.client.onPublishDataTrackResponse = event => {
+      this.emit(EngineEvent.PublishDataTrackResponse, event);
+    };
+    this.client.onUnPublishDataTrackResponse = event => {
+      this.emit(EngineEvent.UnPublishDataTrackResponse, event);
+    };
+    this.client.onDataTrackSubscriberHandles = event => {
+      this.emit(EngineEvent.DataTrackSubscriberHandles, event);
     };
     this.client.onClose = () => {
       this.handleDisconnect('signal', ReconnectReason.RR_SIGNAL_DISCONNECTED);
@@ -20476,6 +20920,13 @@ class RTCEngine extends eventsExports.EventEmitter {
       // @ts-ignore
       rtcConfig.encodedInsertableStreams = true;
     }
+    // @ts-ignore
+    rtcConfig.sdpSemantics = 'unified-plan';
+    // @ts-ignore
+    rtcConfig.continualGatheringPolicy = 'gather_continually';
+    if (!serverResponse) {
+      return rtcConfig;
+    }
     // update ICE servers before creating PeerConnection
     if (serverResponse.iceServers && !rtcConfig.iceServers) {
       const rtcIceServers = [];
@@ -20494,11 +20945,19 @@ class RTCEngine extends eventsExports.EventEmitter {
     if (serverResponse.clientConfiguration && serverResponse.clientConfiguration.forceRelay === ClientConfigSetting.ENABLED) {
       rtcConfig.iceTransportPolicy = 'relay';
     }
-    // @ts-ignore
-    rtcConfig.sdpSemantics = 'unified-plan';
-    // @ts-ignore
-    rtcConfig.continualGatheringPolicy = 'gather_continually';
     return rtcConfig;
+  }
+  addMediaSections(numAudios, numVideos) {
+    var _a, _b;
+    const transceiverInit = {
+      direction: 'recvonly'
+    };
+    for (let i = 0; i < numAudios; i++) {
+      (_a = this.pcManager) === null || _a === void 0 ? void 0 : _a.addPublisherTransceiverOfKind('audio', transceiverInit);
+    }
+    for (let i = 0; i < numVideos; i++) {
+      (_b = this.pcManager) === null || _b === void 0 ? void 0 : _b.addPublisherTransceiverOfKind('video', transceiverInit);
+    }
   }
   createDataChannels() {
     if (!this.pcManager) {
@@ -20513,6 +20972,10 @@ class RTCEngine extends eventsExports.EventEmitter {
       this.reliableDC.onmessage = null;
       this.reliableDC.onerror = null;
     }
+    if (this.dataTrackDC) {
+      this.dataTrackDC.onmessage = null;
+      this.dataTrackDC.onerror = null;
+    }
     // create data channels
     this.lossyDC = this.pcManager.createPublisherDataChannel(lossyDataChannel, {
       ordered: false,
@@ -20521,23 +20984,31 @@ class RTCEngine extends eventsExports.EventEmitter {
     this.reliableDC = this.pcManager.createPublisherDataChannel(reliableDataChannel, {
       ordered: true
     });
+    this.dataTrackDC = this.pcManager.createPublisherDataChannel(dataTrackDataChannel, {
+      ordered: false,
+      maxRetransmits: 0
+    });
     // also handle messages over the pub channel, for backwards compatibility
     this.lossyDC.onmessage = this.handleDataMessage;
     this.reliableDC.onmessage = this.handleDataMessage;
+    this.dataTrackDC.onmessage = this.handleDataTrackMessage;
     // handle datachannel errors
     this.lossyDC.onerror = this.handleDataError;
     this.reliableDC.onerror = this.handleDataError;
+    this.dataTrackDC.onerror = this.handleDataError;
     // set up dc buffer threshold, set to 64kB (otherwise 0 by default)
     this.lossyDC.bufferedAmountLowThreshold = 65535;
     this.reliableDC.bufferedAmountLowThreshold = 65535;
+    this.dataTrackDC.bufferedAmountLowThreshold = 65535;
     // handle buffer amount low events
-    this.lossyDC.onbufferedamountlow = this.handleBufferedAmountLow;
-    this.reliableDC.onbufferedamountlow = this.handleBufferedAmountLow;
+    this.lossyDC.onbufferedamountlow = () => this.handleBufferedAmountLow(DataChannelKind.LOSSY);
+    this.reliableDC.onbufferedamountlow = () => this.handleBufferedAmountLow(DataChannelKind.RELIABLE);
+    this.dataTrackDC.onbufferedamountlow = () => this.handleBufferedAmountLow(DataChannelKind.DATA_TRACK_LOSSY);
     this.cleanupLossyDataStats();
     this.lossyDataStatInterval = setInterval(() => {
       this.lossyDataStatByterate = this.lossyDataStatCurrentBytes;
       this.lossyDataStatCurrentBytes = 0;
-      const dc = this.dataChannelForKind(DataPacket_Kind.LOSSY);
+      const dc = this.dataChannelForKind(DataChannelKind.LOSSY);
       if (dc) {
         // control buffered latency to ~100ms
         const threshold = this.lossyDataStatByterate / 10;
@@ -20854,7 +21325,7 @@ class RTCEngine extends eventsExports.EventEmitter {
           })
         }
       });
-      yield this.sendDataPacket(packet, DataPacket_Kind.RELIABLE);
+      yield this.sendDataPacket(packet, DataChannelKind.RELIABLE);
     });
   }
   /** @internal */
@@ -20870,7 +21341,7 @@ class RTCEngine extends eventsExports.EventEmitter {
           })
         }
       });
-      yield this.sendDataPacket(packet, DataPacket_Kind.RELIABLE);
+      yield this.sendDataPacket(packet, DataChannelKind.RELIABLE);
     });
   }
   /* @internal */
@@ -20892,49 +21363,81 @@ class RTCEngine extends eventsExports.EventEmitter {
           };
         }
       }
-      if (kind === DataPacket_Kind.RELIABLE) {
+      if (kind === DataChannelKind.RELIABLE) {
         packet.sequence = this.reliableDataSequence;
         this.reliableDataSequence += 1;
       }
       const msg = packet.toBinary();
-      const dc = this.dataChannelForKind(kind);
-      if (dc) {
-        if (kind === DataPacket_Kind.RELIABLE) {
-          yield this.waitForBufferStatusLow(kind);
-          this.reliableMessageBuffer.push({
-            data: msg,
-            sequence: packet.sequence
-          });
-        } else {
-          // lossy channel, drop messages to reduce latency
-          if (!this.isBufferStatusLow(kind)) {
-            this.lossyDataDropCount += 1;
-            if (this.lossyDataDropCount % 100 === 0) {
-              this.log.warn("dropping lossy data channel messages, total dropped: ".concat(this.lossyDataDropCount), this.logContext);
+      switch (kind) {
+        case DataChannelKind.LOSSY:
+        case DataChannelKind.DATA_TRACK_LOSSY:
+          return this.sendLossyBytes(msg, kind);
+        case DataChannelKind.RELIABLE:
+          const dc = this.dataChannelForKind(kind);
+          if (dc) {
+            yield this.waitForBufferStatusLow(kind);
+            this.reliableMessageBuffer.push({
+              data: msg,
+              sequence: packet.sequence
+            });
+            if (this.attemptingReconnect) {
+              return;
             }
+            dc.send(msg);
+          }
+          this.updateAndEmitDCBufferStatus(kind);
+          break;
+      }
+    });
+  }
+  /* @internal */
+  sendLossyBytes(bytes_1, kind_1) {
+    return __awaiter(this, arguments, void 0, function (bytes, kind) {
+      var _this3 = this;
+      let bufferStatusLowBehavior = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'drop';
+      return function* () {
+        // make sure we do have a data connection
+        yield _this3.ensurePublisherConnected(kind);
+        const dc = _this3.dataChannelForKind(kind);
+        if (dc) {
+          if (!_this3.isBufferStatusLow(kind)) {
+            // Depending on the exact circumstance that data is being sent, either drop or wait for the
+            // buffer status to not be low before continuing.
+            switch (bufferStatusLowBehavior) {
+              case 'wait':
+                yield _this3.waitForBufferStatusLow(kind);
+                break;
+              case 'drop':
+                // this.log.warn(`dropping lossy data channel message`, this.logContext);
+                // Drop messages to reduce latency
+                _this3.lossyDataDropCount += 1;
+                if (_this3.lossyDataDropCount % 100 === 0) {
+                  _this3.log.warn("dropping lossy data channel messages, total dropped: ".concat(_this3.lossyDataDropCount), _this3.logContext);
+                }
+                return;
+            }
+          }
+          _this3.lossyDataStatCurrentBytes += bytes.byteLength;
+          if (_this3.attemptingReconnect) {
             return;
           }
-          this.lossyDataStatCurrentBytes += msg.byteLength;
+          dc.send(bytes);
         }
-        if (this.attemptingReconnect) {
-          return;
-        }
-        dc.send(msg);
-      }
-      this.updateAndEmitDCBufferStatus(kind);
+        _this3.updateAndEmitDCBufferStatus(kind);
+      }();
     });
   }
   resendReliableMessagesForResume(lastMessageSeq) {
     return __awaiter(this, void 0, void 0, function* () {
-      yield this.ensurePublisherConnected(DataPacket_Kind.RELIABLE);
-      const dc = this.dataChannelForKind(DataPacket_Kind.RELIABLE);
+      yield this.ensurePublisherConnected(DataChannelKind.RELIABLE);
+      const dc = this.dataChannelForKind(DataChannelKind.RELIABLE);
       if (dc) {
         this.reliableMessageBuffer.popToSequence(lastMessageSeq);
         this.reliableMessageBuffer.getAll().forEach(msg => {
           dc.send(msg.data);
         });
       }
-      this.updateAndEmitDCBufferStatus(DataPacket_Kind.RELIABLE);
+      this.updateAndEmitDCBufferStatus(DataChannelKind.RELIABLE);
     });
   }
   waitForBufferStatusLow(kind) {
@@ -20957,40 +21460,40 @@ class RTCEngine extends eventsExports.EventEmitter {
    */
   ensureDataTransportConnected(kind_1) {
     return __awaiter(this, arguments, void 0, function (kind) {
-      var _this3 = this;
+      var _this4 = this;
       let subscriber = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : this.subscriberPrimary;
       return function* () {
         var _a;
-        if (!_this3.pcManager) {
+        if (!_this4.pcManager) {
           throw new UnexpectedConnectionState('PC manager is closed');
         }
-        const transport = subscriber ? _this3.pcManager.subscriber : _this3.pcManager.publisher;
+        const transport = subscriber ? _this4.pcManager.subscriber : _this4.pcManager.publisher;
         const transportName = subscriber ? 'Subscriber' : 'Publisher';
         if (!transport) {
           throw ConnectionError.internal("".concat(transportName, " connection not set"));
         }
         let needNegotiation = false;
-        if (!subscriber && !_this3.dataChannelForKind(kind, subscriber)) {
-          _this3.createDataChannels();
+        if (!subscriber && !_this4.dataChannelForKind(kind, subscriber)) {
+          _this4.createDataChannels();
           needNegotiation = true;
         }
-        if (!needNegotiation && !subscriber && !_this3.pcManager.publisher.isICEConnected && _this3.pcManager.publisher.getICEConnectionState() !== 'checking') {
+        if (!needNegotiation && !subscriber && !_this4.pcManager.publisher.isICEConnected && _this4.pcManager.publisher.getICEConnectionState() !== 'checking') {
           needNegotiation = true;
         }
         if (needNegotiation) {
           // start negotiation
-          _this3.negotiate().catch(err => {
-            livekitLogger.error(err, _this3.logContext);
+          _this4.negotiate().catch(err => {
+            livekitLogger.error(err, _this4.logContext);
           });
         }
-        const targetChannel = _this3.dataChannelForKind(kind, subscriber);
+        const targetChannel = _this4.dataChannelForKind(kind, subscriber);
         if ((targetChannel === null || targetChannel === void 0 ? void 0 : targetChannel.readyState) === 'open') {
           return;
         }
         // wait until ICE connected
-        const endTime = new Date().getTime() + _this3.peerConnectionTimeout;
+        const endTime = new Date().getTime() + _this4.peerConnectionTimeout;
         while (new Date().getTime() < endTime) {
-          if (transport.isICEConnected && ((_a = _this3.dataChannelForKind(kind, subscriber)) === null || _a === void 0 ? void 0 : _a.readyState) === 'open') {
+          if (transport.isICEConnected && ((_a = _this4.dataChannelForKind(kind, subscriber)) === null || _a === void 0 ? void 0 : _a.readyState) === 'open') {
             return;
           }
           yield sleep(50);
@@ -21033,7 +21536,7 @@ class RTCEngine extends eventsExports.EventEmitter {
         }
         this.pcManager.requirePublisher();
         // don't negotiate without any transceivers or data channel, it will generate sdp without ice frag then negotiate failed
-        if (this.pcManager.publisher.getTransceivers().length == 0 && !this.lossyDC && !this.reliableDC) {
+        if (this.pcManager.publisher.getTransceivers().length == 0 && !this.lossyDC && !this.reliableDC && !this.dataTrackDC) {
           this.createDataChannels();
         }
         const abortController = new AbortController();
@@ -21085,24 +21588,29 @@ class RTCEngine extends eventsExports.EventEmitter {
     });
   }
   dataChannelForKind(kind, sub) {
-    if (!sub) {
-      if (kind === DataPacket_Kind.LOSSY) {
-        return this.lossyDC;
-      }
-      if (kind === DataPacket_Kind.RELIABLE) {
-        return this.reliableDC;
-      }
-    } else {
-      if (kind === DataPacket_Kind.LOSSY) {
-        return this.lossyDCSub;
-      }
-      if (kind === DataPacket_Kind.RELIABLE) {
-        return this.reliableDCSub;
-      }
+    switch (kind) {
+      case DataChannelKind.RELIABLE:
+        if (!sub) {
+          return this.reliableDC;
+        } else {
+          return this.reliableDCSub;
+        }
+      case DataChannelKind.LOSSY:
+        if (!sub) {
+          return this.lossyDC;
+        } else {
+          return this.lossyDCSub;
+        }
+      case DataChannelKind.DATA_TRACK_LOSSY:
+        if (!sub) {
+          return this.dataTrackDC;
+        } else {
+          return this.dataTrackDCSub;
+        }
     }
   }
   /** @internal */
-  sendSyncState(remoteTracks, localTracks) {
+  sendSyncState(remoteTracks, localTracks, localDataTrackInfos) {
     var _a, _b, _c, _d;
     if (!this.pcManager) {
       this.log.warn('sync state cannot be sent without peer connection setup', this.logContext);
@@ -21156,6 +21664,11 @@ class RTCEngine extends eventsExports.EventEmitter {
           publisherSid: sid,
           lastSeq: seq
         });
+      }),
+      publishDataTracks: localDataTrackInfos.map(info => {
+        return new PublishDataTrackResponse({
+          info: DataTrackInfo.toProtobuf(info)
+        });
       })
     }));
   }
@@ -21175,10 +21688,10 @@ class RTCEngine extends eventsExports.EventEmitter {
         }));
       }
     };
-    getInfo(this.dataChannelForKind(DataPacket_Kind.LOSSY), SignalTarget.PUBLISHER);
-    getInfo(this.dataChannelForKind(DataPacket_Kind.RELIABLE), SignalTarget.PUBLISHER);
-    getInfo(this.dataChannelForKind(DataPacket_Kind.LOSSY, true), SignalTarget.SUBSCRIBER);
-    getInfo(this.dataChannelForKind(DataPacket_Kind.RELIABLE, true), SignalTarget.SUBSCRIBER);
+    getInfo(this.dataChannelForKind(DataChannelKind.LOSSY), SignalTarget.PUBLISHER);
+    getInfo(this.dataChannelForKind(DataChannelKind.RELIABLE), SignalTarget.PUBLISHER);
+    getInfo(this.dataChannelForKind(DataChannelKind.LOSSY, true), SignalTarget.SUBSCRIBER);
+    getInfo(this.dataChannelForKind(DataChannelKind.RELIABLE, true), SignalTarget.SUBSCRIBER);
     return infos;
   }
   clearReconnectTimeout() {
@@ -21215,9 +21728,6 @@ class RTCEngine extends eventsExports.EventEmitter {
       }
     }
   }
-}
-function supportOptionalDatachannel(protocol) {
-  return protocol !== undefined && protocol > 13;
 }
 function applyUserDataCompat(newObj, oldObj) {
   const participantIdentity = newObj.participantIdentity ? newObj.participantIdentity : oldObj.participantIdentity;
@@ -21792,7 +22302,7 @@ class OutgoingDataStreamManager {
           value: header
         }
       });
-      yield this.engine.sendDataPacket(packet, DataPacket_Kind.RELIABLE);
+      yield this.engine.sendDataPacket(packet, DataChannelKind.RELIABLE);
       let chunkId = 0;
       const engine = this.engine;
       const writableStream = new WritableStream({
@@ -21812,7 +22322,7 @@ class OutgoingDataStreamManager {
                   value: chunk
                 }
               });
-              yield engine.sendDataPacket(chunkPacket, DataPacket_Kind.RELIABLE);
+              yield engine.sendDataPacket(chunkPacket, DataChannelKind.RELIABLE);
               chunkId += 1;
             }
           });
@@ -21829,7 +22339,7 @@ class OutgoingDataStreamManager {
                 value: trailer
               }
             });
-            yield engine.sendDataPacket(trailerPacket, DataPacket_Kind.RELIABLE);
+            yield engine.sendDataPacket(trailerPacket, DataChannelKind.RELIABLE);
           });
         },
         abort(err) {
@@ -21916,7 +22426,7 @@ class OutgoingDataStreamManager {
           value: header
         }
       });
-      yield this.engine.sendDataPacket(packet, DataPacket_Kind.RELIABLE);
+      yield this.engine.sendDataPacket(packet, DataChannelKind.RELIABLE);
       let chunkId = 0;
       const writeMutex = new _();
       const engine = this.engine;
@@ -21940,7 +22450,7 @@ class OutgoingDataStreamManager {
                     })
                   }
                 });
-                yield engine.sendDataPacket(chunkPacket, DataPacket_Kind.RELIABLE);
+                yield engine.sendDataPacket(chunkPacket, DataChannelKind.RELIABLE);
                 chunkId += 1;
                 byteOffset += subChunk.byteLength;
               }
@@ -21961,7 +22471,7 @@ class OutgoingDataStreamManager {
                 value: trailer
               }
             });
-            yield engine.sendDataPacket(trailerPacket, DataPacket_Kind.RELIABLE);
+            yield engine.sendDataPacket(trailerPacket, DataChannelKind.RELIABLE);
           });
         },
         abort(err) {
@@ -21970,6 +22480,1980 @@ class OutgoingDataStreamManager {
       });
       const byteWriter = new ByteStreamWriter(writableStream, info);
       return byteWriter;
+    });
+  }
+}/**
+ * Implementation of AbortSignal.any
+ * Creates a signal that will be aborted when any of the given signals is aborted.
+ * @link https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal/any
+ */
+function abortSignalAny(signals) {
+  // Handle empty signals array
+  if (signals.length === 0) {
+    const controller = new AbortController();
+    return controller.signal;
+  }
+  // Fast path for single signal
+  if (signals.length === 1) {
+    return signals[0];
+  }
+  // Check if any signal is already aborted
+  for (const signal of signals) {
+    if (signal.aborted) {
+      return signal;
+    }
+  }
+  // Create a new controller for the combined signal
+  const controller = new AbortController();
+  const unlisteners = Array(signals.length);
+  // Function to clean up all event listeners
+  const cleanup = () => {
+    for (const unsubscribe of unlisteners) {
+      unsubscribe();
+    }
+  };
+  // Add event listeners to each signal
+  signals.forEach((signal, index) => {
+    const handler = () => {
+      controller.abort(signal.reason);
+      cleanup();
+    };
+    signal.addEventListener('abort', handler);
+    unlisteners[index] = () => signal.removeEventListener('abort', handler);
+  });
+  return controller.signal;
+}
+/**
+ * Implementation of AbortSignal.timeout
+ * Creates a signal that will be aborted after the specified timeout.
+ * @link https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal/timeout
+ */
+function abortSignalTimeout(ms) {
+  const controller = new AbortController();
+  setTimeout(() => {
+    controller.abort(new DOMException("signal timed out after ".concat(ms, " ms"), 'TimeoutError'));
+  }, ms);
+  return controller.signal;
+}// Number type sizes
+const U8_LENGTH_BYTES = 1;
+const U16_LENGTH_BYTES = 2;
+const U32_LENGTH_BYTES = 4;
+const U64_LENGTH_BYTES = 8;
+/// Constants used for serialization and deserialization.
+const SUPPORTED_VERSION = 0;
+const BASE_HEADER_LEN = 12;
+// Bitfield shifts and masks for header flags
+const VERSION_SHIFT = 5;
+const VERSION_MASK = 0x07;
+const FRAME_MARKER_SHIFT = 3;
+const FRAME_MARKER_MASK = 0x3;
+const FRAME_MARKER_START = 0x2;
+const FRAME_MARKER_FINAL = 0x1;
+const FRAME_MARKER_INTER = 0x0;
+const FRAME_MARKER_SINGLE = 0x3;
+const EXT_WORDS_INDICATOR_SIZE = 2;
+const EXT_FLAG_SHIFT = 0x2;
+const EXT_FLAG_MASK = 0x1;
+const EXT_TAG_PADDING = 0;var DataTrackDeserializeErrorReason;
+(function (DataTrackDeserializeErrorReason) {
+  DataTrackDeserializeErrorReason[DataTrackDeserializeErrorReason["TooShort"] = 0] = "TooShort";
+  DataTrackDeserializeErrorReason[DataTrackDeserializeErrorReason["HeaderOverrun"] = 1] = "HeaderOverrun";
+  DataTrackDeserializeErrorReason[DataTrackDeserializeErrorReason["MissingExtWords"] = 2] = "MissingExtWords";
+  DataTrackDeserializeErrorReason[DataTrackDeserializeErrorReason["UnsupportedVersion"] = 3] = "UnsupportedVersion";
+  DataTrackDeserializeErrorReason[DataTrackDeserializeErrorReason["InvalidHandle"] = 4] = "InvalidHandle";
+  DataTrackDeserializeErrorReason[DataTrackDeserializeErrorReason["MalformedExt"] = 5] = "MalformedExt";
+})(DataTrackDeserializeErrorReason || (DataTrackDeserializeErrorReason = {}));
+class DataTrackDeserializeError extends LivekitReasonedError {
+  constructor(message, reason, options) {
+    super(19, message, options);
+    this.name = 'DataTrackDeserializeError';
+    this.reason = reason;
+    this.reasonName = DataTrackDeserializeErrorReason[reason];
+  }
+  static tooShort() {
+    return new DataTrackDeserializeError('Too short to contain a valid header', DataTrackDeserializeErrorReason.TooShort);
+  }
+  static headerOverrun() {
+    return new DataTrackDeserializeError('Header exceeds total packet length', DataTrackDeserializeErrorReason.HeaderOverrun);
+  }
+  static missingExtWords() {
+    return new DataTrackDeserializeError('Extension word indicator is missing', DataTrackDeserializeErrorReason.MissingExtWords);
+  }
+  static unsupportedVersion(version) {
+    return new DataTrackDeserializeError("Unsupported version ".concat(version), DataTrackDeserializeErrorReason.UnsupportedVersion);
+  }
+  static invalidHandle(cause) {
+    return new DataTrackDeserializeError("invalid track handle: ".concat(cause.message), DataTrackDeserializeErrorReason.InvalidHandle, {
+      cause
+    });
+  }
+  static malformedExt(tag) {
+    return new DataTrackDeserializeError("Extension with tag ".concat(tag, " is malformed"), DataTrackDeserializeErrorReason.MalformedExt);
+  }
+}
+var DataTrackSerializeErrorReason;
+(function (DataTrackSerializeErrorReason) {
+  DataTrackSerializeErrorReason[DataTrackSerializeErrorReason["TooSmallForHeader"] = 0] = "TooSmallForHeader";
+  DataTrackSerializeErrorReason[DataTrackSerializeErrorReason["TooSmallForPayload"] = 1] = "TooSmallForPayload";
+})(DataTrackSerializeErrorReason || (DataTrackSerializeErrorReason = {}));
+class DataTrackSerializeError extends LivekitReasonedError {
+  constructor(message, reason, options) {
+    super(19, message, options);
+    this.name = 'DataTrackSerializeError';
+    this.reason = reason;
+    this.reasonName = DataTrackSerializeErrorReason[reason];
+  }
+  static tooSmallForHeader() {
+    return new DataTrackSerializeError('Buffer cannot fit header', DataTrackSerializeErrorReason.TooSmallForHeader);
+  }
+  static tooSmallForPayload() {
+    return new DataTrackSerializeError('Buffer cannot fit payload', DataTrackSerializeErrorReason.TooSmallForPayload);
+  }
+}/** An abstract class implementing common behavior related to data track binary serialization. */
+class Serializable {
+  /** Encodes the instance as binary and returns the data as a Uint8Array. */
+  toBinary() {
+    const lengthBytes = this.toBinaryLengthBytes();
+    const output = new ArrayBuffer(lengthBytes);
+    const view = new DataView(output);
+    const writtenBytes = this.toBinaryInto(view);
+    if (lengthBytes !== writtenBytes) {
+      // @throws-transformer ignore - this should be treated as a "panic" and not be caught
+      throw new Error("".concat(this.constructor.name, ".toBinary: written bytes (").concat(writtenBytes, " bytes) not equal to allocated array buffer length (").concat(lengthBytes, " bytes)."));
+    }
+    return new Uint8Array(output);
+  }
+}var DataTrackExtensionTag;
+(function (DataTrackExtensionTag) {
+  DataTrackExtensionTag[DataTrackExtensionTag["UserTimestamp"] = 2] = "UserTimestamp";
+  DataTrackExtensionTag[DataTrackExtensionTag["E2ee"] = 1] = "E2ee";
+})(DataTrackExtensionTag || (DataTrackExtensionTag = {}));
+class DataTrackExtension extends Serializable {}
+class DataTrackUserTimestampExtension extends DataTrackExtension {
+  constructor(timestamp) {
+    super();
+    this.timestamp = timestamp;
+  }
+  toBinaryLengthBytes() {
+    return U8_LENGTH_BYTES /* tag */ + U8_LENGTH_BYTES /* length */ + DataTrackUserTimestampExtension.lengthBytes;
+  }
+  toBinaryInto(dataView) {
+    let byteIndex = 0;
+    dataView.setUint8(byteIndex, DataTrackUserTimestampExtension.tag);
+    byteIndex += U8_LENGTH_BYTES;
+    dataView.setUint8(byteIndex, DataTrackUserTimestampExtension.lengthBytes);
+    byteIndex += U8_LENGTH_BYTES;
+    dataView.setBigUint64(byteIndex, this.timestamp);
+    byteIndex += U64_LENGTH_BYTES;
+    const totalLengthBytes = this.toBinaryLengthBytes();
+    if (byteIndex !== totalLengthBytes) {
+      // @throws-transformer ignore - this should be treated as a "panic" and not be caught
+      throw new Error("DataTrackUserTimestampExtension.toBinaryInto: Wrote ".concat(byteIndex, " bytes but expected length was ").concat(totalLengthBytes, " bytes"));
+    }
+    return byteIndex;
+  }
+  toJSON() {
+    return {
+      tag: DataTrackUserTimestampExtension.tag,
+      lengthBytes: DataTrackUserTimestampExtension.lengthBytes,
+      timestamp: this.timestamp
+    };
+  }
+}
+DataTrackUserTimestampExtension.tag = DataTrackExtensionTag.UserTimestamp;
+DataTrackUserTimestampExtension.lengthBytes = 8;
+class DataTrackE2eeExtension extends DataTrackExtension {
+  constructor(keyIndex, iv) {
+    super();
+    this.keyIndex = keyIndex;
+    this.iv = iv;
+  }
+  toBinaryLengthBytes() {
+    return U8_LENGTH_BYTES /* tag */ + U8_LENGTH_BYTES /* length */ + DataTrackE2eeExtension.lengthBytes;
+  }
+  toBinaryInto(dataView) {
+    let byteIndex = 0;
+    dataView.setUint8(byteIndex, DataTrackE2eeExtension.tag);
+    byteIndex += U8_LENGTH_BYTES;
+    dataView.setUint8(byteIndex, DataTrackE2eeExtension.lengthBytes);
+    byteIndex += U8_LENGTH_BYTES;
+    dataView.setUint8(byteIndex, this.keyIndex);
+    byteIndex += U8_LENGTH_BYTES;
+    for (let i = 0; i < this.iv.length; i += 1) {
+      dataView.setUint8(byteIndex, this.iv[i]);
+      byteIndex += U8_LENGTH_BYTES;
+    }
+    const totalLengthBytes = this.toBinaryLengthBytes();
+    if (byteIndex !== totalLengthBytes) {
+      // @throws-transformer ignore - this should be treated as a "panic" and not be caught
+      throw new Error("DataTrackE2eeExtension.toBinaryInto: Wrote ".concat(byteIndex, " bytes but expected length was ").concat(totalLengthBytes, " bytes"));
+    }
+    return byteIndex;
+  }
+  toJSON() {
+    return {
+      tag: DataTrackE2eeExtension.tag,
+      lengthBytes: DataTrackE2eeExtension.lengthBytes,
+      keyIndex: this.keyIndex,
+      iv: this.iv
+    };
+  }
+}
+DataTrackE2eeExtension.tag = DataTrackExtensionTag.E2ee;
+DataTrackE2eeExtension.lengthBytes = 13;
+class DataTrackExtensions extends Serializable {
+  constructor() {
+    let opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+    super();
+    this.userTimestamp = opts.userTimestamp;
+    this.e2ee = opts.e2ee;
+  }
+  toBinaryLengthBytes() {
+    let lengthBytes = 0;
+    if (this.userTimestamp) {
+      lengthBytes += this.userTimestamp.toBinaryLengthBytes();
+    }
+    if (this.e2ee) {
+      lengthBytes += this.e2ee.toBinaryLengthBytes();
+    }
+    return lengthBytes;
+  }
+  toBinaryInto(dataView) {
+    let byteIndex = 0;
+    if (this.e2ee) {
+      const e2eeBytes = this.e2ee.toBinaryInto(dataView);
+      byteIndex += e2eeBytes;
+    }
+    if (this.userTimestamp) {
+      const userTimestampBytes = this.userTimestamp.toBinaryInto(new DataView(dataView.buffer, dataView.byteOffset + byteIndex));
+      byteIndex += userTimestampBytes;
+    }
+    const totalLengthBytes = this.toBinaryLengthBytes();
+    if (byteIndex !== totalLengthBytes) {
+      // @throws-transformer ignore - this should be treated as a "panic" and not be caught
+      throw new Error("DataTrackExtensions.toBinaryInto: Wrote ".concat(byteIndex, " bytes but expected length was ").concat(totalLengthBytes, " bytes"));
+    }
+    return byteIndex;
+  }
+  static fromBinary(input) {
+    const dataView = coerceToDataView(input);
+    let userTimestamp;
+    let e2ee;
+    let byteIndex = 0;
+    while (dataView.byteLength - byteIndex >= U8_LENGTH_BYTES + U8_LENGTH_BYTES) {
+      const tag = dataView.getUint8(byteIndex);
+      byteIndex += U8_LENGTH_BYTES;
+      const lengthBytes = dataView.getUint8(byteIndex);
+      byteIndex += U8_LENGTH_BYTES;
+      if (tag === EXT_TAG_PADDING) {
+        // Skip padding
+        continue;
+      }
+      switch (tag) {
+        case DataTrackExtensionTag.UserTimestamp:
+          if (dataView.byteLength - byteIndex < DataTrackUserTimestampExtension.lengthBytes) {
+            throw DataTrackDeserializeError.malformedExt(tag);
+          }
+          userTimestamp = new DataTrackUserTimestampExtension(dataView.getBigUint64(byteIndex));
+          byteIndex += lengthBytes;
+          break;
+        case DataTrackExtensionTag.E2ee:
+          if (dataView.byteLength - byteIndex < DataTrackE2eeExtension.lengthBytes) {
+            throw DataTrackDeserializeError.malformedExt(tag);
+          }
+          const keyIndex = dataView.getUint8(byteIndex);
+          const iv = new Uint8Array(12);
+          for (let i = 0; i < iv.length; i += 1) {
+            let byteIndexForIv = byteIndex;
+            byteIndexForIv += U8_LENGTH_BYTES; // key index
+            byteIndexForIv += i * U8_LENGTH_BYTES; // Index into iv array
+            iv[i] = dataView.getUint8(byteIndexForIv);
+          }
+          e2ee = new DataTrackE2eeExtension(keyIndex, iv);
+          byteIndex += lengthBytes;
+          break;
+        default:
+          // Skip over unknown extensions (forward compatible).
+          if (dataView.byteLength - byteIndex < lengthBytes) {
+            throw DataTrackDeserializeError.malformedExt(tag);
+          }
+          byteIndex += lengthBytes;
+          break;
+      }
+    }
+    // NOTE: padding bytes after extension data is intentionally not being processed
+    return [new DataTrackExtensions({
+      userTimestamp,
+      e2ee
+    }), dataView.byteLength];
+  }
+  toJSON() {
+    var _a, _b, _c, _d;
+    return {
+      userTimestamp: (_b = (_a = this.userTimestamp) === null || _a === void 0 ? void 0 : _a.toJSON()) !== null && _b !== void 0 ? _b : null,
+      e2ee: (_d = (_c = this.e2ee) === null || _c === void 0 ? void 0 : _c.toJSON()) !== null && _d !== void 0 ? _d : null
+    };
+  }
+}const DataTrackFrameInternal = {
+  from(frame) {
+    return {
+      payload: frame.payload,
+      extensions: new DataTrackExtensions({
+        userTimestamp: frame.userTimestamp ? new DataTrackUserTimestampExtension(frame.userTimestamp) : undefined
+      })
+    };
+  },
+  /** Converts from a DataTrackFrameInternal -> DataTrackFrame. Some internal information is
+   * discarded like e2ee encrption extension data. */
+  lossyIntoFrame(frame) {
+    var _a;
+    return {
+      payload: frame.payload,
+      userTimestamp: (_a = frame.extensions.userTimestamp) === null || _a === void 0 ? void 0 : _a.timestamp
+    };
+  }
+};const TrackSymbol = Symbol.for('lk.track');
+const DataTrackSymbol = Symbol.for('lk.data-track');class RemoteDataTrack {
+  /** @internal */
+  constructor(info, manager, options) {
+    this.trackSymbol = TrackSymbol;
+    this.isLocal = false;
+    this.typeSymbol = DataTrackSymbol;
+    this.info = info;
+    this.manager = manager;
+    this.publisherIdentity = options.publisherIdentity;
+  }
+  /** Subscribes to the data track to receive frames.
+   *
+   * # Returns
+   *
+   * A stream that yields {@link DataTrackFrame}s as they arrive.
+   *
+   * # Multiple Subscriptions
+   *
+   * An application may call `subscribe` more than once to process frames in
+   * multiple places. For example, one async task might plot values on a graph
+   * while another writes them to a file.
+   *
+   * Internally, only the first call to `subscribe` communicates with the SFU and
+   * allocates the resources required to receive frames. Additional subscriptions
+   * reuse the same underlying pipeline and do not trigger additional signaling.
+   *
+   * Note that newly created subscriptions only receive frames published after
+   * the initial subscription is established.
+   */
+  subscribe(options) {
+    try {
+      const [stream] = this.manager.openSubscriptionStream(this.info.sid, options === null || options === void 0 ? void 0 : options.signal, options === null || options === void 0 ? void 0 : options.bufferSize);
+      return stream;
+    } catch (err) {
+      // NOTE: Rethrow errors to break Throws<...> type boundary
+      throw err;
+    }
+  }
+}/** A class for serializing / deserializing data track packet header sections. */
+class DataTrackPacketHeader extends Serializable {
+  constructor(opts) {
+    var _a;
+    super();
+    this.marker = opts.marker;
+    this.trackHandle = opts.trackHandle;
+    this.sequence = opts.sequence;
+    this.frameNumber = opts.frameNumber;
+    this.timestamp = opts.timestamp;
+    this.extensions = (_a = opts.extensions) !== null && _a !== void 0 ? _a : new DataTrackExtensions();
+  }
+  extensionsMetrics() {
+    const lengthBytes = this.extensions.toBinaryLengthBytes();
+    const lengthWords = Math.ceil(lengthBytes / 4);
+    const paddingLengthBytes = lengthWords * 4 - lengthBytes;
+    return {
+      lengthBytes,
+      lengthWords,
+      paddingLengthBytes
+    };
+  }
+  toBinaryLengthBytes() {
+    const {
+      lengthBytes: extLengthBytes,
+      paddingLengthBytes: extPaddingLengthBytes
+    } = this.extensionsMetrics();
+    let totalLengthBytes = BASE_HEADER_LEN;
+    if (extLengthBytes > 0) {
+      totalLengthBytes += EXT_WORDS_INDICATOR_SIZE + extLengthBytes + extPaddingLengthBytes;
+    }
+    return totalLengthBytes;
+  }
+  toBinaryInto(dataView) {
+    if (dataView.byteLength < this.toBinaryLengthBytes()) {
+      throw DataTrackSerializeError.tooSmallForHeader();
+    }
+    let initial = SUPPORTED_VERSION << VERSION_SHIFT;
+    let marker;
+    switch (this.marker) {
+      case FrameMarker.Inter:
+        marker = FRAME_MARKER_INTER;
+        break;
+      case FrameMarker.Final:
+        marker = FRAME_MARKER_FINAL;
+        break;
+      case FrameMarker.Start:
+        marker = FRAME_MARKER_START;
+        break;
+      case FrameMarker.Single:
+        marker = FRAME_MARKER_SINGLE;
+        break;
+    }
+    initial |= marker << FRAME_MARKER_SHIFT;
+    const {
+      lengthBytes: extensionsLengthBytes,
+      lengthWords: extensionsLengthWords,
+      paddingLengthBytes: extensionsPaddingLengthBytes
+    } = this.extensionsMetrics();
+    if (extensionsLengthBytes > 0) {
+      initial |= 1 << EXT_FLAG_SHIFT;
+    }
+    let byteIndex = 0;
+    dataView.setUint8(byteIndex, initial);
+    byteIndex += U8_LENGTH_BYTES;
+    dataView.setUint8(byteIndex, 0); // Reserved
+    byteIndex += U8_LENGTH_BYTES;
+    dataView.setUint16(byteIndex, this.trackHandle);
+    byteIndex += U16_LENGTH_BYTES;
+    dataView.setUint16(byteIndex, this.sequence.value);
+    byteIndex += U16_LENGTH_BYTES;
+    dataView.setUint16(byteIndex, this.frameNumber.value);
+    byteIndex += U16_LENGTH_BYTES;
+    dataView.setUint32(byteIndex, this.timestamp.asTicks());
+    byteIndex += U32_LENGTH_BYTES;
+    if (extensionsLengthBytes > 0) {
+      // NOTE: The protocol is implemented in a way where if the extension bit is set, any
+      // deserializer assumes the extensions section is at least one byte long, and the "length"
+      // field represents the "number of additional bytes" long the extensions section is. This is
+      // potentially unintuitive so I wanted to call it out.
+      const rtpOrientedExtensionLengthWords = extensionsLengthWords - 1;
+      dataView.setUint16(byteIndex, rtpOrientedExtensionLengthWords);
+      byteIndex += U16_LENGTH_BYTES;
+      const extensionBytes = this.extensions.toBinaryInto(new DataView(dataView.buffer, dataView.byteOffset + byteIndex));
+      byteIndex += extensionBytes;
+      for (let i = 0; i < extensionsPaddingLengthBytes; i += 1) {
+        dataView.setUint8(byteIndex, 0);
+        byteIndex += U8_LENGTH_BYTES;
+      }
+    }
+    const totalLengthBytes = this.toBinaryLengthBytes();
+    if (byteIndex !== totalLengthBytes) {
+      // @throws-transformer ignore - this should be treated as a "panic" and not be caught
+      throw new Error("DataTrackPacketHeader.toBinaryInto: Wrote ".concat(byteIndex, " bytes but expected length was ").concat(totalLengthBytes, " bytes"));
+    }
+    return totalLengthBytes;
+  }
+  static fromBinary(input) {
+    const dataView = coerceToDataView(input);
+    if (dataView.byteLength < BASE_HEADER_LEN) {
+      throw DataTrackDeserializeError.tooShort();
+    }
+    let byteIndex = 0;
+    const initial = dataView.getUint8(byteIndex);
+    byteIndex += U8_LENGTH_BYTES;
+    const version = initial >> VERSION_SHIFT & VERSION_MASK;
+    if (version > SUPPORTED_VERSION) {
+      throw DataTrackDeserializeError.unsupportedVersion(version);
+    }
+    let marker;
+    switch (initial >> FRAME_MARKER_SHIFT & FRAME_MARKER_MASK) {
+      case FRAME_MARKER_START:
+        marker = FrameMarker.Start;
+        break;
+      case FRAME_MARKER_FINAL:
+        marker = FrameMarker.Final;
+        break;
+      case FRAME_MARKER_SINGLE:
+        marker = FrameMarker.Single;
+        break;
+      case FRAME_MARKER_INTER:
+      default:
+        marker = FrameMarker.Inter;
+        break;
+    }
+    const extensionsFlag = (initial >> EXT_FLAG_SHIFT & EXT_FLAG_MASK) > 0;
+    byteIndex += U8_LENGTH_BYTES; // Reserved
+    let trackHandle;
+    try {
+      trackHandle = DataTrackHandle.fromNumber(dataView.getUint16(byteIndex));
+    } catch (e) {
+      if (e instanceof DataTrackHandleError && (e.isReason(DataTrackHandleErrorReason.Reserved) || e.isReason(DataTrackHandleErrorReason.TooLarge))) {
+        throw DataTrackDeserializeError.invalidHandle(e);
+      } else {
+        throw e;
+      }
+    }
+    byteIndex += U16_LENGTH_BYTES;
+    const sequence = WrapAroundUnsignedInt.u16(dataView.getUint16(byteIndex));
+    byteIndex += U16_LENGTH_BYTES;
+    const frameNumber = WrapAroundUnsignedInt.u16(dataView.getUint16(byteIndex));
+    byteIndex += U16_LENGTH_BYTES;
+    const timestamp = DataTrackTimestamp.fromRtpTicks(dataView.getUint32(byteIndex));
+    byteIndex += U32_LENGTH_BYTES;
+    let extensions = new DataTrackExtensions();
+    if (extensionsFlag) {
+      if (dataView.byteLength - byteIndex < U16_LENGTH_BYTES) {
+        throw DataTrackDeserializeError.missingExtWords();
+      }
+      let rtpOrientedExtensionWords = dataView.getUint16(byteIndex);
+      byteIndex += U16_LENGTH_BYTES;
+      // NOTE: The protocol is implemented in a way where if the extension bit is set, any
+      // deserializer assumes the extensions section is at least one byte long, and the "length"
+      // field represents the "number of additional bytes" long the extensions section is. This is
+      // potentially unintuitive so I wanted to call it out.
+      const extensionWords = rtpOrientedExtensionWords + 1;
+      let extensionLengthBytes = 4 * extensionWords;
+      if (byteIndex + extensionLengthBytes > dataView.byteLength) {
+        throw DataTrackDeserializeError.headerOverrun();
+      }
+      let extensionDataView = new DataView(dataView.buffer, dataView.byteOffset + byteIndex, extensionLengthBytes);
+      const [result, readBytes] = DataTrackExtensions.fromBinary(extensionDataView);
+      extensions = result;
+      byteIndex += readBytes;
+    }
+    return [new DataTrackPacketHeader({
+      marker,
+      trackHandle: trackHandle,
+      sequence,
+      frameNumber,
+      timestamp,
+      extensions
+    }), byteIndex];
+  }
+  toJSON() {
+    return {
+      marker: this.marker,
+      trackHandle: this.trackHandle,
+      sequence: this.sequence.value,
+      frameNumber: this.frameNumber.value,
+      timestamp: this.timestamp.asTicks(),
+      extensions: this.extensions.toJSON()
+    };
+  }
+}
+/** Marker indicating a packet's position in relation to a frame. */
+var FrameMarker;
+(function (FrameMarker) {
+  /** Packet is the first in a frame. */
+  FrameMarker[FrameMarker["Start"] = 0] = "Start";
+  /** Packet is within a frame. */
+  FrameMarker[FrameMarker["Inter"] = 1] = "Inter";
+  /** Packet is the last in a frame. */
+  FrameMarker[FrameMarker["Final"] = 2] = "Final";
+  /** Packet is the only one in a frame. */
+  FrameMarker[FrameMarker["Single"] = 3] = "Single";
+})(FrameMarker || (FrameMarker = {}));
+/** A class for serializing / deserializing data track packets. */
+class DataTrackPacket extends Serializable {
+  constructor(header, payload) {
+    super();
+    this.header = header;
+    this.payload = payload;
+  }
+  toBinaryLengthBytes() {
+    return this.header.toBinaryLengthBytes() + this.payload.byteLength;
+  }
+  toBinaryInto(dataView) {
+    let byteIndex = 0;
+    const headerLengthBytes = this.header.toBinaryInto(dataView);
+    byteIndex += headerLengthBytes;
+    if (dataView.byteLength - byteIndex < this.payload.byteLength) {
+      throw DataTrackSerializeError.tooSmallForPayload();
+    }
+    for (let index = 0; index < this.payload.length; index += 1) {
+      dataView.setUint8(byteIndex, this.payload[index]);
+      byteIndex += U8_LENGTH_BYTES;
+    }
+    const totalLengthBytes = this.toBinaryLengthBytes();
+    if (byteIndex !== totalLengthBytes) {
+      // @throws-transformer ignore - this should be treated as a "panic" and not be caught
+      throw new Error("DataTrackPacket.toBinaryInto: Wrote ".concat(byteIndex, " bytes but expected length was ").concat(totalLengthBytes, " bytes"));
+    }
+    return totalLengthBytes;
+  }
+  static fromBinary(input) {
+    const dataView = coerceToDataView(input);
+    const [header, headerByteLength] = DataTrackPacketHeader.fromBinary(dataView);
+    const payload = dataView.buffer.slice(dataView.byteOffset + headerByteLength, dataView.byteOffset + dataView.byteLength);
+    return [new DataTrackPacket(header, new Uint8Array(payload)), dataView.byteLength];
+  }
+  toJSON() {
+    return {
+      header: this.header.toJSON(),
+      payload: this.payload
+    };
+  }
+}const log$3 = getLogger(LoggerNames.DataTracks);
+/** An error indicating a frame was dropped. */
+class DataTrackDepacketizerDropError extends LivekitReasonedError {
+  constructor(message, reason, frameNumber, options) {
+    super(19, "Frame ".concat(frameNumber, " dropped: ").concat(message), options);
+    this.name = 'DataTrackDepacketizerDropError';
+    this.reason = reason;
+    this.reasonName = DataTrackDepacketizerDropReason[reason];
+    this.frameNumber = frameNumber;
+  }
+  static interrupted(frameNumber, newFrameNumber) {
+    return new DataTrackDepacketizerDropError("Interrupted by the start of a new frame ".concat(newFrameNumber), DataTrackDepacketizerDropReason.Interrupted, frameNumber);
+  }
+  static unknownFrame(frameNumber) {
+    return new DataTrackDepacketizerDropError('Initial packet was never received.', DataTrackDepacketizerDropReason.UnknownFrame, frameNumber);
+  }
+  static bufferFull(frameNumber) {
+    return new DataTrackDepacketizerDropError('Reorder buffer is full.', DataTrackDepacketizerDropReason.BufferFull, frameNumber);
+  }
+  static incomplete(frameNumber, receivedPackets, expectedPackets) {
+    return new DataTrackDepacketizerDropError("Not all packets received before final packet. Received ".concat(receivedPackets, " packets, expected ").concat(expectedPackets, " packets."), DataTrackDepacketizerDropReason.Incomplete, frameNumber);
+  }
+}
+/** Reason why a frame was dropped. */
+var DataTrackDepacketizerDropReason;
+(function (DataTrackDepacketizerDropReason) {
+  DataTrackDepacketizerDropReason[DataTrackDepacketizerDropReason["Interrupted"] = 0] = "Interrupted";
+  DataTrackDepacketizerDropReason[DataTrackDepacketizerDropReason["UnknownFrame"] = 1] = "UnknownFrame";
+  DataTrackDepacketizerDropReason[DataTrackDepacketizerDropReason["BufferFull"] = 2] = "BufferFull";
+  DataTrackDepacketizerDropReason[DataTrackDepacketizerDropReason["Incomplete"] = 3] = "Incomplete";
+})(DataTrackDepacketizerDropReason || (DataTrackDepacketizerDropReason = {}));
+class DataTrackDepacketizer {
+  constructor() {
+    this.partial = null;
+  }
+  /** Should be repeatedly called with received {@link DataTrackPacket}s - intermediate calls
+   * aggregate the packet's state internally, and return null.
+   *
+   * Once this method is called with the final packet to form a frame, a new {@link DataTrackFrameInternal}
+   * is returned.*/
+  push(packet, options) {
+    switch (packet.header.marker) {
+      case FrameMarker.Single:
+        return this.frameFromSingle(packet, options);
+      case FrameMarker.Start:
+        return this.beginPartial(packet, options);
+      case FrameMarker.Inter:
+      case FrameMarker.Final:
+        return this.pushToPartial(packet);
+    }
+  }
+  reset() {
+    this.partial = null;
+  }
+  frameFromSingle(packet, options) {
+    if (packet.header.marker !== FrameMarker.Single) {
+      // @throws-transformer ignore - this should be treated as a "panic" and not be caught
+      throw new Error("Depacketizer.frameFromSingle: packet.header.marker was not FrameMarker.Single, found ".concat(packet.header.marker, "."));
+    }
+    if (this.partial) {
+      if (options === null || options === void 0 ? void 0 : options.errorOnPartialFrames) {
+        const frameNumber = this.partial.frameNumber;
+        this.reset();
+        throw DataTrackDepacketizerDropError.interrupted(frameNumber, packet.header.frameNumber.value);
+      } else {
+        log$3.warn("Data track frame ".concat(this.partial.frameNumber, " was interrupted by the start of a new frame, dropping."));
+      }
+    }
+    this.reset();
+    return {
+      payload: packet.payload,
+      extensions: packet.header.extensions
+    };
+  }
+  /** Begin assembling a new packet. */
+  beginPartial(packet, options) {
+    if (packet.header.marker !== FrameMarker.Start) {
+      // @throws-transformer ignore - this should be treated as a "panic" and not be caught
+      throw new Error("Depacketizer.beginPartial: packet.header.marker was not FrameMarker.Start, found ".concat(packet.header.marker, "."));
+    }
+    if (this.partial) {
+      if (options === null || options === void 0 ? void 0 : options.errorOnPartialFrames) {
+        const frameNumber = this.partial.frameNumber;
+        this.reset();
+        throw DataTrackDepacketizerDropError.interrupted(frameNumber, packet.header.frameNumber.value);
+      } else {
+        log$3.warn("Data track frame ".concat(this.partial.frameNumber, " was interrupted by the start of a new frame ").concat(packet.header.frameNumber.value, ", dropping."));
+      }
+    }
+    this.reset();
+    const startSequence = packet.header.sequence;
+    this.partial = {
+      frameNumber: packet.header.frameNumber.value,
+      startSequence,
+      extensions: packet.header.extensions,
+      payloads: new Map([[startSequence.value, packet.payload]])
+    };
+    return null;
+  }
+  /** Push to the existing partial frame. */
+  pushToPartial(packet) {
+    if (packet.header.marker !== FrameMarker.Inter && packet.header.marker !== FrameMarker.Final) {
+      // @throws-transformer ignore - this should be treated as a "panic" and not be caught
+      throw new Error("Depacketizer.pushToPartial: packet.header.marker was not FrameMarker.Inter or FrameMarker.Final, found ".concat(packet.header.marker, "."));
+    }
+    if (!this.partial) {
+      this.reset();
+      throw DataTrackDepacketizerDropError.unknownFrame(packet.header.frameNumber.value);
+    }
+    if (packet.header.frameNumber.value !== this.partial.frameNumber) {
+      const frameNumber = this.partial.frameNumber;
+      this.reset();
+      throw DataTrackDepacketizerDropError.interrupted(frameNumber, packet.header.frameNumber.value);
+    }
+    // NOTE: this check will block reprocessing packets with duplicate sequence values if the
+    // buffer is full already, which could maybe be problematic for very large frames.
+    if (this.partial.payloads.size >= DataTrackDepacketizer.MAX_BUFFER_PACKETS) {
+      const frameNumber = this.partial.frameNumber;
+      this.reset();
+      throw DataTrackDepacketizerDropError.bufferFull(frameNumber);
+    }
+    // Note: receiving a packet with a duplicate `sequence` value is something that likely won't
+    // happen in actual use, but even if it does (maybe a low level network retransmission?) the
+    // last packet with a given sequence received should always win.
+    if (this.partial.payloads.has(packet.header.sequence.value)) {
+      log$3.warn("Data track frame ".concat(this.partial.frameNumber, " received duplicate packet for sequence ").concat(packet.header.sequence.value, ", so replacing with newly received packet."));
+    }
+    this.partial.payloads.set(packet.header.sequence.value, packet.payload);
+    if (packet.header.marker === FrameMarker.Final) {
+      return this.finalize(this.partial, packet.header.sequence.value);
+    }
+    return null;
+  }
+  /** Try to reassemble the complete frame. */
+  finalize(partial, endSequence) {
+    const received = partial.payloads.size;
+    let payloadLengthBytes = 0;
+    for (const p of partial.payloads.values()) {
+      payloadLengthBytes += p.length;
+    }
+    const payload = new Uint8Array(payloadLengthBytes);
+    let sequencePointer = partial.startSequence.clone();
+    let payloadOffsetPointerBytes = 0;
+    while (true) {
+      const partialPayload = partial.payloads.get(sequencePointer.value);
+      if (!partialPayload) {
+        break;
+      }
+      partial.payloads.delete(sequencePointer.value);
+      const payloadRemainingBytes = payload.length - payloadOffsetPointerBytes;
+      if (partialPayload.length > payloadRemainingBytes) {
+        // @throws-transformer ignore - this should be treated as a "panic" and not be caught
+        throw new Error("Depacketizer.finalize: Expected at least ".concat(partialPayload.length, " more bytes left in the payload buffer, only got ").concat(payloadRemainingBytes, " bytes."));
+      }
+      payload.set(partialPayload, payloadOffsetPointerBytes);
+      payloadOffsetPointerBytes += partialPayload.length;
+      // NOTE: sequencePointer could wrap around, which is why this isn't a "<"
+      if (sequencePointer.value != endSequence) {
+        sequencePointer.increment();
+        continue;
+      }
+      // The packet is done processing, reset the state so another frame can be processed next.
+      this.reset();
+      return {
+        payload,
+        extensions: partial.extensions
+      };
+    }
+    this.reset();
+    throw DataTrackDepacketizerDropError.incomplete(partial.frameNumber, received, endSequence - partial.startSequence.value + 1);
+  }
+}
+/** Maximum number of packets to buffer per frame before dropping. */
+DataTrackDepacketizer.MAX_BUFFER_PACKETS = 128;var DataTrackSubscribeErrorReason;
+(function (DataTrackSubscribeErrorReason) {
+  /** The track has been unpublished and is no longer available */
+  DataTrackSubscribeErrorReason[DataTrackSubscribeErrorReason["Unpublished"] = 0] = "Unpublished";
+  /** Request to subscribe to data track timed-out */
+  DataTrackSubscribeErrorReason[DataTrackSubscribeErrorReason["Timeout"] = 1] = "Timeout";
+  /** Cannot subscribe to data track when disconnected */
+  DataTrackSubscribeErrorReason[DataTrackSubscribeErrorReason["Disconnected"] = 2] = "Disconnected";
+  /** Subscription to data track cancelled by caller */
+  DataTrackSubscribeErrorReason[DataTrackSubscribeErrorReason["Cancelled"] = 4] = "Cancelled";
+})(DataTrackSubscribeErrorReason || (DataTrackSubscribeErrorReason = {}));
+class DataTrackSubscribeError extends LivekitReasonedError {
+  constructor(message, reason, options) {
+    super(22, message, options);
+    this.name = 'DataTrackSubscribeError';
+    this.reason = reason;
+    this.reasonName = DataTrackSubscribeErrorReason[reason];
+  }
+  static unpublished() {
+    return new DataTrackSubscribeError('The track has been unpublished and is no longer available', DataTrackSubscribeErrorReason.Unpublished);
+  }
+  static timeout() {
+    return new DataTrackSubscribeError('Request to subscribe to data track timed-out', DataTrackSubscribeErrorReason.Timeout);
+  }
+  static disconnected() {
+    return new DataTrackSubscribeError('Cannot subscribe to data track when disconnected', DataTrackSubscribeErrorReason.Disconnected);
+  }
+  // NOTE: this was introduced by web / there isn't a corresponding case in the rust version.
+  static cancelled() {
+    return new DataTrackSubscribeError('Subscription to data track cancelled by caller', DataTrackSubscribeErrorReason.Cancelled);
+  }
+}const log$2 = getLogger(LoggerNames.DataTracks);
+/**
+ * Pipeline for an individual data track subscription.
+ */
+class IncomingDataTrackPipeline {
+  /**
+   * Creates a new pipeline with the given options.
+   */
+  constructor(options) {
+    var _a;
+    const hasProvider = options.e2eeManager !== null;
+    if (options.info.usesE2ee !== hasProvider) {
+      // @throws-transformer ignore - this should be treated as a "panic" and not be caught
+      throw new Error('IncomingDataTrackPipeline: DataTrackInfo.usesE2ee must match presence of decryptionProvider');
+    }
+    const depacketizer = new DataTrackDepacketizer();
+    this.publisherIdentity = options.publisherIdentity;
+    this.e2eeManager = (_a = options.e2eeManager) !== null && _a !== void 0 ? _a : null;
+    this.depacketizer = depacketizer;
+  }
+  updateE2eeManager(e2eeManager) {
+    this.e2eeManager = e2eeManager;
+  }
+  processPacket(packet) {
+    return __awaiter(this, void 0, void 0, function* () {
+      const frame = this.depacketize(packet);
+      if (!frame) {
+        return null;
+      }
+      const decrypted = yield this.decryptIfNeeded(frame);
+      if (!decrypted) {
+        return null;
+      }
+      return decrypted;
+    });
+  }
+  /**
+   * Depacketize the given frame, log if a drop occurs.
+   */
+  depacketize(packet) {
+    let frame;
+    try {
+      frame = this.depacketizer.push(packet);
+    } catch (err) {
+      // In a future version, use this to maintain drop statistics.
+      // FIXME: is this a good idea?
+      log$2.warn("Data frame depacketize error: ".concat(err));
+      return null;
+    }
+    return frame;
+  }
+  /**
+   * Decrypt the frame's payload if E2EE is enabled for this track.
+   */
+  decryptIfNeeded(frame) {
+    return __awaiter(this, void 0, void 0, function* () {
+      var _a, _b;
+      const e2eeManager = this.e2eeManager;
+      if (!e2eeManager) {
+        return frame;
+      }
+      const e2ee = (_b = (_a = frame.extensions) === null || _a === void 0 ? void 0 : _a.e2ee) !== null && _b !== void 0 ? _b : null;
+      if (!e2ee) {
+        log$2.error('Missing E2EE meta');
+        return null;
+      }
+      let result;
+      try {
+        result = yield e2eeManager.handleEncryptedData(frame.payload, e2ee.iv, this.publisherIdentity, e2ee.keyIndex);
+      } catch (err) {
+        log$2.error("Error decrypting packet: ".concat(err));
+        return null;
+      }
+      frame.payload = result.payload;
+      return frame;
+    });
+  }
+}const log$1 = getLogger(LoggerNames.DataTracks);
+/** How long to wait when attempting to subscribe before timing out. */
+const SUBSCRIBE_TIMEOUT_MILLISECONDS = 10000;
+/** Maximum number of {@link DataTrackFrame}s that are cached for each ReadableStream subscription.
+ * If data comes in too fast and saturates this threshold, backpressure will be applied. */
+const READABLE_STREAM_DEFAULT_BUFFER_SIZE = 16;
+class IncomingDataTrackManager extends eventsExports.EventEmitter {
+  constructor(options) {
+    var _a;
+    super();
+    /** Mapping between track SID and descriptor. */
+    this.descriptors = new Map();
+    /** Mapping between subscriber handle and track SID.
+     *
+     * This is an index that allows track descriptors to be looked up
+     * by subscriber handle in O(1) time, to make routing incoming packets
+     * a (hot code path) faster.
+     */
+    this.subscriptionHandles = new Map();
+    this.e2eeManager = (_a = options === null || options === void 0 ? void 0 : options.e2eeManager) !== null && _a !== void 0 ? _a : null;
+  }
+  /** @internal */
+  updateE2eeManager(e2eeManager) {
+    this.e2eeManager = e2eeManager;
+    // Propegate downwards to all pre-existing pipelines
+    for (const descriptor of this.descriptors.values()) {
+      if (descriptor.subscription.type === 'active') {
+        descriptor.subscription.pipeline.updateE2eeManager(e2eeManager);
+      }
+    }
+  }
+  /** Allocates a ReadableStream which emits when a new {@link DataTrackFrame} is received from the
+   * SFU. The SFU subscription is initiated lazily when the stream is created.
+   *
+   * @returns A tuple of the ReadableStream and a Promise that resolves once the SFU subscription
+   * is fully established / the stream is ready to receive frames.
+   *
+   * @internal
+   **/
+  openSubscriptionStream(sid, signal) {
+    let bufferSize = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : READABLE_STREAM_DEFAULT_BUFFER_SIZE;
+    let streamController = null;
+    const sfuSubscriptionComplete = new Future();
+    const stream = new ReadableStream({
+      start: controller => {
+        streamController = controller;
+        const onAbort = () => {
+          var _a;
+          controller.error(DataTrackSubscribeError.cancelled());
+          (_a = sfuSubscriptionComplete.reject) === null || _a === void 0 ? void 0 : _a.call(sfuSubscriptionComplete, DataTrackSubscribeError.cancelled());
+        };
+        this.subscribeRequest(sid, signal).then(() => __awaiter(this, void 0, void 0, function* () {
+          var _a;
+          signal === null || signal === void 0 ? void 0 : signal.addEventListener('abort', onAbort);
+          const descriptor = this.descriptors.get(sid);
+          if (!descriptor) {
+            log$1.error("Unknown track ".concat(sid));
+            return;
+          }
+          if (descriptor.subscription.type !== 'active') {
+            log$1.error("Subscription for track ".concat(sid, " is not active"));
+            return;
+          }
+          descriptor.subscription.streamControllers.add(controller);
+          (_a = sfuSubscriptionComplete.resolve) === null || _a === void 0 ? void 0 : _a.call(sfuSubscriptionComplete);
+        })).catch(err => {
+          var _a;
+          controller.error(err);
+          (_a = sfuSubscriptionComplete.reject) === null || _a === void 0 ? void 0 : _a.call(sfuSubscriptionComplete, err);
+        }).finally(() => {
+          signal === null || signal === void 0 ? void 0 : signal.removeEventListener('abort', onAbort);
+        });
+      },
+      cancel: () => {
+        if (!streamController) {
+          log$1.warn("ReadableStream subscribed to ".concat(sid, " was not started."));
+          return;
+        }
+        const descriptor = this.descriptors.get(sid);
+        if (!descriptor) {
+          log$1.warn("Unknown track ".concat(sid, ", skipping cancel..."));
+          return;
+        }
+        if (descriptor.subscription.type !== 'active') {
+          log$1.warn("Subscription for track ".concat(sid, " is not active, skipping cancel..."));
+          return;
+        }
+        descriptor.subscription.streamControllers.delete(streamController);
+        // If no active stream controllers are left, also unsubscribe on the SFU end.
+        if (descriptor.subscription.streamControllers.size === 0) {
+          this.unSubscribeRequest(descriptor.info.sid);
+        }
+      }
+    }, new CountQueuingStrategy({
+      highWaterMark: bufferSize
+    }));
+    return [stream, sfuSubscriptionComplete.promise];
+  }
+  /** Client requested to subscribe to a data track.
+   *
+   * This is sent when the user calls {@link RemoteDataTrack.subscribe}.
+   *
+   * Only the first request to subscribe to a given track incurs meaningful overhead; subsequent
+   * requests simply attach an additional receiver to the broadcast channel, allowing them to consume
+   * frames from the existing subscription pipeline.
+   */
+  subscribeRequest(sid, signal) {
+    return __awaiter(this, void 0, void 0, function* () {
+      const descriptor = this.descriptors.get(sid);
+      if (!descriptor) {
+        // @throws-transformer ignore - this should be treated as a "panic" and not be caught
+        throw new Error('Cannot subscribe to unknown track');
+      }
+      const waitForCompletionFuture = (currentDescriptor, userProvidedSignal, timeoutSignal) => __awaiter(this, void 0, void 0, function* () {
+        if (currentDescriptor.subscription.type === 'active') {
+          // Subscription has already become active! So bail out early, there is nothing to wait for.
+          return;
+        }
+        if (currentDescriptor.subscription.type !== 'pending') {
+          // @throws-transformer ignore - this should be treated as a "panic" and not be caught
+          throw new Error("Descriptor for track ".concat(sid, " is not pending, found ").concat(currentDescriptor.subscription.type));
+        }
+        const combinedSignal = abortSignalAny([userProvidedSignal, timeoutSignal].filter(s => typeof s !== 'undefined'));
+        const proxiedCompletionFuture = new Future();
+        currentDescriptor.subscription.completionFuture.promise.then(() => {
+          var _a;
+          return (_a = proxiedCompletionFuture.resolve) === null || _a === void 0 ? void 0 : _a.call(proxiedCompletionFuture);
+        }).catch(err => {
+          var _a;
+          return (_a = proxiedCompletionFuture.reject) === null || _a === void 0 ? void 0 : _a.call(proxiedCompletionFuture, err);
+        });
+        const onAbort = () => {
+          var _a;
+          if (currentDescriptor.subscription.type !== 'pending') {
+            return;
+          }
+          currentDescriptor.subscription.pendingRequestCount -= 1;
+          if (timeoutSignal === null || timeoutSignal === void 0 ? void 0 : timeoutSignal.aborted) {
+            // A timeout should apply to the underlying SFU subscription and cancel all user
+            // subscriptions.
+            currentDescriptor.subscription.cancel();
+            return;
+          }
+          if (currentDescriptor.subscription.pendingRequestCount <= 0) {
+            // No user subscriptions are still pending, so cancel the underlying pending `sfuUpdateSubscription`
+            currentDescriptor.subscription.cancel();
+            return;
+          }
+          // Other subscriptions are still pending for this data track, so just cancel this one
+          // active user subscription, and leave the rest of the user subscriptions alone.
+          (_a = proxiedCompletionFuture.reject) === null || _a === void 0 ? void 0 : _a.call(proxiedCompletionFuture, DataTrackSubscribeError.cancelled());
+        };
+        if (combinedSignal.aborted) {
+          onAbort();
+        }
+        combinedSignal.addEventListener('abort', onAbort);
+        yield proxiedCompletionFuture.promise;
+        combinedSignal.removeEventListener('abort', onAbort);
+      });
+      switch (descriptor.subscription.type) {
+        case 'none':
+          {
+            descriptor.subscription = {
+              type: 'pending',
+              completionFuture: new Future(),
+              pendingRequestCount: 1,
+              cancel: () => {
+                var _a, _b;
+                const previousDescriptorSubscription = descriptor.subscription;
+                descriptor.subscription = {
+                  type: 'none'
+                };
+                // Let the SFU know that the subscribe has been cancelled
+                this.emit('sfuUpdateSubscription', {
+                  sid,
+                  subscribe: false
+                });
+                if (previousDescriptorSubscription.type === 'pending') {
+                  (_b = (_a = previousDescriptorSubscription.completionFuture).reject) === null || _b === void 0 ? void 0 : _b.call(_a, timeoutSignal.aborted ? DataTrackSubscribeError.timeout() :
+                  // NOTE: the below cancelled case was introduced by web / there isn't a corresponding case in the rust version.
+                  DataTrackSubscribeError.cancelled());
+                }
+              }
+            };
+            this.emit('sfuUpdateSubscription', {
+              sid,
+              subscribe: true
+            });
+            const timeoutSignal = abortSignalTimeout(SUBSCRIBE_TIMEOUT_MILLISECONDS);
+            // Wait for the subscription to complete, or time out if it takes too long
+            yield waitForCompletionFuture(descriptor, signal, timeoutSignal);
+            return;
+          }
+        case 'pending':
+          {
+            descriptor.subscription.pendingRequestCount += 1;
+            // Wait for the subscription to complete
+            yield waitForCompletionFuture(descriptor, signal);
+            return;
+          }
+        case 'active':
+          {
+            return;
+          }
+      }
+    });
+  }
+  /**
+   * Get information about all currently subscribed tracks.
+   * @internal */
+  querySubscribed() {
+    return __awaiter(this, void 0, void 0, function* () {
+      const descriptorInfos = Array.from(this.descriptors.values()).filter(descriptor => descriptor.subscription.type === 'active').map(descriptor => [descriptor.info, descriptor.publisherIdentity]);
+      return descriptorInfos;
+    });
+  }
+  /** Client requested to unsubscribe from a data track. */
+  unSubscribeRequest(sid) {
+    var _a;
+    const descriptor = this.descriptors.get(sid);
+    if (!descriptor) {
+      // FIXME: rust implementation returns here, not throws
+      // @throws-transformer ignore - this should be treated as a "panic" and not be caught
+      throw new Error('Cannot subscribe to unknown track');
+    }
+    if (descriptor.subscription.type !== 'active') {
+      log$1.warn("Unexpected descriptor state in unSubscribeRequest, expected active, found ".concat((_a = descriptor.subscription) === null || _a === void 0 ? void 0 : _a.type));
+      return;
+    }
+    for (const controller of descriptor.subscription.streamControllers) {
+      controller.close();
+    }
+    // FIXME: this might be wrong? Shouldn't this only occur if it is the last subscription to
+    // terminate?
+    const previousDescriptorSubscription = descriptor.subscription;
+    descriptor.subscription = {
+      type: 'none'
+    };
+    this.subscriptionHandles.delete(previousDescriptorSubscription.subcriptionHandle);
+    this.emit('sfuUpdateSubscription', {
+      sid,
+      subscribe: false
+    });
+  }
+  /** SFU notification that track publications have changed.
+   *
+   * This event is produced from both {@link JoinResponse} and {@link ParticipantUpdate}
+   * to provide a complete view of remote participants' track publications:
+   *
+   * - From a `JoinResponse`, it captures the initial set of tracks published when a participant joins.
+   * - From a `ParticipantUpdate`, it captures subsequent changes (i.e., new tracks being
+   *   published and existing tracks unpublished).
+   */
+  receiveSfuPublicationUpdates(updates) {
+    return __awaiter(this, void 0, void 0, function* () {
+      if (updates.size === 0) {
+        return;
+      }
+      // Detect published track
+      const publisherParticipantToSidsInUpdate = new Map();
+      for (const [publisherIdentity, infos] of updates.entries()) {
+        const sidsInUpdate = new Set();
+        for (const info of infos) {
+          sidsInUpdate.add(info.sid);
+          if (this.descriptors.has(info.sid)) {
+            continue;
+          }
+          yield this.handleTrackPublished(publisherIdentity, info);
+        }
+        publisherParticipantToSidsInUpdate.set(publisherIdentity, sidsInUpdate);
+      }
+      // Detect unpublished tracks
+      for (const [publisherIdentity, sidsInUpdate] of publisherParticipantToSidsInUpdate.entries()) {
+        const descriptorsForPublisher = Array.from(this.descriptors.entries()).filter(_ref => {
+          let [_sid, descriptor] = _ref;
+          return descriptor.publisherIdentity === publisherIdentity;
+        }).map(_ref2 => {
+          let [sid] = _ref2;
+          return sid;
+        });
+        let unpublishedSids = descriptorsForPublisher.filter(sid => !sidsInUpdate.has(sid));
+        for (const sid of unpublishedSids) {
+          this.handleTrackUnpublished(sid);
+        }
+      }
+    });
+  }
+  /**
+   * Get information about all currently remotely published tracks which could be subscribed to.
+   * @internal */
+  queryPublications() {
+    return __awaiter(this, void 0, void 0, function* () {
+      return Array.from(this.descriptors.values()).map(descriptor => descriptor.info);
+    });
+  }
+  handleTrackPublished(publisherIdentity, info) {
+    return __awaiter(this, void 0, void 0, function* () {
+      if (this.descriptors.has(info.sid)) {
+        log$1.error("Existing descriptor for track ".concat(info.sid));
+        return;
+      }
+      let descriptor = {
+        info,
+        publisherIdentity,
+        subscription: {
+          type: 'none'
+        }
+      };
+      this.descriptors.set(descriptor.info.sid, descriptor);
+      const track = new RemoteDataTrack(descriptor.info, this, {
+        publisherIdentity
+      });
+      this.emit('trackPublished', {
+        track
+      });
+    });
+  }
+  handleTrackUnpublished(sid) {
+    const descriptor = this.descriptors.get(sid);
+    if (!descriptor) {
+      log$1.error("Unknown track ".concat(sid));
+      return;
+    }
+    this.descriptors.delete(sid);
+    if (descriptor.subscription.type === 'active') {
+      this.subscriptionHandles.delete(descriptor.subscription.subcriptionHandle);
+    }
+    this.emit('trackUnpublished', {
+      sid,
+      publisherIdentity: descriptor.publisherIdentity
+    });
+  }
+  /** SFU notification that handles have been assigned for requested subscriptions. */
+  receivedSfuSubscriberHandles(
+  /** Mapping between track handles attached to incoming packets to the
+   * track SIDs they belong to. */
+  mapping) {
+    for (const [handle, sid] of mapping.entries()) {
+      this.registerSubscriberHandle(handle, sid);
+    }
+  }
+  registerSubscriberHandle(assignedHandle, sid) {
+    var _a, _b;
+    const descriptor = this.descriptors.get(sid);
+    if (!descriptor) {
+      log$1.error("Unknown track ".concat(sid));
+      return;
+    }
+    switch (descriptor.subscription.type) {
+      case 'none':
+        {
+          // Handle assigned when there is no pending or active subscription is unexpected.
+          log$1.warn("No subscription for ".concat(sid));
+          return;
+        }
+      case 'active':
+        {
+          // Update handle for an active subscription. This can occur following a full reconnect.
+          descriptor.subscription.subcriptionHandle = assignedHandle;
+          this.subscriptionHandles.set(assignedHandle, sid);
+          return;
+        }
+      case 'pending':
+        {
+          const pipeline = new IncomingDataTrackPipeline({
+            info: descriptor.info,
+            publisherIdentity: descriptor.publisherIdentity,
+            e2eeManager: this.e2eeManager
+          });
+          const previousDescriptorSubscription = descriptor.subscription;
+          descriptor.subscription = {
+            type: 'active',
+            subcriptionHandle: assignedHandle,
+            pipeline,
+            streamControllers: new Set()
+          };
+          this.subscriptionHandles.set(assignedHandle, sid);
+          (_b = (_a = previousDescriptorSubscription.completionFuture).resolve) === null || _b === void 0 ? void 0 : _b.call(_a);
+        }
+    }
+  }
+  /** Packet has been received over the transport. */
+  packetReceived(bytes) {
+    return __awaiter(this, void 0, void 0, function* () {
+      let packet;
+      try {
+        [packet] = DataTrackPacket.fromBinary(bytes);
+      } catch (err) {
+        log$1.error("Failed to deserialize packet: ".concat(err));
+        return;
+      }
+      const sid = this.subscriptionHandles.get(packet.header.trackHandle);
+      if (!sid) {
+        log$1.warn("Unknown subscriber handle ".concat(packet.header.trackHandle));
+        return;
+      }
+      const descriptor = this.descriptors.get(sid);
+      if (!descriptor) {
+        log$1.error("Missing descriptor for track ".concat(sid));
+        return;
+      }
+      if (descriptor.subscription.type !== 'active') {
+        log$1.warn("Received packet for track ".concat(sid, " without active subscription"));
+        return;
+      }
+      const internalFrame = yield descriptor.subscription.pipeline.processPacket(packet);
+      if (!internalFrame) {
+        // Not all packets have been received yet to form a complete frame
+        return;
+      }
+      // Broadcast to all downstream subscribers
+      for (const controller of descriptor.subscription.streamControllers) {
+        if (controller.desiredSize !== null && controller.desiredSize <= 0) {
+          log$1.warn("Cannot send frame to subscribers: readable stream is full (desiredSize is ".concat(controller.desiredSize, "). To increase this threshold, set a higher 'options.highWaterMark' when calling .subscribe()."));
+          continue;
+        }
+        const frame = DataTrackFrameInternal.lossyIntoFrame(internalFrame);
+        controller.enqueue(frame);
+      }
+    });
+  }
+  /** Resend all subscription updates.
+   *
+   * This must be sent after a full reconnect to ensure the SFU knows which
+   * tracks are subscribed to locally.
+   */
+  resendSubscriptionUpdates() {
+    for (const [sid, descriptor] of this.descriptors) {
+      if (descriptor.subscription.type === 'none') {
+        continue;
+      }
+      this.emit('sfuUpdateSubscription', {
+        sid,
+        subscribe: true
+      });
+    }
+  }
+  /** Called when a remote participant is disconnected so that any pending data tracks can be
+   * cancelled. */
+  handleRemoteParticipantDisconnected(remoteParticipantIdentity) {
+    var _a, _b;
+    for (const descriptor of this.descriptors.values()) {
+      if (descriptor.publisherIdentity !== remoteParticipantIdentity) {
+        continue;
+      }
+      switch (descriptor.subscription.type) {
+        case 'none':
+          break;
+        case 'pending':
+          (_b = (_a = descriptor.subscription.completionFuture).reject) === null || _b === void 0 ? void 0 : _b.call(_a, DataTrackSubscribeError.disconnected());
+          break;
+        case 'active':
+          this.unSubscribeRequest(descriptor.info.sid);
+          break;
+      }
+    }
+  }
+  /** Shutdown the manager, ending any subscriptions. */
+  shutdown() {
+    var _a, _b;
+    for (const descriptor of this.descriptors.values()) {
+      this.emit('trackUnpublished', {
+        sid: descriptor.info.sid,
+        publisherIdentity: descriptor.publisherIdentity
+      });
+      if (descriptor.subscription.type === 'pending') {
+        (_b = (_a = descriptor.subscription.completionFuture).reject) === null || _b === void 0 ? void 0 : _b.call(_a, DataTrackSubscribeError.disconnected());
+      }
+    }
+    this.descriptors.clear();
+  }
+}class DataTrackPacketizerError extends LivekitReasonedError {
+  constructor(message, reason, options) {
+    super(19, message, options);
+    this.name = 'DataTrackPacketizerError';
+    this.reason = reason;
+    this.reasonName = DataTrackPacketizerReason[reason];
+  }
+  static mtuTooShort() {
+    return new DataTrackPacketizerError('MTU is too short to send frame', DataTrackPacketizerReason.MtuTooShort);
+  }
+}
+var DataTrackPacketizerReason;
+(function (DataTrackPacketizerReason) {
+  DataTrackPacketizerReason[DataTrackPacketizerReason["MtuTooShort"] = 0] = "MtuTooShort";
+})(DataTrackPacketizerReason || (DataTrackPacketizerReason = {}));
+/** A packetizer takes a {@link DataTrackFrameInternal} as input and generates a series
+ * of {@link DataTrackPacket}s for transmission to other clients over webrtc. */
+class DataTrackPacketizer {
+  constructor(trackHandle, mtuSizeBytes) {
+    this.sequence = WrapAroundUnsignedInt.u16(0);
+    this.frameNumber = WrapAroundUnsignedInt.u16(0);
+    this.clock = DataTrackClock.rtpStartingNow(DataTrackTimestamp.rtpRandom());
+    this.handle = trackHandle;
+    this.mtuSizeBytes = mtuSizeBytes;
+  }
+  /** @internal */
+  static computeFrameMarker(index, packetCount) {
+    if (packetCount <= 1) {
+      return FrameMarker.Single;
+    }
+    if (index === 0) {
+      return FrameMarker.Start;
+    } else if (index === packetCount - 1) {
+      return FrameMarker.Final;
+    } else {
+      return FrameMarker.Inter;
+    }
+  }
+  /** Generates a series of packets for the specified {@link DataTrackFrameInternal}.
+   *
+   * NOTE: The return value of this function is a generator, so it can be lazily ran if desired,
+   * or converted to an array with {@link Array.from}.
+   */
+  *packetize(frame, options) {
+    var _a;
+    const frameNumber = this.frameNumber.getThenIncrement();
+    const headerParams = {
+      marker: FrameMarker.Inter,
+      trackHandle: this.handle,
+      sequence: WrapAroundUnsignedInt.u16(0),
+      frameNumber,
+      timestamp: (_a = options === null || options === void 0 ? void 0 : options.now) !== null && _a !== void 0 ? _a : this.clock.now(),
+      extensions: frame.extensions
+    };
+    const headerSerializedLengthBytes = new DataTrackPacketHeader(headerParams).toBinaryLengthBytes();
+    if (headerSerializedLengthBytes >= this.mtuSizeBytes) {
+      throw DataTrackPacketizerError.mtuTooShort();
+    }
+    const maxPayloadSizeBytes = this.mtuSizeBytes - headerSerializedLengthBytes;
+    const packetCount = Math.ceil(frame.payload.byteLength / maxPayloadSizeBytes);
+    for (let index = 0, indexBytes = 0; indexBytes < frame.payload.byteLength; [index, indexBytes] = [index + 1, indexBytes + maxPayloadSizeBytes]) {
+      const sequence = this.sequence.getThenIncrement();
+      const packetHeader = new DataTrackPacketHeader(Object.assign(Object.assign({}, headerParams), {
+        marker: DataTrackPacketizer.computeFrameMarker(index, packetCount),
+        sequence
+      }));
+      const packetPayloadLengthBytes = Math.min(
+      // All but the last packet will be max length ...
+      maxPayloadSizeBytes,
+      // ... and the last packet will be as long as it needs to be to finish out the buffer.
+      frame.payload.byteLength - indexBytes);
+      const packetPayload = new Uint8Array(frame.payload.buffer, frame.payload.byteOffset + indexBytes, packetPayloadLengthBytes);
+      yield new DataTrackPacket(packetHeader, packetPayload);
+    }
+  }
+}var DataTrackPublishErrorReason;
+(function (DataTrackPublishErrorReason) {
+  /**
+   * Local participant does not have permission to publish data tracks.
+   *
+   * Ensure the participant's token contains the `canPublishData` grant.
+   */
+  DataTrackPublishErrorReason[DataTrackPublishErrorReason["NotAllowed"] = 0] = "NotAllowed";
+  /** A track with the same name is already published by the local participant. */
+  DataTrackPublishErrorReason[DataTrackPublishErrorReason["DuplicateName"] = 1] = "DuplicateName";
+  /** Request to publish the track took long to complete. */
+  DataTrackPublishErrorReason[DataTrackPublishErrorReason["Timeout"] = 2] = "Timeout";
+  /** No additional data tracks can be published by the local participant. */
+  DataTrackPublishErrorReason[DataTrackPublishErrorReason["LimitReached"] = 3] = "LimitReached";
+  /** Cannot publish data track when the room is disconnected. */
+  DataTrackPublishErrorReason[DataTrackPublishErrorReason["Disconnected"] = 4] = "Disconnected";
+  // NOTE: this was introduced by web / there isn't a corresponding case in the rust version.
+  DataTrackPublishErrorReason[DataTrackPublishErrorReason["Cancelled"] = 5] = "Cancelled";
+  /** The name requested is not able to be used when creating the data track. */
+  DataTrackPublishErrorReason[DataTrackPublishErrorReason["InvalidName"] = 6] = "InvalidName";
+  /** There was an error publishing, but it was not something that could be sorted into a known
+   * category. */
+  DataTrackPublishErrorReason[DataTrackPublishErrorReason["Unknown"] = 7] = "Unknown";
+})(DataTrackPublishErrorReason || (DataTrackPublishErrorReason = {}));
+class DataTrackPublishError extends LivekitReasonedError {
+  constructor(message, reason, options) {
+    super(21, message, options);
+    this.name = 'DataTrackPublishError';
+    this.reason = reason;
+    this.reasonName = DataTrackPublishErrorReason[reason];
+    this.rawMessage = options === null || options === void 0 ? void 0 : options.rawMessage;
+  }
+  static notAllowed(rawMessage) {
+    return new DataTrackPublishError('Data track publishing unauthorized', DataTrackPublishErrorReason.NotAllowed, {
+      rawMessage
+    });
+  }
+  static duplicateName(rawMessage) {
+    return new DataTrackPublishError('Track name already taken', DataTrackPublishErrorReason.DuplicateName, {
+      rawMessage
+    });
+  }
+  static invalidName(rawMessage) {
+    return new DataTrackPublishError('Track name is invalid', DataTrackPublishErrorReason.InvalidName, {
+      rawMessage
+    });
+  }
+  static timeout() {
+    return new DataTrackPublishError('Publish data track timed-out. Does the LiveKit server support data tracks?', DataTrackPublishErrorReason.Timeout);
+  }
+  static limitReached(rawMessage) {
+    return new DataTrackPublishError('Data track publication limit reached', DataTrackPublishErrorReason.LimitReached, {
+      rawMessage
+    });
+  }
+  static unknown(reason, message) {
+    return new DataTrackPublishError("Received RequestResponse for publishDataTrack, but reason was unrecognised (".concat(reason, ", ").concat(message, ")"), DataTrackPublishErrorReason.Unknown);
+  }
+  static disconnected() {
+    return new DataTrackPublishError('Room disconnected', DataTrackPublishErrorReason.Disconnected);
+  }
+  // NOTE: this was introduced by web / there isn't a corresponding case in the rust version.
+  static cancelled() {
+    return new DataTrackPublishError('Publish data track cancelled by caller', DataTrackPublishErrorReason.Cancelled);
+  }
+}
+var DataTrackPushFrameErrorReason;
+(function (DataTrackPushFrameErrorReason) {
+  /** Track is no longer published. */
+  DataTrackPushFrameErrorReason[DataTrackPushFrameErrorReason["TrackUnpublished"] = 0] = "TrackUnpublished";
+  /** Frame was dropped. */
+  // NOTE: this should become a web specific error, the rust version of this "dropped" error means
+  // something different and will be renamed to "QueueFull".
+  DataTrackPushFrameErrorReason[DataTrackPushFrameErrorReason["Dropped"] = 1] = "Dropped";
+})(DataTrackPushFrameErrorReason || (DataTrackPushFrameErrorReason = {}));
+class DataTrackPushFrameError extends LivekitReasonedError {
+  constructor(message, reason, options) {
+    super(22, message, options);
+    this.name = 'DataTrackPushFrameError';
+    this.reason = reason;
+    this.reasonName = DataTrackPushFrameErrorReason[reason];
+  }
+  static trackUnpublished() {
+    return new DataTrackPushFrameError('Track is no longer published', DataTrackPushFrameErrorReason.TrackUnpublished);
+  }
+  static dropped(cause) {
+    return new DataTrackPushFrameError('Frame was dropped', DataTrackPushFrameErrorReason.Dropped, {
+      cause
+    });
+  }
+}
+var DataTrackOutgoingPipelineErrorReason;
+(function (DataTrackOutgoingPipelineErrorReason) {
+  DataTrackOutgoingPipelineErrorReason[DataTrackOutgoingPipelineErrorReason["Packetizer"] = 0] = "Packetizer";
+  DataTrackOutgoingPipelineErrorReason[DataTrackOutgoingPipelineErrorReason["Encryption"] = 1] = "Encryption";
+})(DataTrackOutgoingPipelineErrorReason || (DataTrackOutgoingPipelineErrorReason = {}));
+class DataTrackOutgoingPipelineError extends LivekitReasonedError {
+  constructor(message, reason, options) {
+    super(21, message, options);
+    this.name = 'DataTrackOutgoingPipelineError';
+    this.reason = reason;
+    this.reasonName = DataTrackOutgoingPipelineErrorReason[reason];
+  }
+  static packetizer(cause) {
+    return new DataTrackOutgoingPipelineError('Error packetizing frame', DataTrackOutgoingPipelineErrorReason.Packetizer, {
+      cause
+    });
+  }
+  static encryption(cause) {
+    return new DataTrackOutgoingPipelineError('Error encrypting frame', DataTrackOutgoingPipelineErrorReason.Encryption, {
+      cause
+    });
+  }
+}class LocalDataTrack {
+  /** @internal */
+  constructor(options, manager) {
+    this.trackSymbol = TrackSymbol;
+    this.isLocal = true;
+    this.typeSymbol = DataTrackSymbol;
+    /** Represents the currently active {@link DataTrackHandle} for the publication. */
+    this.handle = null;
+    this.log = livekitLogger;
+    this.options = options;
+    this.manager = manager;
+    this.log = getLogger(LoggerNames.DataTracks);
+  }
+  /** @internal */
+  static withExplicitHandle(options, manager, handle) {
+    const track = new LocalDataTrack(options, manager);
+    track.handle = handle;
+    return track;
+  }
+  /** Metrics about the data track publication. */
+  get info() {
+    const descriptor = this.descriptor;
+    if ((descriptor === null || descriptor === void 0 ? void 0 : descriptor.type) === 'active') {
+      return descriptor.info;
+    } else {
+      return undefined;
+    }
+  }
+  /** The raw descriptor from the manager containing the internal state for this local track. */
+  get descriptor() {
+    return this.handle ? this.manager.getDescriptor(this.handle) : null;
+  }
+  /**
+   * Publish the track to the SFU. This must be done before calling {@link tryPush} for the first time.
+   * @internal
+   * */
+  publish(signal) {
+    return __awaiter(this, void 0, void 0, function* () {
+      try {
+        this.handle = yield this.manager.publishRequest(this.options, signal);
+      } catch (err) {
+        // NOTE: Rethrow errors to break Throws<...> type boundary
+        throw err;
+      }
+    });
+  }
+  isPublished() {
+    var _a;
+    // NOTE: a track which is internally in the "resubscribing" state is still considered
+    // published from the public API perspective.
+    return ((_a = this.descriptor) === null || _a === void 0 ? void 0 : _a.type) === 'active' && this.descriptor.publishState !== 'unpublished';
+  }
+  /** Try pushing a frame to subscribers of the track.
+   *
+   * Pushing a frame can fail for several reasons:
+   *
+   * - The track has been unpublished by the local participant or SFU
+   * - The room is no longer connected
+   */
+  tryPush(frame) {
+    if (!this.handle) {
+      throw DataTrackPushFrameError.trackUnpublished();
+    }
+    const internalFrame = DataTrackFrameInternal.from(frame);
+    try {
+      return this.manager.tryProcessAndSend(this.handle, internalFrame);
+    } catch (err) {
+      // NOTE: wrapping in the bare try/catch like this means that the Throws<...> type doesn't
+      // propagate upwards into the public interface.
+      throw err;
+    }
+  }
+  /**
+   * Unpublish the track from the SFU. Once this is called, any further calls to {@link tryPush}
+   * will fail.
+   * */
+  unpublish() {
+    return __awaiter(this, void 0, void 0, function* () {
+      if (!this.handle) {
+        livekitLogger.warn("Data track \"".concat(this.options.name, "\" is not published, so unpublishing has no effect."));
+        return;
+      }
+      try {
+        yield this.manager.unpublishRequest(this.handle);
+      } catch (err) {
+        // NOTE: Rethrow errors to break Throws<...> type boundary
+        throw err;
+      }
+    });
+  }
+}/** Processes outgoing frames into final packets for distribution to the SFU. */
+class DataTrackOutgoingPipeline {
+  constructor(options) {
+    this.e2eeManager = options.e2eeManager;
+    this.packetizer = new DataTrackPacketizer(options.info.pubHandle, DataTrackOutgoingPipeline.TRANSPORT_MTU_BYTES);
+  }
+  updateE2eeManager(e2eeManager) {
+    this.e2eeManager = e2eeManager;
+  }
+  processFrame(frame) {
+    return __asyncGenerator(this, arguments, function* processFrame_1() {
+      const encryptedFrame = yield __await(this.encryptIfNeeded(frame));
+      try {
+        yield __await(yield* __asyncDelegator(__asyncValues(this.packetizer.packetize(encryptedFrame))));
+      } catch (error) {
+        if (error instanceof DataTrackPacketizerError) {
+          throw DataTrackOutgoingPipelineError.packetizer(error);
+        }
+        throw error;
+      }
+    });
+  }
+  encryptIfNeeded(frame) {
+    return __awaiter(this, void 0, void 0, function* () {
+      if (!this.e2eeManager) {
+        return frame;
+      }
+      let encryptedResult;
+      try {
+        encryptedResult = yield this.e2eeManager.encryptData(frame.payload);
+      } catch (err) {
+        throw DataTrackOutgoingPipelineError.encryption(err);
+      }
+      frame.payload = encryptedResult.payload;
+      frame.extensions.e2ee = new DataTrackE2eeExtension(encryptedResult.keyIndex, encryptedResult.iv);
+      return frame;
+    });
+  }
+}
+/** Maximum transmission unit (MTU) of the transport. */
+DataTrackOutgoingPipeline.TRANSPORT_MTU_BYTES = 16000;const log = getLogger(LoggerNames.DataTracks);
+const Descriptor = {
+  pending() {
+    return {
+      type: 'pending',
+      completionFuture: new Future()
+    };
+  },
+  active(info, e2eeManager) {
+    return {
+      type: 'active',
+      info,
+      publishState: 'published',
+      pipeline: new DataTrackOutgoingPipeline({
+        info,
+        e2eeManager
+      }),
+      unpublishingFuture: new Future()
+    };
+  }
+};
+/** How long to wait when attempting to publish before timing out. */
+const PUBLISH_TIMEOUT_MILLISECONDS = 10000;
+class OutgoingDataTrackManager extends eventsExports.EventEmitter {
+  constructor(options) {
+    var _a;
+    super();
+    this.handleAllocator = new DataTrackHandleAllocator();
+    this.descriptors = new Map();
+    this.e2eeManager = (_a = options === null || options === void 0 ? void 0 : options.e2eeManager) !== null && _a !== void 0 ? _a : null;
+  }
+  static withDescriptors(descriptors) {
+    const manager = new OutgoingDataTrackManager();
+    manager.descriptors = descriptors;
+    return manager;
+  }
+  /** @internal */
+  updateE2eeManager(e2eeManager) {
+    this.e2eeManager = e2eeManager;
+    // Propegate downwards to all pre-existing pipelines
+    for (const descriptor of this.descriptors.values()) {
+      if (descriptor.type === 'active') {
+        descriptor.pipeline.updateE2eeManager(e2eeManager);
+      }
+    }
+  }
+  /**
+   * Used by attached {@link LocalDataTrack} instances to query their associated descriptor info.
+   * @internal
+   */
+  getDescriptor(handle) {
+    var _a;
+    return (_a = this.descriptors.get(handle)) !== null && _a !== void 0 ? _a : null;
+  }
+  /** Used by attached {@link LocalDataTrack} instances to broadcast data track packets to other
+   * subscribers.
+   * @internal
+   */
+  tryProcessAndSend(handle, frame) {
+    return __awaiter(this, void 0, void 0, function* () {
+      var _a, e_1, _b, _c;
+      const descriptor = this.getDescriptor(handle);
+      if ((descriptor === null || descriptor === void 0 ? void 0 : descriptor.type) !== 'active') {
+        throw DataTrackPushFrameError.trackUnpublished();
+      }
+      if (descriptor.publishState === 'unpublished') {
+        throw DataTrackPushFrameError.trackUnpublished();
+      }
+      if (descriptor.publishState === 'republishing') {
+        throw DataTrackPushFrameError.dropped('Data track republishing');
+      }
+      try {
+        try {
+          for (var _d = true, _e = __asyncValues(descriptor.pipeline.processFrame(frame)), _f; _f = yield _e.next(), _a = _f.done, !_a; _d = true) {
+            _c = _f.value;
+            _d = false;
+            const packet = _c;
+            this.emit('packetAvailable', {
+              bytes: packet.toBinary()
+            });
+          }
+        } catch (e_1_1) {
+          e_1 = {
+            error: e_1_1
+          };
+        } finally {
+          try {
+            if (!_d && !_a && (_b = _e.return)) yield _b.call(_e);
+          } finally {
+            if (e_1) throw e_1.error;
+          }
+        }
+      } catch (err) {
+        // NOTE: In the rust implementation this "dropped" error means something different (not enough room
+        // in the track mpsc channel)
+        throw DataTrackPushFrameError.dropped(err);
+      }
+    });
+  }
+  /**
+   * Client requested to publish a track.
+   *
+   * If the LiveKit server is too old and doesn't support data tracks, a
+   * {@link DataTrackPublishError#timeout} will be thrown.
+   *
+   * @internal
+   **/
+  publishRequest(options, signal) {
+    return __awaiter(this, void 0, void 0, function* () {
+      const handle = this.handleAllocator.get();
+      if (!handle) {
+        throw DataTrackPublishError.limitReached();
+      }
+      const timeoutSignal = abortSignalTimeout(PUBLISH_TIMEOUT_MILLISECONDS);
+      const combinedSignal = signal ? abortSignalAny([signal, timeoutSignal]) : timeoutSignal;
+      if (this.descriptors.has(handle)) {
+        // @throws-transformer ignore - this should be treated as a "panic" and not be caught
+        throw new Error('Descriptor for handle already exists');
+      }
+      const descriptor = Descriptor.pending();
+      this.descriptors.set(handle, descriptor);
+      const onAbort = () => {
+        var _a, _b;
+        const existingDescriptor = this.descriptors.get(handle);
+        if (!existingDescriptor) {
+          log.warn("No descriptor for ".concat(handle));
+          return;
+        }
+        this.descriptors.delete(handle);
+        // Let the SFU know that the publish has been cancelled
+        this.emit('sfuUnpublishRequest', {
+          handle
+        });
+        if (existingDescriptor.type === 'pending') {
+          (_b = (_a = existingDescriptor.completionFuture).reject) === null || _b === void 0 ? void 0 : _b.call(_a, timeoutSignal.aborted ? DataTrackPublishError.timeout() :
+          // NOTE: the below cancelled case was introduced by web / there isn't a corresponding case in the rust version.
+          DataTrackPublishError.cancelled());
+        }
+      };
+      if (combinedSignal.aborted) {
+        onAbort(); // NOTE: this rejects `completionFuture`; the next line just returns the rejection
+        return descriptor.completionFuture.promise.then(() => handle /* no-op, makes typescript happy */);
+      }
+      combinedSignal.addEventListener('abort', onAbort);
+      this.emit('sfuPublishRequest', {
+        handle,
+        name: options.name,
+        usesE2ee: this.e2eeManager !== null
+      });
+      yield descriptor.completionFuture.promise;
+      combinedSignal.removeEventListener('abort', onAbort);
+      this.emit('trackPublished', {
+        track: LocalDataTrack.withExplicitHandle(options, this, handle)
+      });
+      return handle;
+    });
+  }
+  /**
+   * Get information about all currently published tracks.
+   * @internal
+   **/
+  queryPublished() {
+    const descriptorInfos = Array.from(this.descriptors.values()).filter(descriptor => descriptor.type === 'active').map(descriptor => descriptor.info);
+    return descriptorInfos;
+  }
+  /**
+   * Client request to unpublish a track.
+   * @internal
+   **/
+  unpublishRequest(handle) {
+    return __awaiter(this, void 0, void 0, function* () {
+      const descriptor = this.descriptors.get(handle);
+      if (!descriptor) {
+        log.warn("No descriptor for ".concat(handle));
+        return;
+      }
+      if (descriptor.type !== 'active') {
+        log.warn("Track ".concat(handle, " not active"));
+        return;
+      }
+      this.emit('sfuUnpublishRequest', {
+        handle
+      });
+      yield descriptor.unpublishingFuture.promise;
+      this.emit('trackUnpublished', {
+        sid: descriptor.info.sid
+      });
+    });
+  }
+  /**
+   * SFU responded to a request to publish a data track.
+   * @internal
+   **/
+  receivedSfuPublishResponse(handle, result) {
+    var _a, _b, _c, _d;
+    const descriptor = this.descriptors.get(handle);
+    if (!descriptor) {
+      log.warn("No descriptor for ".concat(handle));
+      return;
+    }
+    this.descriptors.delete(handle);
+    switch (descriptor.type) {
+      case 'pending':
+        {
+          if (result.type === 'ok') {
+            const info = result.data;
+            const e2eeManager = info.usesE2ee ? this.e2eeManager : null;
+            this.descriptors.set(info.pubHandle, Descriptor.active(info, e2eeManager));
+            (_b = (_a = descriptor.completionFuture).resolve) === null || _b === void 0 ? void 0 : _b.call(_a);
+          } else {
+            (_d = (_c = descriptor.completionFuture).reject) === null || _d === void 0 ? void 0 : _d.call(_c, result.error);
+          }
+          return;
+        }
+      case 'active':
+        {
+          if (descriptor.publishState !== 'republishing') {
+            log.warn("Track ".concat(handle, " already active"));
+            return;
+          }
+          if (result.type === 'error') {
+            log.warn("Republish failed for track ".concat(handle));
+            return;
+          }
+          log.debug("Track ".concat(handle, " republished"));
+          descriptor.info.sid = result.data.sid;
+          descriptor.publishState = 'published';
+          this.descriptors.set(descriptor.info.pubHandle, descriptor);
+        }
+    }
+  }
+  /**
+   * SFU notification that a track has been unpublished.
+   * @internal
+   **/
+  receivedSfuUnpublishResponse(handle) {
+    var _a, _b;
+    const descriptor = this.descriptors.get(handle);
+    if (!descriptor) {
+      log.warn("No descriptor for ".concat(handle));
+      return;
+    }
+    this.descriptors.delete(handle);
+    if (descriptor.type !== 'active') {
+      log.warn("Track ".concat(handle, " not active"));
+      return;
+    }
+    descriptor.publishState = 'unpublished';
+    (_b = (_a = descriptor.unpublishingFuture).resolve) === null || _b === void 0 ? void 0 : _b.call(_a);
+  }
+  /** Republish all tracks.
+   *
+   * This must be sent after a full reconnect in order for existing publications
+   * to be recognized by the SFU. Each republished track will be assigned a new SID.
+   * @internal
+   */
+  sfuWillRepublishTracks() {
+    var _a, _b;
+    for (const [handle, descriptor] of this.descriptors.entries()) {
+      switch (descriptor.type) {
+        case 'pending':
+          // TODO: support republish for pending publications
+          this.descriptors.delete(handle);
+          (_b = (_a = descriptor.completionFuture).reject) === null || _b === void 0 ? void 0 : _b.call(_a, DataTrackPublishError.disconnected());
+          break;
+        case 'active':
+          descriptor.publishState = 'republishing';
+          this.emit('sfuPublishRequest', {
+            handle: descriptor.info.pubHandle,
+            name: descriptor.info.name,
+            usesE2ee: descriptor.info.usesE2ee
+          });
+      }
+    }
+  }
+  /**
+   * Shuts down the manager and all associated tracks.
+   * @internal
+   **/
+  shutdown() {
+    return __awaiter(this, void 0, void 0, function* () {
+      var _a, _b, _c, _d;
+      for (const descriptor of this.descriptors.values()) {
+        switch (descriptor.type) {
+          case 'pending':
+            (_b = (_a = descriptor.completionFuture).reject) === null || _b === void 0 ? void 0 : _b.call(_a, DataTrackPublishError.disconnected());
+            break;
+          case 'active':
+            // Abandon any unpublishing descriptors that were in flight and assume they will get
+            // cleaned up automatically with the connection shutdown.
+            (_d = (_c = descriptor.unpublishingFuture).resolve) === null || _d === void 0 ? void 0 : _d.call(_c);
+            yield this.unpublishRequest(descriptor.info.pubHandle);
+            break;
+        }
+      }
+      this.descriptors.clear();
     });
   }
 }class RemoteTrack extends Track {
@@ -23300,7 +25784,7 @@ class Participant extends eventsExports.EventEmitter {
   });
 }class LocalParticipant extends Participant {
   /** @internal */
-  constructor(sid, identity, engine, options, roomRpcHandlers, roomOutgoingDataStreamManager) {
+  constructor(sid, identity, engine, options, roomRpcHandlers, roomOutgoingDataStreamManager, roomOutgoingDataTrackManager) {
     super(sid, identity, undefined, undefined, undefined, {
       loggerName: options.loggerName,
       loggerContextCb: () => this.engine.logContext
@@ -23363,6 +25847,34 @@ class Participant extends eventsExports.EventEmitter {
           targetRequest.reject(new SignalRequestError(message, reason));
         }
         this.pendingSignalRequests.delete(requestId);
+      }
+      switch (response.request.case) {
+        case 'publishDataTrack':
+          {
+            let error;
+            switch (response.reason) {
+              case RequestResponse_Reason.NOT_ALLOWED:
+                error = DataTrackPublishError.notAllowed(response.message);
+                break;
+              case RequestResponse_Reason.DUPLICATE_NAME:
+                error = DataTrackPublishError.duplicateName(response.message);
+                break;
+              case RequestResponse_Reason.INVALID_NAME:
+                error = DataTrackPublishError.invalidName(response.message);
+                break;
+              case RequestResponse_Reason.LIMIT_EXCEEDED:
+                error = DataTrackPublishError.limitReached(response.message);
+                break;
+              default:
+                error = DataTrackPublishError.unknown(response.reason, response.message);
+                return;
+            }
+            this.roomOutgoingDataTrackManager.receivedSfuPublishResponse(response.request.value.pubHandle, {
+              type: 'error',
+              error
+            });
+            break;
+          }
       }
     };
     this.handleDataPacket = packet => {
@@ -23535,6 +26047,7 @@ class Participant extends eventsExports.EventEmitter {
     this.pendingSignalRequests = new Map();
     this.rpcHandlers = roomRpcHandlers;
     this.roomOutgoingDataStreamManager = roomOutgoingDataStreamManager;
+    this.roomOutgoingDataTrackManager = roomOutgoingDataTrackManager;
   }
   get lastCameraError() {
     return this.cameraError;
@@ -24648,7 +27161,8 @@ class Participant extends eventsExports.EventEmitter {
       var _this4 = this;
       let options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
       return function* () {
-        const kind = options.reliable ? DataPacket_Kind.RELIABLE : DataPacket_Kind.LOSSY;
+        const kind = options.reliable ? DataChannelKind.RELIABLE : DataChannelKind.LOSSY;
+        const dataPacketKind = options.reliable ? DataPacket_Kind.RELIABLE : DataPacket_Kind.LOSSY;
         const destinationIdentities = options.destinationIdentities;
         const topic = options.topic;
         let userPacket = new UserPacket({
@@ -24658,7 +27172,7 @@ class Participant extends eventsExports.EventEmitter {
           topic
         });
         const packet = new DataPacket({
-          kind: kind,
+          kind: dataPacketKind,
           value: {
             case: 'user',
             value: userPacket
@@ -24686,7 +27200,7 @@ class Participant extends eventsExports.EventEmitter {
           })
         }
       });
-      yield this.engine.sendDataPacket(packet, DataPacket_Kind.RELIABLE);
+      yield this.engine.sendDataPacket(packet, DataChannelKind.RELIABLE);
     });
   }
   /** @deprecated Consider migrating to {@link sendText} */
@@ -24706,7 +27220,7 @@ class Participant extends eventsExports.EventEmitter {
           }))
         }
       });
-      yield this.engine.sendDataPacket(packet, DataPacket_Kind.RELIABLE);
+      yield this.engine.sendDataPacket(packet, DataChannelKind.RELIABLE);
       this.emit(ParticipantEvent.ChatMessage, msg);
       return msg;
     });
@@ -24727,7 +27241,7 @@ class Participant extends eventsExports.EventEmitter {
           }))
         }
       });
-      yield this.engine.sendDataPacket(packet, DataPacket_Kind.RELIABLE);
+      yield this.engine.sendDataPacket(packet, DataChannelKind.RELIABLE);
       this.emit(ParticipantEvent.ChatMessage, msg);
       return msg;
     });
@@ -24916,7 +27430,7 @@ class Participant extends eventsExports.EventEmitter {
           })
         }
       });
-      yield this.engine.sendDataPacket(packet, DataPacket_Kind.RELIABLE);
+      yield this.engine.sendDataPacket(packet, DataChannelKind.RELIABLE);
     });
   }
   /** @internal */
@@ -25022,6 +27536,108 @@ class Participant extends eventsExports.EventEmitter {
         }
         yield sleep(20);
       }
+    });
+  }
+  /** Publishes a data track.
+   *
+   * Returns the published data track if successful. Use {@link LocalDataTrack#tryPush}
+   * to send data frames on the track.
+   */
+  publishDataTrack(options) {
+    return __awaiter(this, void 0, void 0, function* () {
+      const track = new LocalDataTrack(options, this.roomOutgoingDataTrackManager);
+      yield track.publish();
+      return track;
+    });
+  }
+}/** An error which is thrown if a {@link DeferrableMap#getDeferred} call is aborted midway
+ * through. */
+class DeferrableMapAbortError extends DOMException {
+  constructor(message, reason) {
+    super(message, 'AbortError');
+    this.reason = reason;
+  }
+}
+/**
+ * A Map-like container keyed by unique strings that supports the ability to wait
+ * for future keys to show up in the map.
+ *
+ * @example
+ * // An already existing key:
+ * const value = map.get("key");
+ * // Wait for a key which will be added soon:
+ * const value = await map.getDeferred("key");
+ */
+class DeferrableMap extends Map {
+  constructor() {
+    super(...arguments);
+    this.pending = new Map();
+  }
+  set(key, value) {
+    var _a;
+    super.set(key, value);
+    // Resolve any futures waiting on this key.
+    const futures = this.pending.get(key);
+    if (futures) {
+      for (const future of futures) {
+        if (!future.isResolved) {
+          (_a = future.resolve) === null || _a === void 0 ? void 0 : _a.call(future, value);
+        }
+      }
+      this.pending.delete(key);
+    }
+    return this;
+  }
+  get [Symbol.toStringTag]() {
+    return 'WaitableMap';
+  }
+  getDeferred(key, signal) {
+    return __awaiter(this, void 0, void 0, function* () {
+      const existing = this.get(key);
+      if (typeof existing !== 'undefined') {
+        return existing;
+      }
+      // Bail out immediately if the signal is already aborted.
+      if (signal === null || signal === void 0 ? void 0 : signal.aborted) {
+        throw new DeferrableMapAbortError('The operation was aborted.', signal.reason);
+      }
+      const future = new Future(undefined, () => {
+        // Clean up the pending list when the future settles.
+        const futures = this.pending.get(key);
+        if (!futures) {
+          return;
+        }
+        const idx = futures.indexOf(future);
+        if (idx !== -1) {
+          futures.splice(idx, 1);
+        }
+        if (futures.length === 0) {
+          this.pending.delete(key);
+        }
+      });
+      const existingFutures = this.pending.get(key);
+      if (existingFutures) {
+        existingFutures.push(future);
+      } else {
+        this.pending.set(key, [future]);
+      }
+      // If a signal was provided, listen for abort and reject the future.
+      if (signal) {
+        const onAbort = () => {
+          var _a;
+          if (!future.isResolved) {
+            (_a = future.reject) === null || _a === void 0 ? void 0 : _a.call(future, new DeferrableMapAbortError('The operation was aborted.', signal.reason));
+          }
+        };
+        signal.addEventListener('abort', onAbort, {
+          once: true
+        });
+        // Clean up the listener once the future settles (resolved or rejected).
+        future.promise.finally(() => {
+          signal.removeEventListener('abort', onAbort);
+        });
+      }
+      return future.promise;
     });
   }
 }class RemoteTrackPublication extends TrackPublication {
@@ -25313,6 +27929,7 @@ class Participant extends eventsExports.EventEmitter {
     this.trackPublications = new Map();
     this.audioTrackPublications = new Map();
     this.videoTrackPublications = new Map();
+    this.dataTracks = new DeferrableMap();
     this.volumeMap = new Map();
   }
   addTrackPublication(publication) {
@@ -25549,6 +28166,18 @@ class Participant extends eventsExports.EventEmitter {
     });
   }
   /** @internal */
+  addRemoteDataTrack(remoteDataTrack) {
+    this.dataTracks.set(remoteDataTrack.info.name, remoteDataTrack);
+  }
+  /** @internal */
+  removeRemoteDataTrack(remoteDataTrackSid) {
+    for (const [name, dataTrack] of this.dataTracks.entries()) {
+      if (remoteDataTrackSid === dataTrack.info.sid) {
+        this.dataTracks.delete(name);
+      }
+    }
+  }
+  /** @internal */
   emit(event) {
     for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
       args[_key - 1] = arguments[_key];
@@ -25586,7 +28215,7 @@ class Room extends eventsExports.EventEmitter {
    */
   constructor(options) {
     var _this;
-    var _a, _b, _c, _d;
+    var _a, _b, _c, _d, _e, _f;
     super();
     _this = this;
     this.state = ConnectionState.Disconnected;
@@ -25991,6 +28620,10 @@ class Room extends eventsExports.EventEmitter {
         this.emit(RoomEvent.Reconnecting);
       }
     };
+    this.handleRestarted = () => {
+      this.outgoingDataTrackManager.sfuWillRepublishTracks();
+      this.incomingDataTrackManager.resendSubscriptionUpdates();
+    };
     this.handleSignalRestarted = joinResponse => __awaiter(this, void 0, void 0, function* () {
       this.log.debug("signal reconnected to server, region ".concat(joinResponse.serverRegion), Object.assign(Object.assign({}, this.logContext), {
         region: joinResponse.serverRegion
@@ -26020,12 +28653,12 @@ class Room extends eventsExports.EventEmitter {
       this.emitBufferedEvents();
     });
     this.handleParticipantUpdates = participantInfos => {
+      var _a;
       // handle changes to participant state, and send events
-      participantInfos.forEach(info => {
-        var _a;
+      for (const info of participantInfos) {
         if (info.identity === this.localParticipant.identity) {
           this.localParticipant.updateInfo(info);
-          return;
+          continue;
         }
         // LiveKit server doesn't send identity info prior to version 1.5.2 in disconnect updates
         // so we try to map an empty identity to an already known sID manually
@@ -26040,7 +28673,12 @@ class Room extends eventsExports.EventEmitter {
           // create participant if doesn't exist
           remoteParticipant = this.getOrCreateParticipant(info.identity, info);
         }
-      });
+      }
+      // Ingest data track publication updates into data tracks infrastructure
+      const mapped = new Map(participantInfos.filter(p => p.identity !== this.localParticipant.identity).map(info => {
+        return [info.identity, info.dataTracks.map(dataTrack => DataTrackInfo.from(dataTrack))];
+      }));
+      this.incomingDataTrackManager.receiveSfuPublicationUpdates(mapped);
     };
     // updates are sent only when there's a change to speaker ordering
     this.handleActiveSpeakersUpdate = speakers => {
@@ -26331,25 +28969,66 @@ class Room extends eventsExports.EventEmitter {
     this.maybeCreateEngine();
     this.incomingDataStreamManager = new IncomingDataStreamManager();
     this.outgoingDataStreamManager = new OutgoingDataStreamManager(this.engine, this.log);
+    this.incomingDataTrackManager = new IncomingDataTrackManager({
+      e2eeManager: this.e2eeManager
+    });
+    this.incomingDataTrackManager.on('sfuUpdateSubscription', event => {
+      this.engine.client.sendUpdateDataSubscription(event.sid, event.subscribe);
+    }).on('trackPublished', event => {
+      var _a;
+      if (event.track.publisherIdentity === this.localParticipant.identity) {
+        // Only advertize tracks from other participants
+        return;
+      }
+      this.emit(RoomEvent.DataTrackPublished, event.track);
+      (_a = this.remoteParticipants.get(event.track.publisherIdentity)) === null || _a === void 0 ? void 0 : _a.addRemoteDataTrack(event.track);
+    }).on('trackUnpublished', event => {
+      var _a;
+      if (event.publisherIdentity === this.localParticipant.identity) {
+        // Only advertize tracks from other participants
+        return;
+      }
+      this.emit(RoomEvent.DataTrackUnpublished, event.sid);
+      (_a = this.remoteParticipants.get(event.publisherIdentity)) === null || _a === void 0 ? void 0 : _a.removeRemoteDataTrack(event.sid);
+    });
+    this.outgoingDataTrackManager = new OutgoingDataTrackManager({
+      e2eeManager: this.e2eeManager
+    });
+    this.outgoingDataTrackManager.on('sfuPublishRequest', event => {
+      this.engine.client.sendPublishDataTrackRequest(event.handle, event.name, event.usesE2ee);
+    }).on('sfuUnpublishRequest', event => {
+      this.engine.client.sendUnPublishDataTrackRequest(event.handle);
+    }).on('trackPublished', event => {
+      this.emit(RoomEvent.LocalDataTrackPublished, event.track);
+    }).on('trackUnpublished', event => {
+      this.emit(RoomEvent.LocalDataTrackUnpublished, event.sid);
+    }).on('packetAvailable', _ref2 => {
+      let {
+        bytes
+      } = _ref2;
+      this.engine.sendLossyBytes(bytes, DataChannelKind.DATA_TRACK_LOSSY, 'wait');
+    });
     this.disconnectLock = new _();
-    this.localParticipant = new LocalParticipant('', '', this.engine, this.options, this.rpcHandlers, this.outgoingDataStreamManager);
+    this.localParticipant = new LocalParticipant('', '', this.engine, this.options, this.rpcHandlers, this.outgoingDataStreamManager, this.outgoingDataTrackManager);
     if (this.options.e2ee || this.options.encryption) {
       this.setupE2EE();
     }
     this.engine.e2eeManager = this.e2eeManager;
+    this.incomingDataTrackManager.updateE2eeManager((_b = this.e2eeManager) !== null && _b !== void 0 ? _b : null);
+    this.outgoingDataTrackManager.updateE2eeManager((_c = this.e2eeManager) !== null && _c !== void 0 ? _c : null);
     if (this.options.videoCaptureDefaults.deviceId) {
       this.localParticipant.activeDeviceMap.set('videoinput', unwrapConstraint(this.options.videoCaptureDefaults.deviceId));
     }
     if (this.options.audioCaptureDefaults.deviceId) {
       this.localParticipant.activeDeviceMap.set('audioinput', unwrapConstraint(this.options.audioCaptureDefaults.deviceId));
     }
-    if ((_b = this.options.audioOutput) === null || _b === void 0 ? void 0 : _b.deviceId) {
+    if ((_d = this.options.audioOutput) === null || _d === void 0 ? void 0 : _d.deviceId) {
       this.switchActiveDevice('audiooutput', unwrapConstraint(this.options.audioOutput.deviceId)).catch(e => this.log.warn("Could not set audio output: ".concat(e.message), this.logContext));
     }
     if (isWeb()) {
       const abortController = new AbortController();
       // in order to catch device changes prior to room connection we need to register the event in the constructor
-      (_d = (_c = navigator.mediaDevices) === null || _c === void 0 ? void 0 : _c.addEventListener) === null || _d === void 0 ? void 0 : _d.call(_c, 'devicechange', this.handleDeviceChange, {
+      (_f = (_e = navigator.mediaDevices) === null || _e === void 0 ? void 0 : _e.addEventListener) === null || _f === void 0 ? void 0 : _f.call(_e, 'devicechange', this.handleDeviceChange, {
         signal: abortController.signal
       });
       if (Room.cleanupRegistry) {
@@ -26541,17 +29220,17 @@ class Room extends eventsExports.EventEmitter {
       if (this.state === ConnectionState.Reconnecting || this.isResuming) {
         this.sendSyncState();
       }
-    }).on(EngineEvent.Restarting, this.handleRestarting).on(EngineEvent.SignalRestarted, this.handleSignalRestarted).on(EngineEvent.Offline, () => {
+    }).on(EngineEvent.Restarting, this.handleRestarting).on(EngineEvent.Restarted, this.handleRestarted).on(EngineEvent.SignalRestarted, this.handleSignalRestarted).on(EngineEvent.Offline, () => {
       if (this.setAndEmitConnectionState(ConnectionState.Reconnecting)) {
         this.emit(RoomEvent.Reconnecting);
       }
     }).on(EngineEvent.DCBufferStatusChanged, (status, kind) => {
       this.emit(RoomEvent.DCBufferStatusChanged, status, kind);
     }).on(EngineEvent.LocalTrackSubscribed, subscribedSid => {
-      const trackPublication = this.localParticipant.getTrackPublications().find(_ref2 => {
+      const trackPublication = this.localParticipant.getTrackPublications().find(_ref3 => {
         let {
           trackSid
-        } = _ref2;
+        } = _ref3;
         return trackSid === subscribedSid;
       });
       if (!trackPublication) {
@@ -26574,6 +29253,46 @@ class Room extends eventsExports.EventEmitter {
       } else {
         this.handleParticipantUpdates(roomMoved.otherParticipants);
       }
+    }).on(EngineEvent.PublishDataTrackResponse, event => {
+      if (!event.info) {
+        this.log.warn("received PublishDataTrackResponse, but event.info was ".concat(event.info, ", so skipping."), this.logContext);
+        return;
+      }
+      this.outgoingDataTrackManager.receivedSfuPublishResponse(event.info.pubHandle, {
+        type: 'ok',
+        data: {
+          sid: event.info.sid,
+          pubHandle: event.info.pubHandle,
+          name: event.info.name,
+          usesE2ee: event.info.encryption !== Encryption_Type.NONE
+        }
+      });
+    }).on(EngineEvent.UnPublishDataTrackResponse, event => {
+      if (!event.info) {
+        this.log.warn("received UnPublishDataTrackResponse, but event.info was ".concat(event.info, ", so skipping."), this.logContext);
+        return;
+      }
+      this.outgoingDataTrackManager.receivedSfuUnpublishResponse(event.info.pubHandle);
+    }).on(EngineEvent.DataTrackSubscriberHandles, event => {
+      const handleToSidMapping = new Map(Object.entries(event.subHandles).map(_ref4 => {
+        let [key, value] = _ref4;
+        return [parseInt(key, 10), value.trackSid];
+      }));
+      this.incomingDataTrackManager.receivedSfuSubscriberHandles(handleToSidMapping);
+    }).on(EngineEvent.DataTrackPacketReceived, packetBytes => {
+      try {
+        this.incomingDataTrackManager.packetReceived(packetBytes);
+      } catch (err) {
+        // NOTE: wrapping in the bare try/catch like this means that the Throws<...> type doesn't
+        // propagate upwards into the public interface.
+        throw err;
+      }
+    }).on(EngineEvent.Joined, joinResponse => {
+      // Ingest data track publication updates into data tracks infrastructure
+      const mapped = new Map(joinResponse.otherParticipants.map(participant => {
+        return [participant.identity, participant.dataTracks.map(info => DataTrackInfo.from(info))];
+      }));
+      this.incomingDataTrackManager.receiveSfuPublicationUpdates(mapped);
     });
     if (this.localParticipant) {
       this.localParticipant.setupEngine(this.engine);
@@ -26948,7 +29667,10 @@ class Room extends eventsExports.EventEmitter {
     }
     const participant = Array.from(this.remoteParticipants.values()).find(p => p.sid === participantSid);
     if (!participant) {
-      this.log.error("Tried to add a track for a participant, that's not present. Sid: ".concat(participantSid), this.logContext);
+      // server could require extra media sections to accelerate subscription.
+      if (participantSid.startsWith('PA')) {
+        this.log.error("Tried to add a track for a participant, that's not present. Sid: ".concat(participantSid), this.logContext);
+      }
       return;
     }
     // in single peer connection case, the trackID is locally generated,
@@ -27047,6 +29769,7 @@ class Room extends eventsExports.EventEmitter {
       return;
     }
     this.incomingDataStreamManager.validateParticipantHasNoActiveDataStreams(identity);
+    this.incomingDataTrackManager.handleRemoteParticipantDisconnected(identity);
     participant.trackPublications.forEach(publication => {
       participant.unpublishTrack(publication.trackSid, true);
     });
@@ -27231,7 +29954,7 @@ class Room extends eventsExports.EventEmitter {
         track.on(TrackEvent.VideoPlaybackFailed, this.handleVideoPlaybackFailed);
         track.on(TrackEvent.VideoPlaybackStarted, this.handleVideoPlaybackStarted);
       }
-      this.emit(RoomEvent.TrackSubscribed, track, publication, participant);
+      this.emitWhenConnected(RoomEvent.TrackSubscribed, track, publication, participant);
     }).on(ParticipantEvent.TrackUnpublished, publication => {
       this.emit(RoomEvent.TrackUnpublished, publication, participant);
     }).on(ParticipantEvent.TrackUnsubscribed, (track, publication) => {
@@ -27274,7 +29997,8 @@ class Room extends eventsExports.EventEmitter {
       return acc;
     }, []);
     const localTracks = this.localParticipant.getTrackPublications(); // FIXME would be nice to have this return LocalTrackPublications directly instead of the type cast
-    this.engine.sendSyncState(remoteTracks, localTracks);
+    const localDataTrackInfos = this.outgoingDataTrackManager.queryPublished();
+    this.engine.sendSyncState(remoteTracks, localTracks, localDataTrackInfos);
   }
   /**
    * After resuming, we'll need to notify the server of the current
@@ -27338,8 +30062,8 @@ class Room extends eventsExports.EventEmitter {
     return true;
   }
   emitBufferedEvents() {
-    this.bufferedEvents.forEach(_ref3 => {
-      let [ev, args] = _ref3;
+    this.bufferedEvents.forEach(_ref5 => {
+      let [ev, args] = _ref5;
       this.emit(ev, ...args);
     });
     this.bufferedEvents = [];
@@ -27529,698 +30253,7 @@ class Convert {
   static transcriptionAttributesToJson(value) {
     return JSON.stringify(value);
   }
-}var attributeTypings=/*#__PURE__*/Object.freeze({__proto__:null,Convert:Convert});const U16_MAX_SIZE = 0xffff;
-const U32_MAX_SIZE = 0xffffffff;
-/**
- * A number of fields withing the data tracks packet specification assume wrap around behavior when
- * an unsigned type is incremented beyond its max size (ie, the packet `sequence` field). This
- * wrapper type manually reimplements this wrap around behavior given javascript's lack of fixed
- * size integer types.
- */
-class WrapAroundUnsignedInt {
-  static u16(raw) {
-    return new WrapAroundUnsignedInt(raw, U16_MAX_SIZE);
-  }
-  static u32(raw) {
-    return new WrapAroundUnsignedInt(raw, U32_MAX_SIZE);
-  }
-  constructor(raw, maxSize) {
-    this.value = raw;
-    if (raw < 0) {
-      throw new Error('WrapAroundUnsignedInt: cannot faithfully represent an integer smaller than 0');
-    }
-    if (maxSize > Number.MAX_SAFE_INTEGER) {
-      throw new Error('WrapAroundUnsignedInt: cannot faithfully represent an integer bigger than MAX_SAFE_INTEGER.');
-    }
-    this.maxSize = maxSize;
-    this.clamp();
-  }
-  /** Manually clamp the given containing value according to the wrap around max size bounds. Use
-   * this after out of bounds modification to the contained value by external code. */
-  clamp() {
-    while (this.value > this.maxSize) {
-      this.value -= this.maxSize + 1;
-    }
-    while (this.value < 0) {
-      this.value += this.maxSize + 1;
-    }
-  }
-  clone() {
-    return new WrapAroundUnsignedInt(this.value, this.maxSize);
-  }
-  /** When called, maps the containing value to a new containing value. After mapping, the wrap
-   * around external max size bounds are applied. Note that this is a mutative operation. */
-  update(updateFn) {
-    this.value = updateFn(this.value);
-    this.clamp();
-  }
-  /** Increments the given `n` to the inner value. Note that this is a mutative operation. */
-  increment() {
-    let n = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
-    this.update(value => value + n);
-  }
-  /** Decrements the given `n` from the inner value. Note that this is a mutative operation. */
-  decrement() {
-    let n = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
-    this.update(value => value - n);
-  }
-  getThenIncrement() {
-    const previousValue = this.value;
-    this.increment();
-    return new WrapAroundUnsignedInt(previousValue, this.maxSize);
-  }
-  /** Returns true if {@link this} is before the passed other {@link WrapAroundUnsignedInt}. */
-  isBefore(other) {
-    const a = this.value >>> 0;
-    const b = other.value >>> 0;
-    const diff = b - a >>> 0;
-    return diff !== 0 && diff < this.maxSize + 1;
-  }
-}
-class DataTrackTimestamp {
-  static fromRtpTicks(rtpTicks) {
-    return new DataTrackTimestamp(rtpTicks, 90000);
-  }
-  /** Generates a timestamp initialized to a non cryptographically secure random value, so that
-   * different streams are more difficult to correlate in packet capture. */
-  static rtpRandom() {
-    const randomValue = Math.round(Math.random() * U32_MAX_SIZE);
-    return DataTrackTimestamp.fromRtpTicks(randomValue);
-  }
-  constructor(raw, rateInHz) {
-    this.timestamp = WrapAroundUnsignedInt.u32(raw);
-    this.rateInHz = rateInHz;
-  }
-  asTicks() {
-    return this.timestamp.value;
-  }
-  clone() {
-    return new DataTrackTimestamp(this.timestamp.value, this.rateInHz);
-  }
-  wrappingAdd(n) {
-    this.timestamp.increment(n);
-  }
-  /** Returns true if {@link this} is before the passed other {@link DataTrackTimestamp}. */
-  isBefore(other) {
-    return this.timestamp.isBefore(other.timestamp);
-  }
-}
-function coerceToDataView(input) {
-  if (input instanceof DataView) {
-    return input;
-  } else if (input instanceof ArrayBuffer) {
-    return new DataView(input);
-  } else if (input instanceof Uint8Array) {
-    return new DataView(input.buffer, input.byteOffset, input.byteLength);
-  } else {
-    throw new Error("Error coercing ".concat(input, " to DataView - input was not DataView, ArrayBuffer, or Uint8Array."));
-  }
-}var DataTrackHandleErrorReason;
-(function (DataTrackHandleErrorReason) {
-  DataTrackHandleErrorReason[DataTrackHandleErrorReason["Reserved"] = 0] = "Reserved";
-  DataTrackHandleErrorReason[DataTrackHandleErrorReason["TooLarge"] = 1] = "TooLarge";
-})(DataTrackHandleErrorReason || (DataTrackHandleErrorReason = {}));
-class DataTrackHandleError extends LivekitReasonedError {
-  constructor(message, reason) {
-    super(19, message);
-    this.name = 'DataTrackHandleError';
-    this.reason = reason;
-    this.reasonName = DataTrackHandleErrorReason[reason];
-  }
-  isReason(reason) {
-    return this.reason === reason;
-  }
-  static tooLarge() {
-    return new DataTrackHandleError('Value too large to be a valid track handle', DataTrackHandleErrorReason.TooLarge);
-  }
-  static reserved(value) {
-    return new DataTrackHandleError("0x".concat(value.toString(16), " is a reserved value."), DataTrackHandleErrorReason.Reserved);
-  }
-}
-const DataTrackHandle = {
-  fromNumber(raw) {
-    if (raw === 0) {
-      throw DataTrackHandleError.reserved(raw);
-    }
-    if (raw > U16_MAX_SIZE) {
-      throw DataTrackHandleError.tooLarge();
-    }
-    return raw;
-  }
-};// Number type sizes
-const U8_LENGTH_BYTES = 1;
-const U16_LENGTH_BYTES = 2;
-const U32_LENGTH_BYTES = 4;
-const U64_LENGTH_BYTES = 8;
-/// Constants used for serialization and deserialization.
-const SUPPORTED_VERSION = 0;
-const BASE_HEADER_LEN = 12;
-// Bitfield shifts and masks for header flags
-const VERSION_SHIFT = 5;
-const VERSION_MASK = 0x07;
-const FRAME_MARKER_SHIFT = 3;
-const FRAME_MARKER_MASK = 0x3;
-const FRAME_MARKER_START = 0x2;
-const FRAME_MARKER_FINAL = 0x1;
-const FRAME_MARKER_INTER = 0x0;
-const FRAME_MARKER_SINGLE = 0x3;
-const EXT_WORDS_INDICATOR_SIZE = 2;
-const EXT_FLAG_SHIFT = 0x2;
-const EXT_FLAG_MASK = 0x1;
-const EXT_TAG_PADDING = 0;var DataTrackDeserializeErrorReason;
-(function (DataTrackDeserializeErrorReason) {
-  DataTrackDeserializeErrorReason[DataTrackDeserializeErrorReason["TooShort"] = 0] = "TooShort";
-  DataTrackDeserializeErrorReason[DataTrackDeserializeErrorReason["HeaderOverrun"] = 1] = "HeaderOverrun";
-  DataTrackDeserializeErrorReason[DataTrackDeserializeErrorReason["MissingExtWords"] = 2] = "MissingExtWords";
-  DataTrackDeserializeErrorReason[DataTrackDeserializeErrorReason["UnsupportedVersion"] = 3] = "UnsupportedVersion";
-  DataTrackDeserializeErrorReason[DataTrackDeserializeErrorReason["InvalidHandle"] = 4] = "InvalidHandle";
-  DataTrackDeserializeErrorReason[DataTrackDeserializeErrorReason["MalformedExt"] = 5] = "MalformedExt";
-})(DataTrackDeserializeErrorReason || (DataTrackDeserializeErrorReason = {}));
-class DataTrackDeserializeError extends LivekitReasonedError {
-  constructor(message, reason, options) {
-    super(19, message, options);
-    this.name = 'DataTrackDeserializeError';
-    this.reason = reason;
-    this.reasonName = DataTrackDeserializeErrorReason[reason];
-  }
-  static tooShort() {
-    return new DataTrackDeserializeError('Too short to contain a valid header', DataTrackDeserializeErrorReason.TooShort);
-  }
-  static headerOverrun() {
-    return new DataTrackDeserializeError('Header exceeds total packet length', DataTrackDeserializeErrorReason.HeaderOverrun);
-  }
-  static missingExtWords() {
-    return new DataTrackDeserializeError('Extension word indicator is missing', DataTrackDeserializeErrorReason.MissingExtWords);
-  }
-  static unsupportedVersion(version) {
-    return new DataTrackDeserializeError("Unsupported version ".concat(version), DataTrackDeserializeErrorReason.UnsupportedVersion);
-  }
-  static invalidHandle(cause) {
-    return new DataTrackDeserializeError("invalid track handle: ".concat(cause.message), DataTrackDeserializeErrorReason.InvalidHandle, {
-      cause
-    });
-  }
-  static malformedExt(tag) {
-    return new DataTrackDeserializeError("Extension with tag ".concat(tag, " is malformed"), DataTrackDeserializeErrorReason.MalformedExt);
-  }
-}
-var DataTrackSerializeErrorReason;
-(function (DataTrackSerializeErrorReason) {
-  DataTrackSerializeErrorReason[DataTrackSerializeErrorReason["TooSmallForHeader"] = 0] = "TooSmallForHeader";
-  DataTrackSerializeErrorReason[DataTrackSerializeErrorReason["TooSmallForPayload"] = 1] = "TooSmallForPayload";
-})(DataTrackSerializeErrorReason || (DataTrackSerializeErrorReason = {}));
-class DataTrackSerializeError extends LivekitReasonedError {
-  constructor(message, reason, options) {
-    super(19, message, options);
-    this.name = 'DataTrackSerializeError';
-    this.reason = reason;
-    this.reasonName = DataTrackSerializeErrorReason[reason];
-  }
-  static tooSmallForHeader() {
-    return new DataTrackSerializeError('Buffer cannot fit header', DataTrackSerializeErrorReason.TooSmallForHeader);
-  }
-  static tooSmallForPayload() {
-    return new DataTrackSerializeError('Buffer cannot fit payload', DataTrackSerializeErrorReason.TooSmallForPayload);
-  }
-}/** An abstract class implementing common behavior related to data track binary serialization. */
-class Serializable {
-  /** Encodes the instance as binary and returns the data as a Uint8Array. */
-  toBinary() {
-    const lengthBytes = this.toBinaryLengthBytes();
-    const output = new ArrayBuffer(lengthBytes);
-    const view = new DataView(output);
-    const writtenBytes = this.toBinaryInto(view);
-    if (lengthBytes !== writtenBytes) {
-      // @throws-transformer ignore - this should be treated as a "panic" and not be caught
-      throw new Error("".concat(this.constructor.name, ".toBinary: written bytes (").concat(writtenBytes, " bytes) not equal to allocated array buffer length (").concat(lengthBytes, " bytes)."));
-    }
-    return new Uint8Array(output);
-  }
-}var DataTrackExtensionTag;
-(function (DataTrackExtensionTag) {
-  DataTrackExtensionTag[DataTrackExtensionTag["UserTimestamp"] = 2] = "UserTimestamp";
-  DataTrackExtensionTag[DataTrackExtensionTag["E2ee"] = 1] = "E2ee";
-})(DataTrackExtensionTag || (DataTrackExtensionTag = {}));
-class DataTrackExtension extends Serializable {}
-class DataTrackUserTimestampExtension extends DataTrackExtension {
-  constructor(timestamp) {
-    super();
-    this.timestamp = timestamp;
-  }
-  toBinaryLengthBytes() {
-    return U16_LENGTH_BYTES /* tag */ + U16_LENGTH_BYTES /* length */ + DataTrackUserTimestampExtension.lengthBytes;
-  }
-  toBinaryInto(dataView) {
-    let byteIndex = 0;
-    dataView.setUint16(byteIndex, DataTrackUserTimestampExtension.tag);
-    byteIndex += U16_LENGTH_BYTES;
-    const rtpOrientedLength = DataTrackUserTimestampExtension.lengthBytes - 1;
-    dataView.setUint16(byteIndex, rtpOrientedLength);
-    byteIndex += U16_LENGTH_BYTES;
-    dataView.setBigUint64(byteIndex, this.timestamp);
-    byteIndex += U64_LENGTH_BYTES;
-    const totalLengthBytes = this.toBinaryLengthBytes();
-    if (byteIndex !== totalLengthBytes) {
-      // @throws-transformer ignore - this should be treated as a "panic" and not be caught
-      throw new Error("DataTrackUserTimestampExtension.toBinaryInto: Wrote ".concat(byteIndex, " bytes but expected length was ").concat(totalLengthBytes, " bytes"));
-    }
-    return byteIndex;
-  }
-  toJSON() {
-    return {
-      tag: DataTrackUserTimestampExtension.tag,
-      lengthBytes: DataTrackUserTimestampExtension.lengthBytes,
-      timestamp: this.timestamp
-    };
-  }
-}
-DataTrackUserTimestampExtension.tag = DataTrackExtensionTag.UserTimestamp;
-DataTrackUserTimestampExtension.lengthBytes = 8;
-class DataTrackE2eeExtension extends DataTrackExtension {
-  constructor(keyIndex, iv) {
-    super();
-    this.keyIndex = keyIndex;
-    this.iv = iv;
-  }
-  toBinaryLengthBytes() {
-    return U16_LENGTH_BYTES /* tag */ + U16_LENGTH_BYTES /* length */ + DataTrackE2eeExtension.lengthBytes;
-  }
-  toBinaryInto(dataView) {
-    let byteIndex = 0;
-    dataView.setUint16(byteIndex, DataTrackE2eeExtension.tag);
-    byteIndex += U16_LENGTH_BYTES;
-    const rtpOrientedLength = DataTrackE2eeExtension.lengthBytes - 1;
-    dataView.setUint16(byteIndex, rtpOrientedLength);
-    byteIndex += U16_LENGTH_BYTES;
-    dataView.setUint8(byteIndex, this.keyIndex);
-    byteIndex += U8_LENGTH_BYTES;
-    for (let i = 0; i < this.iv.length; i += 1) {
-      dataView.setUint8(byteIndex, this.iv[i]);
-      byteIndex += U8_LENGTH_BYTES;
-    }
-    const totalLengthBytes = this.toBinaryLengthBytes();
-    if (byteIndex !== totalLengthBytes) {
-      // @throws-transformer ignore - this should be treated as a "panic" and not be caught
-      throw new Error("DataTrackE2eeExtension.toBinaryInto: Wrote ".concat(byteIndex, " bytes but expected length was ").concat(totalLengthBytes, " bytes"));
-    }
-    return byteIndex;
-  }
-  toJSON() {
-    return {
-      tag: DataTrackE2eeExtension.tag,
-      lengthBytes: DataTrackE2eeExtension.lengthBytes,
-      keyIndex: this.keyIndex,
-      iv: this.iv
-    };
-  }
-}
-DataTrackE2eeExtension.tag = DataTrackExtensionTag.E2ee;
-DataTrackE2eeExtension.lengthBytes = 13;
-class DataTrackExtensions extends Serializable {
-  constructor() {
-    let opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-    super();
-    this.userTimestamp = opts.userTimestamp;
-    this.e2ee = opts.e2ee;
-  }
-  toBinaryLengthBytes() {
-    let lengthBytes = 0;
-    if (this.userTimestamp) {
-      lengthBytes += this.userTimestamp.toBinaryLengthBytes();
-    }
-    if (this.e2ee) {
-      lengthBytes += this.e2ee.toBinaryLengthBytes();
-    }
-    return lengthBytes;
-  }
-  toBinaryInto(dataView) {
-    let byteIndex = 0;
-    if (this.e2ee) {
-      const e2eeBytes = this.e2ee.toBinaryInto(dataView);
-      byteIndex += e2eeBytes;
-    }
-    if (this.userTimestamp) {
-      const userTimestampBytes = this.userTimestamp.toBinaryInto(new DataView(dataView.buffer, dataView.byteOffset + byteIndex));
-      byteIndex += userTimestampBytes;
-    }
-    const totalLengthBytes = this.toBinaryLengthBytes();
-    if (byteIndex !== totalLengthBytes) {
-      // @throws-transformer ignore - this should be treated as a "panic" and not be caught
-      throw new Error("DataTrackExtensions.toBinaryInto: Wrote ".concat(byteIndex, " bytes but expected length was ").concat(totalLengthBytes, " bytes"));
-    }
-    return byteIndex;
-  }
-  static fromBinary(input) {
-    const dataView = coerceToDataView(input);
-    let userTimestamp;
-    let e2ee;
-    let byteIndex = 0;
-    while (dataView.byteLength - byteIndex >= U16_LENGTH_BYTES + U16_LENGTH_BYTES) {
-      const tag = dataView.getUint16(byteIndex);
-      byteIndex += U16_LENGTH_BYTES;
-      const rtpOrientedLength = dataView.getUint16(byteIndex);
-      const lengthBytes = rtpOrientedLength + 1;
-      byteIndex += U16_LENGTH_BYTES;
-      if (tag === EXT_TAG_PADDING) {
-        // Skip padding
-        continue;
-      }
-      switch (tag) {
-        case DataTrackExtensionTag.UserTimestamp:
-          if (dataView.byteLength - byteIndex < DataTrackUserTimestampExtension.lengthBytes) {
-            throw DataTrackDeserializeError.malformedExt(tag);
-          }
-          userTimestamp = new DataTrackUserTimestampExtension(dataView.getBigUint64(byteIndex));
-          byteIndex += lengthBytes;
-          break;
-        case DataTrackExtensionTag.E2ee:
-          if (dataView.byteLength - byteIndex < DataTrackE2eeExtension.lengthBytes) {
-            throw DataTrackDeserializeError.malformedExt(tag);
-          }
-          const keyIndex = dataView.getUint8(byteIndex);
-          const iv = new Uint8Array(12);
-          for (let i = 0; i < iv.length; i += 1) {
-            let byteIndexForIv = byteIndex;
-            byteIndexForIv += U8_LENGTH_BYTES; // key index
-            byteIndexForIv += i * U8_LENGTH_BYTES; // Index into iv array
-            iv[i] = dataView.getUint8(byteIndexForIv);
-          }
-          e2ee = new DataTrackE2eeExtension(keyIndex, iv);
-          byteIndex += lengthBytes;
-          break;
-        default:
-          // Skip over unknown extensions (forward compatible).
-          if (dataView.byteLength - byteIndex < lengthBytes) {
-            throw DataTrackDeserializeError.malformedExt(tag);
-          }
-          byteIndex += lengthBytes;
-          break;
-      }
-    }
-    // NOTE: padding bytes after extension data is intentionally not being processed
-    return [new DataTrackExtensions({
-      userTimestamp,
-      e2ee
-    }), dataView.byteLength];
-  }
-  toJSON() {
-    var _a, _b, _c, _d;
-    return {
-      userTimestamp: (_b = (_a = this.userTimestamp) === null || _a === void 0 ? void 0 : _a.toJSON()) !== null && _b !== void 0 ? _b : null,
-      e2ee: (_d = (_c = this.e2ee) === null || _c === void 0 ? void 0 : _c.toJSON()) !== null && _d !== void 0 ? _d : null
-    };
-  }
-}/** A class for serializing / deserializing data track packet header sections. */
-class DataTrackPacketHeader extends Serializable {
-  constructor(opts) {
-    var _a;
-    super();
-    this.marker = opts.marker;
-    this.trackHandle = opts.trackHandle;
-    this.sequence = opts.sequence;
-    this.frameNumber = opts.frameNumber;
-    this.timestamp = opts.timestamp;
-    this.extensions = (_a = opts.extensions) !== null && _a !== void 0 ? _a : new DataTrackExtensions();
-  }
-  extensionsMetrics() {
-    const lengthBytes = this.extensions.toBinaryLengthBytes();
-    const lengthWords = Math.ceil(lengthBytes / 4);
-    const paddingLengthBytes = lengthWords * 4 - lengthBytes;
-    return {
-      lengthBytes,
-      lengthWords,
-      paddingLengthBytes
-    };
-  }
-  toBinaryLengthBytes() {
-    const {
-      lengthBytes: extLengthBytes,
-      paddingLengthBytes: extPaddingLengthBytes
-    } = this.extensionsMetrics();
-    let totalLengthBytes = BASE_HEADER_LEN;
-    if (extLengthBytes > 0) {
-      totalLengthBytes += EXT_WORDS_INDICATOR_SIZE + extLengthBytes + extPaddingLengthBytes;
-    }
-    return totalLengthBytes;
-  }
-  toBinaryInto(dataView) {
-    if (dataView.byteLength < this.toBinaryLengthBytes()) {
-      throw DataTrackSerializeError.tooSmallForHeader();
-    }
-    let initial = SUPPORTED_VERSION << VERSION_SHIFT;
-    let marker;
-    switch (this.marker) {
-      case FrameMarker.Inter:
-        marker = FRAME_MARKER_INTER;
-        break;
-      case FrameMarker.Final:
-        marker = FRAME_MARKER_FINAL;
-        break;
-      case FrameMarker.Start:
-        marker = FRAME_MARKER_START;
-        break;
-      case FrameMarker.Single:
-        marker = FRAME_MARKER_SINGLE;
-        break;
-    }
-    initial |= marker << FRAME_MARKER_SHIFT;
-    const {
-      lengthBytes: extensionsLengthBytes,
-      lengthWords: extensionsLengthWords,
-      paddingLengthBytes: extensionsPaddingLengthBytes
-    } = this.extensionsMetrics();
-    if (extensionsLengthBytes > 0) {
-      initial |= 1 << EXT_FLAG_SHIFT;
-    }
-    let byteIndex = 0;
-    dataView.setUint8(byteIndex, initial);
-    byteIndex += U8_LENGTH_BYTES;
-    dataView.setUint8(byteIndex, 0); // Reserved
-    byteIndex += U8_LENGTH_BYTES;
-    dataView.setUint16(byteIndex, this.trackHandle);
-    byteIndex += U16_LENGTH_BYTES;
-    dataView.setUint16(byteIndex, this.sequence.value);
-    byteIndex += U16_LENGTH_BYTES;
-    dataView.setUint16(byteIndex, this.frameNumber.value);
-    byteIndex += U16_LENGTH_BYTES;
-    dataView.setUint32(byteIndex, this.timestamp.asTicks());
-    byteIndex += U32_LENGTH_BYTES;
-    if (extensionsLengthBytes > 0) {
-      // NOTE: The protocol is implemented in a way where if the extension bit is set, any
-      // deserializer assumes the extensions section is at least one byte long, and the "length"
-      // field represents the "number of additional bytes" long the extensions section is. This is
-      // potentially unintuitive so I wanted to call it out.
-      const rtpOrientedExtensionLengthWords = extensionsLengthWords - 1;
-      dataView.setUint16(byteIndex, rtpOrientedExtensionLengthWords);
-      byteIndex += U16_LENGTH_BYTES;
-      const extensionBytes = this.extensions.toBinaryInto(new DataView(dataView.buffer, dataView.byteOffset + byteIndex));
-      byteIndex += extensionBytes;
-      for (let i = 0; i < extensionsPaddingLengthBytes; i += 1) {
-        dataView.setUint8(byteIndex, 0);
-        byteIndex += U8_LENGTH_BYTES;
-      }
-    }
-    const totalLengthBytes = this.toBinaryLengthBytes();
-    if (byteIndex !== totalLengthBytes) {
-      // @throws-transformer ignore - this should be treated as a "panic" and not be caught
-      throw new Error("DataTrackPacketHeader.toBinaryInto: Wrote ".concat(byteIndex, " bytes but expected length was ").concat(totalLengthBytes, " bytes"));
-    }
-    return totalLengthBytes;
-  }
-  static fromBinary(input) {
-    const dataView = coerceToDataView(input);
-    if (dataView.byteLength < BASE_HEADER_LEN) {
-      throw DataTrackDeserializeError.tooShort();
-    }
-    let byteIndex = 0;
-    const initial = dataView.getUint8(byteIndex);
-    byteIndex += U8_LENGTH_BYTES;
-    const version = initial >> VERSION_SHIFT & VERSION_MASK;
-    if (version > SUPPORTED_VERSION) {
-      throw DataTrackDeserializeError.unsupportedVersion(version);
-    }
-    let marker;
-    switch (initial >> FRAME_MARKER_SHIFT & FRAME_MARKER_MASK) {
-      case FRAME_MARKER_START:
-        marker = FrameMarker.Start;
-        break;
-      case FRAME_MARKER_FINAL:
-        marker = FrameMarker.Final;
-        break;
-      case FRAME_MARKER_SINGLE:
-        marker = FrameMarker.Single;
-        break;
-      case FRAME_MARKER_INTER:
-      default:
-        marker = FrameMarker.Inter;
-        break;
-    }
-    const extensionsFlag = (initial >> EXT_FLAG_SHIFT & EXT_FLAG_MASK) > 0;
-    byteIndex += U8_LENGTH_BYTES; // Reserved
-    let trackHandle;
-    try {
-      trackHandle = DataTrackHandle.fromNumber(dataView.getUint16(byteIndex));
-    } catch (e) {
-      if (e instanceof DataTrackHandleError && (e.isReason(DataTrackHandleErrorReason.Reserved) || e.isReason(DataTrackHandleErrorReason.TooLarge))) {
-        throw DataTrackDeserializeError.invalidHandle(e);
-      } else {
-        throw e;
-      }
-    }
-    byteIndex += U16_LENGTH_BYTES;
-    const sequence = WrapAroundUnsignedInt.u16(dataView.getUint16(byteIndex));
-    byteIndex += U16_LENGTH_BYTES;
-    const frameNumber = WrapAroundUnsignedInt.u16(dataView.getUint16(byteIndex));
-    byteIndex += U16_LENGTH_BYTES;
-    const timestamp = DataTrackTimestamp.fromRtpTicks(dataView.getUint32(byteIndex));
-    byteIndex += U32_LENGTH_BYTES;
-    let extensions = new DataTrackExtensions();
-    if (extensionsFlag) {
-      if (dataView.byteLength - byteIndex < U16_LENGTH_BYTES) {
-        throw DataTrackDeserializeError.missingExtWords();
-      }
-      let rtpOrientedExtensionWords = dataView.getUint16(byteIndex);
-      byteIndex += U16_LENGTH_BYTES;
-      // NOTE: The protocol is implemented in a way where if the extension bit is set, any
-      // deserializer assumes the extensions section is at least one byte long, and the "length"
-      // field represents the "number of additional bytes" long the extensions section is. This is
-      // potentially unintuitive so I wanted to call it out.
-      const extensionWords = rtpOrientedExtensionWords + 1;
-      let extensionLengthBytes = 4 * extensionWords;
-      if (byteIndex + extensionLengthBytes > dataView.byteLength) {
-        throw DataTrackDeserializeError.headerOverrun();
-      }
-      let extensionDataView = new DataView(dataView.buffer, dataView.byteOffset + byteIndex, extensionLengthBytes);
-      const [result, readBytes] = DataTrackExtensions.fromBinary(extensionDataView);
-      extensions = result;
-      byteIndex += readBytes;
-    }
-    return [new DataTrackPacketHeader({
-      marker,
-      trackHandle: trackHandle,
-      sequence,
-      frameNumber,
-      timestamp,
-      extensions
-    }), byteIndex];
-  }
-  toJSON() {
-    return {
-      marker: this.marker,
-      trackHandle: this.trackHandle,
-      sequence: this.sequence.value,
-      frameNumber: this.frameNumber.value,
-      timestamp: this.timestamp.asTicks(),
-      extensions: this.extensions.toJSON()
-    };
-  }
-}
-/** Marker indicating a packet's position in relation to a frame. */
-var FrameMarker;
-(function (FrameMarker) {
-  /** Packet is the first in a frame. */
-  FrameMarker[FrameMarker["Start"] = 0] = "Start";
-  /** Packet is within a frame. */
-  FrameMarker[FrameMarker["Inter"] = 1] = "Inter";
-  /** Packet is the last in a frame. */
-  FrameMarker[FrameMarker["Final"] = 2] = "Final";
-  /** Packet is the only one in a frame. */
-  FrameMarker[FrameMarker["Single"] = 3] = "Single";
-})(FrameMarker || (FrameMarker = {}));
-/** A class for serializing / deserializing data track packets. */
-class DataTrackPacket extends Serializable {
-  constructor(header, payload) {
-    super();
-    this.header = header;
-    this.payload = payload;
-  }
-  toBinaryLengthBytes() {
-    return this.header.toBinaryLengthBytes() + this.payload.byteLength;
-  }
-  toBinaryInto(dataView) {
-    let byteIndex = 0;
-    const headerLengthBytes = this.header.toBinaryInto(dataView);
-    byteIndex += headerLengthBytes;
-    if (dataView.byteLength - byteIndex < this.payload.byteLength) {
-      throw DataTrackSerializeError.tooSmallForPayload();
-    }
-    for (let index = 0; index < this.payload.length; index += 1) {
-      dataView.setUint8(byteIndex, this.payload[index]);
-      byteIndex += U8_LENGTH_BYTES;
-    }
-    const totalLengthBytes = this.toBinaryLengthBytes();
-    if (byteIndex !== totalLengthBytes) {
-      // @throws-transformer ignore - this should be treated as a "panic" and not be caught
-      throw new Error("DataTrackPacket.toBinaryInto: Wrote ".concat(byteIndex, " bytes but expected length was ").concat(totalLengthBytes, " bytes"));
-    }
-    return totalLengthBytes;
-  }
-  static fromBinary(input) {
-    const dataView = coerceToDataView(input);
-    const [header, headerByteLength] = DataTrackPacketHeader.fromBinary(dataView);
-    const payload = dataView.buffer.slice(dataView.byteOffset + headerByteLength, dataView.byteOffset + dataView.byteLength);
-    return [new DataTrackPacket(header, new Uint8Array(payload)), dataView.byteLength];
-  }
-  toJSON() {
-    return {
-      header: this.header.toJSON(),
-      payload: this.payload
-    };
-  }
-}var DataTrackPacketizerReason;
-(function (DataTrackPacketizerReason) {
-  DataTrackPacketizerReason[DataTrackPacketizerReason["MtuTooShort"] = 0] = "MtuTooShort";
-})(DataTrackPacketizerReason || (DataTrackPacketizerReason = {}));getLogger(LoggerNames.DataTracks);
-/** Reason why a frame was dropped. */
-var DataTrackDepacketizerDropReason;
-(function (DataTrackDepacketizerDropReason) {
-  DataTrackDepacketizerDropReason[DataTrackDepacketizerDropReason["Interrupted"] = 0] = "Interrupted";
-  DataTrackDepacketizerDropReason[DataTrackDepacketizerDropReason["UnknownFrame"] = 1] = "UnknownFrame";
-  DataTrackDepacketizerDropReason[DataTrackDepacketizerDropReason["BufferFull"] = 2] = "BufferFull";
-  DataTrackDepacketizerDropReason[DataTrackDepacketizerDropReason["Incomplete"] = 3] = "Incomplete";
-})(DataTrackDepacketizerDropReason || (DataTrackDepacketizerDropReason = {}));var DataTrackSubscribeErrorReason;
-(function (DataTrackSubscribeErrorReason) {
-  /** The track has been unpublished and is no longer available */
-  DataTrackSubscribeErrorReason[DataTrackSubscribeErrorReason["Unpublished"] = 0] = "Unpublished";
-  /** Request to subscribe to data track timed-out */
-  DataTrackSubscribeErrorReason[DataTrackSubscribeErrorReason["Timeout"] = 1] = "Timeout";
-  /** Cannot subscribe to data track when disconnected */
-  DataTrackSubscribeErrorReason[DataTrackSubscribeErrorReason["Disconnected"] = 2] = "Disconnected";
-  /** Subscription to data track cancelled by caller */
-  DataTrackSubscribeErrorReason[DataTrackSubscribeErrorReason["Cancelled"] = 4] = "Cancelled";
-})(DataTrackSubscribeErrorReason || (DataTrackSubscribeErrorReason = {}));getLogger(LoggerNames.DataTracks);getLogger(LoggerNames.DataTracks);var DataTrackPublishErrorReason;
-(function (DataTrackPublishErrorReason) {
-  /**
-   * Local participant does not have permission to publish data tracks.
-   *
-   * Ensure the participant's token contains the `canPublishData` grant.
-   */
-  DataTrackPublishErrorReason[DataTrackPublishErrorReason["NotAllowed"] = 0] = "NotAllowed";
-  /** A track with the same name is already published by the local participant. */
-  DataTrackPublishErrorReason[DataTrackPublishErrorReason["DuplicateName"] = 1] = "DuplicateName";
-  /** Request to publish the track took long to complete. */
-  DataTrackPublishErrorReason[DataTrackPublishErrorReason["Timeout"] = 2] = "Timeout";
-  /** No additional data tracks can be published by the local participant. */
-  DataTrackPublishErrorReason[DataTrackPublishErrorReason["LimitReached"] = 3] = "LimitReached";
-  /** Cannot publish data track when the room is disconnected. */
-  DataTrackPublishErrorReason[DataTrackPublishErrorReason["Disconnected"] = 4] = "Disconnected";
-  // NOTE: this was introduced by web / there isn't a corresponding case in the rust version.
-  DataTrackPublishErrorReason[DataTrackPublishErrorReason["Cancelled"] = 5] = "Cancelled";
-})(DataTrackPublishErrorReason || (DataTrackPublishErrorReason = {}));
-var DataTrackPushFrameErrorReason;
-(function (DataTrackPushFrameErrorReason) {
-  /** Track is no longer published. */
-  DataTrackPushFrameErrorReason[DataTrackPushFrameErrorReason["TrackUnpublished"] = 0] = "TrackUnpublished";
-  /** Frame was dropped. */
-  // NOTE: this should become a web specific error, the rust version of this "dropped" error means
-  // something different and will be renamed to "QueueFull".
-  DataTrackPushFrameErrorReason[DataTrackPushFrameErrorReason["Dropped"] = 1] = "Dropped";
-})(DataTrackPushFrameErrorReason || (DataTrackPushFrameErrorReason = {}));
-var DataTrackOutgoingPipelineErrorReason;
-(function (DataTrackOutgoingPipelineErrorReason) {
-  DataTrackOutgoingPipelineErrorReason[DataTrackOutgoingPipelineErrorReason["Packetizer"] = 0] = "Packetizer";
-  DataTrackOutgoingPipelineErrorReason[DataTrackOutgoingPipelineErrorReason["Encryption"] = 1] = "Encryption";
-})(DataTrackOutgoingPipelineErrorReason || (DataTrackOutgoingPipelineErrorReason = {}));getLogger(LoggerNames.DataTracks);var CheckStatus;
+}var attributeTypings=/*#__PURE__*/Object.freeze({__proto__:null,Convert:Convert});var CheckStatus;
 (function (CheckStatus) {
   CheckStatus[CheckStatus["IDLE"] = 0] = "IDLE";
   CheckStatus[CheckStatus["RUNNING"] = 1] = "RUNNING";
@@ -29568,4 +31601,4 @@ function facingModeFromDeviceLabel(deviceLabel) {
 function isFacingModeValue(item) {
   const allowedValues = ['user', 'environment', 'left', 'right'];
   return item === undefined || allowedValues.includes(item);
-}export{AudioPresets,BackupCodecPolicy,BaseKeyProvider,CheckStatus,Checker,ConnectionCheck,ConnectionError,ConnectionErrorReason,ConnectionQuality,ConnectionState,CriticalTimers,CryptorError,CryptorErrorReason,CryptorEvent,DataPacket_Kind,DataStreamError,DataStreamErrorReason,DataTrackPacket,DefaultReconnectPolicy,DeviceUnsupportedError,DisconnectReason,EncryptionEvent,Encryption_Type,EngineEvent,ExternalE2EEKeyProvider,KeyHandlerEvent,KeyProviderEvent,LivekitError,LivekitReasonedError,LocalAudioTrack,LocalParticipant,LocalTrack,LocalTrackPublication,LocalTrackRecorder,LocalVideoTrack,LogLevel,LoggerNames,MediaDeviceFailure,_ as Mutex,NegotiationError,Participant,ParticipantEvent,ParticipantInfo_Kind as ParticipantKind,PublishDataError,PublishTrackError,RemoteAudioTrack,RemoteParticipant,RemoteTrack,RemoteTrackPublication,RemoteVideoTrack,Room,RoomEvent,RpcError,ScreenSharePresets,SignalReconnectError,SignalRequestError,SimulatedError,SubscriptionError,TokenSource,TokenSourceConfigurable,TokenSourceFixed,Track,TrackEvent,TrackInvalidError,TrackPublication,TrackType,UnexpectedConnectionState,UnsupportedServer,VideoPreset,VideoPresets,VideoPresets43,VideoQuality,areTokenSourceFetchOptionsEqual,asEncryptablePacket,attachToElement,attributeTypings as attributes,audioCodecs,compareVersions,createAudioAnalyser,createE2EEKey,createKeyMaterialFromBuffer,createKeyMaterialFromString,createLocalAudioTrack,createLocalScreenTracks,createLocalTracks,createLocalVideoTrack,decodeTokenPayload,deriveKeys,detachTrack,facingModeFromDeviceLabel,facingModeFromLocalTrack,getBrowser,getEmptyAudioStreamTrack,getEmptyVideoStreamTrack,getLogger,importKey,isAudioCodec,isAudioTrack,isBackupCodec,isBackupVideoCodec,isBrowserSupported,isE2EESupported,isInsertableStreamSupported,isLocalParticipant,isLocalTrack,isRemoteParticipant,isRemoteTrack,isScriptTransformSupported,isVideoCodec,isVideoFrame,isVideoTrack,needsRbspUnescaping,parseRbsp,protocolVersion,ratchet,setLogExtension,setLogLevel,supportsAV1,supportsAdaptiveStream,supportsAudioOutputSelection,supportsDynacast,supportsVP9,version,videoCodecs,writeRbsp};//# sourceMappingURL=livekit-client.esm.mjs.map
+}export{AudioPresets,BackupCodecPolicy,BaseKeyProvider,CheckStatus,Checker,ConnectionCheck,ConnectionError,ConnectionErrorReason,ConnectionQuality,ConnectionState,CriticalTimers,CryptorError,CryptorErrorReason,CryptorEvent,DataPacket_Kind,DataStreamError,DataStreamErrorReason,DataTrackPacket,DefaultReconnectPolicy,DeviceUnsupportedError,DisconnectReason,EncryptionEvent,Encryption_Type,EngineEvent,ExternalE2EEKeyProvider,KeyHandlerEvent,KeyProviderEvent,LivekitError,LivekitReasonedError,LocalAudioTrack,LocalDataTrack,LocalParticipant,LocalTrack,LocalTrackPublication,LocalTrackRecorder,LocalVideoTrack,LogLevel,LoggerNames,MediaDeviceFailure,_ as Mutex,NegotiationError,Participant,ParticipantEvent,ParticipantInfo_Kind as ParticipantKind,PublishDataError,PublishTrackError,RemoteAudioTrack,RemoteDataTrack,RemoteParticipant,RemoteTrack,RemoteTrackPublication,RemoteVideoTrack,Room,RoomEvent,RpcError,ScreenSharePresets,SignalReconnectError,SignalRequestError,SimulatedError,SubscriptionError,TokenSource,TokenSourceConfigurable,TokenSourceFixed,Track,TrackEvent,TrackInvalidError,TrackPublication,TrackType,UnexpectedConnectionState,UnsupportedServer,VideoPreset,VideoPresets,VideoPresets43,VideoQuality,areTokenSourceFetchOptionsEqual,asEncryptablePacket,attachToElement,attributeTypings as attributes,audioCodecs,compareVersions,createAudioAnalyser,createE2EEKey,createKeyMaterialFromBuffer,createKeyMaterialFromString,createLocalAudioTrack,createLocalScreenTracks,createLocalTracks,createLocalVideoTrack,decodeTokenPayload,deriveKeys,detachTrack,facingModeFromDeviceLabel,facingModeFromLocalTrack,getBrowser,getEmptyAudioStreamTrack,getEmptyVideoStreamTrack,getLogger,importKey,isAudioCodec,isAudioTrack,isBackupCodec,isBackupVideoCodec,isBrowserSupported,isE2EESupported,isInsertableStreamSupported,isLocalParticipant,isLocalTrack,isRemoteParticipant,isRemoteTrack,isScriptTransformSupported,isVideoCodec,isVideoFrame,isVideoTrack,needsRbspUnescaping,parseRbsp,protocolVersion,ratchet,setLogExtension,setLogLevel,supportsAV1,supportsAdaptiveStream,supportsAudioOutputSelection,supportsDynacast,supportsVP9,version,videoCodecs,writeRbsp};//# sourceMappingURL=livekit-client.esm.mjs.map
