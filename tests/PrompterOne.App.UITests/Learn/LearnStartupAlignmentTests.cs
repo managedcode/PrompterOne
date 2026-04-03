@@ -1,4 +1,6 @@
+using System.Globalization;
 using PrompterOne.Shared.Contracts;
+using Xunit.Sdk;
 using static Microsoft.Playwright.Assertions;
 
 namespace PrompterOne.App.UITests;
@@ -11,6 +13,7 @@ public sealed class LearnStartupAlignmentTests(StandaloneAppFixture fixture) : I
     private const string LayoutReadyFalseValue = "false";
     private const string LayoutReadyTrueValue = "true";
     private const double MaxReadyOrpDeltaPx = 6;
+    private const int RequiredStableReadySamples = 2;
     private const string StartupWord = "Good";
     private readonly StandaloneAppFixture _fixture = fixture;
 
@@ -51,8 +54,7 @@ public sealed class LearnStartupAlignmentTests(StandaloneAppFixture fixture) : I
                     string.Equals(sample.RowOpacity, HiddenOpacity, StringComparison.Ordinal) &&
                     string.Equals(sample.RowVisibility, HiddenVisibility, StringComparison.Ordinal));
 
-            await WaitForLearnLayoutReadyAsync(page);
-            var readyStartupWordSample = await ReadCurrentLearnLayoutAsync(page);
+            var readyStartupWordSample = await WaitForStableLearnLayoutAsync(page);
             Assert.Equal(LayoutReadyTrueValue, readyStartupWordSample.LayoutReady);
             Assert.InRange(readyStartupWordSample.OrpDeltaPx, 0, MaxReadyOrpDeltaPx);
         }
@@ -147,20 +149,39 @@ public sealed class LearnStartupAlignmentTests(StandaloneAppFixture fixture) : I
 
     private static string ToJsString(string value) => $"'{value.Replace("\\", "\\\\").Replace("'", "\\'")}'";
 
-    private static Task WaitForLearnLayoutReadyAsync(Microsoft.Playwright.IPage page) =>
-        page.WaitForFunctionAsync(
-            """
-            args => {
-                const display = document.querySelector(`[data-testid="${args.displayTestId}"]`);
-                return display?.getAttribute(args.layoutReadyAttributeName) === args.layoutReadyValue;
-            }
-            """,
-            new
+    private static async Task<LearnStartupTraceSample> WaitForStableLearnLayoutAsync(Microsoft.Playwright.IPage page)
+    {
+        LearnStartupTraceSample? lastSample = null;
+        var stableReadySamples = 0;
+        var deadline = DateTimeOffset.UtcNow.AddMilliseconds(BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs);
+
+        while (DateTimeOffset.UtcNow < deadline)
+        {
+            var currentSample = await ReadCurrentLearnLayoutAsync(page);
+            lastSample = currentSample;
+
+            var isStableReady =
+                string.Equals(currentSample.LayoutReady, LayoutReadyTrueValue, StringComparison.Ordinal) &&
+                !string.Equals(currentSample.RowOpacity, HiddenOpacity, StringComparison.Ordinal) &&
+                !string.Equals(currentSample.RowVisibility, HiddenVisibility, StringComparison.Ordinal) &&
+                currentSample.OrpDeltaPx >= 0 &&
+                currentSample.OrpDeltaPx <= MaxReadyOrpDeltaPx;
+
+            stableReadySamples = isStableReady
+                ? stableReadySamples + 1
+                : 0;
+
+            if (stableReadySamples >= RequiredStableReadySamples)
             {
-                displayTestId = UiTestIds.Learn.Display,
-                layoutReadyAttributeName = LayoutReadyAttributeName,
-                layoutReadyValue = LayoutReadyTrueValue
-            });
+                return currentSample;
+            }
+
+            await page.WaitForTimeoutAsync(BrowserTestConstants.Timing.DiagnosticPollDelayMs);
+        }
+
+        throw new XunitException(
+            $"Learn layout did not stabilize. LayoutReady: {lastSample?.LayoutReady ?? "<null>"}; RowOpacity: {lastSample?.RowOpacity ?? "<null>"}; RowVisibility: {lastSample?.RowVisibility ?? "<null>"}; OrpDeltaPx: {(lastSample is null ? "<null>" : lastSample.OrpDeltaPx.ToString(CultureInfo.InvariantCulture))}; Text: {lastSample?.Text ?? "<null>"}.");
+    }
 
     private static Task<LearnStartupTraceSample> ReadCurrentLearnLayoutAsync(Microsoft.Playwright.IPage page) =>
         page.EvaluateAsync<LearnStartupTraceSample>(
