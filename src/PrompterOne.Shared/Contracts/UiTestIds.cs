@@ -226,6 +226,7 @@ public static class UiTestIds
         public const string AboutCompanyGitHub = "settings-about-company-github";
         public const string AboutCompanyWebsite = "settings-about-company-website";
         public const string AboutPanel = "settings-about-panel";
+        public const string AboutProductGitHub = "settings-about-product-github";
         public const string AboutProductWebsite = "settings-about-product-website";
         public const string AboutRepositoryLink = "settings-about-repository-link";
         public const string AboutReleasesLink = "settings-about-releases-link";

@@ -26,6 +26,15 @@ public partial class SettingsAboutSection
     private const string SoftwareUpdatesLabel = "Software Updates";
     private const string UpToDateLabel = "Up to date";
 
+    private static readonly AboutLinkItem[] AppLinks =
+    [
+        new(
+            UiTestIds.Settings.AboutProductGitHub,
+            "PrompterOne on GitHub",
+            "Source code, docs, and milestones",
+            AboutLinks.ProductRepositoryUrl)
+    ];
+
     private static readonly AboutLinkItem[] CompanyLinks =
     [
         new(
