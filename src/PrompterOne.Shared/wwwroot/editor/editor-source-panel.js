@@ -1,5 +1,6 @@
 (function () {
     const deferredOverlayHighlightDelayMs = 180;
+    const deferredOverlayHighlightMaximumLength = 100000;
     const defaultMeasuredLineHeightPx = 32;
     const offscreenMirrorLeftPx = -99999;
     const interactiveOverlayLargeDraftThreshold = 16000;
@@ -419,7 +420,8 @@
             return;
         }
 
-        if (!useInteractivePlainTextMode) {
+        const text = textarea?.value || "";
+        if (!shouldUseDeferredHighlightRender(text, useInteractivePlainTextMode)) {
             if (state.pendingFullRenderTimeoutId) {
                 window.clearTimeout(state.pendingFullRenderTimeoutId);
                 state.pendingFullRenderTimeoutId = 0;
@@ -446,6 +448,11 @@
 
     function shouldUseInteractivePlainTextRender(text) {
         return (text || "").length >= interactiveOverlayLargeDraftThreshold;
+    }
+
+    function shouldUseDeferredHighlightRender(text, useInteractivePlainTextMode) {
+        return useInteractivePlainTextMode
+            && (text || "").length <= deferredOverlayHighlightMaximumLength;
     }
 
     function renderPlainTextOverlay(text) {

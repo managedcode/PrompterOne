@@ -30,10 +30,10 @@ public partial class EditorPage
             [TpsFrontMatterDocumentService.MetadataKeys.Author] = string.IsNullOrWhiteSpace(_author) ? DefaultAuthor : _author,
             [TpsFrontMatterDocumentService.MetadataKeys.Profile] = _profile,
             [TpsFrontMatterDocumentService.MetadataKeys.BaseWpm] = _baseWpm.ToString(CultureInfo.InvariantCulture),
-            [TpsFrontMatterDocumentService.MetadataKeys.XslowOffset] = _xslowOffset.ToString(CultureInfo.InvariantCulture),
-            [TpsFrontMatterDocumentService.MetadataKeys.SlowOffset] = _slowOffset.ToString(CultureInfo.InvariantCulture),
-            [TpsFrontMatterDocumentService.MetadataKeys.FastOffset] = _fastOffset.ToString(CultureInfo.InvariantCulture),
-            [TpsFrontMatterDocumentService.MetadataKeys.XfastOffset] = _xfastOffset.ToString(CultureInfo.InvariantCulture),
+            [TpsFrontMatterDocumentService.MetadataKeys.SpeedOffsetXslow] = _xslowOffset.ToString(CultureInfo.InvariantCulture),
+            [TpsFrontMatterDocumentService.MetadataKeys.SpeedOffsetSlow] = _slowOffset.ToString(CultureInfo.InvariantCulture),
+            [TpsFrontMatterDocumentService.MetadataKeys.SpeedOffsetFast] = _fastOffset.ToString(CultureInfo.InvariantCulture),
+            [TpsFrontMatterDocumentService.MetadataKeys.SpeedOffsetXfast] = _xfastOffset.ToString(CultureInfo.InvariantCulture),
             [TpsFrontMatterDocumentService.MetadataKeys.Version] = string.IsNullOrWhiteSpace(_version) ? DefaultVersion : _version
         };
 
@@ -44,7 +44,7 @@ public partial class EditorPage
 
         if (!string.IsNullOrWhiteSpace(_displayDuration))
         {
-            metadata[TpsFrontMatterDocumentService.MetadataKeys.DisplayDuration] = _displayDuration;
+            metadata[TpsFrontMatterDocumentService.MetadataKeys.Duration] = _displayDuration;
         }
 
         return metadata;

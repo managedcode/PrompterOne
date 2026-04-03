@@ -336,9 +336,9 @@ public sealed class EditorSourceInteractionTests : BunitContext
         public const string ImportedCreatedDate = "2026-03-25";
         public const string ImportedCreatedPersistenceLine = "created: \"2026-03-25\"";
         public const string ImportedDuration = "145:00";
-        public const string ImportedDurationPersistenceLine = "display_duration: \"145:00\"";
+        public const string ImportedDurationPersistenceLine = "duration: \"145:00\"";
         public const string ImportedFastOffset = "14";
-        public const string ImportedFastOffsetPersistenceLine = "fast_offset: 14";
+        public const string ImportedFastOffsetPersistenceLine = "  fast: 14";
         public const string ImportedFrontMatterDocument =
             """
             ---
@@ -346,9 +346,9 @@ public sealed class EditorSourceInteractionTests : BunitContext
             profile: Actor
             duration: "145:00"
             base_wpm: 140
-            presets:
-              slow: 120
-              fast: 160
+            speed_offsets:
+              slow: -14
+              fast: 14
             author: "Konstantin Semenenko"
             created: "2026-03-25"
             version: "1.0"
@@ -360,7 +360,7 @@ public sealed class EditorSourceInteractionTests : BunitContext
             """;
         public const string ImportedProfile = "Actor";
         public const string ImportedSlowOffset = "-14";
-        public const string ImportedSlowOffsetPersistenceLine = "slow_offset: -14";
+        public const string ImportedSlowOffsetPersistenceLine = "  slow: -14";
         public const string ImportedTitlePersistenceLine = "title: \"System Design and Software Architecture for Vibe Coders\"";
         public const string ImportedVersion = "1.0";
         public const string ImportedVersionPersistenceLine = "version: \"1.0\"";

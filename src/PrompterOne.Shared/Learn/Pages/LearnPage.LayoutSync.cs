@@ -2,6 +2,7 @@ namespace PrompterOne.Shared.Pages;
 
 public partial class LearnPage
 {
+    private const string HiddenLayoutStyleValue = "opacity:0;visibility:hidden;";
     private const string LayoutReadyFalseValue = "false";
     private const string LayoutReadyTrueValue = "true";
 
@@ -11,6 +12,10 @@ public partial class LearnPage
     private string BuildLayoutReadyAttributeValue() => _isFocusLayoutReady
         ? LayoutReadyTrueValue
         : LayoutReadyFalseValue;
+
+    private string? BuildPendingLayoutHiddenStyle() => _isFocusLayoutReady
+        ? null
+        : HiddenLayoutStyleValue;
 
     private void MarkFocusLayoutDirty()
     {

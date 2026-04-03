@@ -35,17 +35,46 @@
     border-color: var(--gold-30);
     background: var(--gold-07);
 }
-/* Date picker calendar icon — force light icon on dark bg */
-.ed-meta-input[type="date"] {
+
+.ed-meta-date-wrap {
+    position: relative;
+    width: 140px;
+    color: var(--t2);
+}
+
+.ed-meta-date-wrap:focus-within {
+    color: var(--t1);
+}
+
+/* Date picker affordance — keep native picker behavior but own the visible icon. */
+.ed-meta-date-input {
+    width: 100%;
+    padding-right: 34px;
+}
+
+.ed-meta-date-input[type="date"] {
     color-scheme: dark;
 }
-.ed-meta-input[type="date"]::-webkit-calendar-picker-indicator {
-    filter: invert(0.8);
-    opacity: .6;
+
+.ed-meta-date-icon {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transform: translateY(-50%);
+    pointer-events: none;
+    opacity: .86;
+}
+
+.ed-meta-date-input[type="date"]::-webkit-calendar-picker-indicator {
+    opacity: 0;
     cursor: pointer;
 }
-.ed-meta-input[type="date"]::-webkit-calendar-picker-indicator:hover {
-    opacity: 1;
+
+.ed-meta-date-input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 0;
 }
 .ed-meta-num {
     width: 80px;
@@ -204,4 +233,3 @@
 .ys { color: #6FE89A; }
 .yn { color: #FFE066; }
 .yv { color: #FFB86A; }
-

@@ -13,6 +13,7 @@ public sealed record TpsStructureHeaderSnapshot(
     string Name,
     int? TargetWpm,
     string EmotionKey,
+    string Speaker,
     string Timing)
 {
     public bool SupportsTiming => Kind == TpsStructureHeaderKind.Segment;

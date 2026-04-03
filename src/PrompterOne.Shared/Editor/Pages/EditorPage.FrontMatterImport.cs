@@ -28,11 +28,11 @@ public partial class EditorPage
             NormalizeProfile(GetMetadata(metadata, TpsFrontMatterDocumentService.MetadataKeys.Profile, _baseWpm >= 250 ? DefaultProfileRsvp : DefaultProfileActor)),
             GetMetadata(metadata, TpsFrontMatterDocumentService.MetadataKeys.Version, DefaultVersion),
             GetMetadata(metadata, TpsFrontMatterDocumentService.MetadataKeys.Created, _createdDate),
-            GetMetadata(metadata, TpsFrontMatterDocumentService.MetadataKeys.DisplayDuration, computedDuration),
-            TryGetInt(metadata, TpsFrontMatterDocumentService.MetadataKeys.XslowOffset, DefaultXslowOffset),
-            TryGetInt(metadata, TpsFrontMatterDocumentService.MetadataKeys.SlowOffset, DefaultSlowOffset),
-            TryGetInt(metadata, TpsFrontMatterDocumentService.MetadataKeys.FastOffset, DefaultFastOffset),
-            TryGetInt(metadata, TpsFrontMatterDocumentService.MetadataKeys.XfastOffset, DefaultXfastOffset));
+            GetMetadata(metadata, TpsFrontMatterDocumentService.MetadataKeys.Duration, computedDuration),
+            TryGetInt(metadata, TpsFrontMatterDocumentService.MetadataKeys.SpeedOffsetXslow, DefaultXslowOffset),
+            TryGetInt(metadata, TpsFrontMatterDocumentService.MetadataKeys.SpeedOffsetSlow, DefaultSlowOffset),
+            TryGetInt(metadata, TpsFrontMatterDocumentService.MetadataKeys.SpeedOffsetFast, DefaultFastOffset),
+            TryGetInt(metadata, TpsFrontMatterDocumentService.MetadataKeys.SpeedOffsetXfast, DefaultXfastOffset));
     }
 
     private void ApplyImportedMetadata(IReadOnlyDictionary<string, string> metadata)
@@ -44,11 +44,11 @@ public partial class EditorPage
             NormalizeProfile(GetMetadata(metadata, TpsFrontMatterDocumentService.MetadataKeys.Profile, _profile)),
             GetMetadata(metadata, TpsFrontMatterDocumentService.MetadataKeys.Version, _version),
             GetMetadata(metadata, TpsFrontMatterDocumentService.MetadataKeys.Created, _createdDate),
-            GetMetadata(metadata, TpsFrontMatterDocumentService.MetadataKeys.DisplayDuration, _displayDuration),
-            TryGetInt(metadata, TpsFrontMatterDocumentService.MetadataKeys.XslowOffset, _xslowOffset),
-            TryGetInt(metadata, TpsFrontMatterDocumentService.MetadataKeys.SlowOffset, _slowOffset),
-            TryGetInt(metadata, TpsFrontMatterDocumentService.MetadataKeys.FastOffset, _fastOffset),
-            TryGetInt(metadata, TpsFrontMatterDocumentService.MetadataKeys.XfastOffset, _xfastOffset));
+            GetMetadata(metadata, TpsFrontMatterDocumentService.MetadataKeys.Duration, _displayDuration),
+            TryGetInt(metadata, TpsFrontMatterDocumentService.MetadataKeys.SpeedOffsetXslow, _xslowOffset),
+            TryGetInt(metadata, TpsFrontMatterDocumentService.MetadataKeys.SpeedOffsetSlow, _slowOffset),
+            TryGetInt(metadata, TpsFrontMatterDocumentService.MetadataKeys.SpeedOffsetFast, _fastOffset),
+            TryGetInt(metadata, TpsFrontMatterDocumentService.MetadataKeys.SpeedOffsetXfast, _xfastOffset));
     }
 
     private void ApplyResolvedMetadata(

@@ -1,3 +1,4 @@
+using PrompterOne.Core.Models.CompiledScript;
 using PrompterOne.Core.Services;
 using PrompterOne.Core.Services.Rsvp;
 
@@ -6,19 +7,27 @@ namespace PrompterOne.Core.Tests;
 public sealed class TpsRoundTripTests
 {
     [Fact]
-    public async Task ParseAndExportAsync_RetainsMetadataAndSegmentShape()
+    public async Task ParseAndExportAsync_RetainsCanonicalMetadataAndFlexibleHeaders()
     {
         var parser = new TpsParser();
         var exporter = new TpsExporter();
         const string source = """
         ---
         title: "File Export Test"
+        duration: "10:00"
         base_wpm: 150
+        speed_offsets:
+          xslow: -30
+          slow: -10
+          fast: 10
+          xfast: 35
         ---
 
-        ## [Test Segment|150WPM|warm]
+        ## [Test Segment|Warm|Speaker:Alex|150WPM|0:30-1:10]
 
-        ### [Body|150WPM]
+        Intro line.
+
+        ### [Body|Speaker:Jordan|professional|160WPM]
 
         Content to export.
         """;
@@ -28,10 +37,22 @@ public sealed class TpsRoundTripTests
         var reparsed = await parser.ParseAsync(exported);
 
         Assert.Equal("File Export Test", reparsed.Metadata["title"]);
-        Assert.Equal("150", reparsed.Metadata["base_wpm"]);
-        Assert.Single(reparsed.Segments);
-        Assert.Equal("Test Segment", reparsed.Segments[0].Name);
-        Assert.Contains(reparsed.Segments[0].Blocks, block => block.Name == "Body");
+        Assert.Equal("10:00", reparsed.Metadata["duration"]);
+        Assert.Equal("-30", reparsed.Metadata["speed_offsets.xslow"]);
+        Assert.Equal("35", reparsed.Metadata["speed_offsets.xfast"]);
+
+        var segment = Assert.Single(reparsed.Segments);
+        Assert.Equal("Test Segment", segment.Name);
+        Assert.Equal(150, segment.TargetWPM);
+        Assert.Equal("warm", segment.Emotion);
+        Assert.Equal("Alex", segment.Speaker);
+        Assert.Equal("0:30-1:10", segment.Timing);
+
+        var block = Assert.Single(segment.Blocks);
+        Assert.Equal("Body", block.Name);
+        Assert.Equal(160, block.TargetWPM);
+        Assert.Equal("professional", block.Emotion);
+        Assert.Equal("Jordan", block.Speaker);
     }
 
     [Fact]
@@ -47,144 +68,168 @@ public sealed class TpsRoundTripTests
     }
 
     [Fact]
-    public async Task CompileAsync_PreservesInlineWpmScopesAcrossNestedPronunciationTags()
+    public async Task CompileAsync_PreservesPronunciationAndInlineSpeedResolution()
     {
-        var parser = new TpsParser();
-        var compiler = new ScriptCompiler();
-        const string source = """
-        ---
-        title: "Inline speed"
-        base_wpm: 140
-        ---
+        var compiled = await CompileAsync(
+            """
+            ---
+            title: "Inline speed"
+            base_wpm: 140
+            ---
 
-        ## [Call to Action|140WPM|motivational]
+            ## [Call to Action|motivational|Speaker:Alex]
 
-        ### [Closing Block|140WPM|energetic]
+            ### [Closing Block|energetic]
 
-        [180WPM]Join us in building the future of [pronunciation:TELE-promp-ter]teleprompter[/pronunciation] technology.[/180WPM]
-        """;
+            [180WPM]Join us in building the [pronunciation:TELE-promp-ter]teleprompter[/pronunciation] future.[/180WPM] [slow]carefully[/slow]
+            """);
 
-        var document = await parser.ParseAsync(source);
-        var compiled = await compiler.CompileAsync(document);
-        var compiledWord = compiled.Segments
-            .SelectMany(segment => segment.Blocks)
-            .SelectMany(block => block.Words)
-            .Single(word => string.Equals(word.CleanText, "teleprompter", StringComparison.Ordinal));
+        var words = FlattenWords(compiled);
+        var teleprompter = words.Single(word => string.Equals(word.CleanText, "teleprompter", StringComparison.Ordinal));
+        var carefully = words.Single(word => string.Equals(word.CleanText, "carefully", StringComparison.Ordinal));
 
-        Assert.Equal(180, compiledWord.Metadata.SpeedOverride);
-        Assert.Equal("TELE-promp-ter", compiledWord.Metadata.PronunciationGuide);
+        Assert.Equal(180, teleprompter.Metadata.SpeedOverride);
+        Assert.Equal("TELE-promp-ter", teleprompter.Metadata.PronunciationGuide);
+        Assert.Equal("Alex", teleprompter.Metadata.Speaker);
+        Assert.Equal(0.8f, carefully.Metadata.SpeedMultiplier);
     }
 
     [Fact]
-    public async Task CompileAsync_AppliesNestedFrontMatterSpeedOffsetsAndNormalReset()
+    public async Task ParseAsync_UsesLastHeaderParameterAndFallsBackFromInvalidValues()
     {
         var parser = new TpsParser();
-        var compiler = new ScriptCompiler();
         const string source = """
         ---
-        title: "Custom speed offsets"
+        title: "Header precedence"
         base_wpm: 140
-        speed_offsets:
-          xslow: -30
-          slow: -10
-          fast: 10
-          xfast: 35
         ---
 
-        ## [Offsets|140WPM|neutral]
+        ## [Signal|warm|150WPM|Speaker:Jordan|mystery|brokenWPM|Speaker:Alex]
 
-        ### [Reader Block|140WPM]
+        ### [Body|happy|Speaker:Sam|160WPM|focused|Speaker:Casey]
 
-        [xslow]alpha[/xslow] [slow]bravo [normal]charm[/normal] delta[/slow] [fast]eagle[/fast] [xfast]fable[/xfast]
+        Copy.
         """;
 
         var document = await parser.ParseAsync(source);
-        var compiled = await compiler.CompileAsync(document);
-        var words = compiled.Segments
-            .SelectMany(segment => segment.Blocks)
-            .SelectMany(block => block.Words)
-            .Where(word => !string.IsNullOrWhiteSpace(word.CleanText))
-            .ToDictionary(word => word.CleanText, StringComparer.Ordinal);
+        var segment = Assert.Single(document.Segments);
+        var block = Assert.Single(segment.Blocks);
 
-        Assert.Equal("-30", document.Metadata["speed_offsets.xslow"]);
-        Assert.Equal("-10", document.Metadata["speed_offsets.slow"]);
-        Assert.Equal("10", document.Metadata["speed_offsets.fast"]);
-        Assert.Equal("35", document.Metadata["speed_offsets.xfast"]);
+        Assert.Equal(140, segment.TargetWPM);
+        Assert.Equal("warm", segment.Emotion);
+        Assert.Equal("Alex", segment.Speaker);
 
-        Assert.Equal(0.7f, words["alpha"].Metadata.SpeedMultiplier);
-        Assert.Equal(0.9f, words["bravo"].Metadata.SpeedMultiplier);
-        Assert.Null(words["charm"].Metadata.SpeedMultiplier);
-        Assert.Equal(0.9f, words["delta"].Metadata.SpeedMultiplier);
-        Assert.Equal(1.1f, words["eagle"].Metadata.SpeedMultiplier);
-        Assert.Equal(1.35f, words["fable"].Metadata.SpeedMultiplier);
-
-        Assert.True(words["alpha"].DisplayDuration > words["bravo"].DisplayDuration);
-        Assert.True(words["bravo"].DisplayDuration > words["charm"].DisplayDuration);
-        Assert.Equal(words["bravo"].DisplayDuration, words["delta"].DisplayDuration);
-        Assert.True(words["charm"].DisplayDuration > words["eagle"].DisplayDuration);
-        Assert.True(words["eagle"].DisplayDuration > words["fable"].DisplayDuration);
+        Assert.Equal(160, block.TargetWPM);
+        Assert.Equal("focused", block.Emotion);
+        Assert.Equal("Casey", block.Speaker);
     }
 
     [Fact]
-    public async Task CompileAsync_TracksInlineEmotionScopesSeparatelyFromInheritedSectionTone()
+    public async Task CompileAsync_TracksVolumeDeliveryStressBreathAndHighlight()
+    {
+        var compiled = await CompileAsync(
+            """
+            ---
+            title: "Reader cues"
+            base_wpm: 140
+            ---
+
+            ## [Signal|focused|Speaker:Alex]
+
+            ### [Body|professional]
+
+            [loud][building][highlight]moment[/highlight][/building][/loud] announce[stress]me[/stress]nt [stress:de-VE-lop-ment]development[/stress] [breath]
+            """);
+
+        var words = FlattenWords(compiled);
+        var moment = words.Single(word => string.Equals(word.CleanText, "moment", StringComparison.Ordinal));
+        var announcement = words.Single(word => string.Equals(word.CleanText, "announcement", StringComparison.Ordinal));
+        var development = words.Single(word => string.Equals(word.CleanText, "development", StringComparison.Ordinal));
+        var breath = words.Single(word => word.Metadata.IsBreath);
+
+        Assert.Equal("loud", moment.Metadata.VolumeLevel);
+        Assert.Equal("building", moment.Metadata.DeliveryMode);
+        Assert.True(moment.Metadata.IsHighlight);
+        Assert.Equal("Alex", moment.Metadata.Speaker);
+
+        Assert.Equal("me", announcement.Metadata.StressText);
+        Assert.Equal("de-VE-lop-ment", development.Metadata.StressGuide);
+
+        Assert.True(breath.Metadata.IsBreath);
+        Assert.Equal(TimeSpan.Zero, breath.DisplayDuration);
+    }
+
+    [Fact]
+    public async Task CompileAsync_LeavesUnknownTagsLiteralAndTreatsLegacyColorTagsAsText()
+    {
+        var compiled = await CompileAsync(
+            """
+            ---
+            title: "Literal unknown tags"
+            base_wpm: 140
+            ---
+
+            ## [Signal|neutral]
+
+            ### [Body]
+
+            Neutral [green]welcome[/green] [custom]tag[/custom]
+            """);
+
+        var words = FlattenWords(compiled)
+            .Where(word => !word.Metadata.IsPause && !word.Metadata.IsBreath)
+            .Select(word => word.CleanText)
+            .ToArray();
+
+        Assert.Contains("[green]welcome[/green]", words);
+        Assert.Contains("[custom]tag[/custom]", words);
+    }
+
+    [Fact]
+    public async Task ParseAsync_IgnoresLegacyOffsetAliasesAndUsesCanonicalDefaults()
     {
         var parser = new TpsParser();
-        var compiler = new ScriptCompiler();
         const string source = """
         ---
-        title: "Inline emotion"
+        title: "Legacy offsets"
         base_wpm: 140
+        xslow_offset: -99
         ---
 
-        ## [Signal|140WPM|focused]
+        ## [Signal|neutral]
 
-        ### [Reader Block|140WPM]
+        ### [Body]
 
-        Neutral [warm]welcome[/warm] [urgent]act[/urgent]
+        [xslow]alpha[/xslow]
         """;
 
         var document = await parser.ParseAsync(source);
-        var compiled = await compiler.CompileAsync(document);
-        var words = compiled.Segments
-            .SelectMany(segment => segment.Blocks)
-            .SelectMany(block => block.Words)
-            .Where(word => !string.IsNullOrWhiteSpace(word.CleanText))
-            .ToDictionary(word => word.CleanText, StringComparer.Ordinal);
+        var compiled = await new ScriptCompiler().CompileAsync(document);
+        var alpha = FlattenWords(compiled).Single(word => string.Equals(word.CleanText, "alpha", StringComparison.Ordinal));
 
-        Assert.Equal("focused", words["Neutral"].Metadata.EmotionHint);
-        Assert.Null(words["Neutral"].Metadata.InlineEmotionHint);
-
-        Assert.Equal("warm", words["welcome"].Metadata.EmotionHint);
-        Assert.Equal("warm", words["welcome"].Metadata.InlineEmotionHint);
-
-        Assert.Equal("urgent", words["act"].Metadata.EmotionHint);
-        Assert.Equal("urgent", words["act"].Metadata.InlineEmotionHint);
+        Assert.DoesNotContain("xslow_offset", document.Metadata.Keys, StringComparer.OrdinalIgnoreCase);
+        Assert.Equal(0.6f, alpha.Metadata.SpeedMultiplier);
     }
 
     [Fact]
     public async Task CompileAsync_AttachesStandalonePunctuationTokensToAdjacentWords()
     {
-        var parser = new TpsParser();
-        var compiler = new ScriptCompiler();
-        const string source = """
-        ---
-        title: "Attached punctuation"
-        base_wpm: 140
-        ---
+        var compiled = await CompileAsync(
+            """
+            ---
+            title: "Attached punctuation"
+            base_wpm: 140
+            ---
 
-        ## [Signal|140WPM|focused]
+            ## [Signal|focused]
 
-        ### [Reader Block|140WPM]
+            ### [Reader Block]
 
-        [emphasis]No payment data was exposed[/emphasis], / containment - restored.
-        """;
+            [emphasis]No payment data was exposed[/emphasis], / containment - restored.
+            """);
 
-        var document = await parser.ParseAsync(source);
-        var compiled = await compiler.CompileAsync(document);
-        var words = compiled.Segments
-            .SelectMany(segment => segment.Blocks)
-            .SelectMany(block => block.Words)
-            .Where(word => word.Metadata?.IsPause != true && !string.IsNullOrWhiteSpace(word.CleanText))
+        var words = FlattenWords(compiled)
+            .Where(word => word.Metadata.IsPause is false && !string.IsNullOrWhiteSpace(word.CleanText))
             .Select(word => word.CleanText)
             .ToArray();
 
@@ -192,5 +237,22 @@ public sealed class TpsRoundTripTests
         Assert.Contains("containment -", words);
         Assert.DoesNotContain(",", words);
         Assert.DoesNotContain("-", words);
+    }
+
+    private static async Task<CompiledScript> CompileAsync(string source)
+    {
+        var parser = new TpsParser();
+        var compiler = new ScriptCompiler();
+        var document = await parser.ParseAsync(source);
+        return await compiler.CompileAsync(document);
+    }
+
+    private static IReadOnlyList<CompiledWord> FlattenWords(CompiledScript compiled)
+    {
+        return compiled.Segments
+            .SelectMany(segment => segment.Blocks.Count > 0
+                ? segment.Blocks.SelectMany(block => block.Words)
+                : segment.Words)
+            .ToArray();
     }
 }

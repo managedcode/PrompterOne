@@ -150,6 +150,7 @@ internal static partial class BrowserTestConstants
 
     public static class Editor
     {
+        public const string CalendarIconUnexpectedColor = "rgb(0, 0, 0)";
         public const string FirstProbeCharacter = "d";
         public const string NewDraftProbeText = "dc";
         public const string SecondProbeCharacter = "c";
@@ -808,9 +809,9 @@ internal static partial class BrowserTestConstants
         public static string Library => AppRoutes.Library;
         public static string Settings => AppRoutes.Settings;
         public static string EditorDemo => AppRoutes.EditorWithId(Scripts.DemoId);
-        public static string EditorQuantum => AppRoutes.EditorWithId(Scripts.QuantumId);
         public static string EditorHugeDraft => AppRoutes.EditorWithId(Scripts.HugeDraftId);
         public static string EditorLargeDraft => AppRoutes.EditorWithId(Scripts.LargeDraftId);
+        public static string EditorQuantum => AppRoutes.EditorWithId(Scripts.QuantumId);
         public static string LearnDemo => AppRoutes.LearnWithId(Scripts.DemoId);
         public static string LearnLeadership => AppRoutes.LearnWithId(Scripts.LeadershipId);
         public static string LearnQuantum => AppRoutes.LearnWithId(Scripts.QuantumId);

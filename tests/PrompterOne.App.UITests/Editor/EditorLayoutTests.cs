@@ -99,6 +99,36 @@ public sealed class EditorLayoutTests(StandaloneAppFixture fixture) : IClassFixt
         }
     }
 
+    [Fact]
+    public async Task EditorScreen_CreatedDateFieldShowsVisibleCalendarIcon()
+    {
+        var page = await _fixture.NewPageAsync();
+
+        try
+        {
+            await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
+
+            var createdInput = page.GetByTestId(UiTestIds.Editor.Created);
+            var createdIcon = page.GetByTestId(UiTestIds.Editor.CreatedIcon);
+
+            await Expect(createdInput)
+                .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
+            await Expect(createdIcon)
+                .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
+
+            var iconColor = await createdIcon.EvaluateAsync<string>(
+                """
+                element => getComputedStyle(element).color
+                """);
+
+            Assert.NotEqual(BrowserTestConstants.Editor.CalendarIconUnexpectedColor, iconColor);
+        }
+        finally
+        {
+            await page.Context.CloseAsync();
+        }
+    }
+
     private static async Task<LayoutBounds> GetRequiredBoundingBoxAsync(ILocator locator) =>
         await locator.EvaluateAsync<LayoutBounds>(
             """

@@ -40,11 +40,21 @@
     </div>
     <div class="ed-meta-field">
         <label>Created</label>
-        <input type="date"
-               class="ed-meta-input"
-               value="@CreatedDate"
-               @onchange="OnCreatedDateChange"
-               data-testid="@UiTestIds.Editor.Created" />
+        <div class="ed-meta-date-wrap">
+            <input type="date"
+                   class="ed-meta-input ed-meta-date-input"
+                   value="@CreatedDate"
+                   @onchange="OnCreatedDateChange"
+                   data-testid="@UiTestIds.Editor.Created" />
+            <span class="ed-meta-date-icon" data-testid="@UiTestIds.Editor.CreatedIcon" aria-hidden="true">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="5" width="18" height="16" rx="2"></rect>
+                    <line x1="16" y1="3" x2="16" y2="7"></line>
+                    <line x1="8" y1="3" x2="8" y2="7"></line>
+                    <line x1="3" y1="11" x2="21" y2="11"></line>
+                </svg>
+            </span>
+        </div>
     </div>
     <div class="ed-meta-field">
         <label>Version</label>

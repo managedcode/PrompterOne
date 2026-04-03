@@ -45,7 +45,7 @@ public sealed class EditorMetadataInteractionTests : BunitContext
             Assert.NotNull(metadata);
             Assert.Equal(EditorMetadataTestSource.ProfileRsvp, metadata!["profile"]);
             Assert.Equal(EditorMetadataTestSource.BaseWpm210, metadata["base_wpm"]);
-            Assert.Equal(AppTestData.Editor.DisplayDuration, metadata["display_duration"]);
+            Assert.Equal(AppTestData.Editor.DisplayDuration, metadata["duration"]);
             Assert.Equal(AppTestData.Editor.TestSpeaker, metadata["author"]);
             Assert.Equal(AppTestData.Editor.CreatedDate, metadata["created"]);
             Assert.Equal(AppTestData.Editor.Version, metadata["version"]);
@@ -66,8 +66,8 @@ public sealed class EditorMetadataInteractionTests : BunitContext
         public const string AuthorField = "author:";
         public const string AuthorPersistenceLine = "author: \"Test Speaker\"";
         public const string BaseWpm210 = "210";
-        public const string DurationField = "display_duration:";
-        public const string DurationPersistenceLine = "display_duration: \"12:34\"";
+        public const string DurationField = "duration:";
+        public const string DurationPersistenceLine = "duration: \"12:34\"";
         public const string ProfileRsvp = "RSVP";
         public const string VersionField = "version:";
         public const string VersionPersistenceLine = "version: \"2.0\"";

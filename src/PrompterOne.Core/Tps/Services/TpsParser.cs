@@ -1,1150 +1,628 @@
-using System.Text.RegularExpressions;
-
+using System.Globalization;
+using PrompterOne.Core.Models.CompiledScript;
 using PrompterOne.Core.Models.Documents;
 using PrompterOne.Core.Models.Tps;
 
 namespace PrompterOne.Core.Services;
 
-/// <summary>
-/// Parser for TPS (TelePrompterScript) markdown format
-/// </summary>
-public partial class TpsParser
+public sealed class TpsParser
 {
-    // Regex patterns for TPS format parsing
-    [GeneratedRegex(@"^---\s*$", RegexOptions.Multiline)]
-    private static partial Regex FrontMatterDelimiter();
-
-    [GeneratedRegex(@"^##\s*\[([^\|\]]+)(?:\|([^\|\]]*))?(?:\|([^\|\]]*))?(?:\|([^\|\]]*))?\]", RegexOptions.Multiline)]
-    private static partial Regex SegmentHeader();
-
-    [GeneratedRegex(@"^##\s+(.+)$", RegexOptions.Multiline)]
-    private static partial Regex SimpleSegmentHeader();
-
-    [GeneratedRegex(@"^###\s*\[([^\|\]]+)(?:\|([^\|\]]*))?(?:\|([^\]]*))?\]", RegexOptions.Multiline)]
-    private static partial Regex BlockHeader();
-
-    [GeneratedRegex(@"\[pause:(\d+(?:ms|s))\]")]
-    private static partial Regex PauseMarker();
-
-    [GeneratedRegex(@"\[edit_point(?::(\w+))?\]")]
-    private static partial Regex EditPointMarker();
-
-    // NOTE: Curly brace syntax {style,color}...{/} is DEPRECATED and no longer supported
-    // All formatting must use bracket syntax: [tag]...[/tag]
-
-    // ── TPS Format Constants ──────────────────────────────────────────
-    // Single source of truth for all valid keywords. Regex patterns and
-    // validation helpers are derived from these arrays — never hardcode
-    // color/emotion names elsewhere.
-
-    /// <summary>All valid emotion keywords (case-insensitive in format)</summary>
-    private static readonly string[] Emotions =
-    [
-        "warm", "concerned", "focused", "motivational", "neutral",
-        "urgent", "happy", "excited", "sad", "calm", "energetic", "professional"
-    ];
-
-    /// <summary>All valid inline color keywords (case-insensitive in format).
-    /// "black" is excluded — invisible on dark teleprompter background.
-    /// "highlight" lives in FormattingTags — it is a background overlay, not a text color.</summary>
-    private static readonly string[] InlineColors =
-    [
-        "red", "green", "blue", "yellow", "orange", "purple",
-        "cyan", "magenta", "pink", "teal", "white", "gray"
-    ];
-
-    /// <summary>Speed preset keywords</summary>
-    private static readonly string[] SpeedPresets = ["xslow", "slow", "fast", "xfast", "normal"];
-
-    /// <summary>Formatting keywords</summary>
-    private static readonly string[] FormattingTags = ["emphasis", "highlight"];
-
-    // Pre-built regex alternation fragments (e.g. "warm|concerned|focused|...")
-    private static readonly string EmotionAlt = string.Join("|", Emotions);
-    private static readonly string ColorAlt = string.Join("|", InlineColors);
-    private static readonly string SpeedAlt = string.Join("|", SpeedPresets);
-    private static readonly string FormattingAlt = string.Join("|", FormattingTags);
-
-    /// <summary>Emotion → inline text color mapping for dark background rendering.
-    /// All values chosen for WCAG AA contrast against ~#1A1B2E background.</summary>
-    private static readonly Dictionary<string, string> EmotionTextColors = new(StringComparer.OrdinalIgnoreCase)
-    {
-        ["warm"] = "#FFA94D",        // Orange — warm/friendly
-        ["concerned"] = "#FF6B6B",   // Soft red — worried
-        ["focused"] = "#51CF66",     // Green — concentrated
-        ["motivational"] = "#CC5DE8",// Purple — inspiring
-        ["urgent"] = "#FF6B6B",      // Bright red — critical
-        ["happy"] = "#FFE066",       // Yellow — joyful
-        ["excited"] = "#F783AC",     // Pink — enthusiastic
-        ["sad"] = "#9775FA",         // Indigo — somber
-        ["calm"] = "#38D9A9",        // Teal — peaceful
-        ["energetic"] = "#FFA94D",   // Orange-Red — dynamic
-        ["professional"] = "#74C0FC",// Light navy — formal (visible on dark BG)
-        ["neutral"] = "#ADB5BD"      // Light gray — balanced (visible on dark BG)
-    };
-
-    // Escape sequence placeholders (Unicode Private Use Area)
-    private const char EscapedBracketOpen = '\uE001';   // \[
-    private const char EscapedBracketClose = '\uE002';  // \]
-    private const char EscapedPipe = '\uE003';          // \|
-    private const char EscapedSlash = '\uE004';         // \/
-    private const char EscapedAsterisk = '\uE005';      // \*
-    private const char EscapedBackslash = '\uE006';     // \\
-
-    /// <summary>
-    /// Convert escape sequences to placeholders before parsing
-    /// </summary>
-    private static string ProcessEscapeSequences(string text)
-    {
-        if (string.IsNullOrEmpty(text))
-        {
-            return text;
-        }
-
-        return text
-            .Replace(@"\\", EscapedBackslash.ToString())  // Must be first
-            .Replace(@"\[", EscapedBracketOpen.ToString())
-            .Replace(@"\]", EscapedBracketClose.ToString())
-            .Replace(@"\|", EscapedPipe.ToString())
-            .Replace(@"\/", EscapedSlash.ToString())
-            .Replace(@"\*", EscapedAsterisk.ToString());
-    }
-
-    /// <summary>
-    /// Restore escaped characters after parsing
-    /// </summary>
-    private static string RestoreEscapedCharacters(string text)
-    {
-        if (string.IsNullOrEmpty(text))
-        {
-            return text;
-        }
-
-        return text
-            .Replace(EscapedBracketOpen, '[')
-            .Replace(EscapedBracketClose, ']')
-            .Replace(EscapedPipe, '|')
-            .Replace(EscapedSlash, '/')
-            .Replace(EscapedAsterisk, '*')
-            .Replace(EscapedBackslash, '\\');
-    }
-
-    /// <summary>
-    /// Parse TPS file into TpsDocument
-    /// </summary>
     public async Task<TpsDocument> ParseFileAsync(string filePath)
     {
-        var content = await File.ReadAllTextAsync(filePath);
-        content = NormalizeLineEndings(content);
-        return await ParseAsync(content);
+        var content = await File.ReadAllTextAsync(filePath).ConfigureAwait(false);
+        return await ParseAsync(content).ConfigureAwait(false);
     }
 
-    /// <summary>
-    /// Parse TPS content into TpsDocument (for compilation)
-    /// </summary>
     public Task<TpsDocument> ParseAsync(string tpsContent)
     {
-        if (string.IsNullOrWhiteSpace(tpsContent))
+        return Task.FromResult(ParseDocument(tpsContent));
+    }
+
+    public ScriptData ParseTps(string tpsContent)
+    {
+        var document = ParseDocument(tpsContent);
+        var compiled = TpsCompilerCore.Compile(document);
+        return BuildScriptData(document, compiled, NormalizeLineEndings(tpsContent));
+    }
+
+    private static TpsDocument ParseDocument(string? tpsContent)
+    {
+        var normalizedText = NormalizeLineEndings(tpsContent);
+        if (string.IsNullOrWhiteSpace(normalizedText))
         {
-            return Task.FromResult(new TpsDocument());
+            return new TpsDocument();
         }
 
-        tpsContent = NormalizeLineEndings(tpsContent);
-        tpsContent = ProcessEscapeSequences(tpsContent);
+        var (metadata, body) = ExtractFrontMatter(normalizedText);
+        var contentBody = ExtractTitleHeader(metadata, body);
+        var segments = ParseSegments(contentBody, metadata);
 
-        var (frontMatter, content) = ExtractFrontMatter(tpsContent);
-
-        var document = new TpsDocument
+        return new TpsDocument
         {
-            Metadata = frontMatter
+            Metadata = metadata,
+            Segments = segments
         };
+    }
 
-        // Parse segments - check both complex and simple formats
-        var segmentMatches = SegmentHeader().Matches(content);
-        if (segmentMatches.Count == 0)
+    private static (Dictionary<string, string> Metadata, string Body) ExtractFrontMatter(string text)
+    {
+        if (!text.StartsWith("---\n", StringComparison.Ordinal))
         {
-            // Try simple segment format
-            segmentMatches = SimpleSegmentHeader().Matches(content);
+            return (new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase), text);
         }
 
-        // If still no segments found, treat entire content as one segment
-        if (segmentMatches.Count == 0)
+        var endDelimiterIndex = text.IndexOf("\n---\n", 4, StringComparison.Ordinal);
+        if (endDelimiterIndex < 0)
         {
-            var colors = GetEmotionColors("neutral");
-            var segment = new TpsSegment
-            {
-                Id = Guid.NewGuid().ToString(),
-                Name = AppText.Get("Parser.Segment.Content"),
-                Content = content,
-                Emotion = "neutral",
-                BackgroundColor = colors.Background,
-                TextColor = colors.Text,
-                AccentColor = colors.Accent,
-                TargetWPM = 250
-            };
-            document.Segments.Add(segment);
-            return Task.FromResult(document);
+            return (new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase), text);
         }
 
-        var segmentPositions = segmentMatches.Cast<Match>().Select(m => m.Index).ToList();
-        segmentPositions.Add(content.Length);
+        var frontMatterText = text[4..endDelimiterIndex];
+        var body = text[(endDelimiterIndex + 5)..];
+        return (ParseMetadata(frontMatterText), body);
+    }
 
-        for (var i = 0; i < segmentMatches.Count; i++)
+    private static Dictionary<string, string> ParseMetadata(string frontMatterText)
+    {
+        var metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        string? currentSection = null;
+
+        foreach (var rawLine in frontMatterText.Split('\n'))
         {
-            var match = segmentMatches[i];
-            var segmentEnd = segmentPositions[i + 1];
-            var segmentContent = content.Substring(match.Index, segmentEnd - match.Index);
-
-            TpsSegment segment;
-            if (match.Groups.Count > 2)
+            if (string.IsNullOrWhiteSpace(rawLine))
             {
-                // Complex segment format
-                var emotion = match.Groups[3].Success ? match.Groups[3].Value : "neutral";
-                var colors = GetEmotionColors(emotion);
+                continue;
+            }
 
-                segment = new TpsSegment
+            var indentationLength = rawLine.Length - rawLine.TrimStart().Length;
+            var line = rawLine.Trim();
+            if (line.StartsWith('#'))
+            {
+                continue;
+            }
+
+            var separatorIndex = line.IndexOf(':');
+            if (separatorIndex <= 0)
+            {
+                continue;
+            }
+
+            var key = line[..separatorIndex].Trim();
+            var value = NormalizeMetadataValue(line[(separatorIndex + 1)..]);
+            if (indentationLength > 0 && !string.IsNullOrWhiteSpace(currentSection))
+            {
+                var compositeKey = string.Concat(currentSection, ".", key);
+                if (!IsLegacyMetadataKey(compositeKey))
                 {
-                    Id = Guid.NewGuid().ToString(),
-                    Name = match.Groups[1].Value.Trim(),
-                    Content = segmentContent,
-                    TargetWPM = match.Groups[2].Success && int.TryParse(match.Groups[2].Value.Replace("WPM", ""), out var wpm) ? wpm : (int?)null,
-                    Emotion = emotion,
-                    BackgroundColor = colors.Background,
-                    TextColor = colors.Text,
-                    AccentColor = colors.Accent,
-                    Duration = match.Groups[4].Success ? ParseDuration(match.Groups[4].Value) : null
-                };
+                    metadata[compositeKey] = value;
+                }
+
+                continue;
+            }
+
+            currentSection = string.IsNullOrWhiteSpace(value) ? key : null;
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                continue;
+            }
+
+            if (!IsLegacyMetadataKey(key))
+            {
+                metadata[key] = value;
+            }
+        }
+
+        return metadata;
+    }
+
+    private static string ExtractTitleHeader(Dictionary<string, string> metadata, string body)
+    {
+        var lines = body.Split('\n');
+        var lineIndex = 0;
+        while (lineIndex < lines.Length && string.IsNullOrWhiteSpace(lines[lineIndex]))
+        {
+            lineIndex++;
+        }
+
+        if (lineIndex >= lines.Length)
+        {
+            return body;
+        }
+
+        var candidate = lines[lineIndex].Trim();
+        if (!candidate.StartsWith("# ", StringComparison.Ordinal) || candidate.StartsWith("##", StringComparison.Ordinal))
+        {
+            return body;
+        }
+
+        metadata[TpsSpec.FrontMatterKeys.Title] = candidate[2..].Trim();
+        lines[lineIndex] = string.Empty;
+        return string.Join('\n', lines).TrimStart('\n');
+    }
+
+    private static List<TpsSegment> ParseSegments(string body, IReadOnlyDictionary<string, string> metadata)
+    {
+        var segments = new List<TpsSegment>();
+        var preambleBuilder = new List<string>();
+        TpsSegment? currentSegment = null;
+        TpsBlock? currentBlock = null;
+        var currentSegmentLeadingLines = new List<string>();
+        var currentBlockLines = new List<string>();
+
+        foreach (var rawLine in body.Split('\n'))
+        {
+            if (TryParseHeader(rawLine, HeaderLevel.Segment, out var segmentHeader))
+            {
+                FlushBlock(currentSegment, currentBlock, currentBlockLines);
+                FlushSegment(segments, currentSegment, currentSegmentLeadingLines);
+
+                currentSegment = CreateSegment(segmentHeader, metadata);
+                currentBlock = null;
+                if (preambleBuilder.Count > 0)
+                {
+                    currentSegmentLeadingLines.AddRange(preambleBuilder);
+                    preambleBuilder.Clear();
+                }
+
+                continue;
+            }
+
+            if (TryParseHeader(rawLine, HeaderLevel.Block, out var blockHeader))
+            {
+                if (currentSegment is null)
+                {
+                    currentSegment = CreateImplicitSegment(metadata);
+                    currentSegmentLeadingLines.AddRange(preambleBuilder);
+                    preambleBuilder.Clear();
+                }
+
+                FlushBlock(currentSegment, currentBlock, currentBlockLines);
+                currentBlock = CreateBlock(blockHeader);
+                continue;
+            }
+
+            if (currentBlock is not null)
+            {
+                currentBlockLines.Add(rawLine);
+            }
+            else if (currentSegment is not null)
+            {
+                currentSegmentLeadingLines.Add(rawLine);
             }
             else
             {
-                // Simple segment format (## Title)
-                var colors = GetEmotionColors("neutral");
-                segment = new TpsSegment
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    Name = match.Groups[1].Value.Trim(),
-                    Content = segmentContent,
-                    Emotion = "neutral",
-                    BackgroundColor = colors.Background,
-                    TextColor = colors.Text,
-                    AccentColor = colors.Accent
-                };
+                preambleBuilder.Add(rawLine);
             }
-
-            // Parse blocks within segment
-            var blockMatches = BlockHeader().Matches(segmentContent);
-            if (blockMatches.Count > 0)
-            {
-                var headerLength = match.Length;
-                var firstBlockIndex = blockMatches[0].Index;
-                if (firstBlockIndex > headerLength)
-                {
-                    var leadingContent = segmentContent.Substring(headerLength, firstBlockIndex - headerLength);
-                    if (!string.IsNullOrWhiteSpace(leadingContent))
-                    {
-                        segment.LeadingContent = leadingContent.Trim('\r', '\n');
-                    }
-                }
-            }
-
-            var blockPositions = blockMatches.Cast<Match>().Select(m => m.Index).ToList();
-            blockPositions.Add(segmentContent.Length);
-
-            for (var j = 0; j < blockMatches.Count; j++)
-            {
-                var blockMatch = blockMatches[j];
-                var blockEnd = blockPositions[j + 1];
-                var blockContent = segmentContent.Substring(blockMatch.Index, blockEnd - blockMatch.Index);
-
-                var block = new TpsBlock
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    Name = blockMatch.Groups[1].Value.Trim(),
-                    Content = blockContent,
-                    TargetWPM = blockMatch.Groups[2].Success && int.TryParse(blockMatch.Groups[2].Value.Replace("WPM", ""), out var blockWpm) ? blockWpm : (int?)null,
-                    Emotion = blockMatch.Groups[3].Success ? blockMatch.Groups[3].Value : null
-                };
-
-                segment.Blocks.Add(block);
-            }
-
-            document.Segments.Add(segment);
         }
 
-        return Task.FromResult(document);
+        if (currentSegment is null)
+        {
+            var implicitSegment = CreateImplicitSegment(metadata);
+            implicitSegment.LeadingContent = NormalizeBody(string.Join('\n', preambleBuilder));
+            implicitSegment.Content = implicitSegment.LeadingContent ?? string.Empty;
+            segments.Add(implicitSegment);
+            return segments;
+        }
+
+        FlushBlock(currentSegment, currentBlock, currentBlockLines);
+        FlushSegment(segments, currentSegment, currentSegmentLeadingLines);
+        return segments;
     }
 
-    private static TimeSpan? ParseDuration(string durationString)
+    private static void FlushBlock(TpsSegment? currentSegment, TpsBlock? currentBlock, List<string> currentBlockLines)
     {
-        if (string.IsNullOrWhiteSpace(durationString))
+        if (currentSegment is null || currentBlock is null)
         {
-            return null;
+            currentBlockLines.Clear();
+            return;
         }
 
-        // Parse formats like "0:00-1:30" or "1:30"
-        var parts = durationString.Split('-');
-        if (parts.Length == 2)
-        {
-            // It's a range, return the duration (end - start)
-            if (TryParseTime(parts[0], out var start) && TryParseTime(parts[1], out var end))
-            {
-                return end - start;
-            }
-        }
-        else if (parts.Length == 1)
-        {
-            // It's a single duration
-            if (TryParseTime(parts[0], out var duration))
-            {
-                return duration;
-            }
-        }
-
-        return null;
+        currentBlock.Content = NormalizeBody(string.Join('\n', currentBlockLines));
+        currentSegment.Blocks.Add(currentBlock);
+        currentBlockLines.Clear();
     }
 
-    private static bool TryParseTime(string timeString, out TimeSpan time)
+    private static void FlushSegment(List<TpsSegment> segments, TpsSegment? currentSegment, List<string> currentSegmentLeadingLines)
     {
-        time = TimeSpan.Zero;
-        var parts = timeString.Trim().Split(':');
-
-        if (parts.Length == 2)
+        if (currentSegment is null)
         {
-            // mm:ss format
-            if (int.TryParse(parts[0], out var minutes) && int.TryParse(parts[1], out var seconds))
+            currentSegmentLeadingLines.Clear();
+            return;
+        }
+
+        currentSegment.LeadingContent = NormalizeBody(string.Join('\n', currentSegmentLeadingLines));
+        currentSegment.Content = currentSegment.Blocks.Count == 0
+            ? currentSegment.LeadingContent ?? string.Empty
+            : string.Empty;
+        segments.Add(currentSegment);
+        currentSegmentLeadingLines.Clear();
+    }
+
+    private static TpsSegment CreateSegment(ParsedHeader header, IReadOnlyDictionary<string, string> metadata)
+    {
+        var emotion = ResolveEmotion(header.Emotion, TpsSpec.DefaultEmotion);
+        var palette = ResolvePalette(emotion);
+        return new TpsSegment
+        {
+            Name = header.Name,
+            TargetWPM = header.TargetWpm ?? ResolveBaseWpm(metadata),
+            Emotion = emotion,
+            Speaker = header.Speaker,
+            Timing = header.Timing,
+            BackgroundColor = palette.Background,
+            TextColor = palette.Text,
+            AccentColor = palette.Accent
+        };
+    }
+
+    private static TpsBlock CreateBlock(ParsedHeader header)
+    {
+        return new TpsBlock
+        {
+            Name = header.Name,
+            TargetWPM = header.TargetWpm,
+            Emotion = NormalizeValue(header.Emotion)?.ToLowerInvariant(),
+            Speaker = header.Speaker
+        };
+    }
+
+    private static TpsSegment CreateImplicitSegment(IReadOnlyDictionary<string, string> metadata)
+    {
+        var baseWpm = ResolveBaseWpm(metadata);
+        var palette = ResolvePalette(TpsSpec.DefaultEmotion);
+        return new TpsSegment
+        {
+            Name = metadata.TryGetValue(TpsSpec.FrontMatterKeys.Title, out var title) && !string.IsNullOrWhiteSpace(title)
+                ? title
+                : TpsSpec.DefaultImplicitSegmentName,
+            TargetWPM = baseWpm,
+            Emotion = TpsSpec.DefaultEmotion,
+            BackgroundColor = palette.Background,
+            TextColor = palette.Text,
+            AccentColor = palette.Accent
+        };
+    }
+
+    private static bool TryParseHeader(string line, HeaderLevel level, out ParsedHeader header)
+    {
+        header = ParsedHeader.Empty;
+        var trimmedLine = line.Trim();
+        var prefix = level == HeaderLevel.Segment ? "## " : "### ";
+        if (!trimmedLine.StartsWith(prefix, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        var headerContent = trimmedLine[prefix.Length..].Trim();
+        if (string.IsNullOrWhiteSpace(headerContent))
+        {
+            return false;
+        }
+
+        if (!headerContent.StartsWith("[", StringComparison.Ordinal) || !headerContent.EndsWith("]", StringComparison.Ordinal))
+        {
+            header = new ParsedHeader(headerContent, null, null, null, null);
+            return true;
+        }
+
+        var protectedContent = TpsEscaping.Protect(headerContent[1..^1]);
+        var parts = TpsEscaping.SplitHeaderParts(protectedContent);
+        if (parts.Count == 0 || string.IsNullOrWhiteSpace(parts[0]))
+        {
+            return false;
+        }
+
+        int? targetWpm = null;
+        string? emotion = null;
+        string? timing = null;
+        string? speaker = null;
+
+        foreach (var rawPart in parts.Skip(1))
+        {
+            var part = NormalizeValue(rawPart);
+            if (part is null)
             {
-                time = new TimeSpan(0, minutes, seconds);
-                return true;
+                continue;
+            }
+
+            if (part.StartsWith(TpsSpec.SpeakerPrefix, StringComparison.OrdinalIgnoreCase))
+            {
+                speaker = NormalizeValue(part[TpsSpec.SpeakerPrefix.Length..]);
+                continue;
+            }
+
+            if (TryParseHeaderWpm(part, out var parsedWpm))
+            {
+                targetWpm = parsedWpm;
+                continue;
+            }
+
+            if (IsTiming(part))
+            {
+                timing = part;
+                continue;
+            }
+
+            if (TpsSpec.Emotions.Contains(part))
+            {
+                emotion = part.ToLowerInvariant();
             }
         }
-        else if (parts.Length == 3)
+
+        header = new ParsedHeader(parts[0], targetWpm, emotion, timing, speaker);
+        return true;
+    }
+
+    private static bool TryParseHeaderWpm(string value, out int? wpm)
+    {
+        wpm = null;
+        var normalized = value.Trim();
+        if (normalized.EndsWith(TpsSpec.WpmSuffix, StringComparison.OrdinalIgnoreCase))
         {
-            // hh:mm:ss format
-            if (int.TryParse(parts[0], out var hours) && int.TryParse(parts[1], out var minutes) && int.TryParse(parts[2], out var seconds))
+            var numberPart = normalized[..^TpsSpec.WpmSuffix.Length];
+            if (int.TryParse(numberPart, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsedWithSuffix))
             {
-                time = new TimeSpan(hours, minutes, seconds);
-                return true;
+                wpm = parsedWithSuffix;
             }
+
+            return true;
+        }
+
+        if (int.TryParse(normalized, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed))
+        {
+            wpm = parsed;
+            return true;
         }
 
         return false;
     }
 
-    /// <summary>
-    /// Parse TPS content into structured ScriptData
-    /// </summary>
-    public ScriptData ParseTps(string tpsContent)
+    private static bool IsTiming(string value)
     {
-        if (string.IsNullOrWhiteSpace(tpsContent))
+        if (string.IsNullOrWhiteSpace(value))
         {
-            return CreateEmptyScript();
+            return false;
         }
 
-        tpsContent = NormalizeLineEndings(tpsContent);
-        tpsContent = ProcessEscapeSequences(tpsContent);
+        var rangeSeparatorIndex = value.IndexOf('-', StringComparison.Ordinal);
+        if (rangeSeparatorIndex < 0)
+        {
+            return IsTimeToken(value);
+        }
 
-        var (frontMatter, content) = ExtractFrontMatter(tpsContent);
-        var segments = ParseSegments(content);
+        return IsTimeToken(value[..rangeSeparatorIndex]) && IsTimeToken(value[(rangeSeparatorIndex + 1)..]);
+    }
+
+    private static bool IsTimeToken(string value)
+    {
+        return TimeSpan.TryParseExact(value.Trim(), ["m\\:ss", "mm\\:ss"], CultureInfo.InvariantCulture, out _);
+    }
+
+    private static ScriptData BuildScriptData(TpsDocument document, CompiledScript compiled, string sourceText)
+    {
+        var baseWpm = ResolveBaseWpm(document.Metadata);
+        var segments = new List<ScriptSegment>(document.Segments.Count);
+        var nextWordIndex = 0;
+
+        for (var segmentIndex = 0; segmentIndex < document.Segments.Count; segmentIndex++)
+        {
+            var segment = document.Segments[segmentIndex];
+            var compiledSegment = compiled.Segments.ElementAtOrDefault(segmentIndex);
+            var blocks = new List<ScriptBlock>(segment.Blocks.Count);
+            var segmentStartIndex = nextWordIndex;
+
+            foreach (var (block, blockIndex) in segment.Blocks.Select((value, index) => (value, index)))
+            {
+                var compiledBlock = compiledSegment?.Blocks.ElementAtOrDefault(blockIndex);
+                blocks.Add(BuildScriptBlock(block, compiledBlock, segment.TargetWPM ?? baseWpm, ref nextWordIndex));
+            }
+
+            var (startTime, endTime) = SplitTiming(segment.Timing);
+            segments.Add(new ScriptSegment
+            {
+                Name = segment.Name,
+                Emotion = ResolveEmotion(segment.Emotion, TpsSpec.DefaultEmotion),
+                Speaker = segment.Speaker,
+                Timing = segment.Timing,
+                BackgroundColor = segment.BackgroundColor,
+                TextColor = segment.TextColor,
+                AccentColor = segment.AccentColor,
+                WpmOverride = segment.TargetWPM,
+                StartTime = startTime,
+                EndTime = endTime,
+                StartIndex = segmentStartIndex,
+                EndIndex = Math.Max(segmentStartIndex, nextWordIndex - 1),
+                Content = !string.IsNullOrWhiteSpace(segment.LeadingContent) ? segment.LeadingContent! : segment.Content,
+                Blocks = blocks.Count == 0 ? null : blocks.ToArray()
+            });
+        }
 
         return new ScriptData
         {
-            ScriptId = Guid.NewGuid().ToString(),
-            Title = frontMatter.GetValueOrDefault("title", AppText.Get("Parser.Title.Untitled")),
-            Content = content,  // Keep raw TPS content for editing
-            TargetWpm = int.TryParse(frontMatter.GetValueOrDefault("base_wpm"), out var wpm) ? wpm : 140,
-            Segments = segments.ToArray()
+            Title = document.Metadata.TryGetValue(TpsSpec.FrontMatterKeys.Title, out var title) ? title : null,
+            Content = sourceText,
+            TargetWpm = baseWpm,
+            Segments = segments.Count == 0 ? null : segments.ToArray()
         };
     }
 
-    /// <summary>
-    /// Extract front matter and content from TPS
-    /// </summary>
-    private static (Dictionary<string, string> frontMatter, string content) ExtractFrontMatter(string tpsContent)
+    private static ScriptBlock BuildScriptBlock(TpsBlock block, CompiledBlock? compiledBlock, int fallbackWpm, ref int nextWordIndex)
     {
-        var frontMatter = new Dictionary<string, string>();
-        var content = tpsContent;
-
-        var frontMatterMatch = FrontMatterDelimiter().Matches(tpsContent);
-        if (frontMatterMatch.Count >= 2)
+        var phrases = BuildScriptPhrases(compiledBlock?.Words ?? [], fallbackWpm, ref nextWordIndex);
+        return new ScriptBlock
         {
-            var start = frontMatterMatch[0].Index + frontMatterMatch[0].Length;
-            var end = frontMatterMatch[1].Index;
-            var frontMatterText = tpsContent[start..end].Trim();
-            content = tpsContent[(frontMatterMatch[1].Index + frontMatterMatch[1].Length)..].Trim();
-
-            // Parse YAML-like front matter
-            string? currentSection = null;
-            var lines = frontMatterText.Split('\n', StringSplitOptions.RemoveEmptyEntries);
-            foreach (var rawLine in lines)
-            {
-                var line = rawLine.TrimEnd();
-                var trimmed = line.Trim();
-                if (string.IsNullOrWhiteSpace(trimmed))
-                {
-                    continue;
-                }
-
-                var colonIndex = trimmed.IndexOf(':');
-                if (colonIndex > 0)
-                {
-                    var key = trimmed[..colonIndex].Trim();
-                    var value = trimmed[(colonIndex + 1)..].Trim().Trim('"', '\'');
-                    var isNestedLine = line.Length != line.TrimStart().Length;
-
-                    if (isNestedLine && !string.IsNullOrWhiteSpace(currentSection))
-                    {
-                        frontMatter[$"{currentSection}.{key}"] = value;
-                        continue;
-                    }
-
-                    if (string.IsNullOrWhiteSpace(value))
-                    {
-                        currentSection = key;
-                        continue;
-                    }
-
-                    currentSection = null;
-                    frontMatter[key] = value;
-                }
-            }
-        }
-
-        return (frontMatter, content);
-    }
-
-    /// <summary>
-    /// Parse segments from content
-    /// </summary>
-    private static List<ScriptSegment> ParseSegments(string content)
-    {
-        var segments = new List<ScriptSegment>();
-
-        // Try complex format first
-        var segmentMatches = SegmentHeader().Matches(content);
-
-        // If no complex segments, try simple format
-        if (segmentMatches.Count == 0)
-        {
-            segmentMatches = SimpleSegmentHeader().Matches(content);
-            if (segmentMatches.Count > 0)
-            {
-                return ParseSimpleSegments(content, segmentMatches);
-            }
-        }
-
-        if (segmentMatches.Count == 0)
-        {
-            // No segments defined, create a single default segment
-            var words = TokenizeContent(content);
-            segments.Add(CreateDefaultSegment(content, words));
-            return segments;
-        }
-
-        for (var i = 0; i < segmentMatches.Count; i++)
-        {
-            var match = segmentMatches[i];
-            var segmentName = match.Groups[1].Value;
-            var wpmSpec = match.Groups[2].Value;
-            var emotion = match.Groups[3].Value;
-
-            // Extract segment content (skip the header line)
-            var startPos = match.Index + match.Length;
-            var endPos = i + 1 < segmentMatches.Count
-                ? segmentMatches[i + 1].Index
-                : content.Length;
-
-            var segmentContent = content[startPos..endPos].Trim();
-            var blocks = ParseBlocks(segmentContent);
-            var words = TokenizeContent(segmentContent);
-
-            // Parse WPM specification
-            var (wpmMin, wpmMax) = ParseWpmRangeSpec(wpmSpec);
-
-            // Time is now calculated automatically, not parsed from format
-            var startTime = "0:00";
-            var endTime = "0:00";
-
-            // Get colors for this emotion
-            var colors = GetEmotionColors(emotion);
-
-            var segment = new ScriptSegment
-            {
-                Name = segmentName,
-                Emotion = NormalizeEmotionName(emotion),
-                BackgroundColor = colors.Background,
-                TextColor = colors.Text,
-                AccentColor = colors.Accent,
-                WpmOverride = wpmMin,
-                WpmMax = wpmMax,
-                StartTime = startTime,
-                EndTime = endTime,
-                StartIndex = segments.Sum(s => CountWords(s.Content)),
-                EndIndex = segments.Sum(s => CountWords(s.Content)) + words.Length - 1,
-                Content = segmentContent,
-                Blocks = blocks.ToArray()
-            };
-
-            segments.Add(segment);
-        }
-
-        return segments;
-    }
-
-    /// <summary>
-    /// Parse simple segments with emotion emojis and inline tags
-    /// </summary>
-    private static List<ScriptSegment> ParseSimpleSegments(string content, MatchCollection segmentMatches)
-    {
-        var segments = new List<ScriptSegment>();
-        var totalWordCount = 0;
-
-        for (var i = 0; i < segmentMatches.Count; i++)
-        {
-            var match = segmentMatches[i];
-            var segmentTitle = match.Groups[1].Value.Trim();
-
-            // Extract segment content
-            var startPos = match.Index + match.Length;
-            var endPos = i + 1 < segmentMatches.Count
-                ? segmentMatches[i + 1].Index
-                : content.Length;
-
-            var segmentContent = content[startPos..endPos].Trim();
-
-            // Parse emotion from emoji at start of content
-            var emotion = "neutral";
-            var speed = 250;
-
-            // Check for emoji and emotion at start
-            var emojiPattern = @"^([😊😟🎯💪⚡🚨😌😢😠😨💼🕊️🌧️])\s*(\w+)?";
-            var emojiMatch = Regex.Match(segmentContent, emojiPattern);
-            if (emojiMatch.Success)
-            {
-                var emoji = emojiMatch.Groups[1].Value;
-                emotion = MapEmojiToEmotion(emoji);
-                // Remove emoji from content
-                segmentContent = segmentContent.Substring(emojiMatch.Length).Trim();
-            }
-
-            // Check for speed tags in content
-            var speedPattern = @"\[(\d+)WPM\]";
-            var speedMatch = Regex.Match(segmentContent, speedPattern, RegexOptions.IgnoreCase);
-            if (speedMatch.Success && int.TryParse(speedMatch.Groups[1].Value, out var wpm))
-            {
-                speed = wpm;
-            }
-
-            // Parse into blocks with inline formatting
-            var blocks = ParseInlineBlocks(segmentContent, emotion, speed);
-
-            // Count words
-            var wordCount = CountWords(segmentContent);
-
-            // Get colors for this emotion
-            var colors = GetEmotionColors(emotion);
-
-            var segment = new ScriptSegment
-            {
-                Name = segmentTitle,
-                Emotion = emotion,
-                BackgroundColor = colors.Background,
-                TextColor = colors.Text,
-                AccentColor = colors.Accent,
-                WpmOverride = speed,
-                StartIndex = totalWordCount,
-                EndIndex = totalWordCount + wordCount - 1,
-                Content = segmentContent,
-                Blocks = blocks.ToArray()
-            };
-
-            segments.Add(segment);
-            totalWordCount += wordCount;
-        }
-
-        return segments;
-    }
-
-    /// <summary>
-    /// Map emoji to emotion name
-    /// </summary>
-    private static string MapEmojiToEmotion(string emoji)
-    {
-        return emoji switch
-        {
-            "😊" => "warm",
-            "😟" => "concerned",
-            "🎯" => "focused",
-            "💪" => "motivational",
-            "⚡" => "energetic",
-            "🚨" => "urgent",
-            "😌" => "calm",
-            "😢" => "sad",
-            "😠" => "angry",
-            "😨" => "fear",
-            "💼" => "professional",
-            "🕊️" => "peaceful",
-            "🌧️" => "melancholy",
-            _ => "neutral"
+            Name = block.Name,
+            Emotion = NormalizeValue(block.Emotion)?.ToLowerInvariant(),
+            Speaker = block.Speaker,
+            WpmOverride = block.TargetWPM,
+            StartIndex = phrases.Length == 0 ? nextWordIndex : phrases[0].StartIndex,
+            EndIndex = phrases.Length == 0 ? nextWordIndex : phrases[^1].EndIndex,
+            Content = block.Content,
+            Phrases = phrases.Length == 0 ? null : phrases
         };
     }
 
-    /// <summary>
-    /// Parse blocks with inline formatting tags
-    /// </summary>
-    private static List<ScriptBlock> ParseInlineBlocks(string content, string defaultEmotion, int defaultSpeed)
-    {
-        var blocks = new List<ScriptBlock>();
-
-        // Split by paragraphs or major formatting changes
-        var lines = content.Split(new[] { "\n\n" }, StringSplitOptions.RemoveEmptyEntries);
-        var blockStartIndex = 0;
-
-        foreach (var line in lines)
-        {
-            var blockContent = line.Trim();
-            if (string.IsNullOrEmpty(blockContent))
-            {
-                continue;
-            }
-
-            // Check for inline emotion changes
-            var emotion = defaultEmotion;
-            var speed = defaultSpeed;
-
-            // Check for color tags that might indicate emotion
-            if (blockContent.Contains("[red]") || blockContent.Contains("[yellow]"))
-            {
-                emotion = "urgent";
-            }
-            else if (blockContent.Contains("[blue]"))
-            {
-                emotion = "calm";
-            }
-            else if (blockContent.Contains("[green]"))
-            {
-                emotion = "positive";
-            }
-
-            // Check for speed changes
-            var speedMatch = Regex.Match(blockContent, @"\[(\d+)WPM\]", RegexOptions.IgnoreCase);
-            if (speedMatch.Success && int.TryParse(speedMatch.Groups[1].Value, out var blockSpeed))
-            {
-                speed = blockSpeed;
-            }
-
-            var wordCount = CountWords(blockContent);
-
-            var block = new ScriptBlock
-            {
-                Name = AppText.Format("Parser.Block.Indexed", blocks.Count + 1),
-                Emotion = emotion,
-                WpmOverride = speed,
-                StartIndex = blockStartIndex,
-                EndIndex = blockStartIndex + wordCount - 1,
-                Content = blockContent,
-                Phrases = ParsePhrases(blockContent).ToArray()
-            };
-
-            blocks.Add(block);
-            blockStartIndex += wordCount;
-        }
-
-        // If no blocks created, make one default block
-        if (blocks.Count == 0)
-        {
-            blocks.Add(new ScriptBlock
-            {
-                Name = AppText.Get("Parser.Block.Default"),
-                Emotion = defaultEmotion,
-                WpmOverride = defaultSpeed,
-                StartIndex = 0,
-                EndIndex = CountWords(content) - 1,
-                Content = content,
-                Phrases = ParsePhrases(content).ToArray()
-            });
-        }
-
-        return blocks;
-    }
-
-    /// <summary>
-    /// Parse blocks within a segment
-    /// </summary>
-    private static List<ScriptBlock> ParseBlocks(string segmentContent)
-    {
-        var blocks = new List<ScriptBlock>();
-        var blockMatches = BlockHeader().Matches(segmentContent);
-
-        if (blockMatches.Count == 0)
-        {
-            // No blocks defined, create a single default block
-            var words = TokenizeContent(segmentContent);
-            blocks.Add(new ScriptBlock
-            {
-                Name = AppText.Get("Parser.Block.Default"),
-                StartIndex = 0,
-                EndIndex = words.Length - 1,
-                Content = segmentContent
-            });
-            return blocks;
-        }
-
-        for (var i = 0; i < blockMatches.Count; i++)
-        {
-            var match = blockMatches[i];
-            var blockName = match.Groups[1].Value;
-            var wpmSpec = match.Groups[2].Value;
-            var emotion = match.Groups[3].Value;
-
-            // Extract block content
-            var startPos = match.Index + match.Length;
-            var endPos = i + 1 < blockMatches.Count
-                ? blockMatches[i + 1].Index
-                : segmentContent.Length;
-
-            var blockContent = segmentContent[startPos..endPos].Trim();
-            var phrases = ParsePhrases(blockContent);
-
-            var block = new ScriptBlock
-            {
-                Name = blockName,
-                Emotion = string.IsNullOrEmpty(emotion) ? null : NormalizeEmotionName(emotion),
-                WpmOverride = ParseWpmSpec(wpmSpec),
-                StartIndex = blocks.Sum(b => CountWords(b.Content)),
-                EndIndex = blocks.Sum(b => CountWords(b.Content)) + CountWords(blockContent) - 1,
-                Content = blockContent,
-                Phrases = phrases.ToArray()
-            };
-
-            blocks.Add(block);
-        }
-
-        return blocks;
-    }
-
-    /// <summary>
-    /// Parse phrases within a block
-    /// </summary>
-    private static List<ScriptPhrase> ParsePhrases(string blockContent)
+    private static ScriptPhrase[] BuildScriptPhrases(IEnumerable<CompiledWord> compiledWords, int fallbackWpm, ref int nextWordIndex)
     {
         var phrases = new List<ScriptPhrase>();
+        var currentWords = new List<ScriptWord>();
+        var currentPhraseStart = nextWordIndex;
 
-        // Split by sentence boundaries for now (could be more sophisticated)
-        var sentences = blockContent.Split(new[] { '.', '!', '?' }, StringSplitOptions.RemoveEmptyEntries);
-
-        var startIndex = 0;
-        foreach (var sentence in sentences)
+        foreach (var compiledWord in compiledWords)
         {
-            var cleanSentence = sentence.Trim();
-            if (string.IsNullOrEmpty(cleanSentence))
+            currentWords.Add(BuildScriptWord(compiledWord, fallbackWpm));
+            nextWordIndex++;
+
+            if (compiledWord.Metadata.IsPause || HasSentenceEndingPunctuation(compiledWord.CleanText))
             {
-                continue;
-            }
-
-            var words = TokenizeContent(cleanSentence);
-            var parsedWords = ParseWords(cleanSentence);
-
-            var phrase = new ScriptPhrase
-            {
-                Text = cleanSentence,
-                StartIndex = startIndex,
-                EndIndex = startIndex + words.Length - 1,
-                Words = parsedWords.ToArray()
-            };
-
-            phrases.Add(phrase);
-            startIndex += words.Length;
-        }
-
-        return phrases;
-    }
-
-    /// <summary>
-    /// Parse individual words with their properties
-    /// </summary>
-    private static List<ScriptWord> ParseWords(string text)
-    {
-        var words = new List<ScriptWord>();
-
-        // First, let's extract and preserve color information
-        var processedText = text;
-        var wordColors = new Dictionary<string, string>();
-
-        // Extract paired emotion tags and convert to colors
-        processedText = Regex.Replace(processedText,
-            $@"\[({EmotionAlt})\]([^\[]*?)\[\/(?:{EmotionAlt})\]",
-            (match) =>
-            {
-                var emotion = match.Groups[1].Value;
-                var content = match.Groups[2].Value;
-                var color = EmotionTextColors.GetValueOrDefault(emotion, "#808080");
-                foreach (var word in content.Split(' ', StringSplitOptions.RemoveEmptyEntries))
-                {
-                    wordColors[word] = color;
-                }
-
-                return content;
-            }, RegexOptions.IgnoreCase);
-
-        // Extract paired color tags
-        processedText = Regex.Replace(processedText,
-            $@"\[({ColorAlt})\]([^\[]*?)\[\/(?:{ColorAlt})\]",
-            (match) =>
-            {
-                var color = match.Groups[1].Value;
-                var content = match.Groups[2].Value;
-                foreach (var word in content.Split(' ', StringSplitOptions.RemoveEmptyEntries))
-                {
-                    wordColors[word] = color;
-                }
-
-                return content;
-            }, RegexOptions.IgnoreCase);
-
-        // === COMPREHENSIVE TAG REMOVAL ===
-        // Remove ALL TPS formatting tags to ensure clean text display
-
-        // 1. Remove pause markers
-        processedText = Regex.Replace(processedText, @"\[pause:\d+[ms]?\]", "", RegexOptions.IgnoreCase);
-
-        // 2. Remove edit points
-        processedText = Regex.Replace(processedText, @"\[edit_point(?::(high|medium|low))?\]", "", RegexOptions.IgnoreCase);
-
-        // 3. Remove pronunciation guides (extract content between tags)
-        processedText = Regex.Replace(processedText, @"\[phonetic:[^\]]+\]([^\[]+)\[/phonetic\]", "$1", RegexOptions.IgnoreCase);
-        processedText = Regex.Replace(processedText, @"\[pronunciation:[^\]]+\]([^\[]+)\[/pronunciation\]", "$1", RegexOptions.IgnoreCase);
-
-        // 4. TPS format uses ONLY [] bracket syntax
-        // Curly braces {} and HTML-style <tags> are NOT supported
-
-        // 6. Remove all simple opening/closing tags (emotions, colors, speed, formatting)
-        processedText = Regex.Replace(processedText, $@"\[/?({EmotionAlt})\]", "", RegexOptions.IgnoreCase);
-        processedText = Regex.Replace(processedText, $@"\[/?({ColorAlt})\]", "", RegexOptions.IgnoreCase);
-        processedText = Regex.Replace(processedText, $@"\[/?({FormattingAlt}|{SpeedAlt})\]", "", RegexOptions.IgnoreCase);
-
-        // 7. Remove speed tags with numbers
-        processedText = Regex.Replace(processedText, @"\[/?\d+WPM\]", "", RegexOptions.IgnoreCase);
-
-        // 8. Extract content from paired tags we haven't handled yet
-        // Pattern: [tag]content[/tag] -> content
-        processedText = Regex.Replace(processedText, @"\[([^\]]+)\]([^\[]*)\[/\1\]", "$2", RegexOptions.IgnoreCase);
-
-        // 9. Final cleanup: Remove any remaining [something] tags
-        // This is a catch-all for any other formatting tags
-        processedText = Regex.Replace(processedText, @"\[[^\]]*\]", "", RegexOptions.IgnoreCase);
-
-        // Now tokenize the cleaned text
-        var tokens = TokenizeContent(processedText);
-
-        foreach (var token in tokens)
-        {
-            // Handle pause markers
-            if (token == "/" || token == "//")
-            {
-                words.Add(new ScriptWord
-                {
-                    Text = string.Empty,
-                    OrpIndex = 0,
-                    PauseAfter = token == "//" ? 600 : 300
-                });
-                continue;
-            }
-
-            // Clean any remaining formatting from the word
-            var cleanWord = CleanWord(token);
-
-            if (!string.IsNullOrWhiteSpace(cleanWord))
-            {
-                var scriptWord = new ScriptWord
-                {
-                    Text = cleanWord,
-                    OrpIndex = CalculateORP(cleanWord),
-                    EmphasisLevel = DetermineEmphasisLevel(token),
-                    Color = wordColors.TryGetValue(cleanWord, out var value) ? value : null,
-                    PauseAfter = ExtractPause(token),
-                    IsEditPoint = IsEditPoint(token),
-                    EditPointPriority = ExtractEditPointPriority(token)
-                };
-
-                words.Add(scriptWord);
+                phrases.Add(CreatePhrase(currentWords, currentPhraseStart, nextWordIndex - 1));
+                currentWords.Clear();
+                currentPhraseStart = nextWordIndex;
             }
         }
 
-        return words;
+        if (currentWords.Count > 0)
+        {
+            phrases.Add(CreatePhrase(currentWords, currentPhraseStart, nextWordIndex - 1));
+        }
+
+        return phrases.ToArray();
     }
 
-    /// <summary>
-    /// Calculate Optimal Recognition Point for a word
-    /// </summary>
-    private static int CalculateORP(string word)
+    private static ScriptPhrase CreatePhrase(List<ScriptWord> words, int startIndex, int endIndex)
     {
-        var length = word.Length;
-        return length switch
+        return new ScriptPhrase
         {
-            <= 1 => 0,
-            <= 5 => 1,  // 30% position
-            <= 9 => 2,  // 35% position  
-            <= 13 => 3, // 40% position
-            _ => 4      // Longer words
+            Text = string.Join(' ', words.Where(word => !string.IsNullOrWhiteSpace(word.Text)).Select(word => word.Text)),
+            StartIndex = startIndex,
+            EndIndex = Math.Max(startIndex, endIndex),
+            Words = words.ToArray()
         };
     }
 
-    /// <summary>
-    /// Parse WPM specification (e.g., "140WPM")
-    /// </summary>
-    private static int? ParseWpmSpec(string wpmSpec)
+    private static ScriptWord BuildScriptWord(CompiledWord compiledWord, int fallbackWpm)
     {
-        if (string.IsNullOrEmpty(wpmSpec))
-        {
-            return null;
-        }
+        var effectiveWpm = compiledWord.Metadata.SpeedOverride
+            ?? (compiledWord.Metadata.SpeedMultiplier is float multiplier
+                ? Math.Max(1, (int)Math.Round(fallbackWpm * multiplier, MidpointRounding.AwayFromZero))
+                : (int?)null);
 
-        var numbers = Regex.Matches(wpmSpec, @"\d+");
-        if (numbers.Count > 0 && int.TryParse(numbers[0].Value, out var wpm))
+        return new ScriptWord
         {
-            return wpm;
-        }
-
-        return null;
+            Text = compiledWord.CleanText,
+            OrpIndex = compiledWord.ORPPosition,
+            WpmOverride = effectiveWpm,
+            SpeedMultiplier = compiledWord.Metadata.SpeedMultiplier,
+            EmphasisLevel = compiledWord.Metadata.EmphasisLevel,
+            IsHighlight = compiledWord.Metadata.IsHighlight,
+            IsBreath = compiledWord.Metadata.IsBreath,
+            Emotion = NormalizeValue(compiledWord.Metadata.InlineEmotionHint ?? compiledWord.Metadata.EmotionHint)?.ToLowerInvariant(),
+            VolumeLevel = NormalizeValue(compiledWord.Metadata.VolumeLevel)?.ToLowerInvariant(),
+            DeliveryMode = NormalizeValue(compiledWord.Metadata.DeliveryMode)?.ToLowerInvariant(),
+            PauseAfter = compiledWord.Metadata.PauseDuration,
+            Pronunciation = compiledWord.Metadata.PronunciationGuide,
+            StressText = compiledWord.Metadata.StressText,
+            StressGuide = compiledWord.Metadata.StressGuide,
+            Speaker = compiledWord.Metadata.Speaker,
+            IsEditPoint = compiledWord.Metadata.IsEditPoint,
+            EditPointPriority = NormalizeValue(compiledWord.Metadata.EditPointPriority)?.ToLowerInvariant()
+        };
     }
 
-    /// <summary>
-    /// Parse WPM range specification (e.g., "250-300WPM"). Returns (min,max?)
-    /// </summary>
-    private static (int? min, int? max) ParseWpmRangeSpec(string wpmSpec)
+    private static (string? Start, string? End) SplitTiming(string? timing)
     {
-        if (string.IsNullOrEmpty(wpmSpec))
+        var trimmed = NormalizeValue(timing);
+        if (trimmed is null)
         {
             return (null, null);
         }
 
-        var numbers = Regex.Matches(wpmSpec, @"\d+");
-        if (numbers.Count >= 2)
+        var separatorIndex = trimmed.IndexOf('-', StringComparison.Ordinal);
+        if (separatorIndex < 0)
         {
-            int.TryParse(numbers[0].Value, out var min);
-            int.TryParse(numbers[1].Value, out var max);
-            return (min, max);
-        }
-        if (numbers.Count == 1 && int.TryParse(numbers[0].Value, out var only))
-        {
-            return (only, null);
-        }
-        return (null, null);
-    }
-
-    /// <summary>
-    /// Normalize emotion tokens like "😊 Warm" or "😟 Concerned" to canonical key (warm, concerned)
-    /// </summary>
-    private static string NormalizeEmotionName(string emotion)
-    {
-        if (string.IsNullOrWhiteSpace(emotion))
-        {
-            return "neutral";
-        }
-        // Remove emoji and trim
-        var e = Regex.Replace(emotion, @"^[\p{So}\p{C}]+\s*", string.Empty).Trim();
-        e = e.ToLowerInvariant();
-        // Map synonyms
-        return e switch
-        {
-            "😊 warm" => "warm",
-            "😟 concerned" => "concerned",
-            "🎯 focused" => "focused",
-            "🤝 empathetic" or "💚 empathetic" => "empathetic",
-            "neutral" or "😐 neutral" => "neutral",
-            "urgent" or "🚨 urgent" => "urgent",
-            _ => e
-        };
-    }
-
-    /// <summary>
-    /// Helper methods for word processing
-    /// </summary>
-    private static string[] TokenizeContent(string content)
-    {
-        if (string.IsNullOrWhiteSpace(content))
-        {
-            return Array.Empty<string>();
+            return (trimmed, trimmed);
         }
 
-        return content.Split(new[] { ' ', '\t', '\n', '\r' },
-                           StringSplitOptions.RemoveEmptyEntries)
-                     .Where(word => !string.IsNullOrWhiteSpace(word))
-                     .ToArray();
+        return (trimmed[..separatorIndex], trimmed[(separatorIndex + 1)..]);
     }
 
-    private static int CountWords(string content) => TokenizeContent(content).Length;
-
-    private static string CleanWord(string word)
+    private static string NormalizeMetadataValue(string value)
     {
-        if (string.IsNullOrWhiteSpace(word))
+        var trimmed = value.Trim();
+        if (trimmed.Length >= 2 &&
+            ((trimmed.StartsWith("\"", StringComparison.Ordinal) && trimmed.EndsWith("\"", StringComparison.Ordinal)) ||
+             (trimmed.StartsWith("'", StringComparison.Ordinal) && trimmed.EndsWith("'", StringComparison.Ordinal))))
         {
-            return string.Empty;
+            return trimmed[1..^1];
         }
 
-        if (word == "/" || word == "//")
+        return trimmed;
+    }
+
+    private static bool IsLegacyMetadataKey(string key)
+    {
+        return key.Equals(TpsSpec.LegacyKeys.DisplayDuration, StringComparison.OrdinalIgnoreCase) ||
+               key.Equals(TpsSpec.LegacyKeys.XslowOffset, StringComparison.OrdinalIgnoreCase) ||
+               key.Equals(TpsSpec.LegacyKeys.SlowOffset, StringComparison.OrdinalIgnoreCase) ||
+               key.Equals(TpsSpec.LegacyKeys.FastOffset, StringComparison.OrdinalIgnoreCase) ||
+               key.Equals(TpsSpec.LegacyKeys.XfastOffset, StringComparison.OrdinalIgnoreCase) ||
+               key.Equals(TpsSpec.LegacyKeys.PresetsXslow, StringComparison.OrdinalIgnoreCase) ||
+               key.Equals(TpsSpec.LegacyKeys.PresetsSlow, StringComparison.OrdinalIgnoreCase) ||
+               key.Equals(TpsSpec.LegacyKeys.PresetsFast, StringComparison.OrdinalIgnoreCase) ||
+               key.Equals(TpsSpec.LegacyKeys.PresetsXfast, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static int ResolveBaseWpm(IReadOnlyDictionary<string, string> metadata)
+    {
+        return metadata.TryGetValue(TpsSpec.FrontMatterKeys.BaseWpm, out var value) &&
+               int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed)
+            ? Math.Max(1, parsed)
+            : TpsSpec.DefaultBaseWpm;
+    }
+
+    private static string ResolveEmotion(string? emotion, string fallback)
+    {
+        var normalized = NormalizeValue(emotion)?.ToLowerInvariant();
+        return normalized is not null && TpsSpec.Emotions.Contains(normalized)
+            ? normalized
+            : fallback;
+    }
+
+    private static EmotionPalette ResolvePalette(string emotion)
+    {
+        return TpsSpec.EmotionPalettes.TryGetValue(emotion, out var palette)
+            ? palette
+            : TpsSpec.EmotionPalettes[TpsSpec.DefaultEmotion];
+    }
+
+    private static bool HasSentenceEndingPunctuation(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
         {
-            return string.Empty;
+            return false;
         }
 
-        var t = word;
-
-        // === COMPREHENSIVE TAG REMOVAL - EVERYTHING USES [] BRACKETS ===
-
-        // 1. Remove pause markers
-        t = Regex.Replace(t, @"\[pause:\d+[ms]?\]", "", RegexOptions.IgnoreCase);
-
-        // 2. Remove edit points
-        t = Regex.Replace(t, @"\[edit_point(?::(high|medium|low))?\]", "", RegexOptions.IgnoreCase);
-
-        // 3. Extract content from pronunciation guides
-        t = Regex.Replace(t, @"\[phonetic:[^\]]+\]([^\[]+)\[/phonetic\]", "$1", RegexOptions.IgnoreCase);
-        t = Regex.Replace(t, @"\[pronunciation:[^\]]+\]([^\[]+)\[/pronunciation\]", "$1", RegexOptions.IgnoreCase);
-
-        // 4. Remove emotion tags (both paired and unpaired)
-        t = Regex.Replace(t, $@"\[({EmotionAlt})\]([^\[]*)\[/({EmotionAlt})\]", "$2", RegexOptions.IgnoreCase);
-        t = Regex.Replace(t, $@"\[/?({EmotionAlt})\]", "", RegexOptions.IgnoreCase);
-
-        // 5. Remove color tags (both paired and unpaired)
-        t = Regex.Replace(t, $@"\[({ColorAlt})\]([^\[]*)\[/({ColorAlt})\]", "$2", RegexOptions.IgnoreCase);
-        t = Regex.Replace(t, $@"\[/?({ColorAlt})\]", "", RegexOptions.IgnoreCase);
-
-        // 6. Remove speed tags
-        t = Regex.Replace(t, @"\[\d+WPM\]([^\[]*)\[/\d+WPM\]", "$1", RegexOptions.IgnoreCase);
-        t = Regex.Replace(t, @"\[/?\d+WPM\]", "", RegexOptions.IgnoreCase);
-        t = Regex.Replace(t, $@"\[({SpeedAlt})\]([^\[]*)\[/({SpeedAlt})\]", "$2", RegexOptions.IgnoreCase);
-        t = Regex.Replace(t, $@"\[/?({SpeedAlt})\]", "", RegexOptions.IgnoreCase);
-
-        // 7. Remove formatting tags (emphasis, highlight)
-        t = Regex.Replace(t, $@"\[({FormattingAlt})\]([^\[]*)\[/({FormattingAlt})\]", "$2", RegexOptions.IgnoreCase);
-        t = Regex.Replace(t, $@"\[/?({FormattingAlt})\]", "", RegexOptions.IgnoreCase);
-
-        // 8. Final catch-all: remove any remaining [] tags
-        t = Regex.Replace(t, @"\[[^\]]*\]", "", RegexOptions.IgnoreCase);
-
-        // 9. Clean up markdown emphasis (converted to [emphasis] internally)
-        t = Regex.Replace(t, @"\*\*([^*]+)\*\*", "$1"); // **bold**
-        t = Regex.Replace(t, @"\*([^*]+)\*", "$1");     // *italic*
-        t = Regex.Replace(t, @"__([^_]+)__", "$1");     // __underline__
-
-        // 10. Restore escaped characters
-        t = RestoreEscapedCharacters(t);
-
-        return t.Trim();
+        var lastCharacter = value.TrimEnd()[^1];
+        return lastCharacter is '.' or '!' or '?';
     }
 
-    private static int DetermineEmphasisLevel(string token)
+    private static string NormalizeLineEndings(string? value) =>
+        value?.Replace("\r\n", "\n", StringComparison.Ordinal).Replace('\r', '\n') ?? string.Empty;
+
+    private static string NormalizeBody(string? value) =>
+        NormalizeLineEndings(value).Trim('\n');
+
+    private static string? NormalizeValue(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+
+    private enum HeaderLevel
     {
-        if (token.Contains("**"))
-        {
-            return 2; // Strong emphasis (markdown)
-        }
-
-        if (token.Contains('*') || token.Contains("[emphasis]"))
-        {
-            return 1; // Normal emphasis
-        }
-
-        return 0; // No emphasis
+        Segment,
+        Block
     }
 
-    private static int? ExtractPause(string token)
+    private sealed record ParsedHeader(string Name, int? TargetWpm, string? Emotion, string? Timing, string? Speaker)
     {
-        var match = PauseMarker().Match(token);
-        if (match.Success)
-        {
-            var pauseValue = match.Groups[1].Value;
-            if (pauseValue.EndsWith("ms"))
-            {
-                if (int.TryParse(pauseValue[..^2], out var ms))
-                {
-                    return ms;
-                }
-            }
-            else if (pauseValue.EndsWith("s"))
-            {
-                if (int.TryParse(pauseValue[..^1], out var seconds))
-                {
-                    return seconds * 1000; // Convert to milliseconds
-                }
-            }
-        }
-        return null;
-    }
-
-    private static bool IsEditPoint(string token)
-    {
-        return EditPointMarker().IsMatch(token);
-    }
-
-    private static string? ExtractEditPointPriority(string token)
-    {
-        var match = EditPointMarker().Match(token);
-        if (match.Success && match.Groups[1].Success)
-        {
-            return match.Groups[1].Value;
-        }
-        return null;
-    }
-
-    private static ScriptData CreateEmptyScript()
-    {
-        return new ScriptData
-        {
-            ScriptId = Guid.NewGuid().ToString(),
-            Title = AppText.Get("Parser.Empty.Title"),
-            Content = string.Empty,
-            TargetWpm = 140,
-            Segments = Array.Empty<ScriptSegment>()
-        };
-    }
-
-    private static ScriptSegment CreateDefaultSegment(string content, string[] words)
-    {
-        // Use blue colors for default/neutral emotion
-        return new ScriptSegment
-        {
-            Name = AppText.Get("Parser.Empty.MainContent"),
-            Emotion = "😊",
-            BackgroundColor = "#FF3B82F6",
-            TextColor = "#FFFFFFFF",
-            AccentColor = "#FF2563EB",
-            StartIndex = 0,
-            EndIndex = words.Length - 1,
-            Content = content
-        };
-    }
-
-    /// <summary>
-    /// Get color scheme for an emotion
-    /// </summary>
-    private static (string Background, string Text, string Accent) GetEmotionColors(string emotion)
-    {
-        return emotion.ToLower() switch
-        {
-            "warm" => ("#FFFB923C", "#FF1F2937", "#FFE97F00"), // Orange
-            "concerned" => ("#FFF87171", "#FF1F2937", "#FFDC2626"), // Red
-            "focused" => ("#FF4ADE80", "#FF1F2937", "#FF16A34A"), // Green
-            "motivational" => ("#FFA855F7", "#FFFFFFFF", "#FF7C3AED"), // Purple
-            "urgent" => ("#FFEF4444", "#FFFFFFFF", "#FFB91C1C"), // Bright Red
-            "happy" => ("#FFFACC15", "#FF1F2937", "#FFD97706"), // Yellow
-            "excited" => ("#FFEC4899", "#FFFFFFFF", "#FFDB2777"), // Pink
-            "sad" => ("#FF6366F1", "#FFFFFFFF", "#FF4F46E5"), // Indigo
-            "calm" => ("#FF14B8A6", "#FFFFFFFF", "#FF0D9488"), // Teal
-            "energetic" => ("#FFF97316", "#FFFFFFFF", "#FFEA580C"), // Orange-Red
-            "professional" => ("#FF1E40AF", "#FFFFFFFF", "#FF1E3A8A"), // Navy
-            "neutral" => ("#FF3B82F6", "#FFFFFFFF", "#FF2563EB"), // Blue
-            _ => ("#FF3B82F6", "#FFFFFFFF", "#FF2563EB") // Default blue
-        };
-    }
-
-    private static string NormalizeLineEndings(string text)
-    {
-        if (string.IsNullOrEmpty(text))
-        {
-            return string.Empty;
-        }
-
-        return text.Replace("\r\n", "\n").Replace('\r', '\n');
+        public static ParsedHeader Empty { get; } = new(string.Empty, null, null, null, null);
     }
 }

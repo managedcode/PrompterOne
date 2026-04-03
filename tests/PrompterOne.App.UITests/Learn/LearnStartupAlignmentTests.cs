@@ -41,12 +41,13 @@ public sealed class LearnStartupAlignmentTests(StandaloneAppFixture fixture) : I
                 .Where(sample => string.Equals(sample.Text, StartupWord, StringComparison.Ordinal))
                 .ToArray();
 
+            Assert.NotEmpty(trace);
             Assert.NotEmpty(startupWordSamples);
 
-            var firstStartupWordSample = startupWordSamples[0];
-            Assert.Equal(LayoutReadyFalseValue, firstStartupWordSample.LayoutReady);
-            Assert.Equal(HiddenOpacity, firstStartupWordSample.RowOpacity);
-            Assert.Equal(HiddenVisibility, firstStartupWordSample.RowVisibility);
+            var firstCapturedSample = trace[0];
+            Assert.Equal(LayoutReadyFalseValue, firstCapturedSample.LayoutReady);
+            Assert.Equal(HiddenOpacity, firstCapturedSample.RowOpacity);
+            Assert.Equal(HiddenVisibility, firstCapturedSample.RowVisibility);
 
             await WaitForLearnLayoutReadyAsync(page);
             var readyStartupWordSample = await ReadCurrentLearnLayoutAsync(page);
@@ -72,6 +73,21 @@ public sealed class LearnStartupAlignmentTests(StandaloneAppFixture fixture) : I
 
                 window.__learnStartupTrace = [];
 
+                const readEffectiveOpacity = element => {
+                    let effectiveOpacity = 1;
+                    let current = element;
+
+                    while (current instanceof HTMLElement) {
+                        const currentOpacity = Number.parseFloat(getComputedStyle(current).opacity || '1');
+                        effectiveOpacity *= Number.isFinite(currentOpacity) ? currentOpacity : 1;
+                        current = current.parentElement;
+                    }
+
+                    return effectiveOpacity <= 0
+                        ? '0'
+                        : String(Math.round(effectiveOpacity * 1000) / 1000);
+                };
+
                 const capture = () => {
                     if (window.__learnStartupTrace.length >= maxSamples) {
                         return;
@@ -93,7 +109,7 @@ public sealed class LearnStartupAlignmentTests(StandaloneAppFixture fixture) : I
                     window.__learnStartupTrace.push({
                         layoutReady: display.getAttribute(layoutReadyAttributeName),
                         orpDeltaPx: Math.abs((lineRect.left + (lineRect.width / 2)) - (orpRect.left + (orpRect.width / 2))),
-                        rowOpacity: rowStyles.opacity,
+                        rowOpacity: readEffectiveOpacity(row),
                         rowVisibility: rowStyles.visibility,
                         text: word.textContent.replace(/\s+/g, '')
                     });

@@ -195,6 +195,7 @@ public partial class TeleprompterPage : IAsyncDisposable
         var autoStart = SessionService.State.ReaderSettings.ShowCameraScene;
         var devices = await MediaDeviceService.GetDevicesAsync();
         var availableCameras = devices.Where(device => device.Kind == MediaDeviceKind.Camera).ToList();
+        var hasResolvedCameraIdentity = availableCameras.Any(device => !string.IsNullOrWhiteSpace(device.DeviceId));
         var preferredCameraId = _studioSettings.Camera.DefaultCameraId;
         var visibleSceneCameras = MediaSceneService.State.Cameras
             .Where(camera => camera.Transform.Visible)
@@ -203,6 +204,23 @@ public partial class TeleprompterPage : IAsyncDisposable
             .ThenBy(camera => camera.Label, StringComparer.OrdinalIgnoreCase)
             .ToList();
         var configuredCamera = availableCameras.FirstOrDefault(device => string.Equals(device.DeviceId, preferredCameraId, StringComparison.Ordinal));
+
+        if (!hasResolvedCameraIdentity)
+        {
+            var concealedTransform = new MediaSourceTransform(MirrorHorizontal: _studioSettings.Camera.MirrorCamera);
+            _cameraLayer = new ReaderCameraLayerViewModel(
+                ElementId: UiDomIds.Teleprompter.Camera,
+                DeviceId: string.Empty,
+                AutoStart: false,
+                Role: "primary",
+                Order: 0,
+                CssClass: "rd-camera",
+                Style: BuildPrimaryCameraStyle(concealedTransform),
+                TestId: UiTestIds.Teleprompter.CameraBackground);
+            _isReaderCameraActive = false;
+            _activateReaderCameraAfterRender = false;
+            return;
+        }
 
         var primarySceneCamera = visibleSceneCameras.FirstOrDefault();
         if (!string.IsNullOrWhiteSpace(preferredCameraId))

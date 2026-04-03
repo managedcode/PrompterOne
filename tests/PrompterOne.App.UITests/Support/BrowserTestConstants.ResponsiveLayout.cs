@@ -15,6 +15,9 @@ internal static partial class BrowserTestConstants
 {
     public static class ResponsiveLayout
     {
+        public const string IpadAirPortraitName = "ipad-air-portrait";
+        public const string IpadMiniPortraitName = "ipad-mini-portrait";
+        public const string IpadProPortraitName = "ipad-pro-portrait";
         public const string ScenarioPrefix = "responsive-layout";
         public const string InitialStep = "01-initial";
         public const int ViewportEdgeTolerancePx = 2;
@@ -60,5 +63,10 @@ internal static partial class BrowserTestConstants
 
         public static IReadOnlyList<ResponsiveViewport> Viewports { get; } =
             Devices.SelectMany(static device => device.BuildViewports()).ToArray();
+
+        public static IReadOnlyList<ResponsiveViewport> IpadPortraitViewports { get; } =
+            Viewports
+                .Where(static viewport => viewport.Name is IpadMiniPortraitName or IpadAirPortraitName or IpadProPortraitName)
+                .ToArray();
     }
 }

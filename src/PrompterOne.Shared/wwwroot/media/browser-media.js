@@ -331,17 +331,26 @@
     }
 
     async function loadDevicesForKind(kind) {
-        const liveKitClient = getLiveKitClient();
+        if (hasSyntheticMediaHarness()) {
+            const syntheticDevices = window[syntheticHarnessGlobal]?.listDevices?.();
+            if (Array.isArray(syntheticDevices)) {
+                return syntheticDevices.filter(device => device?.kind === kind);
+            }
+        }
+
+        if (navigator.mediaDevices?.enumerateDevices) {
+            try {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                return devices.filter(device => device.kind === kind);
+            } catch {
+            }
+        }
 
         try {
+            const liveKitClient = getLiveKitClient();
             return await liveKitClient.Room.getLocalDevices(kind, false);
         } catch {
-            if (!navigator.mediaDevices?.enumerateDevices) {
-                return [];
-            }
-
-            const devices = await navigator.mediaDevices.enumerateDevices();
-            return devices.filter(device => device.kind === kind);
+            return [];
         }
     }
 

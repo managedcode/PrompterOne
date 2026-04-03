@@ -390,21 +390,19 @@
 
 @media (max-width: 900px) {
     .app-header {
-        grid-template-columns: 68px minmax(0, 1fr) auto;
+        grid-template-columns: 156px minmax(0, 1fr) auto;
     }
 
     .app-header-left {
         padding: 0 12px;
-        justify-content: center;
     }
 
-    .app-logo-text,
-    .lib-breadcrumb {
-        display: none;
+    .app-header-home {
+        gap: 10px;
     }
 
     .app-header-center {
-        padding: 0 12px;
+        padding: 0 10px;
     }
 
     .app-header-right {
@@ -421,16 +419,12 @@
 
     .app-header-left {
         padding: 0 8px;
+        justify-content: center;
     }
 
-    .logo-icon {
-        width: 34px;
-        height: 34px;
-    }
-
-    .logo-icon svg {
-        width: 18px;
-        height: 18px;
+    .app-logo-text,
+    .lib-breadcrumb {
+        display: none;
     }
 
     .app-header-center {

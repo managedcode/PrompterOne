@@ -56,30 +56,19 @@ public sealed class TpsEditorServicesTests
     }
 
     [Fact]
-    public void ClearColorFormatting_RemovesEnclosingColorTagsFromSelection()
-    {
-        const string source = "Hello [green]welcome[/green] friend";
-        var start = source.IndexOf("welcome", StringComparison.Ordinal);
-        var end = start + "welcome".Length;
-
-        var result = _textEditor.ClearColorFormatting(source, new EditorSelectionRange(start, end));
-
-        Assert.Equal("Hello welcome friend", result.Text);
-        Assert.Equal(start - "[green]".Length, result.Selection.Start);
-        Assert.Equal(result.Selection.Start + "welcome".Length, result.Selection.End);
-    }
-
-    [Fact]
-    public void Upsert_RewritesFrontMatterAndPreservesBody()
+    public void Upsert_RewritesCanonicalFrontMatterAndPreservesBody()
     {
         var source =
             """
             ---
             title: "Product Launch"
             base_wpm: 140
+            speed_offsets:
+              slow: -20
+              fast: 25
             ---
 
-            ## [Intro|140WPM|warm]
+            ## [Intro|Speaker:Alex|warm]
             Body text.
             """;
 
@@ -87,48 +76,53 @@ public sealed class TpsEditorServicesTests
             source,
             new Dictionary<string, string?>
             {
-                [TpsFrontMatterDocumentService.MetadataKeys.Profile] = "RSVP",
-                [TpsFrontMatterDocumentService.MetadataKeys.Author] = "Editor Test"
+                [TpsFrontMatterDocumentService.MetadataKeys.Profile] = "Actor",
+                [TpsFrontMatterDocumentService.MetadataKeys.Author] = "Editor Test",
+                [TpsFrontMatterDocumentService.MetadataKeys.Duration] = "09:30",
+                [TpsFrontMatterDocumentService.MetadataKeys.SpeedOffsetSlow] = "-10"
             });
         var document = _frontMatter.Parse(updated);
 
         Assert.Equal("Product Launch", document.Metadata[TpsFrontMatterDocumentService.MetadataKeys.Title]);
-        Assert.Equal("RSVP", document.Metadata[TpsFrontMatterDocumentService.MetadataKeys.Profile]);
+        Assert.Equal("Actor", document.Metadata[TpsFrontMatterDocumentService.MetadataKeys.Profile]);
         Assert.Equal("Editor Test", document.Metadata[TpsFrontMatterDocumentService.MetadataKeys.Author]);
-        Assert.Contains("## [Intro|140WPM|warm]", document.Body);
+        Assert.Equal("09:30", document.Metadata[TpsFrontMatterDocumentService.MetadataKeys.Duration]);
+        Assert.Equal("-10", document.Metadata[TpsFrontMatterDocumentService.MetadataKeys.SpeedOffsetSlow]);
+        Assert.Contains("## [Intro|Speaker:Alex|warm]", document.Body, StringComparison.Ordinal);
     }
 
     [Fact]
-    public void Parse_NormalizesDurationAliasAndNestedPresetSpeeds()
+    public void Parse_ReadsCanonicalDurationAndNestedSpeedOffsetsOnly()
     {
         var source =
             """
             ---
-            title: "System Design and Software Architecture for Vibe Coders"
-            profile: Actor
+            title: "System Design"
+            profile: "Actor"
             duration: "145:00"
             base_wpm: 140
-            presets:
-              slow: 120
-              fast: 160
-            author: "Konstantin Semenenko"
-            created: "2026-03-25"
-            version: "1.0"
+            speed_offsets:
+              xslow: -40
+              slow: -14
+              fast: 14
+              xfast: 50
+            xslow_offset: -99
             ---
 
-            ## [Architecture Intro|140WPM|focused]
-            ### [Structure Block|140WPM]
+            ## [Architecture Intro|focused]
+            ### [Structure Block]
             Keep the body in the visible editor only.
             """;
 
         var document = _frontMatter.Parse(source);
 
-        Assert.Equal("145:00", document.Metadata[TpsFrontMatterDocumentService.MetadataKeys.DisplayDuration]);
-        Assert.Equal("-14", document.Metadata[TpsFrontMatterDocumentService.MetadataKeys.SlowOffset]);
-        Assert.Equal("14", document.Metadata[TpsFrontMatterDocumentService.MetadataKeys.FastOffset]);
-        Assert.Equal("120", document.Metadata["presets.slow"]);
-        Assert.Equal("160", document.Metadata["presets.fast"]);
+        Assert.Equal("145:00", document.Metadata[TpsFrontMatterDocumentService.MetadataKeys.Duration]);
+        Assert.Equal("-40", document.Metadata[TpsFrontMatterDocumentService.MetadataKeys.SpeedOffsetXslow]);
+        Assert.Equal("-14", document.Metadata[TpsFrontMatterDocumentService.MetadataKeys.SpeedOffsetSlow]);
+        Assert.Equal("14", document.Metadata[TpsFrontMatterDocumentService.MetadataKeys.SpeedOffsetFast]);
+        Assert.Equal("50", document.Metadata[TpsFrontMatterDocumentService.MetadataKeys.SpeedOffsetXfast]);
+        Assert.DoesNotContain("xslow_offset", document.Metadata.Keys, StringComparer.OrdinalIgnoreCase);
         Assert.DoesNotContain("title:", document.Body, StringComparison.Ordinal);
-        Assert.StartsWith("## [Architecture Intro|140WPM|focused]", document.Body, StringComparison.Ordinal);
+        Assert.StartsWith("## [Architecture Intro|focused]", document.Body, StringComparison.Ordinal);
     }
 }

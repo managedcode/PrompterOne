@@ -24,48 +24,50 @@
              @ref="_displayRoot"
              data-rsvp-layout-ready="@BuildLayoutReadyAttributeValue()"
              data-testid="@UiTestIds.Learn.Display">
-            <div class="rsvp-crosshair">
-                <svg width="16" height="16" viewBox="0 0 16 16">
-                    <line x1="8" y1="0" x2="8" y2="16" stroke="rgba(255,82,82,.3)" stroke-width="1.5" stroke-dasharray="3,2" />
-                    <line x1="0" y1="8" x2="16" y2="8" stroke="rgba(255,82,82,.3)" stroke-width="1.5" stroke-dasharray="3,2" />
-                    <circle cx="8" cy="8" r="2" fill="rgba(255,82,82,.5)" />
-                </svg>
+            <div style="@BuildPendingLayoutHiddenStyle()">
+                <div class="rsvp-crosshair">
+                    <svg width="16" height="16" viewBox="0 0 16 16">
+                        <line x1="8" y1="0" x2="8" y2="16" stroke="rgba(255,82,82,.3)" stroke-width="1.5" stroke-dasharray="3,2" />
+                        <line x1="0" y1="8" x2="16" y2="8" stroke="rgba(255,82,82,.3)" stroke-width="1.5" stroke-dasharray="3,2" />
+                        <circle cx="8" cy="8" r="2" fill="rgba(255,82,82,.5)" />
+                    </svg>
+                </div>
+
+                <div class="rsvp-h-row" @ref="_focusRow">
+                    <div class="rsvp-lane rsvp-lane-left">
+                        <div class="rsvp-ctx-left" id="@UiDomIds.Learn.ContextLeft" data-testid="@UiTestIds.Learn.ContextLeft">
+                            @foreach (var word in _leftContextWords)
+                            {
+                                <span>@word</span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="rsvp-focus-shell"
+                         id="@UiDomIds.Learn.WordShell"
+                         data-testid="@UiTestIds.Learn.WordShell">
+                        <div class="rsvp-focus"
+                             id="@UiDomIds.Learn.Word"
+                             @ref="_focusWord"
+                             data-testid="@UiTestIds.Learn.Word">
+                            <span class="rsvp-focus-segment rsvp-focus-leading">@_currentWordLeading</span>
+                            <span class="rsvp-focus-segment rsvp-focus-orp orp" @ref="_focusOrp">@_currentWordOrp</span>
+                            <span class="rsvp-focus-segment rsvp-focus-trailing">@_currentWordTrailing</span>
+                        </div>
+                    </div>
+
+                    <div class="rsvp-lane rsvp-lane-right">
+                        <div class="rsvp-ctx-right" id="@UiDomIds.Learn.ContextRight" data-testid="@UiTestIds.Learn.ContextRight">
+                            @foreach (var word in _rightContextWords)
+                            {
+                                <span>@word</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rsvp-orp-line" data-testid="@UiTestIds.Learn.OrpLine"></div>
             </div>
-
-            <div class="rsvp-h-row" @ref="_focusRow">
-                <div class="rsvp-lane rsvp-lane-left">
-                    <div class="rsvp-ctx-left" id="@UiDomIds.Learn.ContextLeft" data-testid="@UiTestIds.Learn.ContextLeft">
-                        @foreach (var word in _leftContextWords)
-                        {
-                            <span>@word</span>
-                        }
-                    </div>
-                </div>
-
-                <div class="rsvp-focus-shell"
-                     id="@UiDomIds.Learn.WordShell"
-                     data-testid="@UiTestIds.Learn.WordShell">
-                    <div class="rsvp-focus"
-                         id="@UiDomIds.Learn.Word"
-                         @ref="_focusWord"
-                         data-testid="@UiTestIds.Learn.Word">
-                        <span class="rsvp-focus-segment rsvp-focus-leading">@_currentWordLeading</span>
-                        <span class="rsvp-focus-segment rsvp-focus-orp orp" @ref="_focusOrp">@_currentWordOrp</span>
-                        <span class="rsvp-focus-segment rsvp-focus-trailing">@_currentWordTrailing</span>
-                    </div>
-                </div>
-
-                <div class="rsvp-lane rsvp-lane-right">
-                    <div class="rsvp-ctx-right" id="@UiDomIds.Learn.ContextRight" data-testid="@UiTestIds.Learn.ContextRight">
-                        @foreach (var word in _rightContextWords)
-                        {
-                            <span>@word</span>
-                        }
-                    </div>
-                </div>
-            </div>
-
-            <div class="rsvp-orp-line" data-testid="@UiTestIds.Learn.OrpLine"></div>
 
             <div class="rsvp-phrase">
                 <span class="rsvp-phrase-label">Next</span>

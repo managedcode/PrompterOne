@@ -32,6 +32,14 @@
             }
         </select>
     </div>
+    <div class="ed-meta-field">
+        <label>Speaker</label>
+        <input class="ed-meta-input"
+               type="text"
+               value="@ActiveSegment.Speaker"
+               data-testid="@UiTestIds.Editor.ActiveSegmentSpeaker"
+               @onchange="eventArgs => OnSegmentChanged(nameof(EditorStructureHeaderEditorViewModel.Speaker), eventArgs.Value?.ToString() ?? string.Empty)" />
+    </div>
 
     @if (ActiveSegment.SupportsTiming)
     {
@@ -78,6 +86,14 @@
             }
         </select>
     </div>
+    <div class="ed-meta-field">
+        <label>Speaker</label>
+        <input class="ed-meta-input"
+               type="text"
+               value="@ActiveBlock.Speaker"
+               data-testid="@UiTestIds.Editor.ActiveBlockSpeaker"
+               @onchange="eventArgs => OnBlockChanged(nameof(EditorStructureHeaderEditorViewModel.Speaker), eventArgs.Value?.ToString() ?? string.Empty)" />
+    </div>
 </div>
 
 @code {
@@ -111,6 +127,7 @@
                 TargetWpm = int.TryParse(value, out var parsedWpm) ? parsedWpm : null
             },
             nameof(EditorStructureHeaderEditorViewModel.EmotionLabel) => model with { EmotionLabel = value.Trim() },
+            nameof(EditorStructureHeaderEditorViewModel.Speaker) => model with { Speaker = value.Trim() },
             nameof(EditorStructureHeaderEditorViewModel.Timing) => model with { Timing = value.Trim() },
             _ => model
         };

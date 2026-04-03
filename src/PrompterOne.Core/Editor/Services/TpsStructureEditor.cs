@@ -1,4 +1,4 @@
-using System.Text.RegularExpressions;
+using System.Globalization;
 using PrompterOne.Core.Models.Editor;
 
 namespace PrompterOne.Core.Services.Editor;
@@ -7,19 +7,10 @@ public sealed class TpsStructureEditor
 {
     private const string BlockPrefix = "### ";
     private const string SegmentPrefix = "## ";
-    private const string WpmSuffix = "WPM";
-
-    private static readonly Regex BlockHeaderRegex = new(
-        @"^###\s*\[(?<name>[^\]|]+?)(?:\|(?<wpm>\d+)WPM)?(?:\|(?<emotion>[^\]|]+))?\]\s*$",
-        RegexOptions.Compiled);
-
-    private static readonly Regex SegmentHeaderRegex = new(
-        @"^##\s*\[(?<name>[^\]|]+?)(?:\|(?<wpm>\d+)WPM)?(?:\|(?<emotion>[^\]|]+))?(?:\|(?<timing>[^\]]+))?\]\s*$",
-        RegexOptions.Compiled);
 
     public bool TryRead(string? source, int lineStartIndex, out TpsStructureHeaderSnapshot snapshot)
     {
-        snapshot = new TpsStructureHeaderSnapshot(TpsStructureHeaderKind.Segment, 0, 0, string.Empty, null, string.Empty, string.Empty);
+        snapshot = EmptySnapshot(TpsStructureHeaderKind.Segment);
         var safeSource = source ?? string.Empty;
         if (string.IsNullOrWhiteSpace(safeSource))
         {
@@ -29,12 +20,12 @@ public sealed class TpsStructureEditor
         var lineRange = ResolveLineRange(safeSource, lineStartIndex);
         var line = safeSource[lineRange.Start..lineRange.End];
 
-        if (TryMatchHeader(line, lineRange.Start, SegmentHeaderRegex, TpsStructureHeaderKind.Segment, out snapshot))
+        if (TryReadHeader(line, lineRange.Start, TpsStructureHeaderKind.Segment, out snapshot))
         {
             return true;
         }
 
-        return TryMatchHeader(line, lineRange.Start, BlockHeaderRegex, TpsStructureHeaderKind.Block, out snapshot);
+        return TryReadHeader(line, lineRange.Start, TpsStructureHeaderKind.Block, out snapshot);
     }
 
     public EditorTextMutationResult Update(string? source, TpsStructureHeaderSnapshot snapshot)
@@ -49,19 +40,101 @@ public sealed class TpsStructureEditor
             safeSource[..lineRange.Start],
             replacement,
             safeSource[lineRange.End..]);
-        var selectionEnd = lineRange.Start + replacement.Length;
 
         return new EditorTextMutationResult(
             updated,
-            new EditorSelectionRange(lineRange.Start, selectionEnd));
+            new EditorSelectionRange(lineRange.Start, lineRange.Start + replacement.Length));
+    }
+
+    private static bool TryReadHeader(string line, int lineStartIndex, TpsStructureHeaderKind kind, out TpsStructureHeaderSnapshot snapshot)
+    {
+        snapshot = EmptySnapshot(kind);
+        var prefix = kind == TpsStructureHeaderKind.Segment ? SegmentPrefix : BlockPrefix;
+        var trimmedLine = line.Trim();
+        if (!trimmedLine.StartsWith(prefix, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        var headerContent = trimmedLine[prefix.Length..].Trim();
+        if (string.IsNullOrWhiteSpace(headerContent))
+        {
+            return false;
+        }
+
+        if (!headerContent.StartsWith("[", StringComparison.Ordinal) || !headerContent.EndsWith("]", StringComparison.Ordinal))
+        {
+            snapshot = new TpsStructureHeaderSnapshot(kind, lineStartIndex, lineStartIndex + line.Length, headerContent, null, string.Empty, string.Empty, string.Empty);
+            return true;
+        }
+
+        var parts = TpsEscaping.SplitHeaderParts(TpsEscaping.Protect(headerContent[1..^1]));
+        if (parts.Count == 0 || string.IsNullOrWhiteSpace(parts[0]))
+        {
+            return false;
+        }
+
+        int? wpm = null;
+        string? emotion = null;
+        string? speaker = null;
+        string? timing = null;
+
+        foreach (var rawPart in parts.Skip(1))
+        {
+            var part = string.IsNullOrWhiteSpace(rawPart) ? null : rawPart.Trim();
+            if (part is null)
+            {
+                continue;
+            }
+
+            if (part.StartsWith(TpsSpec.SpeakerPrefix, StringComparison.OrdinalIgnoreCase))
+            {
+                speaker = part[TpsSpec.SpeakerPrefix.Length..].Trim();
+                continue;
+            }
+
+            if (TryParseWpm(part, out var parsedWpm))
+            {
+                wpm = parsedWpm;
+                continue;
+            }
+
+            if (kind == TpsStructureHeaderKind.Segment && IsTiming(part))
+            {
+                timing = part;
+                continue;
+            }
+
+            if (TpsSpec.Emotions.Contains(part))
+            {
+                emotion = part.ToLowerInvariant();
+            }
+        }
+
+        snapshot = new TpsStructureHeaderSnapshot(
+            kind,
+            lineStartIndex,
+            lineStartIndex + line.Length,
+            parts[0],
+            wpm,
+            emotion ?? string.Empty,
+            speaker ?? string.Empty,
+            kind == TpsStructureHeaderKind.Segment ? timing ?? string.Empty : string.Empty);
+
+        return true;
     }
 
     private static string BuildHeaderLine(TpsStructureHeaderSnapshot snapshot)
     {
         var parts = new List<string> { snapshot.Name.Trim() };
+        if (!string.IsNullOrWhiteSpace(snapshot.Speaker))
+        {
+            parts.Add($"{TpsSpec.SpeakerPrefix}{snapshot.Speaker.Trim()}");
+        }
+
         if (snapshot.TargetWpm is int wpm)
         {
-            parts.Add($"{wpm}{WpmSuffix}");
+            parts.Add(wpm.ToString(CultureInfo.InvariantCulture) + TpsSpec.WpmSuffix);
         }
 
         if (!string.IsNullOrWhiteSpace(snapshot.EmotionKey))
@@ -78,10 +151,7 @@ public sealed class TpsStructureEditor
         return $"{prefix}[{string.Join('|', parts)}]";
     }
 
-    private static string GetFallbackName(TpsStructureHeaderKind kind) =>
-        kind == TpsStructureHeaderKind.Segment ? "Segment" : "Block";
-
-    private static (int Start, int End) ResolveLineRange(string source, int lineStartIndex)
+    private static EditorSelectionRange ResolveLineRange(string source, int lineStartIndex)
     {
         var safeStart = Math.Clamp(lineStartIndex, 0, source.Length);
         var start = safeStart;
@@ -96,34 +166,48 @@ public sealed class TpsStructureEditor
             end++;
         }
 
-        return (start, end);
+        return new EditorSelectionRange(start, end);
     }
 
-    private static bool TryMatchHeader(
-        string line,
-        int lineStartIndex,
-        Regex pattern,
-        TpsStructureHeaderKind kind,
-        out TpsStructureHeaderSnapshot snapshot)
+    private static bool TryParseWpm(string value, out int? wpm)
     {
-        var match = pattern.Match(line);
-        if (!match.Success)
+        wpm = null;
+        var trimmed = value.Trim();
+        if (trimmed.EndsWith(TpsSpec.WpmSuffix, StringComparison.OrdinalIgnoreCase))
         {
-            snapshot = new TpsStructureHeaderSnapshot(kind, 0, 0, string.Empty, null, string.Empty, string.Empty);
-            return false;
+            var numberPart = trimmed[..^TpsSpec.WpmSuffix.Length];
+            if (int.TryParse(numberPart, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed))
+            {
+                wpm = parsed;
+            }
+
+            return true;
         }
 
-        snapshot = new TpsStructureHeaderSnapshot(
-            kind,
-            lineStartIndex,
-            lineStartIndex + line.Length,
-            match.Groups["name"].Value.Trim(),
-            TryGetWpm(match.Groups["wpm"].Value),
-            match.Groups["emotion"].Value.Trim().ToLowerInvariant(),
-            kind == TpsStructureHeaderKind.Segment ? match.Groups["timing"].Value.Trim() : string.Empty);
-        return true;
+        if (int.TryParse(trimmed, NumberStyles.Integer, CultureInfo.InvariantCulture, out var direct))
+        {
+            wpm = direct;
+            return true;
+        }
+
+        return false;
     }
 
-    private static int? TryGetWpm(string value) =>
-        int.TryParse(value, out var parsed) ? parsed : null;
+    private static bool IsTiming(string value)
+    {
+        var rangeSeparatorIndex = value.IndexOf('-', StringComparison.Ordinal);
+        if (rangeSeparatorIndex < 0)
+        {
+            return TimeSpan.TryParseExact(value.Trim(), ["m\\:ss", "mm\\:ss"], CultureInfo.InvariantCulture, out _);
+        }
+
+        return TimeSpan.TryParseExact(value[..rangeSeparatorIndex].Trim(), ["m\\:ss", "mm\\:ss"], CultureInfo.InvariantCulture, out _) &&
+               TimeSpan.TryParseExact(value[(rangeSeparatorIndex + 1)..].Trim(), ["m\\:ss", "mm\\:ss"], CultureInfo.InvariantCulture, out _);
+    }
+
+    private static string GetFallbackName(TpsStructureHeaderKind kind) =>
+        kind == TpsStructureHeaderKind.Segment ? "Segment" : "Block";
+
+    private static TpsStructureHeaderSnapshot EmptySnapshot(TpsStructureHeaderKind kind) =>
+        new(kind, 0, 0, string.Empty, null, string.Empty, string.Empty, string.Empty);
 }

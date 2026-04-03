@@ -77,7 +77,8 @@ public sealed class EditorStructureAuthoringTests : BunitContext
             var visibleSource = cut.FindByTestId(UiTestIds.Editor.SourceInput).GetAttribute("value") ?? string.Empty;
             var persistedText = _harness.Session.State.Text;
 
-            Assert.DoesNotContain(EditorStructureAuthoringTestSource.XslowOffsetField, visibleSource, StringComparison.Ordinal);
+            Assert.DoesNotContain(EditorStructureAuthoringTestSource.SpeedOffsetsField, visibleSource, StringComparison.Ordinal);
+            Assert.Contains(EditorStructureAuthoringTestSource.SpeedOffsetsField, persistedText, StringComparison.Ordinal);
             Assert.Contains(EditorStructureAuthoringTestSource.UpdatedXslowPersistence, persistedText, StringComparison.Ordinal);
             Assert.Contains(EditorStructureAuthoringTestSource.UpdatedSlowPersistence, persistedText, StringComparison.Ordinal);
             Assert.Contains(EditorStructureAuthoringTestSource.UpdatedFastPersistence, persistedText, StringComparison.Ordinal);
@@ -90,13 +91,13 @@ public sealed class EditorStructureAuthoringTests : BunitContext
         public const string DefaultXslowOffset = "-40";
         public const string InitialSegmentHeading = "## [Introduction|280WPM|neutral|0:00-1:10]";
         public const string UpdatedFastOffset = "30";
-        public const string UpdatedFastPersistence = "fast_offset: 30";
+        public const string SpeedOffsetsField = "speed_offsets:";
+        public const string UpdatedFastPersistence = "  fast: 30";
         public const string UpdatedSlowOffset = "-15";
-        public const string UpdatedSlowPersistence = "slow_offset: -15";
+        public const string UpdatedSlowPersistence = "  slow: -15";
         public const string UpdatedXfastOffset = "55";
-        public const string UpdatedXfastPersistence = "xfast_offset: 55";
+        public const string UpdatedXfastPersistence = "  xfast: 55";
         public const string UpdatedXslowOffset = "-45";
-        public const string UpdatedXslowPersistence = "xslow_offset: -45";
-        public const string XslowOffsetField = "xslow_offset:";
+        public const string UpdatedXslowPersistence = "  xslow: -45";
     }
 }

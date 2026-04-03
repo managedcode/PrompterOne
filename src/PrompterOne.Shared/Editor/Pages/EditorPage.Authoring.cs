@@ -51,6 +51,7 @@ public partial class EditorPage
             segment.Name,
             segment.TargetWpm,
             EditorEmotionCatalog.GetLabel(segment.EmotionKey),
+            string.Empty,
             segment.DurationLabel,
             true);
     }
@@ -74,6 +75,7 @@ public partial class EditorPage
             block.TargetWpm,
             block.EmotionLabel,
             string.Empty,
+            string.Empty,
             isSegment);
     }
 
@@ -84,6 +86,7 @@ public partial class EditorPage
             snapshot.Name,
             snapshot.TargetWpm,
             EditorEmotionCatalog.GetLabel(snapshot.EmotionKey),
+            snapshot.Speaker,
             snapshot.Timing,
             snapshot.SupportsTiming);
 

@@ -197,18 +197,46 @@ public sealed class ScriptSessionService(
     private void NotifyChanged() => StateChanged?.Invoke(this, EventArgs.Empty);
 
     private static int CountWords(CompiledScript? compiledScript) =>
-        compiledScript?.Segments
-            .SelectMany(segment => segment.Words ?? [])
-            .Count(word => word.Metadata?.IsPause != true && !string.IsNullOrWhiteSpace(word.CleanText)) ?? 0;
+        EnumerateWords(compiledScript)
+            .Count(word => word.Metadata?.IsPause != true && !string.IsNullOrWhiteSpace(word.CleanText));
 
     private static TimeSpan CalculateDuration(CompiledScript? compiledScript)
     {
-        var totalMilliseconds = compiledScript?.Segments
-            .SelectMany(segment => segment.Words ?? [])
-            .Sum(word => word.DisplayDuration.TotalMilliseconds) ?? 0d;
+        var totalMilliseconds = EnumerateWords(compiledScript)
+            .Sum(word => word.DisplayDuration.TotalMilliseconds);
 
         return TimeSpan.FromMilliseconds(totalMilliseconds);
     }
+
+    private static IEnumerable<CompiledWord> EnumerateWords(CompiledScript? compiledScript)
+    {
+        if (compiledScript?.Segments is not { Count: > 0 } segments)
+        {
+            yield break;
+        }
+
+        foreach (var segment in segments)
+        {
+            if (segment.Blocks is { Count: > 0 })
+            {
+                foreach (var block in segment.Blocks)
+                {
+                    foreach (var word in block.Words)
+                    {
+                        yield return word;
+                    }
+                }
+
+                continue;
+            }
+
+            foreach (var word in segment.Words)
+            {
+                yield return word;
+            }
+        }
+    }
+
     private static string Slugify(string title)
     {
         var slug = new string(title

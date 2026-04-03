@@ -20,6 +20,8 @@ public record ScriptSegment
     public required string Name { get; init; }
 
     public string Emotion { get; init; } = "neutral";
+    public string? Speaker { get; init; }
+    public string? Timing { get; init; }
 
     public string? BackgroundColor { get; init; }
 
@@ -49,6 +51,7 @@ public record ScriptBlock
     public required string Name { get; init; }
 
     public string? Emotion { get; init; }
+    public string? Speaker { get; init; }
 
     public int? WpmOverride { get; init; }
 
@@ -81,14 +84,23 @@ public record ScriptWord
     public int OrpIndex { get; init; }
 
     public int? WpmOverride { get; init; }
+    public float? SpeedMultiplier { get; init; }
 
     public int EmphasisLevel { get; init; }
 
     public string? Color { get; init; }
+    public bool IsHighlight { get; init; }
+    public bool IsBreath { get; init; }
+    public string? Emotion { get; init; }
+    public string? VolumeLevel { get; init; }
+    public string? DeliveryMode { get; init; }
 
     public int? PauseAfter { get; init; }
 
     public string? Pronunciation { get; init; }
+    public string? StressText { get; init; }
+    public string? StressGuide { get; init; }
+    public string? Speaker { get; init; }
 
     public bool IsEditPoint { get; init; }
 

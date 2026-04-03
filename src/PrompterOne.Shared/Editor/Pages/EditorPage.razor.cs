@@ -25,7 +25,7 @@ public partial class EditorPage
     private const string DefaultAuthor = "PrompterOne";
     private const string DefaultProfileActor = "Actor";
     private const string DefaultProfileRsvp = "RSVP";
-    private const string DefaultVersion = "1.0";
+    private const string DefaultVersion = "1.1.0";
 
     private readonly EditorDocumentHistory _history = new();
     private readonly TpsFrontMatterDocumentService _frontMatterService = new();
@@ -49,7 +49,7 @@ public partial class EditorPage
     private EditorSourcePanel? _sourcePanel;
     private string _sourceText = string.Empty;
     private EditorDraftMetrics _draftMetrics = EditorDraftMetrics.Empty;
-    private EditorStatusViewModel _status = new(1, 1, "Actor", 140, 0, 0, 0, "0:00", "1.0");
+    private EditorStatusViewModel _status = new(1, 1, "Actor", 140, 0, 0, 0, "0:00", DefaultVersion);
     private string _version = DefaultVersion;
 
     [Inject] private AppBootstrapper Bootstrapper { get; set; } = null!;

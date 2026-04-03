@@ -1,968 +1,928 @@
 using System.Globalization;
-using System.Text.RegularExpressions;
+using System.Text;
 using PrompterOne.Core.Models.CompiledScript;
 using PrompterOne.Core.Models.HeadCues;
 using PrompterOne.Core.Models.Tps;
+using PrompterOne.Core.Services.Rsvp;
 
 namespace PrompterOne.Core.Services;
 
 public class ScriptCompiler
 {
-    private const int DefaultWpm = 120;
-    private const string FastOffsetMetadataKey = "fast_offset";
-    private const string FastSpeedMetadataKey = "speed_offsets.fast";
-    private const int MinWpm = 60;
-    private const int MaxWpm = 600;
-    private const string SlowOffsetMetadataKey = "slow_offset";
-    private const string SlowSpeedMetadataKey = "speed_offsets.slow";
-    private const float DefaultXSlowFactor = 0.6f;
-    private const float DefaultSlowFactor = 0.8f;
-    private const float DefaultFastFactor = 1.25f;
-    private const float DefaultXFastFactor = 1.5f;
-    private const string XFastOffsetMetadataKey = "xfast_offset";
-    private const string XFastSpeedMetadataKey = "speed_offsets.xfast";
-    private const string XSlowOffsetMetadataKey = "xslow_offset";
-    private const string XSlowSpeedMetadataKey = "speed_offsets.xslow";
-    private const string DefaultHighlightColor = "#FFEB3B";
-    private const string DefaultEmphasisColor = "#FFD700";
-
-    private static readonly Regex HeaderRegex = new(@"###?\s*\[[^\]]+\]", RegexOptions.Compiled);
-    private static readonly Regex SimpleHeaderRegex = new(@"^###?\s+.+$", RegexOptions.Multiline | RegexOptions.Compiled);
-    private static readonly Regex BoldMarkdownRegex = new(@"\*\*([^*]+)\*\*", RegexOptions.Compiled);
-    private static readonly Regex ItalicMarkdownRegex = new(@"\*(?!\*)([^*]+)\*(?!\*)", RegexOptions.Compiled);
-    private static readonly Regex TokenSplitRegex = new(@"(\[[^\[\]]+\]|</?[^>]+>|\{[^{}]+\}|//|/)", RegexOptions.Compiled);
-    public static readonly Dictionary<string, string> AvailableColors = new(StringComparer.OrdinalIgnoreCase)
-    {
-        { "red", "#FF5252" },
-        { "green", "#4CAF50" },
-        { "blue", "#2196F3" },
-        { "yellow", "#FFD700" },
-        { "orange", "#FF9800" },
-        { "purple", "#9C27B0" },
-        { "cyan", "#00BCD4" },
-        { "magenta", "#FF00FF" },
-        { "pink", "#EC4899" },
-        { "teal", "#14B8A6" },
-        { "white", "#FFFFFF" },
-        { "black", "#111827" },
-        { "gray", "#6B7280" },
-        { "highlight", DefaultHighlightColor }
-    };
-
-    private static readonly Dictionary<string, EmotionColorSet> EmotionStyles = new(StringComparer.OrdinalIgnoreCase)
-    {
-        { "warm", new EmotionColorSet("#FFFB923C", "#FF1F2937", "#FFE97F00") },
-        { "concerned", new EmotionColorSet("#FFF87171", "#FF1F2937", "#FFDC2626") },
-        { "focused", new EmotionColorSet("#FF4ADE80", "#FF1F2937", "#FF16A34A") },
-        { "motivational", new EmotionColorSet("#FFA855F7", "#FFFFFFFF", "#FF7C3AED") },
-        { "urgent", new EmotionColorSet("#FFEF4444", "#FFFFFFFF", "#FFB91C1C") },
-        { "happy", new EmotionColorSet("#FFFACC15", "#FF1F2937", "#FFD97706") },
-        { "excited", new EmotionColorSet("#FFEC4899", "#FFFFFFFF", "#FFDB2777") },
-        { "sad", new EmotionColorSet("#FF6366F1", "#FFFFFFFF", "#FF4F46E5") },
-        { "calm", new EmotionColorSet("#FF14B8A6", "#FFFFFFFF", "#FF0D9488") },
-        { "energetic", new EmotionColorSet("#FFF97316", "#FFFFFFFF", "#FFEA580C") },
-        { "professional", new EmotionColorSet("#FF1E40AF", "#FFFFFFFF", "#FF1E3A8A") },
-        { "neutral", new EmotionColorSet("#FF3B82F6", "#FFFFFFFF", "#FF2563EB") }
-    };
-
     public Task<CompiledScript> CompileAsync(TpsDocument document)
     {
-        var compiledScript = new CompiledScript
+        ArgumentNullException.ThrowIfNull(document);
+        return Task.FromResult(TpsCompilerCore.Compile(document));
+    }
+}
+
+internal static class TpsCompilerCore
+{
+    private const string MarkdownStrongScope = "__markdown-strong__";
+    private const float RelativeSpeedTolerance = 0.0001f;
+    private const int MinimumWordDurationMilliseconds = 120;
+    private const double MillisecondsPerMinute = 60_000d;
+    private const double WordDurationBaseFactor = 0.8d;
+    private const double WordDurationLengthFactor = 0.04d;
+
+    private static readonly RsvpOrpCalculator OrpCalculator = new();
+
+    public static CompiledScript Compile(TpsDocument document)
+    {
+        ArgumentNullException.ThrowIfNull(document);
+
+        var baseWpm = ResolveBaseWpm(document.Metadata);
+        var speedOffsets = ResolveSpeedOffsets(document.Metadata);
+        var compiled = new CompiledScript
         {
-            Metadata = document.Metadata ?? new Dictionary<string, string>(),
-            Segments = new List<CompiledSegment>()
+            Metadata = new Dictionary<string, string>(document.Metadata, StringComparer.OrdinalIgnoreCase)
         };
-        var speedProfile = ResolveSpeedProfile(document.Metadata);
 
         foreach (var segment in document.Segments)
         {
-            compiledScript.Segments.Add(CompileSegment(segment, speedProfile));
-        }
+            var emotion = ResolveEmotion(segment.Emotion, TpsSpec.DefaultEmotion);
+            var palette = ResolvePalette(emotion);
+            var inherited = new InheritedFormattingState(
+                TargetWpm: Math.Max(1, segment.TargetWPM ?? baseWpm),
+                Emotion: emotion,
+                Speaker: NormalizeValue(segment.Speaker),
+                SpeedOffsets: speedOffsets);
 
-        return Task.FromResult(compiledScript);
-    }
+            var compiledSegment = new CompiledSegment
+            {
+                Id = segment.Id,
+                Name = NormalizeValue(segment.Name) ?? TpsSpec.DefaultImplicitSegmentName,
+                TargetWPM = inherited.TargetWpm,
+                Emotion = emotion,
+                Speaker = inherited.Speaker,
+                Timing = NormalizeValue(segment.Timing),
+                AccentColor = NormalizeValue(segment.AccentColor) ?? palette.Accent,
+                BackgroundColor = NormalizeValue(segment.BackgroundColor) ?? palette.Background,
+                TextColor = NormalizeValue(segment.TextColor) ?? palette.Text,
+                Duration = segment.Duration
+            };
 
-    private static CompiledSegment CompileSegment(TpsSegment segment, SpeedProfile speedProfile)
-    {
-        var emotion = NormalizeEmotion(segment.Emotion);
-        var targetWpm = ClampWpm(segment.TargetWPM ?? DefaultWpm);
-        var colors = ResolveEmotionColors(emotion);
-
-        var compiledSegment = new CompiledSegment
-        {
-            Id = segment.Id,
-            Name = CleanSegmentName(segment.Name),
-            Emotion = emotion,
-            TargetWPM = targetWpm,
-            BackgroundColor = !string.IsNullOrWhiteSpace(segment.BackgroundColor) ? segment.BackgroundColor : colors.Background,
-            TextColor = !string.IsNullOrWhiteSpace(segment.TextColor) ? segment.TextColor : colors.Text,
-            AccentColor = !string.IsNullOrWhiteSpace(segment.AccentColor) ? segment.AccentColor : colors.Accent,
-            Duration = segment.Duration,
-            Blocks = new List<CompiledBlock>(),
-            Words = new List<CompiledWord>()
-        };
-
-        var baseState = CreateBaseState(targetWpm, emotion, speedProfile);
-
-        var blocks = segment.Blocks ?? [];
-        var hasBlocks = blocks.Count > 0;
-
-        if (hasBlocks)
-        {
             if (!string.IsNullOrWhiteSpace(segment.LeadingContent))
             {
-                var leadingWords = CompileContent(segment.LeadingContent, baseState);
-                if (leadingWords.Count > 0)
+                var leading = CompileContent(segment.LeadingContent!, inherited);
+                compiledSegment.Words.AddRange(leading.Words);
+            }
+            else if (segment.Blocks.Count == 0 && !string.IsNullOrWhiteSpace(segment.Content))
+            {
+                var direct = CompileContent(segment.Content, inherited);
+                compiledSegment.Words.AddRange(direct.Words);
+            }
+
+            foreach (var block in segment.Blocks)
+            {
+                var blockEmotion = ResolveEmotion(block.Emotion, emotion);
+                var blockInherited = inherited with
                 {
-                    compiledSegment.Blocks.Add(new CompiledBlock
-                    {
-                        Id = Guid.NewGuid().ToString(),
-                        Name = CleanBlockName(segment.Name),
-                        TargetWPM = targetWpm,
-                        Emotion = emotion,
-                        Words = leadingWords,
-                        Phrases = new List<CompiledPhrase>()
-                    });
-                }
-            }
+                    TargetWpm = Math.Max(1, block.TargetWPM ?? inherited.TargetWpm),
+                    Emotion = blockEmotion,
+                    Speaker = NormalizeValue(block.Speaker) ?? inherited.Speaker
+                };
 
-            foreach (var block in blocks)
-            {
-                compiledSegment.Blocks.Add(CompileBlock(block, baseState));
-            }
-
-            if (compiledSegment.Blocks.Count > 0)
-            {
-                compiledSegment.Words = compiledSegment.Blocks
-                    .Where(b => b.Words != null)
-                    .SelectMany(b => b.Words)
-                    .ToList();
-            }
-        }
-        else
-        {
-            compiledSegment.Words = CompileContent(segment.Content, baseState);
-        }
-
-        return compiledSegment;
-    }
-
-    private static CompiledBlock CompileBlock(TpsBlock block, FormattingState parentState)
-    {
-        var emotion = NormalizeEmotion(block.Emotion) ?? parentState.Emotion;
-        var blockWpm = ClampWpm(block.TargetWPM ?? parentState.BaseWpm);
-
-        var blockState = parentState.Clone();
-        blockState.BaseWpm = blockWpm;
-        SetInheritedEmotion(blockState, emotion);
-
-        var compiledBlock = new CompiledBlock
-        {
-            Id = block.Id,
-            Name = CleanBlockName(block.Name),
-            TargetWPM = blockWpm,
-            Emotion = emotion,
-            Words = new List<CompiledWord>(),
-            Phrases = new List<CompiledPhrase>()
-        };
-
-        if (block.Phrases?.Any() == true)
-        {
-            foreach (var phrase in block.Phrases)
-            {
-                var compiledPhrase = CompilePhrase(phrase, blockState);
-                if (compiledPhrase.Words.Count > 0)
+                var content = CompileContent(block.Content, blockInherited);
+                compiledSegment.Blocks.Add(new CompiledBlock
                 {
-                    compiledBlock.Phrases.Add(compiledPhrase);
-                }
+                    Id = block.Id,
+                    Name = NormalizeValue(block.Name) ?? TpsSpec.DefaultImplicitSegmentName,
+                    TargetWPM = blockInherited.TargetWpm,
+                    Emotion = blockEmotion,
+                    Speaker = blockInherited.Speaker,
+                    Phrases = content.Phrases,
+                    Words = content.Words
+                });
             }
 
-            if (compiledBlock.Phrases.Count > 0)
+            compiled.Segments.Add(compiledSegment);
+        }
+
+        return compiled;
+    }
+
+    private static ContentCompilationResult CompileContent(string rawText, InheritedFormattingState inherited)
+    {
+        var protectedText = TpsEscaping.Protect(NormalizeLineEndings(rawText));
+        var words = new List<CompiledWord>();
+        var phrases = new List<CompiledPhrase>();
+        var currentPhrase = new List<CompiledWord>();
+        var scopes = new List<InlineScope>();
+        var tokenBuilder = new StringBuilder();
+        TokenAccumulator? token = null;
+
+        for (var index = 0; index < protectedText.Length; index++)
+        {
+            var current = protectedText[index];
+
+            if (TryHandleMarkdownMarker(protectedText, ref index, scopes))
             {
-                compiledBlock.Words = compiledBlock.Phrases.SelectMany(p => p.Words).ToList();
+                FinalizeToken(words, phrases, currentPhrase, tokenBuilder, ref token, inherited);
+                continue;
             }
-        }
-        else
-        {
-            compiledBlock.Words = CompileContent(block.Content, blockState);
-        }
 
-        return compiledBlock;
-    }
+            if (current == '[' && TryReadTag(protectedText, index, out var tagToken, out var nextIndex))
+            {
+                if (RequiresTokenBoundary(tagToken))
+                {
+                    FinalizeToken(words, phrases, currentPhrase, tokenBuilder, ref token, inherited);
+                }
 
-    private static CompiledPhrase CompilePhrase(TpsPhrase phrase, FormattingState parentState)
-    {
-        var phraseState = parentState.Clone();
+                if (TryHandleTag(tagToken, scopes, words, phrases, currentPhrase, inherited))
+                {
+                    index = nextIndex;
+                    continue;
+                }
 
-        if (!string.IsNullOrWhiteSpace(phrase.Color) && AvailableColors.TryGetValue(phrase.Color, out var colorHex))
-        {
-            phraseState.Color = colorHex;
-        }
+                AppendLiteral(tagToken, scopes, inherited, tokenBuilder, ref token);
+                index = nextIndex;
+                continue;
+            }
 
-        if (phrase.IsEmphasis)
-        {
-            phraseState.IsEmphasis = true;
-        }
-
-        if (phrase.IsSlow)
-        {
-            phraseState.SpeedMultiplier = parentState.SlowFactor;
-            phraseState.SpeedOverride = null;
-        }
-
-        if (phrase.CustomWpm.HasValue)
-        {
-            phraseState.SpeedOverride = ClampWpm(phrase.CustomWpm.Value);
-            phraseState.SpeedMultiplier = 1f;
-        }
-
-        var compiledPhrase = new CompiledPhrase
-        {
-            Id = phrase.Id,
-            Words = CompileContent(phrase.Content, phraseState)
-        };
-
-        return compiledPhrase;
-    }
-
-    private static List<CompiledWord> CompileContent(string? rawText, FormattingState baseState)
-    {
-        var results = new List<CompiledWord>();
-        if (string.IsNullOrWhiteSpace(rawText))
-        {
-            return results;
-        }
-
-        var normalized = NormalizeContent(rawText);
-
-        var scopeStack = new Stack<ScopeFrame>();
-        scopeStack.Push(new ScopeFrame("root", baseState.Clone()));
-
-        foreach (var token in EnumerateTokens(normalized))
-        {
-            if (string.IsNullOrWhiteSpace(token))
+            if (current == '/' && TryHandleSlashPause(protectedText, ref index, words, phrases, currentPhrase, tokenBuilder, ref token, inherited))
             {
                 continue;
             }
 
-            if (TryHandleSlashPause(token, results))
+            if (char.IsWhiteSpace(current))
             {
+                FinalizeToken(words, phrases, currentPhrase, tokenBuilder, ref token, inherited);
                 continue;
             }
 
-            if (TryHandleTagToken(token, scopeStack, results))
-            {
-                continue;
-            }
-
-            AddWord(results, token, scopeStack.Peek().State);
+            AppendCharacter(current, scopes, inherited, tokenBuilder, ref token);
         }
 
-        return results;
+        FinalizeToken(words, phrases, currentPhrase, tokenBuilder, ref token, inherited);
+        FlushPhrase(phrases, currentPhrase);
+
+        return new ContentCompilationResult(words, phrases);
     }
 
-    private static IEnumerable<string> EnumerateTokens(string text)
+    private static bool TryHandleMarkdownMarker(string content, ref int index, List<InlineScope> scopes)
     {
-        if (string.IsNullOrWhiteSpace(text))
-        {
-            yield break;
-        }
-
-        var index = 0;
-        foreach (Match match in TokenSplitRegex.Matches(text))
-        {
-            if (match.Index > index)
-            {
-                var chunk = text.Substring(index, match.Index - index);
-                foreach (var word in SplitIntoWords(chunk))
-                {
-                    yield return word;
-                }
-            }
-
-            yield return match.Value;
-            index = match.Index + match.Length;
-        }
-
-        if (index < text.Length)
-        {
-            foreach (var word in SplitIntoWords(text[index..]))
-            {
-                yield return word;
-            }
-        }
-    }
-
-    private static IEnumerable<string> SplitIntoWords(string chunk)
-    {
-        if (string.IsNullOrWhiteSpace(chunk))
-        {
-            yield break;
-        }
-
-        foreach (var part in chunk.Split(new[] { ' ', '\t', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
-        {
-            yield return part;
-        }
-    }
-
-    private static bool TryHandleTagToken(string token, Stack<ScopeFrame> scopeStack, List<CompiledWord> words)
-    {
-        if (!IsTagToken(token))
+        if (content[index] != '*')
         {
             return false;
         }
 
-        if (token.StartsWith("{", StringComparison.Ordinal))
+        var isStrong = index + 1 < content.Length && content[index + 1] == '*';
+        var markerLength = isStrong ? 2 : 1;
+        var scopeName = isStrong ? MarkdownStrongScope : TpsSpec.Tags.Emphasis;
+        var existingIndex = scopes.FindLastIndex(scope => string.Equals(scope.Name, scopeName, StringComparison.Ordinal));
+        var closer = new string('*', markerLength);
+
+        if (existingIndex >= 0)
         {
-            HandleCurlyTagToken(token, scopeStack);
+            scopes.RemoveAt(existingIndex);
+            index += markerLength - 1;
             return true;
         }
 
-        var inner = token.Substring(1, token.Length - 2);
-        if (token[0] == '<' && inner.EndsWith("/", StringComparison.Ordinal))
+        var closerIndex = content.IndexOf(closer, index + markerLength, StringComparison.Ordinal);
+        if (closerIndex < 0)
         {
-            inner = inner[..^1];
+            return false;
         }
 
-        if (string.IsNullOrWhiteSpace(inner))
-        {
-            return true;
-        }
-
-        if (inner[0] == '/')
-        {
-            var closeName = inner[1..].Split(':')[0];
-            PopScope(closeName, scopeStack);
-            return true;
-        }
-
-        var parts = inner.Split(':', 2);
-        var name = parts[0].Trim();
-        var argument = parts.Length > 1 ? parts[1].Trim() : null;
-        var lowered = name.ToLowerInvariant();
-
-        if (lowered == "pause")
-        {
-            var pauseDuration = ParsePause(argument);
-            AddPauseWord(words, pauseDuration);
-            return true;
-        }
-
-        if (lowered == "emotion")
-        {
-            PushScope(scopeStack, lowered, state => SetInlineEmotion(state, argument));
-            return true;
-        }
-
-        if (lowered == "headcue")
-        {
-            PushScope(scopeStack, lowered, state => state.HeadCueId = NormalizeHeadCueId(argument));
-            return true;
-        }
-
-        if (lowered is "edit_point" or "editpoint")
-        {
-            return true;
-        }
-
-        if (lowered is "phonetic" or "pronunciation")
-        {
-            PushScope(scopeStack, lowered, state => state.Pronunciation = argument);
-            return true;
-        }
-
-        if (lowered is "emphasis" or "strong" or "bold")
-        {
-            PushScope(scopeStack, lowered, state => state.IsEmphasis = true);
-            return true;
-        }
-
-        if (lowered == "highlight")
-        {
-            PushScope(scopeStack, lowered, state =>
-            {
-                state.IsEmphasis = true;
-                state.Color = DefaultHighlightColor;
-            });
-            return true;
-        }
-
-        if (lowered == "xslow")
-        {
-            PushScope(scopeStack, lowered, state => state.SpeedMultiplier *= state.XSlowFactor);
-            return true;
-        }
-
-        if (lowered == "slow")
-        {
-            PushScope(scopeStack, lowered, state => state.SpeedMultiplier *= state.SlowFactor);
-            return true;
-        }
-
-        if (lowered == "fast")
-        {
-            PushScope(scopeStack, lowered, state => state.SpeedMultiplier *= state.FastFactor);
-            return true;
-        }
-
-        if (lowered == "xfast")
-        {
-            PushScope(scopeStack, lowered, state => state.SpeedMultiplier *= state.XFastFactor);
-            return true;
-        }
-
-        if (lowered == "normal")
-        {
-            PushScope(scopeStack, lowered, state => state.SpeedMultiplier = 1f);
-            return true;
-        }
-
-        if (lowered == "wpm" || lowered == "speed")
-        {
-            if (int.TryParse(argument, NumberStyles.Integer, CultureInfo.InvariantCulture, out var wpm))
-            {
-                PushScope(scopeStack, lowered, state => state.SpeedOverride = ClampWpm(wpm));
-            }
-            return true;
-        }
-
-        if (TryParseInlineWpmTag(name, out var inlineWpm))
-        {
-            PushScope(scopeStack, lowered, state => state.SpeedOverride = ClampWpm(inlineWpm));
-            return true;
-        }
-
-        if (IsKnownEmotion(lowered))
-        {
-            PushScope(scopeStack, lowered, state => SetInlineEmotion(state, lowered));
-            return true;
-        }
-
-        if (AvailableColors.TryGetValue(lowered, out var colorHex))
-        {
-            PushScope(scopeStack, lowered, state =>
-            {
-                state.IsEmphasis = true;
-                state.Color = colorHex;
-            });
-            return true;
-        }
-
-        PushScope(scopeStack, lowered, _ => { });
+        scopes.Add(new InlineScope(scopeName, EmphasisLevel: isStrong ? 2 : 1));
+        index += markerLength - 1;
         return true;
     }
 
-    private static void HandleCurlyTagToken(string token, Stack<ScopeFrame> scopeStack)
+    private static bool RequiresTokenBoundary(string tagToken)
     {
-        var inner = token.Substring(1, token.Length - 2).Trim();
-        if (string.Equals(inner, "/", StringComparison.Ordinal))
+        if (tagToken.Length < 2)
         {
-            if (scopeStack.Count > 1)
+            return false;
+        }
+
+        var innerToken = TpsEscaping.Restore(tagToken[1..^1]).Trim();
+        if (string.IsNullOrWhiteSpace(innerToken) || innerToken[0] == '/')
+        {
+            return false;
+        }
+
+        var separatorIndex = innerToken.IndexOf(':');
+        var tagName = separatorIndex >= 0 ? innerToken[..separatorIndex].Trim() : innerToken.Trim();
+        var normalizedName = tagName.ToLowerInvariant();
+
+        return string.Equals(normalizedName, TpsSpec.Tags.Pause, StringComparison.Ordinal) ||
+               string.Equals(normalizedName, TpsSpec.Tags.Breath, StringComparison.Ordinal) ||
+               string.Equals(normalizedName, TpsSpec.Tags.EditPoint, StringComparison.Ordinal);
+    }
+
+    private static bool TryReadTag(string content, int startIndex, out string tagToken, out int nextIndex)
+    {
+        tagToken = string.Empty;
+        nextIndex = startIndex;
+        var endIndex = content.IndexOf(']', startIndex + 1);
+        if (endIndex < 0)
+        {
+            return false;
+        }
+
+        tagToken = content[startIndex..(endIndex + 1)];
+        nextIndex = endIndex;
+        return true;
+    }
+
+    private static bool TryHandleTag(
+        string tagToken,
+        List<InlineScope> scopes,
+        List<CompiledWord> words,
+        List<CompiledPhrase> phrases,
+        List<CompiledWord> currentPhrase,
+        InheritedFormattingState inherited)
+    {
+        if (tagToken.Length < 2)
+        {
+            return false;
+        }
+
+        var innerToken = TpsEscaping.Restore(tagToken[1..^1]).Trim();
+        if (string.IsNullOrWhiteSpace(innerToken))
+        {
+            return false;
+        }
+
+        if (innerToken[0] == '/')
+        {
+            var closeName = innerToken[1..].Trim();
+            var scopeIndex = scopes.FindLastIndex(scope => string.Equals(scope.Name, closeName, StringComparison.OrdinalIgnoreCase));
+            if (scopeIndex < 0)
             {
-                scopeStack.Pop();
+                return false;
             }
-            return;
-        }
 
-        if (string.IsNullOrWhiteSpace(inner))
-        {
-            return;
-        }
-
-        var parts = inner.Split(',', 2, StringSplitOptions.TrimEntries);
-        var name = parts[0];
-        var argument = parts.Length > 1 ? parts[1] : null;
-        ApplyCurlyTag(name, argument, scopeStack);
-    }
-
-    private static void ApplyCurlyTag(string name, string? argument, Stack<ScopeFrame> scopeStack)
-    {
-        if (string.IsNullOrWhiteSpace(name))
-        {
-            return;
-        }
-
-        var lowered = name.ToLowerInvariant();
-
-        if (lowered == "highlight")
-        {
-            PushScope(scopeStack, lowered, state =>
-            {
-                state.IsEmphasis = true;
-                state.Color = ResolveCurlyColor(argument, DefaultHighlightColor);
-            });
-            return;
-        }
-
-        if (lowered is "emphasize" or "emphasis" or "strong")
-        {
-            PushScope(scopeStack, lowered, state =>
-            {
-                state.IsEmphasis = true;
-                var baseColor = string.IsNullOrWhiteSpace(state.Color) ? DefaultEmphasisColor : state.Color;
-                state.Color = ResolveCurlyColor(argument, baseColor);
-            });
-            return;
-        }
-
-        if (lowered == "emotion")
-        {
-            PushScope(scopeStack, lowered, state => SetInlineEmotion(state, argument));
-            return;
-        }
-
-        if (lowered == "headcue")
-        {
-            PushScope(scopeStack, lowered, state => state.HeadCueId = NormalizeHeadCueId(argument));
-            return;
-        }
-
-        if (AvailableColors.TryGetValue(lowered, out var directColor))
-        {
-            PushScope(scopeStack, lowered, state =>
-            {
-                state.IsEmphasis = true;
-                state.Color = directColor;
-            });
-            return;
-        }
-
-        PushScope(scopeStack, lowered, state => state.IsEmphasis = true);
-    }
-
-    private static string ResolveCurlyColor(string? argument, string fallback)
-    {
-        if (string.IsNullOrWhiteSpace(argument))
-        {
-            return string.IsNullOrWhiteSpace(fallback) ? DefaultEmphasisColor : fallback;
-        }
-
-        if (AvailableColors.TryGetValue(argument, out var mapped))
-        {
-            return mapped;
-        }
-
-        if (argument.StartsWith('#'))
-        {
-            return argument;
-        }
-
-        return string.IsNullOrWhiteSpace(fallback) ? DefaultEmphasisColor : fallback;
-    }
-
-    private static bool IsTagToken(string token) =>
-        (token.StartsWith("[", StringComparison.Ordinal) && token.EndsWith("]", StringComparison.Ordinal)) ||
-        (token.StartsWith("<", StringComparison.Ordinal) && token.EndsWith(">", StringComparison.Ordinal)) ||
-        (token.StartsWith("{", StringComparison.Ordinal) && token.EndsWith("}", StringComparison.Ordinal));
-
-    private static void PushScope(Stack<ScopeFrame> scopeStack, string tag, Action<FormattingState> mutator)
-    {
-        var cloned = scopeStack.Peek().State.Clone();
-        mutator(cloned);
-        scopeStack.Push(new ScopeFrame(tag, cloned));
-    }
-
-    private static void PopScope(string tag, Stack<ScopeFrame> scopeStack)
-    {
-        if (scopeStack.Count <= 1)
-        {
-            return;
-        }
-
-        var lowered = tag.ToLowerInvariant();
-        if (string.Equals(scopeStack.Peek().Tag, lowered, StringComparison.OrdinalIgnoreCase))
-        {
-            scopeStack.Pop();
-            return;
-        }
-
-        var buffer = new Stack<ScopeFrame>();
-        while (scopeStack.Count > 1)
-        {
-            var frame = scopeStack.Pop();
-            if (string.Equals(frame.Tag, lowered, StringComparison.OrdinalIgnoreCase))
-            {
-                break;
-            }
-            buffer.Push(frame);
-        }
-
-        while (buffer.Count > 0)
-        {
-            scopeStack.Push(buffer.Pop());
-        }
-    }
-
-    private static bool TryHandleSlashPause(string token, List<CompiledWord> words)
-    {
-        if (token == "//")
-        {
-            AddPauseWord(words, 500);
+            scopes.RemoveAt(scopeIndex);
             return true;
         }
 
-        if (token == "/")
+        var separatorIndex = innerToken.IndexOf(':');
+        var tagName = separatorIndex >= 0 ? innerToken[..separatorIndex].Trim() : innerToken.Trim();
+        var tagArgument = separatorIndex >= 0 ? innerToken[(separatorIndex + 1)..].Trim() : null;
+        var normalizedName = tagName.ToLowerInvariant();
+
+        if (string.Equals(normalizedName, TpsSpec.Tags.Pause, StringComparison.Ordinal))
         {
-            AddPauseWord(words, 250);
+            if (!TryResolvePauseMilliseconds(tagArgument, out var pauseDuration))
+            {
+                return false;
+            }
+
+            FlushPhrase(phrases, currentPhrase);
+            words.Add(CreateControlWord(
+                isPause: true,
+                pauseDuration: pauseDuration,
+                inherited: inherited));
+            return true;
+        }
+
+        if (string.Equals(normalizedName, TpsSpec.Tags.Breath, StringComparison.Ordinal))
+        {
+            words.Add(CreateControlWord(isBreath: true, inherited: inherited));
+            return true;
+        }
+
+        if (string.Equals(normalizedName, TpsSpec.Tags.EditPoint, StringComparison.Ordinal))
+        {
+            words.Add(CreateControlWord(
+                isEditPoint: true,
+                editPointPriority: NormalizeValue(tagArgument),
+                inherited: inherited));
+            return true;
+        }
+
+        if (string.Equals(normalizedName, TpsSpec.Tags.Phonetic, StringComparison.Ordinal) ||
+            string.Equals(normalizedName, TpsSpec.Tags.Pronunciation, StringComparison.Ordinal))
+        {
+            if (string.IsNullOrWhiteSpace(tagArgument))
+            {
+                return false;
+            }
+
+            scopes.Add(new InlineScope(normalizedName, PronunciationGuide: tagArgument));
+            return true;
+        }
+
+        if (string.Equals(normalizedName, TpsSpec.Tags.Stress, StringComparison.Ordinal))
+        {
+            scopes.Add(new InlineScope(normalizedName, StressGuide: NormalizeValue(tagArgument), StressWrap: string.IsNullOrWhiteSpace(tagArgument)));
+            return true;
+        }
+
+        if (string.Equals(normalizedName, TpsSpec.Tags.Emphasis, StringComparison.Ordinal))
+        {
+            scopes.Add(new InlineScope(normalizedName, EmphasisLevel: 1));
+            return true;
+        }
+
+        if (string.Equals(normalizedName, TpsSpec.Tags.Highlight, StringComparison.Ordinal))
+        {
+            scopes.Add(new InlineScope(normalizedName, Highlight: true));
+            return true;
+        }
+
+        if (TpsSpec.VolumeLevels.Contains(normalizedName))
+        {
+            scopes.Add(new InlineScope(normalizedName, VolumeLevel: normalizedName));
+            return true;
+        }
+
+        if (TpsSpec.DeliveryModes.Contains(normalizedName))
+        {
+            scopes.Add(new InlineScope(normalizedName, DeliveryMode: normalizedName));
+            return true;
+        }
+
+        if (TpsSpec.Emotions.Contains(normalizedName))
+        {
+            scopes.Add(new InlineScope(normalizedName, InlineEmotion: normalizedName));
+            return true;
+        }
+
+        if (TryParseAbsoluteWpm(normalizedName, out var absoluteWpm))
+        {
+            scopes.Add(new InlineScope(normalizedName, AbsoluteSpeed: absoluteWpm));
+            return true;
+        }
+
+        if (TryResolveRelativeSpeed(normalizedName, inherited.SpeedOffsets, out var multiplier))
+        {
+            scopes.Add(new InlineScope(normalizedName, RelativeSpeedMultiplier: multiplier));
+            return true;
+        }
+
+        if (string.Equals(normalizedName, TpsSpec.Tags.Normal, StringComparison.Ordinal))
+        {
+            scopes.Add(new InlineScope(normalizedName, ResetSpeed: true));
             return true;
         }
 
         return false;
     }
 
-    private static void AddPauseWord(List<CompiledWord> words, int durationMs)
+    private static bool TryHandleSlashPause(
+        string content,
+        ref int index,
+        List<CompiledWord> words,
+        List<CompiledPhrase> phrases,
+        List<CompiledWord> currentPhrase,
+        StringBuilder tokenBuilder,
+        ref TokenAccumulator? token,
+        InheritedFormattingState inherited)
     {
-        if (durationMs <= 0)
+        var hasPreviousContent = tokenBuilder.Length > 0;
+        var hasNextSlash = index + 1 < content.Length && content[index + 1] == '/';
+        var previousIsBoundary = index == 0 || char.IsWhiteSpace(content[index - 1]);
+        var nextIndex = hasNextSlash ? index + 2 : index + 1;
+        var nextIsBoundary = nextIndex >= content.Length || char.IsWhiteSpace(content[nextIndex]);
+        if (hasPreviousContent || !previousIsBoundary || !nextIsBoundary)
         {
-            durationMs = 500;
+            return false;
         }
 
-        words.Add(new CompiledWord
+        FinalizeToken(words, phrases, currentPhrase, tokenBuilder, ref token, inherited);
+        FlushPhrase(phrases, currentPhrase);
+        words.Add(CreateControlWord(
+            isPause: true,
+            pauseDuration: hasNextSlash ? 600 : 300,
+            inherited: inherited));
+        if (hasNextSlash)
+        {
+            index++;
+        }
+
+        return true;
+    }
+
+    private static void AppendLiteral(
+        string literal,
+        List<InlineScope> scopes,
+        InheritedFormattingState inherited,
+        StringBuilder tokenBuilder,
+        ref TokenAccumulator? token)
+    {
+        foreach (var character in literal)
+        {
+            AppendCharacter(character, scopes, inherited, tokenBuilder, ref token);
+        }
+    }
+
+    private static void AppendCharacter(
+        char character,
+        List<InlineScope> scopes,
+        InheritedFormattingState inherited,
+        StringBuilder tokenBuilder,
+        ref TokenAccumulator? token)
+    {
+        tokenBuilder.Append(character);
+        token ??= new TokenAccumulator();
+        token.Apply(ResolveActiveState(scopes, inherited), character);
+    }
+
+    private static void FinalizeToken(
+        List<CompiledWord> words,
+        List<CompiledPhrase> phrases,
+        List<CompiledWord> currentPhrase,
+        StringBuilder tokenBuilder,
+        ref TokenAccumulator? token,
+        InheritedFormattingState inherited)
+    {
+        if (tokenBuilder.Length == 0 || token is null)
+        {
+            tokenBuilder.Clear();
+            token = null;
+            return;
+        }
+
+        var text = TpsEscaping.Restore(tokenBuilder.ToString());
+        tokenBuilder.Clear();
+
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            token = null;
+            return;
+        }
+
+        if (TpsTokenTextRules.IsStandalonePunctuationToken(text))
+        {
+            if (TryAttachStandalonePunctuation(words, currentPhrase, text))
+            {
+                if (HasSentenceEndingPunctuation(text))
+                {
+                    FlushPhrase(phrases, currentPhrase);
+                }
+            }
+
+            token = null;
+            return;
+        }
+
+        var metadata = token.BuildWordMetadata(inherited.TargetWpm);
+        var effectiveWpm = ResolveEffectiveWpm(metadata, inherited.TargetWpm);
+        var cleanText = text.Trim();
+        var compiledWord = new CompiledWord
+        {
+            CleanText = cleanText,
+            CharacterCount = cleanText.Length,
+            ORPPosition = OrpCalculator.CalculateOrpIndex(cleanText),
+            DisplayDuration = TimeSpan.FromMilliseconds(CalculateWordDurationMilliseconds(cleanText, effectiveWpm)),
+            Metadata = metadata
+        };
+
+        words.Add(compiledWord);
+        currentPhrase.Add(compiledWord);
+
+        if (HasSentenceEndingPunctuation(cleanText))
+        {
+            FlushPhrase(phrases, currentPhrase);
+        }
+
+        token = null;
+    }
+
+    private static bool TryAttachStandalonePunctuation(
+        List<CompiledWord> words,
+        List<CompiledWord> currentPhrase,
+        string punctuationToken)
+    {
+        var target = currentPhrase.LastOrDefault(word => word.Metadata.IsPause is false && !string.IsNullOrWhiteSpace(word.CleanText))
+            ?? words.LastOrDefault(word => word.Metadata.IsPause is false && !string.IsNullOrWhiteSpace(word.CleanText));
+
+        if (target is null)
+        {
+            return false;
+        }
+
+        var suffix = TpsTokenTextRules.BuildStandalonePunctuationSuffix(punctuationToken);
+        target.CleanText = string.Concat(target.CleanText, suffix);
+        target.CharacterCount = target.CleanText.Length;
+        target.ORPPosition = OrpCalculator.CalculateOrpIndex(target.CleanText);
+        return true;
+    }
+
+    private static void FlushPhrase(List<CompiledPhrase> phrases, List<CompiledWord> currentPhrase)
+    {
+        if (currentPhrase.Count == 0)
+        {
+            return;
+        }
+
+        phrases.Add(new CompiledPhrase
+        {
+            Id = Guid.NewGuid().ToString(),
+            Words = currentPhrase.ToList()
+        });
+
+        currentPhrase.Clear();
+    }
+
+    private static CompiledWord CreateControlWord(
+        bool isPause = false,
+        int? pauseDuration = null,
+        bool isBreath = false,
+        bool isEditPoint = false,
+        string? editPointPriority = null,
+        InheritedFormattingState? inherited = null)
+    {
+        inherited ??= new InheritedFormattingState(TpsSpec.DefaultBaseWpm, TpsSpec.DefaultEmotion, null, TpsSpec.DefaultSpeedOffsets);
+        var metadata = new WordMetadata
+        {
+            IsPause = isPause,
+            PauseDuration = pauseDuration,
+            IsBreath = isBreath,
+            IsEditPoint = isEditPoint,
+            EditPointPriority = NormalizeValue(editPointPriority),
+            EmotionHint = inherited.Emotion,
+            Speaker = inherited.Speaker,
+            HeadCue = HeadCueCatalog.ResolveForEmotion(inherited.Emotion)
+        };
+
+        return new CompiledWord
         {
             CleanText = string.Empty,
             CharacterCount = 0,
             ORPPosition = 0,
-            DisplayDuration = TimeSpan.FromMilliseconds(durationMs),
-            Metadata = new WordMetadata
-            {
-                IsPause = true,
-                PauseDuration = durationMs,
-                HeadCue = HeadCueCatalog.Neutral.Id
-            }
-        });
-    }
-
-    private static int ParsePause(string? argument)
-    {
-        if (string.IsNullOrWhiteSpace(argument))
-        {
-            return 1000;
-        }
-
-        var value = argument.Trim();
-        if (value.EndsWith("ms", StringComparison.OrdinalIgnoreCase) &&
-            int.TryParse(value[..^2], NumberStyles.Integer, CultureInfo.InvariantCulture, out var ms))
-        {
-            return ms;
-        }
-
-        if (value.EndsWith("s", StringComparison.OrdinalIgnoreCase) &&
-            double.TryParse(value[..^1], NumberStyles.Float, CultureInfo.InvariantCulture, out var seconds))
-        {
-            return (int)Math.Round(seconds * 1000);
-        }
-
-        if (int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var plainMs))
-        {
-            return plainMs;
-        }
-
-        return 1000;
-    }
-
-    private static void AddWord(List<CompiledWord> words, string token, FormattingState state)
-    {
-        var clean = token.Trim();
-        if (string.IsNullOrEmpty(clean))
-        {
-            return;
-        }
-
-        if (TpsTokenTextRules.IsStandalonePunctuationToken(clean))
-        {
-            AttachStandalonePunctuation(words, clean);
-            return;
-        }
-
-        var metadata = new WordMetadata
-        {
-            IsEmphasis = state.IsEmphasis,
-            Color = state.Color,
-            EmotionHint = state.Emotion,
-            InlineEmotionHint = state.InlineEmotion,
-            PronunciationGuide = state.Pronunciation
-        };
-
-        if (metadata.IsEmphasis && string.IsNullOrWhiteSpace(metadata.Color))
-        {
-            metadata.Color = DefaultEmphasisColor;
-        }
-
-        if (state.SpeedOverride.HasValue)
-        {
-            metadata.SpeedOverride = state.SpeedOverride;
-        }
-        else if (Math.Abs(state.SpeedMultiplier - 1f) > 0.001f)
-        {
-            metadata.SpeedMultiplier = state.SpeedMultiplier;
-        }
-
-        metadata.HeadCue = !string.IsNullOrWhiteSpace(state.HeadCueId)
-            ? state.HeadCueId
-            : HeadCueCatalog.ResolveForEmotion(metadata.EmotionHint);
-
-        var effectiveWpm = state.SpeedOverride ?? ClampWpm((int)Math.Round(state.BaseWpm * state.SpeedMultiplier));
-
-        words.Add(new CompiledWord
-        {
-            CleanText = clean,
-            CharacterCount = clean.Length,
-            ORPPosition = CalculateORP(clean),
-            DisplayDuration = CalculateDisplayDuration(clean, effectiveWpm),
+            DisplayDuration = TimeSpan.FromMilliseconds(Math.Max(0, pauseDuration ?? 0)),
             Metadata = metadata
-        });
-    }
-
-    private static void AttachStandalonePunctuation(List<CompiledWord> words, string punctuationToken)
-    {
-        var previousWord = words.LastOrDefault(word =>
-            word.Metadata?.IsPause != true &&
-            !string.IsNullOrWhiteSpace(word.CleanText));
-        if (previousWord is null)
-        {
-            return;
-        }
-
-        previousWord.CleanText += TpsTokenTextRules.BuildStandalonePunctuationSuffix(punctuationToken);
-        previousWord.CharacterCount = previousWord.CleanText.Length;
-    }
-
-    private static string NormalizeContent(string text)
-    {
-        if (string.IsNullOrEmpty(text))
-        {
-            return string.Empty;
-        }
-
-        var normalized = HeaderRegex.Replace(text, string.Empty);
-        normalized = SimpleHeaderRegex.Replace(normalized, string.Empty);
-        normalized = normalized.Replace("<emphasis>", "[emphasis]", StringComparison.OrdinalIgnoreCase)
-                               .Replace("</emphasis>", "[/emphasis]", StringComparison.OrdinalIgnoreCase)
-                               .Replace("<strong>", "[emphasis]", StringComparison.OrdinalIgnoreCase)
-                               .Replace("</strong>", "[/emphasis]", StringComparison.OrdinalIgnoreCase);
-        normalized = BoldMarkdownRegex.Replace(normalized, "[emphasis]$1[/emphasis]");
-        normalized = ItalicMarkdownRegex.Replace(normalized, "[emphasis]$1[/emphasis]");
-        return normalized;
-    }
-
-    private static FormattingState CreateBaseState(int baseWpm, string? emotion, SpeedProfile speedProfile)
-    {
-        var state = new FormattingState
-        {
-            BaseWpm = ClampWpm(baseWpm),
-            SpeedMultiplier = 1f,
-            XSlowFactor = speedProfile.XSlowFactor,
-            SlowFactor = speedProfile.SlowFactor,
-            FastFactor = speedProfile.FastFactor,
-            XFastFactor = speedProfile.XFastFactor
         };
-
-        SetInheritedEmotion(state, emotion);
-        return state;
     }
 
-    private static SpeedProfile ResolveSpeedProfile(IReadOnlyDictionary<string, string>? metadata)
+    private static ActiveInlineState ResolveActiveState(List<InlineScope> scopes, InheritedFormattingState inherited)
     {
-        return new SpeedProfile(
-            XSlowFactor: ResolveSpeedFactor(metadata, XSlowOffsetMetadataKey, XSlowSpeedMetadataKey, DefaultXSlowFactor),
-            SlowFactor: ResolveSpeedFactor(metadata, SlowOffsetMetadataKey, SlowSpeedMetadataKey, DefaultSlowFactor),
-            FastFactor: ResolveSpeedFactor(metadata, FastOffsetMetadataKey, FastSpeedMetadataKey, DefaultFastFactor),
-            XFastFactor: ResolveSpeedFactor(metadata, XFastOffsetMetadataKey, XFastSpeedMetadataKey, DefaultXFastFactor));
-    }
+        var absoluteSpeed = inherited.TargetWpm;
+        var hasAbsoluteSpeed = false;
+        var hasRelativeSpeed = false;
+        var relativeSpeedMultiplier = 1f;
+        var emphasisLevel = 0;
+        var highlight = false;
+        var emotion = inherited.Emotion;
+        string? inlineEmotion = null;
+        string? volumeLevel = null;
+        string? deliveryMode = null;
+        string? pronunciationGuide = null;
+        string? stressGuide = null;
+        var stressWrap = false;
 
-    private static float ResolveSpeedFactor(
-        IReadOnlyDictionary<string, string>? metadata,
-        string legacyKey,
-        string specKey,
-        float defaultFactor)
-    {
-        if (TryParseSpeedFactor(metadata, legacyKey, out var factor) ||
-            TryParseSpeedFactor(metadata, specKey, out factor))
+        foreach (var scope in scopes)
         {
-            return factor;
+            if (scope.AbsoluteSpeed is int scopedAbsoluteSpeed)
+            {
+                absoluteSpeed = scopedAbsoluteSpeed;
+                hasAbsoluteSpeed = true;
+                hasRelativeSpeed = false;
+                relativeSpeedMultiplier = 1f;
+            }
+
+            if (scope.ResetSpeed)
+            {
+                hasRelativeSpeed = false;
+                relativeSpeedMultiplier = 1f;
+            }
+
+            if (scope.RelativeSpeedMultiplier is float scopedRelativeSpeed)
+            {
+                hasRelativeSpeed = true;
+                relativeSpeedMultiplier *= scopedRelativeSpeed;
+            }
+
+            emphasisLevel = Math.Max(emphasisLevel, scope.EmphasisLevel);
+            highlight |= scope.Highlight;
+
+            if (!string.IsNullOrWhiteSpace(scope.InlineEmotion))
+            {
+                emotion = scope.InlineEmotion!;
+                inlineEmotion = scope.InlineEmotion;
+            }
+
+            if (!string.IsNullOrWhiteSpace(scope.VolumeLevel))
+            {
+                volumeLevel = scope.VolumeLevel;
+            }
+
+            if (!string.IsNullOrWhiteSpace(scope.DeliveryMode))
+            {
+                deliveryMode = scope.DeliveryMode;
+            }
+
+            if (!string.IsNullOrWhiteSpace(scope.PronunciationGuide))
+            {
+                pronunciationGuide = scope.PronunciationGuide;
+            }
+
+            if (!string.IsNullOrWhiteSpace(scope.StressGuide))
+            {
+                stressGuide = scope.StressGuide;
+            }
+
+            stressWrap |= scope.StressWrap;
         }
 
-        return defaultFactor;
+        return new ActiveInlineState(
+            Emotion: emotion,
+            InlineEmotion: inlineEmotion,
+            Speaker: inherited.Speaker,
+            EmphasisLevel: emphasisLevel,
+            Highlight: highlight,
+            VolumeLevel: volumeLevel,
+            DeliveryMode: deliveryMode,
+            PronunciationGuide: pronunciationGuide,
+            StressGuide: stressGuide,
+            StressWrap: stressWrap,
+            HasAbsoluteSpeed: hasAbsoluteSpeed,
+            AbsoluteSpeed: absoluteSpeed,
+            HasRelativeSpeed: hasRelativeSpeed,
+            RelativeSpeedMultiplier: relativeSpeedMultiplier);
     }
 
-    private static bool TryParseSpeedFactor(
-        IReadOnlyDictionary<string, string>? metadata,
-        string key,
-        out float factor)
+    private static IReadOnlyDictionary<string, int> ResolveSpeedOffsets(IReadOnlyDictionary<string, string> metadata)
     {
-        factor = 0f;
-        if (metadata is null)
+        return new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
+        {
+            [TpsSpec.Tags.Xslow] = ResolveSpeedOffset(metadata, TpsSpec.FrontMatterKeys.SpeedOffsetsXslow, TpsSpec.DefaultXslowOffset),
+            [TpsSpec.Tags.Slow] = ResolveSpeedOffset(metadata, TpsSpec.FrontMatterKeys.SpeedOffsetsSlow, TpsSpec.DefaultSlowOffset),
+            [TpsSpec.Tags.Fast] = ResolveSpeedOffset(metadata, TpsSpec.FrontMatterKeys.SpeedOffsetsFast, TpsSpec.DefaultFastOffset),
+            [TpsSpec.Tags.Xfast] = ResolveSpeedOffset(metadata, TpsSpec.FrontMatterKeys.SpeedOffsetsXfast, TpsSpec.DefaultXfastOffset)
+        };
+    }
+
+    private static int ResolveSpeedOffset(IReadOnlyDictionary<string, string> metadata, string key, int fallback)
+    {
+        return metadata.TryGetValue(key, out var value) && int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed)
+            ? parsed
+            : fallback;
+    }
+
+    private static int ResolveBaseWpm(IReadOnlyDictionary<string, string> metadata)
+    {
+        return metadata.TryGetValue(TpsSpec.FrontMatterKeys.BaseWpm, out var value) &&
+               int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed)
+            ? Math.Max(1, parsed)
+            : TpsSpec.DefaultBaseWpm;
+    }
+
+    private static string ResolveEmotion(string? candidate, string fallback)
+    {
+        var normalized = NormalizeValue(candidate)?.ToLowerInvariant();
+        return normalized is not null && TpsSpec.Emotions.Contains(normalized)
+            ? normalized
+            : fallback;
+    }
+
+    private static EmotionPalette ResolvePalette(string? emotion)
+    {
+        var key = ResolveEmotion(emotion, TpsSpec.DefaultEmotion);
+        return TpsSpec.EmotionPalettes.TryGetValue(key, out var palette)
+            ? palette
+            : TpsSpec.EmotionPalettes[TpsSpec.DefaultEmotion];
+    }
+
+    private static bool TryParseAbsoluteWpm(string normalizedToken, out int wpm)
+    {
+        wpm = 0;
+        if (!normalizedToken.EndsWith(TpsSpec.WpmSuffix.ToLowerInvariant(), StringComparison.Ordinal))
         {
             return false;
         }
 
-        if (!metadata.TryGetValue(key, out var rawValue) ||
-            !int.TryParse(rawValue, NumberStyles.Integer, CultureInfo.InvariantCulture, out var offset))
+        var numberPart = normalizedToken[..^TpsSpec.WpmSuffix.Length];
+        return int.TryParse(numberPart, NumberStyles.Integer, CultureInfo.InvariantCulture, out wpm);
+    }
+
+    private static bool TryResolveRelativeSpeed(
+        string normalizedToken,
+        IReadOnlyDictionary<string, int> speedOffsets,
+        out float multiplier)
+    {
+        multiplier = 1f;
+        if (!speedOffsets.TryGetValue(normalizedToken, out var offset))
         {
             return false;
         }
 
-        var computedFactor = 1f + (offset / 100f);
-        if (computedFactor <= 0f)
-        {
-            return false;
-        }
-
-        factor = computedFactor;
+        multiplier = 1f + (offset / 100f);
         return true;
     }
 
-    private static bool IsKnownEmotion(string? emotion) =>
-        !string.IsNullOrWhiteSpace(emotion) && EmotionStyles.ContainsKey(emotion);
-
-    private static void SetInheritedEmotion(FormattingState state, string? emotion)
+    private static bool TryResolvePauseMilliseconds(string? argument, out int pauseMilliseconds)
     {
-        var normalized = NormalizeEmotion(emotion);
-        state.Emotion = normalized;
-        state.HeadCueId = HeadCueCatalog.ResolveForEmotion(normalized);
-        state.InlineEmotion = null;
-    }
-
-    private static void SetInlineEmotion(FormattingState state, string? emotion)
-    {
-        var normalized = NormalizeEmotion(emotion);
-        state.Emotion = normalized;
-        state.InlineEmotion = normalized;
-        state.HeadCueId = HeadCueCatalog.ResolveForEmotion(normalized);
-    }
-
-    private static string NormalizeHeadCueId(string? cueId)
-    {
-        return HeadCueCatalog.Get(cueId).Id;
-    }
-
-    private static int ClampWpm(int wpm) => Math.Clamp(wpm, MinWpm, MaxWpm);
-
-    private static bool TryParseInlineWpmTag(string name, out int wpm)
-    {
-        const string suffix = "wpm";
-        wpm = 0;
-        if (string.IsNullOrWhiteSpace(name) ||
-            !name.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
+        pauseMilliseconds = 0;
+        var trimmed = NormalizeValue(argument);
+        if (trimmed is null)
         {
             return false;
         }
 
-        return int.TryParse(
-            name[..^suffix.Length],
-            NumberStyles.Integer,
-            CultureInfo.InvariantCulture,
-            out wpm);
-    }
-
-    private static string? NormalizeEmotion(string? emotion) =>
-        string.IsNullOrWhiteSpace(emotion) ? null : emotion.Trim();
-
-    private static EmotionColorSet ResolveEmotionColors(string? emotion)
-    {
-        if (!string.IsNullOrWhiteSpace(emotion) && EmotionStyles.TryGetValue(emotion, out var set))
+        if (trimmed.EndsWith("ms", StringComparison.OrdinalIgnoreCase))
         {
-            return set;
+            return int.TryParse(trimmed[..^2], NumberStyles.Integer, CultureInfo.InvariantCulture, out pauseMilliseconds);
         }
 
-        return EmotionStyles["neutral"];
-    }
-
-    private static string CleanSegmentName(string name)
-    {
-        name = Regex.Replace(name, @"\|\d+WPM.*$", string.Empty, RegexOptions.IgnoreCase);
-        return name.Trim();
-    }
-
-    private static string CleanBlockName(string name)
-    {
-        name = Regex.Replace(name, @"\|\d+WPM.*$", string.Empty, RegexOptions.IgnoreCase);
-        return name.Trim();
-    }
-
-    private static int CalculateORP(string word)
-    {
-        var length = word.Length;
-        if (length <= 2)
+        if (!trimmed.EndsWith("s", StringComparison.OrdinalIgnoreCase))
         {
-            return 0;
+            return false;
         }
 
-        if (length <= 5)
+        if (!double.TryParse(trimmed[..^1], NumberStyles.Float, CultureInfo.InvariantCulture, out var seconds))
         {
-            return 1;
+            return false;
         }
 
-        if (length <= 9)
+        pauseMilliseconds = (int)Math.Round(seconds * 1000d, MidpointRounding.AwayFromZero);
+        return true;
+    }
+
+    private static int ResolveEffectiveWpm(WordMetadata metadata, int fallbackWpm)
+    {
+        if (metadata.SpeedOverride is int overrideWpm)
         {
-            return 2;
+            return Math.Max(1, overrideWpm);
         }
 
-        if (length <= 13)
+        if (metadata.SpeedMultiplier is float speedMultiplier && Math.Abs(speedMultiplier) > RelativeSpeedTolerance)
         {
-            return 3;
+            return Math.Max(1, (int)Math.Round(fallbackWpm * speedMultiplier, MidpointRounding.AwayFromZero));
         }
 
-        return 4;
+        return Math.Max(1, fallbackWpm);
     }
 
-    private static TimeSpan CalculateDisplayDuration(string word, int wpm)
+    private static int CalculateWordDurationMilliseconds(string word, int effectiveWpm)
     {
-        var clamped = ClampWpm(wpm);
-        var baseMs = 60000.0 / clamped;
-        var adjustedMs = baseMs * (0.8 + (word.Length * 0.04));
-        return TimeSpan.FromMilliseconds(adjustedMs);
+        var baseMilliseconds = MillisecondsPerMinute / Math.Max(1, effectiveWpm);
+        return Math.Max(
+            MinimumWordDurationMilliseconds,
+            (int)Math.Round(
+                baseMilliseconds * (WordDurationBaseFactor + (word.Length * WordDurationLengthFactor)),
+                MidpointRounding.AwayFromZero));
     }
 
-    private sealed record EmotionColorSet(string Background, string Text, string Accent);
-
-    private sealed record SpeedProfile(
-        float XSlowFactor,
-        float SlowFactor,
-        float FastFactor,
-        float XFastFactor);
-
-    private sealed class ScopeFrame(string tag, ScriptCompiler.FormattingState state)
+    private static bool HasSentenceEndingPunctuation(string text)
     {
-        public string Tag { get; } = tag.ToLowerInvariant();
-        public FormattingState State { get; } = state;
-    }
-
-    private sealed class FormattingState
-    {
-        public int BaseWpm { get; set; }
-        public string? Emotion { get; set; }
-        public string? InlineEmotion { get; set; }
-        public string? Color { get; set; }
-        public bool IsEmphasis { get; set; }
-        public int? SpeedOverride { get; set; }
-        public float SpeedMultiplier { get; set; } = 1f;
-        public float XSlowFactor { get; set; } = DefaultXSlowFactor;
-        public float SlowFactor { get; set; } = DefaultSlowFactor;
-        public float FastFactor { get; set; } = DefaultFastFactor;
-        public float XFastFactor { get; set; } = DefaultXFastFactor;
-        public string? Pronunciation { get; set; }
-        public string? HeadCueId { get; set; }
-
-        public FormattingState Clone()
+        if (string.IsNullOrWhiteSpace(text))
         {
-            return new FormattingState
+            return false;
+        }
+
+        var lastCharacter = text.TrimEnd()[^1];
+        return lastCharacter is '.' or '!' or '?';
+    }
+
+    private static string NormalizeLineEndings(string? value) =>
+        value?.Replace("\r\n", "\n", StringComparison.Ordinal).Replace('\r', '\n') ?? string.Empty;
+
+    private static string? NormalizeValue(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+
+    private sealed record ContentCompilationResult(List<CompiledWord> Words, List<CompiledPhrase> Phrases);
+
+    private sealed record InheritedFormattingState(
+        int TargetWpm,
+        string Emotion,
+        string? Speaker,
+        IReadOnlyDictionary<string, int> SpeedOffsets);
+
+    private sealed record ActiveInlineState(
+        string Emotion,
+        string? InlineEmotion,
+        string? Speaker,
+        int EmphasisLevel,
+        bool Highlight,
+        string? VolumeLevel,
+        string? DeliveryMode,
+        string? PronunciationGuide,
+        string? StressGuide,
+        bool StressWrap,
+        bool HasAbsoluteSpeed,
+        int AbsoluteSpeed,
+        bool HasRelativeSpeed,
+        float RelativeSpeedMultiplier);
+
+    private sealed record InlineScope(
+        string Name,
+        int EmphasisLevel = 0,
+        bool Highlight = false,
+        string? InlineEmotion = null,
+        string? VolumeLevel = null,
+        string? DeliveryMode = null,
+        string? PronunciationGuide = null,
+        string? StressGuide = null,
+        bool StressWrap = false,
+        int? AbsoluteSpeed = null,
+        float? RelativeSpeedMultiplier = null,
+        bool ResetSpeed = false);
+
+    private sealed class TokenAccumulator
+    {
+        private readonly StringBuilder _stressTextBuilder = new();
+
+        public int AbsoluteSpeed { get; private set; }
+
+        public string? DeliveryMode { get; private set; }
+
+        public int EmphasisLevel { get; private set; }
+
+        public string? EmotionHint { get; private set; }
+
+        public bool HasAbsoluteSpeed { get; private set; }
+
+        public bool HasRelativeSpeed { get; private set; }
+
+        public bool IsHighlight { get; private set; }
+
+        public string? InlineEmotionHint { get; private set; }
+
+        public string? PronunciationGuide { get; private set; }
+
+        public float RelativeSpeedMultiplier { get; private set; } = 1f;
+
+        public string? Speaker { get; private set; }
+
+        public string? StressGuide { get; private set; }
+
+        public string? VolumeLevel { get; private set; }
+
+        public void Apply(ActiveInlineState state, char character)
+        {
+            EmphasisLevel = Math.Max(EmphasisLevel, state.EmphasisLevel);
+            IsHighlight |= state.Highlight;
+            EmotionHint = state.Emotion;
+
+            if (!string.IsNullOrWhiteSpace(state.InlineEmotion))
             {
-                BaseWpm = BaseWpm,
-                Emotion = Emotion,
-                InlineEmotion = InlineEmotion,
-                Color = Color,
-                IsEmphasis = IsEmphasis,
-                SpeedOverride = SpeedOverride,
-                SpeedMultiplier = SpeedMultiplier,
-                XSlowFactor = XSlowFactor,
-                SlowFactor = SlowFactor,
-                FastFactor = FastFactor,
-                XFastFactor = XFastFactor,
-                Pronunciation = Pronunciation,
-                HeadCueId = HeadCueId
+                InlineEmotionHint = state.InlineEmotion;
+            }
+
+            if (!string.IsNullOrWhiteSpace(state.VolumeLevel))
+            {
+                VolumeLevel = state.VolumeLevel;
+            }
+
+            if (!string.IsNullOrWhiteSpace(state.DeliveryMode))
+            {
+                DeliveryMode = state.DeliveryMode;
+            }
+
+            if (!string.IsNullOrWhiteSpace(state.PronunciationGuide))
+            {
+                PronunciationGuide = state.PronunciationGuide;
+            }
+
+            if (!string.IsNullOrWhiteSpace(state.StressGuide))
+            {
+                StressGuide = state.StressGuide;
+            }
+
+            if (state.StressWrap)
+            {
+                _stressTextBuilder.Append(character);
+            }
+
+            HasAbsoluteSpeed = state.HasAbsoluteSpeed;
+            AbsoluteSpeed = state.AbsoluteSpeed;
+            HasRelativeSpeed = state.HasRelativeSpeed;
+            RelativeSpeedMultiplier = state.RelativeSpeedMultiplier;
+            Speaker = state.Speaker;
+        }
+
+        public WordMetadata BuildWordMetadata(int inheritedWpm)
+        {
+            var metadata = new WordMetadata
+            {
+                IsEmphasis = EmphasisLevel > 0,
+                EmphasisLevel = EmphasisLevel,
+                IsHighlight = IsHighlight,
+                EmotionHint = EmotionHint,
+                InlineEmotionHint = InlineEmotionHint,
+                VolumeLevel = VolumeLevel,
+                DeliveryMode = DeliveryMode,
+                PronunciationGuide = PronunciationGuide,
+                StressGuide = StressGuide,
+                StressText = _stressTextBuilder.Length == 0 ? null : _stressTextBuilder.ToString(),
+                Speaker = Speaker,
+                HeadCue = HeadCueCatalog.ResolveForEmotion(EmotionHint)
             };
+
+            if (HasAbsoluteSpeed)
+            {
+                var effectiveWpm = HasRelativeSpeed
+                    ? Math.Max(1, (int)Math.Round(AbsoluteSpeed * RelativeSpeedMultiplier, MidpointRounding.AwayFromZero))
+                    : AbsoluteSpeed;
+
+                if (effectiveWpm != inheritedWpm)
+                {
+                    metadata.SpeedOverride = effectiveWpm;
+                }
+            }
+            else if (HasRelativeSpeed && Math.Abs(RelativeSpeedMultiplier - 1f) > RelativeSpeedTolerance)
+            {
+                metadata.SpeedMultiplier = RelativeSpeedMultiplier;
+            }
+
+            return metadata;
         }
     }
 }

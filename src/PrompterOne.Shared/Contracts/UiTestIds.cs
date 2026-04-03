@@ -86,9 +86,11 @@ public static class UiTestIds
     {
         public const string ActiveBlockEmotion = "editor-active-block-emotion";
         public const string ActiveBlockName = "editor-active-block-name";
+        public const string ActiveBlockSpeaker = "editor-active-block-speaker";
         public const string ActiveBlockWpm = "editor-active-block-wpm";
         public const string ActiveSegmentEmotion = "editor-active-segment-emotion";
         public const string ActiveSegmentName = "editor-active-segment-name";
+        public const string ActiveSegmentSpeaker = "editor-active-segment-speaker";
         public const string ActiveSegmentTiming = "editor-active-segment-timing";
         public const string ActiveSegmentWpm = "editor-active-segment-wpm";
         public const string Ai = "editor-ai";

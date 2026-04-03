@@ -7,5 +7,6 @@ public class TpsBlock
     public string Content { get; set; } = string.Empty;
     public int? TargetWPM { get; set; }
     public string? Emotion { get; set; }
+    public string? Speaker { get; set; }
     public List<TpsPhrase> Phrases { get; set; } = new();
 }

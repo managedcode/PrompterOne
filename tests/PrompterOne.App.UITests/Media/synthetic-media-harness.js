@@ -90,19 +90,29 @@
     function toDeviceDescriptor(device) {
         const label = resolveDeviceLabel(device);
         return {
-            deviceId: shouldExposeDeviceIdentity() ? device.deviceId : emptyDeviceLabel,
+            deviceId: resolveDeviceId(device),
             kind: device.kind,
             label,
             groupId: device.groupId || defaultGroupId,
             toJSON() {
                 return {
-                    deviceId: shouldExposeDeviceIdentity() ? device.deviceId : emptyDeviceLabel,
+                    deviceId: resolveDeviceId(device),
                     kind: device.kind,
                     label,
                     groupId: device.groupId || defaultGroupId
                 };
             }
         };
+    }
+
+    function resolveDeviceId(device) {
+        if (!device || typeof device !== "object") {
+            return emptyDeviceLabel;
+        }
+
+        return shouldExposeDeviceIdentity()
+            ? (typeof device.deviceId === "string" ? device.deviceId : emptyDeviceLabel)
+            : emptyDeviceLabel;
     }
 
     function resolveDeviceLabel(device) {
@@ -423,7 +433,7 @@
     window[harnessGlobalName] = Object.freeze({
         listDevices() {
             return devices.map(device => ({
-                deviceId: device.deviceId,
+                deviceId: resolveDeviceId(device),
                 label: resolveDeviceLabel(device),
                 kind: device.kind,
                 isDefault: device.isDefault

@@ -13,6 +13,15 @@ public sealed class ResponsiveLayoutTests(StandaloneAppFixture fixture) : AppUiT
                 return data;
             });
 
+    public static TheoryData<ResponsiveViewport> IpadPortraitViewports =>
+        BrowserTestConstants.ResponsiveLayout.IpadPortraitViewports.Aggregate(
+            new TheoryData<ResponsiveViewport>(),
+            static (data, viewport) =>
+            {
+                data.Add(viewport);
+                return data;
+            });
+
     [Theory]
     [MemberData(nameof(ResponsiveViewports))]
     public Task LibraryRoute_KeepsPrimaryControlsVisibleAcrossResponsiveViewports(ResponsiveViewport viewport) =>
@@ -24,6 +33,22 @@ public sealed class ResponsiveLayoutTests(StandaloneAppFixture fixture) : AppUiT
             UiTestIds.Library.Page,
             UiTestIds.Library.FolderAll,
             UiTestIds.Library.OpenSettings,
+            UiTestIds.Header.LibrarySearch,
+            UiTestIds.Header.GoLive,
+            UiTestIds.Header.LibraryNewScript));
+
+    [Theory]
+    [MemberData(nameof(IpadPortraitViewports))]
+    public Task LibraryRoute_KeepsHeaderBrandingVisibleAcrossIpadPortraitViewports(ResponsiveViewport viewport) =>
+        RunPageAsync(page => ResponsiveLayoutAssertions.AssertRouteControlsVisibleAsync(
+            page,
+            BrowserTestConstants.ResponsiveLayout.LibraryRouteName,
+            BrowserTestConstants.Routes.Library,
+            viewport,
+            UiTestIds.Library.Page,
+            UiTestIds.Header.Home,
+            UiTestIds.Header.Brand,
+            UiTestIds.Header.LibraryBreadcrumbCurrent,
             UiTestIds.Header.LibrarySearch,
             UiTestIds.Header.GoLive,
             UiTestIds.Header.LibraryNewScript));

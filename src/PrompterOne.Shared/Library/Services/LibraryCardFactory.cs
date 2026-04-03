@@ -105,7 +105,7 @@ internal static class LibraryCardFactory
         int averageWpm)
     {
         var fallbackDuration = TimeSpan.FromMinutes(wordCount / (double)Math.Max(averageWpm, 1));
-        if (!metadata.TryGetValue("display_duration", out var rawValue))
+        if (!metadata.TryGetValue("duration", out var rawValue))
         {
             return fallbackDuration;
         }
