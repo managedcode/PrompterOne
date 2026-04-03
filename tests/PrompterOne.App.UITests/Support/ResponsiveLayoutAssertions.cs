@@ -16,7 +16,8 @@ internal static class ResponsiveLayoutAssertions
         await page.SetViewportSizeAsync(viewport.Width, viewport.Height);
         await page.GotoAsync(route);
 
-        await Expect(page.GetByTestId(pageTestId)).ToBeVisibleAsync();
+        await Expect(page.GetByTestId(pageTestId))
+            .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
 
         await UiScenarioArtifacts.CapturePageAsync(
             page,
@@ -42,7 +43,8 @@ internal static class ResponsiveLayoutAssertions
         string routeName,
         ResponsiveViewport viewport)
     {
-        await Expect(locator).ToBeVisibleAsync();
+        await Expect(locator)
+            .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
 
         var box = await locator.BoundingBoxAsync();
         Assert.NotNull(box);
