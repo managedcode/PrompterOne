@@ -184,8 +184,8 @@ internal static partial class BrowserTestConstants
         public const string StructureBlockToken = "### [Block Name|Speaker:Host|140WPM|focused]";
         public const string DurationField = "duration:";
         public const string PronunciationToken = "[pronunciation:guide]";
-        public const string SegmentRewrite = "## [Launch Angle|305WPM|focused|1:00-2:00]";
-        public const string BlockRewrite = "### [Signal Block|305WPM|professional]";
+        public const string SegmentRewrite = "## [Launch Angle|205WPM|focused|1:00-2:00]";
+        public const string BlockRewrite = "### [Signal Block|205WPM|professional]";
         public const string TypedTitle = "Typed Intro";
         public const string TypedBlock = "Typed Block";
         public const string TypedHighlight = "[highlight]Every word[/highlight]";

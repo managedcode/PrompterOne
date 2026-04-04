@@ -189,6 +189,10 @@ public static class UiTestIds
     public static class Teleprompter
     {
         public const string Back = "teleprompter-back";
+        public const string AlignmentCenter = "teleprompter-alignment-center";
+        public const string AlignmentControls = "teleprompter-alignment-controls";
+        public const string AlignmentLeft = "teleprompter-alignment-left";
+        public const string AlignmentRight = "teleprompter-alignment-right";
         public const string CameraBackground = "teleprompter-camera-layer-primary";
         public const string CameraToggle = "teleprompter-camera-toggle";
         public const string ClusterWrap = "teleprompter-cluster-wrap";

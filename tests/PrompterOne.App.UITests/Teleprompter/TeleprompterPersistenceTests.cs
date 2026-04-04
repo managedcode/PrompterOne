@@ -15,6 +15,7 @@ public sealed class TeleprompterPersistenceTests(StandaloneAppFixture fixture)
     private const string PersistedFocalPointValue = "37";
     private const string PersistedFocalGuideStyle = "top:37%;";
     private const string PersistedTextWidthValue = "980";
+    private const string PersistedTextAlignmentValue = BrowserTestConstants.TeleprompterFlow.AlignmentCenterValue;
     private const string ReaderCardActiveClass = "rd-card-active";
     private const string ReaderCardNextClass = "rd-card-next";
     private const string StoredReaderSettingsKey = BrowserStorageKeys.SettingsPrefix + BrowserAppSettingsKeys.ReaderSettings;
@@ -32,9 +33,12 @@ public sealed class TeleprompterPersistenceTests(StandaloneAppFixture fixture)
 
             await SetRangeValueAsync(page.GetByTestId(UiTestIds.Teleprompter.WidthSlider), PersistedTextWidthValue);
             await SetRangeValueAsync(page.GetByTestId(UiTestIds.Teleprompter.FocalSlider), PersistedFocalPointValue);
+            await page.GetByTestId(UiTestIds.Teleprompter.AlignmentCenter).ClickAsync();
 
             await Expect(page.Locator($"#{UiDomIds.Teleprompter.WidthValue}")).ToHaveTextAsync(PersistedTextWidthValue);
             await Expect(page.GetByTestId(UiTestIds.Teleprompter.FocalGuide)).ToHaveAttributeAsync("style", PersistedFocalGuideStyle);
+            await Expect(page.GetByTestId(UiTestIds.Teleprompter.ClusterWrap))
+                .ToHaveAttributeAsync(BrowserTestConstants.TeleprompterFlow.ReaderTextAlignmentAttribute, PersistedTextAlignmentValue);
 
             var storedJson = await page.EvaluateAsync<string>(
                 "(storageKey) => localStorage.getItem(storageKey) ?? ''",
@@ -44,6 +48,7 @@ public sealed class TeleprompterPersistenceTests(StandaloneAppFixture fixture)
             Assert.NotNull(storedSettings);
             Assert.Equal(int.Parse(PersistedFocalPointValue, CultureInfo.InvariantCulture), storedSettings.FocalPointPercent);
             Assert.Equal(double.Parse(PersistedTextWidthValue, CultureInfo.InvariantCulture) / 1100d, storedSettings.TextWidth, 4);
+            Assert.Equal(ReaderTextAlignment.Center, storedSettings.TextAlignment);
 
             await page.ReloadAsync();
             await Expect(page.GetByTestId(UiTestIds.Teleprompter.Page))
@@ -53,6 +58,8 @@ public sealed class TeleprompterPersistenceTests(StandaloneAppFixture fixture)
             await Expect(page.GetByTestId(UiTestIds.Teleprompter.FocalSlider)).ToHaveValueAsync(PersistedFocalPointValue);
             await Expect(page.Locator($"#{UiDomIds.Teleprompter.WidthValue}")).ToHaveTextAsync(PersistedTextWidthValue);
             await Expect(page.GetByTestId(UiTestIds.Teleprompter.FocalGuide)).ToHaveAttributeAsync("style", PersistedFocalGuideStyle);
+            await Expect(page.GetByTestId(UiTestIds.Teleprompter.ClusterWrap))
+                .ToHaveAttributeAsync(BrowserTestConstants.TeleprompterFlow.ReaderTextAlignmentAttribute, PersistedTextAlignmentValue);
         });
 
     [Fact]

@@ -388,7 +388,7 @@ internal static class TpsCompilerCore
         FlushPhrase(phrases, currentPhrase);
         words.Add(CreateControlWord(
             isPause: true,
-            pauseDuration: hasNextSlash ? 600 : 300,
+            pauseDuration: hasNextSlash ? TpsSpec.MediumPauseDurationMs : TpsSpec.ShortPauseDurationMs,
             inherited: inherited));
         if (hasNextSlash)
         {
@@ -642,10 +642,10 @@ internal static class TpsCompilerCore
     {
         return new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
         {
-            [TpsSpec.Tags.Xslow] = ResolveSpeedOffset(metadata, TpsSpec.FrontMatterKeys.SpeedOffsetsXslow, TpsSpec.DefaultXslowOffset),
-            [TpsSpec.Tags.Slow] = ResolveSpeedOffset(metadata, TpsSpec.FrontMatterKeys.SpeedOffsetsSlow, TpsSpec.DefaultSlowOffset),
-            [TpsSpec.Tags.Fast] = ResolveSpeedOffset(metadata, TpsSpec.FrontMatterKeys.SpeedOffsetsFast, TpsSpec.DefaultFastOffset),
-            [TpsSpec.Tags.Xfast] = ResolveSpeedOffset(metadata, TpsSpec.FrontMatterKeys.SpeedOffsetsXfast, TpsSpec.DefaultXfastOffset)
+            [TpsSpec.Tags.Xslow] = ResolveSpeedOffset(metadata, TpsSpec.FrontMatterKeys.SpeedOffsetsXslow, TpsSpec.DefaultSpeedOffsets[TpsSpec.Tags.Xslow]),
+            [TpsSpec.Tags.Slow] = ResolveSpeedOffset(metadata, TpsSpec.FrontMatterKeys.SpeedOffsetsSlow, TpsSpec.DefaultSpeedOffsets[TpsSpec.Tags.Slow]),
+            [TpsSpec.Tags.Fast] = ResolveSpeedOffset(metadata, TpsSpec.FrontMatterKeys.SpeedOffsetsFast, TpsSpec.DefaultSpeedOffsets[TpsSpec.Tags.Fast]),
+            [TpsSpec.Tags.Xfast] = ResolveSpeedOffset(metadata, TpsSpec.FrontMatterKeys.SpeedOffsetsXfast, TpsSpec.DefaultSpeedOffsets[TpsSpec.Tags.Xfast])
         };
     }
 
@@ -660,9 +660,12 @@ internal static class TpsCompilerCore
     {
         return metadata.TryGetValue(TpsSpec.FrontMatterKeys.BaseWpm, out var value) &&
                int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed)
-            ? Math.Max(1, parsed)
+            ? ClampSupportedWpm(parsed)
             : TpsSpec.DefaultBaseWpm;
     }
+
+    private static int ClampSupportedWpm(int candidate) =>
+        Math.Clamp(candidate, TpsSpec.MinimumWpm, TpsSpec.MaximumWpm);
 
     private static string ResolveEmotion(string? candidate, string fallback)
     {

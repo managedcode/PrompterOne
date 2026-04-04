@@ -88,6 +88,7 @@
 .rd-cluster-text {
     font-size: var(--rd-font-size, 36px);
     max-width: min(100%, var(--rd-content-max-width, 940px));
+    box-sizing: border-box;
     font-weight: 700;
     line-height: 1.9;
     color: rgba(242,230,204,.34);

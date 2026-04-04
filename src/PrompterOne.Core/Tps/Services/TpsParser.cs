@@ -362,7 +362,7 @@ public sealed class TpsParser
             var numberPart = normalized[..^TpsSpec.WpmSuffix.Length];
             if (int.TryParse(numberPart, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsedWithSuffix))
             {
-                wpm = parsedWithSuffix;
+                wpm = ResolveSupportedHeaderWpm(parsedWithSuffix);
             }
 
             return true;
@@ -370,7 +370,7 @@ public sealed class TpsParser
 
         if (int.TryParse(normalized, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed))
         {
-            wpm = parsed;
+            wpm = ResolveSupportedHeaderWpm(parsed);
             return true;
         }
 
@@ -576,9 +576,17 @@ public sealed class TpsParser
     {
         return metadata.TryGetValue(TpsSpec.FrontMatterKeys.BaseWpm, out var value) &&
                int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed)
-            ? Math.Max(1, parsed)
+            ? ClampSupportedWpm(parsed)
             : TpsSpec.DefaultBaseWpm;
     }
+
+    private static int ClampSupportedWpm(int candidate) =>
+        Math.Clamp(candidate, TpsSpec.MinimumWpm, TpsSpec.MaximumWpm);
+
+    private static int? ResolveSupportedHeaderWpm(int candidate) =>
+        candidate < TpsSpec.MinimumWpm || candidate > TpsSpec.MaximumWpm
+            ? null
+            : candidate;
 
     private static string ResolveEmotion(string? emotion, string fallback)
     {

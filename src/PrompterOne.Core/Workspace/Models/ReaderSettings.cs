@@ -8,6 +8,7 @@ public sealed record ReaderSettings(
     bool MirrorText = ReaderSettingsDefaults.MirrorText,
     bool MirrorVertical = ReaderSettingsDefaults.MirrorVertical,
     ReaderTextOrientation TextOrientation = ReaderSettingsDefaults.TextOrientation,
+    ReaderTextAlignment TextAlignment = ReaderSettingsDefaults.TextAlignment,
     bool ShowFocusLine = ReaderSettingsDefaults.ShowFocusLine,
     bool ShowProgress = ReaderSettingsDefaults.ShowProgress,
     bool ShowCameraScene = ReaderSettingsDefaults.ShowCameraScene,

@@ -25,8 +25,10 @@ public sealed class TeleprompterPersistenceTests : BunitContext
     private const double PersistedTextWidthRatio = PersistedTextWidthPixels / 1100d;
     private const double UpdatedTextWidthRatio = UpdatedTextWidthPixels / 1100d;
     private const string DisabledCameraAttribute = "false";
+    private const string CenterAlignmentValue = "center";
     private const string PortraitOrientationTransform = "rotate(90deg)";
     private const string PortraitOrientationValue = "portrait";
+    private const string RightAlignmentValue = "right";
 
     [Fact]
     public void TeleprompterPage_RestoresPersistedReaderLayoutSettings()
@@ -37,6 +39,7 @@ public sealed class TeleprompterPersistenceTests : BunitContext
             TextWidth: PersistedTextWidthRatio,
             MirrorText: true,
             MirrorVertical: true,
+            TextAlignment: ReaderTextAlignment.Right,
             TextOrientation: ReaderTextOrientation.Portrait,
             FocalPointPercent: PersistedFocalPointPercent);
 
@@ -59,6 +62,9 @@ public sealed class TeleprompterPersistenceTests : BunitContext
             Assert.Equal(
                 PortraitOrientationValue,
                 cut.FindByTestId(UiTestIds.Teleprompter.ClusterWrap).GetAttribute("data-reader-orientation"));
+            Assert.Equal(
+                RightAlignmentValue,
+                cut.FindByTestId(UiTestIds.Teleprompter.ClusterWrap).GetAttribute("data-reader-text-alignment"));
             Assert.Contains(PortraitOrientationTransform, clusterWrapStyle, StringComparison.Ordinal);
             Assert.Contains(HorizontalMirrorTransform, clusterWrapStyle, StringComparison.Ordinal);
             Assert.Contains(VerticalMirrorTransform, clusterWrapStyle, StringComparison.Ordinal);
@@ -81,6 +87,7 @@ public sealed class TeleprompterPersistenceTests : BunitContext
         cut.FindByTestId(UiTestIds.Teleprompter.FocalSlider).Input(UpdatedFocalPointPercent);
         cut.FindByTestId(UiTestIds.Teleprompter.MirrorHorizontalToggle).Click();
         cut.FindByTestId(UiTestIds.Teleprompter.MirrorVerticalToggle).Click();
+        cut.FindByTestId(UiTestIds.Teleprompter.AlignmentCenter).Click();
         cut.FindByTestId(UiTestIds.Teleprompter.OrientationToggle).Click();
         cut.FindByTestId(UiTestIds.Teleprompter.CameraToggle).Click();
 
@@ -99,6 +106,9 @@ public sealed class TeleprompterPersistenceTests : BunitContext
             Assert.Equal(
                 PortraitOrientationValue,
                 cut.FindByTestId(UiTestIds.Teleprompter.ClusterWrap).GetAttribute("data-reader-orientation"));
+            Assert.Equal(
+                CenterAlignmentValue,
+                cut.FindByTestId(UiTestIds.Teleprompter.ClusterWrap).GetAttribute("data-reader-text-alignment"));
             Assert.Contains(PortraitOrientationTransform, clusterWrapStyle, StringComparison.Ordinal);
             Assert.Contains(HorizontalMirrorTransform, clusterWrapStyle, StringComparison.Ordinal);
             Assert.Contains(VerticalMirrorTransform, clusterWrapStyle, StringComparison.Ordinal);
@@ -108,11 +118,13 @@ public sealed class TeleprompterPersistenceTests : BunitContext
             Assert.Equal(UpdatedFocalPointPercent, savedSettings.FocalPointPercent);
             Assert.True(savedSettings.MirrorText);
             Assert.True(savedSettings.MirrorVertical);
+            Assert.Equal(ReaderTextAlignment.Center, savedSettings.TextAlignment);
             Assert.Equal(ReaderTextOrientation.Portrait, savedSettings.TextOrientation);
             Assert.Equal(expectedShowCameraScene, savedSettings.ShowCameraScene);
             Assert.Equal(expectedCameraAttribute, cut.Find($"#{UiDomIds.Teleprompter.Camera}").GetAttribute("data-camera-autostart"));
             Assert.True(harness.Session.State.ReaderSettings.MirrorText);
             Assert.True(harness.Session.State.ReaderSettings.MirrorVertical);
+            Assert.Equal(ReaderTextAlignment.Center, harness.Session.State.ReaderSettings.TextAlignment);
             Assert.Equal(ReaderTextOrientation.Portrait, harness.Session.State.ReaderSettings.TextOrientation);
             Assert.Equal(expectedShowCameraScene, harness.Session.State.ReaderSettings.ShowCameraScene);
         });

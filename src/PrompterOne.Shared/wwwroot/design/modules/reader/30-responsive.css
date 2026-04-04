@@ -85,6 +85,10 @@
         gap: 6px;
     }
 
+    .rd-align-controls {
+        gap: 5px;
+    }
+
     .rd-sliders {
         right: 8px;
     }

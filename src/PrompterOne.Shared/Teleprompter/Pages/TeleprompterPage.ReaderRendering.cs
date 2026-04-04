@@ -11,6 +11,7 @@ public partial class TeleprompterPage
     private const string ReaderCardCssClass = "rd-card";
     private const string ReaderCardNextCssClass = "rd-card-next";
     private const string ReaderCardPreviousCssClass = "rd-card-prev";
+    private const int ReaderCenterOpticalInsetPixels = 0;
     private const int ReaderComfortableContentMaxWidth = 940;
     private const int ReaderComfortablePortraitContentMaxWidth = 760;
     private const string ReaderContentMaxWidthVariableName = "--rd-content-max-width";
@@ -25,9 +26,13 @@ public partial class TeleprompterPage
     private const string ReaderHorizontalGuideCssClass = "rd-guide-h";
     private const string ReaderMirrorButtonCssClass = "rd-mirror-btn";
     private const string ReaderMirrorHorizontalTransform = "scaleX(-1)";
+    private const string ReaderOpticalInsetVariableName = "--rd-text-optical-inset";
     private const string ReaderOrientationLandscapeValue = "landscape";
     private const string ReaderOrientationPortraitTransform = "rotate(90deg)";
     private const string ReaderOrientationPortraitValue = "portrait";
+    private const string ReaderTextAlignmentCenterValue = "center";
+    private const string ReaderTextAlignmentLeftValue = "left";
+    private const string ReaderTextAlignmentRightValue = "right";
     private const string ReaderMirrorTransformOrigin = "center center";
     private const string ReaderMirrorVerticalTransform = "scaleY(-1)";
     private const string ReaderVerticalGuideCssClass = "rd-guide-v";
@@ -101,6 +106,9 @@ public partial class TeleprompterPage
     private string BuildReaderOrientationButtonCssClass() =>
         BuildReaderMirrorButtonCssClass(_readerTextOrientation == ReaderTextOrientation.Portrait);
 
+    private string BuildReaderAlignmentButtonCssClass(ReaderTextAlignment textAlignment) =>
+        BuildReaderMirrorButtonCssClass(_readerTextAlignment == textAlignment);
+
     private string BuildCountdownCssClass() =>
         BuildClassList(ReaderCountdownCssClass, _isReaderCountdownActive ? ActiveCssClass : null);
 
@@ -132,6 +140,7 @@ public partial class TeleprompterPage
         {
             $"max-width:{_readerTextWidth.ToString(CultureInfo.InvariantCulture)}px",
             $"{ReaderContentMaxWidthVariableName}:{contentMaxWidth.ToString(CultureInfo.InvariantCulture)}px",
+            $"{ReaderOpticalInsetVariableName}:{ResolveReaderTextOpticalInset(contentMaxWidth).ToString(CultureInfo.InvariantCulture)}px",
             $"--rd-font-size:{_readerFontSize.ToString(CultureInfo.InvariantCulture)}px"
         };
         var readerTransform = BuildReaderTransform();
@@ -151,6 +160,16 @@ public partial class TeleprompterPage
         return _readerTextOrientation == ReaderTextOrientation.Portrait
             ? Math.Min(contentMaxWidth, ReaderComfortablePortraitContentMaxWidth)
             : contentMaxWidth;
+    }
+
+    private int ResolveReaderTextOpticalInset(int contentMaxWidth)
+    {
+        if (_readerTextAlignment == ReaderTextAlignment.Center)
+        {
+            return ReaderCenterOpticalInsetPixels;
+        }
+
+        return Math.Clamp((int)Math.Round(contentMaxWidth * 0.06d, MidpointRounding.AwayFromZero), 28, 64);
     }
 
     private string BuildReaderTransform()
@@ -179,6 +198,14 @@ public partial class TeleprompterPage
         _readerTextOrientation == ReaderTextOrientation.Portrait
             ? ReaderOrientationPortraitValue
             : ReaderOrientationLandscapeValue;
+
+    private string BuildReaderTextAlignmentDataAttribute() =>
+        _readerTextAlignment switch
+        {
+            ReaderTextAlignment.Center => ReaderTextAlignmentCenterValue,
+            ReaderTextAlignment.Right => ReaderTextAlignmentRightValue,
+            _ => ReaderTextAlignmentLeftValue
+        };
 
     private string BuildReaderCardCssClass(int index)
     {

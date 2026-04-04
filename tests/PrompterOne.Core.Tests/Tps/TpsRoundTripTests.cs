@@ -6,6 +6,9 @@ namespace PrompterOne.Core.Tests;
 
 public sealed class TpsRoundTripTests
 {
+    private const int MaximumSupportedWpm = 220;
+    private const int MinimumSupportedWpm = 80;
+
     [Fact]
     public async Task ParseAndExportAsync_RetainsCanonicalMetadataAndFlexibleHeaders()
     {
@@ -233,6 +236,56 @@ public sealed class TpsRoundTripTests
 
         Assert.DoesNotContain("xslow_offset", document.Metadata.Keys, StringComparer.OrdinalIgnoreCase);
         Assert.Equal(0.6f, alpha.Metadata.SpeedMultiplier);
+    }
+
+    [Fact]
+    public async Task ParseAsync_ClampsBaseWpmToCanonicalRuntimeBounds()
+    {
+        var parser = new TpsParser();
+        const string source = """
+        ---
+        title: "Clamped base WPM"
+        base_wpm: 500
+        ---
+
+        ## [Signal|focused]
+
+        ### [Body]
+
+        Ready now.
+        """;
+
+        var document = await parser.ParseAsync(source);
+        var data = parser.ParseTps(source);
+        var segment = Assert.Single(document.Segments);
+
+        Assert.Equal(MaximumSupportedWpm, segment.TargetWPM);
+        Assert.Equal(MaximumSupportedWpm, data.TargetWpm);
+    }
+
+    [Fact]
+    public async Task ParseAsync_IgnoresOutOfRangeHeaderWpmAndFallsBackToClampedBaseWpm()
+    {
+        var parser = new TpsParser();
+        const string source = """
+        ---
+        title: "Header fallback"
+        base_wpm: 60
+        ---
+
+        ## [Signal|warm|300WPM]
+
+        ### [Body|400WPM]
+
+        Copy.
+        """;
+
+        var document = await parser.ParseAsync(source);
+        var segment = Assert.Single(document.Segments);
+        var block = Assert.Single(segment.Blocks);
+
+        Assert.Equal(MinimumSupportedWpm, segment.TargetWPM);
+        Assert.Null(block.TargetWPM);
     }
 
     [Fact]

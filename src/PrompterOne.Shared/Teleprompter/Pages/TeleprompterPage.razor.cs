@@ -29,6 +29,12 @@ public partial class TeleprompterPage : IAsyncDisposable
     private const string ReaderFullscreenTitle = "Toggle fullscreen";
     private const string ReaderMirrorHorizontalLabel = "H";
     private const string ReaderMirrorHorizontalTitle = "Mirror horizontally";
+    private const string ReaderTextAlignCenterLabel = "C";
+    private const string ReaderTextAlignCenterTitle = "Align text to center";
+    private const string ReaderTextAlignLeftLabel = "L";
+    private const string ReaderTextAlignLeftTitle = "Align text to left";
+    private const string ReaderTextAlignRightLabel = "R";
+    private const string ReaderTextAlignRightTitle = "Align text to right";
     private const int ReaderMaxFontSize = 56;
     private const int ReaderMaxTextWidth = 1100;
     private const int ReaderMaxFocalPointPercent = 55;
@@ -80,6 +86,7 @@ public partial class TeleprompterPage : IAsyncDisposable
     private int _readerFontSize = DefaultReaderFontSize;
     private int _readerFocalPointPercent = DefaultReaderFocalPointPercent;
     private int _readerTextWidth = DefaultReaderTextWidth;
+    private ReaderTextAlignment _readerTextAlignment = ReaderSettingsDefaults.TextAlignment;
     private ReaderTextOrientation _readerTextOrientation = ReaderSettingsDefaults.TextOrientation;
     private int _totalDurationMilliseconds = 1000;
     private int _totalSeconds = 1;
@@ -174,6 +181,7 @@ public partial class TeleprompterPage : IAsyncDisposable
         _isReaderMirrorHorizontal = SessionService.State.ReaderSettings.MirrorText;
         _isReaderMirrorVertical = SessionService.State.ReaderSettings.MirrorVertical;
         _readerTextWidth = NormalizeReaderTextWidth(SessionService.State.ReaderSettings.TextWidth);
+        _readerTextAlignment = NormalizeReaderTextAlignment(SessionService.State.ReaderSettings.TextAlignment);
         _readerTextOrientation = SessionService.State.ReaderSettings.TextOrientation;
         _activeReaderCardIndex = 0;
         _activeReaderWordIndex = -1;
@@ -296,6 +304,13 @@ public partial class TeleprompterPage : IAsyncDisposable
     {
         var safePercent = focalPointPercent > 0 ? focalPointPercent : DefaultReaderFocalPointPercent;
         return Math.Clamp(safePercent, ReaderMinFocalPointPercent, ReaderMaxFocalPointPercent);
+    }
+
+    private static ReaderTextAlignment NormalizeReaderTextAlignment(ReaderTextAlignment textAlignment)
+    {
+        return Enum.IsDefined(textAlignment)
+            ? textAlignment
+            : ReaderSettingsDefaults.TextAlignment;
     }
 
     private static int ParseReaderControlValue(object? rawValue, int min, int max, int fallback)

@@ -35,16 +35,16 @@ public sealed class EditorStructureAuthoringTests : BunitContext
 
         var source = cut.FindByTestId(UiTestIds.Editor.SourceInput);
         var updatedSource = (source.GetAttribute("value") ?? string.Empty)
-            .Replace("## [Introduction|280WPM|neutral|0:00-1:10]", "## [Launch Angle|305WPM|focused|1:00-2:00]", StringComparison.Ordinal)
-            .Replace("### [Overview Block|280WPM|neutral]", "### [Signal Block|305WPM|professional]", StringComparison.Ordinal);
+            .Replace("## [Introduction|280WPM|neutral|0:00-1:10]", "## [Launch Angle|205WPM|focused|1:00-2:00]", StringComparison.Ordinal)
+            .Replace("### [Overview Block|280WPM|neutral]", "### [Signal Block|205WPM|professional]", StringComparison.Ordinal);
 
         source.Input(updatedSource);
 
         cut.WaitForAssertion(() =>
             {
                 var currentSource = cut.FindByTestId(UiTestIds.Editor.SourceInput).GetAttribute("value");
-                Assert.Contains("## [Launch Angle|305WPM|focused|1:00-2:00]", currentSource);
-                Assert.Contains("### [Signal Block|305WPM|professional]", currentSource);
+                Assert.Contains("## [Launch Angle|205WPM|focused|1:00-2:00]", currentSource);
+                Assert.Contains("### [Signal Block|205WPM|professional]", currentSource);
                 Assert.Contains("data-nav=\"seg-0\"", cut.Markup, StringComparison.Ordinal);
                 Assert.Contains("Launch Angle", cut.Markup, StringComparison.Ordinal);
                 Assert.Contains("Signal Block", cut.Markup, StringComparison.Ordinal);

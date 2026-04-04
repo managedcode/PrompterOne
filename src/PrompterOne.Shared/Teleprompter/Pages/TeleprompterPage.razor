@@ -66,6 +66,27 @@
                         <polyline points="16,21 21,21 21,16"></polyline>
                     </svg>
                 </button>
+                <span class="rd-rail-divider" aria-hidden="true"></span>
+                <div class="rd-align-controls" data-testid="@UiTestIds.Teleprompter.AlignmentControls">
+                    <button class="@BuildReaderAlignmentButtonCssClass(ReaderTextAlignment.Left)"
+                            @onclick="@(() => SetReaderTextAlignmentAsync(ReaderTextAlignment.Left))"
+                            title="@ReaderTextAlignLeftTitle"
+                            data-testid="@UiTestIds.Teleprompter.AlignmentLeft">
+                        @ReaderTextAlignLeftLabel
+                    </button>
+                    <button class="@BuildReaderAlignmentButtonCssClass(ReaderTextAlignment.Center)"
+                            @onclick="@(() => SetReaderTextAlignmentAsync(ReaderTextAlignment.Center))"
+                            title="@ReaderTextAlignCenterTitle"
+                            data-testid="@UiTestIds.Teleprompter.AlignmentCenter">
+                        @ReaderTextAlignCenterLabel
+                    </button>
+                    <button class="@BuildReaderAlignmentButtonCssClass(ReaderTextAlignment.Right)"
+                            @onclick="@(() => SetReaderTextAlignmentAsync(ReaderTextAlignment.Right))"
+                            title="@ReaderTextAlignRightTitle"
+                            data-testid="@UiTestIds.Teleprompter.AlignmentRight">
+                        @ReaderTextAlignRightLabel
+                    </button>
+                </div>
             </div>
 
             <div class="rd-sliders" data-testid="@UiTestIds.Teleprompter.Sliders">
@@ -115,6 +136,7 @@
                 <div class="rd-cluster-wrap"
                      id="@UiDomIds.Teleprompter.ClusterWrap"
                      data-reader-orientation="@BuildReaderOrientationDataAttribute()"
+                     data-reader-text-alignment="@BuildReaderTextAlignmentDataAttribute()"
                      data-testid="@UiTestIds.Teleprompter.ClusterWrap"
                      style="@BuildClusterWrapStyle()">
                     @foreach (var entry in _cards.Select((card, index) => (card, index)))

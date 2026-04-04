@@ -9,6 +9,7 @@ public static class ReaderSettingsDefaults
     public const bool MirrorText = false;
     public const bool MirrorVertical = false;
     public const ReaderTextOrientation TextOrientation = ReaderTextOrientation.Landscape;
+    public const ReaderTextAlignment TextAlignment = ReaderTextAlignment.Left;
     public const bool ShowFocusLine = true;
     public const bool ShowProgress = true;
     public const bool ShowCameraScene = false;

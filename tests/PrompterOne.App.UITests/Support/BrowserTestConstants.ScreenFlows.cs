@@ -92,8 +92,17 @@ internal static partial class BrowserTestConstants
     public static class TeleprompterFlow
     {
         public const string BackgroundColorProperty = "backgroundColor";
+        public const string CenterAlignmentScenarioName = "teleprompter-text-alignment";
+        public const string CenterAlignmentStep = "01-left-center-right-modes";
         public const string ColorProperty = "color";
         public const double ControlsMinimumOpacity = 0.9;
+        public const string ReaderTextAlignmentAttribute = "data-reader-text-alignment";
+        public const string AlignmentLeftValue = "left";
+        public const string AlignmentCenterValue = "center";
+        public const string AlignmentRightValue = "right";
+        public const double MinimumOpticalInsetPx = 24;
+        public const double MaximumDefaultLeftAverageCenterOffsetPx = 170;
+        public const double MaximumDefaultLeftLineCenterOffsetPx = 225;
         public const string MirrorScenarioName = "teleprompter-mirror-controls";
         public const string MirrorStep = "01-mirror-controls";
         public const string OrientationPortraitValue = "portrait";
@@ -110,8 +119,6 @@ internal static partial class BrowserTestConstants
         public const string ProgressFilledStylePattern = @"width:\s*100%";
         public const double MaxProgressShellOverflowPx = 0.5;
         public const int MinimumBalancedTextLineCount = 2;
-        public const double MaximumTextLineAsymmetryPx = 120;
-        public const double MaximumAverageTextLineAsymmetryPx = 88;
         public const string ReaderOrientationAttribute = "data-reader-orientation";
         public const string MirrorHorizontalTransform = "scaleX(-1)";
         public const string MirrorVerticalTransform = "scaleY(-1)";
@@ -288,9 +295,9 @@ internal static partial class BrowserTestConstants
         public const string BoundarySixthWord = "foxtrot";
         public const string BoundarySeventhWord = "golf";
         public const string BoundaryEighthWord = "hotel";
-        public const int BaseWpm = 250;
-        public const int SlowWpm = 100;
-        public const int FastWpm = 400;
+        public const int BaseWpm = 220;
+        public const int SlowWpm = 88;
+        public const int FastWpm = 352;
 
         public static IReadOnlyList<string> ExpectedWords =>
         [

@@ -42,7 +42,7 @@ public sealed class EditorSourceSyncTests(StandaloneAppFixture fixture) : IClass
             await Expect(page.GetByTestId(UiTestIds.Editor.SegmentNavigation(0))).ToContainTextAsync("Launch Angle");
             await Expect(page.GetByTestId(UiTestIds.Editor.SegmentNavigation(0))).ToContainTextAsync("Focused");
             await Expect(page.GetByTestId(UiTestIds.Editor.BlockNavigation(0, 0))).ToContainTextAsync("Signal Block");
-            await Expect(page.GetByTestId(UiTestIds.Editor.BlockNavigation(0, 0))).ToContainTextAsync("305WPM");
+            await Expect(page.GetByTestId(UiTestIds.Editor.BlockNavigation(0, 0))).ToContainTextAsync("205WPM");
             await Expect(page.GetByTestId(UiTestIds.Editor.SourceHighlight))
                 .ToContainTextAsync(BrowserTestConstants.Editor.SegmentRewrite);
         }

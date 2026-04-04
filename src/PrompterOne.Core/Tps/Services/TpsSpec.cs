@@ -3,6 +3,10 @@ namespace PrompterOne.Core.Services;
 internal static class TpsSpec
 {
     public const int DefaultBaseWpm = 140;
+    public const int MaximumWpm = 220;
+    public const int MinimumWpm = 80;
+    public const int MediumPauseDurationMs = 600;
+    public const int ShortPauseDurationMs = 300;
     public const string DefaultEmotion = "neutral";
     public const string DefaultImplicitSegmentName = "Content";
     public const string DefaultProfile = "Actor";
@@ -65,6 +69,20 @@ internal static class TpsSpec
         public const string Xslow = "xslow";
     }
 
+    public static class DiagnosticCodes
+    {
+        public const string InvalidFrontMatter = "invalid-front-matter";
+        public const string InvalidHeader = "invalid-header";
+        public const string InvalidHeaderParameter = "invalid-header-parameter";
+        public const string InvalidPause = "invalid-pause";
+        public const string InvalidTagArgument = "invalid-tag-argument";
+        public const string InvalidWpm = "invalid-wpm";
+        public const string MismatchedClosingTag = "mismatched-closing-tag";
+        public const string UnclosedTag = "unclosed-tag";
+        public const string UnknownTag = "unknown-tag";
+        public const string UnterminatedTag = "unterminated-tag";
+    }
+
     public static IReadOnlySet<string> Emotions { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
     {
         "neutral",
@@ -96,6 +114,22 @@ internal static class TpsSpec
         Tags.Whisper
     };
 
+    public static IReadOnlySet<string> RelativeSpeedTags { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    {
+        Tags.Xslow,
+        Tags.Slow,
+        Tags.Fast,
+        Tags.Xfast,
+        Tags.Normal
+    };
+
+    public static IReadOnlySet<string> EditPointPriorities { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    {
+        "high",
+        "medium",
+        "low"
+    };
+
     public static IReadOnlyDictionary<string, int> DefaultSpeedOffsets { get; } = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
     {
         [Tags.Xslow] = DefaultXslowOffset,
@@ -118,6 +152,22 @@ internal static class TpsSpec
         ["sad"] = new("#4F46E5", "#EEF2FF", "#A5B4FC"),
         ["calm"] = new("#0F766E", "#F0FDFA", "#99F6E4"),
         ["energetic"] = new("#C2410C", "#FFF7ED", "#FDBA74")
+    };
+
+    public static IReadOnlyDictionary<string, string> EmotionHeadCues { get; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+    {
+        [DefaultEmotion] = "H0",
+        ["calm"] = "H0",
+        ["professional"] = "H9",
+        ["focused"] = "H5",
+        ["motivational"] = "H9",
+        ["urgent"] = "H4",
+        ["concerned"] = "H1",
+        ["sad"] = "H1",
+        ["warm"] = "H7",
+        ["happy"] = "H6",
+        ["excited"] = "H6",
+        ["energetic"] = "H8"
     };
 }
 

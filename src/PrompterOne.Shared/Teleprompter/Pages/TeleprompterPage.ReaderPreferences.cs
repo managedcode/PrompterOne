@@ -14,6 +14,7 @@ public partial class TeleprompterPage
             FocalPointPercent = _readerFocalPointPercent,
             MirrorText = _isReaderMirrorHorizontal,
             MirrorVertical = _isReaderMirrorVertical,
+            TextAlignment = _readerTextAlignment,
             TextOrientation = _readerTextOrientation
         });
     }

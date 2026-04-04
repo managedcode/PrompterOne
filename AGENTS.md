@@ -80,6 +80,7 @@ Rule format:
 - Repo-owned docs, README, ADRs, and AGENTS files must not contain local usernames, home-directory paths, or personal machine-specific references; use repo-relative paths or neutral wording instead.
 - Public-facing screenshots and any screenshot-generating or screenshot-asserting tests must use English-visible content so README, docs, and release assets stay globally readable and consistent.
 - Public-facing screenshots that include camera or preview feeds must not ship mirrored or reversed readable text; choose or configure the capture so visible text reads correctly in the final asset.
+- Teleprompter reader text alignment must expose explicit left, center, and right modes, default to left alignment, and keep the left-aligned mode optically centered by offsetting the text mass away from a visibly left-heavy block.
 
 ## Rules to Follow (Mandatory)
 
