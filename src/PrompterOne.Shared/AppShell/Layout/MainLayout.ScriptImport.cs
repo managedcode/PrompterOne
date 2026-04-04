@@ -15,7 +15,7 @@ public partial class MainLayout
     private const string OpenScriptOperation = "Library open script";
     private const string OpenScriptUnsupportedDetail = "Choose a .tps, .tps.md, .md.tps, .md, or .txt file.";
     private const long OpenScriptMaximumFileSizeBytes = 5 * 1024 * 1024;
-    protected internal const string SupportedOpenScriptAcceptValue = ".tps,.tps.md,.md.tps,.md,.txt";
+    protected internal const string SupportedOpenScriptAcceptValue = ScriptDocumentFileTypes.AcceptValue;
 
     private int _openScriptPickerVersion;
 

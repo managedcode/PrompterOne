@@ -51,6 +51,8 @@ public partial class MainLayout : LayoutComponentBase, IDisposable
 
     private bool ShowLearnAction => ShellState.Screen == AppShellScreen.Editor;
 
+    private bool ShowSaveFileAction => ShellState.Screen == AppShellScreen.Editor;
+
     private bool ShowLearnWpmBadge => ShellState.Screen == AppShellScreen.Learn;
 
     private bool ShowReadAction => ShellState.Screen == AppShellScreen.Editor;

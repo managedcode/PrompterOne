@@ -9,6 +9,7 @@ internal static class EditorMonacoInteropMethodNames
     public const string GetSelectionState = "getSelectionState";
     public const string SetSelection = "setSelection";
     public const string DisposeEditor = "disposeEditor";
+    public const string NotifyFilesDropped = "notifyFilesDropped";
     public const string NotifyHistoryRequested = "notifyHistoryRequested";
     public const string NotifyTextChanged = "notifyTextChanged";
     public const string NotifySelectionChanged = "notifySelectionChanged";

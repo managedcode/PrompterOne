@@ -1,3 +1,5 @@
+import { ensureTpsLanguage, getTpsLanguageSupport } from "./editor-monaco-tps-language.js";
+
 const cssClassPrefix = "po";
 const largeDraftDecorationCharacterThreshold = 16000;
 const largeDraftDecorationViewportLinePadding = 24;
@@ -145,6 +147,15 @@ export async function initializeEditor(host, proxy, semanticSnapshot, dotNetRef,
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyY, () => notifyHistoryRequested(state, "redo"));
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyZ, () => notifyHistoryRequested(state, "redo"));
 
+    const hostDragOverHandler = event => handleEditorDragOver(state, event);
+    const hostDropHandler = event => {
+        void handleEditorDropAsync(state, event);
+    };
+    host.addEventListener("dragover", hostDragOverHandler);
+    host.addEventListener("drop", hostDropHandler);
+    state.hostDragOverHandler = hostDragOverHandler;
+    state.hostDropHandler = hostDropHandler;
+
     const proxySelectionHandler = () => {
         if (state.suppressProxySelection) {
             return;
@@ -217,6 +228,8 @@ export function disposeEditor(host) {
         cancelAnimationFrame(state.decorationFrameId);
     }
 
+    state.host.removeEventListener("dragover", state.hostDragOverHandler);
+    state.host.removeEventListener("drop", state.hostDropHandler);
     state.proxy.removeEventListener("select", state.proxySelectionHandler);
     state.proxy.removeEventListener("keyup", state.proxySelectionHandler);
     state.decorationCollection.clear();
@@ -242,6 +255,7 @@ async function loadMonacoAsync(options) {
     monacoPromise = new Promise((resolve, reject) => {
         window.require(["vs/editor/editor.main"], monaco => {
             ensureTpsLanguage(monaco, options);
+            applyResolvedTheme(monaco, options);
             resolve(monaco);
         }, reject);
     });
@@ -292,71 +306,6 @@ function ensureLoaderAsync(loaderPath) {
     return loaderPromise;
 }
 
-function ensureTpsLanguage(monaco, options) {
-    if (monaco.languages.getLanguages().some(language => language.id === options.languageId)) {
-        applyResolvedTheme(monaco, options);
-        return;
-    }
-
-    monaco.languages.register({ id: options.languageId });
-    monaco.languages.setLanguageConfiguration(options.languageId, {
-        autoClosingPairs: [{ open: "[", close: "]" }],
-        brackets: [["[", "]"]],
-        surroundingPairs: [{ open: "[", close: "]" }]
-    });
-    monaco.languages.setMonarchTokensProvider(options.languageId, {
-        tokenizer: {
-            root: [
-                [/^---$/, "frontmatter.delimiter"],
-                [/^([A-Za-z0-9_]+)(:)(\s*)(.+)$/, ["frontmatter.key", "delimiter", "white", "frontmatter.value"]],
-                [/^(##)(\s+)(\[.*\])$/, ["header.segment.hash", "white", "header.segment.body"]],
-                [/^(###)(\s+)(\[.*\])$/, ["header.block.hash", "white", "header.block.body"]],
-                [/\[pause:[^\]]+\]/i, "pause.timed"],
-                [/\/\//, "pause.long"],
-                [/\//, "pause.short"],
-                [/\[(emphasis|highlight|strong|bold|loud|soft|whisper|warm|concerned|focused|motivational|neutral|urgent|happy|excited|sad|calm|energetic|professional|xslow|slow|fast|xfast|aside|rhetorical|sarcasm|building|stress)\]/i, "cue.open"],
-                [/\[\/(emphasis|highlight|strong|bold|loud|soft|whisper|warm|concerned|focused|motivational|neutral|urgent|happy|excited|sad|calm|energetic|professional|xslow|slow|fast|xfast|aside|rhetorical|sarcasm|building|stress)\]/i, "cue.close"],
-                [/\[\d+\s*WPM\]/i, "wpm.badge"],
-                [/\[[^\]]+\]/, "meta.tag"]
-            ]
-        }
-    });
-    monaco.languages.registerCompletionItemProvider(options.languageId, createCompletionProvider(monaco));
-    applyResolvedTheme(monaco, options);
-}
-
-function createCompletionProvider(monaco) {
-    return {
-        triggerCharacters: ["/", "["],
-        provideCompletionItems(model, position) {
-            const word = model.getWordUntilPosition(position);
-            const range = new monaco.Range(position.lineNumber, word.startColumn, position.lineNumber, word.endColumn);
-            return {
-                suggestions: [
-                    createSuggestion(monaco, "/", " / ", "Short pause", range),
-                    createSuggestion(monaco, "//", " //", "Beat pause", range),
-                    createSuggestion(monaco, "[pause:2s]", "[pause:2s]", "Timed pause", range),
-                    createSuggestion(monaco, "[emphasis]text[/emphasis]", "[emphasis]${1:text}[/emphasis]", "Emphasis wrapper", range, true),
-                    createSuggestion(monaco, "[highlight]text[/highlight]", "[highlight]${1:text}[/highlight]", "Highlight wrapper", range, true),
-                    createSuggestion(monaco, "## [Segment|140WPM|focused]", "## [${1:Segment Name}|140WPM|focused]", "Segment header", range, true),
-                    createSuggestion(monaco, "### [Block|140WPM|professional]", "### [${1:Block Name}|140WPM|professional]", "Block header", range, true)
-                ]
-            };
-        }
-    };
-}
-
-function createSuggestion(monaco, label, insertText, detail, range, snippet = false) {
-    return {
-        detail,
-        insertText,
-        insertTextRules: snippet ? monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet : undefined,
-        kind: monaco.languages.CompletionItemKind.Snippet,
-        label,
-        range
-    };
-}
-
 function ensureHarness(options) {
     if (window[options.browserHarnessGlobalName]) {
         return;
@@ -371,6 +320,52 @@ function ensureHarness(options) {
         getState: testId => {
             const state = getOptionalHarnessState(testId);
             return state ? createHarnessState(state, options) : null;
+        },
+        getCompletions: async (testId, lineNumber, column) => {
+            const state = getRequiredHarnessState(testId);
+            const support = getRequiredLanguageSupport(state);
+            const model = state.editor.getModel();
+            if (!model) {
+                return { suggestions: [] };
+            }
+
+            const result = await support.completionProvider.provideCompletionItems(
+                model,
+                new state.monaco.Position(lineNumber ?? 1, column ?? 1),
+                { triggerKind: state.monaco.languages.CompletionTriggerKind.Invoke });
+            return {
+                suggestions: (result?.suggestions ?? []).map(suggestion => ({
+                    detail: suggestion.detail ?? emptyValue,
+                    documentation: normalizeMarkdownValue(suggestion.documentation),
+                    insertText: typeof suggestion.insertText === "string" ? suggestion.insertText : suggestion.insertText?.value ?? emptyValue,
+                    label: typeof suggestion.label === "string" ? suggestion.label : suggestion.label?.label ?? emptyValue
+                }))
+            };
+        },
+        getHover: async (testId, lineNumber, column) => {
+            const state = getRequiredHarnessState(testId);
+            const support = getRequiredLanguageSupport(state);
+            const model = state.editor.getModel();
+            if (!model) {
+                return null;
+            }
+
+            const result = await support.hoverProvider.provideHover(
+                model,
+                new state.monaco.Position(lineNumber ?? 1, column ?? 1));
+            return result
+                ? {
+                    contents: (result.contents ?? []).map(normalizeMarkdownValue),
+                    range: result.range
+                        ? {
+                            endColumn: result.range.endColumn,
+                            endLineNumber: result.range.endLineNumber,
+                            startColumn: result.range.startColumn,
+                            startLineNumber: result.range.startLineNumber
+                        }
+                        : null
+                }
+                : null;
         },
         setSelection: (testId, start, end, revealSelection = true) => {
             const state = getRequiredHarnessState(testId);
@@ -387,8 +382,44 @@ function ensureHarness(options) {
             }
 
             return createHarnessState(state, options);
+        },
+        tokenizeLine: (testId, lineNumber) => {
+            const state = getRequiredHarnessState(testId);
+            const model = state.editor.getModel();
+            if (!model) {
+                return { lineText: emptyValue, tokens: [] };
+            }
+
+            const safeLineNumber = Math.max(1, Math.min(lineNumber ?? 1, model.getLineCount()));
+            const lineText = model.getLineContent(safeLineNumber);
+            const tokenizedLine = state.monaco.editor.tokenize(lineText, model.getLanguageId())[0] ?? [];
+            return {
+                lineText,
+                tokens: tokenizedLine.map(token => ({
+                    offset: token.offset ?? 0,
+                    type: token.type ?? emptyValue
+                }))
+            };
         }
     };
+}
+
+function getRequiredLanguageSupport(state) {
+    const model = state.editor.getModel();
+    const support = getTpsLanguageSupport(model?.getLanguageId() ?? emptyValue);
+    if (!support) {
+        throw new Error(`Unable to resolve Monaco TPS language support for "${model?.getLanguageId() ?? emptyValue}".`);
+    }
+
+    return support;
+}
+
+function normalizeMarkdownValue(value) {
+    if (typeof value === "string") {
+        return value;
+    }
+
+    return value?.value ?? emptyValue;
 }
 
 function createHarnessState(state, options) {
@@ -457,6 +488,8 @@ function createThemeData(isLight) {
             { token: "frontmatter.key", foreground: isLight ? "5F57D6" : "A0AAFF" },
             { token: "frontmatter.value", foreground: isLight ? "23784B" : "6FE89A" },
             { token: "frontmatter.delimiter", foreground: isLight ? "7F8A8A" : "8A9A94" },
+            { token: "header.title.hash", foreground: isLight ? "7D4A2C" : "F3C7A5" },
+            { token: "header.title.body", foreground: isLight ? "7D4A2C" : "F3C7A5" },
             { token: "header.segment.hash", foreground: isLight ? "8B6A33" : "F2E1AA" },
             { token: "header.segment.body", foreground: isLight ? "8B6A33" : "F2E1AA" },
             { token: "header.block.hash", foreground: isLight ? "3B6E9A" : "8ECFFF" },
@@ -466,8 +499,12 @@ function createThemeData(isLight) {
             { token: "pause.short", foreground: isLight ? "8E6A00" : "E0C070" },
             { token: "cue.open", foreground: isLight ? "8A7B6B" : "8A9E98" },
             { token: "cue.close", foreground: isLight ? "8A7B6B" : "8A9E98" },
+            { token: "cue.breath", foreground: isLight ? "7A6B4D" : "D7C79C" },
+            { token: "cue.editpoint", foreground: isLight ? "9A5A63" : "FFB0BD" },
+            { token: "cue.pronunciation", foreground: isLight ? "5C6AA0" : "AFC2FF" },
             { token: "wpm.badge", foreground: isLight ? "936F00" : "FFE066", fontStyle: "bold" },
-            { token: "meta.tag", foreground: isLight ? "6E7781" : "B8C0C8" }
+            { token: "meta.tag", foreground: isLight ? "6E7781" : "B8C0C8" },
+            { token: "escape.sequence", foreground: isLight ? "62708A" : "9FB2CC" }
         ],
         colors: {
             "editor.background": isLight ? "#00000000" : "#00000000",
@@ -506,6 +543,74 @@ function notifySelectionChanged(state, dismissMenus) {
 
 function notifyHistoryRequested(state, command) {
     void state.dotNetRef.invokeMethodAsync(state.options.historyRequestedCallbackName, command);
+}
+
+function notifyFilesDropped(state, request) {
+    void state.dotNetRef.invokeMethodAsync(state.options.filesDroppedCallbackName, request);
+}
+
+function handleEditorDragOver(state, event) {
+    if (!hasDraggedFiles(event.dataTransfer)) {
+        return;
+    }
+
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "copy";
+}
+
+async function handleEditorDropAsync(state, event) {
+    if (!hasDraggedFiles(event.dataTransfer)) {
+        return;
+    }
+
+    event.preventDefault();
+    const request = await readDroppedFilesAsync(
+        event.dataTransfer.files,
+        state.options.supportedFileNameSuffixes);
+    if (!request.files.length && !request.rejectedFileNames.length) {
+        return;
+    }
+
+    notifyFilesDropped(state, request);
+}
+
+function hasDraggedFiles(dataTransfer) {
+    return Boolean(dataTransfer?.files && dataTransfer.files.length > 0);
+}
+
+async function readDroppedFilesAsync(fileList, supportedFileNameSuffixes) {
+    const request = {
+        files: [],
+        rejectedFileNames: []
+    };
+    const supportedSuffixes = Array.isArray(supportedFileNameSuffixes)
+        ? supportedFileNameSuffixes
+        : [];
+
+    for (const file of Array.from(fileList ?? [])) {
+        if (!isSupportedFileName(file.name, supportedSuffixes)) {
+            request.rejectedFileNames.push(file.name ?? emptyValue);
+            continue;
+        }
+
+        try {
+            request.files.push({
+                fileName: file.name ?? emptyValue,
+                text: await file.text()
+            });
+        }
+        catch {
+            request.rejectedFileNames.push(file.name ?? emptyValue);
+        }
+    }
+
+    return request;
+}
+
+function isSupportedFileName(fileName, supportedSuffixes) {
+    const normalizedFileName = String(fileName ?? emptyValue).toLowerCase();
+    return normalizedFileName.length > 0 &&
+        supportedSuffixes.some(suffix => normalizedFileName.endsWith(String(suffix ?? emptyValue).toLowerCase()));
 }
 
 function renderSemanticSnapshot(state, text) {
@@ -975,7 +1080,7 @@ function buildInlineStateClassName(state, extraClasses) {
 }
 
 function getPauseLength(text, index) {
-    if (text[index] !== "/") {
+    if (text[index] !== "/" || (index > 0 && text[index - 1] === "\\")) {
         return 0;
     }
 

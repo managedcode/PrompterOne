@@ -30,6 +30,7 @@ public enum UiTextKey
     HeaderSearchPlaceholder,
     HeaderNewScript,
     HeaderOpenScript,
+    HeaderSaveFile,
     HeaderLearn,
     HeaderRead,
     HeaderGoLive,

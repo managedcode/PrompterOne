@@ -75,6 +75,12 @@
   <data name="HeaderNewScript" xml:space="preserve">
     <value>Новий сценарій</value>
   </data>
+  <data name="HeaderOpenScript" xml:space="preserve">
+    <value>Відкрити сценарій</value>
+  </data>
+  <data name="HeaderSaveFile" xml:space="preserve">
+    <value>Зберегти файл</value>
+  </data>
   <data name="HeaderLearn" xml:space="preserve">
     <value>Вивчати</value>
   </data>

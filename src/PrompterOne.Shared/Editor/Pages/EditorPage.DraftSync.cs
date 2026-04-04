@@ -5,7 +5,7 @@ namespace PrompterOne.Shared.Pages;
 
 public partial class EditorPage
 {
-    private void RefreshDraftViewFromSource()
+    private void RefreshDraftViewFromSource(string? documentNameOverride = null)
     {
         var persistedText = BuildPersistedDocument(_sourceText);
 
@@ -15,21 +15,21 @@ public partial class EditorPage
             _segments = OutlineBuilder.Build(scriptData, _sourceText, 0);
             _errorMessage = null;
             UpdateDraftMetrics(scriptData);
-            StageDraftText(persistedText, null);
+            StageDraftText(persistedText, null, documentNameOverride);
         }
         catch (Exception exception)
         {
             _segments = [];
             _errorMessage = exception.Message;
             UpdateDraftMetrics((PrompterOne.Core.Models.Documents.ScriptData?)null);
-            StageDraftText(persistedText, exception.Message);
+            StageDraftText(persistedText, exception.Message, documentNameOverride);
         }
 
         UpdateSyntaxDiagnostics();
         RefreshSelectionState();
     }
 
-    private void StageDraftText(string persistedText, string? errorMessage)
+    private void StageDraftText(string persistedText, string? errorMessage, string? documentNameOverride = null)
     {
         if (SessionService is not ScriptSessionService sessionService)
         {
@@ -39,7 +39,7 @@ public partial class EditorPage
         sessionService.StageDraftText(
             _screenTitle,
             persistedText,
-            SessionService.State.DocumentName,
+            string.IsNullOrWhiteSpace(documentNameOverride) ? SessionService.State.DocumentName : documentNameOverride,
             SessionService.State.ScriptId,
             errorMessage);
     }

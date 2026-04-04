@@ -2,6 +2,7 @@ using Bunit;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using PrompterOne.Core.Models.Workspace;
+using PrompterOne.Core.Services.Editor;
 using PrompterOne.Shared.Contracts;
 using PrompterOne.Shared.Layout;
 using PrompterOne.Shared.Services;
@@ -11,7 +12,7 @@ namespace PrompterOne.App.Tests;
 
 public sealed class MainLayoutActionTests : BunitContext
 {
-    private const string SupportedImportAcceptValue = ".tps,.tps.md,.md.tps,.md,.txt";
+    private const string SupportedImportAcceptValue = ScriptDocumentFileTypes.AcceptValue;
 
     [Theory]
     [InlineData(AppRoutes.Learn, AppTestData.Scripts.QuantumId)]
@@ -134,6 +135,53 @@ public sealed class MainLayoutActionTests : BunitContext
             Assert.Equal(UiDomIds.AppShell.LibraryOpenScriptInput, openScriptInput.GetAttribute("id"));
             Assert.Equal(SupportedImportAcceptValue, openScriptInput.GetAttribute("accept"));
         });
+    }
+
+    [Fact]
+    public void MainLayout_SaveFileAction_RendersOnEditorScreen_AndTriggersCoordinator()
+    {
+        _ = TestHarnessFactory.Create(this);
+        var navigation = Services.GetRequiredService<NavigationManager>();
+        var saveCoordinator = Services.GetRequiredService<EditorDocumentSaveCoordinator>();
+        var saveRequestCount = 0;
+
+        saveCoordinator.Register(_ =>
+        {
+            saveRequestCount += 1;
+            return Task.CompletedTask;
+        });
+
+        navigation.NavigateTo(AppRoutes.EditorWithId(AppTestData.Scripts.QuantumId));
+
+        var cut = Render<MainLayout>(parameters => parameters
+            .Add(layout => layout.Body, (RenderFragment)(builder => builder.AddMarkupContent(0, "<div>Body</div>"))));
+
+        cut.WaitForAssertion(() =>
+        {
+            Assert.NotNull(cut.FindByTestId(UiTestIds.Header.EditorSaveFile));
+            Assert.NotNull(cut.FindByTestId(UiTestIds.Header.EditorLearn));
+            Assert.NotNull(cut.FindByTestId(UiTestIds.Header.EditorRead));
+        });
+
+        cut.FindByTestId(UiTestIds.Header.EditorSaveFile).Click();
+
+        Assert.Equal(1, saveRequestCount);
+    }
+
+    [Theory]
+    [InlineData(AppRoutes.Library)]
+    [InlineData(AppRoutes.Settings)]
+    public void MainLayout_SaveFileAction_IsHidden_OnNonEditorScreens(string route)
+    {
+        _ = TestHarnessFactory.Create(this);
+        var navigation = Services.GetRequiredService<NavigationManager>();
+        navigation.NavigateTo(route);
+
+        var cut = Render<MainLayout>(parameters => parameters
+            .Add(layout => layout.Body, (RenderFragment)(builder => builder.AddMarkupContent(0, "<div>Body</div>"))));
+
+        cut.WaitForAssertion(() =>
+            Assert.Empty(cut.FindAll(BunitTestSelectors.BuildTestIdSelector(UiTestIds.Header.EditorSaveFile))));
     }
 
     [Fact]

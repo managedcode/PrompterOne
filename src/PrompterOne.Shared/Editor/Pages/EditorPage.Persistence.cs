@@ -4,35 +4,46 @@ namespace PrompterOne.Shared.Pages;
 
 public partial class EditorPage
 {
-    private async Task PersistDraftAsync(string text)
+    private async Task PersistDraftAsync(string text, string? documentNameOverride = null)
     {
         CancelDraftAnalysis();
         CancelAutosave();
-        var revision = PrepareDraftPersistence(text);
-        await PersistPreparedDraftAsync(text, revision, CancellationToken.None);
+        var revision = PrepareDraftPersistence(text, documentNameOverride);
+        await PersistPreparedDraftAsync(revision, CancellationToken.None);
     }
 
-    private long PrepareDraftPersistence(string text)
+    private long PrepareDraftPersistence(string text, string? documentNameOverride = null)
     {
         _sourceText = text ?? string.Empty;
-        RefreshDraftViewFromSource();
+        RefreshDraftViewFromSource(documentNameOverride);
         _ = InvokeAsync(StateHasChanged);
         return checked(++_draftRevision);
     }
 
-    private void PersistDraftInBackground(string text)
+    private void PersistDraftInBackground(string text, string? documentNameOverride = null)
     {
         CancelDraftAnalysis();
         CancelAutosave();
-        var revision = PrepareDraftPersistence(text);
-        _ = InvokeAsync(() => PersistPreparedDraftAsync(text, revision, CancellationToken.None));
+        var revision = PrepareDraftPersistence(text, documentNameOverride);
+        _ = InvokeAsync(() => PersistPreparedDraftAsync(revision, CancellationToken.None));
     }
 
-    private Task PersistPreparedDraftAsync(string text, long revision, CancellationToken cancellationToken) =>
-        UpdateDraftStateAsync(text, persistDocument: true, cancellationToken, revision);
+    private Task PersistPreparedDraftAsync(long revision, CancellationToken cancellationToken) =>
+        TryPersistDraftStateAsync(PersistDraftOperation, PersistDraftMessage, persistDocument: true, cancellationToken, revision);
 
-    private async Task UpdateDraftStateAsync(
-        string text,
+    private Task<bool> TryPersistDraftStateAsync(
+        string operation,
+        string message,
+        bool persistDocument,
+        CancellationToken cancellationToken,
+        long revision) =>
+        Diagnostics.RunAsync(
+            operation,
+            message,
+            () => PersistDraftStateCoreAsync(persistDocument, cancellationToken, revision),
+            clearRecoverableOnSuccess: string.IsNullOrWhiteSpace(SessionService.State.ErrorMessage));
+
+    private async Task PersistDraftStateCoreAsync(
         bool persistDocument,
         CancellationToken cancellationToken,
         long revision)
@@ -40,36 +51,30 @@ public partial class EditorPage
         var persistedText = BuildPersistedDocument(_sourceText);
         var title = _screenTitle;
         var assignScriptId = string.IsNullOrWhiteSpace(ScriptId);
-        await Diagnostics.RunAsync(
-            PersistDraftOperation,
-            PersistDraftMessage,
-            async () =>
+
+        await SessionService.UpdateDraftAsync(
+            title,
+            persistedText,
+            SessionService.State.DocumentName,
+            SessionService.State.ScriptId,
+            cancellationToken);
+
+        if (persistDocument)
+        {
+            var savedDocument = await SessionService.SaveAsync(cancellationToken);
+            if (assignScriptId)
             {
-                await SessionService.UpdateDraftAsync(
-                    title,
-                    persistedText,
-                    SessionService.State.DocumentName,
-                    SessionService.State.ScriptId,
-                    cancellationToken);
-
-                if (persistDocument)
+                if (revision != _draftRevision)
                 {
-                    var savedDocument = await SessionService.SaveAsync(cancellationToken);
-                    if (assignScriptId)
-                    {
-                        if (revision != _draftRevision)
-                        {
-                            StageDraftIdentity(savedDocument.Id, savedDocument.DocumentName);
-                        }
-
-                        ScriptId = savedDocument.Id;
-                        Navigation.NavigateTo($"/editor?id={Uri.EscapeDataString(savedDocument.Id)}", replace: true);
-                    }
+                    StageDraftIdentity(savedDocument.Id, savedDocument.DocumentName);
                 }
 
-                ApplyPersistedDraftState(revision);
-            },
-            clearRecoverableOnSuccess: string.IsNullOrWhiteSpace(SessionService.State.ErrorMessage));
+                ScriptId = savedDocument.Id;
+                Navigation.NavigateTo($"/editor?id={Uri.EscapeDataString(savedDocument.Id)}", replace: true);
+            }
+        }
+
+        ApplyPersistedDraftState(revision);
     }
 
     private void StageDraftIdentity(string scriptId, string documentName)

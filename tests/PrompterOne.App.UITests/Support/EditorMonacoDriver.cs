@@ -8,6 +8,8 @@ namespace PrompterOne.App.UITests;
 
 internal static class EditorMonacoDriver
 {
+    internal sealed record DroppedFileDescriptor(string FileName, string Text);
+
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true
@@ -71,6 +73,36 @@ internal static class EditorMonacoDriver
         var state = await InvokeHarnessAsync<EditorMonacoState?>(page, "getState");
         Assert.NotNull(state);
         return state!;
+    }
+
+    internal static async Task<EditorMonacoCompletionList> GetCompletionsAsync(IPage page, int lineNumber, int column)
+    {
+        var completions = await InvokeHarnessAsync<EditorMonacoCompletionList?>(page, "getCompletions", new
+        {
+            lineNumber,
+            column
+        });
+
+        Assert.NotNull(completions);
+        return completions!;
+    }
+
+    internal static async Task<EditorMonacoHoverResult?> GetHoverAsync(IPage page, int lineNumber, int column) =>
+        await InvokeHarnessAsync<EditorMonacoHoverResult?>(page, "getHover", new
+        {
+            lineNumber,
+            column
+        });
+
+    internal static async Task<EditorMonacoTokenizedLine> TokenizeLineAsync(IPage page, int lineNumber)
+    {
+        var tokenizedLine = await InvokeHarnessAsync<EditorMonacoTokenizedLine?>(page, "tokenizeLine", new
+        {
+            lineNumber
+        });
+
+        Assert.NotNull(tokenizedLine);
+        return tokenizedLine!;
     }
 
     internal static async Task SetCaretAtEndAsync(IPage page)
@@ -154,6 +186,48 @@ internal static class EditorMonacoDriver
             new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
     }
 
+    internal static Task DropFilesAsync(IPage page, params DroppedFileDescriptor[] files) =>
+        page.EvaluateAsync(
+            """
+            async (args) => {
+                const target = document.querySelector(`[data-testid="${args.testId}"]`);
+                if (!target) {
+                    throw new Error("Unable to resolve the editor drop target.");
+                }
+
+                const dataTransfer = new DataTransfer();
+                for (const file of args.files ?? []) {
+                    dataTransfer.items.add(
+                        new File(
+                            [file.text ?? ""],
+                            file.fileName ?? "dropped-script.txt",
+                            { type: "text/plain" }));
+                }
+
+                target.dispatchEvent(new DragEvent("dragover", {
+                    bubbles: true,
+                    cancelable: true,
+                    dataTransfer
+                }));
+                target.dispatchEvent(new DragEvent("drop", {
+                    bubbles: true,
+                    cancelable: true,
+                    dataTransfer
+                }));
+
+                await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+            }
+            """,
+            new
+            {
+                files = files.Select(file => new
+                {
+                    fileName = file.FileName,
+                    text = file.Text
+                }).ToArray(),
+                testId = UiTestIds.Editor.SourceStage
+            });
+
     internal static async Task ReplaceTextAsync(IPage page, Func<string, string> update)
     {
         var currentState = await GetStateAsync(page);
@@ -167,13 +241,13 @@ internal static class EditorMonacoDriver
     {
         var json = await page.EvaluateAsync<string>(
             """
-            (args) => {
+            async (args) => {
                 const harness = window[args.harnessGlobalName];
                 if (!harness || typeof harness[args.methodName] !== 'function') {
                     throw new Error(`Editor Monaco harness method "${args.methodName}" is unavailable.`);
                 }
 
-                const result = harness[args.methodName](args.testId, ...(args.arguments ?? []));
+                const result = await harness[args.methodName](args.testId, ...(args.arguments ?? []));
                 return JSON.stringify(result ?? null);
             }
             """,

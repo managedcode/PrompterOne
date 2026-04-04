@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.JSInterop;
 using PrompterOne.Core.Models.Editor;
+using PrompterOne.Core.Services.Editor;
 using PrompterOne.Shared.Contracts;
 using PrompterOne.Shared.Services.Editor;
 
@@ -54,6 +55,8 @@ public partial class EditorSourcePanel : IAsyncDisposable
     [Parameter] public EventCallback<EditorCommandRequest> OnCommandRequested { get; set; }
 
     [Parameter] public EventCallback<EditorAiAssistAction> OnAiActionRequested { get; set; }
+
+    [Parameter] public EventCallback<EditorDroppedFilesRequest> OnFilesDropped { get; set; }
 
     [Parameter] public EventCallback<EditorHistoryCommand> OnHistoryRequested { get; set; }
 
@@ -239,6 +242,7 @@ public partial class EditorSourcePanel : IAsyncDisposable
         }
 
         _callbackBridge ??= new EditorMonacoCallbackBridge(
+            HandleMonacoFilesDroppedAsync,
             HandleMonacoHistoryRequestedAsync,
             HandleMonacoTextChangedAsync,
             HandleMonacoSelectionChangedAsync);
@@ -282,6 +286,7 @@ public partial class EditorSourcePanel : IAsyncDisposable
         darkThemeName = EditorMonacoRuntimeContract.DarkThemeName,
         editorEngineAttributeName = EditorMonacoRuntimeContract.EditorEngineAttributeName,
         editorEngineAttributeValue = EditorMonacoRuntimeContract.EditorEngineAttributeValue,
+        filesDroppedCallbackName = EditorMonacoInteropMethodNames.NotifyFilesDropped,
         proxyChangedEventName = EditorMonacoRuntimeContract.EditorProxyChangedEventName,
         editorReadyAttributeName = EditorMonacoRuntimeContract.EditorReadyAttributeName,
         historyRequestedCallbackName = EditorMonacoInteropMethodNames.NotifyHistoryRequested,
@@ -292,6 +297,7 @@ public partial class EditorSourcePanel : IAsyncDisposable
         monacoVsPath = EditorMonacoRuntimeContract.MonacoVsPath,
         placeholder = DefaultPlaceholderText,
         selectionChangedCallbackName = EditorMonacoInteropMethodNames.NotifySelectionChanged,
+        supportedFileNameSuffixes = ScriptDocumentFileTypes.SupportedFileNameSuffixes,
         textChangedCallbackName = EditorMonacoInteropMethodNames.NotifyTextChanged
     };
 

@@ -11,6 +11,7 @@ public static class UiTestIds
         public const string Center = "header-center";
         public const string EditorLearn = "header-editor-learn";
         public const string EditorRead = "header-editor-read";
+        public const string EditorSaveFile = "header-editor-save-file";
         public const string GoLive = "header-go-live";
         public const string Home = "header-home";
         public const string LibraryBreadcrumbCurrent = "header-library-breadcrumb-current";

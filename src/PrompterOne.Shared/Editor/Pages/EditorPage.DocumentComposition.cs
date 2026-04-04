@@ -9,14 +9,7 @@ public partial class EditorPage
     private async Task OnAiActionRequestedAsync(EditorAiAssistAction action)
     {
         var mutation = LocalAssistant.Apply(_sourceText, _selection.Range, action);
-        _selection = _selection with { Range = mutation.Selection };
-        _history.TryRecord(mutation.Text, mutation.Selection);
-        PersistDraftInBackground(mutation.Text);
-
-        if (_sourcePanel is not null)
-        {
-            await _sourcePanel.FocusRangeAsync(mutation.Selection.Start, mutation.Selection.End);
-        }
+        await ApplyMutationAsync(mutation.Text, mutation.Selection);
     }
 
     private string BuildPersistedDocument(string bodyText) =>

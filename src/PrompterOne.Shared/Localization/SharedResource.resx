@@ -78,6 +78,9 @@
   <data name="HeaderOpenScript" xml:space="preserve">
     <value>Open Script</value>
   </data>
+  <data name="HeaderSaveFile" xml:space="preserve">
+    <value>Save File</value>
+  </data>
   <data name="HeaderLearn" xml:space="preserve">
     <value>Learn</value>
   </data>

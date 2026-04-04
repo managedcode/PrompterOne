@@ -7,19 +7,10 @@ public sealed class ScriptImportDescriptorService
 {
     private const string UnsupportedFileNameMessage = "Only .tps, .tps.md, .md.tps, .md, and .txt files are supported.";
 
-    private static readonly string[] SupportedFileNameSuffixes =
-    [
-        ".tps.md",
-        ".md.tps",
-        ".tps",
-        ".md",
-        ".txt"
-    ];
-
     private readonly TpsFrontMatterDocumentService _frontMatterService = new();
 
     public bool CanImport(string? fileName) =>
-        ResolveSupportedSuffix(NormalizeFileName(fileName)) is not null;
+        ScriptDocumentFileTypes.ResolveSupportedSuffix(fileName) is not null;
 
     public ScriptImportDescriptor Build(string? fileName, string? text)
     {
@@ -35,8 +26,8 @@ public sealed class ScriptImportDescriptorService
 
     private static string NormalizeSupportedFileName(string? fileName)
     {
-        var normalizedFileName = NormalizeFileName(fileName);
-        if (ResolveSupportedSuffix(normalizedFileName) is null)
+        var normalizedFileName = ScriptDocumentFileTypes.NormalizeFileName(fileName);
+        if (ScriptDocumentFileTypes.ResolveSupportedSuffix(normalizedFileName) is null)
         {
             throw new ArgumentException(UnsupportedFileNameMessage, nameof(fileName));
         }
@@ -44,19 +35,9 @@ public sealed class ScriptImportDescriptorService
         return normalizedFileName;
     }
 
-    private static string NormalizeFileName(string? fileName)
-    {
-        if (string.IsNullOrWhiteSpace(fileName))
-        {
-            return string.Empty;
-        }
-
-        return Path.GetFileName(fileName.Trim());
-    }
-
     private static string ResolveFallbackTitle(string fileName)
     {
-        var suffix = ResolveSupportedSuffix(fileName);
+        var suffix = ScriptDocumentFileTypes.ResolveSupportedSuffix(fileName);
         if (suffix is null)
         {
             return ScriptWorkspaceState.UntitledScriptTitle;
@@ -68,14 +49,4 @@ public sealed class ScriptImportDescriptorService
             : stem;
     }
 
-    private static string? ResolveSupportedSuffix(string fileName)
-    {
-        if (string.IsNullOrWhiteSpace(fileName))
-        {
-            return null;
-        }
-
-        return SupportedFileNameSuffixes.FirstOrDefault(
-            suffix => fileName.EndsWith(suffix, StringComparison.OrdinalIgnoreCase));
-    }
 }

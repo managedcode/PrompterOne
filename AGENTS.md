@@ -81,6 +81,7 @@ Rule format:
 - Public-facing screenshots and any screenshot-generating or screenshot-asserting tests must use English-visible content so README, docs, and release assets stay globally readable and consistent.
 - Public-facing screenshots that include camera or preview feeds must not ship mirrored or reversed readable text; choose or configure the capture so visible text reads correctly in the final asset.
 - Teleprompter reader text alignment must expose explicit left, center, and right modes, default to left alignment, and keep the left-aligned mode optically centered by offsetting the text mass away from a visibly left-heavy block.
+- The TPS editor migration to Monaco must be complete: syntax coloring, IntelliSense/autocomplete, hover or inline tooltip help, decorations, and TPS authoring feedback must be Monaco-native instead of split across legacy overlay or hidden-textarea behavior.
 
 ## Rules to Follow (Mandatory)
 
@@ -312,6 +313,8 @@ Repo-specific design rules:
 - Keep UI flow logic, keyboard shortcuts, DOM ids/selectors, and reusable UI constants in C#/Blazor contracts whenever the platform allows it; use JS only for unavoidable browser API interop or DOM access that Blazor cannot own directly.
 - Prefer deleting JS files entirely when they only hold product UI behavior or duplicated constants; JS modules may exist only as thin bridges to browser APIs or external JS SDKs, with the owning workflow and state kept in C#/Blazor.
 - TPS front matter pasted or imported into the editor source MUST be parsed into the metadata rail automatically and removed from the visible body text instead of staying inline in the source editor.
+- Script authoring flows MUST support explicit user-driven save/export to the real local disk from the browser; browser or app-local persistence alone is not a sufficient save path.
+- Editor authoring MUST accept direct local-file drag-and-drop on the editor surface; dropping onto an empty draft replaces it with the imported document, while dropping onto a non-empty draft appends the imported TPS text at the end without breaking undo/redo.
 - TPS support MUST fully implement the current `design/TPS.md` contract end to end; legacy or partially compatible TPS syntax is not a supported mode, and any old incompatible behavior should be removed instead of kept behind compatibility shims.
 - TPS visual semantics MUST track the current TPS spec end to end: editor and reader surfaces should communicate delivery cues such as volume, emphasis, stress, speed, and delivery mode through typography, spacing, weight, and motion where appropriate, not through color alone.
 - Pasted or imported TPS documents MUST render their editor-side authoring styles immediately on first load in the editor; showing the imported script as near-plain text until later interaction is a regression.

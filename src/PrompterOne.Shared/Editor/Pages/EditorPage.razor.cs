@@ -16,6 +16,11 @@ public partial class EditorPage
     private const string LoadEditorMessage = "Unable to load the editor right now.";
     private const string PersistDraftOperation = "Editor save draft";
     private const string PersistDraftMessage = "Unable to save the current draft.";
+    private const string DropScriptMessage = "Unable to import this script.";
+    private const string DropScriptOperation = "Editor drop script";
+    private const string DropScriptUnsupportedDetail = "Drop a .tps, .tps.md, .md.tps, .md, or .txt file onto the editor.";
+    private const string SaveFileMessage = "Unable to save this script to disk.";
+    private const string SaveFileOperation = "Editor save file";
     private const string SplitDraftMessage = "Unable to split the current draft right now.";
     private const string SplitDraftNoMatchesMessage = "Add more section headings before splitting this draft.";
     private const string SplitDraftOperation = "Editor split draft";
@@ -60,11 +65,15 @@ public partial class EditorPage
     private string _version = DefaultVersion;
 
     [Inject] private AppBootstrapper Bootstrapper { get; set; } = null!;
+    [Inject] private AppShellFilePickerInterop FilePickerInterop { get; set; } = null!;
     [Inject] private AppShellService Shell { get; set; } = null!;
     [Inject] private UiDiagnosticsService Diagnostics { get; set; } = null!;
+    [Inject] private EditorDroppedScriptMergeService DroppedScriptMergeService { get; set; } = null!;
+    [Inject] private EditorDocumentSaveCoordinator EditorDocumentSaveCoordinator { get; set; } = null!;
     [Inject] private NavigationManager Navigation { get; set; } = null!;
     [Inject] private EditorOutlineBuilder OutlineBuilder { get; set; } = null!;
     [Inject] private EditorLocalAssistant LocalAssistant { get; set; } = null!;
+    [Inject] private ScriptImportDescriptorService ScriptImportDescriptorService { get; set; } = null!;
     [Inject] private TpsDocumentSplitService DocumentSplitService { get; set; } = null!;
     [Inject] private IScriptRepository ScriptRepository { get; set; } = null!;
     [Inject] private IScriptSessionService SessionService { get; set; } = null!;

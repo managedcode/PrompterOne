@@ -150,6 +150,21 @@
                 </button>
             }
 
+            @if (ShowSaveFileAction)
+            {
+                <button type="button"
+                        class="btn-ghost"
+                        @onclick="HandleSaveFileClickAsync"
+                        data-testid="@UiTestIds.Header.EditorSaveFile">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 3h11l3 3v15H5z" />
+                        <path d="M9 3v6h6V3" />
+                        <path d="M9 17h6" />
+                    </svg>
+                    <span class="app-header-action-label">@Text(UiTextKey.HeaderSaveFile)</span>
+                </button>
+            }
+
             @if (ShowLearnAction)
             {
                 <button type="button"

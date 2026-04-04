@@ -4,6 +4,8 @@ namespace PrompterOne.Shared.Services;
 
 public sealed class AppShellFilePickerInterop(IJSRuntime jsRuntime) : IDisposable, IAsyncDisposable
 {
+    private const string FileSaveUnavailableMessage = "File save is not available.";
+
     private readonly IJSRuntime _jsRuntime = jsRuntime;
     private Task<IJSObjectReference?>? _moduleTask;
 
@@ -18,6 +20,38 @@ public sealed class AppShellFilePickerInterop(IJSRuntime jsRuntime) : IDisposabl
         await module.InvokeVoidAsync(
             AppShellFilePickerInteropMethodNames.OpenFilePicker,
             inputId);
+    }
+
+    public async Task<AppShellFileSaveMode> SaveTextAsync(
+        string suggestedFileName,
+        string text,
+        string mimeType,
+        string description,
+        IReadOnlyList<string> extensions,
+        bool preferSavePicker = true)
+    {
+        var module = await GetModuleAsync() ?? throw new InvalidOperationException(FileSaveUnavailableMessage);
+
+        var normalizedExtensions = extensions
+            .Where(extension => !string.IsNullOrWhiteSpace(extension))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        var result = await module.InvokeAsync<string>(
+            AppShellFilePickerInteropMethodNames.SaveTextFile,
+            suggestedFileName ?? string.Empty,
+            text ?? string.Empty,
+            mimeType ?? string.Empty,
+            description ?? string.Empty,
+            normalizedExtensions,
+            preferSavePicker);
+
+        return result switch
+        {
+            AppShellFilePickerInteropMethodNames.FileSaveModeFileSystem => AppShellFileSaveMode.FileSystem,
+            AppShellFilePickerInteropMethodNames.FileSaveModeDownload => AppShellFileSaveMode.Download,
+            _ => AppShellFileSaveMode.Cancelled
+        };
     }
 
     public void Dispose()

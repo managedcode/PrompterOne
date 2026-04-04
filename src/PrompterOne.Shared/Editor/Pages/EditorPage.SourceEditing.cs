@@ -102,12 +102,29 @@ public partial class EditorPage
             ?.Index;
     }
 
-    private async Task ApplyMutationAsync(string text, EditorSelectionRange selection)
+    private async Task ApplyMutationAsync(string text, EditorSelectionRange selection, string? documentNameOverride = null)
     {
         _selection = _selection with { Range = selection };
         _history.TryRecord(text, selection);
-        PersistDraftInBackground(text);
+        if (string.IsNullOrWhiteSpace(ScriptId))
+        {
+            StageMutationForAutosave(text, documentNameOverride);
+        }
+        else
+        {
+            PersistDraftInBackground(text, documentNameOverride);
+        }
+
         await FocusSourceRangeAsync(selection.Start, selection.End);
+    }
+
+    private void StageMutationForAutosave(string text, string? documentNameOverride = null)
+    {
+        CancelDraftAnalysis();
+        CancelAutosave();
+        PrepareDraftPersistence(text, documentNameOverride);
+        QueueDraftAnalysis();
+        QueueAutosave();
     }
 
     private async Task FocusSourceRangeAsync(int start, int end)

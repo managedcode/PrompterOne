@@ -4,6 +4,13 @@ namespace PrompterOne.Shared.Components.Editor;
 
 public partial class EditorSourcePanel
 {
+    private Task HandleMonacoFilesDroppedAsync(EditorDroppedFilesRequest request)
+    {
+        CloseToolbarPanels();
+        _skipNextRender = false;
+        return OnFilesDropped.InvokeAsync(request);
+    }
+
     private Task HandleMonacoHistoryRequestedAsync(string command) =>
         RequestHistoryAsync(
             string.Equals(command, "redo", StringComparison.OrdinalIgnoreCase)
