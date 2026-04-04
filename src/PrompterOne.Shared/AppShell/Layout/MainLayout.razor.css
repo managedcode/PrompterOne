@@ -112,6 +112,61 @@
     color: var(--t3);
 }
 
+.app-header-file-action {
+    position: relative;
+    display: inline-flex;
+}
+
+.btn-open-script {
+    cursor: pointer;
+}
+
+.app-header-file-action ::deep .app-header-file-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.app-header-file-action:focus-within .btn-open-script {
+    border-color: rgba(214, 166, 91, .42);
+    box-shadow: 0 0 0 2px rgba(214, 166, 91, .16);
+}
+
+@media (max-width: 720px) {
+    .app-header-library {
+        grid-template-columns: 56px minmax(0, 1fr);
+    }
+
+    .app-header-library .app-header-center {
+        display: none;
+    }
+
+    .app-header-library .app-header-right {
+        flex: 1 1 auto;
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 560px) {
+    .app-header-library {
+        grid-template-columns: 44px minmax(0, 1fr);
+    }
+
+    .app-header-library .app-header-left {
+        padding: 0 6px;
+    }
+
+    .app-header-library .app-header-right {
+        padding: 0 6px;
+    }
+}
+
 .app-live-widget {
     position: fixed;
     right: 22px;

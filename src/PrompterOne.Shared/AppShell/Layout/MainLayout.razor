@@ -1,10 +1,11 @@
 @namespace PrompterOne.Shared.Layout
 @inherits LayoutComponentBase
+@using Microsoft.AspNetCore.Components.Forms
 @using PrompterOne.Shared.Localization
 
 @if (ShowAppHeader)
 {
-    <header class="app-header">
+    <header class="@(IsLibraryScreen ? "app-header app-header-library" : "app-header")">
         <button type="button"
                 class="app-header-left app-header-home"
                 @onclick="HandleHomeClickAsync"
@@ -90,6 +91,28 @@
                     </svg>
                     <span class="app-header-action-label">@Text(UiTextKey.HeaderGoLive)</span>
                 </button>
+                <div class="app-header-file-action"
+                     data-testid="@UiTestIds.Header.LibraryOpenScript">
+                    <button type="button"
+                            class="btn-ghost btn-open-script"
+                            aria-haspopup="dialog"
+                            @onclick="HandleOpenScriptTriggerAsync">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                            <path d="M14 2v6h6" />
+                            <path d="M12 18v-6" />
+                            <path d="m9 15 3-3 3 3" />
+                        </svg>
+                        <span class="app-header-action-label">@Text(UiTextKey.HeaderOpenScript)</span>
+                    </button>
+                    <InputFile @key="_openScriptPickerVersion"
+                               id="@UiDomIds.AppShell.LibraryOpenScriptInput"
+                               class="app-header-file-input"
+                               aria-label="@Text(UiTextKey.HeaderOpenScript)"
+                               accept="@SupportedOpenScriptAcceptValue"
+                               OnChange="HandleOpenScriptAsync"
+                               data-testid="@UiTestIds.Header.LibraryOpenScriptInput" />
+                </div>
                 <button type="button"
                         class="btn-create"
                         @onclick="HandleCreateScriptClickAsync"

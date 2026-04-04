@@ -1,4 +1,5 @@
 using PrompterOne.Shared.Contracts;
+using PrompterOne.Shared.Services.Editor;
 using static Microsoft.Playwright.Assertions;
 
 namespace PrompterOne.App.UITests;
@@ -18,19 +19,17 @@ public sealed class EditorLargeDraftPerformanceTests(StandaloneAppFixture fixtur
             var expectedLength =
                 EditorLargeDraftPerformanceTestData.GetVisibleDraftLength(draft) +
                 EditorLargeDraftPerformanceTestData.FollowupTypingText.Length;
-            var sourceInput = page.GetByTestId(UiTestIds.Editor.SourceInput);
 
             await page.GotoAsync(BrowserTestConstants.Routes.Editor);
-            await Expect(sourceInput)
-                .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
-            await sourceInput.ClickAsync();
+            await EditorMonacoDriver.WaitUntilReadyAsync(page);
 
             await page.EvaluateAsync(
                 """
                 (args) => {
                     const input = document.querySelector(`[data-testid="${args.inputTestId}"]`);
                     const overlay = document.querySelector(`[data-testid="${args.overlayTestId}"]`);
-                    if (!input || !overlay) {
+                    const harness = window[args.harnessGlobalName];
+                    if (!input || !overlay || !harness) {
                         throw new Error("Unable to initialize the large draft performance probe.");
                     }
 
@@ -43,7 +42,7 @@ public sealed class EditorLargeDraftPerformanceTests(StandaloneAppFixture fixtur
                     });
                     observer.observe({ type: "longtask" });
 
-                    input.addEventListener("input", () => {
+                    input.addEventListener(args.proxyChangedEventName, () => {
                         const started = performance.now();
                         requestAnimationFrame(() => {
                             samples.push({
@@ -53,18 +52,20 @@ public sealed class EditorLargeDraftPerformanceTests(StandaloneAppFixture fixtur
                         });
                     }, { passive: true });
 
-                    input.value = args.draftText;
-                    input.dispatchEvent(new Event("input", { bubbles: true }));
-                    input.focus();
-                    input.setSelectionRange(input.value.length, input.value.length);
+                    harness.setText(args.stageTestId, args.draftText);
+                    harness.focus(args.stageTestId);
+                    harness.setSelection(args.stageTestId, input.value.length, input.value.length, true);
 
                     window.__editorLargeDraftProbe = { longTasks, observer, samples };
                 }
                 """,
                 new
                 {
+                    harnessGlobalName = EditorMonacoRuntimeContract.BrowserHarnessGlobalName,
                     inputTestId = UiTestIds.Editor.SourceInput,
                     overlayTestId = UiTestIds.Editor.SourceHighlight,
+                    proxyChangedEventName = EditorMonacoRuntimeContract.EditorProxyChangedEventName,
+                    stageTestId = UiTestIds.Editor.SourceStage,
                     draftText = draft
                 });
 
@@ -125,30 +126,62 @@ public sealed class EditorLargeDraftPerformanceTests(StandaloneAppFixture fixtur
             var targetSegmentNumber = EditorLargeDraftPerformanceTestData.NavigationTargetSegmentIndex;
             var targetSegmentHeader = EditorLargeDraftPerformanceTestData.GetSegmentHeader(targetSegmentNumber);
             var targetSegmentLabel = EditorLargeDraftPerformanceTestData.GetSegmentLabel(targetSegmentNumber);
-            var sourceInput = page.GetByTestId(UiTestIds.Editor.SourceInput);
             var targetSegment = page.GetByTestId(UiTestIds.Editor.SegmentNavigation(targetSegmentNumber - 1));
 
             await page.GotoAsync(BrowserTestConstants.Routes.EditorLargeDraft);
-            await Expect(sourceInput)
-                .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
+            await EditorMonacoDriver.WaitUntilReadyAsync(page);
 
             await Expect(targetSegment).ToContainTextAsync(targetSegmentLabel);
             await targetSegment.ScrollIntoViewIfNeededAsync();
             await targetSegment.ClickAsync();
+            await page.WaitForFunctionAsync(
+                """
+                (args) => {
+                    const stage = document.querySelector(`[data-testid="${args.stageTestId}"]`);
+                    const scrollHost = document.querySelector(`[data-testid="${args.scrollHostTestId}"]`);
+                    if (!stage || !scrollHost) {
+                        return false;
+                    }
+
+                    const normalizeWhitespace = value => (value ?? '').replaceAll('\u00A0', ' ');
+                    const normalizedTargetHeader = normalizeWhitespace(args.targetHeader);
+                    const targetLine = Array
+                        .from(stage.querySelectorAll('.view-line'))
+                        .find(node => normalizeWhitespace(node.textContent).includes(normalizedTargetHeader));
+                    if (!(targetLine instanceof HTMLElement)) {
+                        return false;
+                    }
+
+                    const hostRect = scrollHost.getBoundingClientRect();
+                    const targetRect = targetLine.getBoundingClientRect();
+                    return targetRect.top >= hostRect.top && targetRect.bottom <= hostRect.bottom;
+                }
+                """,
+                new
+                {
+                    scrollHostTestId = UiTestIds.Editor.SourceScrollHost,
+                    stageTestId = UiTestIds.Editor.SourceStage,
+                    targetHeader = targetSegmentHeader
+                },
+                new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
 
             var result = await page.EvaluateAsync<LargeDraftNavigationResult>(
                 """
                 (args) => {
                     const input = document.querySelector(`[data-testid="${args.inputTestId}"]`);
-                    const overlay = document.querySelector(`[data-testid="${args.overlayTestId}"]`);
+                    const stage = document.querySelector(`[data-testid="${args.stageTestId}"]`);
                     const scrollHost = document.querySelector(`[data-testid="${args.scrollHostTestId}"]`);
-                    if (!input || !overlay || !scrollHost) {
+                    const harness = window[args.harnessGlobalName];
+                    if (!input || !stage || !scrollHost || !harness) {
                         throw new Error("Large draft navigation probe result is unavailable.");
                     }
 
+                    const normalizeWhitespace = value => (value ?? '').replaceAll('\u00A0', ' ');
+                    const normalizedTargetHeader = normalizeWhitespace(args.targetHeader);
                     const targetLine = Array
-                        .from(overlay.children)
-                        .find(node => (node.textContent ?? '').includes(args.targetHeader));
+                        .from(stage.querySelectorAll('.view-line'))
+                        .find(node => normalizeWhitespace(node.textContent).includes(normalizedTargetHeader));
+                    const state = harness.getState(args.stageTestId);
 
                     const hostRect = scrollHost.getBoundingClientRect();
                     const targetRect = targetLine?.getBoundingClientRect();
@@ -156,7 +189,7 @@ public sealed class EditorLargeDraftPerformanceTests(StandaloneAppFixture fixtur
                     return {
                         selectionStart: input.selectionStart ?? -1,
                         expectedStart: input.value.indexOf(args.targetHeader),
-                        scrollTop: input.scrollTop,
+                        scrollTop: state?.scrollTop ?? -1,
                         targetVisible: Boolean(targetRect) &&
                             targetRect.top >= hostRect.top &&
                             targetRect.bottom <= hostRect.bottom
@@ -165,9 +198,10 @@ public sealed class EditorLargeDraftPerformanceTests(StandaloneAppFixture fixtur
                 """,
                 new
                 {
+                    harnessGlobalName = EditorMonacoRuntimeContract.BrowserHarnessGlobalName,
                     inputTestId = UiTestIds.Editor.SourceInput,
-                    overlayTestId = UiTestIds.Editor.SourceHighlight,
                     scrollHostTestId = UiTestIds.Editor.SourceScrollHost,
+                    stageTestId = UiTestIds.Editor.SourceStage,
                     targetHeader = targetSegmentHeader
                 });
 

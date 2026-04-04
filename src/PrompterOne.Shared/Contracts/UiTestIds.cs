@@ -15,6 +15,8 @@ public static class UiTestIds
         public const string Home = "header-home";
         public const string LibraryBreadcrumbCurrent = "header-library-breadcrumb-current";
         public const string LibraryNewScript = "header-library-new-script";
+        public const string LibraryOpenScript = "header-library-open-script";
+        public const string LibraryOpenScriptInput = "header-library-open-script-input";
         public const string LibrarySearch = "library-search";
         public const string LibrarySearchSurface = "library-search-surface";
         public const string LiveWidget = "header-go-live-widget";
@@ -155,6 +157,9 @@ public static class UiTestIds
         public const string SpeedCustomWpm = "editor-speed-custom-wpm";
         public const string SpeedSlow = "editor-speed-slow";
         public const string SpeedTrigger = "editor-speed-trigger";
+        public const string SplitSegment = "editor-split-segment";
+        public const string SplitStatus = "editor-split-status";
+        public const string SplitTopLevel = "editor-split-top-level";
         public const string SpeedXfast = "editor-speed-xfast";
         public const string SpeedXslow = "editor-speed-xslow";
         public const string Undo = "editor-undo";

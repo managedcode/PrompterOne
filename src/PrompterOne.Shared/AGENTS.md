@@ -2,7 +2,7 @@
 
 ## Project Purpose
 
-`PrompterOne.Shared` contains the routed Razor UI, exact design shell, CSS assets, thin browser interop, and browser-side service wiring.
+`PrompterOne.Shared` contains the routed Razor UI, shipped runtime CSS/design-system assets, thin browser interop, and browser-side service wiring.
 
 ## Entry Points
 
@@ -24,9 +24,9 @@
 
 ## Boundaries
 
-- Keep markup aligned with `design`.
-- Use `design` only as a static HTML/CSS reference. Final routed UI must be authored as Blazor components and C#-owned state in this project.
-- When a screen has a `design/*.html` counterpart, parity work must port the whole screen structure and intended interactions into Blazor instead of approximating only selected sections.
+- Keep markup aligned with the shipped routed UI patterns and shared runtime CSS assets.
+- Do not add or depend on the deleted root `design/` prototype folder. Final routed UI must be authored as Blazor components and C#-owned state in this project.
+- For parity work, fix the whole routed screen structure and intended interactions in Blazor instead of approximating only selected sections.
 - Keep routed pages, feature components, renderers, and feature-local services inside their owning slice folders.
 - Keep app-specific UI logic here, but keep business rules in `PrompterOne.Core`.
 - Keep feature styles owned by their routed screen; `Learn` and `Teleprompter` must not share one feature stylesheet manifest.
@@ -48,7 +48,7 @@
 
 ## Local Risks Or Protected Areas
 
-- Small class-name changes can break design fidelity badly because the CSS comes from `design`.
+- Small class-name changes can break visual fidelity badly because the shared runtime CSS is cross-cutting.
 - `AppShell`, `Contracts`, `Localization`, and `wwwroot` are cross-cutting; do not turn them back into dumping grounds for feature code.
 - Routed shell and page navigation belong in Blazor; keep remaining `wwwroot` JavaScript limited to browser/runtime interop.
 - JS interop and saved browser state are part of the real runtime contract; do not treat them as decorative.

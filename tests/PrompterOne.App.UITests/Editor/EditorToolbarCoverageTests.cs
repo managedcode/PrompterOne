@@ -33,9 +33,9 @@ public sealed class EditorToolbarCoverageTests(StandaloneAppFixture fixture) : I
                     await page.WaitForTimeoutAsync(BrowserTestConstants.Timing.FloatingToolbarSettleDelayMs);
                 }
 
-                var beforeValue = await page.GetByTestId(UiTestIds.Editor.SourceInput).InputValueAsync();
+                var beforeValue = await EditorMonacoDriver.SourceInput(page).InputValueAsync();
                 await page.GetByTestId(scenario.TestId).ClickAsync();
-                var afterValue = await page.GetByTestId(UiTestIds.Editor.SourceInput).InputValueAsync();
+                var afterValue = await EditorMonacoDriver.SourceInput(page).InputValueAsync();
 
                 Assert.NotEqual(beforeValue, afterValue);
                 Assert.Contains(scenario.ExpectedFragment, afterValue, StringComparison.Ordinal);
@@ -63,9 +63,9 @@ public sealed class EditorToolbarCoverageTests(StandaloneAppFixture fixture) : I
                     await page.GetByTestId(scenario.MenuTriggerTestId).ClickAsync();
                 }
 
-                var beforeValue = await page.GetByTestId(UiTestIds.Editor.SourceInput).InputValueAsync();
+                var beforeValue = await EditorMonacoDriver.SourceInput(page).InputValueAsync();
                 await page.GetByTestId(scenario.TestId).ClickAsync();
-                var afterValue = await page.GetByTestId(UiTestIds.Editor.SourceInput).InputValueAsync();
+                var afterValue = await EditorMonacoDriver.SourceInput(page).InputValueAsync();
 
                 AssertCommandMutation(scenario, beforeValue, afterValue);
             }
@@ -91,9 +91,9 @@ public sealed class EditorToolbarCoverageTests(StandaloneAppFixture fixture) : I
                     .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.FastVisibleTimeoutMs });
                 await page.WaitForTimeoutAsync(BrowserTestConstants.Timing.FloatingToolbarSettleDelayMs);
 
-                var beforeValue = await page.GetByTestId(UiTestIds.Editor.SourceInput).InputValueAsync();
+                var beforeValue = await EditorMonacoDriver.SourceInput(page).InputValueAsync();
                 await page.GetByTestId(scenario.TestId).ClickAsync();
-                var afterValue = await page.GetByTestId(UiTestIds.Editor.SourceInput).InputValueAsync();
+                var afterValue = await EditorMonacoDriver.SourceInput(page).InputValueAsync();
 
                 AssertCommandMutation(scenario, beforeValue, afterValue);
             }
@@ -137,8 +137,7 @@ public sealed class EditorToolbarCoverageTests(StandaloneAppFixture fixture) : I
         await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
         await Expect(page.GetByTestId(UiTestIds.Editor.Page))
             .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
-        await Expect(page.GetByTestId(UiTestIds.Editor.SourceInput))
-            .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
+        await EditorMonacoDriver.WaitUntilReadyAsync(page);
     }
 
     private static Task PrepareScenarioAsync(IPage page, EditorCommandScenario scenario) =>
@@ -152,55 +151,20 @@ public sealed class EditorToolbarCoverageTests(StandaloneAppFixture fixture) : I
     private static Task SetSourceTextAndSelectAlphaAsync(IPage page, string text) =>
         SetSourceTextAndSelectPhraseAsync(page, text, BrowserTestSource.AlphaToken);
 
-    private static Task SetSourceTextAndSelectPhraseAsync(IPage page, string text, string targetPhrase) =>
-        page.GetByTestId(UiTestIds.Editor.SourceInput).EvaluateAsync(
-            """
-            (element, args) => {
-                element.focus();
-                element.value = args.text;
-                element.dispatchEvent(new Event("input", { bubbles: true }));
-
-                const target = args.target;
-                const start = element.value.indexOf(target);
-                element.setSelectionRange(start, start + target.length);
-                element.dispatchEvent(new Event("select", { bubbles: true }));
-                element.dispatchEvent(new Event("keyup", { bubbles: true }));
-            }
-            """,
-            new { text, target = targetPhrase });
+    private static async Task SetSourceTextAndSelectPhraseAsync(IPage page, string text, string targetPhrase)
+    {
+        await EditorMonacoDriver.SetTextAsync(page, text);
+        await EditorMonacoDriver.SetSelectionByTextAsync(page, targetPhrase);
+    }
 
     private static Task SetSourceTextAndSelectColoredAlphaAsync(IPage page) =>
-        page.GetByTestId(UiTestIds.Editor.SourceInput).EvaluateAsync(
-            """
-            (element, value) => {
-                element.focus();
-                element.value = value;
-                element.dispatchEvent(new Event("input", { bubbles: true }));
+        SetSourceTextAndSelectPhraseAsync(page, BrowserTestSource.ColoredSource, BrowserTestSource.ColoredAlphaToken);
 
-                const target = "[loud]Alpha[/loud]";
-                const start = element.value.indexOf(target);
-                element.setSelectionRange(start, start + target.length);
-                element.dispatchEvent(new Event("select", { bubbles: true }));
-                element.dispatchEvent(new Event("keyup", { bubbles: true }));
-            }
-            """,
-            BrowserTestSource.ColoredSource);
-
-    private static Task SetSourceTextAndSetCaretAtEndAsync(IPage page, string text) =>
-        page.GetByTestId(UiTestIds.Editor.SourceInput).EvaluateAsync(
-            """
-            (element, value) => {
-                element.focus();
-                element.value = value;
-                element.dispatchEvent(new Event("input", { bubbles: true }));
-
-                const position = element.value.length;
-                element.setSelectionRange(position, position);
-                element.dispatchEvent(new Event("select", { bubbles: true }));
-                element.dispatchEvent(new Event("keyup", { bubbles: true }));
-            }
-            """,
-            text);
+    private static async Task SetSourceTextAndSetCaretAtEndAsync(IPage page, string text)
+    {
+        await EditorMonacoDriver.SetTextAsync(page, text);
+        await EditorMonacoDriver.SetCaretAtEndAsync(page);
+    }
 
     private static class BrowserTestSource
     {

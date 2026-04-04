@@ -16,6 +16,9 @@ public partial class EditorPage
     private const string LoadEditorMessage = "Unable to load the editor right now.";
     private const string PersistDraftOperation = "Editor save draft";
     private const string PersistDraftMessage = "Unable to save the current draft.";
+    private const string SplitDraftMessage = "Unable to split the current draft right now.";
+    private const string SplitDraftNoMatchesMessage = "Add more section headings before splitting this draft.";
+    private const string SplitDraftOperation = "Editor split draft";
     private const string EditorSyntaxOperation = "Editor syntax";
     private const string EditorSyntaxMessage = "The TPS draft has a syntax issue. Fix it and keep writing.";
     private const int DraftAnalysisDelayMilliseconds = 1_000;
@@ -49,6 +52,7 @@ public partial class EditorPage
     private EditorSelectionViewModel _selection = EditorSelectionViewModel.Empty;
     private IReadOnlyList<EditorOutlineSegmentViewModel> _segments = [];
     private bool _skipNextRenderFromTyping;
+    private string? _splitStatusMessage;
     private EditorSourcePanel? _sourcePanel;
     private string _sourceText = string.Empty;
     private EditorDraftMetrics _draftMetrics = EditorDraftMetrics.Empty;
@@ -61,6 +65,7 @@ public partial class EditorPage
     [Inject] private NavigationManager Navigation { get; set; } = null!;
     [Inject] private EditorOutlineBuilder OutlineBuilder { get; set; } = null!;
     [Inject] private EditorLocalAssistant LocalAssistant { get; set; } = null!;
+    [Inject] private TpsDocumentSplitService DocumentSplitService { get; set; } = null!;
     [Inject] private IScriptRepository ScriptRepository { get; set; } = null!;
     [Inject] private IScriptSessionService SessionService { get; set; } = null!;
     [Inject] private TpsParser TpsParser { get; set; } = null!;

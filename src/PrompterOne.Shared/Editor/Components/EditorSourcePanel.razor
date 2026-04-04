@@ -1,8 +1,10 @@
 @namespace PrompterOne.Shared.Components.Editor
 @using PrompterOne.Core.Models.Editor
+@using PrompterOne.Shared.Rendering
 @using PrompterOne.Shared.Services.Editor
 @using Microsoft.AspNetCore.Components
-@inject EditorInterop Interop
+@inject EditorInterop SemanticInterop
+@inject EditorMonacoInterop MonacoInterop
 
 <div class="ed-main" data-testid="@UiTestIds.Editor.MainPanel">
     <div class="ed-toolbar" data-testid="@UiTestIds.Editor.Toolbar">
@@ -64,24 +66,33 @@
 
     <div class="ed-content ed-source-shell"
          data-testid="@UiTestIds.Editor.SourceScrollHost">
-        <div class="ed-source-stage"
-             data-testid="@UiTestIds.Editor.SourceStage">
+        <div class="ed-source-stage">
+            <div class="ed-source-monaco"
+                 @ref="_editorHostRef"
+                 data-testid="@UiTestIds.Editor.SourceStage"
+                 data-editor-ready="false"></div>
             <div class="ed-source-highlight"
-                 @ref="_overlayRef"
-                 data-testid="@UiTestIds.Editor.SourceHighlight"></div>
+                 @ref="_semanticSnapshotRef"
+                 data-testid="@UiTestIds.Editor.SourceHighlight">
+                @if (!_surfaceInteropReady)
+                {
+                    @TpsSourceHighlighter.Render(Text)
+                }
+            </div>
             <textarea class="ed-source-input"
                       data-testid="@UiTestIds.Editor.SourceInput"
                       spellcheck="false"
                       autocapitalize="off"
                       autocomplete="off"
                       autocorrect="off"
+                      tabindex="-1"
+                      aria-hidden="true"
                       value="@Text"
                       @ref="_textareaRef"
                       @oninput="OnSourceInputAsync"
                       @onkeydown="OnSourceKeyDownAsync"
                       @onmouseup="OnSelectionInteractionAsync"
-                      @onselect="OnSourceSelectAsync"
-                      @onscroll="OnScrollAsync"></textarea>
+                      @onselect="OnSourceSelectAsync"></textarea>
 
             @if (ShouldRenderFloatingBar)
             {

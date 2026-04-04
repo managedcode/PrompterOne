@@ -1,6 +1,29 @@
 {
-  "issueTitle": "Vendored streaming SDK updates available",
+  "issueTitle": "Vendored browser runtime updates available",
   "sdks": [
+    {
+      "id": "monaco-editor",
+      "displayName": "Monaco Editor",
+      "repository": "microsoft/monaco-editor",
+      "releaseTag": "v0.55.1",
+      "releaseUrl": "https://github.com/microsoft/monaco-editor/releases/tag/v0.55.1",
+      "sourceTarballUrl": "https://github.com/microsoft/monaco-editor/archive/refs/tags/v0.55.1.tar.gz",
+      "syncStrategy": "monaco-build-from-release-source",
+      "vendorDirectory": "src/PrompterOne.Shared/wwwroot/vendor/monaco-editor/v0.55.1",
+      "licenseFiles": [
+        "LICENSE",
+        "ThirdPartyNotices.txt"
+      ],
+      "rootFiles": [
+        "CHANGELOG.md",
+        "README.md",
+        "package.json",
+        "monaco.d.ts"
+      ],
+      "runtimeDirectories": [
+        "min/vs"
+      ]
+    },
     {
       "id": "livekit-client",
       "displayName": "LiveKit Client SDK JS",

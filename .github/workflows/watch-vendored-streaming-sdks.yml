@@ -1,4 +1,4 @@
-name: Watch Vendored Streaming SDK Releases
+name: Watch Vendored Browser Runtime Releases
 
 on:
   workflow_dispatch:
@@ -28,8 +28,8 @@ jobs:
         run: |
           mkdir -p output
           python scripts/vendored_streaming_sdks.py check-updates \
-            --summary-json output/vendored-streaming-sdk-update-summary.json \
-            --issue-body output/vendored-streaming-sdk-update-issue.md
+            --summary-json output/vendored-browser-runtime-update-summary.json \
+            --issue-body output/vendored-browser-runtime-update-issue.md
 
       - name: Read update summary
         id: summary
@@ -38,7 +38,7 @@ jobs:
           import json
           from pathlib import Path
 
-          summary = json.loads(Path("output/vendored-streaming-sdk-update-summary.json").read_text(encoding="utf-8"))
+          summary = json.loads(Path("output/vendored-browser-runtime-update-summary.json").read_text(encoding="utf-8"))
           print(f"has_updates={'true' if summary['hasUpdates'] else 'false'}")
           print(f"issue_title={summary['issueTitle']}")
           PY
@@ -52,7 +52,7 @@ jobs:
             const fs = require("fs");
 
             const title = process.env.ISSUE_TITLE;
-            const body = fs.readFileSync("output/vendored-streaming-sdk-update-issue.md", "utf8");
+            const body = fs.readFileSync("output/vendored-browser-runtime-update-issue.md", "utf8");
             const owner = context.repo.owner;
             const repo = context.repo.repo;
 

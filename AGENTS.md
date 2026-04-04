@@ -11,7 +11,7 @@ Stack: `.NET 10`, Blazor WebAssembly, Razor Class Library, xUnit, bUnit, Playwri
 - `src/PrompterOne.Shared` contains routed Razor UI, exact `design` styling, and browser interop.
 - `src/PrompterOne.Core` contains TPS, RSVP, preview, workspace, media-scene, and streaming domain logic.
 - `tests/` contains all automated test projects.
-- `design/` is the visual and interaction source of truth.
+- The shipped Blazor UI under `src/PrompterOne.Shared` is the visual and interaction source of truth; do not keep or restore a separate repo-local `design/` prototype tree.
 
 There is no backend in the runtime shape. The app must boot directly in the browser from the WebAssembly host.
 
@@ -298,10 +298,10 @@ Repo-specific design rules:
 - Keep shared build settings in `Directory.Build.props`.
 - Keep shared package versions in `Directory.Packages.props`.
 - Keep the pinned SDK version in `global.json`.
-- Treat `design/index.html`, `design/tokens.css`, `design/components.css`, `design/styles.css`, and `design/app.js` as the exact design reference.
-- Treat every file under `design/` as a static design/prototype reference only. Production UI must be implemented as Blazor components in `src/PrompterOne.Shared`; do not ship raw `design` HTML as runtime UI.
-- Do not re-invent the UI when the answer should be “port the markup and classes from `design`”.
-- For parity tasks, port the full routed screen from its matching `design/*.html` reference, not just isolated high-signal blocks. Settings, Editor, Learn, Teleprompter, and Go Live must match the reference screen in layout and intended interaction while staying Blazor/C# owned.
+- Do not add, restore, or depend on a repo-local `design/` prototype folder; the routed Blazor implementation and its supporting docs are the only canonical UI source.
+- Production UI must stay implemented as Blazor components in `src/PrompterOne.Shared`; do not introduce parallel static HTML prototype screens.
+- Do not re-invent the UI when the answer should be “fix the shipped routed screen directly”.
+- For parity tasks, fix the full routed screen in the shipped Blazor UI, not just isolated high-signal blocks. Settings, Editor, Learn, Teleprompter, and Go Live must stay coherent in layout and intended interaction while remaining Blazor/C# owned.
 - When the user reports a visual or theme regression on a routed screen, verify the adjacent chrome and primary controls on that same screen in the affected theme instead of fixing only the single highlighted widget; add or update a browser regression that covers the broader screen-level parity check.
 - When routed UI or visual design changes materially, refresh the README screenshots and feature/status copy before release so public docs match the shipped product.
 - Release-ready work is not done until the requested branch is pushed and the corresponding GitHub CI run finishes green; if the user asks to land in `main`, use `main` and wait for the full resulting `Release Pipeline` to finish green, including release creation and deploy steps, instead of stopping at local verification or the first green build job.
@@ -314,6 +314,7 @@ Repo-specific design rules:
 - TPS front matter pasted or imported into the editor source MUST be parsed into the metadata rail automatically and removed from the visible body text instead of staying inline in the source editor.
 - TPS support MUST fully implement the current `design/TPS.md` contract end to end; legacy or partially compatible TPS syntax is not a supported mode, and any old incompatible behavior should be removed instead of kept behind compatibility shims.
 - TPS visual semantics MUST track the current TPS spec end to end: editor and reader surfaces should communicate delivery cues such as volume, emphasis, stress, speed, and delivery mode through typography, spacing, weight, and motion where appropriate, not through color alone.
+- Pasted or imported TPS documents MUST render their editor-side authoring styles immediately on first load in the editor; showing the imported script as near-plain text until later interaction is a regression.
 - For standalone cloud-storage integrations, persist provider keys, tokens, and connection metadata in browser `localStorage`; do not introduce server-side secret storage for runtime auth in this app shape.
 - Third-party runtime JavaScript SDKs MUST be sourced only from explicitly pinned GitHub Release tags and assets, copied into the repo, bundled locally with their runtime dependencies, and never loaded from CDNs, package registries, `latest` endpoints, or ad-hoc remote downloads at app runtime.
 - Repo-owned manifests, scripts, workflows, and project files that track third-party runtime JavaScript SDKs MUST point to concrete GitHub release versions and asset URLs, never floating references.

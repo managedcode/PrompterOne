@@ -16,15 +16,11 @@ public sealed class EditorOverlayInteractionTests(StandaloneAppFixture fixture) 
         {
             await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
 
-            var sourceInput = page.GetByTestId(UiTestIds.Editor.SourceInput);
             var floatingBar = page.GetByTestId(UiTestIds.Editor.FloatingBar);
             var colorMenu = page.GetByTestId(UiTestIds.Editor.MenuColor);
 
-            await Expect(sourceInput)
-                .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
-            await sourceInput.EvaluateAsync(
-                "(element, target) => { const start = element.value.indexOf(target); element.focus(); element.setSelectionRange(start, start + target.length); element.dispatchEvent(new Event('select', { bubbles: true })); element.dispatchEvent(new Event('keyup', { bubbles: true })); }",
-                BrowserTestConstants.Editor.Welcome);
+            await EditorMonacoDriver.WaitUntilReadyAsync(page);
+            await EditorMonacoDriver.SetSelectionByTextAsync(page, BrowserTestConstants.Editor.Welcome);
 
             await Expect(floatingBar).ToBeVisibleAsync();
 

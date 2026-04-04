@@ -17,7 +17,9 @@
             <EditorStructureSidebar Segments="@_segments"
                                     ActiveSegmentIndex="@_activeSegmentIndex"
                                     ActiveBlockIndex="@_activeBlockIndex"
-                                    OnNavigate="OnNavigateAsync" />
+                                    OnNavigate="OnNavigateAsync"
+                                    OnSplitRequested="OnSplitRequestedAsync"
+                                    StatusMessage="@_splitStatusMessage" />
 
             <EditorSourcePanel @ref="_sourcePanel"
                                Text="@_sourceText"

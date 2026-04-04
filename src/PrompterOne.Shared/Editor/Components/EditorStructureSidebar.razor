@@ -1,4 +1,5 @@
 @namespace PrompterOne.Shared.Components.Editor
+@using PrompterOne.Core.Models.Editor
 
 <div class="ed-sidebar">
     <div class="ed-structure">
@@ -34,6 +35,22 @@
             }
         </div>
     </div>
+
+    <div class="ed-sidebar-actions">
+        <button class="ed-sidebar-action"
+                data-testid="@UiTestIds.Editor.SplitTopLevel"
+                type="button"
+                @onclick="() => OnSplitRequested.InvokeAsync(TpsDocumentSplitMode.TopLevelHeading)">Split #</button>
+        <button class="ed-sidebar-action"
+                data-testid="@UiTestIds.Editor.SplitSegment"
+                type="button"
+                @onclick="() => OnSplitRequested.InvokeAsync(TpsDocumentSplitMode.SegmentHeading)">Split ##</button>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(StatusMessage))
+    {
+        <div class="ed-sidebar-note" data-testid="@UiTestIds.Editor.SplitStatus">@StatusMessage</div>
+    }
 </div>
 
 @code {
@@ -43,5 +60,9 @@
 
     [Parameter] public EventCallback<EditorNavigationTarget> OnNavigate { get; set; }
 
+    [Parameter] public EventCallback<TpsDocumentSplitMode> OnSplitRequested { get; set; }
+
     [Parameter] public IReadOnlyList<EditorOutlineSegmentViewModel> Segments { get; set; } = [];
+
+    [Parameter] public string? StatusMessage { get; set; }
 }

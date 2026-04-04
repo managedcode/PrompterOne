@@ -18,26 +18,9 @@ public sealed class EditorFloatingToolbarLayoutTests(StandaloneAppFixture fixtur
 
         try
         {
-            var sourceInput = await GotoEditorAndWaitForSourceAsync(page);
-
-            await sourceInput.EvaluateAsync(
-                """
-                (element, args) => {
-                    element.focus();
-                    element.value = args.text;
-                    element.dispatchEvent(new Event("input", { bubbles: true }));
-
-                    const start = element.value.indexOf(args.target);
-                    element.setSelectionRange(start, start + args.target.length);
-                    element.dispatchEvent(new Event("select", { bubbles: true }));
-                    element.dispatchEvent(new Event("keyup", { bubbles: true }));
-                }
-                """,
-                new
-                {
-                    text = BrowserTestConstants.Editor.TypedScript,
-                    target = BrowserTestConstants.Editor.TypedSelectionTarget
-                });
+            await GotoEditorAndWaitForSourceAsync(page);
+            await EditorMonacoDriver.SetTextAsync(page, BrowserTestConstants.Editor.TypedScript);
+            await EditorMonacoDriver.SetSelectionByTextAsync(page, BrowserTestConstants.Editor.TypedSelectionTarget);
 
             var floatingBar = page.GetByTestId(UiTestIds.Editor.FloatingBar);
             await Expect(floatingBar).ToBeVisibleAsync();
@@ -62,29 +45,17 @@ public sealed class EditorFloatingToolbarLayoutTests(StandaloneAppFixture fixtur
 
         try
         {
-            var sourceInput = await GotoEditorAndWaitForSourceAsync(page);
-
-            await sourceInput.EvaluateAsync(
-                """
-                (element, args) => {
-                    element.focus();
-                    element.value = args.text;
-                    element.dispatchEvent(new Event("input", { bubbles: true }));
-
-                    const start = element.value.indexOf(args.startToken);
-                    const endTokenStart = element.value.indexOf(args.endToken, start);
-                    const end = endTokenStart + args.endToken.length;
-                    element.setSelectionRange(start, end);
-                    element.dispatchEvent(new Event("select", { bubbles: true }));
-                    element.dispatchEvent(new Event("keyup", { bubbles: true }));
-                }
-                """,
-                new
-                {
-                    text = BrowserTestConstants.Editor.TypedScript,
-                    startToken = BrowserTestConstants.Editor.TypedMultilineSelectionStart,
-                    endToken = BrowserTestConstants.Editor.TypedMultilineSelectionEnd
-                });
+            await GotoEditorAndWaitForSourceAsync(page);
+            await EditorMonacoDriver.SetTextAsync(page, BrowserTestConstants.Editor.TypedScript);
+            var state = await EditorMonacoDriver.GetStateAsync(page);
+            var start = state.Text.IndexOf(BrowserTestConstants.Editor.TypedMultilineSelectionStart, StringComparison.Ordinal);
+            var endTokenStart = state.Text.IndexOf(BrowserTestConstants.Editor.TypedMultilineSelectionEnd, start, StringComparison.Ordinal);
+            Assert.True(start >= 0);
+            Assert.True(endTokenStart >= 0);
+            await EditorMonacoDriver.SetSelectionAsync(
+                page,
+                start,
+                endTokenStart + BrowserTestConstants.Editor.TypedMultilineSelectionEnd.Length);
 
             var geometry = await page.GetByTestId(UiTestIds.Editor.SourceHighlight).EvaluateAsync<SelectionGeometry>(
                 """
@@ -125,17 +96,8 @@ public sealed class EditorFloatingToolbarLayoutTests(StandaloneAppFixture fixtur
 
         try
         {
-            var sourceInput = await GotoEditorAndWaitForSourceAsync(page);
-
-            await sourceInput.EvaluateAsync(
-                """
-                (element, target) => {
-                    element.focus();
-                    const start = element.value.indexOf(target);
-                    element.setSelectionRange(start, start);
-                }
-                """,
-                BrowserTestConstants.Editor.ToolbarPinnedSelectionTarget);
+            await GotoEditorAndWaitForSourceAsync(page);
+            await EditorMonacoDriver.SetCaretAtTextStartAsync(page, BrowserTestConstants.Editor.ToolbarPinnedSelectionTarget);
 
             await page.Keyboard.DownAsync(BrowserTestConstants.Keyboard.Shift);
 
@@ -202,7 +164,7 @@ public sealed class EditorFloatingToolbarLayoutTests(StandaloneAppFixture fixtur
             }
             """);
 
-    private static async Task<ILocator> GotoEditorAndWaitForSourceAsync(IPage page)
+    private static async Task GotoEditorAndWaitForSourceAsync(IPage page)
     {
         await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
 
@@ -212,13 +174,7 @@ public sealed class EditorFloatingToolbarLayoutTests(StandaloneAppFixture fixtur
             Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs
         });
 
-        var sourceInput = page.GetByTestId(UiTestIds.Editor.SourceInput);
-        await Expect(sourceInput).ToBeVisibleAsync(new()
-        {
-            Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs
-        });
-
-        return sourceInput;
+        await EditorMonacoDriver.WaitUntilReadyAsync(page);
     }
 
     private readonly record struct SelectionGeometry(double SelectionTop);

@@ -29,6 +29,7 @@ public enum UiTextKey
     LibraryCreateFolderDescription,
     HeaderSearchPlaceholder,
     HeaderNewScript,
+    HeaderOpenScript,
     HeaderLearn,
     HeaderRead,
     HeaderGoLive,

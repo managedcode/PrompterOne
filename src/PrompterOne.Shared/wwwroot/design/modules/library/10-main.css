@@ -285,7 +285,8 @@ body.theme-light .folder-chip.active {
     }
 
     .lib-search {
-        flex-basis: 112px;
+        flex: 0 1 96px;
+        max-width: 96px;
         height: 34px;
         padding: 0 10px;
         gap: 6px;
@@ -298,5 +299,13 @@ body.theme-light .folder-chip.active {
         padding: 0 10px;
         gap: 6px;
         justify-content: center;
+    }
+}
+
+@media (max-width: 560px) {
+    .lib-search {
+        flex: 0 1 72px;
+        max-width: 72px;
+        padding: 0 8px;
     }
 }

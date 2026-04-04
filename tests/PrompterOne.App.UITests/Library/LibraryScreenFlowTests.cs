@@ -5,6 +5,34 @@ namespace PrompterOne.App.UITests;
 
 public sealed class LibraryScreenFlowTests(StandaloneAppFixture fixture) : AppUiTestBase(fixture), IClassFixture<StandaloneAppFixture>
 {
+    private const string ImportedBodyOnly =
+        """
+        ## [Episode 2 - How Systems Talk to Each Other|140WPM|Professional]
+        ### [Opening|140WPM|Warm]
+        Services talk over real boundaries.
+        """;
+
+    private const string ImportedCreatedDate = "2026-03-25";
+    private const string ImportedFileName = "system-design-and-software-architecture.tps.md";
+    private const string ImportedProfile = "Actor";
+    private const string ImportedTitle = "System Design and Software Architecture for Vibe Coders";
+    private const string ImportedFrontMatterDocument =
+        """
+        ---
+        title: "System Design and Software Architecture for Vibe Coders"
+        profile: Actor
+        duration: "145:00"
+        base_wpm: 140
+        author: "Konstantin Semenenko"
+        created: "2026-03-25"
+        version: "1.0"
+        ---
+
+        ## [Episode 2 - How Systems Talk to Each Other|140WPM|Professional]
+        ### [Opening|140WPM|Warm]
+        Services talk over real boundaries.
+        """;
+
     private const string StartupScenarioName = "library-startup";
     private const string StartupScenarioStep = "loaded";
 
@@ -89,6 +117,38 @@ public sealed class LibraryScreenFlowTests(StandaloneAppFixture fixture) : AppUi
         });
 
     [Fact]
+    public Task LibraryScreen_OpenScriptImportsLocalFileAndNavigatesIntoEditor() =>
+        RunPageAsync(async page =>
+        {
+            var importPath = await CreateImportedScriptAsync();
+
+            try
+            {
+                await page.GotoAsync(BrowserTestConstants.Routes.Library);
+                await Expect(page.GetByTestId(UiTestIds.Library.Page)).ToBeVisibleAsync();
+
+                await page.GetByTestId(UiTestIds.Header.LibraryOpenScriptInput)
+                    .SetInputFilesAsync(importPath);
+
+                await Expect(page.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync();
+                await Expect(page.GetByTestId(UiTestIds.Header.Title)).ToHaveTextAsync(ImportedTitle);
+                await Expect(page.GetByTestId(UiTestIds.Editor.SourceInput)).ToHaveValueAsync(ImportedBodyOnly);
+                await Expect(page.GetByTestId(UiTestIds.Editor.Profile)).ToHaveValueAsync(ImportedProfile);
+                await Expect(page.GetByTestId(UiTestIds.Editor.Created)).ToHaveValueAsync(ImportedCreatedDate);
+
+                Assert.Equal(AppRoutes.Editor, new Uri(page.Url).AbsolutePath);
+                Assert.Contains(
+                    $"{AppRoutes.ScriptIdQueryKey}=",
+                    new Uri(page.Url).Query,
+                    StringComparison.Ordinal);
+            }
+            finally
+            {
+                File.Delete(importPath);
+            }
+        });
+
+    [Fact]
     public Task LibraryScreen_KeepsOnlyOneCardMenuOpen_AndOutsideClickDismissesDropdown() =>
         RunPageAsync(async page =>
         {
@@ -115,6 +175,13 @@ public sealed class LibraryScreenFlowTests(StandaloneAppFixture fixture) : AppUi
             await Expect(leadershipDropdown).ToBeHiddenAsync();
             Assert.Equal(BrowserTestConstants.Routes.Library, new Uri(page.Url).AbsolutePath);
         });
+
+    private static async Task<string> CreateImportedScriptAsync()
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}-{ImportedFileName}");
+        await File.WriteAllTextAsync(path, ImportedFrontMatterDocument);
+        return path;
+    }
 
     [Fact]
     public Task LibraryScreen_SidebarFoldersFilterCards() =>

@@ -2,6 +2,11 @@ namespace PrompterOne.Shared.Contracts;
 
 public static class UiDomIds
 {
+    public static class AppShell
+    {
+        public const string LibraryOpenScriptInput = "app-shell-library-open-script-input";
+    }
+
     public static class Diagnostics
     {
         public const string ConnectivityDismiss = "app-connectivity-dismiss";

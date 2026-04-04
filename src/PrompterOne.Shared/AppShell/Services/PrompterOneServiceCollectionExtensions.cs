@@ -40,6 +40,8 @@ public static class PrompterOneServiceCollectionExtensions
         services.AddScoped<ScriptCompiler>();
         services.AddScoped<TpsExporter>();
         services.AddScoped<TpsFrontMatterDocumentService>();
+        services.AddScoped<TpsDocumentSplitService>();
+        services.AddScoped<ScriptImportDescriptorService>();
         services.AddScoped<TpsTextEditor>();
         services.AddScoped<TpsStructureEditor>();
         services.AddScoped<EditorLocalAssistant>();
@@ -50,6 +52,8 @@ public static class PrompterOneServiceCollectionExtensions
         services.AddScoped<IScriptPreviewService, ScriptPreviewService>();
         services.AddScoped<EditorOutlineBuilder>();
         services.AddScoped<EditorInterop>();
+        services.AddScoped<EditorMonacoInterop>();
+        services.AddScoped<AppShellFilePickerInterop>();
 
         services.AddScoped<ILibraryFolderRepository, BrowserLibraryFolderRepository>();
         services.AddScoped<IScriptRepository, BrowserScriptRepository>();

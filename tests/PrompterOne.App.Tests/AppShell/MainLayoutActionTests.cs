@@ -11,6 +11,8 @@ namespace PrompterOne.App.Tests;
 
 public sealed class MainLayoutActionTests : BunitContext
 {
+    private const string SupportedImportAcceptValue = ".tps,.tps.md,.md.tps,.md,.txt";
+
     [Theory]
     [InlineData(AppRoutes.Learn, AppTestData.Scripts.QuantumId)]
     [InlineData(AppRoutes.Teleprompter, AppTestData.Scripts.QuantumId)]
@@ -74,14 +76,63 @@ public sealed class MainLayoutActionTests : BunitContext
         cut.WaitForAssertion(() =>
         {
             var goLive = cut.FindByTestId(UiTestIds.Header.GoLive);
+            var openScript = cut.FindByTestId(UiTestIds.Header.LibraryOpenScript);
+            var openScriptInput = cut.FindByTestId(UiTestIds.Header.LibraryOpenScriptInput);
             var newScript = cut.FindByTestId(UiTestIds.Header.LibraryNewScript);
 
             Assert.Contains("btn-golive-header", goLive.ClassName, StringComparison.Ordinal);
             Assert.Contains("btn-create", newScript.ClassName, StringComparison.Ordinal);
+            Assert.Equal(SupportedImportAcceptValue, openScriptInput.GetAttribute("accept"));
 
             var goLiveIndex = cut.Markup.IndexOf(UiTestIds.Header.GoLive, StringComparison.Ordinal);
+            var openScriptIndex = cut.Markup.IndexOf(UiTestIds.Header.LibraryOpenScript, StringComparison.Ordinal);
             var newScriptIndex = cut.Markup.IndexOf(UiTestIds.Header.LibraryNewScript, StringComparison.Ordinal);
-            Assert.True(goLiveIndex >= 0 && newScriptIndex >= 0 && goLiveIndex < newScriptIndex);
+            Assert.True(goLiveIndex >= 0 && openScriptIndex >= 0 && newScriptIndex >= 0);
+            Assert.True(goLiveIndex < openScriptIndex);
+            Assert.True(openScriptIndex < newScriptIndex);
+            Assert.NotNull(openScript);
+        });
+    }
+
+    [Theory]
+    [InlineData(AppRoutes.Settings)]
+    [InlineData(AppRoutes.Editor)]
+    public void MainLayout_OpenScriptAction_IsHidden_OnNonLibraryScreens(string route)
+    {
+        _ = TestHarnessFactory.Create(this);
+        var navigation = Services.GetRequiredService<NavigationManager>();
+        navigation.NavigateTo(route);
+
+        var cut = Render<MainLayout>(parameters => parameters
+            .Add(layout => layout.Body, (RenderFragment)(builder => builder.AddMarkupContent(0, "<div>Body</div>"))));
+
+        cut.WaitForAssertion(() =>
+        {
+            Assert.Empty(cut.FindAll(BunitTestSelectors.BuildTestIdSelector(UiTestIds.Header.LibraryOpenScript)));
+            Assert.Empty(cut.FindAll(BunitTestSelectors.BuildTestIdSelector(UiTestIds.Header.LibraryOpenScriptInput)));
+        });
+    }
+
+    [Fact]
+    public void MainLayout_OpenScriptAction_UsesStableDialogButtonAndInputDomId()
+    {
+        _ = TestHarnessFactory.Create(this);
+        var navigation = Services.GetRequiredService<NavigationManager>();
+        navigation.NavigateTo(AppRoutes.Library);
+
+        var cut = Render<MainLayout>(parameters => parameters
+            .Add(layout => layout.Body, (RenderFragment)(builder => builder.AddMarkupContent(0, "<div>Body</div>"))));
+
+        cut.WaitForAssertion(() =>
+        {
+            var openScriptSurface = cut.FindByTestId(UiTestIds.Header.LibraryOpenScript);
+            var openScriptButton = openScriptSurface.QuerySelector("button");
+            var openScriptInput = cut.FindByTestId(UiTestIds.Header.LibraryOpenScriptInput);
+
+            Assert.NotNull(openScriptButton);
+            Assert.Equal("dialog", openScriptButton!.GetAttribute("aria-haspopup"));
+            Assert.Equal(UiDomIds.AppShell.LibraryOpenScriptInput, openScriptInput.GetAttribute("id"));
+            Assert.Equal(SupportedImportAcceptValue, openScriptInput.GetAttribute("accept"));
         });
     }
 

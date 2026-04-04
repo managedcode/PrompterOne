@@ -73,6 +73,7 @@ public partial class EditorPage
         }
 
         ResetMetadataDefaults(state);
+        _splitStatusMessage = null;
         _sourceText = document.Body;
         ApplyLoadedMetadata(metadata, state);
         _segments = OutlineBuilder.Build(state.ScriptData, document.Body, 0);

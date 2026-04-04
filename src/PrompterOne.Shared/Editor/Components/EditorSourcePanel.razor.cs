@@ -5,18 +5,23 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.JSInterop;
 using PrompterOne.Core.Models.Editor;
 using PrompterOne.Shared.Contracts;
+using PrompterOne.Shared.Services.Editor;
 
 namespace PrompterOne.Shared.Components.Editor;
 
-public partial class EditorSourcePanel
+public partial class EditorSourcePanel : IAsyncDisposable
 {
+    private const string DefaultPlaceholderText = "Start writing in TPS.";
     private const string FocusSelectionFailureMessage = "Editor selection focus interop failed during source panel update.";
     private const string InitializeSurfaceFailureMessage = "Editor surface interop failed during source panel initialization.";
     private const string RefreshSelectionFailureMessage = "Editor selection refresh interop failed during source panel update.";
     private const string RedoKeyLower = "y";
-    private const string ScrollSyncFailureMessage = "Editor overlay scroll sync interop failed during source panel update.";
+    private const string SurfaceSyncFailureMessage = "Editor surface sync interop failed during source panel update.";
     private const string UndoKeyLower = "z";
-    private ElementReference _overlayRef;
+    private EditorMonacoCallbackBridge? _callbackBridge;
+    private DotNetObjectReference<EditorMonacoCallbackBridge>? _callbackBridgeReference;
+    private ElementReference _editorHostRef;
+    private ElementReference _semanticSnapshotRef;
     private ElementReference _textareaRef;
     private bool _hasPendingLocalInputText;
     private bool _lastRenderedCanRedo;
@@ -27,8 +32,8 @@ public partial class EditorSourcePanel
     private string _lastTypedText = string.Empty;
     private bool _skipNextRender;
     private bool _syncOverlayAfterRender = true;
+    private bool _syncSurfaceAfterRender = true;
     private bool _surfaceInteropReady;
-    private bool _syncScrollAfterRender = true;
     private bool _visibleCanRedo;
     private bool _visibleCanUndo;
     private static readonly object SourceCueContracts = new
@@ -70,11 +75,12 @@ public partial class EditorSourcePanel
         var isLocalTextEcho = _hasPendingLocalInputText &&
                               textChanged &&
                               string.Equals(Text, _lastTypedText, StringComparison.Ordinal);
+        var selectionChanged = Selection.Range != _lastRenderedSelection.Range;
         var selectionNeedsRender = Selection.HasSelection || _lastRenderedSelection.HasSelection;
 
         _skipNextRender = _surfaceInteropReady && isLocalTextEcho && !selectionNeedsRender;
         _syncOverlayAfterRender |= textChanged;
-        _syncScrollAfterRender |= textChanged;
+        _syncSurfaceAfterRender |= textChanged || (selectionChanged && selectionNeedsRender);
 
         if (!isLocalTextEcho)
         {
@@ -88,21 +94,26 @@ public partial class EditorSourcePanel
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await EnsureSurfaceInteropReadyAsync();
+        var surfaceBecameReady = await EnsureSurfaceInteropReadyAsync();
+        if (surfaceBecameReady)
+        {
+            _syncOverlayAfterRender = true;
+            _syncSurfaceAfterRender = true;
+            StateHasChanged();
+            return;
+        }
+
+        if (_surfaceInteropReady && (firstRender || _syncSurfaceAfterRender))
+        {
+            _syncSurfaceAfterRender = false;
+            await SafeSyncSurfaceAsync();
+        }
 
         if (_surfaceInteropReady && (firstRender || _syncOverlayAfterRender))
         {
             _syncOverlayAfterRender = false;
             await SafeRenderOverlayAsync();
         }
-
-        if (!firstRender && !_syncScrollAfterRender)
-        {
-            return;
-        }
-
-        _syncScrollAfterRender = false;
-        await SafeSyncScrollAsync();
     }
 
     protected override bool ShouldRender()
@@ -124,7 +135,7 @@ public partial class EditorSourcePanel
     public async Task FocusRangeAsync(int start, int end)
     {
         var selection = await RunSelectionInteropAsync(
-            () => Interop.SetSelectionAsync(_textareaRef, start, end),
+            () => MonacoInterop.SetSelectionAsync(_editorHostRef, start, end),
             FocusSelectionFailureMessage);
 
         if (selection is null)
@@ -133,7 +144,7 @@ public partial class EditorSourcePanel
         }
 
         await OnSelectionChanged.InvokeAsync(selection);
-        _syncScrollAfterRender = true;
+        _syncSurfaceAfterRender = true;
         StateHasChanged();
     }
 
@@ -161,56 +172,28 @@ public partial class EditorSourcePanel
         return RequestHistoryAsync(isRedo ? EditorHistoryCommand.Redo : EditorHistoryCommand.Undo);
     }
 
-    private async Task OnScrollAsync()
-    {
-        await SafeSyncScrollAsync();
-        if (Selection.HasSelection)
-        {
-            await RefreshSelectionAsync();
-        }
-    }
-
     private async Task OnSelectionInteractionAsync()
     {
-        RequestFloatingBarReanchor();
-        CloseToolbarPanels();
-        await RefreshSelectionAsync();
+        await RefreshSelectionAsync(dismissMenus: true);
     }
 
     // A late textarea select event can arrive after a toolbar click and should
     // refresh selection state without dismissing the menu the user just opened.
     private async Task OnSourceSelectAsync()
     {
-        var selection = await RunSelectionInteropAsync(
-            () => Interop.GetSelectionAsync(_textareaRef),
-            RefreshSelectionFailureMessage);
-
-        if (selection is null)
-        {
-            return;
-        }
-
-        if (!_floatingBarAnchor.HasSelection || selection.Range != Selection.Range)
-        {
-            RequestFloatingBarReanchor();
-        }
-
-        await OnSelectionChanged.InvokeAsync(selection);
-        _syncScrollAfterRender = Selection.HasSelection || selection.HasSelection;
-        StateHasChanged();
+        await RefreshSelectionAsync(dismissMenus: false);
     }
 
     private async Task OnSourceInputAsync(ChangeEventArgs args)
     {
-        var hadOpenToolbarMenu = HasOpenToolbarMenu;
         var historyStateChanged = !_visibleCanUndo || _visibleCanRedo;
         CloseToolbarPanels();
 
         _lastTypedText = args.Value?.ToString() ?? string.Empty;
-        _hasPendingLocalInputText = true;
+        _hasPendingLocalInputText = false;
         _visibleCanUndo = true;
         _visibleCanRedo = false;
-        _skipNextRender = _surfaceInteropReady && !hadOpenToolbarMenu && !historyStateChanged;
+        _skipNextRender = false;
         await OnTextChanged.InvokeAsync(_lastTypedText);
 
         if (historyStateChanged)
@@ -219,10 +202,10 @@ public partial class EditorSourcePanel
         }
     }
 
-    private async Task RefreshSelectionAsync(bool requestComponentRender = true)
+    private async Task RefreshSelectionAsync(bool dismissMenus, bool requestComponentRender = true)
     {
         var selection = await RunSelectionInteropAsync(
-            () => Interop.GetSelectionAsync(_textareaRef),
+            () => MonacoInterop.GetSelectionAsync(_editorHostRef),
             RefreshSelectionFailureMessage);
 
         if (selection is null)
@@ -230,39 +213,87 @@ public partial class EditorSourcePanel
             return;
         }
 
+        if (dismissMenus)
+        {
+            RequestFloatingBarReanchor();
+            CloseToolbarPanels();
+        }
+        else if (!_floatingBarAnchor.HasSelection || selection.Range != Selection.Range)
+        {
+            RequestFloatingBarReanchor();
+        }
+
         await OnSelectionChanged.InvokeAsync(selection);
         if (requestComponentRender)
         {
-            _syncScrollAfterRender = Selection.HasSelection || selection.HasSelection;
+            _syncSurfaceAfterRender = Selection.HasSelection || selection.HasSelection;
             StateHasChanged();
         }
     }
 
-    private async Task EnsureSurfaceInteropReadyAsync()
+    private async Task<bool> EnsureSurfaceInteropReadyAsync()
     {
         if (_surfaceInteropReady)
         {
-            return;
+            return false;
         }
 
-        _surfaceInteropReady = await RunInitializationInteropAsync(
-            () => Interop.InitializeAsync(_textareaRef, _overlayRef, SourceCueContracts),
+        _callbackBridge ??= new EditorMonacoCallbackBridge(
+            HandleMonacoHistoryRequestedAsync,
+            HandleMonacoTextChangedAsync,
+            HandleMonacoSelectionChangedAsync);
+        _callbackBridgeReference ??= DotNetObjectReference.Create(_callbackBridge);
+        var interopReady = await RunInitializationInteropAsync(
+            () => MonacoInterop.InitializeAsync(
+                _editorHostRef,
+                _textareaRef,
+                _semanticSnapshotRef,
+                _callbackBridgeReference,
+                CreateInitializationOptions()),
             InitializeSurfaceFailureMessage);
-    }
 
-    private async Task SafeSyncScrollAsync()
-    {
-        _ = await RunInteropAsync(
-            () => Interop.SyncScrollAsync(_textareaRef, _overlayRef),
-            ScrollSyncFailureMessage);
+        if (!interopReady)
+        {
+            return false;
+        }
+
+        _surfaceInteropReady = true;
+        return true;
     }
 
     private async Task SafeRenderOverlayAsync()
     {
         _ = await RunInteropAsync(
-            () => Interop.RenderOverlayAsync(_overlayRef, Text, SourceCueContracts),
+            () => SemanticInterop.RenderOverlayAsync(_semanticSnapshotRef, Text, SourceCueContracts),
             InitializeSurfaceFailureMessage);
     }
+
+    private async Task SafeSyncSurfaceAsync()
+    {
+        _ = await RunInteropAsync(
+            () => MonacoInterop.SyncEditorStateAsync(_editorHostRef, Text, Selection),
+            SurfaceSyncFailureMessage);
+    }
+
+    private static object CreateInitializationOptions() => new
+    {
+        browserHarnessGlobalName = EditorMonacoRuntimeContract.BrowserHarnessGlobalName,
+        cueContracts = SourceCueContracts,
+        darkThemeName = EditorMonacoRuntimeContract.DarkThemeName,
+        editorEngineAttributeName = EditorMonacoRuntimeContract.EditorEngineAttributeName,
+        editorEngineAttributeValue = EditorMonacoRuntimeContract.EditorEngineAttributeValue,
+        proxyChangedEventName = EditorMonacoRuntimeContract.EditorProxyChangedEventName,
+        editorReadyAttributeName = EditorMonacoRuntimeContract.EditorReadyAttributeName,
+        historyRequestedCallbackName = EditorMonacoInteropMethodNames.NotifyHistoryRequested,
+        languageId = EditorMonacoRuntimeContract.TpsLanguageId,
+        lightThemeName = EditorMonacoRuntimeContract.LightThemeName,
+        monacoLoaderPath = EditorMonacoRuntimeContract.MonacoLoaderPath,
+        monacoStylesheetPath = EditorMonacoRuntimeContract.MonacoStylesheetPath,
+        monacoVsPath = EditorMonacoRuntimeContract.MonacoVsPath,
+        placeholder = DefaultPlaceholderText,
+        selectionChangedCallbackName = EditorMonacoInteropMethodNames.NotifySelectionChanged,
+        textChangedCallbackName = EditorMonacoInteropMethodNames.NotifyTextChanged
+    };
 
     private async Task<bool> RunInitializationInteropAsync(Func<ValueTask<bool>> operation, string failureMessage)
     {
@@ -308,4 +339,21 @@ public partial class EditorSourcePanel
 
     private static bool IsExpectedInteropException(Exception exception) =>
         exception is InvalidOperationException or JSException or ObjectDisposedException or TaskCanceledException;
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_surfaceInteropReady)
+        {
+            try
+            {
+                await MonacoInterop.DisposeEditorAsync(_editorHostRef);
+            }
+            catch (Exception exception) when (IsExpectedInteropException(exception))
+            {
+                Logger.LogDebug(exception, InitializeSurfaceFailureMessage);
+            }
+        }
+
+        _callbackBridgeReference?.Dispose();
+    }
 }

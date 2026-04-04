@@ -109,12 +109,20 @@
 
         renderOverlay(overlay, text, cueContracts) {
             const state = overlaySurfaceStates.get(overlay);
+            const normalizedCueContracts = normalizeCueContracts(cueContracts);
             if (state) {
-                state.cueContracts = normalizeCueContracts(cueContracts) || state.cueContracts;
+                state.cueContracts = normalizedCueContracts || state.cueContracts;
                 cancelScheduledOverlayRender(state);
             }
 
-            renderSurfaceOverlay(overlay, text, false, state?.cueContracts);
+            const nextText = text || "";
+            if (shouldUseInteractivePlainTextRender(nextText)) {
+                overlay.innerHTML = emptySourceMarkup;
+                updateRenderedLengthMarker(overlay, nextText);
+                return;
+            }
+
+            renderSurfaceOverlay(overlay, nextText, false, normalizedCueContracts || state?.cueContracts);
         },
 
         syncScroll(textarea, overlay) {

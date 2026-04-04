@@ -1,4 +1,4 @@
-name: Sync Vendored Streaming SDKs
+name: Sync Vendored Browser Runtimes
 
 on:
   workflow_dispatch:
@@ -24,19 +24,20 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Sync pinned vendored SDKs
+      - name: Sync pinned vendored runtimes
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python scripts/vendored_streaming_sdks.py sync
 
-      - name: Verify vendored SDK layout
+      - name: Verify vendored runtime layout
         run: python scripts/vendored_streaming_sdks.py verify
 
-      - name: Upload vendored SDK artifacts
+      - name: Upload vendored runtime artifacts
         uses: actions/upload-artifact@v7
         with:
-          name: vendored-streaming-sdks
+          name: vendored-browser-runtimes
           path: |
             vendored-streaming-sdks.json
+            src/PrompterOne.Shared/wwwroot/vendor/monaco-editor/
             src/PrompterOne.Shared/wwwroot/vendor/livekit-client/
             src/PrompterOne.Shared/wwwroot/vendor/vdo.ninja/

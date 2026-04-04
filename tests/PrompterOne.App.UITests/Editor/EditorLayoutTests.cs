@@ -1,5 +1,6 @@
 using Microsoft.Playwright;
 using PrompterOne.Shared.Contracts;
+using PrompterOne.Shared.Services.Editor;
 using static Microsoft.Playwright.Assertions;
 
 namespace PrompterOne.App.UITests;
@@ -58,38 +59,60 @@ public sealed class EditorLayoutTests(StandaloneAppFixture fixture) : IClassFixt
         {
             await page.GotoAsync(BrowserTestConstants.Routes.Editor);
 
-            var sourceInput = page.GetByTestId(UiTestIds.Editor.SourceInput);
             var sourceScrollHost = page.GetByTestId(UiTestIds.Editor.SourceScrollHost);
 
-            await Expect(sourceInput)
-                .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
+            await EditorMonacoDriver.WaitUntilReadyAsync(page);
             await Expect(sourceScrollHost)
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
 
-            await sourceInput.EvaluateAsync(
+            await EditorMonacoDriver.SetTextAsync(
+                page,
+                string.Join(
+                    '\n',
+                    Enumerable.Range(1, BrowserTestConstants.Editor.ScrollProbeLineCount)
+                        .Select(index => $"Scroll probe line {index}")));
+
+            await page.EvaluateAsync(
                 """
-                (element, lineCount) => {
-                    element.value = Array.from({ length: lineCount }, (_, index) => `Scroll probe line ${index + 1}`).join('\n');
-                    element.dispatchEvent(new Event('input', { bubbles: true }));
-                    element.scrollTop = element.scrollHeight;
-                    element.dispatchEvent(new Event('scroll', { bubbles: true }));
+                args => {
+                    const harness = window[args.harnessGlobalName];
+                    const state = harness?.getState(args.testId);
+                    if (!state) {
+                        throw new Error("Monaco scroll harness state is unavailable.");
+                    }
+
+                    const host = document.querySelector(`[data-testid="${args.testId}"]`);
+                    if (!(host instanceof HTMLElement)) {
+                        throw new Error("Monaco scroll host is unavailable.");
+                    }
+
+                    const editorScrollSurface = host.querySelector('.monaco-scrollable-element');
+                    if (!(editorScrollSurface instanceof HTMLElement)) {
+                        throw new Error("Monaco scroll surface is unavailable.");
+                    }
+
+                    editorScrollSurface.scrollTop = editorScrollSurface.scrollHeight;
+                    editorScrollSurface.dispatchEvent(new Event('scroll', { bubbles: true }));
                 }
                 """,
-                BrowserTestConstants.Editor.ScrollProbeLineCount);
+                new
+                {
+                    harnessGlobalName = EditorMonacoRuntimeContract.BrowserHarnessGlobalName,
+                    testId = UiTestIds.Editor.SourceStage
+                });
 
-            var scrollState = await sourceInput.EvaluateAsync<EditorScrollState>(
+            var stageState = await EditorMonacoDriver.GetStateAsync(page);
+            var scrollState = await sourceScrollHost.EvaluateAsync<EditorScrollState>(
                 """
                 element => {
-                    const host = element.closest('[data-testid="editor-source-scroll-host"]');
                     return {
-                        inputScrollTop: element.scrollTop,
-                        hostScrollTop: host ? host.scrollTop : -1,
-                        hostOverflowY: host ? getComputedStyle(host).overflowY : ''
+                        hostScrollTop: element.scrollTop,
+                        hostOverflowY: getComputedStyle(element).overflowY
                     };
                 }
                 """);
 
-            Assert.True(scrollState.InputScrollTop > 0);
+            Assert.True(stageState.ScrollTop > 0);
             Assert.Equal(BrowserTestConstants.Editor.MaxSourceScrollHostTopPx, scrollState.HostScrollTop);
             Assert.Equal("hidden", scrollState.HostOverflowY);
         }
@@ -199,6 +222,6 @@ public sealed class EditorLayoutTests(StandaloneAppFixture fixture) : IClassFixt
             """);
 
     private readonly record struct ToolbarOverflowState(double ClientWidth, double ScrollWidth, string OverflowX);
-    private readonly record struct EditorScrollState(double InputScrollTop, double HostScrollTop, string HostOverflowY);
+    private readonly record struct EditorScrollState(double HostScrollTop, string HostOverflowY);
     private readonly record struct LayoutBounds(double X, double Y, double Width, double Height);
 }

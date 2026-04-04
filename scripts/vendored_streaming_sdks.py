@@ -15,6 +15,10 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_MANIFEST = REPO_ROOT / "vendored-streaming-sdks.json"
 GITHUB_API_BASE = "https://api.github.com/repos"
 USER_AGENT = "PrompterOne-vendored-streaming-sdks"
+MONACO_EDITOR_WITH_LANGUAGES_PATH = Path("src/editor/internal/editorWithLanguages.ts")
+MONACO_LSP_IMPORT = "import * as lsp from '@vscode/monaco-lsp-client'; "
+MONACO_LSP_EXPORT = "export { css, html, json, typescript, lsp };"
+MONACO_RUNTIME_EXPORT = "export { css, html, json, typescript };"
 
 
 def parse_args() -> argparse.Namespace:
@@ -102,6 +106,10 @@ def copy_file(source: Path, destination: Path) -> None:
     shutil.copy2(source, destination)
 
 
+def copy_directory(source: Path, destination: Path) -> None:
+    shutil.copytree(source, destination, dirs_exist_ok=True)
+
+
 def run_command(arguments: list[str], working_directory: Path) -> None:
     subprocess.run(arguments, cwd=working_directory, check=True)
 
@@ -172,6 +180,45 @@ def sync_release_assets_with_license_tarball(sdk: dict) -> None:
             download_to(asset["url"], vendor_directory / asset["name"])
 
 
+def patch_monaco_release_source(source_root: Path) -> None:
+    editor_with_languages_path = source_root / MONACO_EDITOR_WITH_LANGUAGES_PATH
+    contents = editor_with_languages_path.read_text(encoding="utf-8")
+    updated_contents = contents.replace(MONACO_LSP_IMPORT, "", 1).replace(MONACO_LSP_EXPORT, MONACO_RUNTIME_EXPORT, 1)
+    if updated_contents == contents:
+        raise SystemExit(
+            "Unable to patch the Monaco release source for the standalone runtime export. "
+            "The upstream file shape changed."
+        )
+
+    editor_with_languages_path.write_text(updated_contents, encoding="utf-8")
+
+
+def sync_monaco_editor(sdk: dict) -> None:
+    vendor_directory = REPO_ROOT / sdk["vendorDirectory"]
+    reset_directory(vendor_directory)
+
+    with tempfile.TemporaryDirectory(prefix=f"{sdk['id']}-") as temp_dir_name:
+        temp_dir = Path(temp_dir_name)
+        archive_path = temp_dir / "release.tar.gz"
+        download_to(sdk["sourceTarballUrl"], archive_path)
+        source_root = extract_tarball(archive_path, temp_dir)
+        patch_monaco_release_source(source_root)
+
+        run_command(["npm", "install"], source_root)
+        run_command(["npx", "ts-node", "./build/build-monaco-editor"], source_root)
+
+        built_root = source_root / "out" / "monaco-editor"
+
+        for license_file in sdk.get("licenseFiles", []):
+            copy_file(built_root / license_file, vendor_directory / Path(license_file).name)
+
+        for root_file in sdk.get("rootFiles", []):
+            copy_file(built_root / root_file, vendor_directory / root_file)
+
+        for runtime_directory in sdk.get("runtimeDirectories", []):
+            copy_directory(built_root / runtime_directory, vendor_directory / runtime_directory)
+
+
 def sync_sdk(sdk: dict) -> None:
     strategy = sdk["syncStrategy"]
     print(f"Syncing {sdk['id']} from {sdk['releaseTag']} using {strategy}")
@@ -186,6 +233,10 @@ def sync_sdk(sdk: dict) -> None:
 
     if strategy == "release-assets-with-license-tarball":
         sync_release_assets_with_license_tarball(sdk)
+        return
+
+    if strategy == "monaco-build-from-release-source":
+        sync_monaco_editor(sdk)
         return
 
     raise SystemExit(f"Unsupported sync strategy: {strategy}")
@@ -236,11 +287,11 @@ def fetch_latest_release_tag(repository: str) -> tuple[str, str]:
 
 def build_issue_body(manifest: dict, updates: list[dict]) -> str:
     lines = [
-        "# Vendored streaming SDK updates detected",
+        "# Vendored browser runtime updates detected",
         "",
-        "The pinned vendored browser SDKs are behind the latest GitHub releases.",
+        "The pinned vendored browser runtimes are behind the latest GitHub releases.",
         "",
-        "| SDK | Pinned | Latest | Pinned release | Latest release |",
+        "| Runtime | Pinned | Latest | Pinned release | Latest release |",
         "| --- | --- | --- | --- | --- |",
     ]
 
@@ -257,8 +308,9 @@ def build_issue_body(manifest: dict, updates: list[dict]) -> str:
             "",
             "1. Update the pinned tags and URLs in `vendored-streaming-sdks.json`.",
             "2. Run `python scripts/vendored_streaming_sdks.py sync`.",
-            "3. Review the vendored files under `src/PrompterOne.Shared/wwwroot/vendor/`.",
-            "4. Commit the manifest and vendored file changes together.",
+            "3. Run `python scripts/vendored_streaming_sdks.py verify`.",
+            "4. Review the vendored files under `src/PrompterOne.Shared/wwwroot/vendor/`.",
+            "5. Commit the manifest and vendored file changes together.",
             "",
             f"Manifest issue title: `{manifest['issueTitle']}`",
         ]
@@ -285,7 +337,7 @@ def command_verify(arguments: argparse.Namespace) -> int:
             print(error, file=sys.stderr)
         return 1
 
-    print("Vendored streaming SDK files match the pinned manifest.")
+    print("Vendored browser runtime files match the pinned manifest.")
     return 0
 
 

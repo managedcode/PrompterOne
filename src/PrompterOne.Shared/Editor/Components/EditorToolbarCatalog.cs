@@ -301,7 +301,7 @@ public static class EditorToolbarCatalog
         string testId,
         EditorAiAssistAction aiAction,
         string cssClass) =>
-        new(key, EditorToolbarActionType.Ai, cssClass, contentHtml, tooltip, testId, AiAction: aiAction);
+        new(key, EditorToolbarActionType.Ai, cssClass, contentHtml, tooltip, testId, AiAction: aiAction, PreventMouseDown: true);
 
     private static EditorToolbarActionDescriptor ClearColor(string key, string tooltip, string testId) =>
         new(
@@ -312,7 +312,8 @@ public static class EditorToolbarCatalog
             tooltip,
             testId,
             "background:transparent;border:1px dashed var(--gold-20)",
-            Command: new EditorCommandRequest(EditorCommandKind.ClearColor, string.Empty));
+            Command: new EditorCommandRequest(EditorCommandKind.ClearColor, string.Empty),
+            PreventMouseDown: true);
 
     private static EditorToolbarActionDescriptor FloatingAi(
         string key,
@@ -374,7 +375,7 @@ public static class EditorToolbarCatalog
             PreventMouseDown: true);
 
     private static EditorToolbarActionDescriptor History(string key, string contentHtml, string tooltip, string testId, EditorHistoryCommand command) =>
-        new(key, EditorToolbarActionType.History, "tb-btn tb-tip", contentHtml, tooltip, testId, HistoryCommand: command);
+        new(key, EditorToolbarActionType.History, "tb-btn tb-tip", contentHtml, tooltip, testId, HistoryCommand: command, PreventMouseDown: true);
 
     private static EditorToolbarActionDescriptor Insert(
         string key,
@@ -390,10 +391,11 @@ public static class EditorToolbarCatalog
             contentHtml,
             tooltip,
             testId,
-            Command: new EditorCommandRequest(EditorCommandKind.Insert, token));
+            Command: new EditorCommandRequest(EditorCommandKind.Insert, token),
+            PreventMouseDown: true);
 
     private static EditorToolbarActionDescriptor Toggle(string menuId, string testId, string tooltip, string contentHtml) =>
-        new(menuId, EditorToolbarActionType.ToggleMenu, "tb-btn tb-has-dropdown tb-tip", contentHtml, tooltip, testId, MenuId: menuId);
+        new(menuId, EditorToolbarActionType.ToggleMenu, "tb-btn tb-has-dropdown tb-tip", contentHtml, tooltip, testId, MenuId: menuId, PreventMouseDown: true);
 
     private static EditorToolbarActionDescriptor Wrap(
         string key,
@@ -413,5 +415,6 @@ public static class EditorToolbarCatalog
             tooltip,
             testId,
             style,
-            Command: new EditorCommandRequest(EditorCommandKind.Wrap, openingToken, closingToken, placeholder));
+            Command: new EditorCommandRequest(EditorCommandKind.Wrap, openingToken, closingToken, placeholder),
+            PreventMouseDown: true);
 }

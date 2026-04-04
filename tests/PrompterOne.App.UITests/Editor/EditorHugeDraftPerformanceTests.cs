@@ -1,4 +1,5 @@
 using PrompterOne.Shared.Contracts;
+using PrompterOne.Shared.Services.Editor;
 
 namespace PrompterOne.App.UITests;
 
@@ -17,14 +18,13 @@ public sealed class EditorHugeDraftPerformanceTests(StandaloneAppFixture fixture
             var expectedLength =
                 EditorLargeDraftPerformanceTestData.GetVisibleDraftLength(hugeDraft) +
                 EditorLargeDraftPerformanceTestData.FollowupTypingText.Length;
-            var sourceInput = page.GetByTestId(UiTestIds.Editor.SourceInput);
 
             await page.GotoAsync(BrowserTestConstants.Routes.EditorHugeDraft);
             var editorReady = false;
             var deadline = DateTimeOffset.UtcNow.AddMilliseconds(EditorLargeDraftPerformanceTestData.HugeDraftReadyTimeoutMs);
             while (DateTimeOffset.UtcNow < deadline)
             {
-                if (await sourceInput.IsVisibleAsync())
+                if (await EditorMonacoDriver.SourceStage(page).IsVisibleAsync())
                 {
                     editorReady = true;
                     break;
@@ -59,6 +59,8 @@ public sealed class EditorHugeDraftPerformanceTests(StandaloneAppFixture fixture
                     $"Huge draft editor did not appear. Url: {debug.Location}; SourceInputs: {debug.SourceInputCount}; Banner: {debug.DiagnosticsBannerVisible}; Fatal: {debug.DiagnosticsFatalVisible}; RouteNotFound: {debug.RouteNotFoundVisible}; Body: {debug.BodySnippet}");
             }
 
+            await EditorMonacoDriver.WaitUntilReadyAsync(page);
+
             await page.WaitForFunctionAsync(
                 """
                 (args) => {
@@ -91,7 +93,7 @@ public sealed class EditorHugeDraftPerformanceTests(StandaloneAppFixture fixture
                     });
 
                     observer.observe({ type: "longtask" });
-                    input.addEventListener("input", () => {
+                    input.addEventListener(args.proxyChangedEventName, () => {
                         const started = performance.now();
                         requestAnimationFrame(() => {
                             samples.push({
@@ -101,17 +103,18 @@ public sealed class EditorHugeDraftPerformanceTests(StandaloneAppFixture fixture
                         });
                     }, { passive: true });
 
-                    input.focus();
-                    input.setSelectionRange(input.value.length, input.value.length);
                     window.__editorHugeDraftProbe = { longTasks, observer, samples };
                 }
                 """,
                 new
                 {
                     inputTestId = UiTestIds.Editor.SourceInput,
-                    overlayTestId = UiTestIds.Editor.SourceHighlight
+                    overlayTestId = UiTestIds.Editor.SourceHighlight,
+                    proxyChangedEventName = EditorMonacoRuntimeContract.EditorProxyChangedEventName
                 });
 
+            await EditorMonacoDriver.FocusAsync(page);
+            await EditorMonacoDriver.SetCaretAtEndAsync(page);
             await page.Keyboard.TypeAsync(EditorLargeDraftPerformanceTestData.FollowupTypingText, new() { Delay = 0 });
             await page.WaitForTimeoutAsync(EditorLargeDraftPerformanceTestData.ObservationDelayMs);
 

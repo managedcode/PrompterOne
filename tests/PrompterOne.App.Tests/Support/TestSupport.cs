@@ -48,6 +48,8 @@ internal static class TestHarnessFactory
         var parser = new TpsParser();
         var compiler = new ScriptCompiler();
         var frontMatter = new TpsFrontMatterDocumentService();
+        var documentSplitService = new TpsDocumentSplitService();
+        var scriptImportDescriptorService = new ScriptImportDescriptorService();
         var textEditor = new TpsTextEditor();
         var structureEditor = new TpsStructureEditor();
         var localAssistant = new EditorLocalAssistant();
@@ -94,12 +96,16 @@ internal static class TestHarnessFactory
         context.Services.AddSingleton(parser);
         context.Services.AddSingleton(compiler);
         context.Services.AddSingleton(frontMatter);
+        context.Services.AddSingleton(documentSplitService);
+        context.Services.AddSingleton(scriptImportDescriptorService);
         context.Services.AddSingleton(textEditor);
         context.Services.AddSingleton(structureEditor);
         context.Services.AddSingleton(localAssistant);
         context.Services.AddSingleton<IScriptPreviewService>(previewService);
         context.Services.AddSingleton<EditorOutlineBuilder>();
         context.Services.AddSingleton<EditorInterop>();
+        context.Services.AddSingleton<EditorMonacoInterop>();
+        context.Services.AddSingleton<AppShellFilePickerInterop>();
         context.Services.AddSingleton<IMediaSceneService>(sceneService);
         context.Services.AddSingleton<IMediaPermissionService>(permissionService);
         context.Services.AddSingleton<IMediaDeviceService>(deviceService);

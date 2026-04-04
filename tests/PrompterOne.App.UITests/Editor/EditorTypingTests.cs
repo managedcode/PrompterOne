@@ -1,4 +1,6 @@
+using Microsoft.Playwright;
 using PrompterOne.Shared.Contracts;
+using PrompterOne.Shared.Services.Editor;
 using static Microsoft.Playwright.Assertions;
 
 namespace PrompterOne.App.UITests;
@@ -15,17 +17,13 @@ public sealed class EditorTypingTests(StandaloneAppFixture fixture) : IClassFixt
         try
         {
             await page.GotoAsync(BrowserTestConstants.Routes.EditorQuantum);
-            await Expect(page.GetByTestId(UiTestIds.Editor.SourceInput))
-                .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
+            await EditorMonacoDriver.WaitUntilReadyAsync(page);
             await Expect(page.GetByTestId(UiTestIds.Editor.ActiveSegmentName)).ToHaveCountAsync(0);
             await Expect(page.GetByTestId(UiTestIds.Editor.ActiveBlockName)).ToHaveCountAsync(0);
 
-            await page.GetByTestId(UiTestIds.Editor.SourceInput).ClickAsync();
-            await page.Keyboard.PressAsync(BrowserTestConstants.Keyboard.SelectAll);
-            await page.Keyboard.PressAsync(BrowserTestConstants.Keyboard.Backspace);
-            await page.Keyboard.TypeAsync(BrowserTestConstants.Editor.TypedScript);
+            await EditorMonacoDriver.ClearAndTypeAsync(page, BrowserTestConstants.Editor.TypedScript);
 
-            await Expect(page.GetByTestId(UiTestIds.Editor.SourceInput)).ToHaveValueAsync(BrowserTestConstants.Editor.TypedScript);
+            await Expect(EditorMonacoDriver.SourceInput(page)).ToHaveValueAsync(BrowserTestConstants.Editor.TypedScript);
             await Expect(page.GetByTestId(UiTestIds.Editor.SegmentNavigation(0))).ToContainTextAsync(BrowserTestConstants.Editor.TypedTitle);
             await Expect(page.GetByTestId(UiTestIds.Editor.BlockNavigation(0, 0))).ToContainTextAsync(BrowserTestConstants.Editor.TypedBlock);
             await Expect(page.GetByTestId(UiTestIds.Editor.SourceHighlight))
@@ -33,7 +31,8 @@ public sealed class EditorTypingTests(StandaloneAppFixture fixture) : IClassFixt
 
             await page.WaitForTimeoutAsync(BrowserTestConstants.Timing.PersistDelayMs);
             await page.ReloadAsync();
-            await Expect(page.GetByTestId(UiTestIds.Editor.SourceInput)).ToHaveValueAsync(BrowserTestConstants.Editor.TypedScript);
+            await EditorMonacoDriver.WaitUntilReadyAsync(page);
+            await Expect(EditorMonacoDriver.SourceInput(page)).ToHaveValueAsync(BrowserTestConstants.Editor.TypedScript);
             await Expect(page.GetByTestId(UiTestIds.Editor.SegmentNavigation(0))).ToContainTextAsync(BrowserTestConstants.Editor.TypedTitle);
             await Expect(page.GetByTestId(UiTestIds.Editor.BlockNavigation(0, 0))).ToContainTextAsync(BrowserTestConstants.Editor.TypedBlock);
         }
@@ -51,37 +50,19 @@ public sealed class EditorTypingTests(StandaloneAppFixture fixture) : IClassFixt
         try
         {
             await page.GotoAsync(BrowserTestConstants.Routes.EditorQuantum);
-            await Expect(page.GetByTestId(UiTestIds.Editor.SourceInput))
-                .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
+            await EditorMonacoDriver.WaitUntilReadyAsync(page);
 
-            await page.GetByTestId(UiTestIds.Editor.SourceInput).ClickAsync(new()
+            await EditorMonacoDriver.ClickAsync(page, new Position
             {
-                Position = new()
-                {
-                    X = BrowserTestConstants.Editor.ClickNearStartOffsetX,
-                    Y = BrowserTestConstants.Editor.ClickNearStartOffsetY
-                }
+                X = BrowserTestConstants.Editor.ClickNearStartOffsetX,
+                Y = BrowserTestConstants.Editor.ClickNearStartOffsetY
             });
 
-            var editorSurfaceState = await page.EvaluateAsync<EditorSurfaceState>(
-                """
-                () => {
-                    const input = document.querySelector('[data-testid="editor-source-input"]');
-                    const highlight = document.querySelector('[data-testid="editor-source-highlight"]');
-                    const inputStyle = input ? getComputedStyle(input) : null;
-                    const highlightStyle = highlight ? getComputedStyle(highlight) : null;
-                    return {
-                        selectionStart: input ? input.selectionStart ?? -1 : -1,
-                        inputColor: inputStyle ? inputStyle.color : '',
-                        highlightOpacity: highlightStyle ? highlightStyle.opacity : ''
-                    };
-                }
-                """);
-
-            Assert.NotNull(editorSurfaceState);
-            Assert.InRange(editorSurfaceState!.SelectionStart, 0, BrowserTestConstants.Editor.ClickCaretThreshold);
-            Assert.Equal(BrowserTestConstants.Editor.TransparentInputColor, editorSurfaceState.InputColor);
-            Assert.Equal(BrowserTestConstants.Editor.VisibleOverlayOpacity, editorSurfaceState.HighlightOpacity);
+            var editorSurfaceState = await EditorMonacoDriver.GetStateAsync(page);
+            Assert.InRange(editorSurfaceState.Selection.Start, 0, BrowserTestConstants.Editor.ClickCaretThreshold);
+            Assert.True(editorSurfaceState.Ready);
+            Assert.Equal(EditorMonacoRuntimeContract.EditorEngineAttributeValue, editorSurfaceState.Engine);
+            Assert.True(editorSurfaceState.DecorationClasses.Count > 0);
         }
         finally
         {
@@ -97,34 +78,8 @@ public sealed class EditorTypingTests(StandaloneAppFixture fixture) : IClassFixt
         try
         {
             await page.GotoAsync(BrowserTestConstants.Routes.EditorQuantum);
-            var sourceInput = page.GetByTestId(UiTestIds.Editor.SourceInput);
-
-            await Expect(sourceInput)
-                .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
-
-            await page.EvaluateAsync(
-                """
-                (args) => {
-                    const input = document.querySelector(`[data-testid="${args.inputTestId}"]`);
-                    if (!input) {
-                        throw new Error("Unable to focus the quantum header line.");
-                    }
-
-                    const start = input.value.indexOf(args.targetLine);
-                    if (start < 0) {
-                        throw new Error("Unable to find the quantum header line.");
-                    }
-
-                    const caret = start + args.targetLine.length;
-                    input.focus();
-                    input.setSelectionRange(caret, caret);
-                }
-                """,
-                new
-                {
-                    inputTestId = UiTestIds.Editor.SourceInput,
-                    targetLine = BrowserTestConstants.Editor.QuantumOverviewBlockHeader
-                });
+            await EditorMonacoDriver.WaitUntilReadyAsync(page);
+            await EditorMonacoDriver.SetCaretAtTextEndAsync(page, BrowserTestConstants.Editor.QuantumOverviewBlockHeader);
 
             await page.Keyboard.TypeAsync(BrowserTestConstants.Editor.HeaderContinuationText, new() { Delay = 0 });
             await page.WaitForTimeoutAsync(BrowserTestConstants.Timing.TypingProbeSettleDelayMs);
@@ -174,17 +129,10 @@ public sealed class EditorTypingTests(StandaloneAppFixture fixture) : IClassFixt
         try
         {
             await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
-            var sourceInput = page.GetByTestId(UiTestIds.Editor.SourceInput);
+            await EditorMonacoDriver.WaitUntilReadyAsync(page);
+            await EditorMonacoDriver.ClearAndTypeAsync(page, BrowserTestConstants.Editor.TypedScript);
 
-            await Expect(sourceInput)
-                .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
-
-            await sourceInput.ClickAsync();
-            await page.Keyboard.PressAsync(BrowserTestConstants.Keyboard.SelectAll);
-            await page.Keyboard.PressAsync(BrowserTestConstants.Keyboard.Backspace);
-            await sourceInput.PressSequentiallyAsync(BrowserTestConstants.Editor.TypedScript);
-
-            await Expect(sourceInput).ToHaveValueAsync(BrowserTestConstants.Editor.TypedScript);
+            await Expect(EditorMonacoDriver.SourceInput(page)).ToHaveValueAsync(BrowserTestConstants.Editor.TypedScript);
             await Expect(page.GetByTestId(UiTestIds.Editor.SegmentNavigation(0)))
                 .ToContainTextAsync(BrowserTestConstants.Editor.TypedTitle);
             await Expect(page.GetByTestId(UiTestIds.Editor.BlockNavigation(0, 0)))
@@ -204,12 +152,9 @@ public sealed class EditorTypingTests(StandaloneAppFixture fixture) : IClassFixt
         try
         {
             await page.GotoAsync(BrowserTestConstants.Routes.Editor);
-            var sourceInput = page.GetByTestId(UiTestIds.Editor.SourceInput);
+            await EditorMonacoDriver.WaitUntilReadyAsync(page);
 
-            await Expect(sourceInput)
-                .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
-
-            await sourceInput.ClickAsync();
+            await EditorMonacoDriver.ClickAsync(page);
             await page.Keyboard.TypeAsync(BrowserTestConstants.Editor.FirstProbeCharacter);
             await page.WaitForTimeoutAsync(BrowserTestConstants.Timing.NewDraftPersistGraceDelayMs);
 
@@ -218,14 +163,14 @@ public sealed class EditorTypingTests(StandaloneAppFixture fixture) : IClassFixt
             Assert.True(string.IsNullOrEmpty(graceUri.Query));
 
             await page.Keyboard.TypeAsync(BrowserTestConstants.Editor.SecondProbeCharacter);
-            await Expect(sourceInput).ToHaveValueAsync(BrowserTestConstants.Editor.NewDraftProbeText);
+            await Expect(EditorMonacoDriver.SourceInput(page)).ToHaveValueAsync(BrowserTestConstants.Editor.NewDraftProbeText);
 
             await page.WaitForTimeoutAsync(BrowserTestConstants.Timing.NewDraftPersistSettleDelayMs);
 
             var currentUri = new Uri(page.Url);
             Assert.Equal(BrowserTestConstants.Routes.Editor, currentUri.AbsolutePath);
             Assert.True(currentUri.Query.Contains(AppRoutes.ScriptIdQueryKey, StringComparison.Ordinal));
-            await Expect(sourceInput).ToHaveValueAsync(BrowserTestConstants.Editor.NewDraftProbeText);
+            await Expect(EditorMonacoDriver.SourceInput(page)).ToHaveValueAsync(BrowserTestConstants.Editor.NewDraftProbeText);
         }
         finally
         {
@@ -241,12 +186,8 @@ public sealed class EditorTypingTests(StandaloneAppFixture fixture) : IClassFixt
         try
         {
             await page.GotoAsync(BrowserTestConstants.Routes.EditorQuantum);
-            var sourceInput = page.GetByTestId(UiTestIds.Editor.SourceInput);
-
-            await Expect(sourceInput)
-                .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
-
-            await sourceInput.ClickAsync();
+            await EditorMonacoDriver.WaitUntilReadyAsync(page);
+            await EditorMonacoDriver.ClickAsync(page);
             await page.Keyboard.PressAsync(BrowserTestConstants.Keyboard.SelectAll);
             await page.Keyboard.PressAsync(BrowserTestConstants.Keyboard.Backspace);
 
@@ -255,6 +196,7 @@ public sealed class EditorTypingTests(StandaloneAppFixture fixture) : IClassFixt
                 (args) => {
                     const input = document.querySelector(`[data-testid="${args.inputTestId}"]`);
                     const overlay = document.querySelector(`[data-testid="${args.overlayTestId}"]`);
+                    const harness = window[args.harnessGlobalName];
                     if (!input || !overlay) {
                         throw new Error("Unable to attach the editor typing probe.");
                     }
@@ -268,12 +210,15 @@ public sealed class EditorTypingTests(StandaloneAppFixture fixture) : IClassFixt
                     });
                     observer.observe({ type: "longtask" });
 
-                    input.addEventListener("input", () => {
+                    input.addEventListener(args.proxyChangedEventName, () => {
                         const started = performance.now();
                         requestAnimationFrame(() => {
+                            const state = harness?.getState(args.stageTestId);
                             samples.push({
                                 latency: performance.now() - started,
-                                inputVisible: getComputedStyle(input).color !== args.transparentInputColor
+                                decorationClassCount: state?.decorationClasses?.length ?? 0,
+                                inputVisible: getComputedStyle(input).color !== args.transparentInputColor,
+                                ready: state?.ready === true
                             });
                         });
                     }, { passive: true });
@@ -289,8 +234,11 @@ public sealed class EditorTypingTests(StandaloneAppFixture fixture) : IClassFixt
                 """,
                 new
                 {
+                    harnessGlobalName = EditorMonacoRuntimeContract.BrowserHarnessGlobalName,
                     inputTestId = UiTestIds.Editor.SourceInput,
                     overlayTestId = UiTestIds.Editor.SourceHighlight,
+                    proxyChangedEventName = EditorMonacoRuntimeContract.EditorProxyChangedEventName,
+                    stageTestId = UiTestIds.Editor.SourceStage,
                     transparentInputColor = BrowserTestConstants.Editor.TransparentInputColor
                 });
 
@@ -324,9 +272,12 @@ public sealed class EditorTypingTests(StandaloneAppFixture fixture) : IClassFixt
                         p95Latency: p95Index >= 0 ? latencies[p95Index] : -1,
                         longTaskCount: probe.longTasks.length,
                         maxLongTaskDuration: probe.longTasks.length ? Math.max(...probe.longTasks) : 0,
+                        maxDecorationClassCount: probe.samples.length
+                            ? Math.max(...probe.samples.map(sample => sample.decorationClassCount))
+                            : 0,
+                        readyDuringTyping: probe.samples.every(sample => sample.ready === true),
                         sawVisibleInput: probe.samples.some(sample => sample.inputVisible),
                         finalInputColor: getComputedStyle(probe.input).color,
-                        finalOverlayOpacity: getComputedStyle(probe.overlay).opacity,
                         finalRenderedLength: Number.parseInt(
                             probe.overlay.dataset.renderedLength ?? '-1',
                             10)
@@ -349,22 +300,14 @@ public sealed class EditorTypingTests(StandaloneAppFixture fixture) : IClassFixt
                 0,
                 BrowserTestConstants.Editor.MaxTypingLongTaskCount);
             Assert.Equal(BrowserTestConstants.Editor.TransparentInputColor, probeResult.FinalInputColor);
-            Assert.Equal(BrowserTestConstants.Editor.VisibleOverlayOpacity, probeResult.FinalOverlayOpacity);
+            Assert.True(probeResult.MaxDecorationClassCount > 0);
+            Assert.True(probeResult.ReadyDuringTyping);
             Assert.True(probeResult.FinalRenderedLength > 0);
         }
         finally
         {
             await page.Context.CloseAsync();
         }
-    }
-
-    private sealed class EditorSurfaceState
-    {
-        public string HighlightOpacity { get; set; } = string.Empty;
-
-        public string InputColor { get; set; } = string.Empty;
-
-        public int SelectionStart { get; set; }
     }
 
     private sealed class HeaderLineState
@@ -378,17 +321,19 @@ public sealed class EditorTypingTests(StandaloneAppFixture fixture) : IClassFixt
     {
         public string FinalInputColor { get; set; } = string.Empty;
 
-        public string FinalOverlayOpacity { get; set; } = string.Empty;
-
         public int FinalRenderedLength { get; set; }
 
         public int LongTaskCount { get; set; }
+
+        public int MaxDecorationClassCount { get; set; }
 
         public double MaxLatency { get; set; }
 
         public double MaxLongTaskDuration { get; set; }
 
         public double P95Latency { get; set; }
+
+        public bool ReadyDuringTyping { get; set; }
 
         public bool SawVisibleInput { get; set; }
 

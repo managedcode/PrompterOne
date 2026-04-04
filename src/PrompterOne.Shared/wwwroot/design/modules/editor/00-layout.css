@@ -310,3 +310,41 @@
     gap: 8px;
     margin-top: auto;
 }
+
+.ed-sidebar-action {
+    flex: 1;
+    min-height: 40px;
+    border-radius: 12px;
+    border: 1px solid var(--gold-10);
+    background: var(--glass2);
+    color: var(--t1);
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition:
+        background .18s ease,
+        border-color .18s ease,
+        color .18s ease,
+        transform .18s ease;
+}
+
+.ed-sidebar-action:hover {
+    background: var(--accent-g);
+    border-color: rgba(232,130,92,.18);
+    color: #E8D5B0;
+    transform: translateY(-1px);
+}
+
+.ed-sidebar-note {
+    margin: 0 14px 14px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid var(--gold-08);
+    background: rgba(14,18,26,.58);
+    color: var(--t2);
+    font-size: 12px;
+    line-height: 1.5;
+}
