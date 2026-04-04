@@ -20,6 +20,22 @@
   <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License" />
 </p>
 
+<h2 align="center">🚀 Build In Public</h2>
+
+<p align="center">
+  <a href="https://www.youtube.com/watch?v=SBcsYblO1AI&list=PLIyi2UvDCig2IgzRQLJXcS5MYdZVDu2EM">
+    <img src="https://img.youtube.com/vi/SBcsYblO1AI/maxresdefault.jpg" width="600" alt="Watch on YouTube" />
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://www.youtube.com/@managedcode">
+    <img src="https://img.shields.io/badge/YouTube-Subscribe-red?style=for-the-badge&logo=youtube" />
+  </a>
+</p>
+
+
+
 ---
 
 ## The Problem
