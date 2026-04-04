@@ -214,6 +214,11 @@ internal static partial class BrowserTestConstants
         public const string ToolbarPinnedSelectionTarget = "welcome";
         public const int ToolbarPinnedSelectionCharacterCount = 7;
         public const double FloatingBarPinnedMaxDriftPx = 4;
+        public const int LocalHistoryAutosaveObservationDelayMs = 1900;
+        public const string LocalHistoryFirstLine = "First browser-local revision for restore.";
+        public const string LocalHistorySecondLine = "Second browser-local revision for restore.";
+        public const string LocalHistoryUnsavedLine = "Autosave disabled should keep this line local.";
+        public const string LocalHistoryResavedLine = "Autosave re-enabled should persist this line.";
         public const string SimplifiedMoment = "clear moment";
         public const string AiScrollJumpLineTemplate = "Line {0:D3} carries the transformative moment for AI simplify.";
         public const int AiScrollJumpLineCount = 140;
@@ -228,6 +233,11 @@ internal static partial class BrowserTestConstants
         public const int ClickNearStartOffsetY = 70;
         public const double FloatingBarMinHeightPx = 40;
         public const double FloatingBarMinGapAboveSelectionPx = 4;
+        public const double MinimapMinimumWidthPx = 64;
+        public const double MinimapStageEdgeTolerancePx = 18;
+        public const double MaximumLayoutViewportRightGapPx = 2;
+        public const double MinimumMainPanelGrowthOnCollapsePx = 180;
+        public const double MaximumCollapsedMetadataRailWidthPx = 64;
         public const double MetadataRailDockGapPx = 10;
         public const double MetadataRailDockTolerancePx = 2;
         public const string OverlayRenderedLengthDataAttribute = "renderedLength";
@@ -827,6 +837,7 @@ internal static partial class BrowserTestConstants
     public static class Keyboard
     {
         public const string ArrowRight = "ArrowRight";
+        public const string PageDown = "PageDown";
         public const string SelectAll = "ControlOrMeta+A";
         public const string Backspace = "Backspace";
         public const string Undo = "ControlOrMeta+Z";

@@ -31,6 +31,11 @@ public static class UiDomIds
             $"{MicrophoneLevelMonitor}-{deviceId}";
     }
 
+    public static class Editor
+    {
+        public const string MetadataRailBody = "editor-metadata-rail-body";
+    }
+
     public static class GoLive
     {
         public const string MicrophoneLevelMonitor = "go-live-microphone-level-monitor";

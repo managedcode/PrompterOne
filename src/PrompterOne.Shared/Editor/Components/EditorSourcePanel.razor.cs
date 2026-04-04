@@ -135,10 +135,10 @@ public partial class EditorSourcePanel : IAsyncDisposable
         return true;
     }
 
-    public async Task FocusRangeAsync(int start, int end)
+    public async Task FocusRangeAsync(int start, int end, bool revealSelection = true)
     {
         var selection = await RunSelectionInteropAsync(
-            () => MonacoInterop.SetSelectionAsync(_editorHostRef, start, end),
+            () => MonacoInterop.SetSelectionAsync(_editorHostRef, start, end, revealSelection),
             FocusSelectionFailureMessage);
 
         if (selection is null)
@@ -297,6 +297,7 @@ public partial class EditorSourcePanel : IAsyncDisposable
         monacoVsPath = EditorMonacoRuntimeContract.MonacoVsPath,
         placeholder = DefaultPlaceholderText,
         selectionChangedCallbackName = EditorMonacoInteropMethodNames.NotifySelectionChanged,
+        sourceMinimapTestId = UiTestIds.Editor.SourceMinimap,
         supportedFileNameSuffixes = ScriptDocumentFileTypes.SupportedFileNameSuffixes,
         textChangedCallbackName = EditorMonacoInteropMethodNames.NotifyTextChanged
     };

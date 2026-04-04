@@ -209,6 +209,8 @@ public sealed class SettingsInteractionTests : BunitContext
         Assert.DoesNotContain("/Users/you/", markup, StringComparison.Ordinal);
         Assert.Contains(BrowserStorageKeys.DocumentLibrary, markup, StringComparison.Ordinal);
         Assert.Contains(PrompterStorageDefaults.BrowserContainerDisplayPrefix, markup, StringComparison.Ordinal);
+        Assert.Contains("Auto-save local script changes", markup, StringComparison.Ordinal);
+        Assert.Contains("Keep recent browser-local revisions", markup, StringComparison.Ordinal);
     }
 
     [Fact]

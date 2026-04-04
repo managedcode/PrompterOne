@@ -120,6 +120,16 @@ public sealed class EditorStylesheetContractTests
         Assert.DoesNotContain("floatingToolbarAnchorMinTopPx", editorSupportScript, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void EditorMinimapChrome_StaysContainedInsideEditorSurface()
+    {
+        var minimapRule = NormalizeCssRule(GetRuleBlock(".ed-main ::deep .monaco-editor .minimap"));
+        var sliderRule = NormalizeCssRule(GetRuleBlock(".ed-main ::deep .monaco-editor .minimap-slider"));
+
+        Assert.Contains("border-left:1pxsolidvar(--gold-06);", minimapRule, StringComparison.Ordinal);
+        Assert.Contains("border-radius:8px;", sliderRule, StringComparison.Ordinal);
+    }
+
     private static string GetRuleBlock(string selector)
     {
         var stylesheet = File.ReadAllText(ComponentStylesheetPath);

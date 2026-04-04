@@ -13,6 +13,15 @@ internal static partial class BrowserTestConstants
         public const string OpeningBlock = "Opening Block";
         public const string PurposeBlock = "Purpose Block";
         public const string BenefitsBlock = "Benefits Block";
+        public const string LayoutScenario = "editor-layout-width";
+        public const string LayoutExpandedStep = "01-expanded-width";
+        public const string LayoutCollapsedStep = "02-collapsed-metadata";
+        public const string LocalHistoryScenario = "editor-local-history";
+        public const string LocalHistorySavedStep = "01-history-populated";
+        public const string LocalHistoryRestoredStep = "02-history-restored";
+        public const string LocalHistoryAutosaveScenario = "editor-local-history-autosave-toggle";
+        public const string LocalHistoryAutosaveDisabledStep = "01-autosave-disabled";
+        public const string LocalHistoryAutosaveEnabledStep = "02-autosave-enabled";
         public const string DatePickerScenario = "editor-date-picker-theme";
         public const string DatePickerDarkStep = "01-dark-theme-date-picker";
         public const string DatePickerLightStep = "02-light-theme-date-picker";
@@ -21,6 +30,7 @@ internal static partial class BrowserTestConstants
         public const int BenefitsBlockIndex = 1;
         public const string LightThemeScenario = "editor-light-theme-emotion-menu";
         public const string LightThemeStep = "01-readable-menu-and-tooltip";
+        public const int MetadataRailToggleSettleDelayMs = 250;
         public const string ToolbarTooltipScenario = "editor-toolbar-tooltips";
         public const string ToolbarTooltipDelayStep = "01-delayed-toolbar-tooltip";
         public const string ToolbarTooltipDropdownStep = "02-dropdown-tooltip-gap";

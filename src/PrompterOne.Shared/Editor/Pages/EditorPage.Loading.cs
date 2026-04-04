@@ -28,6 +28,7 @@ public partial class EditorPage
             {
                 await Bootstrapper.EnsureReadyAsync();
                 await EnsureSessionLoadedAsync();
+                await LoadEditorFileWorkflowAsync();
                 PopulateEditorState(resetHistory: true);
                 StateHasChanged();
             });

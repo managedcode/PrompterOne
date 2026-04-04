@@ -35,7 +35,7 @@
                 </div>
                 <p class="set-card-copy">@_viewState.Scripts.DetailLabel</p>
                 <div class="set-field set-field-toggle">
-                    <label>Auto-save every 30 seconds</label>
+                    <label>@ScriptsAutoSaveLabel</label>
                     <div class="@BuildToggleCssClass(_settings.FileAutoSaveEnabled)"
                          data-testid="@UiTestIds.Settings.FileAutoSave"
                          @onclick="ToggleAutoSaveAsync"
@@ -44,7 +44,7 @@
                     </div>
                 </div>
                 <div class="set-field set-field-toggle">
-                    <label>Keep backup copies</label>
+                    <label>@ScriptsHistoryLabel</label>
                     <div class="@BuildToggleCssClass(_settings.FileBackupCopiesEnabled)"
                          data-testid="@UiTestIds.Settings.FileBackupCopies"
                          @onclick="ToggleBackupCopiesAsync"

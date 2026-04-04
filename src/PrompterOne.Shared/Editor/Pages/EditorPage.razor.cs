@@ -7,6 +7,8 @@ using PrompterOne.Shared.Components.Editor;
 using PrompterOne.Shared.Services;
 using PrompterOne.Shared.Services.Diagnostics;
 using PrompterOne.Shared.Services.Editor;
+using PrompterOne.Shared.Settings.Models;
+using PrompterOne.Shared.Settings.Services;
 
 namespace PrompterOne.Shared.Pages;
 
@@ -52,6 +54,9 @@ public partial class EditorPage
     private string _createdDate = DateTime.UtcNow.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
     private string _displayDuration = "0:00";
     private string? _errorMessage;
+    private BrowserFileStorageSettings _fileStorageSettings = BrowserFileStorageSettings.Default;
+    private IReadOnlyList<EditorLocalRevisionViewModel> _localHistory = [];
+    private DateTimeOffset? _lastLocalSaveAt;
     private string _profile = DefaultProfileActor;
     private string _screenTitle = ScriptWorkspaceState.UntitledScriptTitle;
     private EditorSelectionViewModel _selection = EditorSelectionViewModel.Empty;
@@ -65,10 +70,12 @@ public partial class EditorPage
     private string _version = DefaultVersion;
 
     [Inject] private AppBootstrapper Bootstrapper { get; set; } = null!;
+    [Inject] private BrowserFileStorageStore BrowserFileStorageStore { get; set; } = null!;
     [Inject] private AppShellFilePickerInterop FilePickerInterop { get; set; } = null!;
     [Inject] private AppShellService Shell { get; set; } = null!;
     [Inject] private UiDiagnosticsService Diagnostics { get; set; } = null!;
     [Inject] private EditorDroppedScriptMergeService DroppedScriptMergeService { get; set; } = null!;
+    [Inject] private EditorLocalRevisionStore EditorLocalRevisionStore { get; set; } = null!;
     [Inject] private EditorDocumentSaveCoordinator EditorDocumentSaveCoordinator { get; set; } = null!;
     [Inject] private NavigationManager Navigation { get; set; } = null!;
     [Inject] private EditorOutlineBuilder OutlineBuilder { get; set; } = null!;

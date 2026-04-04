@@ -6,6 +6,8 @@ internal sealed class EditorMonacoState
 
     public string Engine { get; set; } = string.Empty;
 
+    public EditorMonacoLayout Layout { get; set; } = new();
+
     public string LanguageId { get; set; } = string.Empty;
 
     public int LineCount { get; set; }
@@ -17,6 +19,19 @@ internal sealed class EditorMonacoState
     public EditorMonacoSelection Selection { get; set; } = new();
 
     public string Text { get; set; } = string.Empty;
+}
+
+internal sealed class EditorMonacoLayout
+{
+    public double ContentLeft { get; set; }
+
+    public double ContentWidth { get; set; }
+
+    public double EditorWidth { get; set; }
+
+    public double MinimapLeft { get; set; }
+
+    public double MinimapWidth { get; set; }
 }
 
 internal sealed class EditorMonacoSelection

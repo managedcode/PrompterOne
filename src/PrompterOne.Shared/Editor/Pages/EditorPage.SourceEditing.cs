@@ -106,7 +106,7 @@ public partial class EditorPage
     {
         _selection = _selection with { Range = selection };
         _history.TryRecord(text, selection);
-        if (string.IsNullOrWhiteSpace(ScriptId))
+        if (string.IsNullOrWhiteSpace(ScriptId) || !_fileStorageSettings.FileAutoSaveEnabled)
         {
             StageMutationForAutosave(text, documentNameOverride);
         }
@@ -115,7 +115,7 @@ public partial class EditorPage
             PersistDraftInBackground(text, documentNameOverride);
         }
 
-        await FocusSourceRangeAsync(selection.Start, selection.End);
+        await FocusSourceRangeAsync(selection.Start, selection.End, revealSelection: false);
     }
 
     private void StageMutationForAutosave(string text, string? documentNameOverride = null)
@@ -127,11 +127,11 @@ public partial class EditorPage
         QueueAutosave();
     }
 
-    private async Task FocusSourceRangeAsync(int start, int end)
+    private async Task FocusSourceRangeAsync(int start, int end, bool revealSelection = true)
     {
         if (_sourcePanel is not null)
         {
-            await _sourcePanel.FocusRangeAsync(start, end);
+            await _sourcePanel.FocusRangeAsync(start, end, revealSelection);
         }
     }
 }

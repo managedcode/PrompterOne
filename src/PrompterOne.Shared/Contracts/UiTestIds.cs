@@ -136,6 +136,7 @@ public static class UiTestIds
         public const string InsertSegmentMenu = "editor-insert-segment-menu";
         public const string InsertPronunciation = "editor-insert-pronunciation";
         public const string InsertTrigger = "editor-insert-trigger";
+        public const string Layout = "editor-layout";
         public const string MenuColor = "editor-menu-color";
         public const string MenuEmotion = "editor-menu-emotion";
         public const string MenuFormat = "editor-menu-format";
@@ -144,6 +145,10 @@ public static class UiTestIds
         public const string MenuSpeed = "editor-menu-speed";
         public const string MainPanel = "editor-main-panel";
         public const string MetadataRail = "editor-metadata-rail";
+        public const string MetadataRailToggle = "editor-metadata-rail-toggle";
+        public const string LocalHistoryEmpty = "editor-local-history-empty";
+        public const string LocalHistoryPanel = "editor-local-history-panel";
+        public const string LocalHistoryStatus = "editor-local-history-status";
         public const string Page = "editor-page";
         public const string PauseTrigger = "editor-pause-trigger";
         public const string PauseTwoSeconds = "editor-pause-two-seconds";
@@ -151,6 +156,7 @@ public static class UiTestIds
         public const string Redo = "editor-redo";
         public const string SourceHighlight = "editor-source-highlight";
         public const string SourceInput = "editor-source-input";
+        public const string SourceMinimap = "editor-source-minimap";
         public const string SourceScrollHost = "editor-source-scroll-host";
         public const string SourceStage = "editor-source-stage";
         public const string Toolbar = "editor-toolbar";
@@ -169,6 +175,10 @@ public static class UiTestIds
         public const string Version = "editor-version";
 
         public static string BlockNavigation(int segmentIndex, int blockIndex) => $"editor-structure-block-{segmentIndex}-{blockIndex}";
+
+        public static string LocalHistoryItem(int index) => $"editor-local-history-item-{index}";
+
+        public static string LocalHistoryRestore(int index) => $"editor-local-history-restore-{index}";
 
         public static string SegmentNavigation(int segmentIndex) => $"editor-structure-segment-{segmentIndex}";
     }

@@ -1,6 +1,7 @@
 using Bunit;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
+using PrompterOne.Core.Localization;
 using PrompterOne.Core.Models.Workspace;
 using PrompterOne.Core.Services.Editor;
 using PrompterOne.Shared.Contracts;
@@ -12,7 +13,11 @@ namespace PrompterOne.App.Tests;
 
 public sealed class MainLayoutActionTests : BunitContext
 {
+    private const string EnglishExportLabel = "Export";
+    private const string EnglishImportLabel = "Import";
     private const string SupportedImportAcceptValue = ScriptDocumentFileTypes.AcceptValue;
+    private const string UkrainianExportLabel = "Експорт";
+    private const string UkrainianImportLabel = "Імпорт";
 
     [Theory]
     [InlineData(AppRoutes.Learn, AppTestData.Scripts.QuantumId)]
@@ -84,6 +89,7 @@ public sealed class MainLayoutActionTests : BunitContext
             Assert.Contains("btn-golive-header", goLive.ClassName, StringComparison.Ordinal);
             Assert.Contains("btn-create", newScript.ClassName, StringComparison.Ordinal);
             Assert.Equal(SupportedImportAcceptValue, openScriptInput.GetAttribute("accept"));
+            Assert.Contains(EnglishImportLabel, openScript.TextContent, StringComparison.Ordinal);
 
             var goLiveIndex = cut.Markup.IndexOf(UiTestIds.Header.GoLive, StringComparison.Ordinal);
             var openScriptIndex = cut.Markup.IndexOf(UiTestIds.Header.LibraryOpenScript, StringComparison.Ordinal);
@@ -132,8 +138,10 @@ public sealed class MainLayoutActionTests : BunitContext
 
             Assert.NotNull(openScriptButton);
             Assert.Equal("dialog", openScriptButton!.GetAttribute("aria-haspopup"));
+            Assert.Contains(EnglishImportLabel, openScriptButton.TextContent, StringComparison.Ordinal);
             Assert.Equal(UiDomIds.AppShell.LibraryOpenScriptInput, openScriptInput.GetAttribute("id"));
             Assert.Equal(SupportedImportAcceptValue, openScriptInput.GetAttribute("accept"));
+            Assert.Equal(EnglishImportLabel, openScriptInput.GetAttribute("aria-label"));
         });
     }
 
@@ -158,7 +166,10 @@ public sealed class MainLayoutActionTests : BunitContext
 
         cut.WaitForAssertion(() =>
         {
-            Assert.NotNull(cut.FindByTestId(UiTestIds.Header.EditorSaveFile));
+            var exportAction = cut.FindByTestId(UiTestIds.Header.EditorSaveFile);
+
+            Assert.NotNull(exportAction);
+            Assert.Contains(EnglishExportLabel, exportAction.TextContent, StringComparison.Ordinal);
             Assert.NotNull(cut.FindByTestId(UiTestIds.Header.EditorLearn));
             Assert.NotNull(cut.FindByTestId(UiTestIds.Header.EditorRead));
         });
@@ -214,5 +225,45 @@ public sealed class MainLayoutActionTests : BunitContext
 
         Assert.EndsWith(AppRoutes.GoLive, navigation.Uri, StringComparison.Ordinal);
         Assert.DoesNotContain(AppRoutes.ScriptIdQueryKey, navigation.Uri, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void MainLayout_LibraryImportAction_RendersLocalizedCopy_WhenCurrentCultureIsUkrainian()
+    {
+        using var cultureScope = new CultureScope(AppCultureCatalog.UkrainianCultureName);
+        _ = TestHarnessFactory.Create(this);
+        var navigation = Services.GetRequiredService<NavigationManager>();
+        navigation.NavigateTo(AppRoutes.Library);
+
+        var cut = Render<MainLayout>(parameters => parameters
+            .Add(layout => layout.Body, (RenderFragment)(builder => builder.AddMarkupContent(0, "<div>Body</div>"))));
+
+        cut.WaitForAssertion(() =>
+        {
+            var importSurface = cut.FindByTestId(UiTestIds.Header.LibraryOpenScript);
+            var importInput = cut.FindByTestId(UiTestIds.Header.LibraryOpenScriptInput);
+
+            Assert.Contains(UkrainianImportLabel, importSurface.TextContent, StringComparison.Ordinal);
+            Assert.Equal(UkrainianImportLabel, importInput.GetAttribute("aria-label"));
+        });
+    }
+
+    [Fact]
+    public void MainLayout_EditorExportAction_RendersLocalizedCopy_WhenCurrentCultureIsUkrainian()
+    {
+        using var cultureScope = new CultureScope(AppCultureCatalog.UkrainianCultureName);
+        _ = TestHarnessFactory.Create(this);
+        var navigation = Services.GetRequiredService<NavigationManager>();
+        navigation.NavigateTo(AppRoutes.EditorWithId(AppTestData.Scripts.QuantumId));
+
+        var cut = Render<MainLayout>(parameters => parameters
+            .Add(layout => layout.Body, (RenderFragment)(builder => builder.AddMarkupContent(0, "<div>Body</div>"))));
+
+        cut.WaitForAssertion(() =>
+        {
+            var exportAction = cut.FindByTestId(UiTestIds.Header.EditorSaveFile);
+
+            Assert.Contains(UkrainianExportLabel, exportAction.TextContent, StringComparison.Ordinal);
+        });
     }
 }

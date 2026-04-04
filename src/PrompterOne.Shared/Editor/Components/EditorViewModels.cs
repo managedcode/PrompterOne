@@ -39,6 +39,12 @@ public sealed record EditorStatusViewModel(
     string Duration,
     string Version);
 
+public sealed record EditorLocalRevisionViewModel(
+    string Id,
+    string SavedAtLabel,
+    string Title,
+    string DocumentName);
+
 public sealed record EditorNavigationTarget(
     int SegmentIndex,
     int? BlockIndex,

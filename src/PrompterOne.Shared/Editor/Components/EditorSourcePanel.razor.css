@@ -167,6 +167,16 @@ body.theme-light .ed-toolbar-tooltip {
 .ed-main ::deep .monaco-editor .inputarea.ime-input{
     background:transparent !important;
 }
+.ed-main ::deep .monaco-editor .minimap{
+    border-left:1px solid var(--gold-06);
+}
+.ed-main ::deep .monaco-editor .minimap-shadow-visible,
+.ed-main ::deep .monaco-editor .minimap-shadow-hidden{
+    box-shadow:none !important;
+}
+.ed-main ::deep .monaco-editor .minimap-slider{
+    border-radius:8px;
+}
 .ed-main ::deep .monaco-editor .scroll-decoration{box-shadow:none !important;}
 .ed-main ::deep .monaco-editor .view-line{font-family:var(--mono) !important;}
 .ed-main ::deep .monaco-editor .cursor{box-shadow:none !important;}

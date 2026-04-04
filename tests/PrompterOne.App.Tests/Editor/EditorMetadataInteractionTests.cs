@@ -94,6 +94,47 @@ public sealed class EditorMetadataInteractionTests : BunitContext
         });
     }
 
+    [Fact]
+    public void EditorPage_MetadataRailToggleCollapsesAndExpands()
+    {
+        Services.GetRequiredService<NavigationManager>()
+            .NavigateTo(AppTestData.Routes.EditorDemo);
+        var cut = Render<EditorPage>();
+
+        cut.WaitForAssertion(() =>
+        {
+            var toggle = cut.FindByTestId(UiTestIds.Editor.MetadataRailToggle);
+            var rail = cut.FindByTestId(UiTestIds.Editor.MetadataRail);
+
+            Assert.Equal("true", toggle.GetAttribute("aria-expanded"));
+            Assert.Equal(EditorMetadataTestSource.FalseText, rail.GetAttribute("data-collapsed"));
+        });
+
+        cut.FindByTestId(UiTestIds.Editor.MetadataRailToggle).Click();
+
+        cut.WaitForAssertion(() =>
+        {
+            var toggle = cut.FindByTestId(UiTestIds.Editor.MetadataRailToggle);
+            var rail = cut.FindByTestId(UiTestIds.Editor.MetadataRail);
+
+            Assert.Equal("false", toggle.GetAttribute("aria-expanded"));
+            Assert.Equal(EditorMetadataTestSource.TrueText, rail.GetAttribute("data-collapsed"));
+            Assert.True(cut.Find($"#{UiDomIds.Editor.MetadataRailBody}").HasAttribute("hidden"));
+        });
+
+        cut.FindByTestId(UiTestIds.Editor.MetadataRailToggle).Click();
+
+        cut.WaitForAssertion(() =>
+        {
+            var toggle = cut.FindByTestId(UiTestIds.Editor.MetadataRailToggle);
+            var rail = cut.FindByTestId(UiTestIds.Editor.MetadataRail);
+
+            Assert.Equal("true", toggle.GetAttribute("aria-expanded"));
+            Assert.Equal(EditorMetadataTestSource.FalseText, rail.GetAttribute("data-collapsed"));
+            Assert.False(cut.Find($"#{UiDomIds.Editor.MetadataRailBody}").HasAttribute("hidden"));
+        });
+    }
+
     private static class EditorMetadataTestSource
     {
         public const string AuthorField = "author:";
@@ -102,10 +143,12 @@ public sealed class EditorMetadataInteractionTests : BunitContext
         public const string BlankTitle = "   ";
         public const string DurationField = "duration:";
         public const string DurationPersistenceLine = "duration: \"12:34\"";
+        public const string FalseText = "false";
         public const string ProfileRsvp = "RSVP";
         public const string RetitledScript = "Renamed Product Launch";
         public const string TitleField = "title:";
         public const string TitlePersistenceLine = "title: \"Renamed Product Launch\"";
+        public const string TrueText = "true";
         public const string UntitledTitlePersistenceLine = "title: \"Untitled Script\"";
         public const string VersionField = "version:";
         public const string VersionPersistenceLine = "version: \"2.0\"";

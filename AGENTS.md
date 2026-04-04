@@ -82,6 +82,8 @@ Rule format:
 - Public-facing screenshots that include camera or preview feeds must not ship mirrored or reversed readable text; choose or configure the capture so visible text reads correctly in the final asset.
 - Teleprompter reader text alignment must expose explicit left, center, and right modes, default to left alignment, and keep the left-aligned mode optically centered by offsetting the text mass away from a visibly left-heavy block.
 - The TPS editor migration to Monaco must be complete: syntax coloring, IntelliSense/autocomplete, hover or inline tooltip help, decorations, and TPS authoring feedback must be Monaco-native instead of split across legacy overlay or hidden-textarea behavior.
+- User-facing file transfer actions in the shell should use `Import` and `Export` wording instead of `Open Script` and `Save File`, because the app also has its own internal script/workspace structure.
+- File workflows must stay local-first inside PrompterOne: scripts need in-app autosave and an internal change-history path in the browser environment, not only external disk import/export actions.
 
 ## Rules to Follow (Mandatory)
 
@@ -120,6 +122,7 @@ Browser test execution rules:
 - Browser UI scenarios are the primary acceptance gate for this repo. Component and core tests are supporting layers, not the release bar.
 - Major user flows MUST be covered by long Playwright scenarios that execute real browser interactions end to end.
 - Major browser scenarios MUST capture screenshot artifacts under `output/playwright/`.
+- For new visual elements, visual regressions, or editor chrome/layout work, inspect the real browser surface and capture screenshots; bUnit may support structural contracts but is not sufficient as the primary signal for visual correctness.
 - Responsive layout work is not done until Playwright verifies every routed screen across a phone-and-tablet viewport matrix that includes small, medium, and large handset sizes plus small, medium, and large tablet sizes in both portrait and landscape, with assertions that primary page controls stay visible inside the viewport without clipping.
 - Editor typing and latency fixes are not done until they are reproduced and cleared on the live dev-host editor with real keyboard input, not only synthetic input helpers or the static UI-test host.
 - When the user reports an editor regression on a specific script or exact `/editor?id=...` URL, reproduce on that same live script before treating browser-suite results as sufficient.

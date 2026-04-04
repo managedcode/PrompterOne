@@ -62,6 +62,7 @@ public partial class EditorPage
         if (persistDocument)
         {
             var savedDocument = await SessionService.SaveAsync(cancellationToken);
+            await CaptureLocalRevisionAsync(savedDocument, cancellationToken);
             if (assignScriptId)
             {
                 if (revision != _draftRevision)
@@ -100,6 +101,7 @@ public partial class EditorPage
         }
 
         PopulateEditorState();
+        _ = InvokeAsync(StateHasChanged);
     }
 
     private void QueueAutosave()
@@ -204,6 +206,11 @@ public partial class EditorPage
 
     private bool ShouldQueueAutosave()
     {
+        if (!_fileStorageSettings.FileAutoSaveEnabled)
+        {
+            return false;
+        }
+
         if (!string.IsNullOrWhiteSpace(SessionService.State.ScriptId))
         {
             return true;

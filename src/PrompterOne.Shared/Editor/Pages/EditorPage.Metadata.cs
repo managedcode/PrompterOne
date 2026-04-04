@@ -55,7 +55,13 @@ public partial class EditorPage
     private async Task PersistMetadataAsync()
     {
         _history.TryRecord(_sourceText, _selection.Range);
-        await PersistDraftAsync(_sourceText);
+        if (_fileStorageSettings.FileAutoSaveEnabled)
+        {
+            await PersistDraftAsync(_sourceText);
+            return;
+        }
+
+        StageMutationForAutosave(_sourceText);
     }
 
     private void UpdateStatus()

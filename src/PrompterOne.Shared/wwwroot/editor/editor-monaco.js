@@ -6,8 +6,10 @@ const largeDraftDecorationViewportLinePadding = 24;
 const frontMatterDelimiter = "---";
 const emptyValue = "";
 const hostStates = new WeakMap();
+const minimapSelector = ".minimap";
 const numericWpmRegex = /^(?<wpm>\d+)\s*WPM$/i;
 const tagPattern = /\[[^[\]]+\]/g;
+const testIdAttributeName = "data-testid";
 const scopeKindRoot = "root";
 const scopeKindNeutral = "neutral";
 const scopeKindStyle = "style";
@@ -46,6 +48,28 @@ const speedClasses = new Map([
     ["xfast", `${cssClassPrefix}-inline-speed-xfast`]
 ]);
 const headerEmotionTags = new Set(emotionClasses.keys());
+const monacoMinimapDefaults = Object.freeze({
+    autohide: "none",
+    enabled: true,
+    maxColumn: 80,
+    renderCharacters: false,
+    scale: 1,
+    showSlider: "mouseover",
+    side: "right",
+    size: "fit"
+});
+const darkThemeMinimapColors = Object.freeze({
+    "minimap.background": "#0B101880",
+    "minimapSlider.activeBackground": "#D4B07052",
+    "minimapSlider.background": "#D4B07026",
+    "minimapSlider.hoverBackground": "#D4B0703D"
+});
+const lightThemeMinimapColors = Object.freeze({
+    "minimap.background": "#F7F0E180",
+    "minimapSlider.activeBackground": "#8B735552",
+    "minimapSlider.background": "#8B735526",
+    "minimapSlider.hoverBackground": "#8B73553D"
+});
 const monacoDefaults = Object.freeze({
     automaticLayout: true,
     contextmenu: false,
@@ -62,7 +86,7 @@ const monacoDefaults = Object.freeze({
     lineNumbers: "off",
     lineNumbersMinChars: 0,
     lineHeight: 32,
-    minimap: { enabled: false },
+    minimap: monacoMinimapDefaults,
     overviewRulerBorder: false,
     overviewRulerLanes: 0,
     padding: { top: 40, bottom: 40 },
@@ -131,6 +155,7 @@ export async function initializeEditor(host, proxy, semanticSnapshot, dotNetRef,
     state.subscriptions.push(
         editor.onDidChangeModelContent(() => onEditorContentChanged(state)),
         editor.onDidChangeCursorSelection(() => notifySelectionChanged(state, false)),
+        editor.onDidLayoutChange(() => syncEditorChromeContracts(state)),
         editor.onDidScrollChange(() => {
             if (shouldUseVisibleRangeDecorations(state)) {
                 scheduleDecorations(state);
@@ -173,6 +198,7 @@ export async function initializeEditor(host, proxy, semanticSnapshot, dotNetRef,
     host.setAttribute(options.editorReadyAttributeName, "true");
 
     syncProxyFromEditor(state);
+    syncEditorChromeContracts(state);
     scheduleDecorations(state);
     ensureHarness(options);
     ensureThemeObserver(monaco, options);
@@ -207,13 +233,13 @@ export function getSelectionState(host) {
     return state ? createSelectionState(state) : createEmptySelectionState();
 }
 
-export function setSelection(host, start, end) {
+export function setSelection(host, start, end, revealSelection = true) {
     const state = hostStates.get(host);
     if (!state) {
         return createEmptySelectionState();
     }
 
-    applySelection(state, start ?? 0, end ?? 0, true);
+    applySelection(state, start ?? 0, end ?? 0, revealSelection !== false);
     notifySelectionChanged(state, false);
     return createSelectionState(state);
 }
@@ -424,10 +450,19 @@ function normalizeMarkdownValue(value) {
 
 function createHarnessState(state, options) {
     const model = state.editor.getModel();
+    const layoutInfo = state.editor.getLayoutInfo();
+    const minimapMetrics = measureMinimapMetrics(state);
     return {
         decorationClasses: model?.getAllDecorations().map(decoration =>
             decoration.options.inlineClassName || decoration.options.lineClassName || "").filter(Boolean) ?? [],
         engine: state.host.getAttribute(options.editorEngineAttributeName) ?? emptyValue,
+        layout: {
+            contentLeft: layoutInfo.contentLeft ?? 0,
+            contentWidth: layoutInfo.contentWidth ?? 0,
+            editorWidth: layoutInfo.width ?? 0,
+            minimapLeft: minimapMetrics.left,
+            minimapWidth: minimapMetrics.width
+        },
         languageId: model?.getLanguageId() ?? emptyValue,
         lineCount: model?.getLineCount() ?? 0,
         ready: state.host.getAttribute(options.editorReadyAttributeName) === "true",
@@ -464,6 +499,13 @@ function ensureThemeObserver(monaco, options) {
     }
 }
 
+function syncEditorChromeContracts(state) {
+    const minimap = state.host.querySelector(minimapSelector);
+    if (minimap instanceof HTMLElement && state.options.sourceMinimapTestId) {
+        minimap.setAttribute(testIdAttributeName, state.options.sourceMinimapTestId);
+    }
+}
+
 function applyResolvedTheme(monaco, options) {
     monaco.editor.defineTheme(options.darkThemeName, createThemeData(false));
     monaco.editor.defineTheme(options.lightThemeName, createThemeData(true));
@@ -481,6 +523,10 @@ function isLightThemeActive() {
 }
 
 function createThemeData(isLight) {
+    const minimapColors = isLight
+        ? lightThemeMinimapColors
+        : darkThemeMinimapColors;
+
     return {
         base: isLight ? "vs" : "vs-dark",
         inherit: true,
@@ -510,8 +556,23 @@ function createThemeData(isLight) {
             "editor.background": isLight ? "#00000000" : "#00000000",
             "editor.foreground": isLight ? "#32281E" : "#ECF0EE",
             "editor.selectionBackground": isLight ? "#FFE06633" : "#FFE0662E",
-            "editorCursor.foreground": isLight ? "#5C4D3D" : "#ECF0EE"
+            "editorCursor.foreground": isLight ? "#5C4D3D" : "#ECF0EE",
+            ...minimapColors
         }
+    };
+}
+
+function measureMinimapMetrics(state) {
+    const minimap = state.host.querySelector(minimapSelector);
+    if (!(minimap instanceof HTMLElement)) {
+        return { left: 0, width: 0 };
+    }
+
+    const hostBounds = state.host.getBoundingClientRect();
+    const minimapBounds = minimap.getBoundingClientRect();
+    return {
+        left: Math.max(0, minimapBounds.left - hostBounds.left),
+        width: minimapBounds.width
     };
 }
 
@@ -1149,6 +1210,7 @@ function applySelection(state, start, end, revealSelection) {
         state.editor.render();
     }
     else {
+        state.editor.focus();
         state.editor.setScrollPosition({
             scrollLeft: preservedScrollLeft,
             scrollTop: preservedScrollTop

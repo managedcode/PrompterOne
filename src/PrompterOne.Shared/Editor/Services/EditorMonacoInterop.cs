@@ -66,7 +66,11 @@ public sealed class EditorMonacoInterop(IJSRuntime jsRuntime) : IDisposable, IAs
         return MapSelection(result);
     }
 
-    public async Task<EditorSelectionViewModel> SetSelectionAsync(ElementReference host, int start, int end)
+    public async Task<EditorSelectionViewModel> SetSelectionAsync(
+        ElementReference host,
+        int start,
+        int end,
+        bool revealSelection = true)
     {
         var module = await GetModuleAsync();
         if (module is null)
@@ -78,7 +82,8 @@ public sealed class EditorMonacoInterop(IJSRuntime jsRuntime) : IDisposable, IAs
             EditorMonacoInteropMethodNames.SetSelection,
             host,
             start,
-            end);
+            end,
+            revealSelection);
 
         return MapSelection(result);
     }

@@ -109,6 +109,7 @@ internal static class TestHarnessFactory
         context.Services.AddSingleton<EditorMonacoInterop>();
         context.Services.AddSingleton<AppShellFilePickerInterop>();
         context.Services.AddSingleton<EditorDocumentSaveCoordinator>();
+        context.Services.AddSingleton<EditorLocalRevisionStore>();
         context.Services.AddSingleton<IMediaSceneService>(sceneService);
         context.Services.AddSingleton<IMediaPermissionService>(permissionService);
         context.Services.AddSingleton<IMediaDeviceService>(deviceService);

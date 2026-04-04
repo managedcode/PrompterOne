@@ -8,7 +8,10 @@
 .ed-layout {
     display: flex;
     align-items: stretch;
+    flex: 1 1 auto;
     height: 100%;
+    width: 100%;
+    min-width: 0;
     padding: 10px;
     gap: 10px;
     overflow: hidden;
@@ -181,7 +184,9 @@
 
 /* Editor Right sidebar — metadata panel */
 .ed-right {
+    position: relative;
     width: 340px;
+    min-width: 340px;
     align-self: stretch;
     background: var(--glass-bg);
     backdrop-filter: var(--glass-blur);
@@ -196,6 +201,20 @@
         0 8px 32px rgba(0,0,0,.3),
         inset 0 1px 0 var(--gold-06);
     overflow-y: auto;
+    overflow-x: hidden;
+    transition:
+        width .22s ease,
+        min-width .22s ease,
+        padding .22s ease,
+        border-color .18s ease,
+        box-shadow .18s ease;
+}
+
+.ed-right[data-collapsed="true"] {
+    width: 56px;
+    min-width: 56px;
+    padding: 16px 8px;
+    align-items: center;
 }
 
 @media (max-width: 1400px) {
@@ -210,7 +229,14 @@
 
     .ed-right {
         width: 280px;
+        min-width: 280px;
         padding: 18px 14px;
+    }
+
+    .ed-right[data-collapsed="true"] {
+        width: 52px;
+        min-width: 52px;
+        padding: 14px 6px;
     }
 }
 
@@ -221,6 +247,12 @@
 
     .ed-right {
         width: 248px;
+        min-width: 248px;
+    }
+
+    .ed-right[data-collapsed="true"] {
+        width: 48px;
+        min-width: 48px;
     }
 }
 

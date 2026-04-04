@@ -18,6 +18,7 @@ flowchart LR
     Highlight["Highlighted overlay"]
     TextMutations["TpsTextEditor mutations"]
     Save["Debounced autosave to script repository"]
+    LocalHistory["Browser-local revision history"]
 
     Toolbar --> Source
     Source --> History
@@ -29,6 +30,8 @@ flowchart LR
     Source --> TextMutations
     Source --> Save
     FrontMatter --> Save
+    Save --> LocalHistory
+    LocalHistory --> Source
 ```
 
 ## Source And Navigation Contract
@@ -66,6 +69,8 @@ sequenceDiagram
 - source edits refresh metadata, tree labels, preview overlay, and status
 - metadata edits rewrite the persisted TPS document without surfacing YAML in the editor body
 - typing stays local-first while autosave persists on a short debounce instead of every keystroke
+- browser-local autosave can be disabled from Settings, in which case editor mutations stay in the in-memory session until the user explicitly triggers a new internal save path
+- successful internal saves capture recent browser-local revisions, and the metadata rail exposes restore actions that reapply an older persisted TPS revision without leaking front matter into the visible source
 - the styled TPS overlay remains visible while the real textarea owns caret and selection, so editing stays inline instead of switching to a plain-text mode
 - highlight overlay refresh is coalesced to the next animation frame, so typing stays immediate without dropping the editor into a plain-text fallback state
 - the highlight overlay subtree is JS-owned while Blazor keeps workflow state, preventing per-keystroke DOM diff churn and keeping browser typing responsive
@@ -84,6 +89,8 @@ sequenceDiagram
 - `dotnet test ./tests/PrompterOne.Core.Tests/PrompterOne.Core.Tests.csproj`
 - `dotnet test ./tests/PrompterOne.App.Tests/PrompterOne.App.Tests.csproj`
 - `dotnet test ./tests/PrompterOne.App.UITests/PrompterOne.App.UITests.csproj`
+- `dotnet test ./tests/PrompterOne.App.Tests/PrompterOne.App.Tests.csproj --filter "FullyQualifiedName~EditorLocalRevisionStoreTests|FullyQualifiedName~EditorLocalHistoryInteractionTests|FullyQualifiedName~SettingsInteractionTests"`
+- `dotnet test ./tests/PrompterOne.App.UITests/PrompterOne.App.UITests.csproj --filter "FullyQualifiedName~EditorLocalHistoryFlowTests|FullyQualifiedName~EditorLayoutTests"`
 - `dotnet test ./tests/PrompterOne.App.UITests/PrompterOne.App.UITests.csproj --no-build --filter "FullyQualifiedName~EditorTypingTests"`
 - `dotnet test ./tests/PrompterOne.App.UITests/PrompterOne.App.UITests.csproj --filter "FullyQualifiedName~EditorTypingTests|FullyQualifiedName~EditorSourceSyncTests|FullyQualifiedName~EditorInteractionTests"`
 - `dotnet test ./tests/PrompterOne.App.Tests/PrompterOne.App.Tests.csproj --filter "FullyQualifiedName~Editor"`

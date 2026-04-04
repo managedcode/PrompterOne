@@ -29,6 +29,8 @@ public partial class SettingsFilesSection : ComponentBase
     private const string OnCssClass = "on";
     private const string RecordingsCardId = "files-recordings";
     private const string ScriptsCardId = "files-scripts";
+    private const string ScriptsAutoSaveLabel = "Auto-save local script changes";
+    private const string ScriptsHistoryLabel = "Keep recent browser-local revisions";
     private const string SetToggleCssClass = "set-toggle";
 
     private BrowserFileStorageSettings _settings = BrowserFileStorageSettings.Default;
