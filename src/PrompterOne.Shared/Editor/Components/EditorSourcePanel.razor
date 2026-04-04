@@ -25,7 +25,13 @@
                                 aria-expanded="@GetActionAriaExpanded(toolbarAction)"
                                 disabled="@GetActionDisabled(toolbarAction)"
                                 @onmousedown:preventDefault="@toolbarAction.PreventMouseDown"
-                                @onclick="() => ExecuteToolbarActionAsync(toolbarAction)">@((MarkupString)toolbarAction.ContentHtml)</button>
+                                @onclick="() => ExecuteToolbarActionAsync(toolbarAction)">
+                            <span class="tb-btn-content">@((MarkupString)toolbarAction.ContentHtml)</span>
+                            <span class="@GetTooltipCssClass(EditorToolbarTooltipPlacement.Toolbar)"
+                                  role="tooltip"
+                                  data-testid="@UiTestIds.Editor.ToolbarTooltip"
+                                  data-tooltip-placement="@GetTooltipPlacementValue(EditorToolbarTooltipPlacement.Toolbar)">@toolbarAction.Tooltip</span>
+                        </button>
                     }
                 </div>
 
@@ -49,7 +55,13 @@
                                             data-tip="@dropdownAction.Tooltip"
                                             data-testid="@dropdownAction.TestId"
                                             aria-label="@dropdownAction.Tooltip"
-                                            @onclick="() => ExecuteToolbarActionAsync(dropdownAction)">@((MarkupString)dropdownAction.ContentHtml)</button>
+                                            @onclick="() => ExecuteToolbarActionAsync(dropdownAction)">
+                                        <span class="tb-btn-content">@((MarkupString)dropdownAction.ContentHtml)</span>
+                                        <span class="@GetTooltipCssClass(EditorToolbarTooltipPlacement.ToolbarMenu)"
+                                              role="tooltip"
+                                              data-testid="@UiTestIds.Editor.ToolbarTooltip"
+                                              data-tooltip-placement="@GetTooltipPlacementValue(EditorToolbarTooltipPlacement.ToolbarMenu)">@dropdownAction.Tooltip</span>
+                                    </button>
                                 }
                             </div>
                         }
@@ -110,7 +122,13 @@
                                     data-testid="@action.TestId"
                                     aria-label="@action.Tooltip"
                                     @onmousedown:preventDefault="@action.PreventMouseDown"
-                                    @onclick="() => ExecuteToolbarActionAsync(action)">@((MarkupString)action.ContentHtml)</button>
+                                    @onclick="() => ExecuteToolbarActionAsync(action)">
+                                <span class="tb-btn-content">@((MarkupString)action.ContentHtml)</span>
+                                <span class="@GetTooltipCssClass(EditorToolbarTooltipPlacement.FloatingToolbar)"
+                                      role="tooltip"
+                                      data-testid="@UiTestIds.Editor.ToolbarTooltip"
+                                      data-tooltip-placement="@GetTooltipPlacementValue(EditorToolbarTooltipPlacement.FloatingToolbar)">@action.Tooltip</span>
+                            </button>
                         }
 
                         @if (groupIndex < FloatingActionGroups.Count - 1)
@@ -133,7 +151,13 @@
                                             data-testid="@action.TestId"
                                             aria-label="@action.Tooltip"
                                             @onmousedown:preventDefault="@action.PreventMouseDown"
-                                            @onclick="() => ExecuteToolbarActionAsync(action)">@((MarkupString)action.ContentHtml)</button>
+                                            @onclick="() => ExecuteToolbarActionAsync(action)">
+                                        <span class="tb-btn-content">@((MarkupString)action.ContentHtml)</span>
+                                        <span class="@GetTooltipCssClass(EditorToolbarTooltipPlacement.FloatingMenu)"
+                                              role="tooltip"
+                                              data-testid="@UiTestIds.Editor.ToolbarTooltip"
+                                              data-tooltip-placement="@GetTooltipPlacementValue(EditorToolbarTooltipPlacement.FloatingMenu)">@action.Tooltip</span>
+                                    </button>
                                 }
                             </span>
                         </span>

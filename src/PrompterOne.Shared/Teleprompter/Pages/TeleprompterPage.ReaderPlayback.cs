@@ -333,7 +333,7 @@ public partial class TeleprompterPage
     {
         await CancelPendingReaderCardTransitionAsync();
         var previousCardIndex = _activeReaderCardIndex;
-        var transitionCts = BeginReaderCardTransitionScope(cancellationToken);
+        var transition = BeginReaderCardTransitionScope(cancellationToken);
         await PrepareReaderCardTransitionAsync(nextCardIndex);
         await PrepareReaderCardAlignmentAsync(nextCardIndex, 0);
         _readerTransitionSourceCardIndex = previousCardIndex;
@@ -345,21 +345,21 @@ public partial class TeleprompterPage
 
         try
         {
-            await Task.Delay(ReaderCardTransitionMilliseconds, transitionCts.Token);
+            await Task.Delay(ReaderCardTransitionMilliseconds, transition.Token);
 
-            if (transitionCts.IsCancellationRequested)
+            if (transition.Token.IsCancellationRequested)
             {
                 return;
             }
 
             await ActivateReaderWordAsync(0, alignBeforeActivation: false);
         }
-        catch (OperationCanceledException) when (transitionCts.IsCancellationRequested)
+        catch (OperationCanceledException) when (transition.Token.IsCancellationRequested)
         {
         }
         finally
         {
-            CompleteReaderCardTransitionScope(transitionCts);
+            CompleteReaderCardTransitionScope(transition.Source);
             await FinalizeReaderCardTransitionAsync(previousCardIndex);
         }
     }

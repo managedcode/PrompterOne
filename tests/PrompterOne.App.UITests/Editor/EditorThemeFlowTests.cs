@@ -42,6 +42,8 @@ public sealed class EditorThemeFlowTests(StandaloneAppFixture fixture) : AppUiTe
             var emotionTrigger = page.GetByTestId(UiTestIds.Editor.EmotionTrigger);
             var emotionMenu = page.GetByTestId(UiTestIds.Editor.MenuEmotion);
             var motivationalEmotion = page.GetByTestId(UiTestIds.Editor.EmotionMotivational);
+            var tooltip = page.GetByTestId(UiTestIds.Editor.ToolbarTooltip)
+                .Filter(new() { HasTextString = "Inspiring, encouraging. Inline: [motivational]text[/motivational]" });
 
             await emotionTrigger.ClickAsync();
             await Expect(emotionMenu).ToBeVisibleAsync();
@@ -49,17 +51,21 @@ public sealed class EditorThemeFlowTests(StandaloneAppFixture fixture) : AppUiTe
 
             await motivationalEmotion.HoverAsync();
             await page.WaitForTimeoutAsync(BrowserTestConstants.EditorFlow.TooltipSettleDelayMs);
+            await Expect(tooltip).ToBeVisibleAsync();
 
             var menuBackground = await ReadCssColorAsync(emotionMenu, BackgroundColorProperty);
             var menuItemColor = await ReadCssColorAsync(motivationalEmotion, ColorProperty);
-            var tooltipBackground = await ReadPseudoCssColorAsync(motivationalEmotion, BackgroundColorProperty);
-            var tooltipColor = await ReadPseudoCssColorAsync(motivationalEmotion, ColorProperty);
-            var tooltipOpacity = await ReadPseudoOpacityAsync(motivationalEmotion);
+            var tooltipBackground = await ReadCssColorAsync(tooltip, BackgroundColorProperty);
+            var tooltipColor = await ReadCssColorAsync(tooltip, ColorProperty);
+            var tooltipOpacity = await ReadOpacityAsync(tooltip);
 
             Assert.Null(await motivationalEmotion.GetAttributeAsync("title"));
             Assert.Equal(
                 "Inspiring, encouraging. Inline: [motivational]text[/motivational]",
                 await motivationalEmotion.GetAttributeAsync("aria-label"));
+            Assert.Equal(
+                "Inspiring, encouraging. Inline: [motivational]text[/motivational]",
+                await tooltip.InnerTextAsync());
 
             Assert.True(
                 HasMinimumChannels(menuBackground, BrowserTestConstants.EditorFlow.MinimumLightMenuSurfaceChannel),
@@ -110,30 +116,9 @@ public sealed class EditorThemeFlowTests(StandaloneAppFixture fixture) : AppUiTe
             """,
             propertyName);
 
-    private static async Task<CssColor> ReadPseudoCssColorAsync(ILocator locator, string propertyName) =>
-        await locator.EvaluateAsync<CssColor>(
-            """
-            (element, propertyName) => {
-                const value = getComputedStyle(element, '::after')[propertyName];
-                const match = value.match(/rgba?\(([^)]+)\)/);
-                if (!match) {
-                    return { r: 0, g: 0, b: 0, a: 0 };
-                }
-
-                const parts = match[1].split(',').map(part => Number.parseFloat(part.trim()));
-                return {
-                    r: parts[0] ?? 0,
-                    g: parts[1] ?? 0,
-                    b: parts[2] ?? 0,
-                    a: parts[3] ?? 1
-                };
-            }
-            """,
-            propertyName);
-
-    private static async Task<double> ReadPseudoOpacityAsync(ILocator locator) =>
+    private static async Task<double> ReadOpacityAsync(ILocator locator) =>
         await locator.EvaluateAsync<double>(
             """
-            element => Number.parseFloat(getComputedStyle(element, '::after').opacity)
+            element => Number.parseFloat(getComputedStyle(element).opacity)
             """);
 }

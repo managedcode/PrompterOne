@@ -3,6 +3,14 @@
 <div class="ed-right" data-testid="@UiTestIds.Editor.MetadataRail">
     <div class="ed-section-label">METADATA</div>
     <div class="ed-meta-field">
+        <label>Title</label>
+        <input type="text"
+               class="ed-meta-input"
+               value="@Title"
+               @onchange="OnTitleChange"
+               data-testid="@UiTestIds.Editor.Title" />
+    </div>
+    <div class="ed-meta-field">
         <label>Profile</label>
         <select class="ed-meta-select"
                 value="@Profile"
@@ -135,6 +143,8 @@
 
     [Parameter] public EditorStatusViewModel Status { get; set; } = new(1, 1, "Actor", 140, 0, 0, 0, "0:00", "1.0");
 
+    [Parameter] public string Title { get; set; } = string.Empty;
+
     [Parameter] public string Version { get; set; } = string.Empty;
 
     [Parameter] public int XfastOffset { get; set; }
@@ -155,6 +165,8 @@
 
     [Parameter] public EventCallback<int> SlowOffsetChanged { get; set; }
 
+    [Parameter] public EventCallback<string> TitleChanged { get; set; }
+
     [Parameter] public EventCallback<string> VersionChanged { get; set; }
 
     [Parameter] public EventCallback<int> XfastOffsetChanged { get; set; }
@@ -172,6 +184,9 @@
 
     private Task OnProfileChange(ChangeEventArgs args) =>
         ProfileChanged.InvokeAsync(args.Value?.ToString() ?? "Actor");
+
+    private Task OnTitleChange(ChangeEventArgs args) =>
+        TitleChanged.InvokeAsync(args.Value?.ToString() ?? string.Empty);
 
     private Task OnVersionChange(ChangeEventArgs args) =>
         VersionChanged.InvokeAsync(args.Value?.ToString() ?? string.Empty);

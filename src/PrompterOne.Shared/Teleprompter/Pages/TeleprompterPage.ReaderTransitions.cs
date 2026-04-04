@@ -2,6 +2,8 @@ namespace PrompterOne.Shared.Pages;
 
 public partial class TeleprompterPage
 {
+    private readonly record struct ReaderCardTransitionHandle(CancellationTokenSource Source, CancellationToken Token);
+
     private const string ReaderCardNoTransitionCssClass = "rd-card-static";
 
     private readonly HashSet<int> _readerCardsWithoutMotionTransition = [];
@@ -48,11 +50,12 @@ public partial class TeleprompterPage
         await NormalizeReaderCardTransitionStateAsync(affectedCardIndexes);
     }
 
-    private CancellationTokenSource BeginReaderCardTransitionScope(CancellationToken cancellationToken)
+    private ReaderCardTransitionHandle BeginReaderCardTransitionScope(CancellationToken cancellationToken)
     {
         DisposeReaderCardTransitionCancellationTokenSource();
-        _readerCardTransitionCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        return _readerCardTransitionCts;
+        var transitionCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        _readerCardTransitionCts = transitionCts;
+        return new ReaderCardTransitionHandle(transitionCts, transitionCts.Token);
     }
 
     private void CompleteReaderCardTransitionScope(CancellationTokenSource transitionCts)

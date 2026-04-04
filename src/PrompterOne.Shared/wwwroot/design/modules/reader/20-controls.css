@@ -111,6 +111,12 @@
     border-right: 1px solid rgba(5,5,8,.6);
     transition: opacity .5s ease;
 }
+.rd-edge-progress.rd-reading-active .rd-edge-fill {
+    opacity: .62;
+}
+.rd-edge-progress.rd-reading-active .rd-edge-segs > div {
+    opacity: .58;
+}
 
 /* Edge info — section + time at bottom corners */
 .rd-edge-info {
@@ -126,6 +132,12 @@
     transition: opacity .3s;
 }
 .rd-edge-info:hover { opacity: .82; pointer-events: auto; }
+.rd-edge-info.rd-reading-active {
+    opacity: .46;
+}
+.rd-edge-info.rd-reading-active:hover {
+    opacity: .68;
+}
 .rd-edge-section {
     font-size: 10px;
     font-weight: 600;
@@ -162,6 +174,11 @@
     backdrop-filter: blur(18px);
     box-shadow: 0 18px 40px rgba(0,0,0,.24);
 }
+.rd-progress-shell.rd-reading-active {
+    border-color: rgba(232,213,176,.10);
+    background: rgba(14,12,9,.58);
+    box-shadow: 0 12px 30px rgba(0,0,0,.18);
+}
 .rd-progress-meta {
     display: flex;
     align-items: center;
@@ -181,6 +198,12 @@
     color: rgba(242,230,204,.82);
     font-family: var(--mono);
 }
+.rd-progress-shell.rd-reading-active .rd-progress-title {
+    color: rgba(232,213,176,.42);
+}
+.rd-progress-shell.rd-reading-active .rd-progress-label {
+    color: rgba(242,230,204,.68);
+}
 .rd-progress-track {
     display: flex;
     align-items: center;
@@ -197,6 +220,10 @@
     background: rgba(232,213,176,.12);
     border: 1px solid rgba(232,213,176,.08);
 }
+.rd-progress-shell.rd-reading-active .rd-progress-segment {
+    background: rgba(232,213,176,.08);
+    border-color: rgba(232,213,176,.05);
+}
 .rd-progress-segment-fill {
     position: absolute;
     inset: 0 auto 0 0;
@@ -204,6 +231,9 @@
     border-radius: inherit;
     background: linear-gradient(90deg, rgba(230,191,120,.84), rgba(255,224,168,.96));
     transition: width .32s ease;
+}
+.rd-progress-shell.rd-reading-active .rd-progress-segment-fill {
+    background: linear-gradient(90deg, rgba(208,170,106,.66), rgba(229,199,149,.74));
 }
 
 /* ── Countdown overlay ── */
@@ -362,6 +392,14 @@
     transition: opacity .3s;
 }
 .rd-controls:hover { opacity: 1; }
+.rd-controls.rd-reading-active {
+    background: rgba(20,18,12,.72);
+    border-color: rgba(232,213,176,.10);
+    opacity: .88;
+}
+.rd-controls.rd-reading-active:hover {
+    opacity: .95;
+}
 
 .rd-ctrl-group {
     display: flex;

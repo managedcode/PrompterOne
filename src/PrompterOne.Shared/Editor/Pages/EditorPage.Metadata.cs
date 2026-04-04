@@ -1,4 +1,5 @@
 using System.Globalization;
+using PrompterOne.Core.Models.Workspace;
 using PrompterOne.Shared.Components.Editor;
 
 namespace PrompterOne.Shared.Pages;
@@ -35,6 +36,13 @@ public partial class EditorPage
         _profile = string.Equals(value, DefaultProfileRsvp, StringComparison.Ordinal)
             ? DefaultProfileRsvp
             : DefaultProfileActor;
+        await PersistMetadataAsync();
+    }
+
+    private async Task OnTitleChangedAsync(string value)
+    {
+        _screenTitle = NormalizeTitle(value);
+        Shell.ShowEditor(_screenTitle, SessionService.State.ScriptId);
         await PersistMetadataAsync();
     }
 
@@ -89,4 +97,9 @@ public partial class EditorPage
         metadata.TryGetValue(key, out var value) && int.TryParse(value, CultureInfo.InvariantCulture, out var parsed)
             ? parsed
             : fallback;
+
+    private static string NormalizeTitle(string value) =>
+        string.IsNullOrWhiteSpace(value)
+            ? ScriptWorkspaceState.UntitledScriptTitle
+            : value.Trim();
 }

@@ -163,6 +163,8 @@ public static class UiTestIds
         public const string SplitTopLevel = "editor-split-top-level";
         public const string SpeedXfast = "editor-speed-xfast";
         public const string SpeedXslow = "editor-speed-xslow";
+        public const string Title = "editor-title";
+        public const string ToolbarTooltip = "editor-toolbar-tooltip";
         public const string Undo = "editor-undo";
         public const string Version = "editor-version";
 

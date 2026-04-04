@@ -301,7 +301,12 @@ function resolveTagHelp(rawTag) {
     }
 
     if (name === "pause") {
-        return { title: "Timed pause", description: "Pause for an explicit duration using seconds or milliseconds, for example `[pause:2s]` or `[pause:1000ms]`." };
+        return {
+            title: "Timed pause",
+            description: argument
+                ? `Pause for an explicit duration. Current value: \`${argument}\`. Use seconds or milliseconds such as \`[pause:2s]\` or \`[pause:1000ms]\`.`
+                : "Pause for an explicit duration using seconds or milliseconds, for example `[pause:2s]` or `[pause:1000ms]`."
+        };
     }
 
     if (name === "breath") {

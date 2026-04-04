@@ -134,6 +134,23 @@ internal static partial class BrowserTestConstants
         public const string PauseToggleIconSelector = "[data-toggle-icon='pause']";
     }
 
+    public static class RapidInput
+    {
+        public const string CriticalConsolePrefix = "crit:";
+        public const string ConsoleErrorType = "error";
+        public const string ConsoleWarningType = "warning";
+        public const string ObjectDisposedExceptionFragment = "ObjectDisposedException";
+        public const string UnhandledUiExceptionFragment = "Unhandled UI exception";
+        public const string DisposedCancellationTokenFragment = "CancellationTokenSource_Disposed";
+        public const int EditorHistoryBurstCount = 6;
+        public const int LearnLoopToggleBurstCount = 2;
+        public const int LearnPlayToggleBurstCount = 4;
+        public const int LearnStepBurstCount = 8;
+        public const int PostBurstSettleDelayMs = 900;
+        public const int TeleprompterBlockBurstCount = 8;
+        public const int TeleprompterWordBurstCount = 10;
+    }
+
     public static class Folders
     {
         public const string AllScriptsName = "All Scripts";
@@ -186,6 +203,8 @@ internal static partial class BrowserTestConstants
         public const string PronunciationToken = "[pronunciation:guide]";
         public const string SegmentRewrite = "## [Launch Angle|205WPM|focused|1:00-2:00]";
         public const string BlockRewrite = "### [Signal Block|205WPM|professional]";
+        public const string RetitledScript = "Renamed Product Launch";
+        public const string TitleFieldPrefix = "title:";
         public const string TypedTitle = "Typed Intro";
         public const string TypedBlock = "Typed Block";
         public const string TypedHighlight = "[highlight]Every word[/highlight]";
@@ -196,6 +215,13 @@ internal static partial class BrowserTestConstants
         public const int ToolbarPinnedSelectionCharacterCount = 7;
         public const double FloatingBarPinnedMaxDriftPx = 4;
         public const string SimplifiedMoment = "clear moment";
+        public const string AiScrollJumpLineTemplate = "Line {0:D3} carries the transformative moment for AI simplify.";
+        public const int AiScrollJumpLineCount = 140;
+        public const int AiScrollJumpTargetLineIndex = 90;
+        public const int AiScrollJumpPageDownCount = 35;
+        public const int AiScrollJumpSettleDelayMs = 500;
+        public const double AiScrollJumpMinimumStartingScrollTop = 1000;
+        public const double AiScrollJumpMaximumAllowedDeltaPx = 64;
         public const string TypingResponsivenessProbeText = "local typing must stay instant";
         public const int ClickCaretThreshold = 64;
         public const int ClickNearStartOffsetX = 140;

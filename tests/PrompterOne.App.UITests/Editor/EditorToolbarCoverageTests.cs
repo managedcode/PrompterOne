@@ -13,6 +13,7 @@ public sealed class EditorToolbarCoverageTests(StandaloneAppFixture fixture) : I
     public async Task EditorToolbar_AllMenuTriggersAndAiButtonsExposeExpectedBehavior()
     {
         var page = await _fixture.NewPageAsync();
+        var browserErrors = BrowserErrorCollector.Attach(page);
 
         try
         {
@@ -41,6 +42,11 @@ public sealed class EditorToolbarCoverageTests(StandaloneAppFixture fixture) : I
                 Assert.Contains(scenario.ExpectedFragment, afterValue, StringComparison.Ordinal);
             }
         }
+        catch (Exception exception)
+        {
+            throw new Xunit.Sdk.XunitException(
+                $"Toolbar coverage failed with browser errors:{Environment.NewLine}{browserErrors.Describe()}{Environment.NewLine}{exception}");
+        }
         finally
         {
             await page.Context.CloseAsync();
@@ -51,6 +57,7 @@ public sealed class EditorToolbarCoverageTests(StandaloneAppFixture fixture) : I
     public async Task EditorToolbar_AllToolbarCommandButtonsMutateSource()
     {
         var page = await _fixture.NewPageAsync();
+        var browserErrors = BrowserErrorCollector.Attach(page);
 
         try
         {
@@ -69,6 +76,11 @@ public sealed class EditorToolbarCoverageTests(StandaloneAppFixture fixture) : I
 
                 AssertCommandMutation(scenario, beforeValue, afterValue);
             }
+        }
+        catch (Exception exception)
+        {
+            throw new Xunit.Sdk.XunitException(
+                $"Toolbar command coverage failed with browser errors:{Environment.NewLine}{browserErrors.Describe()}{Environment.NewLine}{exception}");
         }
         finally
         {

@@ -36,6 +36,7 @@
                                OnAiActionRequested="OnAiActionRequestedAsync" />
 
             <EditorMetadataRail Profile="@_profile"
+                                Title="@_screenTitle"
                                 BaseWpm="@_baseWpm"
                                 Duration="@_displayDuration"
                                 XslowOffset="@_xslowOffset"
@@ -47,6 +48,7 @@
                                 Version="@_version"
                                 Status="@_status"
                                 ProfileChanged="OnProfileChangedAsync"
+                                TitleChanged="OnTitleChangedAsync"
                                 BaseWpmChanged="OnBaseWpmChangedAsync"
                                 DurationChanged="OnDurationChangedAsync"
                                 XslowOffsetChanged="OnXslowOffsetChangedAsync"

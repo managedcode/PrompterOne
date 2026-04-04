@@ -21,12 +21,18 @@ internal static partial class BrowserTestConstants
         public const int BenefitsBlockIndex = 1;
         public const string LightThemeScenario = "editor-light-theme-emotion-menu";
         public const string LightThemeStep = "01-readable-menu-and-tooltip";
+        public const string ToolbarTooltipScenario = "editor-toolbar-tooltips";
+        public const string ToolbarTooltipDelayStep = "01-delayed-toolbar-tooltip";
+        public const string ToolbarTooltipDropdownStep = "02-dropdown-tooltip-gap";
         public const double MinimumDateFieldWidthPx = 150;
-        public const int TooltipSettleDelayMs = 120;
+        public const int TooltipEarlyCheckDelayMs = 120;
+        public const int TooltipSettleDelayMs = 560;
         public const double MaximumReadableTextChannel = 160;
         public const double MinimumLightMenuSurfaceChannel = 220;
         public const double MinimumLightTooltipSurfaceChannel = 215;
+        public const double MaximumEarlyTooltipOpacity = 0.05;
         public const double MinimumVisibleTooltipOpacity = 0.9;
+        public const double MaximumTooltipMenuOverlapPx = 0.5;
         public const double ToolbarOverflowTolerancePx = 2;
     }
 
@@ -115,9 +121,15 @@ internal static partial class BrowserTestConstants
         public const string ProgressStep = "01-block-progress";
         public const string ProgressFitScenarioName = "teleprompter-progress-shell-fit";
         public const string ProgressFitStep = "01-track-contained";
+        public const string ReadingChromeScenarioName = "teleprompter-reading-chrome";
+        public const string ReadingChromeStep = "01-muted-active-playback";
+        public const string ReadingActiveCssClass = "rd-reading-active";
+        public const float ReadingChromeSettleDelayMs = 400;
         public const string ProgressEmptyStylePattern = @"width:\s*0%";
         public const string ProgressFilledStylePattern = @"width:\s*100%";
         public const double MaxProgressShellOverflowPx = 0.5;
+        public const double MinimumChromeBackgroundAlphaReduction = 0.08;
+        public const double MinimumEdgeInfoOpacityReduction = 0.08;
         public const int MinimumBalancedTextLineCount = 2;
         public const string ReaderOrientationAttribute = "data-reader-orientation";
         public const string MirrorHorizontalTransform = "scaleX(-1)";

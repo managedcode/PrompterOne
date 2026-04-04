@@ -44,6 +44,7 @@ public sealed class ScreenShellContractTests : BunitContext
             Assert.Equal(string.Empty, sourceValue);
             Assert.DoesNotContain("profile:", sourceInput.GetAttribute("value"), StringComparison.Ordinal);
             Assert.DoesNotContain("author:", sourceInput.GetAttribute("value"), StringComparison.Ordinal);
+            Assert.NotNull(cut.FindByTestId(UiTestIds.Editor.Title));
             Assert.NotNull(cut.FindByTestId(UiTestIds.Editor.Profile));
             Assert.NotNull(cut.FindByTestId(UiTestIds.Editor.BaseWpm));
             Assert.NotNull(cut.FindByTestId(UiTestIds.Editor.Author));

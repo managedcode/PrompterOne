@@ -50,6 +50,41 @@ public sealed class EditorSourcePanelInteractionTests : BunitContext
         AssertTooltipContract(floatingMotivationalEmotion, "Inspiring, encouraging. Inline: [motivational]text[/motivational]");
     }
 
+    [Fact]
+    public void EditorSourcePanel_TooltipSurface_IsRenderedWithExpectedContent()
+    {
+        var cut = Render<EditorSourcePanelHost>();
+
+        var tooltips = cut.FindAll(BunitTestSelectors.BuildTestIdSelector(UiTestIds.Editor.ToolbarTooltip));
+
+        Assert.Contains(
+            tooltips,
+            tooltip => string.Equals(
+                tooltip.TextContent.Trim(),
+                "Emotion — applies mood-based color styling and presentation hints. Used on segments, blocks, or inline text",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            tooltips,
+            tooltip => string.Equals(
+                tooltip.TextContent.Trim(),
+                "Inspiring, encouraging. Inline: [motivational]text[/motivational]",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void EditorSourcePanel_TooltipSurface_UsesStableTooltipRoleAndPlacementContract()
+    {
+        var cut = Render<EditorSourcePanelHost>();
+        var toolbarTooltip = cut.FindAll(BunitTestSelectors.BuildTestIdSelector(UiTestIds.Editor.ToolbarTooltip))
+            .Single(tooltip => string.Equals(
+                tooltip.TextContent.Trim(),
+                "Emotion — applies mood-based color styling and presentation hints. Used on segments, blocks, or inline text",
+                StringComparison.Ordinal));
+
+        Assert.Equal("tooltip", toolbarTooltip.GetAttribute("role"));
+        Assert.Equal("toolbar", toolbarTooltip.GetAttribute("data-tooltip-placement"));
+    }
+
     private static void AssertTooltipContract(IElement element, string expectedTooltip)
     {
         Assert.Null(element.GetAttribute("title"));
