@@ -1,0 +1,58 @@
+using Microsoft.Playwright;
+using PrompterOne.Shared.Contracts;
+using static Microsoft.Playwright.Assertions;
+
+namespace PrompterOne.Web.UITests;
+
+public sealed class SettingsCrossTabSyncTests(StandaloneAppFixture fixture) : IClassFixture<StandaloneAppFixture>
+{
+    private readonly StandaloneAppFixture _fixture = fixture;
+
+    [Fact]
+    public async Task SettingsAppearance_PropagatesThemeChangesAcrossTabsInSharedContext()
+    {
+        UiScenarioArtifacts.ResetScenario(BrowserTestConstants.SettingsFlow.CrossTabThemeScenario);
+
+        var pages = await _fixture.NewSharedPagesAsync(BrowserTestConstants.SettingsFlow.SharedContextPageCount);
+        var primaryPage = pages[0];
+        var secondaryPage = pages[1];
+
+        try
+        {
+            await OpenAppearancePanelAsync(primaryPage);
+            await OpenAppearancePanelAsync(secondaryPage);
+
+            await primaryPage.GetByTestId(UiTestIds.Settings.ThemeOption(BrowserTestConstants.SettingsFlow.LightTheme)).ClickAsync();
+
+            await Expect(primaryPage.Locator("html")).ToHaveAttributeAsync(
+                BrowserTestConstants.SettingsFlow.HtmlThemeAttribute,
+                BrowserTestConstants.SettingsFlow.LightTheme);
+            await Expect(secondaryPage.Locator("html")).ToHaveAttributeAsync(
+                BrowserTestConstants.SettingsFlow.HtmlThemeAttribute,
+                BrowserTestConstants.SettingsFlow.LightTheme);
+            await Expect(secondaryPage.GetByTestId(UiTestIds.Settings.ThemeOption(BrowserTestConstants.SettingsFlow.LightTheme)))
+                .ToHaveClassAsync(BrowserTestConstants.Regexes.ActiveClass);
+
+            await UiScenarioArtifacts.CapturePageAsync(
+                secondaryPage,
+                BrowserTestConstants.SettingsFlow.CrossTabThemeScenario,
+                BrowserTestConstants.SettingsFlow.CrossTabThemeSyncedStep);
+        }
+        finally
+        {
+            await primaryPage.Context.CloseAsync();
+        }
+    }
+
+    private static async Task OpenAppearancePanelAsync(IPage page)
+    {
+        await page.GotoAsync(
+            BrowserTestConstants.Routes.Settings,
+            new() { WaitUntil = WaitUntilState.NetworkIdle });
+        await Expect(page.GetByTestId(UiTestIds.Settings.Page)).ToBeVisibleAsync(
+            new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
+        await page.GetByTestId(UiTestIds.Settings.NavAppearance).ClickAsync();
+        await Expect(page.GetByTestId(UiTestIds.Settings.AppearancePanel)).ToBeVisibleAsync(
+            new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
+    }
+}

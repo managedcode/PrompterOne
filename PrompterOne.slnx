@@ -1,12 +1,12 @@
 <Solution>
   <Folder Name="/src/">
-    <Project Path="src/PrompterOne.App/PrompterOne.App.csproj" />
+    <Project Path="src/PrompterOne.Web/PrompterOne.Web.csproj" />
     <Project Path="src/PrompterOne.Core/PrompterOne.Core.csproj" />
     <Project Path="src/PrompterOne.Shared/PrompterOne.Shared.csproj" />
   </Folder>
   <Folder Name="/tests/">
-    <Project Path="tests/PrompterOne.App.Tests/PrompterOne.App.Tests.csproj" />
-    <Project Path="tests/PrompterOne.App.UITests/PrompterOne.App.UITests.csproj" />
+    <Project Path="tests/PrompterOne.Web.Tests/PrompterOne.Web.Tests.csproj" />
+    <Project Path="tests/PrompterOne.Web.UITests/PrompterOne.Web.UITests.csproj" />
     <Project Path="tests/PrompterOne.Core.Tests/PrompterOne.Core.Tests.csproj" />
   </Folder>
 </Solution>

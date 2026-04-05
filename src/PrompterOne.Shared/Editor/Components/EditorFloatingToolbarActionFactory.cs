@@ -9,8 +9,9 @@ internal static class EditorFloatingToolbarActionFactory
         string contentHtml,
         string tooltip,
         string testId,
-        EditorAiAssistAction aiAction) =>
-        new(key, EditorToolbarActionType.Ai, "efb-btn efb-ai", contentHtml, tooltip, testId, AiAction: aiAction, PreventMouseDown: true);
+        EditorAiAssistAction aiAction,
+        string cssClass = "efb-btn efb-ai") =>
+        new(key, EditorToolbarActionType.Ai, cssClass, contentHtml, tooltip, testId, AiAction: aiAction, PreventMouseDown: true);
 
     public static EditorToolbarActionDescriptor ClearColor(string key, string tooltip, string testId) =>
         new(
@@ -40,8 +41,13 @@ internal static class EditorFloatingToolbarActionFactory
             Command: new EditorCommandRequest(EditorCommandKind.Insert, token),
             PreventMouseDown: true);
 
-    public static EditorToolbarActionDescriptor Toggle(string menuId, string contentHtml, string tooltip, string testId) =>
-        new(menuId, EditorToolbarActionType.ToggleMenu, "efb-btn", contentHtml, tooltip, testId, MenuId: menuId, PreventMouseDown: true);
+    public static EditorToolbarActionDescriptor Toggle(
+        string menuId,
+        string contentHtml,
+        string tooltip,
+        string testId,
+        string cssClass = "efb-btn") =>
+        new(menuId, EditorToolbarActionType.ToggleMenu, cssClass, contentHtml, tooltip, testId, MenuId: menuId, PreventMouseDown: true);
 
     public static EditorToolbarActionDescriptor Wrap(
         string key,

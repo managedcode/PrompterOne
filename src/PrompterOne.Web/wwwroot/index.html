@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PrompterOne</title>
+    <base href="/" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@0,700;0,800;0,900;1,700;1,800&display=swap" rel="stylesheet" />
+    <link rel="icon" type="image/png" href="_content/PrompterOne.Shared/favicon.png" />
+    <script src="_content/PrompterOne.Shared/localization/browser-culture.js"></script>
+    <script src="_content/PrompterOne.Shared/theme/browser-theme.js"></script>
+    <link rel="stylesheet" href="_content/PrompterOne.Shared/design/tokens.css" />
+    <link rel="stylesheet" href="_content/PrompterOne.Shared/design/components.css" />
+    <link rel="stylesheet" href="_content/PrompterOne.Shared/design/styles.css" />
+    <link rel="preload" href="_content/PrompterOne.Shared/design/learn.css" as="style" />
+    <link rel="preload" href="_content/PrompterOne.Shared/design/modules/30-rsvp.css" as="style" />
+    <link rel="stylesheet" href="_content/PrompterOne.Shared/design/teleprompter.css" />
+    <link rel="stylesheet" href="_content/PrompterOne.Shared/app.css" />
+    <link rel="stylesheet" href="PrompterOne.Web.styles.css" />
+</head>
+<body>
+    <div id="app">
+        <div class="app-loading-shell">
+            <div class="app-loading-mark"></div>
+            <p>Loading PrompterOne...</p>
+        </div>
+    </div>
+
+    <div id="blazor-error-ui" class="app-shell-overlay app-shell-overlay-error" role="alertdialog" aria-modal="true" data-nosnippet data-testid="diagnostics-bootstrap">
+        <div class="app-shell-card app-shell-card-error">
+            <span class="app-shell-eyebrow" id="app-shell-error-eyebrow">Diagnostics</span>
+            <h2 id="app-shell-error-title">PrompterOne hit a shell error</h2>
+            <p id="app-shell-error-message">The app shell could not recover automatically. Reload the app to restore editing, reading, and live tools.</p>
+            <div id="app-shell-error-detail" class="app-shell-detail" hidden></div>
+            <div class="app-shell-actions">
+                <a href="." class="app-shell-btn app-shell-btn-primary reload" data-testid="diagnostics-bootstrap-reload">Reload App</a>
+                <button type="button" class="app-shell-btn dismiss" data-testid="diagnostics-bootstrap-dismiss">Dismiss</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="_content/PrompterOne.Shared/media/browser-media.js"></script>
+    <script src="_content/PrompterOne.Shared/media/go-live-media-compositor.js"></script>
+    <script src="_content/PrompterOne.Shared/media/go-live-output-support.js"></script>
+    <script src="_content/PrompterOne.Shared/vendor/livekit-client/v2.18.1/livekit-client.umd.js"></script>
+    <script src="_content/PrompterOne.Shared/vendor/vdo-ninja-sdk/v1.3.18/vdoninja-sdk.js"></script>
+    <script src="_content/PrompterOne.Shared/media/go-live-remote-sources.js"></script>
+    <script src="_content/PrompterOne.Shared/media/go-live-output-vdo-ninja.js"></script>
+    <script src="_content/PrompterOne.Shared/media/go-live-output.js"></script>
+    <script src="_content/PrompterOne.Shared/editor/editor-source-panel.js"></script>
+    <script src="_content/PrompterOne.Shared/teleprompter/teleprompter-reader.js"></script>
+    <script src="_content/PrompterOne.Shared/app/cross-tab-message-bus.js"></script>
+    <script src="_framework/blazor.webassembly.js" autostart="false"></script>
+    <script>
+        const wasmDebugQueryKey = "wasm-debug";
+        const wasmDebugDisabledLevel = 0;
+        const wasmDebugEnabledLevel = 1;
+        const currentUrl = new URL(window.location.href);
+        const isWasmDebugEnabled = currentUrl.searchParams.get(wasmDebugQueryKey) === "1";
+
+        window.__prompterOneRuntime = window.__prompterOneRuntime || {};
+        window.__prompterOneRuntime.wasmDebugEnabled = isWasmDebugEnabled;
+        window.__prompterOneRuntime.wasmDebugQueryKey = wasmDebugQueryKey;
+
+        Blazor.start({
+            configureRuntime: function (builder) {
+                builder.withDebugging(isWasmDebugEnabled ? wasmDebugEnabledLevel : wasmDebugDisabledLevel);
+            }
+        });
+    </script>
+</body>
+</html>

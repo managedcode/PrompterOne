@@ -87,6 +87,14 @@ public static class UiTestIds
 
         public static string CardRead(string scriptId) => $"library-card-read-{scriptId}";
 
+        public static string CardDuration(string scriptId) => $"library-card-duration-{scriptId}";
+
+        public static string CardSegmentCount(string scriptId) => $"library-card-segment-count-{scriptId}";
+
+        public static string CardWordCount(string scriptId) => $"library-card-word-count-{scriptId}";
+
+        public static string CardWpm(string scriptId) => $"library-card-wpm-{scriptId}";
+
         public static string Folder(string folderId) => $"library-folder-{folderId}";
 
         public static string FolderChip(string folderId) => $"library-folder-chip-{folderId}";
@@ -110,8 +118,13 @@ public static class UiTestIds
         public const string BaseWpm = "editor-base-wpm";
         public const string Bold = "editor-bold";
         public const string ColorClear = "editor-color-clear";
+        public const string ColorGuide = "editor-color-guide";
         public const string ColorGreen = "editor-color-green";
+        public const string ColorLoud = ColorGreen;
+        public const string ColorSoft = "editor-color-soft";
+        public const string ColorStress = "editor-color-stress";
         public const string ColorTrigger = "editor-color-trigger";
+        public const string ColorWhisper = "editor-color-whisper";
         public const string Created = "editor-created";
         public const string CreatedIcon = "editor-created-icon";
         public const string Duration = "editor-duration";
@@ -138,6 +151,7 @@ public static class UiTestIds
         public const string FloatingSpeedCustomWpm = "editor-floating-speed-custom-wpm";
         public const string FloatingSpeedMenu = "editor-floating-speed-menu";
         public const string FloatingSpeedTrigger = "editor-floating-speed-trigger";
+        public const string FloatingVoiceLoud = "editor-float-voice-loud";
         public const string FloatingVoice = "editor-floating-voice";
         public const string FloatingVoiceMenu = "editor-floating-voice-menu";
         public const string FloatingVoiceWhisper = "editor-floating-voice-whisper";
@@ -220,6 +234,7 @@ public static class UiTestIds
         public const string Page = "learn-page";
         public const string PlayToggle = "learn-play-toggle";
         public const string ProgressLabel = "learn-progress-label";
+        public const string SpeedValue = "learn-speed-value";
         public const string SpeedDown = "learn-speed-down";
         public const string SpeedUp = "learn-speed-up";
         public const string StepBackward = "learn-step-backward";
@@ -295,6 +310,7 @@ public static class UiTestIds
     public static class Settings
     {
         public const string AboutAppCard = "settings-about-app-card";
+        public const string AboutClarityDisclosure = "settings-about-clarity-disclosure";
         public const string AboutCompanyCard = "settings-about-company-card";
         public const string AboutCompanyGitHub = "settings-about-company-github";
         public const string AboutCompanyWebsite = "settings-about-company-website";
@@ -343,6 +359,7 @@ public static class UiTestIds
         public const string NavFiles = "settings-nav-files";
         public const string NavMics = "settings-nav-mics";
         public const string NavRecording = "settings-nav-recording";
+        public const string NavShortcuts = "settings-nav-shortcuts";
         public const string NavStreaming = "settings-nav-streaming";
         public const string NoiseSuppression = "settings-noise-suppression";
         public const string Page = "settings-page";
@@ -358,6 +375,7 @@ public static class UiTestIds
         public const string NoCameras = "settings-no-cameras";
         public const string NoMics = "settings-no-mics";
         public const string StreamingBitrate = "settings-streaming-bitrate";
+        public const string ShortcutsPanel = "settings-shortcuts-panel";
         public const string StreamingCustomRtmpKey = "settings-streaming-custom-rtmp-key";
         public const string StreamingCustomRtmpName = "settings-streaming-custom-rtmp-name";
         public const string StreamingCustomRtmpUrl = "settings-streaming-custom-rtmp-url";
@@ -395,6 +413,10 @@ public static class UiTestIds
         public static string CameraDevice(string deviceId) => $"settings-camera-device-{deviceId}";
 
         public static string CameraDeviceAction(string deviceId) => $"settings-camera-device-action-{deviceId}";
+
+        public static string ShortcutsAction(string groupId, string actionId) => $"settings-shortcuts-action-{groupId}-{actionId}";
+
+        public static string ShortcutsGroup(string groupId) => $"settings-shortcuts-group-{groupId}";
 
         public static string CameraPrimaryAction(string deviceId) => $"settings-camera-primary-{deviceId}";
 

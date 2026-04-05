@@ -6,35 +6,43 @@ namespace PrompterOne.Shared.Pages;
 public partial class LearnPage : IAsyncDisposable
 {
     private Task HandleLearnKeyDownAsync(KeyboardEventArgs args) =>
-        HandleLearnKeyboardAsync(args.Key);
+        HandleLearnKeyboardAsync(args);
 
-    private async Task HandleLearnKeyboardAsync(string? key)
+    private async Task HandleLearnKeyboardAsync(KeyboardEventArgs args)
     {
-        switch (key)
+        if (!AppHotkeys.TryResolve(AppHotkeySurface.Learn, args, out var action))
         {
-            case UiKeyboardKeys.Escape:
+            return;
+        }
+
+        switch (action)
+        {
+            case AppHotkeyAction.LearnBack:
                 await NavigateBackToEditorAsync();
                 break;
-            case UiKeyboardKeys.Space:
+            case AppHotkeyAction.LearnPlayPause:
                 await ToggleRsvpPlaybackAsync();
                 break;
-            case UiKeyboardKeys.ArrowLeft:
+            case AppHotkeyAction.LearnStepBackward:
                 await StepRsvpBackwardAsync();
                 break;
-            case UiKeyboardKeys.ArrowRight:
+            case AppHotkeyAction.LearnStepForward:
                 await StepRsvpForwardAsync();
                 break;
-            case UiKeyboardKeys.PageUp:
+            case AppHotkeyAction.LearnStepBackwardLarge:
                 await StepRsvpBackwardLargeAsync();
                 break;
-            case UiKeyboardKeys.PageDown:
+            case AppHotkeyAction.LearnStepForwardLarge:
                 await StepRsvpForwardLargeAsync();
                 break;
-            case UiKeyboardKeys.ArrowUp:
+            case AppHotkeyAction.LearnSpeedUp:
                 await IncreaseRsvpSpeedAsync();
                 break;
-            case UiKeyboardKeys.ArrowDown:
+            case AppHotkeyAction.LearnSpeedDown:
                 await DecreaseRsvpSpeedAsync();
+                break;
+            case AppHotkeyAction.LearnToggleLoop:
+                await ToggleLoopPlaybackAsync();
                 break;
         }
     }

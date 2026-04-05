@@ -7,7 +7,7 @@ Stack: `.NET 10`, Blazor WebAssembly, Razor Class Library, xUnit, bUnit, Playwri
 
 `PrompterOne` is a standalone browser-first WebAssembly app.
 
-- `src/PrompterOne.App` is the only runnable host.
+- `src/PrompterOne.Web` is the only runnable host.
 - `src/PrompterOne.Shared` contains routed Razor UI, exact `design` styling, and browser interop.
 - `src/PrompterOne.Core` contains TPS, RSVP, preview, workspace, media-scene, and streaming domain logic.
 - `tests/` contains all automated test projects.
@@ -85,6 +85,7 @@ Rule format:
 - TPS authoring completeness must be checked against the upstream `managedcode/TPS` README, not only the currently shipped editor menus, so new editor support stays aligned with the full spec for emotions, delivery, pauses, speed, pronunciation, and related cues.
 - User-facing file transfer actions in the shell should use `Import` and `Export` wording instead of `Open Script` and `Save File`, because the app also has its own internal script/workspace structure.
 - File workflows must stay local-first inside PrompterOne: scripts need in-app autosave and an internal change-history path in the browser environment, not only external disk import/export actions.
+- Hotkey work must target PrompterOne’s own browser surfaces and settings inventory only; do not design around OBS commands or claim OBS integration paths that the product does not have.
 
 ## Rules to Follow (Mandatory)
 
@@ -104,11 +105,11 @@ For this `.NET` repo:
 
 Useful focused commands:
 
-- app run: `cd ./src/PrompterOne.App && dotnet run`
+- app run: `cd ./src/PrompterOne.Web && dotnet run`
 - core tests: `dotnet test ./tests/PrompterOne.Core.Tests/PrompterOne.Core.Tests.csproj`
-- component tests: `dotnet test ./tests/PrompterOne.App.Tests/PrompterOne.App.Tests.csproj`
-- ui tests: `dotnet test ./tests/PrompterOne.App.UITests/PrompterOne.App.UITests.csproj`
-- playwright browser install: `node ./tests/PrompterOne.App.UITests/bin/Debug/net10.0/.playwright/package/cli.js install chromium`
+- component tests: `dotnet test ./tests/PrompterOne.Web.Tests/PrompterOne.Web.Tests.csproj`
+- ui tests: `dotnet test ./tests/PrompterOne.Web.UITests/PrompterOne.Web.UITests.csproj`
+- playwright browser install: `node ./tests/PrompterOne.Web.UITests/bin/Debug/net10.0/.playwright/package/cli.js install chromium`
 - Build the relevant project immediately before starting a local dev server so `dotnet run` cannot serve stale WASM assets or binaries.
 
 Browser test execution rules:
@@ -117,7 +118,7 @@ Browser test execution rules:
 - The browser suite self-hosts the built WASM assets on a dynamically assigned loopback HTTP origin.
 - Each browser-suite host startup MUST request a fresh OS-assigned loopback port via `http://127.0.0.1:0`. Never pin or reuse a fixed browser-test port across runs.
 - Inside that single process, the browser suite may run up to `4` parallel xUnit workers.
-- Do not run `PrompterOne.App.UITests` in parallel with another `dotnet build` or `dotnet test` command.
+- Do not run `PrompterOne.Web.UITests` in parallel with another `dotnet build` or `dotnet test` command.
 - If a prior build already ran, prefer `dotnet test ... --no-build` for the browser suite.
 - Do not add Python or ad-hoc runner scripts to bootstrap browser verification. The repo test commands must self-host the app and execute the flows end to end on their own.
 - Browser UI scenarios are the primary acceptance gate for this repo. Component and core tests are supporting layers, not the release bar.
@@ -156,12 +157,12 @@ Selector and constant rules:
 
 Current local `AGENTS.md` files:
 
-- [src/PrompterOne.App/AGENTS.md](./src/PrompterOne.App/AGENTS.md)
+- [src/PrompterOne.Web/AGENTS.md](./src/PrompterOne.Web/AGENTS.md)
 - [src/PrompterOne.Core/AGENTS.md](./src/PrompterOne.Core/AGENTS.md)
 - [src/PrompterOne.Shared/AGENTS.md](./src/PrompterOne.Shared/AGENTS.md)
 - [tests/PrompterOne.Core.Tests/AGENTS.md](./tests/PrompterOne.Core.Tests/AGENTS.md)
-- [tests/PrompterOne.App.Tests/AGENTS.md](./tests/PrompterOne.App.Tests/AGENTS.md)
-- [tests/PrompterOne.App.UITests/AGENTS.md](./tests/PrompterOne.App.UITests/AGENTS.md)
+- [tests/PrompterOne.Web.Tests/AGENTS.md](./tests/PrompterOne.Web.Tests/AGENTS.md)
+- [tests/PrompterOne.Web.UITests/AGENTS.md](./tests/PrompterOne.Web.UITests/AGENTS.md)
 
 ### Maintainability Limits
 
@@ -319,13 +320,14 @@ Repo-specific design rules:
 - TPS front matter pasted or imported into the editor source MUST be parsed into the metadata rail automatically and removed from the visible body text instead of staying inline in the source editor.
 - Script authoring flows MUST support explicit user-driven save/export to the real local disk from the browser; browser or app-local persistence alone is not a sufficient save path.
 - Editor authoring MUST accept direct local-file drag-and-drop on the editor surface; dropping onto an empty draft replaces it with the imported document, while dropping onto a non-empty draft appends the imported TPS text at the end without breaking undo/redo.
-- TPS support MUST fully implement the current `design/TPS.md` contract end to end; legacy or partially compatible TPS syntax is not a supported mode, and any old incompatible behavior should be removed instead of kept behind compatibility shims.
+- TPS support MUST fully implement the current `docs/Reference/TPS.md` contract end to end; legacy or partially compatible TPS syntax is not a supported mode, and any old incompatible behavior should be removed instead of kept behind compatibility shims.
 - TPS visual semantics MUST track the current TPS spec end to end: editor and reader surfaces should communicate delivery cues such as volume, emphasis, stress, speed, and delivery mode through typography, spacing, weight, and motion where appropriate, not through color alone.
 - Pasted or imported TPS documents MUST render their editor-side authoring styles immediately on first load in the editor; showing the imported script as near-plain text until later interaction is a regression.
 - For standalone cloud-storage integrations, persist provider keys, tokens, and connection metadata in browser `localStorage`; do not introduce server-side secret storage for runtime auth in this app shape.
 - Third-party runtime JavaScript SDKs MUST be sourced only from explicitly pinned GitHub Release tags and assets, copied into the repo, bundled locally with their runtime dependencies, and never loaded from CDNs, package registries, `latest` endpoints, or ad-hoc remote downloads at app runtime.
 - Repo-owned manifests, scripts, workflows, and project files that track third-party runtime JavaScript SDKs MUST point to concrete GitHub release versions and asset URLs, never floating references.
 - Any vendored runtime JavaScript SDK that tracks an upstream GitHub repo MUST have an automated watcher job that checks new GitHub releases and opens a repo issue describing the required update when a newer release appears.
+- Runtime analytics and session-replay scripts must be owned through a product adapter/service layer, not ad-hoc inline screen code, and development or debug runs must not send telemetry to Google Analytics or Microsoft Clarity.
 - Teleprompter TPS speed modifiers MUST affect both playback timing and subtle word- or phrase-level letter spacing, so slower spans open up slightly and faster spans tighten slightly without hurting readability.
 - Teleprompter default reader width MUST start at the maximum readable width from the design unless the user explicitly narrows it; shipping a visibly narrower default is a regression.
 - Teleprompter speed styling MUST produce a visible but tasteful letter-spacing or kerning change: slower text opens up slightly and faster text tightens slightly, not a no-op.
@@ -438,7 +440,7 @@ Ask first:
 - any visible typing latency in the editor; plain input must feel immediate with no observable delay
 - teleprompter controls that fade so much they become hard to see during real reading
 - teleprompter starting with a narrowed text width instead of the design-max default
-- teleprompter paragraph repositioning, line hopping, or per-word vertical transform updates that make the text jump; `design/teleprompter.html` motion is the required reference, with steady bottom-to-top movement and no extra animation layers beyond the reference
+- teleprompter paragraph repositioning, line hopping, or per-word vertical transform updates that make the text jump; the shipped reader motion documented in `docs/Features/ReaderRuntime.md` is the required reference, with steady bottom-to-top movement and no extra animation layers beyond that contract
 - teleprompter words or blocks appearing away from the focus line and only then drifting onto it; activation must look immediate
 - teleprompter section changes that introduce odd transition motion instead of the straight reference direction
 - any green teleprompter shell or background treatment; Teleprompter must stay on its dark reader palette and use emotion only for accents, not green screen-wide fills

@@ -2,7 +2,7 @@
 
 ## Intent
 
-`learn` and `teleprompter` must follow the checked-in design references in `design/` closely at runtime, not only in static markup.
+`learn` and `teleprompter` must follow the shipped reader runtime contract and the shared runtime styles closely at runtime, not a deleted prototype tree.
 
 The important contracts are:
 

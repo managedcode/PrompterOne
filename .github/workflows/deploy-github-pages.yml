@@ -16,11 +16,11 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  APP_TEST_PROJECT: tests/PrompterOne.App.Tests/PrompterOne.App.Tests.csproj
+  APP_TEST_PROJECT: tests/PrompterOne.Web.Tests/PrompterOne.Web.Tests.csproj
   CORE_TEST_PROJECT: tests/PrompterOne.Core.Tests/PrompterOne.Core.Tests.csproj
-  PLAYWRIGHT_CLI: tests/PrompterOne.App.UITests/bin/Debug/net10.0/.playwright/package/cli.js
+  PLAYWRIGHT_CLI: tests/PrompterOne.Web.UITests/bin/Debug/net10.0/.playwright/package/cli.js
   SOLUTION_FILE: PrompterOne.slnx
-  UI_TEST_PROJECT: tests/PrompterOne.App.UITests/PrompterOne.App.UITests.csproj
+  UI_TEST_PROJECT: tests/PrompterOne.Web.UITests/PrompterOne.Web.UITests.csproj
 
 jobs:
   validate_release:
@@ -58,7 +58,7 @@ jobs:
     needs: validate_release
     runs-on: ubuntu-latest
     env:
-      APP_PROJECT: src/PrompterOne.App/PrompterOne.App.csproj
+      APP_PROJECT: src/PrompterOne.Web/PrompterOne.Web.csproj
 
     permissions:
       contents: read
@@ -89,7 +89,7 @@ jobs:
     needs: prepare_release
     runs-on: ubuntu-latest
     env:
-      APP_PROJECT: src/PrompterOne.App/PrompterOne.App.csproj
+      APP_PROJECT: src/PrompterOne.Web/PrompterOne.Web.csproj
       PAGES_ARTIFACT_ROOT: .artifacts/prompterone-pages
       PAGES_BASE_PATH: /
       PAGES_CNAME: prompter.managed-code.com

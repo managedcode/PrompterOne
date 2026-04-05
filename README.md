@@ -177,7 +177,7 @@ These are product directions, not release-date promises.
 ```bash
 git clone https://github.com/managedcode/PrompterOne.git
 cd PrompterOne
-dotnet run --project src/PrompterOne.App
+dotnet run --project src/PrompterOne.Web
 ```
 
 Or just open [prompter.managed-code.com](https://prompter.managed-code.com/) — no install needed.

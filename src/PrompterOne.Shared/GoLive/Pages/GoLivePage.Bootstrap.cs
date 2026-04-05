@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Components;
 using PrompterOne.Core.Models.Media;
 using PrompterOne.Core.Models.Workspace;
 using PrompterOne.Shared.GoLive.Models;
@@ -11,34 +12,39 @@ public partial class GoLivePage
 {
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!_loadState)
+        if (_loadState)
         {
+            _loadState = false;
+            _bootstrapTask ??= BootstrapPageAsync();
+            await _bootstrapTask;
+            await SyncPrimaryMicrophoneMonitorAsync();
             return;
         }
 
-        _loadState = false;
-        _bootstrapTask ??= BootstrapPageAsync();
-        await _bootstrapTask;
-        await SyncPrimaryMicrophoneMonitorAsync();
+        if (_focusScreenAfterRender)
+        {
+            _focusScreenAfterRender = false;
+            await _screenRoot.FocusAsync();
+        }
     }
 
     private async Task BootstrapPageAsync()
     {
         await Diagnostics.RunAsync(
-    GoLiveText.Load.LoadOperation,
-    GoLiveText.Load.LoadMessage,
-    async () =>
-    {
-        await Bootstrapper.EnsureReadyAsync();
-        await LoadCaptureCapabilitiesAsync();
-        await EnsureSessionLoadedAsync();
-        await EnsureSceneDefaultsAsync();
-        await LoadRecordingPreferencesAsync();
-        await LoadStudioSettingsAsync();
-        await SyncRemoteSourcesAsync();
-        UpdateScreenMetadata();
-        StateHasChanged();
-    });
+            GoLiveText.Load.LoadOperation,
+            GoLiveText.Load.LoadMessage,
+            async () =>
+            {
+                await Bootstrapper.EnsureReadyAsync();
+                await LoadCaptureCapabilitiesAsync();
+                await EnsureSessionLoadedAsync();
+                await EnsureSceneDefaultsAsync();
+                await LoadRecordingPreferencesAsync();
+                await LoadStudioSettingsAsync();
+                await SyncRemoteSourcesAsync();
+                UpdateScreenMetadata();
+                StateHasChanged();
+            });
     }
 
     private async Task EnsurePageReadyAsync()

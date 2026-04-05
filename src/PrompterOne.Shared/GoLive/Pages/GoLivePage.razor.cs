@@ -34,8 +34,10 @@ public partial class GoLivePage : ComponentBase, IDisposable, IAsyncDisposable
     private readonly SemaphoreSlim _interactionGate = new(1, 1);
     private IReadOnlyList<MediaDeviceInfo> _mediaDevices = [];
     private BrowserMediaCaptureCapabilities _captureCapabilities = BrowserMediaCaptureCapabilities.Default;
+    private bool _focusScreenAfterRender = true;
     private bool _loadState = true;
     private SettingsPagePreferences _recordingPreferences = SettingsPagePreferences.Default;
+    private ElementReference _screenRoot;
     private string _sessionSubtitle = GoLiveText.Chrome.StreamingSubtitle;
     private string _sessionTitle = ScriptWorkspaceState.UntitledScriptTitle;
     private StudioSettings _studioSettings = StudioSettings.Default;
@@ -74,6 +76,7 @@ public partial class GoLivePage : ComponentBase, IDisposable, IAsyncDisposable
     protected override Task OnParametersSetAsync()
     {
         _bootstrapTask = null;
+        _focusScreenAfterRender = true;
         _loadState = true;
         return Task.CompletedTask;
     }

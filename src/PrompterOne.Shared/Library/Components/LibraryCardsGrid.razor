@@ -86,14 +86,14 @@
                     <div class="dcover-meta">
                         <span class="dcover-emo">@card.Emotion</span>
                         <span>@card.ModeLabel</span>
-                        <span>@card.DurationLabel</span>
+                        <span data-testid="@UiTestIds.Library.CardDuration(card.Id)">@card.DurationLabel</span>
                     </div>
                 </div>
                 <div class="dcard-data">
                     <div class="ddata-row">
-                        <span>@card.WpmLabel</span>
-                        <span>@card.WordCountLabel</span>
-                        <span>@card.SegmentCountLabel</span>
+                        <span data-testid="@UiTestIds.Library.CardWpm(card.Id)">@card.WpmLabel</span>
+                        <span data-testid="@UiTestIds.Library.CardWordCount(card.Id)">@card.WordCountLabel</span>
+                        <span data-testid="@UiTestIds.Library.CardSegmentCount(card.Id)">@card.SegmentCountLabel</span>
                     </div>
                     <div class="ddata-foot">
                         <span>@card.Author</span>

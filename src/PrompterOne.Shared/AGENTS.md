@@ -36,12 +36,14 @@
 - Keep keyboard shortcuts, screen ids/selectors, and reusable UI constants in Blazor/C# contracts when possible; leave JS only with unavoidable browser API interop and direct DOM work that Blazor cannot replace cleanly.
 - Prefer removing JS files that only orchestrate UI behavior, reader state, or shell interactions; keep those flows in Razor components or C# services and let JS expose only the minimal browser or SDK call surface.
 - TPS 1.1.0 removed legacy inline color tags, so editor, reader, menus, examples, and tests in this project must not expose or insert `[red]`, `[green]`, or other deprecated color-tag authoring paths.
+- Editor dropdowns and tooltips must read as structured surfaces: item rows need a consistent visual rhythm with aligned columns or spacing, and overlay surfaces need border contrast strong enough to separate them clearly from the editor background.
+- File-creating editor actions such as document split must show explicit in-app feedback about what was created and where to find it; silent success states behind generic buttons are not user-friendly enough.
 
 ## Project-Local Commands
 
 - `dotnet build ./src/PrompterOne.Shared/PrompterOne.Shared.csproj`
-- `dotnet test ./tests/PrompterOne.App.Tests/PrompterOne.App.Tests.csproj`
-- `dotnet test ./tests/PrompterOne.App.UITests/PrompterOne.App.UITests.csproj`
+- `dotnet test ./tests/PrompterOne.Web.Tests/PrompterOne.Web.Tests.csproj`
+- `dotnet test ./tests/PrompterOne.Web.UITests/PrompterOne.Web.UITests.csproj`
 
 ## Applicable Skills
 

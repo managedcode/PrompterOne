@@ -5,9 +5,6 @@ profile: "Actor"
 base_wpm: 142
 version: "1.0"
 duration: "8:40"
-display_word_count: 1120
-display_segment_count: 5
-display_wpm: 142
 ---
 
 ## [Opening|142WPM|calm]

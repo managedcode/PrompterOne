@@ -15,9 +15,13 @@ internal static class EditorFloatingToolbarCatalog
 {
     private const string ChevronDownIcon = """<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6,9 12,15 18,9" /></svg>""";
     private const string SparkIcon = """<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L9 9 2 12l7 3 3 7 3-7 7-3-7-3z" /></svg>""";
+    private const string SpeakerHighIcon = """<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11,5 6,9 2,9 2,15 6,15 11,19"></polygon><path d="M15 9a5 5 0 0 1 0 6"></path><path d="M18 7a8 8 0 0 1 0 10"></path></svg>""";
     private const string PauseClockIcon = """<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><polyline points="12,6 12,12 16,14" /></svg>""";
     private const string PauseFloatIcon = """<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>""";
     private const string LightningIcon = """<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10" /></svg>""";
+    private const string FloatingVoiceTriggerIcon = """<span class="efb-sem-dot efb-sem-dot--voice"></span>""";
+    private const string FloatingEmotionTriggerIcon = """<span class="efb-sem-dot efb-sem-dot--emotion"></span>""";
+    private const string EditPointIconCurrent = """<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg>""";
     private const string EditPointIconGold = """<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFD060" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg>""";
     private const string EditPointIconRed = """<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF6060" stroke-width="2" style="flex-shrink:0"><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg>""";
     private const string EditPointIconOrange = """<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFB86A" stroke-width="2" style="flex-shrink:0"><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg>""";
@@ -34,19 +38,19 @@ internal static class EditorFloatingToolbarCatalog
             EditorFloatingToolbarActionFactory.Wrap("float-stress", "<span style=\"color:#FFD060;font-weight:700\">S</span>", "Stress [stress]", UiTestIds.Editor.FloatStress, "[stress]", "[/stress]")
         ],
         [
-            EditorFloatingToolbarActionFactory.Wrap("float-voice-loud", "<span class=\"cdot\" style=\"background:#FFD060\"></span>", "Loud [loud]", "editor-float-voice-loud", "[loud]", "[/loud]"),
-            EditorFloatingToolbarActionFactory.Toggle(EditorToolbarMenuIds.FloatingVoice, "<span class=\"cdot\" style=\"background:#FFD060\"></span>" + ChevronDownIcon, "Voice cues", UiTestIds.Editor.FloatingVoice),
-            EditorFloatingToolbarActionFactory.Toggle(EditorToolbarMenuIds.FloatingEmotion, "<span class=\"cdot\" style=\"background:#FFB840\"></span>" + ChevronDownIcon, "Emotion and delivery", UiTestIds.Editor.FloatingEmotion)
+            EditorFloatingToolbarActionFactory.Wrap("float-voice-loud", SpeakerHighIcon, "Loud [loud]", UiTestIds.Editor.FloatingVoiceLoud, "[loud]", "[/loud]", cssClass: "efb-btn efb-btn--voice-action"),
+            EditorFloatingToolbarActionFactory.Toggle(EditorToolbarMenuIds.FloatingVoice, FloatingVoiceTriggerIcon + ChevronDownIcon, "Voice cues", UiTestIds.Editor.FloatingVoice, "efb-btn efb-btn--voice-menu"),
+            EditorFloatingToolbarActionFactory.Toggle(EditorToolbarMenuIds.FloatingEmotion, FloatingEmotionTriggerIcon + ChevronDownIcon, "Emotion and delivery", UiTestIds.Editor.FloatingEmotion, "efb-btn efb-btn--emotion-menu")
         ],
         [
             EditorFloatingToolbarActionFactory.Wrap("float-slow", ".8×", "Slow [slow]", UiTestIds.Editor.FloatingSlow, "[slow]", "[/slow]"),
             EditorFloatingToolbarActionFactory.Wrap("float-fast", "1.25×", "Fast [fast]", "editor-float-fast", "[fast]", "[/fast]"),
-            EditorFloatingToolbarActionFactory.Insert("float-pause", PauseFloatIcon, "Breath [breath]", UiTestIds.Editor.FloatingPause, "[breath]"),
-            EditorFloatingToolbarActionFactory.Toggle(EditorToolbarMenuIds.FloatingPause, PauseClockIcon + ChevronDownIcon, "Pause cues", UiTestIds.Editor.FloatingPauseTrigger),
-            EditorFloatingToolbarActionFactory.Toggle(EditorToolbarMenuIds.FloatingSpeed, LightningIcon + ChevronDownIcon, "Speed cues", UiTestIds.Editor.FloatingSpeedTrigger)
+            EditorFloatingToolbarActionFactory.Insert("float-pause", PauseFloatIcon, "Breath [breath]", UiTestIds.Editor.FloatingPause, "[breath]", cssClass: "efb-btn efb-btn--pause"),
+            EditorFloatingToolbarActionFactory.Toggle(EditorToolbarMenuIds.FloatingPause, PauseClockIcon + ChevronDownIcon, "Pause cues", UiTestIds.Editor.FloatingPauseTrigger, "efb-btn efb-btn--pause"),
+            EditorFloatingToolbarActionFactory.Toggle(EditorToolbarMenuIds.FloatingSpeed, LightningIcon + ChevronDownIcon, "Speed cues", UiTestIds.Editor.FloatingSpeedTrigger, "efb-btn efb-btn--speed")
         ],
         [
-            EditorFloatingToolbarActionFactory.Toggle(EditorToolbarMenuIds.FloatingInsert, EditPointIconGold + ChevronDownIcon, "Insert TPS helpers", UiTestIds.Editor.FloatingInsert),
+            EditorFloatingToolbarActionFactory.Toggle(EditorToolbarMenuIds.FloatingInsert, EditPointIconCurrent + ChevronDownIcon, "Insert TPS helpers", UiTestIds.Editor.FloatingInsert, "efb-btn efb-btn--insert"),
             EditorFloatingToolbarActionFactory.Ai("float-ai", $"{SparkIcon}AI", "AI — rewrite, expand, simplify", UiTestIds.Editor.FloatingAi, EditorAiAssistAction.Simplify)
         ]
     ];

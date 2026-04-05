@@ -5,9 +5,6 @@ profile: "Actor"
 base_wpm: 155
 version: "1.0"
 duration: "5:30"
-display_word_count: 852
-display_segment_count: 3
-display_wpm: 155
 ---
 
 ## [Alert|155WPM|urgent|0:00-0:45]

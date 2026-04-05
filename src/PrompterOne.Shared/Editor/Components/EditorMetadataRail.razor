@@ -13,20 +13,12 @@
                 aria-controls="@UiDomIds.Editor.MetadataRailBody"
                 aria-expanded="@GetExpandedAttributeValue()"
                 aria-label="@ToggleLabel"
+                data-chevron-direction="@GetToggleChevronDirection()"
                 @onclick="() => ToggleRequested.InvokeAsync()"
                 data-testid="@UiTestIds.Editor.MetadataRailToggle">
-            @if (IsCollapsed)
-            {
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <polyline points="9,18 15,12 9,6"></polyline>
-                </svg>
-            }
-            else
-            {
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <polyline points="15,18 9,12 15,6"></polyline>
-                </svg>
-            }
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="@GetToggleChevronPoints()"></polyline>
+            </svg>
         </button>
     </div>
 
@@ -259,9 +251,13 @@
     private const string MultipleRevisionsFormat = "{0} revisions";
     private const string LastSavedFormat = "Last internal save {0}";
     private const string LastSavedTimestampFormat = "yyyy-MM-dd HH:mm:ss";
+    private const string LeftChevronDirection = "left";
+    private const string LeftChevronPoints = "15,18 9,12 15,6";
     private const string LocalFileSectionLabel = "LOCAL FILE";
     private const string LocalHistoryHintLabel = "Recent browser-local versions appear here after the first internal save.";
     private const string OneRevisionLabel = "1 revision";
+    private const string RightChevronDirection = "right";
+    private const string RightChevronPoints = "9,18 15,12 9,6";
     private const string RestoreLabel = "Restore";
 
     private Task OnAuthorChange(ChangeEventArgs args) =>
@@ -302,6 +298,10 @@
     private string GetCollapsedAttributeValue() => IsCollapsed ? "true" : "false";
 
     private string GetExpandedAttributeValue() => IsCollapsed ? "false" : "true";
+
+    private string GetToggleChevronDirection() => IsCollapsed ? LeftChevronDirection : RightChevronDirection;
+
+    private string GetToggleChevronPoints() => IsCollapsed ? LeftChevronPoints : RightChevronPoints;
 
     private string GetAutoSaveStateLabel() => AutoSaveEnabled ? AutoSaveOnLabel : AutoSaveOffLabel;
 

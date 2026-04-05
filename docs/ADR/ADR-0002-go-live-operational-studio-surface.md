@@ -6,7 +6,7 @@ Related Features: [Go Live Runtime](../Features/GoLiveRuntime.md), [Architecture
 
 ## Implementation plan (step-by-step)
 
-- [x] Audit the existing routed `Go Live` page against `design/golive.html`.
+- [x] Audit the existing routed `Go Live` page against the intended studio-shell contract.
 - [x] Replace the design drifted routing form layout with a studio shell that matches the design rails and canvas.
 - [x] Bind the studio shell to real browser media state, real scene cameras, and honest destination readiness summaries.
 - [x] Keep detailed provider setup in `Settings` and reduce `Go Live` to operational toggles plus links back to setup.
@@ -16,13 +16,13 @@ Related Features: [Go Live Runtime](../Features/GoLiveRuntime.md), [Architecture
 ## Context
 
 - The prior `Go Live` page mixed an operational studio surface with a large lower deck of inline provider forms.
-- That shape diverged from `design/golive.html`, pushed the most important controls below the fold, and encouraged duplicate ownership of provider credentials between `Go Live` and `Settings`.
+- That shape diverged from the intended studio-shell contract, pushed the most important controls below the fold, and encouraged duplicate ownership of provider credentials between `Go Live` and `Settings`.
 - The product already has browser media services, scene state, output runtime services, and persisted provider settings. The problem was not missing capability; it was a blurred page contract.
 - The user explicitly asked for a real `Go Live` studio with camera switching, live preview, honest data, and design fidelity instead of a fake or placeholder surface.
 
 Goals:
 
-- Keep `Go Live` visually faithful to `design/golive.html`.
+- Keep `Go Live` visually faithful to the shipped studio-shell contract.
 - Make `Go Live` operational, not administrative.
 - Keep live status, room state, and destination readiness truthful to what the browser runtime actually knows.
 - Cover the main studio flow with automated component and browser tests.
@@ -119,9 +119,9 @@ flowchart LR
   - `src/PrompterOne.Shared/GoLive/Pages/*`
   - `src/PrompterOne.Shared/GoLive/Components/*`
   - `src/PrompterOne.Shared/Contracts/UiTestIds.cs`
-  - `tests/PrompterOne.App.Tests/GoLive/GoLivePageTests.cs`
-  - `tests/PrompterOne.App.UITests/GoLive/GoLiveFlowTests.cs`
-  - `tests/PrompterOne.App.UITests/Scenarios/StudioWorkflowScenarioTests.cs`
+  - `tests/PrompterOne.Web.Tests/GoLive/GoLivePageTests.cs`
+  - `tests/PrompterOne.Web.UITests/GoLive/GoLiveFlowTests.cs`
+  - `tests/PrompterOne.Web.UITests/Scenarios/StudioWorkflowScenarioTests.cs`
 - New boundaries and responsibilities:
   - `GoLivePage` owns the operational studio layout and quick toggles.
   - `Settings` owns provider configuration and detailed streaming setup.
@@ -143,9 +143,9 @@ flowchart LR
 ### Test commands
 
 - `dotnet build ./PrompterOne.slnx -warnaserror`
-- `dotnet test ./tests/PrompterOne.App.Tests/PrompterOne.App.Tests.csproj --filter "FullyQualifiedName~GoLivePageTests"`
-- `dotnet test ./tests/PrompterOne.App.UITests/PrompterOne.App.UITests.csproj --filter "FullyQualifiedName~GoLiveFlowTests"`
-- `dotnet test ./tests/PrompterOne.App.UITests/PrompterOne.App.UITests.csproj --filter "FullyQualifiedName~StudioWorkflow_SettingsAndGoLiveStudio_CapturesArtifacts"`
+- `dotnet test ./tests/PrompterOne.Web.Tests/PrompterOne.Web.Tests.csproj --filter "FullyQualifiedName~GoLivePageTests"`
+- `dotnet test ./tests/PrompterOne.Web.UITests/PrompterOne.Web.UITests.csproj --filter "FullyQualifiedName~GoLiveFlowTests"`
+- `dotnet test ./tests/PrompterOne.Web.UITests/PrompterOne.Web.UITests.csproj --filter "FullyQualifiedName~StudioWorkflow_SettingsAndGoLiveStudio_CapturesArtifacts"`
 
 ### New or changed tests
 
@@ -157,6 +157,5 @@ flowchart LR
 
 ## References
 
-- [design/golive.html](../../design/golive.html)
 - [docs/Features/GoLiveRuntime.md](../Features/GoLiveRuntime.md)
 - [docs/Architecture.md](../Architecture.md)

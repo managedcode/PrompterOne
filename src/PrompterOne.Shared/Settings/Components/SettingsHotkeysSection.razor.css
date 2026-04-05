@@ -1,0 +1,97 @@
+.set-shortcut-grid {
+    display: grid;
+    gap: 12px;
+}
+
+.set-shortcut-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 16px;
+    align-items: center;
+    padding: 14px 16px;
+    border: 1px solid rgba(196, 160, 96, 0.16);
+    border-radius: 16px;
+    background:
+        linear-gradient(180deg, rgba(17, 24, 39, 0.56), rgba(10, 14, 24, 0.78)),
+        rgba(8, 12, 20, 0.88);
+}
+
+.set-shortcut-copy {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+}
+
+.set-shortcut-name {
+    color: rgba(245, 236, 214, 0.96);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+
+.set-shortcut-desc {
+    color: rgba(199, 180, 146, 0.74);
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.set-shortcut-chords {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.set-shortcut-key {
+    min-width: 46px;
+    padding: 8px 12px;
+    border: 1px solid rgba(196, 160, 96, 0.26);
+    border-radius: 12px;
+    background: rgba(19, 26, 38, 0.92);
+    color: rgba(255, 227, 162, 0.94);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-align: center;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+html[data-theme="light"] .set-shortcut-row,
+html.theme-light .set-shortcut-row,
+body.theme-light .set-shortcut-row {
+    border-color: rgba(120, 90, 32, 0.16);
+    background:
+        linear-gradient(180deg, rgba(255, 251, 242, 0.96), rgba(249, 244, 233, 0.98)),
+        rgba(255, 255, 255, 0.96);
+}
+
+html[data-theme="light"] .set-shortcut-name,
+html.theme-light .set-shortcut-name,
+body.theme-light .set-shortcut-name {
+    color: rgba(53, 42, 24, 0.92);
+}
+
+html[data-theme="light"] .set-shortcut-desc,
+html.theme-light .set-shortcut-desc,
+body.theme-light .set-shortcut-desc {
+    color: rgba(101, 77, 40, 0.82);
+}
+
+html[data-theme="light"] .set-shortcut-key,
+html.theme-light .set-shortcut-key,
+body.theme-light .set-shortcut-key {
+    border-color: rgba(120, 90, 32, 0.18);
+    background: rgba(255, 250, 241, 0.98);
+    color: rgba(92, 64, 21, 0.92);
+}
+
+@media (max-width: 900px) {
+    .set-shortcut-row {
+        grid-template-columns: 1fr;
+    }
+
+    .set-shortcut-chords {
+        justify-content: flex-start;
+    }
+}

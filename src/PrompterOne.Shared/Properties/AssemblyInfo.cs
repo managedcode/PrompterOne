@@ -1,3 +1,3 @@
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("PrompterOne.App.Tests")]
+[assembly: InternalsVisibleTo("PrompterOne.Web.Tests")]

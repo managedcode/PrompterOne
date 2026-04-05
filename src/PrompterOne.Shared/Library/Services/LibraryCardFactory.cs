@@ -1,5 +1,6 @@
 using System.Globalization;
 using PrompterOne.Core.Abstractions;
+using PrompterOne.Core.Models.CompiledScript;
 using PrompterOne.Core.Models.Documents;
 using PrompterOne.Core.Services;
 using PrompterOne.Core.Services.Preview;
@@ -26,6 +27,7 @@ internal static class LibraryCardFactory
         IScriptRepository scriptRepository,
         IScriptPreviewService previewService,
         TpsParser parser,
+        ScriptCompiler compiler,
         CancellationToken cancellationToken = default)
     {
         var cards = new List<LibraryCardViewModel>(summaries.Count);
@@ -38,6 +40,7 @@ internal static class LibraryCardFactory
                 scriptRepository,
                 previewService,
                 parser,
+                compiler,
                 cancellationToken);
             if (card is not null)
             {
@@ -54,6 +57,7 @@ internal static class LibraryCardFactory
         IScriptRepository scriptRepository,
         IScriptPreviewService previewService,
         TpsParser parser,
+        ScriptCompiler compiler,
         CancellationToken cancellationToken)
     {
         var document = await scriptRepository.GetAsync(summary.Id, cancellationToken);
@@ -64,9 +68,11 @@ internal static class LibraryCardFactory
 
         var previewSegments = await previewService.BuildPreviewAsync(document.Text, cancellationToken);
         var parsed = await parser.ParseAsync(document.Text);
+        var compiledScript = await compiler.CompileAsync(parsed);
+        var metrics = CalculateMetrics(compiledScript);
         var firstSegment = previewSegments.Count > 0 ? previewSegments[FirstPreviewSegmentIndex] : null;
-        var averageWpm = ResolveAverageWpm(previewSegments, parsed.Metadata);
-        var duration = ResolveDuration(parsed.Metadata, summary.WordCount, averageWpm);
+        var averageWpm = ResolveAverageWpm(previewSegments, compiledScript);
+        var segmentCount = ResolveSegmentCount(previewSegments, compiledScript);
 
         return new LibraryCardViewModel(
             Id: summary.Id,
@@ -75,14 +81,14 @@ internal static class LibraryCardFactory
             CoverClass: ResolveCoverClass(firstSegment?.EmotionKey),
             AccentColor: ResolveAccentColor(firstSegment?.AccentColor, firstSegment?.BackgroundColor),
             AverageWpm: averageWpm,
-            WordCount: ResolveDisplayInt(parsed.Metadata, "display_word_count", summary.WordCount),
-            SegmentCount: ResolveDisplayInt(parsed.Metadata, "display_segment_count", previewSegments.Count > 0 ? previewSegments.Count : 1),
+            WordCount: metrics.WordCount,
+            SegmentCount: segmentCount,
             Author: ResolveAuthor(parsed.Metadata),
             UpdatedAt: summary.UpdatedAt,
             UpdatedLabel: summary.UpdatedAt.ToLocalTime().ToString(UpdatedLabelFormat, CultureInfo.CurrentCulture),
             ModeLabel: ResolveModeLabel(parsed.Metadata, averageWpm),
-            Duration: duration,
-            DurationLabel: $"{(int)Math.Max(duration.TotalMinutes, 0)}:{duration.Seconds:00}",
+            Duration: metrics.Duration,
+            DurationLabel: $"{(int)Math.Max(metrics.Duration.TotalMinutes, 0)}:{metrics.Duration.Seconds:00}",
             FolderId: summary.FolderId,
             DisplayOrder: displayOrder,
             TestId: UiTestIds.Library.Card(summary.Id));
@@ -90,38 +96,51 @@ internal static class LibraryCardFactory
 
     private static int ResolveAverageWpm(
         IReadOnlyList<SegmentPreviewModel> previewSegments,
-        IReadOnlyDictionary<string, string> metadata)
+        CompiledScript compiledScript)
     {
-        var computedWpm = previewSegments.Count > 0
-            ? (int)Math.Round(previewSegments.Average(segment => segment.TargetWpm))
-            : 140;
-
-        return ResolveDisplayInt(metadata, "display_wpm", computedWpm);
-    }
-
-    private static TimeSpan ResolveDuration(
-        IReadOnlyDictionary<string, string> metadata,
-        int wordCount,
-        int averageWpm)
-    {
-        var fallbackDuration = TimeSpan.FromMinutes(wordCount / (double)Math.Max(averageWpm, 1));
-        if (!metadata.TryGetValue("duration", out var rawValue))
+        if (previewSegments.Count > 0)
         {
-            return fallbackDuration;
+            return (int)Math.Round(previewSegments.Average(segment => segment.TargetWpm));
         }
 
-        var normalized = rawValue.Trim().Trim('"');
-        var parts = normalized.Split(':', StringSplitOptions.TrimEntries);
-        return parts.Length switch
+        if (compiledScript.Segments.Count > 0)
         {
-            2 when int.TryParse(parts[0], out var minutes) && int.TryParse(parts[1], out var seconds)
-                => TimeSpan.FromMinutes(minutes) + TimeSpan.FromSeconds(seconds),
-            3 when int.TryParse(parts[0], out var hours)
-                && int.TryParse(parts[1], out var parsedMinutes)
-                && int.TryParse(parts[2], out var parsedSeconds)
-                => new TimeSpan(hours, parsedMinutes, parsedSeconds),
-            _ => fallbackDuration
-        };
+            return (int)Math.Round(compiledScript.Segments.Average(segment => Math.Max(1, segment.TargetWPM ?? 140)));
+        }
+
+        return 140;
+    }
+
+    private static int ResolveSegmentCount(
+        IReadOnlyList<SegmentPreviewModel> previewSegments,
+        CompiledScript compiledScript)
+    {
+        if (previewSegments.Count > 0)
+        {
+            return previewSegments.Count;
+        }
+
+        return compiledScript.Segments.Count;
+    }
+
+    private static LibraryCardMetrics CalculateMetrics(CompiledScript compiledScript)
+    {
+        var totalDuration = TimeSpan.Zero;
+        var wordCount = 0;
+
+        foreach (var word in EnumerateWords(compiledScript))
+        {
+            totalDuration += word.DisplayDuration;
+
+            if (word.Metadata?.IsPause == true || string.IsNullOrWhiteSpace(word.CleanText))
+            {
+                continue;
+            }
+
+            wordCount++;
+        }
+
+        return new LibraryCardMetrics(wordCount, totalDuration);
     }
 
     private static string ResolveAuthor(IReadOnlyDictionary<string, string> metadata) =>
@@ -172,15 +191,29 @@ internal static class LibraryCardFactory
             ? "neutral"
             : emotionKey.Trim().ToLowerInvariant();
 
-    private static int ResolveDisplayInt(IReadOnlyDictionary<string, string> metadata, string key, int fallback)
+    private static IEnumerable<CompiledWord> EnumerateWords(CompiledScript compiledScript)
     {
-        if (metadata.TryGetValue(key, out var rawValue)
-            && int.TryParse(rawValue.Trim().Trim('"'), out var parsedValue)
-            && parsedValue > 0)
+        foreach (var segment in compiledScript.Segments)
         {
-            return parsedValue;
-        }
+            if (segment.Blocks.Count > 0)
+            {
+                foreach (var block in segment.Blocks)
+                {
+                    foreach (var word in block.Words)
+                    {
+                        yield return word;
+                    }
+                }
 
-        return fallback;
+                continue;
+            }
+
+            foreach (var word in segment.Words)
+            {
+                yield return word;
+            }
+        }
     }
+
+    private readonly record struct LibraryCardMetrics(int WordCount, TimeSpan Duration);
 }

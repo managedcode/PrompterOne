@@ -6,6 +6,10 @@
 
 <div id="screen-go-live"
      class="screen active"
+     tabindex="0"
+     @ref="_screenRoot"
+     @onkeydown="HandleGoLiveKeyDownAsync"
+     @onkeydown:preventDefault="true"
      data-testid="@UiTestIds.GoLive.Page">
     <div class="gl-studio">
         <section class="gl-topbar"

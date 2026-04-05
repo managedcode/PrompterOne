@@ -180,6 +180,9 @@
   <data name="SettingsNavAppearance" xml:space="preserve">
     <value>Вигляд</value>
   </data>
+  <data name="SettingsNavShortcuts" xml:space="preserve">
+    <value>Скорочення</value>
+  </data>
   <data name="SettingsNavAbout" xml:space="preserve">
     <value>Про застосунок</value>
   </data>
@@ -293,5 +296,11 @@
   </data>
   <data name="SettingsAppearanceShowShortcutOverlayLabel" xml:space="preserve">
     <value>Показувати панель клавіатурних скорочень</value>
+  </data>
+  <data name="SettingsShortcutsSectionTitle" xml:space="preserve">
+    <value>Клавіатурні скорочення</value>
+  </data>
+  <data name="SettingsShortcutsSectionDescription" xml:space="preserve">
+    <value>Перегляньте поточні клавіатурні команди для редактора, Learn, Teleprompter і Go Live.</value>
   </data>
 </root>

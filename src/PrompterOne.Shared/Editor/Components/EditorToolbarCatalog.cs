@@ -64,6 +64,9 @@ public static class EditorToolbarCatalog
     private const string PauseClockIcon = """<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><polyline points="12,6 12,12 16,14" /></svg>""";
     private const string PauseFloatIcon = """<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>""";
     private const string LightningIcon = """<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10" /></svg>""";
+    private const string TopVoiceTriggerIcon = """<span class="tb-sem-dot tb-sem-dot--voice"></span>""";
+    private const string TopEmotionTriggerIcon = """<span class="tb-sem-dot tb-sem-dot--emotion"></span>""";
+    private const string EditPointIconCurrent = """<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg>""";
     private const string EditPointIconGold = """<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFD060" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg>""";
     private const string EditPointIconRed = """<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF6060" stroke-width="2" style="flex-shrink:0"><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg>""";
     private const string EditPointIconOrange = """<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFB86A" stroke-width="2" style="flex-shrink:0"><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg>""";
@@ -112,17 +115,17 @@ public static class EditorToolbarCatalog
             "editor-menu-color",
             null,
             [
-                Toggle(EditorToolbarMenuIds.Color, "editor-color-trigger", "Voice cues — volume and stress tags for the current selection", "<span class=\"cdot\" style=\"background:#FFD060\"></span>" + ChevronDownIcon)
+                Toggle(EditorToolbarMenuIds.Color, "editor-color-trigger", "Voice cues — volume and stress tags for the current selection", TopVoiceTriggerIcon + ChevronDownIcon, "tb-btn tb-has-dropdown tb-tip tb-btn--voice")
             ],
             [
                 new("Volume", [
-                    Wrap("voice-loud", "<span style=\"color:#FFB86A;font-weight:700;width:44px;text-align:right\">LOUD</span> Loud <small>[loud]</small>", "Raise vocal force without changing emotion. [loud]text[/loud]", "editor-color-green", "[loud]", "[/loud]", cssClass: "tb-emo-item tb-tip"),
-                    Wrap("voice-soft", "<span style=\"color:#B7D9FF;font-weight:700;width:44px;text-align:right\">SOFT</span> Soft <small>[soft]</small>", "Soften delivery and keep the phrase gentle. [soft]text[/soft]", "editor-color-soft", "[soft]", "[/soft]", cssClass: "tb-emo-item tb-tip"),
-                    Wrap("voice-whisper", "<span style=\"color:#CFCBD7;font-weight:700;width:44px;text-align:right\">LOW</span> Whisper <small>[whisper]</small>", "Very quiet, intimate delivery. [whisper]text[/whisper]", "editor-color-whisper", "[whisper]", "[/whisper]", cssClass: "tb-emo-item tb-tip")
+                    Wrap("voice-loud", "<span style=\"color:#FFB86A;font-weight:700;width:44px;text-align:right\">LOUD</span> Loud <small>[loud]</small>", "Raise vocal force without changing emotion. [loud]text[/loud]", UiTestIds.Editor.ColorLoud, "[loud]", "[/loud]", cssClass: "tb-emo-item tb-tip"),
+                    Wrap("voice-soft", "<span style=\"color:#B7D9FF;font-weight:700;width:44px;text-align:right\">SOFT</span> Soft <small>[soft]</small>", "Soften delivery and keep the phrase gentle. [soft]text[/soft]", UiTestIds.Editor.ColorSoft, "[soft]", "[/soft]", cssClass: "tb-emo-item tb-tip"),
+                    Wrap("voice-whisper", "<span style=\"color:#CFCBD7;font-weight:700;width:44px;text-align:right\">LOW</span> Whisper <small>[whisper]</small>", "Very quiet, intimate delivery. [whisper]text[/whisper]", UiTestIds.Editor.ColorWhisper, "[whisper]", "[/whisper]", cssClass: "tb-emo-item tb-tip")
                 ]),
                 new("Stress", [
-                    Wrap("voice-stress", "<span style=\"color:#FFD060;font-weight:700;width:44px;text-align:right\">MARK</span> Stress <small>[stress]</small>", "Stress a word or phrase inline. [stress]text[/stress]", "editor-color-stress", "[stress]", "[/stress]", cssClass: "tb-emo-item tb-tip"),
-                    Wrap("voice-stress-guide", "<span style=\"color:#FFD060;font-weight:700;width:44px;text-align:right\">GUIDE</span> Stress guide <small>[stress:...]</small>", "Add a spoken stress cue. [stress:rising]text[/stress]", "editor-color-guide", "[stress:rising]", "[/stress]", cssClass: "tb-emo-item tb-tip", placeholder: "text")
+                    Wrap("voice-stress", "<span style=\"color:#FFD060;font-weight:700;width:44px;text-align:right\">MARK</span> Stress <small>[stress]</small>", "Stress a word or phrase inline. [stress]text[/stress]", UiTestIds.Editor.ColorStress, "[stress]", "[/stress]", cssClass: "tb-emo-item tb-tip"),
+                    Wrap("voice-stress-guide", "<span style=\"color:#FFD060;font-weight:700;width:44px;text-align:right\">GUIDE</span> Stress guide <small>[stress:...]</small>", "Add a spoken stress cue. [stress:rising]text[/stress]", UiTestIds.Editor.ColorGuide, "[stress:rising]", "[/stress]", cssClass: "tb-emo-item tb-tip", placeholder: "text")
                 ], HasSeparatorBefore: true),
                 new("Reset", [
                     ClearColor("voice-clear", "Remove supported inline TPS wrappers from the selected text", "editor-color-clear")
@@ -135,7 +138,7 @@ public static class EditorToolbarCatalog
             "editor-menu-emotion",
             null,
             [
-                Toggle(EditorToolbarMenuIds.Emotion, "editor-emotion-trigger", "Emotion — applies mood-based color styling and presentation hints. Used on segments, blocks, or inline text", "<span class=\"cdot\" style=\"background:#FFB840\"></span>" + ChevronDownIcon)
+                Toggle(EditorToolbarMenuIds.Emotion, "editor-emotion-trigger", "Emotion — applies mood-based color styling and presentation hints. Used on segments, blocks, or inline text", TopEmotionTriggerIcon + ChevronDownIcon, "tb-btn tb-has-dropdown tb-tip tb-btn--emotion")
             ],
             [
                 new("TPS Emotions", [
@@ -168,7 +171,7 @@ public static class EditorToolbarCatalog
             [
                 Insert("pause-short", "/", "Short pause — inserts / marker (300ms silence)", "editor-pause-short", "/"),
                 Insert("pause-medium", "//", "Medium pause — inserts // marker (600ms silence)", "editor-pause-medium", "//"),
-                Toggle(EditorToolbarMenuIds.Pause, "editor-pause-trigger", "More pause options", PauseClockIcon + ChevronDownIcon)
+                Toggle(EditorToolbarMenuIds.Pause, "editor-pause-trigger", "More pause options", PauseClockIcon + ChevronDownIcon, "tb-btn tb-has-dropdown tb-tip tb-btn--pause")
             ],
             [
                 new("Breath And Pauses", [
@@ -193,7 +196,7 @@ public static class EditorToolbarCatalog
                 Wrap("speed-normal", "×1", "Normal speed — resets to base WPM × 1.0. [normal]text[/normal]", "editor-speed-normal", "[normal]", "[/normal]", cssClass: "tb-btn tb-speed tb-tip"),
                 Wrap("speed-fast", "×1.25", "Fast — base WPM × 1.25. Use for quick mentions, asides. [fast]text[/fast]", "editor-toolbar-speed-fast", "[fast]", "[/fast]", style: "color:#8ECFFF", cssClass: "tb-btn tb-speed tb-tip"),
                 Wrap("speed-xfast", "×1.5", "Extra fast — base WPM × 1.5. Use for rapid transitions, low-importance text. [xfast]text[/xfast]", "editor-toolbar-speed-xfast", "[xfast]", "[/xfast]", style: "color:#80B8FF", cssClass: "tb-btn tb-speed tb-tip"),
-                Toggle(EditorToolbarMenuIds.Speed, "editor-speed-trigger", "Custom WPM and more speed options", LightningIcon + ChevronDownIcon)
+                Toggle(EditorToolbarMenuIds.Speed, "editor-speed-trigger", "Custom WPM and more speed options", LightningIcon + ChevronDownIcon, "tb-btn tb-has-dropdown tb-tip tb-btn--speed")
             ],
             [
                 new("Speed Presets", [
@@ -214,11 +217,11 @@ public static class EditorToolbarCatalog
             "editor-menu-insert",
             "min-width:260px",
             [
-                Insert("insert-edit-point", EditPointIconGold, "Edit Point — marks a natural place to stop or resume an editing session. [edit_point] or [edit_point:high]", "editor-insert-edit-point", "[edit_point]"),
+                Insert("insert-edit-point", EditPointIconCurrent, "Edit Point — marks a natural place to stop or resume an editing session. [edit_point] or [edit_point:high]", "editor-insert-edit-point", "[edit_point]", cssClass: "tb-btn tb-tip tb-btn--insert"),
                 Wrap("insert-phonetic", PhoneticIcon, "Pronunciation guide — add IPA or simple pronunciation. [phonetic:IPA]word[/phonetic]", "editor-insert-phonetic", "[phonetic:IPA]", "[/phonetic]", placeholder: "word"),
                 Insert("insert-segment", "##", "Segment — major script section with speaker, WPM, emotion, and optional timing. ## [Name|Speaker:Host|WPM|emotion|timing]", UiTestIds.Editor.InsertSegment, "## [Segment Name|Speaker:Host|140WPM|neutral|0:00-0:30]\n", cssClass: "tb-btn tb-tip tb-speed"),
                 Insert("insert-block", "###", "Block — topic group within a segment. ### [Name|Speaker:Host|WPM|emotion]", UiTestIds.Editor.InsertBlock, "### [Block Name|Speaker:Host|140WPM|focused]\n", cssClass: "tb-btn tb-tip tb-speed"),
-                Toggle(EditorToolbarMenuIds.Insert, "editor-insert-trigger", "More insert options", ChevronDownIcon)
+                Toggle(EditorToolbarMenuIds.Insert, "editor-insert-trigger", "More insert options", ChevronDownIcon, "tb-btn tb-has-dropdown tb-tip tb-btn--insert")
             ],
             [
                 new("Structure", [
@@ -301,8 +304,13 @@ public static class EditorToolbarCatalog
             Command: new EditorCommandRequest(EditorCommandKind.Insert, token),
             PreventMouseDown: true);
 
-    private static EditorToolbarActionDescriptor Toggle(string menuId, string testId, string tooltip, string contentHtml) =>
-        new(menuId, EditorToolbarActionType.ToggleMenu, "tb-btn tb-has-dropdown tb-tip", contentHtml, tooltip, testId, MenuId: menuId, PreventMouseDown: true);
+    private static EditorToolbarActionDescriptor Toggle(
+        string menuId,
+        string testId,
+        string tooltip,
+        string contentHtml,
+        string cssClass = "tb-btn tb-has-dropdown tb-tip") =>
+        new(menuId, EditorToolbarActionType.ToggleMenu, cssClass, contentHtml, tooltip, testId, MenuId: menuId, PreventMouseDown: true);
 
     private static EditorToolbarActionDescriptor Wrap(
         string key,

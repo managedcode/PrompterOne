@@ -46,7 +46,7 @@ public partial class LibraryPage
         _folders = await LibraryFolderRepository.ListAsync();
 
         var summaries = await ScriptRepository.ListAsync();
-        _allCards = await LibraryCardFactory.BuildAsync(summaries, ScriptRepository, PreviewService, TpsParser);
+        _allCards = await LibraryCardFactory.BuildAsync(summaries, ScriptRepository, PreviewService, TpsParser, ScriptCompiler);
 
         EnsureExpandedFolders();
         NormalizeRestoredState();

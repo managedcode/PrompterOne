@@ -1,0 +1,73 @@
+@namespace PrompterOne.Shared.Components.Settings
+@using Microsoft.Extensions.Localization
+@using PrompterOne.Shared.Contracts
+@using PrompterOne.Shared.Localization
+@inject IStringLocalizer<SharedResource> Localizer
+
+<section class="set-section set-panel"
+         id="set-shortcuts"
+         style="@DisplayStyle"
+         data-testid="@UiTestIds.Settings.ShortcutsPanel"
+         data-test-id="@UiTestIds.Settings.ShortcutsPanel">
+    <h3 class="set-section-title">@Text(UiTextKey.SettingsShortcutsSectionTitle)</h3>
+    <p class="set-section-desc">@Text(UiTextKey.SettingsShortcutsSectionDescription)</p>
+
+    <div class="set-device-list">
+        @foreach (var group in AppHotkeys.Groups)
+        {
+            <SettingsExpandableCard Title="@group.Title"
+                                    Subtitle="@group.Subtitle"
+                                    IconStyle="@BuildIconStyle(group.Surface)"
+                                    IsOpen="@IsCardOpen(group.Id)"
+                                    OnToggle="@(() => ToggleCard.InvokeAsync(group.Id))"
+                                    TestId="@UiTestIds.Settings.ShortcutsGroup(group.Id)">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+                    <path d="M7 9h.01"></path>
+                    <path d="M11 9h.01"></path>
+                    <path d="M15 9h.01"></path>
+                    <path d="M7 13h10"></path>
+                    <path d="M7 16h6"></path>
+                </svg>
+                <div class="set-shortcut-grid">
+                    @foreach (var definition in group.Definitions)
+                    {
+                        <div class="set-shortcut-row"
+                             data-testid="@UiTestIds.Settings.ShortcutsAction(group.Id, definition.Id)"
+                             data-test-id="@UiTestIds.Settings.ShortcutsAction(group.Id, definition.Id)">
+                            <div class="set-shortcut-copy">
+                                <span class="set-shortcut-name">@definition.ActionLabel</span>
+                                <span class="set-shortcut-desc">@definition.Description</span>
+                            </div>
+                            <div class="set-shortcut-chords">
+                                @foreach (var shortcut in definition.Shortcuts)
+                                {
+                                    <kbd class="set-shortcut-key">@shortcut.DisplayText</kbd>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </SettingsExpandableCard>
+        }
+    </div>
+</section>
+
+@code {
+    [Parameter] public string DisplayStyle { get; set; } = string.Empty;
+
+    [Parameter] public Func<string, bool> IsCardOpen { get; set; } = _ => false;
+
+    [Parameter] public EventCallback<string> ToggleCard { get; set; }
+
+    private static string BuildIconStyle(AppHotkeySurface surface) => surface switch
+    {
+        AppHotkeySurface.Editor => "background:rgba(99,102,241,.16); color:#A5B4FC;",
+        AppHotkeySurface.Learn => "background:rgba(34,197,94,.16); color:#86EFAC;",
+        AppHotkeySurface.Teleprompter => "background:rgba(245,158,11,.16); color:#FCD34D;",
+        AppHotkeySurface.GoLive => "background:rgba(239,68,68,.16); color:#FCA5A5;",
+        _ => "background:rgba(148,163,184,.14); color:#CBD5E1;"
+    };
+
+    private string Text(UiTextKey key) => Localizer[key.ToString()];
+}

@@ -180,6 +180,9 @@
   <data name="SettingsNavAppearance" xml:space="preserve">
     <value>Appearance</value>
   </data>
+  <data name="SettingsNavShortcuts" xml:space="preserve">
+    <value>Shortcuts</value>
+  </data>
   <data name="SettingsNavAbout" xml:space="preserve">
     <value>About</value>
   </data>
@@ -293,5 +296,11 @@
   </data>
   <data name="SettingsAppearanceShowShortcutOverlayLabel" xml:space="preserve">
     <value>Show keyboard shortcuts overlay</value>
+  </data>
+  <data name="SettingsShortcutsSectionTitle" xml:space="preserve">
+    <value>Keyboard Shortcuts</value>
+  </data>
+  <data name="SettingsShortcutsSectionDescription" xml:space="preserve">
+    <value>Review the current keyboard controls for the editor, Learn, Teleprompter, and Go Live surfaces.</value>
   </data>
 </root>

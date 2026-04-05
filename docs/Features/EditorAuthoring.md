@@ -87,12 +87,12 @@ sequenceDiagram
 ## Verification
 
 - `dotnet test ./tests/PrompterOne.Core.Tests/PrompterOne.Core.Tests.csproj`
-- `dotnet test ./tests/PrompterOne.App.Tests/PrompterOne.App.Tests.csproj`
-- `dotnet test ./tests/PrompterOne.App.UITests/PrompterOne.App.UITests.csproj`
-- `dotnet test ./tests/PrompterOne.App.Tests/PrompterOne.App.Tests.csproj --filter "FullyQualifiedName~EditorLocalRevisionStoreTests|FullyQualifiedName~EditorLocalHistoryInteractionTests|FullyQualifiedName~SettingsInteractionTests"`
-- `dotnet test ./tests/PrompterOne.App.UITests/PrompterOne.App.UITests.csproj --filter "FullyQualifiedName~EditorLocalHistoryFlowTests|FullyQualifiedName~EditorLayoutTests"`
-- `dotnet test ./tests/PrompterOne.App.UITests/PrompterOne.App.UITests.csproj --no-build --filter "FullyQualifiedName~EditorTypingTests"`
-- `dotnet test ./tests/PrompterOne.App.UITests/PrompterOne.App.UITests.csproj --filter "FullyQualifiedName~EditorTypingTests|FullyQualifiedName~EditorSourceSyncTests|FullyQualifiedName~EditorInteractionTests"`
-- `dotnet test ./tests/PrompterOne.App.Tests/PrompterOne.App.Tests.csproj --filter "FullyQualifiedName~Editor"`
-- `dotnet test ./tests/PrompterOne.App.UITests/PrompterOne.App.UITests.csproj --no-build --filter "FullyQualifiedName~Editor"`
+- `dotnet test ./tests/PrompterOne.Web.Tests/PrompterOne.Web.Tests.csproj`
+- `dotnet test ./tests/PrompterOne.Web.UITests/PrompterOne.Web.UITests.csproj`
+- `dotnet test ./tests/PrompterOne.Web.Tests/PrompterOne.Web.Tests.csproj --filter "FullyQualifiedName~EditorLocalRevisionStoreTests|FullyQualifiedName~EditorLocalHistoryInteractionTests|FullyQualifiedName~SettingsInteractionTests"`
+- `dotnet test ./tests/PrompterOne.Web.UITests/PrompterOne.Web.UITests.csproj --filter "FullyQualifiedName~EditorLocalHistoryFlowTests|FullyQualifiedName~EditorLayoutTests"`
+- `dotnet test ./tests/PrompterOne.Web.UITests/PrompterOne.Web.UITests.csproj --no-build --filter "FullyQualifiedName~EditorTypingTests"`
+- `dotnet test ./tests/PrompterOne.Web.UITests/PrompterOne.Web.UITests.csproj --filter "FullyQualifiedName~EditorTypingTests|FullyQualifiedName~EditorSourceSyncTests|FullyQualifiedName~EditorInteractionTests"`
+- `dotnet test ./tests/PrompterOne.Web.Tests/PrompterOne.Web.Tests.csproj --filter "FullyQualifiedName~Editor"`
+- `dotnet test ./tests/PrompterOne.Web.UITests/PrompterOne.Web.UITests.csproj --no-build --filter "FullyQualifiedName~Editor"`
 - `dotnet build ./PrompterOne.slnx -warnaserror`

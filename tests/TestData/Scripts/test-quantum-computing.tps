@@ -5,9 +5,6 @@ profile: "RSVP"
 base_wpm: 300
 version: "1.0"
 duration: "25:00"
-display_word_count: 7500
-display_segment_count: 8
-display_wpm: 300
 ---
 
 ## [Introduction|280WPM|neutral|0:00-1:10]

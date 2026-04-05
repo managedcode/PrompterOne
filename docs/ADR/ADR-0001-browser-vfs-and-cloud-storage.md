@@ -131,9 +131,9 @@ flowchart LR
   - `src/PrompterOne.Shared/Storage/*`
   - `src/PrompterOne.Shared/Storage/Cloud/*`
   - `src/PrompterOne.Shared/Settings/Components/SettingsCloudSection.*`
-  - `tests/PrompterOne.App.Tests/Settings/*`
-  - `tests/PrompterOne.App.UITests/Settings/*`
-  - `tests/PrompterOne.App.UITests/Infrastructure/*`
+  - `tests/PrompterOne.Web.Tests/Settings/*`
+  - `tests/PrompterOne.Web.UITests/Settings/*`
+  - `tests/PrompterOne.Web.UITests/Infrastructure/*`
 - New boundaries and responsibilities:
   - Browser JSON/localStorage owns primary script and folder runtime persistence.
   - Browser storage plus VFS own the local blob boundary used by cloud import/export and future expansion.
@@ -212,8 +212,8 @@ flowchart LR
 
 - Regression suites to run:
   - `tests/PrompterOne.Core.Tests`
-  - `tests/PrompterOne.App.Tests`
-  - `tests/PrompterOne.App.UITests`
+  - `tests/PrompterOne.Web.Tests`
+  - `tests/PrompterOne.Web.UITests`
   - full solution tests
 - Static analysis:
   - repo build under `-warnaserror`
