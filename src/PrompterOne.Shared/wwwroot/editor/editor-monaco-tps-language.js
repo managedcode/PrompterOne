@@ -1,4 +1,5 @@
 import {
+    archetypePrefix,
     blockHeaderMarker,
     emptyValue,
     emotionTagNames,
@@ -70,7 +71,7 @@ function createTokenizer() {
                 [/\[(?:edit_point|editpoint)(?::[^\]]+)?\]/i, "cue.editpoint"],
                 [/\[breath\]/i, "cue.breath"],
                 [new RegExp(`\\[(?:${parameterizedPattern}):[^\\]]+\\]`, "i"), "cue.pronunciation"],
-                [new RegExp(`\\[\\/(?:${closingPattern})\\]`, "i"), "cue.close"],
+                [new RegExp(`\\[\\/(?:${closingPattern})(?::[^\\]]+)?\\]`, "i"), "cue.close"],
                 [new RegExp(`\\[(?:${simpleWrapperPattern})\\]`, "i"), "cue.open"],
                 [/\[\d+\s*WPM\]/i, "wpm.badge"],
                 [/(?<!\\)(?<!\S)\/\/(?=\s|$)/, "pause.long"],
@@ -167,7 +168,7 @@ function resolveCompletionKind(monaco, group) {
 }
 
 function findWrappedGuideHover(monaco, line, position) {
-    const wrappedGuidePattern = /\[(phonetic|pronunciation|stress):([^\]]+)\]([^[]+?)\[\/\1\]/ig;
+    const wrappedGuidePattern = /\[(phonetic|pronunciation|stress|energy|melody):([^\]]+)\]([^[]+?)\[\/\1(?::[^\]]+)?\]/ig;
     for (const match of line.matchAll(wrappedGuidePattern)) {
         const openTag = match[0].slice(0, match[0].indexOf(match[3], 0));
         const startColumn = (match.index ?? 0) + openTag.length + 1;
@@ -351,6 +352,10 @@ function resolveHeaderPartDescription(marker, index, value) {
         return "Talent assignment for multi-speaker scripts. Prefix the speaker name with `Speaker:`.";
     }
 
+    if (value.startsWith(archetypePrefix)) {
+        return "Archetype preset for this header scope. It can supply recommended pacing, articulation, and delivery defaults.";
+    }
+
     if (numericWpmPattern.test(value)) {
         return "WPM override for this header scope. Omit it when the inherited pace is already correct.";
     }
@@ -367,7 +372,15 @@ function resolveHeaderPartDescription(marker, index, value) {
 }
 
 function resolveParameterizedTitle(name) {
-    return name === "stress" ? "Syllable guide" : name === "phonetic" ? "IPA pronunciation guide" : "Pronunciation guide";
+    return name === "stress"
+        ? "Syllable guide"
+        : name === "phonetic"
+            ? "IPA pronunciation guide"
+            : name === "energy"
+                ? "Energy contour"
+                : name === "melody"
+                    ? "Melody contour"
+                    : "Pronunciation guide";
 }
 
 function createHover(monaco, lineNumber, startColumn, endColumn, title, description) {

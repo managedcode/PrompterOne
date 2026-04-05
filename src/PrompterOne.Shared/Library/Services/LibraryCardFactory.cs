@@ -26,7 +26,7 @@ internal static class LibraryCardFactory
         IReadOnlyList<StoredScriptSummary> summaries,
         IScriptRepository scriptRepository,
         IScriptPreviewService previewService,
-        TpsParser parser,
+        TpsDocumentReader documentReader,
         ScriptCompiler compiler,
         CancellationToken cancellationToken = default)
     {
@@ -39,7 +39,7 @@ internal static class LibraryCardFactory
                 index,
                 scriptRepository,
                 previewService,
-                parser,
+                documentReader,
                 compiler,
                 cancellationToken);
             if (card is not null)
@@ -56,7 +56,7 @@ internal static class LibraryCardFactory
         int displayOrder,
         IScriptRepository scriptRepository,
         IScriptPreviewService previewService,
-        TpsParser parser,
+        TpsDocumentReader documentReader,
         ScriptCompiler compiler,
         CancellationToken cancellationToken)
     {
@@ -67,7 +67,7 @@ internal static class LibraryCardFactory
         }
 
         var previewSegments = await previewService.BuildPreviewAsync(document.Text, cancellationToken);
-        var parsed = await parser.ParseAsync(document.Text);
+        var parsed = await documentReader.ReadAsync(document.Text);
         var compiledScript = await compiler.CompileAsync(parsed);
         var metrics = CalculateMetrics(compiledScript);
         var firstSegment = previewSegments.Count > 0 ? previewSegments[FirstPreviewSegmentIndex] : null;

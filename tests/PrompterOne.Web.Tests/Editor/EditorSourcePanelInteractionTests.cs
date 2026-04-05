@@ -102,6 +102,12 @@ public sealed class EditorSourcePanelInteractionTests : BunitContext
         AssertTooltipContract(
             cut.FindByTestId(UiTestIds.Editor.FloatingVoiceWhisper),
             "Very quiet, intimate delivery. [whisper]text[/whisper]");
+        AssertTooltipContract(
+            cut.FindByTestId(UiTestIds.Editor.FloatingVoiceLegato),
+            "Smooth connected phrasing. [legato]text[/legato]");
+        AssertTooltipContract(
+            cut.FindByTestId(UiTestIds.Editor.FloatingVoiceEnergy),
+            "Explicit energy contour from 0 to 10. [energy:8]text[/energy]");
 
         var floatingPauseTrigger = cut.FindByTestId(UiTestIds.Editor.FloatingPauseTrigger);
         AssertTooltipContract(floatingPauseTrigger, "Pause cues");
@@ -126,6 +132,17 @@ public sealed class EditorSourcePanelInteractionTests : BunitContext
         AssertTooltipContract(
             cut.FindByTestId(UiTestIds.Editor.FloatingInsertPronunciation),
             "Simple pronunciation guide for easy reading. [pronunciation:guide]word[/pronunciation]");
+
+        var insertTrigger = cut.FindByTestId(UiTestIds.Editor.InsertTrigger);
+        AssertTooltipContract(insertTrigger, "More insert options");
+        insertTrigger.Click();
+        Assert.NotNull(cut.FindByTestId(UiTestIds.Editor.MenuInsert));
+        AssertTooltipContract(
+            cut.FindByTestId(UiTestIds.Editor.InsertSegmentArchetypeMenu),
+            "Segment with an archetype preset. ## [Name|Speaker:Host|Archetype:Coach|emotion|0:00-0:30]");
+        AssertTooltipContract(
+            cut.FindByTestId(UiTestIds.Editor.InsertBlockArchetypeMenu),
+            "Block with an archetype preset. ### [Name|Speaker:Host|Archetype:Educator|emotion]");
     }
 
     [Fact]

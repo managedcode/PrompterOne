@@ -15,6 +15,9 @@ public class WordMetadata
     public string? InlineEmotionHint { get; set; }
     public string? VolumeLevel { get; set; }
     public string? DeliveryMode { get; set; }
+    public string? ArticulationStyle { get; set; }
+    public int? EnergyLevel { get; set; }
+    public int? MelodyLevel { get; set; }
     public string? PronunciationGuide { get; set; }
     public string? StressText { get; set; }
     public string? StressGuide { get; set; }

@@ -86,6 +86,7 @@ Rule format:
 - User-facing file transfer actions in the shell should use `Import` and `Export` wording instead of `Open Script` and `Save File`, because the app also has its own internal script/workspace structure.
 - File workflows must stay local-first inside PrompterOne: scripts need in-app autosave and an internal change-history path in the browser environment, not only external disk import/export actions.
 - Hotkey work must target PrompterOne’s own browser surfaces and settings inventory only; do not design around OBS commands or claim OBS integration paths that the product does not have.
+- When the vendored TPS SDK already owns parsing or compile semantics, prefer removing redundant local TPS parser wrappers and keep only thin PrompterOne adapters that translate SDK models into app-owned contracts.
 
 ## Rules to Follow (Mandatory)
 

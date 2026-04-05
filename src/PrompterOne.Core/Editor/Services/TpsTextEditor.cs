@@ -28,6 +28,8 @@ public sealed class TpsTextEditor
         ("[rhetorical]", "[/rhetorical]"),
         ("[sarcasm]", "[/sarcasm]"),
         ("[building]", "[/building]"),
+        ("[legato]", "[/legato]"),
+        ("[staccato]", "[/staccato]"),
         ("[xslow]", "[/xslow]"),
         ("[slow]", "[/slow]"),
         ("[normal]", "[/normal]"),
@@ -44,6 +46,11 @@ public sealed class TpsTextEditor
     {
         var safeText = text ?? string.Empty;
         var range = NormalizeSelection(selection, safeText.Length);
+        if (SelectionTouchesTagSyntax(safeText, range))
+        {
+            return new EditorTextMutationResult(safeText, range);
+        }
+
         var innerText = range.HasSelection
             ? safeText[range.OrderedStart..range.OrderedEnd]
             : placeholderText;
@@ -55,6 +62,13 @@ public sealed class TpsTextEditor
         return new EditorTextMutationResult(
             updatedText,
             new EditorSelectionRange(selectionStart, selectionEnd));
+    }
+
+    public bool SelectionTouchesTagSyntax(string? text, EditorSelectionRange selection)
+    {
+        var safeText = text ?? string.Empty;
+        var range = NormalizeSelection(selection, safeText.Length);
+        return TpsTagSelectionGuard.TouchesTagSyntax(safeText, range);
     }
 
     public EditorTextMutationResult InsertAtSelection(
@@ -123,7 +137,13 @@ public sealed class TpsTextEditor
 
         cleaned = System.Text.RegularExpressions.Regex.Replace(
             cleaned,
-            @"\[(?:pronunciation|phonetic|stress):[^\]]+\]",
+            @"\[(?:pronunciation|phonetic|stress|energy|melody):[^\]]+\]",
+            string.Empty,
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+        cleaned = System.Text.RegularExpressions.Regex.Replace(
+            cleaned,
+            @"\[/\s*(?:pronunciation|phonetic|stress|energy|melody)(?::[^\]]+)?\]",
             string.Empty,
             System.Text.RegularExpressions.RegexOptions.IgnoreCase);
 

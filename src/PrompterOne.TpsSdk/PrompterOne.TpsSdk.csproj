@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>PrompterOne.TpsSdk</AssemblyName>
+    <RootNamespace>ManagedCode.Tps</RootNamespace>
+    <PackageId>PrompterOne.TpsSdk</PackageId>
+    <NoWarn>$(NoWarn);CA1822;CA1826</NoWarn>
+  </PropertyGroup>
+
+</Project>

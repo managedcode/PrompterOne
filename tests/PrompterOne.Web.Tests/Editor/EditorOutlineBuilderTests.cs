@@ -9,7 +9,7 @@ public sealed class EditorOutlineBuilderTests
 {
     private readonly EditorOutlineBuilder _builder = new();
     private readonly TpsFrontMatterDocumentService _frontMatter = new();
-    private readonly TpsParser _parser = new();
+    private readonly TpsScriptDataFactory _scriptDataFactory = new();
 
     [Fact]
     public void Build_MapsOutlineNavigationToRawSourceCharacterOffsets()
@@ -18,7 +18,7 @@ public sealed class EditorOutlineBuilderTests
             .Single(document => string.Equals(document.Id, AppTestData.Scripts.DemoId, StringComparison.Ordinal))
             .Text;
         var document = _frontMatter.Parse(source);
-        var script = _parser.ParseTps(source);
+        var script = _scriptDataFactory.Build(source);
 
         var segments = _builder.Build(script, document.Body, document.BodyStartIndex);
 

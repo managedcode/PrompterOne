@@ -111,7 +111,7 @@ public partial class TeleprompterPage
         var runtimeMetadata = string.IsNullOrWhiteSpace(sourceText)
             ? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             : new Dictionary<string, string>(
-                (await Parser.ParseAsync(sourceText)).Metadata,
+                (await TpsDocumentReader.ReadAsync(sourceText)).Metadata,
                 StringComparer.OrdinalIgnoreCase);
 
         runtimeMetadata[BaseWpmMetadataKey] = Math.Max(MinimumReaderBaseWpm, baseWpm).ToString(CultureInfo.InvariantCulture);

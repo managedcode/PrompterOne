@@ -21,6 +21,7 @@ public record ScriptSegment
 
     public string Emotion { get; init; } = "neutral";
     public string? Speaker { get; init; }
+    public string? Archetype { get; init; }
     public string? Timing { get; init; }
 
     public string? BackgroundColor { get; init; }
@@ -52,6 +53,7 @@ public record ScriptBlock
 
     public string? Emotion { get; init; }
     public string? Speaker { get; init; }
+    public string? Archetype { get; init; }
 
     public int? WpmOverride { get; init; }
 
@@ -94,6 +96,9 @@ public record ScriptWord
     public string? Emotion { get; init; }
     public string? VolumeLevel { get; init; }
     public string? DeliveryMode { get; init; }
+    public string? ArticulationStyle { get; init; }
+    public int? EnergyLevel { get; init; }
+    public int? MelodyLevel { get; init; }
 
     public int? PauseAfter { get; init; }
 

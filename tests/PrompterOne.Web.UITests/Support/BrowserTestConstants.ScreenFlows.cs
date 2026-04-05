@@ -52,7 +52,9 @@ internal static partial class BrowserTestConstants
         public const double MinimumSemanticGroupColorDistance = 60;
         public const double MinimumDropdownSurfaceWidthPx = 300;
         public const double MaximumDropdownRowHeightDeltaPx = 4;
+        public const double MaximumDropdownCompactRowHeightPx = 38;
         public const double MinimumDropdownSurfaceBorderAlpha = 0.28;
+        public const string VoiceClearLabel = "RESET Remove cues unwrap";
         public const double MinimumTooltipSurfaceBorderAlpha = 0.28;
         public const double MaximumReadableTextChannel = 160;
         public const double MinimumLightMenuSurfaceChannel = 220;

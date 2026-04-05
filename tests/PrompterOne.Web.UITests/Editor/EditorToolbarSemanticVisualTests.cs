@@ -150,9 +150,11 @@ public sealed class EditorToolbarSemanticVisualTests(StandaloneAppFixture fixtur
 
                     return {
                         menuWidth: element.getBoundingClientRect().width,
+                        maxRowHeight: heights.length === 0 ? 0 : Math.max(...heights),
                         rowHeightDelta: heights.length === 0 ? 0 : Math.max(...heights) - Math.min(...heights),
                         borderAlpha: readAlpha(styles.borderTopColor),
-                        borderContrast: distance(parseColor(styles.borderTopColor), parseColor(styles.backgroundColor))
+                        borderContrast: distance(parseColor(styles.borderTopColor), parseColor(styles.backgroundColor)),
+                        clearLabel: document.querySelector(`[data-testid="${args.clearTestId}"]`)?.textContent?.replace(/\s+/g, ' ').trim() ?? ''
                     };
                 }
                 """,
@@ -165,13 +167,70 @@ public sealed class EditorToolbarSemanticVisualTests(StandaloneAppFixture fixtur
                         UiTestIds.Editor.ColorWhisper,
                         UiTestIds.Editor.ColorStress,
                         UiTestIds.Editor.ColorGuide
-                    }
+                    },
+                    clearTestId = UiTestIds.Editor.ColorClear
                 });
 
             Assert.True(metrics.MenuWidth >= BrowserTestConstants.EditorFlow.MinimumDropdownSurfaceWidthPx);
+            Assert.True(metrics.MaxRowHeight <= BrowserTestConstants.EditorFlow.MaximumDropdownCompactRowHeightPx);
             Assert.True(metrics.RowHeightDelta <= BrowserTestConstants.EditorFlow.MaximumDropdownRowHeightDeltaPx);
             Assert.True(metrics.BorderAlpha >= BrowserTestConstants.EditorFlow.MinimumDropdownSurfaceBorderAlpha);
             Assert.True(metrics.BorderContrast > 0);
+            Assert.Equal(BrowserTestConstants.EditorFlow.VoiceClearLabel, metrics.ClearLabel);
+        }
+        finally
+        {
+            await page.Context.CloseAsync();
+        }
+    }
+
+    [Fact]
+    public async Task EditorScreen_EmotionDropdown_UsesCompactMenuRows()
+    {
+        var page = await _fixture.NewPageAsync();
+
+        try
+        {
+            await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
+            await Expect(page.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync(new()
+            {
+                Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs
+            });
+
+            await EditorMonacoDriver.WaitUntilReadyAsync(page);
+            await page.GetByTestId(UiTestIds.Editor.EmotionTrigger).ClickAsync();
+
+            var emotionMenu = page.GetByTestId(UiTestIds.Editor.MenuEmotion);
+            await Expect(emotionMenu).ToBeVisibleAsync();
+
+            var metrics = await emotionMenu.EvaluateAsync<DropdownCompactMetrics>(
+                """
+                (element, args) => {
+                    const heights = args.itemTestIds
+                        .map(testId => document.querySelector(`[data-testid="${testId}"]`))
+                        .filter(Boolean)
+                        .map(item => item.getBoundingClientRect().height);
+
+                    return {
+                        maxRowHeight: heights.length === 0 ? 0 : Math.max(...heights),
+                        rowHeightDelta: heights.length === 0 ? 0 : Math.max(...heights) - Math.min(...heights)
+                    };
+                }
+                """,
+                new
+                {
+                    itemTestIds = new[]
+                    {
+                        "editor-emotion-warm",
+                        "editor-emotion-concerned",
+                        "editor-emotion-focused",
+                        UiTestIds.Editor.EmotionMotivational,
+                        "editor-emotion-neutral"
+                    }
+                });
+
+            Assert.True(metrics.MaxRowHeight <= BrowserTestConstants.EditorFlow.MaximumDropdownCompactRowHeightPx);
+            Assert.True(metrics.RowHeightDelta <= BrowserTestConstants.EditorFlow.MaximumDropdownRowHeightDeltaPx);
         }
         finally
         {
@@ -193,7 +252,13 @@ public sealed class EditorToolbarSemanticVisualTests(StandaloneAppFixture fixtur
 
     private readonly record struct DropdownSurfaceMetrics(
         double MenuWidth,
+        double MaxRowHeight,
         double RowHeightDelta,
         double BorderAlpha,
-        double BorderContrast);
+        double BorderContrast,
+        string ClearLabel);
+
+    private readonly record struct DropdownCompactMetrics(
+        double MaxRowHeight,
+        double RowHeightDelta);
 }

@@ -3,6 +3,7 @@
     <Project Path="src/PrompterOne.Web/PrompterOne.Web.csproj" />
     <Project Path="src/PrompterOne.Core/PrompterOne.Core.csproj" />
     <Project Path="src/PrompterOne.Shared/PrompterOne.Shared.csproj" />
+    <Project Path="src/PrompterOne.TpsSdk/PrompterOne.TpsSdk.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/PrompterOne.Web.Tests/PrompterOne.Web.Tests.csproj" />

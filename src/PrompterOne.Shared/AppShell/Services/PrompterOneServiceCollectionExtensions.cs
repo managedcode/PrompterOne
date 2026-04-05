@@ -38,7 +38,8 @@ public static class PrompterOneServiceCollectionExtensions
             options.DefaultContainer = PrompterStorageDefaults.LocalBrowserContainerName;
         });
 
-        services.AddScoped<TpsParser>();
+        services.AddScoped<TpsDocumentReader>();
+        services.AddScoped<TpsScriptDataFactory>();
         services.AddScoped<ScriptCompiler>();
         services.AddScoped<TpsExporter>();
         services.AddScoped<TpsFrontMatterDocumentService>();

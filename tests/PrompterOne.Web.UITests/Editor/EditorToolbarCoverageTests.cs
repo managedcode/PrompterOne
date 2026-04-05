@@ -113,21 +113,28 @@ public sealed class EditorToolbarCoverageTests(StandaloneAppFixture fixture) : I
         {
             foreach (var scenario in EditorToolbarCoverageScenarios.FloatingCommandScenarios)
             {
-                await OpenEditorAsync(page);
-                await PrepareScenarioAsync(page, scenario);
-                await Expect(page.GetByTestId(UiTestIds.Editor.FloatingBar))
-                    .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.FastVisibleTimeoutMs });
-                await page.WaitForTimeoutAsync(BrowserTestConstants.Timing.FloatingToolbarSettleDelayMs);
-                if (!string.IsNullOrWhiteSpace(scenario.MenuTriggerTestId))
+                try
                 {
-                    await page.GetByTestId(scenario.MenuTriggerTestId).ClickAsync();
+                    await OpenEditorAsync(page);
+                    await PrepareScenarioAsync(page, scenario);
+                    await Expect(page.GetByTestId(UiTestIds.Editor.FloatingBar))
+                        .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.FastVisibleTimeoutMs });
+                    await page.WaitForTimeoutAsync(BrowserTestConstants.Timing.FloatingToolbarSettleDelayMs);
+                    if (!string.IsNullOrWhiteSpace(scenario.MenuTriggerTestId))
+                    {
+                        await page.GetByTestId(scenario.MenuTriggerTestId).ClickAsync();
+                    }
+
+                    var beforeValue = await EditorMonacoDriver.SourceInput(page).InputValueAsync();
+                    await page.GetByTestId(scenario.TestId).ClickAsync();
+                    var afterValue = await EditorMonacoDriver.SourceInput(page).InputValueAsync();
+
+                    AssertCommandMutation(scenario, beforeValue, afterValue);
                 }
-
-                var beforeValue = await EditorMonacoDriver.SourceInput(page).InputValueAsync();
-                await page.GetByTestId(scenario.TestId).ClickAsync();
-                var afterValue = await EditorMonacoDriver.SourceInput(page).InputValueAsync();
-
-                AssertCommandMutation(scenario, beforeValue, afterValue);
+                catch (Exception exception)
+                {
+                    throw new Xunit.Sdk.XunitException($"Floating toolbar coverage failed for scenario '{scenario.TestId}'.{Environment.NewLine}{exception}");
+                }
             }
         }
         finally
@@ -207,7 +214,7 @@ public sealed class EditorToolbarCoverageTests(StandaloneAppFixture fixture) : I
     }
 
     private static Task SetSourceTextAndSelectColoredAlphaAsync(IPage page) =>
-        SetSourceTextAndSelectPhraseAsync(page, BrowserTestSource.ColoredSource, BrowserTestSource.ColoredAlphaToken);
+        SetSourceTextAndSelectPhraseAsync(page, BrowserTestSource.ColoredSource, BrowserTestSource.ColoredAlphaSelectionTarget);
 
     private static async Task SetSourceTextAndSetCaretAtEndAsync(IPage page, string text)
     {
@@ -219,6 +226,7 @@ public sealed class EditorToolbarCoverageTests(StandaloneAppFixture fixture) : I
     {
         internal const string AlphaToken = "Alpha";
         internal const string ColoredAlphaToken = "[loud]Alpha[/loud]";
+        internal const string ColoredAlphaSelectionTarget = "Alpha";
         internal const string AlphaSource = """
             ## [Intro|140WPM|warm]
             ### [Opening Block|140WPM]

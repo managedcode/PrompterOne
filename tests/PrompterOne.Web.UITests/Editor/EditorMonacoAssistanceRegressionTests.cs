@@ -36,6 +36,11 @@ public sealed class EditorMonacoAssistanceRegressionTests(StandaloneAppFixture f
     private const string MarkdownItalicCompletionLabel = "*text*";
     private const string MillisecondPauseCompletionLabel = "[pause:1000ms]";
     private const string MediumEditPointCompletionLabel = "[edit_point:medium]";
+    private const string EnergyCompletionLabel = "[energy:8]text[/energy]";
+    private const string MelodyCompletionLabel = "[melody:4]text[/melody]";
+    private const string LegatoCompletionLabel = "[legato]text[/legato]";
+    private const string StaccatoCompletionLabel = "[staccato]text[/staccato]";
+    private const string ArchetypeSegmentCompletionLabel = "## [Segment Name|Speaker:Host|Archetype:Coach|neutral|0:00-0:30]";
 
     [Fact]
     public async Task EditorScreen_CompletionsExposeDetailedPayloadsForStructuredTpsSuggestions()
@@ -68,6 +73,39 @@ public sealed class EditorMonacoAssistanceRegressionTests(StandaloneAppFixture f
             Assert.Contains("milliseconds", millisecondPauseCompletion.Documentation, StringComparison.OrdinalIgnoreCase);
             Assert.Equal("Priority edit point", mediumEditPointCompletion.Detail);
             Assert.Contains("medium priority", mediumEditPointCompletion.Documentation, StringComparison.OrdinalIgnoreCase);
+        }
+        finally
+        {
+            await page.Context.CloseAsync();
+        }
+    }
+
+    [Fact]
+    public async Task EditorScreen_CompletionsExposeNewSdkAuthoringTokensForArchetypesAndVoiceShape()
+    {
+        var page = await OpenEditorAsync();
+
+        try
+        {
+            await EditorMonacoDriver.SetTextAsync(page, "[");
+            var completions = await EditorMonacoDriver.GetCompletionsAsync(page, TitleLineNumber, CompletionStartColumn);
+
+            var energyCompletion = FindCompletion(completions, EnergyCompletionLabel);
+            var melodyCompletion = FindCompletion(completions, MelodyCompletionLabel);
+            var legatoCompletion = FindCompletion(completions, LegatoCompletionLabel);
+            var staccatoCompletion = FindCompletion(completions, StaccatoCompletionLabel);
+            var archetypeSegmentCompletion = FindCompletion(completions, ArchetypeSegmentCompletionLabel);
+
+            Assert.Equal("Energy contour", energyCompletion.Detail);
+            Assert.Contains("0 to 10", energyCompletion.Documentation, StringComparison.OrdinalIgnoreCase);
+            Assert.Equal("[energy:${1:8}]${2:text}[/energy]", energyCompletion.InsertText);
+            Assert.Equal("Melody contour", melodyCompletion.Detail);
+            Assert.Contains("0 to 10", melodyCompletion.Documentation, StringComparison.OrdinalIgnoreCase);
+            Assert.Equal("[melody:${1:4}]${2:text}[/melody]", melodyCompletion.InsertText);
+            Assert.Contains("legato", legatoCompletion.Documentation, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("staccato", staccatoCompletion.Documentation, StringComparison.OrdinalIgnoreCase);
+            Assert.Equal("Segment header (archetype)", archetypeSegmentCompletion.Detail);
+            Assert.Contains("Archetype:${3:Coach}", archetypeSegmentCompletion.InsertText, StringComparison.Ordinal);
         }
         finally
         {

@@ -43,7 +43,7 @@ public partial class LibraryPage : ComponentBase, IDisposable
     [Inject] private IScriptPreviewService PreviewService { get; set; } = null!;
     [Inject] private IScriptSessionService SessionService { get; set; } = null!;
     [Inject] private ScriptCompiler ScriptCompiler { get; set; } = null!;
-    [Inject] private TpsParser TpsParser { get; set; } = null!;
+    [Inject] private TpsDocumentReader TpsDocumentReader { get; set; } = null!;
 
     private bool _loadLibrary = true;
     private bool _isCreatingFolder;

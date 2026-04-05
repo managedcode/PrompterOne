@@ -11,7 +11,7 @@ public partial class EditorPage
 
         try
         {
-            var scriptData = TpsParser.ParseTps(persistedText);
+            var scriptData = TpsScriptDataFactory.Build(persistedText);
             _segments = OutlineBuilder.Build(scriptData, _sourceText, 0);
             _errorMessage = null;
             UpdateDraftMetrics(scriptData);

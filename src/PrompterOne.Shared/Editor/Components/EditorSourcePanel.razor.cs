@@ -50,6 +50,10 @@ public partial class EditorSourcePanel : IAsyncDisposable
 
     [Parameter] public bool CanUndo { get; set; }
 
+    [Parameter] public bool CanApplyWrapCommands { get; set; } = true;
+
+    [Parameter] public bool CanRenderFloatingToolbar { get; set; } = true;
+
     [Parameter] public string? ErrorMessage { get; set; }
 
     [Parameter] public EventCallback<EditorCommandRequest> OnCommandRequested { get; set; }

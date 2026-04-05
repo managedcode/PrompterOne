@@ -3,16 +3,19 @@ const titleHeaderMarker = "#";
 const segmentHeaderMarker = "##";
 const blockHeaderMarker = "###";
 const headerTimingPattern = /^\d+:\d{2}-\d+:\d{2}$/;
+const archetypePrefix = "Archetype:";
 const speakerPrefix = "Speaker:";
 const numericWpmPattern = /^\d+\s*WPM$/i;
 const inlineTagPattern = /\[[^[\]]+\]/g;
 const escapedSequencePattern = /\\(?:[\\/\[\]\|\*])/;
 const markdownBoldPattern = /\*\*([^*\n]+)\*\*/g;
 const markdownItalicPattern = /\*(?!\*)([^*\n]+)\*(?!\*)/g;
-const emotionTagNames = ["warm", "concerned", "focused", "motivational", "neutral", "urgent", "happy", "excited", "sad", "calm", "energetic", "professional"];
+const archetypeNames = ["friend", "motivator", "educator", "coach", "storyteller", "entertainer"];
+const emotionTagNames = ["neutral", "warm", "professional", "focused", "concerned", "urgent", "motivational", "excited", "happy", "sad", "calm", "energetic"];
 const volumeTagNames = ["loud", "soft", "whisper"];
-const deliveryTagNames = ["aside", "rhetorical", "sarcasm", "building"];
-const speedTagNames = ["xslow", "slow", "normal", "fast", "xfast"];
+const deliveryTagNames = ["sarcasm", "aside", "rhetorical", "building"];
+const articulationTagNames = ["legato", "staccato"];
+const speedTagNames = ["xslow", "slow", "fast", "xfast", "normal"];
 const speedDocumentationByName = Object.freeze({
     xslow: "Slow the wrapped text down significantly.",
     slow: "Open the wrapped text up a little and slow it down.",
@@ -24,6 +27,7 @@ const simpleWrapperSpecs = [
     createWrapperCompletion("emphasis", "[emphasis]${1:text}[/emphasis]", "Emphasis wrapper", "Wrap words that should land harder."),
     createWrapperCompletion("highlight", "[highlight]${1:text}[/highlight]", "Highlight wrapper", "Mark words that should read as visually highlighted."),
     createWrapperCompletion("stress", "[stress]${1:me}[/stress]", "Stress wrapper", "Wrap the stressed syllable or letters inside a word."),
+    ...articulationTagNames.map(name => createWrapperCompletion(name, "[" + name + "]${1:text}[/" + name + "]", "Articulation wrapper", `Apply a ${name} articulation contour to the wrapped text.`)),
     ...emotionTagNames.map(name => createWrapperCompletion(name, "[" + name + "]${1:text}[/" + name + "]", "Emotion wrapper", `Apply the ${name} delivery color and feel to the wrapped text.`)),
     ...volumeTagNames.map(name => createWrapperCompletion(name, "[" + name + "]${1:text}[/" + name + "]", "Volume wrapper", `Wrap text that should be delivered as ${name}.`)),
     ...deliveryTagNames.map(name => createWrapperCompletion(name, "[" + name + "]${1:text}[/" + name + "]", "Delivery wrapper", `Wrap text that should be delivered as ${name}.`)),
@@ -36,7 +40,9 @@ const markdownWrapperSpecs = [
 const parameterizedWrapperSpecs = [
     createParameterizedCompletion("phonetic", "[phonetic:${1:ˈkæməl}]${2:camel}[/phonetic]", "IPA pronunciation guide", "Attach an IPA pronunciation guide to the wrapped word."),
     createParameterizedCompletion("pronunciation", "[pronunciation:${1:KAM-uhl}]${2:camel}[/pronunciation]", "Simple pronunciation guide", "Attach a readable pronunciation guide to the wrapped word."),
-    createParameterizedCompletion("stress", "[stress:${1:de-VE-lop-ment}]${2:development}[/stress]", "Syllable guide", "Attach a full syllable guide; renderers should show it as a tooltip or overlay.")
+    createParameterizedCompletion("stress", "[stress:${1:de-VE-lop-ment}]${2:development}[/stress]", "Syllable guide", "Attach a full syllable guide; renderers should show it as a tooltip or overlay."),
+    createParameterizedCompletion("energy", "[energy:${1:8}]${2:text}[/energy]", "Energy contour", "Attach an explicit energy level from 0 to 10 to the wrapped phrase.", "[energy:8]text[/energy]"),
+    createParameterizedCompletion("melody", "[melody:${1:4}]${2:text}[/melody]", "Melody contour", "Attach an explicit melody level from 0 to 10 to the wrapped phrase.", "[melody:4]text[/melody]")
 ];
 const standaloneCompletionSpecs = [
     createCompletionSpec("[pause:2s]", "[pause:${1:2s}]", "Timed pause", "Pause for an explicit number of seconds or milliseconds.", "pause"),
@@ -50,7 +56,9 @@ const standaloneCompletionSpecs = [
 const headerCompletionSpecs = [
     createCompletionSpec("# Title", "# ${1:Document Title}", "Document title", "Top-level TPS document title.", "header"),
     createCompletionSpec("## [Segment Name|Speaker:Host|140WPM|neutral|0:00-0:30]", "## [${1:Segment Name}|Speaker:${2:Host}|${3:140}WPM|${4:neutral}|${5:0:00-0:30}]", "Segment header", "Create a structured TPS segment header.", "header"),
+    createCompletionSpec("## [Segment Name|Speaker:Host|Archetype:Coach|neutral|0:00-0:30]", "## [${1:Segment Name}|Speaker:${2:Host}|Archetype:${3:Coach}|${4:neutral}|${5:0:00-0:30}]", "Segment header (archetype)", "Create a structured TPS segment header that inherits recommended pacing and phrasing from an archetype.", "header"),
     createCompletionSpec("### [Block Name|Speaker:Host|140WPM|focused]", "### [${1:Block Name}|Speaker:${2:Host}|${3:140}WPM|${4:focused}]", "Block header", "Create a structured TPS block header.", "header"),
+    createCompletionSpec("### [Block Name|Speaker:Host|Archetype:Educator|focused]", "### [${1:Block Name}|Speaker:${2:Host}|Archetype:${3:Educator}|${4:focused}]", "Block header (archetype)", "Create a structured TPS block header that inherits recommended pacing and phrasing from an archetype.", "header"),
     createCompletionSpec("## Segment Title", "## ${1:Segment Title}", "Simple segment header", "Plain markdown segment header with inherited metadata.", "header"),
     createCompletionSpec("### Block Title", "### ${1:Block Title}", "Simple block header", "Plain markdown block header with inherited metadata.", "header")
 ];
@@ -67,6 +75,9 @@ const headerDocumentationByMarker = Object.freeze({
 });
 
 export {
+    archetypeNames,
+    archetypePrefix,
+    articulationTagNames,
     blockHeaderMarker,
     deliveryTagNames,
     emotionTagNames,
@@ -96,8 +107,8 @@ function createWrapperCompletion(name, insertText, detail, documentation) {
     return createCompletionSpec(`[${name}]text[/${name}]`, insertText, detail, documentation, "tag", name);
 }
 
-function createParameterizedCompletion(name, insertText, detail, documentation) {
-    return createCompletionSpec(`[${name}:guide]text[/${name}]`, insertText, detail, documentation, "tag", name);
+function createParameterizedCompletion(name, insertText, detail, documentation, label) {
+    return createCompletionSpec(label ?? `[${name}:guide]text[/${name}]`, insertText, detail, documentation, "tag", name);
 }
 
 function createCompletionSpec(label, insertText, detail, documentation, group, name) {

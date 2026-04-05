@@ -1,21 +1,28 @@
+using SdkTpsSpec = ManagedCode.Tps.TpsSpec;
+
 namespace PrompterOne.Core.Services;
 
 internal static class TpsSpec
 {
-    public const int DefaultBaseWpm = 140;
-    public const int MaximumWpm = 220;
-    public const int MinimumWpm = 80;
-    public const int MediumPauseDurationMs = 600;
-    public const int ShortPauseDurationMs = 300;
-    public const string DefaultEmotion = "neutral";
+    public const int DefaultBaseWpm = SdkTpsSpec.DefaultBaseWpm;
+    public const int MaximumWpm = SdkTpsSpec.MaximumWpm;
+    public const int MinimumWpm = SdkTpsSpec.MinimumWpm;
+    public const int MediumPauseDurationMs = SdkTpsSpec.MediumPauseDurationMs;
+    public const int ShortPauseDurationMs = SdkTpsSpec.ShortPauseDurationMs;
+    public const string DefaultEmotion = SdkTpsSpec.DefaultEmotion;
     public const string DefaultImplicitSegmentName = "Content";
     public const string DefaultProfile = "Actor";
-    public const int DefaultFastOffset = 25;
-    public const int DefaultSlowOffset = -20;
-    public const int DefaultXfastOffset = 50;
-    public const int DefaultXslowOffset = -40;
-    public const string SpeakerPrefix = "Speaker:";
-    public const string WpmSuffix = "WPM";
+    public const int DefaultFastOffset = SdkTpsSpec.SpeedOffsetValues.Fast;
+    public const int DefaultSlowOffset = SdkTpsSpec.SpeedOffsetValues.Slow;
+    public const int DefaultXfastOffset = SdkTpsSpec.SpeedOffsetValues.Xfast;
+    public const int DefaultXslowOffset = SdkTpsSpec.SpeedOffsetValues.Xslow;
+    public const string ArchetypePrefix = SdkTpsSpec.ArchetypePrefix;
+    public const string SpeakerPrefix = SdkTpsSpec.SpeakerPrefix;
+    public const string WpmSuffix = SdkTpsSpec.WpmSuffix;
+    public const int EnergyLevelMin = 1;
+    public const int EnergyLevelMax = 10;
+    public const int MelodyLevelMin = 1;
+    public const int MelodyLevelMax = 10;
 
     public static class FrontMatterKeys
     {
@@ -52,9 +59,12 @@ internal static class TpsSpec
         public const string Building = "building";
         public const string EditPoint = "edit_point";
         public const string Emphasis = "emphasis";
+        public const string Energy = "energy";
         public const string Fast = "fast";
         public const string Highlight = "highlight";
+        public const string Legato = "legato";
         public const string Loud = "loud";
+        public const string Melody = "melody";
         public const string Normal = "normal";
         public const string Pause = "pause";
         public const string Phonetic = "phonetic";
@@ -63,6 +73,7 @@ internal static class TpsSpec
         public const string Sarcasm = "sarcasm";
         public const string Slow = "slow";
         public const string Soft = "soft";
+        public const string Staccato = "staccato";
         public const string Stress = "stress";
         public const string Whisper = "whisper";
         public const string Xfast = "xfast";
@@ -71,57 +82,32 @@ internal static class TpsSpec
 
     public static class DiagnosticCodes
     {
+        public const string InvalidEnergyLevel = "invalid-energy-level";
         public const string InvalidFrontMatter = "invalid-front-matter";
         public const string InvalidHeader = "invalid-header";
         public const string InvalidHeaderParameter = "invalid-header-parameter";
+        public const string InvalidMelodyLevel = "invalid-melody-level";
         public const string InvalidPause = "invalid-pause";
         public const string InvalidTagArgument = "invalid-tag-argument";
         public const string InvalidWpm = "invalid-wpm";
         public const string MismatchedClosingTag = "mismatched-closing-tag";
         public const string UnclosedTag = "unclosed-tag";
+        public const string UnknownArchetype = "unknown-archetype";
         public const string UnknownTag = "unknown-tag";
         public const string UnterminatedTag = "unterminated-tag";
     }
 
-    public static IReadOnlySet<string> Emotions { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-    {
-        "neutral",
-        "warm",
-        "professional",
-        "focused",
-        "concerned",
-        "urgent",
-        "motivational",
-        "excited",
-        "happy",
-        "sad",
-        "calm",
-        "energetic"
-    };
+    public static IReadOnlySet<string> Emotions { get; } =
+        new HashSet<string>(SdkTpsSpec.Emotions, StringComparer.OrdinalIgnoreCase);
 
-    public static IReadOnlySet<string> DeliveryModes { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-    {
-        Tags.Sarcasm,
-        Tags.Aside,
-        Tags.Rhetorical,
-        Tags.Building
-    };
+    public static IReadOnlySet<string> DeliveryModes { get; } =
+        new HashSet<string>(SdkTpsSpec.DeliveryModes, StringComparer.OrdinalIgnoreCase);
 
-    public static IReadOnlySet<string> VolumeLevels { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-    {
-        Tags.Loud,
-        Tags.Soft,
-        Tags.Whisper
-    };
+    public static IReadOnlySet<string> VolumeLevels { get; } =
+        new HashSet<string>(SdkTpsSpec.VolumeLevels, StringComparer.OrdinalIgnoreCase);
 
-    public static IReadOnlySet<string> RelativeSpeedTags { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-    {
-        Tags.Xslow,
-        Tags.Slow,
-        Tags.Fast,
-        Tags.Xfast,
-        Tags.Normal
-    };
+    public static IReadOnlySet<string> RelativeSpeedTags { get; } =
+        new HashSet<string>(SdkTpsSpec.RelativeSpeedTags, StringComparer.OrdinalIgnoreCase);
 
     public static IReadOnlySet<string> EditPointPriorities { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
     {
@@ -130,45 +116,39 @@ internal static class TpsSpec
         "low"
     };
 
-    public static IReadOnlyDictionary<string, int> DefaultSpeedOffsets { get; } = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
+    public static IReadOnlySet<string> ArticulationStyles { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
     {
-        [Tags.Xslow] = DefaultXslowOffset,
-        [Tags.Slow] = DefaultSlowOffset,
-        [Tags.Fast] = DefaultFastOffset,
-        [Tags.Xfast] = DefaultXfastOffset
+        Tags.Legato,
+        Tags.Staccato
     };
 
-    public static IReadOnlyDictionary<string, EmotionPalette> EmotionPalettes { get; } = new Dictionary<string, EmotionPalette>(StringComparer.OrdinalIgnoreCase)
+    public static class ArchetypeNames
     {
-        [DefaultEmotion] = new("#2563EB", "#0F172A", "#60A5FA"),
-        ["warm"] = new("#EA580C", "#1C1917", "#FDBA74"),
-        ["professional"] = new("#1D4ED8", "#0F172A", "#93C5FD"),
-        ["focused"] = new("#15803D", "#052E16", "#86EFAC"),
-        ["concerned"] = new("#B91C1C", "#1F1111", "#FCA5A5"),
-        ["urgent"] = new("#DC2626", "#FFF7F7", "#FCA5A5"),
-        ["motivational"] = new("#7C3AED", "#FFFFFF", "#C4B5FD"),
-        ["excited"] = new("#DB2777", "#FFF7FB", "#F9A8D4"),
-        ["happy"] = new("#D97706", "#1C1917", "#FCD34D"),
-        ["sad"] = new("#4F46E5", "#EEF2FF", "#A5B4FC"),
-        ["calm"] = new("#0F766E", "#F0FDFA", "#99F6E4"),
-        ["energetic"] = new("#C2410C", "#FFF7ED", "#FDBA74")
-    };
+        public const string Friend = "friend";
+        public const string Motivator = "motivator";
+        public const string Educator = "educator";
+        public const string Coach = "coach";
+        public const string Storyteller = "storyteller";
+        public const string Entertainer = "entertainer";
+    }
 
-    public static IReadOnlyDictionary<string, string> EmotionHeadCues { get; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-    {
-        [DefaultEmotion] = "H0",
-        ["calm"] = "H0",
-        ["professional"] = "H9",
-        ["focused"] = "H5",
-        ["motivational"] = "H9",
-        ["urgent"] = "H4",
-        ["concerned"] = "H1",
-        ["sad"] = "H1",
-        ["warm"] = "H7",
-        ["happy"] = "H6",
-        ["excited"] = "H6",
-        ["energetic"] = "H8"
-    };
+    public static IReadOnlySet<string> Archetypes { get; } =
+        new HashSet<string>(SdkTpsSpec.Archetypes, StringComparer.OrdinalIgnoreCase);
+
+    public static IReadOnlyDictionary<string, int> ArchetypeRecommendedWpm { get; } =
+        new Dictionary<string, int>(SdkTpsSpec.ArchetypeRecommendedWpm, StringComparer.OrdinalIgnoreCase);
+
+    public static IReadOnlyDictionary<string, int> DefaultSpeedOffsets { get; } =
+        new Dictionary<string, int>(SdkTpsSpec.DefaultSpeedOffsets, StringComparer.OrdinalIgnoreCase);
+
+    public static IReadOnlyDictionary<string, EmotionPalette> EmotionPalettes { get; } =
+        SdkTpsSpec.EmotionPalettes.ToDictionary(
+            pair => pair.Key,
+            pair => new EmotionPalette(pair.Value.Accent, pair.Value.Text, pair.Value.Background),
+            StringComparer.OrdinalIgnoreCase);
+
+    public static IReadOnlyDictionary<string, string> EmotionHeadCues { get; } =
+        new Dictionary<string, string>(SdkTpsSpec.EmotionHeadCues, StringComparer.OrdinalIgnoreCase);
 }
 
 internal sealed record EmotionPalette(string Accent, string Text, string Background);

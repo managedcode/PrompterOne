@@ -10,13 +10,15 @@ namespace PrompterOne.Core.Services.Workspace;
 
 public sealed class ScriptSessionService(
     IScriptRepository repository,
-    TpsParser parser,
+    TpsDocumentReader documentReader,
+    TpsScriptDataFactory scriptDataFactory,
     ScriptCompiler compiler,
     IScriptPreviewService previewService,
     ILogger<ScriptSessionService>? logger = null) : IScriptSessionService
 {
     private readonly IScriptRepository _repository = repository;
-    private readonly TpsParser _parser = parser;
+    private readonly TpsDocumentReader _documentReader = documentReader;
+    private readonly TpsScriptDataFactory _scriptDataFactory = scriptDataFactory;
     private readonly ScriptCompiler _compiler = compiler;
     private readonly IScriptPreviewService _previewService = previewService;
     private readonly ILogger<ScriptSessionService> _logger = logger ?? NullLogger<ScriptSessionService>.Instance;
@@ -86,14 +88,14 @@ public sealed class ScriptSessionService(
 
         try
         {
-            var scriptData = _parser.ParseTps(text) with
+            var scriptData = _scriptDataFactory.Build(text) with
             {
                 ScriptId = scriptId,
                 Title = title,
                 Content = text
             };
 
-            var document = await _parser.ParseAsync(text);
+            var document = await _documentReader.ReadAsync(text);
             var compiledScript = await _compiler.CompileAsync(document);
             var previewSegments = await _previewService.BuildPreviewAsync(text, cancellationToken);
 

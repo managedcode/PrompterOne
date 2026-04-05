@@ -42,7 +42,7 @@ public partial class TeleprompterPage : IAsyncDisposable
     [Inject] private AppShellService Shell { get; set; } = null!;
     [Inject] private IMediaDeviceService MediaDeviceService { get; set; } = null!;
     [Inject] private IMediaSceneService MediaSceneService { get; set; } = null!;
-    [Inject] private TpsParser Parser { get; set; } = null!;
+    [Inject] private TpsDocumentReader TpsDocumentReader { get; set; } = null!;
     [Inject] private IScriptRepository ScriptRepository { get; set; } = null!;
     [Inject] private IScriptSessionService SessionService { get; set; } = null!;
     [Inject] private StudioSettingsStore StudioSettingsStore { get; set; } = null!;

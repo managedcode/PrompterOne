@@ -96,9 +96,10 @@ public sealed class ScriptSessionServiceTests
 
     private static ScriptSessionService CreateSession(InMemoryScriptRepository repository)
     {
-        var parser = new TpsParser();
+        var documentReader = new TpsDocumentReader();
+        var scriptDataFactory = new TpsScriptDataFactory();
         var compiler = new ScriptCompiler();
-        var previewService = new ScriptPreviewService(parser, compiler);
-        return new ScriptSessionService(repository, parser, compiler, previewService);
+        var previewService = new ScriptPreviewService(documentReader, compiler);
+        return new ScriptSessionService(repository, documentReader, scriptDataFactory, compiler, previewService);
     }
 }

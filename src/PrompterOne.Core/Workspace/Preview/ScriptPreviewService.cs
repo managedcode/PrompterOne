@@ -8,11 +8,11 @@ public interface IScriptPreviewService
     Task<IReadOnlyList<SegmentPreviewModel>> BuildPreviewAsync(string? tpsContent, CancellationToken cancellationToken = default);
 }
 
-public class ScriptPreviewService(TpsParser parser, ScriptCompiler compiler) : IScriptPreviewService
+public class ScriptPreviewService(TpsDocumentReader documentReader, ScriptCompiler compiler) : IScriptPreviewService
 {
     private const int DEFAULT_WPM = 120;
 
-    private readonly TpsParser _parser = parser;
+    private readonly TpsDocumentReader _documentReader = documentReader;
     private readonly ScriptCompiler _compiler = compiler;
 
     public async Task<IReadOnlyList<SegmentPreviewModel>> BuildPreviewAsync(string? tpsContent, CancellationToken cancellationToken = default)
@@ -28,7 +28,7 @@ public class ScriptPreviewService(TpsParser parser, ScriptCompiler compiler) : I
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var document = await _parser.ParseAsync(tpsContent).ConfigureAwait(false);
+            var document = await _documentReader.ReadAsync(tpsContent).ConfigureAwait(false);
 
             ApplyDefaults(document);
 

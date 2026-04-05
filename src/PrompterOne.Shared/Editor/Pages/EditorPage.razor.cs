@@ -84,7 +84,7 @@ public partial class EditorPage
     [Inject] private TpsDocumentSplitService DocumentSplitService { get; set; } = null!;
     [Inject] private IScriptRepository ScriptRepository { get; set; } = null!;
     [Inject] private IScriptSessionService SessionService { get; set; } = null!;
-    [Inject] private TpsParser TpsParser { get; set; } = null!;
+    [Inject] private TpsScriptDataFactory TpsScriptDataFactory { get; set; } = null!;
     [Inject] private TpsStructureEditor StructureEditor { get; set; } = null!;
     [Inject] private TpsTextEditor TextEditor { get; set; } = null!;
 

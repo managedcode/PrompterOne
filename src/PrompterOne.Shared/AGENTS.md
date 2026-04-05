@@ -37,6 +37,9 @@
 - Prefer removing JS files that only orchestrate UI behavior, reader state, or shell interactions; keep those flows in Razor components or C# services and let JS expose only the minimal browser or SDK call surface.
 - TPS 1.1.0 removed legacy inline color tags, so editor, reader, menus, examples, and tests in this project must not expose or insert `[red]`, `[green]`, or other deprecated color-tag authoring paths.
 - Editor dropdowns and tooltips must read as structured surfaces: item rows need a consistent visual rhythm with aligned columns or spacing, and overlay surfaces need border contrast strong enough to separate them clearly from the editor background.
+- Editor dropdown rows must stay compact menu rows, not stacks of tall rounded mini-cards; overlays may feel premium, but menu items still need fast scannable list rhythm.
+- Editor gutter line numbers must read as editor chrome, not as part of the script content; their color and emphasis must stay clearly separated from source text.
+- Editor wrap/format commands must not partially capture TPS tag syntax or create accidental nested wrappers by spanning across existing tag boundaries; if the selection touches tag markup, normalize or reject it instead of producing broken mixed-tag output.
 - File-creating editor actions such as document split must show explicit in-app feedback about what was created and where to find it; silent success states behind generic buttons are not user-friendly enough.
 
 ## Project-Local Commands

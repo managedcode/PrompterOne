@@ -749,15 +749,14 @@ public class RsvpTextProcessor
     }
 
     /// <summary>
-    /// Parses TPS format script using TpsParser
+    /// Parses TPS format script using the TPS SDK-backed ScriptData factory
     /// </summary>
     private ProcessedScript ParseTpsScript(string content)
     {
         var result = new ProcessedScript();
 
-        // Use TpsParser to parse the TPS document
-        var parser = new TpsParser();
-        var scriptData = parser.ParseTps(content);
+        var scriptDataFactory = new TpsScriptDataFactory();
+        var scriptData = scriptDataFactory.Build(content);
 
         var allWords = new List<string>();
         var wordIndex = 0;

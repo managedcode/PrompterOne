@@ -108,12 +108,13 @@ public partial class EditorSourcePanel
 
     private bool HasOpenToolbarMenu => !string.IsNullOrWhiteSpace(_openMenuId);
 
-    private bool ShouldRenderFloatingBar => _floatingBarAnchor.HasSelection && !HasOpenToolbarMenu;
+    private bool ShouldRenderFloatingBar => CanRenderFloatingToolbar && _floatingBarAnchor.HasSelection && !HasOpenToolbarMenu;
 
     private bool GetActionDisabled(EditorToolbarActionDescriptor action) =>
         action.ActionType switch
         {
             EditorToolbarActionType.Ai => !_hasConfiguredAiProvider,
+            _ when action.Command?.Kind == EditorCommandKind.Wrap && !CanApplyWrapCommands => true,
             _ => action.HistoryCommand switch
             {
                 EditorHistoryCommand.Undo => !_visibleCanUndo,

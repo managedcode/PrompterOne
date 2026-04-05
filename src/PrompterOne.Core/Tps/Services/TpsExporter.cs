@@ -130,6 +130,11 @@ public class TpsExporter
             parts.Add(string.Concat(TpsSpec.SpeakerPrefix, segment.Speaker.Trim()));
         }
 
+        if (!string.IsNullOrWhiteSpace(segment.Archetype))
+        {
+            parts.Add(string.Concat(TpsSpec.ArchetypePrefix, segment.Archetype.Trim()));
+        }
+
         if (segment.TargetWPM is int targetWpm)
         {
             parts.Add(targetWpm.ToString(CultureInfo.InvariantCulture) + TpsSpec.WpmSuffix);
@@ -154,6 +159,11 @@ public class TpsExporter
         if (!string.IsNullOrWhiteSpace(block.Speaker))
         {
             parts.Add(string.Concat(TpsSpec.SpeakerPrefix, block.Speaker.Trim()));
+        }
+
+        if (!string.IsNullOrWhiteSpace(block.Archetype))
+        {
+            parts.Add(string.Concat(TpsSpec.ArchetypePrefix, block.Archetype.Trim()));
         }
 
         if (block.TargetWPM is int targetWpm)

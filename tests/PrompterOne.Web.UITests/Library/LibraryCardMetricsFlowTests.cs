@@ -40,10 +40,10 @@ public sealed class LibraryCardMetricsFlowTests(StandaloneAppFixture fixture) : 
     {
         var path = ResolveScriptPath(QuantumDocumentName);
         var text = await File.ReadAllTextAsync(path);
-        var parser = new TpsParser();
+        var documentReader = new TpsDocumentReader();
         var compiler = new ScriptCompiler();
-        var previewService = new ScriptPreviewService(parser, compiler);
-        var document = await parser.ParseAsync(text);
+        var previewService = new ScriptPreviewService(documentReader, compiler);
+        var document = await documentReader.ReadAsync(text);
         var compiledScript = await compiler.CompileAsync(document);
         var previewSegments = await previewService.BuildPreviewAsync(text);
         var wordCount = compiledScript.Segments

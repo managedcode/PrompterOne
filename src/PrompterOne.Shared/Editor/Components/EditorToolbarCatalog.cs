@@ -115,7 +115,7 @@ public static class EditorToolbarCatalog
             "editor-menu-color",
             null,
             [
-                Toggle(EditorToolbarMenuIds.Color, "editor-color-trigger", "Voice cues — volume and stress tags for the current selection", TopVoiceTriggerIcon + ChevronDownIcon, "tb-btn tb-has-dropdown tb-tip tb-btn--voice")
+                Toggle(EditorToolbarMenuIds.Color, "editor-color-trigger", "Voice cues — volume, articulation, energy, melody, and stress tags for the current selection", TopVoiceTriggerIcon + ChevronDownIcon, "tb-btn tb-has-dropdown tb-tip tb-btn--voice")
             ],
             [
                 new("Volume", [
@@ -123,6 +123,14 @@ public static class EditorToolbarCatalog
                     Wrap("voice-soft", "<span style=\"color:#B7D9FF;font-weight:700;width:44px;text-align:right\">SOFT</span> Soft <small>[soft]</small>", "Soften delivery and keep the phrase gentle. [soft]text[/soft]", UiTestIds.Editor.ColorSoft, "[soft]", "[/soft]", cssClass: "tb-emo-item tb-tip"),
                     Wrap("voice-whisper", "<span style=\"color:#CFCBD7;font-weight:700;width:44px;text-align:right\">LOW</span> Whisper <small>[whisper]</small>", "Very quiet, intimate delivery. [whisper]text[/whisper]", UiTestIds.Editor.ColorWhisper, "[whisper]", "[/whisper]", cssClass: "tb-emo-item tb-tip")
                 ]),
+                new("Articulation", [
+                    Wrap("voice-legato", "<span style=\"color:#7FDBFF;font-weight:700;width:44px;text-align:right\">FLOW</span> Legato <small>[legato]</small>", "Smooth connected phrasing. [legato]text[/legato]", UiTestIds.Editor.ColorLegato, "[legato]", "[/legato]", cssClass: "tb-emo-item tb-tip"),
+                    Wrap("voice-staccato", "<span style=\"color:#FFB0E6;font-weight:700;width:44px;text-align:right\">CUT</span> Staccato <small>[staccato]</small>", "Crisp separated phrasing. [staccato]text[/staccato]", UiTestIds.Editor.ColorStaccato, "[staccato]", "[/staccato]", cssClass: "tb-emo-item tb-tip")
+                ], HasSeparatorBefore: true),
+                new("Dynamics", [
+                    Wrap("voice-energy", "<span style=\"color:#5EECC2;font-weight:700;width:44px;text-align:right\">PUSH</span> Energy <small>[energy:8]</small>", "Explicit energy contour from 0 to 10. [energy:8]text[/energy]", UiTestIds.Editor.ColorEnergy, "[energy:8]", "[/energy]", cssClass: "tb-emo-item tb-tip"),
+                    Wrap("voice-melody", "<span style=\"color:#FF9F6E;font-weight:700;width:44px;text-align:right\">ARC</span> Melody <small>[melody:4]</small>", "Explicit melody contour from 0 to 10. [melody:4]text[/melody]", UiTestIds.Editor.ColorMelody, "[melody:4]", "[/melody]", cssClass: "tb-emo-item tb-tip")
+                ], HasSeparatorBefore: true),
                 new("Stress", [
                     Wrap("voice-stress", "<span style=\"color:#FFD060;font-weight:700;width:44px;text-align:right\">MARK</span> Stress <small>[stress]</small>", "Stress a word or phrase inline. [stress]text[/stress]", UiTestIds.Editor.ColorStress, "[stress]", "[/stress]", cssClass: "tb-emo-item tb-tip"),
                     Wrap("voice-stress-guide", "<span style=\"color:#FFD060;font-weight:700;width:44px;text-align:right\">GUIDE</span> Stress guide <small>[stress:...]</small>", "Add a spoken stress cue. [stress:rising]text[/stress]", UiTestIds.Editor.ColorGuide, "[stress:rising]", "[/stress]", cssClass: "tb-emo-item tb-tip", placeholder: "text")
@@ -142,23 +150,23 @@ public static class EditorToolbarCatalog
             ],
             [
                 new("TPS Emotions", [
-                    Wrap("emotion-warm", "<span class=\"cdot\" style=\"background:#FFB840\"></span> Warm <small>😊</small>", "Friendly, welcoming tone. Inline: [warm]text[/warm]", "editor-emotion-warm", "[warm]", "[/warm]", cssClass: "tb-emo-item tb-tip"),
-                    Wrap("emotion-concerned", "<span class=\"cdot\" style=\"background:#FF7A7A\"></span> Concerned <small>😟</small>", "Worried, empathetic. Inline: [concerned]text[/concerned]", "editor-emotion-concerned", "[concerned]", "[/concerned]", cssClass: "tb-emo-item tb-tip"),
-                    Wrap("emotion-focused", "<span class=\"cdot\" style=\"background:#4AE0A0\"></span> Focused <small>🎯</small>", "Concentrated, precise. Inline: [focused]text[/focused]", "editor-emotion-focused", "[focused]", "[/focused]", cssClass: "tb-emo-item tb-tip"),
-                    Wrap("emotion-motivational", "<span class=\"cdot\" style=\"background:#C88AFF\"></span> Motivational <small>💪</small>", "Inspiring, encouraging. Inline: [motivational]text[/motivational]", UiTestIds.Editor.EmotionMotivational, "[motivational]", "[/motivational]", cssClass: "tb-emo-item tb-tip"),
                     Wrap("emotion-neutral", "<span class=\"cdot\" style=\"background:#8ECFFF\"></span> Neutral <small>😐</small>", "Default balanced tone. Inline: [neutral]text[/neutral]", "editor-emotion-neutral", "[neutral]", "[/neutral]", cssClass: "tb-emo-item tb-tip"),
+                    Wrap("emotion-warm", "<span class=\"cdot\" style=\"background:#FFB840\"></span> Warm <small>😊</small>", "Friendly, welcoming tone. Inline: [warm]text[/warm]", "editor-emotion-warm", "[warm]", "[/warm]", cssClass: "tb-emo-item tb-tip"),
+                    Wrap("emotion-professional", "<span class=\"cdot\" style=\"background:#80B8FF\"></span> Professional <small>💼</small>", "Business-like, formal. Inline: [professional]text[/professional]", "editor-emotion-professional", "[professional]", "[/professional]", cssClass: "tb-emo-item tb-tip"),
+                    Wrap("emotion-focused", "<span class=\"cdot\" style=\"background:#4AE0A0\"></span> Focused <small>🎯</small>", "Concentrated, precise. Inline: [focused]text[/focused]", "editor-emotion-focused", "[focused]", "[/focused]", cssClass: "tb-emo-item tb-tip"),
+                    Wrap("emotion-concerned", "<span class=\"cdot\" style=\"background:#FF7A7A\"></span> Concerned <small>😟</small>", "Worried, empathetic. Inline: [concerned]text[/concerned]", "editor-emotion-concerned", "[concerned]", "[/concerned]", cssClass: "tb-emo-item tb-tip"),
                     Wrap("emotion-urgent", "<span class=\"cdot\" style=\"background:#FF6060\"></span> Urgent <small>🚨</small>", "Critical, immediate attention. Inline: [urgent]text[/urgent]", "editor-emotion-urgent", "[urgent]", "[/urgent]", cssClass: "tb-emo-item tb-tip"),
-                    Wrap("emotion-happy", "<span class=\"cdot\" style=\"background:#FFE87A\"></span> Happy <small>😄</small>", "Joyful, positive. Inline: [happy]text[/happy]", "editor-emotion-happy", "[happy]", "[/happy]", cssClass: "tb-emo-item tb-tip"),
+                    Wrap("emotion-motivational", "<span class=\"cdot\" style=\"background:#C88AFF\"></span> Motivational <small>💪</small>", "Inspiring, encouraging. Inline: [motivational]text[/motivational]", UiTestIds.Editor.EmotionMotivational, "[motivational]", "[/motivational]", cssClass: "tb-emo-item tb-tip"),
                     Wrap("emotion-excited", "<span class=\"cdot\" style=\"background:#FF8AC8\"></span> Excited <small>🚀</small>", "Enthusiastic, energetic. Inline: [excited]text[/excited]", "editor-emotion-excited", "[excited]", "[/excited]", cssClass: "tb-emo-item tb-tip"),
+                    Wrap("emotion-happy", "<span class=\"cdot\" style=\"background:#FFE87A\"></span> Happy <small>😄</small>", "Joyful, positive. Inline: [happy]text[/happy]", "editor-emotion-happy", "[happy]", "[/happy]", cssClass: "tb-emo-item tb-tip"),
                     Wrap("emotion-sad", "<span class=\"cdot\" style=\"background:#A0A8FF\"></span> Sad <small>😢</small>", "Melancholy, somber. Inline: [sad]text[/sad]", "editor-emotion-sad", "[sad]", "[/sad]", cssClass: "tb-emo-item tb-tip"),
                     Wrap("emotion-calm", "<span class=\"cdot\" style=\"background:#5EECC2\"></span> Calm <small>😌</small>", "Peaceful, relaxed. Inline: [calm]text[/calm]", "editor-emotion-calm", "[calm]", "[/calm]", cssClass: "tb-emo-item tb-tip"),
-                    Wrap("emotion-energetic", "<span class=\"cdot\" style=\"background:#FFA050\"></span> Energetic <small>⚡</small>", "High energy, dynamic. Inline: [energetic]text[/energetic]", "editor-emotion-energetic", "[energetic]", "[/energetic]", cssClass: "tb-emo-item tb-tip"),
-                    Wrap("emotion-professional", "<span class=\"cdot\" style=\"background:#80B8FF\"></span> Professional <small>💼</small>", "Business-like, formal. Inline: [professional]text[/professional]", "editor-emotion-professional", "[professional]", "[/professional]", cssClass: "tb-emo-item tb-tip")
+                    Wrap("emotion-energetic", "<span class=\"cdot\" style=\"background:#FFA050\"></span> Energetic <small>⚡</small>", "High energy, dynamic. Inline: [energetic]text[/energetic]", "editor-emotion-energetic", "[energetic]", "[/energetic]", cssClass: "tb-emo-item tb-tip")
                 ]),
                 new("Delivery Modes", [
+                    Wrap("delivery-sarcasm", "<span style=\"color:#F19A9A;font-weight:700;width:44px;text-align:right\">SARC</span> Sarcasm <small>[sarcasm]</small>", "Apply a sarcastic delivery cue. [sarcasm]text[/sarcasm]", "editor-delivery-sarcasm", "[sarcasm]", "[/sarcasm]", cssClass: "tb-emo-item tb-tip"),
                     Wrap("delivery-aside", "<span style=\"color:#B8C0C8;font-weight:700;width:44px;text-align:right\">ASIDE</span> Aside <small>[aside]</small>", "Mark the phrase as an aside. [aside]text[/aside]", "editor-delivery-aside", "[aside]", "[/aside]", cssClass: "tb-emo-item tb-tip"),
                     Wrap("delivery-rhetorical", "<span style=\"color:#FFE87A;font-weight:700;width:44px;text-align:right\">WHY?</span> Rhetorical <small>[rhetorical]</small>", "Use rhetorical delivery without changing emotion. [rhetorical]text[/rhetorical]", "editor-delivery-rhetorical", "[rhetorical]", "[/rhetorical]", cssClass: "tb-emo-item tb-tip"),
-                    Wrap("delivery-sarcasm", "<span style=\"color:#F19A9A;font-weight:700;width:44px;text-align:right\">SARC</span> Sarcasm <small>[sarcasm]</small>", "Apply a sarcastic delivery cue. [sarcasm]text[/sarcasm]", "editor-delivery-sarcasm", "[sarcasm]", "[/sarcasm]", cssClass: "tb-emo-item tb-tip"),
                     Wrap("delivery-building", "<span style=\"color:#D2B8E3;font-weight:700;width:44px;text-align:right\">BUILD</span> Building <small>[building]</small>", "Gradually build intensity through the phrase. [building]text[/building]", "editor-delivery-building", "[building]", "[/building]", cssClass: "tb-emo-item tb-tip")
                 ], HasSeparatorBefore: true)
             ]),
@@ -202,9 +210,9 @@ public static class EditorToolbarCatalog
                 new("Speed Presets", [
                     Wrap("speed-xslow-menu", "<span style=\"color:#FF8A8A;font-family:var(--font-mono);font-size:11px;font-weight:700;width:36px;text-align:right\">×0.6</span> Extra Slow <small>[xslow]</small>", "Very careful delivery. Critical warnings. base × 0.6 = 84 WPM at base 140", "editor-speed-xslow-menu", "[xslow]", "[/xslow]", cssClass: "tb-emo-item tb-tip"),
                     Wrap("speed-slow-menu", "<span style=\"color:#FFB86A;font-family:var(--font-mono);font-size:11px;font-weight:700;width:36px;text-align:right\">×0.8</span> Slow <small>[slow]</small>", "Important points, emphasis. base × 0.8 = 112 WPM at base 140", "editor-speed-slow-menu", "[slow]", "[/slow]", cssClass: "tb-emo-item tb-tip"),
-                    Wrap("speed-normal-menu", "<span style=\"color:var(--text-2);font-family:var(--font-mono);font-size:11px;font-weight:700;width:36px;text-align:right\">×1.0</span> Normal <small>[normal]</small>", "Reset to base speed. base × 1.0 = 140 WPM at base 140", "editor-speed-normal-menu", "[normal]", "[/normal]", cssClass: "tb-emo-item tb-tip"),
                     Wrap("speed-fast-menu", "<span style=\"color:#8ECFFF;font-family:var(--font-mono);font-size:11px;font-weight:700;width:36px;text-align:right\">×1.25</span> Fast <small>[fast]</small>", "Quick mentions, asides. base × 1.25 = 175 WPM at base 140", "editor-speed-fast-menu", "[fast]", "[/fast]", cssClass: "tb-emo-item tb-tip"),
-                    Wrap("speed-xfast-menu", "<span style=\"color:#80B8FF;font-family:var(--font-mono);font-size:11px;font-weight:700;width:36px;text-align:right\">×1.5</span> Extra Fast <small>[xfast]</small>", "Rapid transitions, low-importance text. base × 1.5 = 210 WPM at base 140", "editor-speed-xfast-menu", "[xfast]", "[/xfast]", cssClass: "tb-emo-item tb-tip")
+                    Wrap("speed-xfast-menu", "<span style=\"color:#80B8FF;font-family:var(--font-mono);font-size:11px;font-weight:700;width:36px;text-align:right\">×1.5</span> Extra Fast <small>[xfast]</small>", "Rapid transitions, low-importance text. base × 1.5 = 210 WPM at base 140", "editor-speed-xfast-menu", "[xfast]", "[/xfast]", cssClass: "tb-emo-item tb-tip"),
+                    Wrap("speed-normal-menu", "<span style=\"color:var(--text-2);font-family:var(--font-mono);font-size:11px;font-weight:700;width:36px;text-align:right\">×1.0</span> Normal <small>[normal]</small>", "Reset to base speed. base × 1.0 = 140 WPM at base 140", "editor-speed-normal-menu", "[normal]", "[/normal]", cssClass: "tb-emo-item tb-tip")
                 ]),
                 new("Custom Speed", [
                     Wrap("speed-custom-wpm", $"{LightningIcon} Custom WPM <small>[NWPM]</small>", "Set an absolute WPM value for a text span. [180WPM]text[/180WPM]", "editor-speed-custom-wpm", "[180WPM]", "[/180WPM]", cssClass: "tb-emo-item tb-tip")
@@ -226,7 +234,9 @@ public static class EditorToolbarCatalog
             [
                 new("Structure", [
                     Insert("insert-segment-menu", "<span style=\"color:var(--gold-text);font-weight:700;width:20px;text-align:center\">##</span> Segment <small>Speaker aware</small>", "Segment — order-independent TPS 1.1.0 header. ## [Name|Speaker:Host|140WPM|emotion|0:00-0:30]", UiTestIds.Editor.InsertSegmentMenu, "## [Segment Name|Speaker:Host|140WPM|neutral|0:00-0:30]\n", cssClass: "tb-emo-item tb-tip"),
-                    Insert("insert-block-menu", "<span style=\"color:var(--gold-text);font-weight:700;width:20px;text-align:center\">###</span> Block <small>Speaker aware</small>", "Block — order-independent TPS 1.1.0 header. ### [Name|Speaker:Host|140WPM|emotion]", UiTestIds.Editor.InsertBlockMenu, "### [Block Name|Speaker:Host|140WPM|focused]\n", cssClass: "tb-emo-item tb-tip")
+                    Insert("insert-segment-archetype-menu", "<span style=\"color:#7FDBFF;font-weight:700;width:20px;text-align:center\">##</span> Segment <small>Archetype aware</small>", "Segment with an archetype preset. ## [Name|Speaker:Host|Archetype:Coach|emotion|0:00-0:30]", UiTestIds.Editor.InsertSegmentArchetypeMenu, "## [Segment Name|Speaker:Host|Archetype:Coach|neutral|0:00-0:30]\n", cssClass: "tb-emo-item tb-tip"),
+                    Insert("insert-block-menu", "<span style=\"color:var(--gold-text);font-weight:700;width:20px;text-align:center\">###</span> Block <small>Speaker aware</small>", "Block — order-independent TPS 1.1.0 header. ### [Name|Speaker:Host|140WPM|emotion]", UiTestIds.Editor.InsertBlockMenu, "### [Block Name|Speaker:Host|140WPM|focused]\n", cssClass: "tb-emo-item tb-tip"),
+                    Insert("insert-block-archetype-menu", "<span style=\"color:#7FDBFF;font-weight:700;width:20px;text-align:center\">###</span> Block <small>Archetype aware</small>", "Block with an archetype preset. ### [Name|Speaker:Host|Archetype:Educator|emotion]", UiTestIds.Editor.InsertBlockArchetypeMenu, "### [Block Name|Speaker:Host|Archetype:Educator|focused]\n", cssClass: "tb-emo-item tb-tip")
                 ]),
                 new("Edit Points", [
                     Insert("insert-edit-point-high", $"{EditPointIconRed} High priority <small>[edit_point:high]</small>", "High priority edit point — critical, must review. [edit_point:high]", "editor-insert-edit-point-high", "[edit_point:high]", cssClass: "tb-emo-item tb-tip"),
@@ -276,11 +286,10 @@ public static class EditorToolbarCatalog
         new(
             key,
             EditorToolbarActionType.Command,
-            "tb-cswatch tb-tip",
-            string.Empty,
+            "tb-emo-item tb-tip",
+            "<span style=\"color:var(--text-4);font-weight:700;width:44px;text-align:right\">RESET</span> Remove cues <small>unwrap</small>",
             tooltip,
             testId,
-            "background:transparent;border:1px dashed var(--gold-20)",
             Command: new EditorCommandRequest(EditorCommandKind.ClearColor, string.Empty),
             PreventMouseDown: true);
 

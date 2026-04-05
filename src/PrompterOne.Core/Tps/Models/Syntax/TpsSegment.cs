@@ -8,6 +8,7 @@ public class TpsSegment
     public int? TargetWPM { get; set; }
     public string? Emotion { get; set; }
     public string? Speaker { get; set; }
+    public string? Archetype { get; set; }
     public string? Timing { get; set; }
     public string? BackgroundColor { get; set; }
     public string? TextColor { get; set; }

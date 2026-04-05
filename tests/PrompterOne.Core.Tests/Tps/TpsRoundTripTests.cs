@@ -12,7 +12,7 @@ public sealed class TpsRoundTripTests
     [Fact]
     public async Task ParseAndExportAsync_RetainsCanonicalMetadataAndFlexibleHeaders()
     {
-        var parser = new TpsParser();
+        var documentReader = CreateDocumentReader();
         var exporter = new TpsExporter();
         const string source = """
         ---
@@ -35,9 +35,9 @@ public sealed class TpsRoundTripTests
         Content to export.
         """;
 
-        var document = await parser.ParseAsync(source);
+        var document = await documentReader.ReadAsync(source);
         var exported = await exporter.ExportAsync(document);
-        var reparsed = await parser.ParseAsync(exported);
+        var reparsed = await documentReader.ReadAsync(exported);
 
         Assert.Equal("File Export Test", reparsed.Metadata["title"]);
         Assert.Equal("10:00", reparsed.Metadata["duration"]);
@@ -124,7 +124,7 @@ public sealed class TpsRoundTripTests
     [Fact]
     public async Task ParseAsync_UsesLastHeaderParameterAndFallsBackFromInvalidValues()
     {
-        var parser = new TpsParser();
+        var documentReader = CreateDocumentReader();
         const string source = """
         ---
         title: "Header precedence"
@@ -138,17 +138,49 @@ public sealed class TpsRoundTripTests
         Copy.
         """;
 
-        var document = await parser.ParseAsync(source);
+        var document = await documentReader.ReadAsync(source);
         var segment = Assert.Single(document.Segments);
         var block = Assert.Single(segment.Blocks);
 
-        Assert.Equal(140, segment.TargetWPM);
+        Assert.Equal(150, segment.TargetWPM);
         Assert.Equal("warm", segment.Emotion);
         Assert.Equal("Alex", segment.Speaker);
 
         Assert.Equal(160, block.TargetWPM);
         Assert.Equal("focused", block.Emotion);
         Assert.Equal("Casey", block.Speaker);
+    }
+
+    [Fact]
+    public async Task ParseAsync_UsesArchetypeRecommendedWpmWhenHeaderOmitsExplicitSpeed()
+    {
+        var documentReader = CreateDocumentReader();
+        var compiler = new ScriptCompiler();
+        const string source = """
+        ---
+        title: "Archetype defaults"
+        base_wpm: 140
+        ---
+
+        ## [Coach Intro|Archetype:Coach|focused|Speaker:Alex]
+
+        ### [Warmup Prompt|Archetype:Educator]
+
+        Welcome everyone.
+        """;
+
+        var document = await documentReader.ReadAsync(source);
+        var compiled = await compiler.CompileAsync(document);
+        var segment = Assert.Single(document.Segments);
+        var block = Assert.Single(segment.Blocks);
+        var compiledSegment = Assert.Single(compiled.Segments);
+        var compiledBlock = Assert.Single(compiledSegment.Blocks, candidate => string.Equals(candidate.Archetype, "educator", StringComparison.Ordinal));
+
+        Assert.Equal("coach", segment.Archetype);
+        Assert.Equal(145, segment.TargetWPM);
+        Assert.Equal("educator", block.Archetype);
+        Assert.Null(block.TargetWPM);
+        Assert.Equal(120, compiledBlock.TargetWPM);
     }
 
     [Fact]
@@ -187,6 +219,70 @@ public sealed class TpsRoundTripTests
     }
 
     [Fact]
+    public async Task CompileAsync_TracksArchetypeArticulationEnergyAndMelodyMetadata()
+    {
+        var compiled = await CompileAsync(
+            """
+            ---
+            title: "Archetype styling"
+            base_wpm: 140
+            ---
+
+            ## [Coach Intro|Archetype:Coach|focused|Speaker:Alex]
+
+            ### [Warmup Prompt|Archetype:Educator]
+
+            [legato][energy:8]steady[/energy][/legato] [staccato][melody:4]rhythm[/melody][/staccato]
+            """);
+
+        var segment = Assert.Single(compiled.Segments);
+        var block = Assert.Single(segment.Blocks, candidate => string.Equals(candidate.Archetype, "educator", StringComparison.Ordinal));
+        var words = FlattenWords(compiled);
+        var steady = words.Single(word => string.Equals(word.CleanText, "steady", StringComparison.Ordinal));
+        var rhythm = words.Single(word => string.Equals(word.CleanText, "rhythm", StringComparison.Ordinal));
+
+        Assert.Equal("coach", segment.Archetype);
+        Assert.Equal("educator", block.Archetype);
+        Assert.Equal("legato", steady.Metadata.ArticulationStyle);
+        Assert.Equal(8, steady.Metadata.EnergyLevel);
+        Assert.Equal("staccato", rhythm.Metadata.ArticulationStyle);
+        Assert.Equal(4, rhythm.Metadata.MelodyLevel);
+    }
+
+    [Fact]
+    public void ParseTps_PreservesExplicitBlockWordsWhenSdkEmitsImplicitLeadBlock()
+    {
+        var scriptDataFactory = CreateScriptDataFactory();
+        const string source = """
+        ---
+        title: "Implicit lead block"
+        base_wpm: 140
+        ---
+
+        ## [Coach Intro|Archetype:Coach|focused|Speaker:Alex]
+
+        Opening setup for the segment.
+
+        ### [Warmup Prompt|Archetype:Educator]
+
+        [legato][energy:8]steady[/energy][/legato] [staccato][melody:4]rhythm[/melody][/staccato]
+        """;
+
+        var script = scriptDataFactory.Build(source);
+        var segment = Assert.Single(script.Segments ?? []);
+        var block = Assert.Single(segment.Blocks ?? [], candidate => string.Equals(candidate.Archetype, "educator", StringComparison.Ordinal));
+        var blockWords = block.Phrases!
+            .SelectMany(phrase => phrase.Words ?? [])
+            .Select(word => word.Text)
+            .ToArray();
+
+        Assert.Contains("Opening setup for the segment.", segment.Content, StringComparison.Ordinal);
+        Assert.Contains("steady", blockWords);
+        Assert.Contains("rhythm", blockWords);
+        Assert.DoesNotContain("Opening", blockWords);
+    }
+
+    [Fact]
     public async Task CompileAsync_LeavesUnknownTagsLiteralAndTreatsLegacyColorTagsAsText()
     {
         var compiled = await CompileAsync(
@@ -215,7 +311,7 @@ public sealed class TpsRoundTripTests
     [Fact]
     public async Task ParseAsync_IgnoresLegacyOffsetAliasesAndUsesCanonicalDefaults()
     {
-        var parser = new TpsParser();
+        var documentReader = CreateDocumentReader();
         const string source = """
         ---
         title: "Legacy offsets"
@@ -230,7 +326,7 @@ public sealed class TpsRoundTripTests
         [xslow]alpha[/xslow]
         """;
 
-        var document = await parser.ParseAsync(source);
+        var document = await documentReader.ReadAsync(source);
         var compiled = await new ScriptCompiler().CompileAsync(document);
         var alpha = FlattenWords(compiled).Single(word => string.Equals(word.CleanText, "alpha", StringComparison.Ordinal));
 
@@ -241,7 +337,8 @@ public sealed class TpsRoundTripTests
     [Fact]
     public async Task ParseAsync_ClampsBaseWpmToCanonicalRuntimeBounds()
     {
-        var parser = new TpsParser();
+        var documentReader = CreateDocumentReader();
+        var scriptDataFactory = CreateScriptDataFactory();
         const string source = """
         ---
         title: "Clamped base WPM"
@@ -255,8 +352,8 @@ public sealed class TpsRoundTripTests
         Ready now.
         """;
 
-        var document = await parser.ParseAsync(source);
-        var data = parser.ParseTps(source);
+        var document = await documentReader.ReadAsync(source);
+        var data = scriptDataFactory.Build(source);
         var segment = Assert.Single(document.Segments);
 
         Assert.Equal(MaximumSupportedWpm, segment.TargetWPM);
@@ -266,7 +363,7 @@ public sealed class TpsRoundTripTests
     [Fact]
     public async Task ParseAsync_IgnoresOutOfRangeHeaderWpmAndFallsBackToClampedBaseWpm()
     {
-        var parser = new TpsParser();
+        var documentReader = CreateDocumentReader();
         const string source = """
         ---
         title: "Header fallback"
@@ -280,7 +377,7 @@ public sealed class TpsRoundTripTests
         Copy.
         """;
 
-        var document = await parser.ParseAsync(source);
+        var document = await documentReader.ReadAsync(source);
         var segment = Assert.Single(document.Segments);
         var block = Assert.Single(segment.Blocks);
 
@@ -318,11 +415,15 @@ public sealed class TpsRoundTripTests
 
     private static async Task<CompiledScript> CompileAsync(string source)
     {
-        var parser = new TpsParser();
+        var documentReader = CreateDocumentReader();
         var compiler = new ScriptCompiler();
-        var document = await parser.ParseAsync(source);
+        var document = await documentReader.ReadAsync(source);
         return await compiler.CompileAsync(document);
     }
+
+    private static TpsDocumentReader CreateDocumentReader() => new();
+
+    private static TpsScriptDataFactory CreateScriptDataFactory() => new();
 
     private static IReadOnlyList<CompiledWord> FlattenWords(CompiledScript compiled)
     {

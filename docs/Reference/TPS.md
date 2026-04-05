@@ -10,9 +10,9 @@
 flowchart TD
     FrontMatter["Front matter<br/>title, profile, duration, base_wpm, speed_offsets"]
     Title["# Title<br/>display metadata"]
-    Segment["## Segment<br/>name + WPM + emotion + timing + speaker"]
-    Block["### Block<br/>name + WPM + emotion + speaker"]
-    Inline["Inline TPS tags<br/>pauses, speed, emphasis, volume, emotion, delivery, pronunciation"]
+    Segment["## Segment<br/>name + WPM or archetype + emotion + timing + speaker"]
+    Block["### Block<br/>name + WPM or archetype + emotion + speaker"]
+    Inline["Inline TPS tags<br/>pauses, speed, emphasis, volume, emotion, delivery, articulation, pronunciation, energy, melody"]
     Metrics["Compiled metrics<br/>words, timing, segment count, effective WPM"]
 
     FrontMatter --> Title
@@ -29,6 +29,9 @@ flowchart TD
   - emotions such as `neutral`, `warm`, `professional`, `focused`, `concerned`, `urgent`, `motivational`, `excited`, `happy`, `sad`, `calm`, and `energetic`
   - delivery tags such as `sarcasm`, `aside`, `rhetorical`, and `building`
   - volume tags such as `loud`, `soft`, and `whisper`
+  - archetype header tokens such as `Archetype:Coach`, `Archetype:Educator`, `Archetype:Storyteller`, `Archetype:Friend`, `Archetype:Motivator`, and `Archetype:Entertainer`
+  - articulation tags such as `legato` and `staccato`
+  - numeric delivery contour tags such as `[energy:8]...[/energy]` and `[melody:4]...[/melody]`
   - speed tags such as `[xslow]`, `[slow]`, `[normal]`, `[fast]`, `[xfast]`, and `[150WPM]...[/150WPM]`
   - pauses such as `/`, `//`, `[pause:2s]`, `[pause:1000ms]`, and `[breath]`
   - pronunciation helpers such as `[phonetic:...]`, `[pronunciation:...]`, `[stress]...[/stress]`, and `[stress:...]...[/stress]`
@@ -41,10 +44,14 @@ flowchart TD
 - `duration` or `display_duration` is author metadata only. Library cards, reader timing, learn timing, and editor stats must derive their runtime numbers from compiled words plus pause timing.
 - Legacy inline color tags are unsupported in PrompterOne TPS authoring and rendering.
 - Plain markdown `## Title` and `### Title` headers remain valid and must compile the same as their bracketed TPS forms with inherited defaults.
+- Archetype defaults may resolve effective WPM during compile/runtime even when the parsed block header keeps raw `TargetWPM` as `null`.
+- Editor menus and Monaco assistance must expose the vendored SDK vocabulary for archetypes, articulation, and contour tags instead of a reduced local subset.
 
 ## Implementation Anchors
 
-- Parsing: `src/PrompterOne.Core/Tps/Services/TpsParser.cs`
+- Vendored upstream TPS SDK: `src/PrompterOne.TpsSdk/`
+- Source-to-document mapping: `src/PrompterOne.Core/Tps/Services/TpsDocumentReader.cs`
+- Source-to-ScriptData mapping: `src/PrompterOne.Core/Tps/Services/TpsScriptDataFactory.cs`
 - Compilation: `src/PrompterOne.Core/Tps/Services/ScriptCompiler.cs`
 - Library-card metrics: `src/PrompterOne.Shared/Library/Services/LibraryCardFactory.cs`
 - Editor TPS authoring menus: `src/PrompterOne.Shared/Editor/Components/EditorToolbarCatalog.cs`
