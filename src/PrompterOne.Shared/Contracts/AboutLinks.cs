@@ -2,6 +2,7 @@ namespace PrompterOne.Shared.Contracts;
 
 public static class AboutLinks
 {
+    public const string ClarityPrivacyDisclosureUrl = "https://learn.microsoft.com/en-us/clarity/setup-and-installation/privacy-disclosure";
     public const string ProductName = "PrompterOne";
     public const string ManagedCodeName = "Managed Code";
     public const string ManagedCodeWebsiteUrl = "https://www.managed-code.com/";

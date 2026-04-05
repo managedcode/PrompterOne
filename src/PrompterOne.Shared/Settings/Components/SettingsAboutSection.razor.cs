@@ -24,6 +24,8 @@ public partial class SettingsAboutSection
     private const string ResourcesCardSubtitle = "Live app, releases, and support";
     private const string ResourcesCardTitle = "Help & Resources";
     private const string SoftwareUpdatesLabel = "Software Updates";
+    private const string ClarityDisclosureLabel = "Clarity privacy disclosure";
+    private const string ClarityDisclosureDescription = "Official Microsoft Clarity privacy disclosure";
     private const string TpsGitHubLabel = "TPS on GitHub";
     private const string TpsGitHubDescription = "TelePrompterScript format, docs, and examples";
     private const string UpToDateLabel = "Up to date";
@@ -88,7 +90,12 @@ public partial class SettingsAboutSection
             UiTestIds.Settings.AboutIssuesLink,
             "Report an issue",
             "Bug reports and product feedback",
-            AboutLinks.ProductIssuesUrl)
+            AboutLinks.ProductIssuesUrl),
+        new(
+            UiTestIds.Settings.AboutClarityDisclosure,
+            ClarityDisclosureLabel,
+            ClarityDisclosureDescription,
+            AboutLinks.ClarityPrivacyDisclosureUrl)
     ];
 
     [Inject] private IAppVersionProvider AppVersionProvider { get; set; } = null!;

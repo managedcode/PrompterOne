@@ -21,7 +21,9 @@ namespace PrompterOne.Shared.Services;
 
 public static class PrompterOneServiceCollectionExtensions
 {
-    public static IServiceCollection AddPrompterOneShared(this IServiceCollection services)
+    public static IServiceCollection AddPrompterOneShared(
+        this IServiceCollection services,
+        RuntimeTelemetryOptions? runtimeTelemetryOptions = null)
     {
         services.AddStorageFactory();
         services.AddBrowserStorageAsDefault(options =>
@@ -83,6 +85,8 @@ public static class PrompterOneServiceCollectionExtensions
         services.AddScoped<TeleprompterReaderInterop>();
         services.AddScoped<AppBootstrapper>();
         services.AddScoped<AppShellService>();
+        services.AddSingleton(runtimeTelemetryOptions ?? RuntimeTelemetryOptions.Disabled);
+        services.AddScoped<RuntimeTelemetryService>();
         services.AddScoped<BrowserConnectivityService>();
         services.AddScoped<GoLiveSessionService>();
         services.AddScoped<GoLiveOutputInterop>();

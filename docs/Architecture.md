@@ -6,7 +6,7 @@
 
 The acceptance target is a browser-only runtime that:
 
-- matches the local `design/` UI closely
+- matches the shipped routed Blazor UI and runtime stylesheet contracts closely
 - parses and exports TPS content
 - supports RSVP learn mode and teleprompter reading mode
 - keeps media, scene, and streaming state client-side
@@ -46,16 +46,16 @@ If a change introduces a new major component, moves ownership, or changes how co
 
 ```mermaid
 flowchart LR
-    App["src/PrompterOne.App<br/>Standalone WASM host"]
+    App["src/PrompterOne.Web<br/>Standalone WASM host"]
     Shared["src/PrompterOne.Shared<br/>Razor pages, layout, CSS, JS interop"]
     Core["src/PrompterOne.Core<br/>TPS, RSVP, workspace, media, streaming"]
-    NewDesign["design/<br/>HTML/CSS/JS reference + parser sources"]
+    Docs["docs/<br/>Architecture + TPS reference + feature docs"]
     Tests["tests/*<br/>xUnit + bUnit + Playwright"]
 
     App --> Shared
     Shared --> Core
-    Shared -. visual parity .-> NewDesign
-    Core -. extracted logic .-> NewDesign
+    Docs -. UI and TPS contracts .-> Shared
+    Docs -. domain and parsing contracts .-> Core
     Tests --> App
     Tests --> Shared
     Tests --> Core
@@ -65,21 +65,21 @@ flowchart LR
 
 - `src/PrompterOne.Shared` keeps routed UI in feature slices: `AppShell`, `Diagnostics`, `Editor`, `Library`, `Learn`, `Teleprompter`, `GoLive`, `Settings`, and `Media`.
 - `src/PrompterOne.Core` keeps host-neutral behavior in matching domain slices: `Tps`, `Editor`, `Workspace`, `Library`, `Rsvp`, `Media`, `Streaming`, and `Localization`.
-- `tests/PrompterOne.Core.Tests`, `tests/PrompterOne.App.Tests`, and `tests/PrompterOne.App.UITests` mirror those feature slices and reserve `Support` or `Infrastructure` for shared harness code.
+- `tests/PrompterOne.Core.Tests`, `tests/PrompterOne.Web.Tests`, and `tests/PrompterOne.Web.UITests` mirror those feature slices and reserve `Support` or `Infrastructure` for shared harness code.
 
 ## Design And Structure Principles
 
 ### UI Design Principles
 
-- `design/` is the visual source of truth for layout, hierarchy, spacing, controls, color direction, and interaction tone.
-- UI work should port markup, structure, and class intent from `design/` instead of inventing a parallel design language.
+- `src/PrompterOne.Shared/wwwroot/design/*` is the shipped runtime stylesheet manifest; it is not a separate prototype product.
+- UI work should fix the shipped Blazor routes, runtime CSS assets, and documented screen contracts instead of reviving a deleted root prototype tree.
 - Routed screens should keep strong visual identities while still using the shared shell and contracts from `AppShell`.
 - Stable dedicated test hooks are part of the UI contract, not optional test-only extras.
 - Browser-first behavior matters more than server assumptions. Media, storage, and stream state stay client-side.
 
 ### Code Structure Principles
 
-- `src/PrompterOne.App` hosts only bootstrapping and runtime startup concerns.
+- `src/PrompterOne.Web` hosts only bootstrapping and runtime startup concerns.
 - `src/PrompterOne.Shared` owns routed pages, Razor components, CSS, UI state wiring, and browser interop.
 - `src/PrompterOne.Core` owns reusable domain logic, parsing, workspace state, media models, and streaming logic.
 - `tests/` mirrors production ownership and proves behavior through real UI, component, and core flows.
@@ -89,8 +89,8 @@ flowchart LR
 
 | Component / Slice | What It Is | Why It Exists | Where It Lives | Owns | Must Not Own |
 | --- | --- | --- | --- | --- | --- |
-| `PrompterOne.App` | Browser host and startup shell | Boots the standalone WASM app on the stable local origin | `src/PrompterOne.App` | startup, host config, app shell entrypoint | domain logic, feature behavior, server runtime code |
-| `AppShell` | Shared routed layout and navigation shell | Keeps one navigation, header, widget, and screen-frame contract across the app | `src/PrompterOne.Shared/AppShell` | layout chrome, route-aware header state, persistent shell widgets | feature-specific editing, streaming, or document logic |
+| `PrompterOne.Web` | Browser host and startup shell | Boots the standalone WASM app on the stable local origin | `src/PrompterOne.Web` | startup, host config, app shell entrypoint, production-only telemetry provider ids | domain logic, feature behavior, server runtime code |
+| `AppShell` | Shared routed layout and navigation shell | Keeps one navigation, header, widget, and screen-frame contract across the app | `src/PrompterOne.Shared/AppShell` | layout chrome, route-aware header state, persistent shell widgets, runtime page/event telemetry ownership | feature-specific editing, streaming, or document logic |
 | `Library` | Script and folder browsing surface | Lets users discover, search, and organize scripts | `src/PrompterOne.Shared/Library`, `src/PrompterOne.Core/Library` | cards, folder tree UI, repository-backed browse flows | TPS authoring rules, reader rendering, streaming orchestration |
 | `Editor` | TPS authoring surface | Creates and reshapes scripts with structure-aware tooling | `src/PrompterOne.Shared/Editor`, `src/PrompterOne.Core/Editor`, `src/PrompterOne.Core/Tps` | source editing UI, toolbar actions, front matter, TPS transforms | shell navigation policy, teleprompter playback, live runtime wiring |
 | `Learn` | RSVP rehearsal mode | Trains delivery with timing and context | `src/PrompterOne.Shared/Learn`, `src/PrompterOne.Core/Rsvp` | ORP playback, rehearsal pacing, next-phrase context | document storage, scene routing, destination configuration |
@@ -112,7 +112,7 @@ flowchart LR
 - `Directory.Build.props` is the canonical source for shared target framework, analyzer policy, and assembly/app version settings.
 - `global.json` pins the expected .NET SDK for local and CI builds.
 - `.github/workflows/pr-validation.yml` is the canonical pull-request validation flow for repo build and test gates; it runs the browser-realistic Playwright suite in a dedicated `dotnet test` step after the non-browser test projects finish.
-- `.github/workflows/deploy-github-pages.yml` is the canonical release pipeline for the standalone WASM app: build and test, resolve the release version from `Directory.Build.props`, publish the release artifact, publish the GitHub Release, and deploy GitHub Pages on the custom-domain root. Its validation job isolates `PrompterOne.App.UITests` from the supporting test projects so the self-hosted browser harness owns the test assets during its run.
+- `.github/workflows/deploy-github-pages.yml` is the canonical release pipeline for the standalone WASM app: build and test, resolve the release version from `Directory.Build.props`, publish the release artifact, publish the GitHub Release, and deploy GitHub Pages on the custom-domain root. Its validation job isolates `PrompterOne.Web.UITests` from the supporting test projects so the self-hosted browser harness owns the test assets during its run.
 - Vendored browser SDK release pins live in `vendored-streaming-sdks.json`, and the exact release sync or watch flow is documented in `docs/Features/VendoredStreamingSdkReleases.md`.
 
 ## Runtime Boundaries
@@ -120,7 +120,7 @@ flowchart LR
 ```mermaid
 flowchart TD
     Browser["Browser"]
-    WasmHost["PrompterOne.App"]
+    WasmHost["PrompterOne.Web"]
     Ui["PrompterOne.Shared"]
     Domain["PrompterOne.Core"]
     Localization["Culture bootstrap + localized UI catalog"]
@@ -135,9 +135,11 @@ flowchart TD
     Ui --> Localization
     Ui --> BrowserStorage
     Ui --> CloudStorage
+    Ui --> Analytics["Runtime telemetry bridge<br/>GA + Clarity on production only"]
     BrowserStorage --> WebApis
     CloudStorage --> WebApis
     Ui --> WebApis
+    Analytics --> WebApis
 ```
 
 - Same-origin tab coordination is a browser-runtime concern owned in `PrompterOne.Shared`; it uses `BroadcastChannel` as a best-effort browser transport and does not change the browser-only runtime shape.
@@ -304,7 +306,7 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    WasmHost["PrompterOne.App<br/>ILogger configuration"]
+    WasmHost["PrompterOne.Web<br/>ILogger configuration"]
     Layout["MainLayout + DiagnosticsBanner + ConnectivityOverlay"]
     Boundary["LoggingErrorBoundary"]
     Bootstrap["index.html bootstrap error shell"]
@@ -363,7 +365,7 @@ sequenceDiagram
 
 ```mermaid
 flowchart LR
-    UITests["PrompterOne.App.UITests"]
+    UITests["PrompterOne.Web.UITests"]
     Fixture["StandaloneAppFixture"]
     InitScript["synthetic-media-harness.js<br/>BrowserContext.addInitScript"]
     Browser["Chromium context<br/>dynamic loopback origin + granted permissions"]
@@ -392,7 +394,7 @@ If a native embedded browser host returns later, media access must not rely on s
 
 ## Project Responsibilities
 
-### `src/PrompterOne.App`
+### `src/PrompterOne.Web`
 
 - standalone Blazor WebAssembly host
 - serves the app shell and static asset references
@@ -529,19 +531,19 @@ sequenceDiagram
 ```mermaid
 flowchart LR
     CoreTests["tests/PrompterOne.Core.Tests"]
-    AppTests["tests/PrompterOne.App.Tests"]
-    UiTests["tests/PrompterOne.App.UITests"]
+    AppTests["tests/PrompterOne.Web.Tests"]
+    UiTests["tests/PrompterOne.Web.UITests"]
 
     CoreTests --> Core["src/PrompterOne.Core"]
     AppTests --> Shared["src/PrompterOne.Shared"]
-    UiTests --> App["src/PrompterOne.App"]
+    UiTests --> App["src/PrompterOne.Web"]
 ```
 
 ## Test Strategy
 
 - `PrompterOne.Core.Tests`: domain correctness and regression tests grouped by core slice plus `Support/`
-- `PrompterOne.App.Tests`: bUnit coverage grouped by routed feature slice plus `Support/`
-- `PrompterOne.App.UITests`: Playwright browser flows grouped by browser feature slice plus `Infrastructure/`, `Scenarios/`, `Media/`, and `Support/`
+- `PrompterOne.Web.Tests`: bUnit coverage grouped by routed feature slice plus `Support/`
+- `PrompterOne.Web.UITests`: Playwright browser flows grouped by browser feature slice plus `Infrastructure/`, `Scenarios/`, `Media/`, and `Support/`
 
 ## Constraints
 

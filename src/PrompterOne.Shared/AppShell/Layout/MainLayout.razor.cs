@@ -25,6 +25,7 @@ public partial class MainLayout : LayoutComponentBase, IDisposable
     [Inject] private ILogger<MainLayout> Logger { get; set; } = null!;
     [Inject] private IStringLocalizer<SharedResource> Localizer { get; set; } = null!;
     [Inject] private NavigationManager Navigation { get; set; } = null!;
+    [Inject] private RuntimeTelemetryService RuntimeTelemetry { get; set; } = null!;
 
     private CancellationTokenSource? _goLiveWidgetRefreshCancellationTokenSource;
     private Task? _goLiveWidgetRefreshTask;
@@ -56,6 +57,8 @@ public partial class MainLayout : LayoutComponentBase, IDisposable
     private bool ShowLearnWpmBadge => ShellState.Screen == AppShellScreen.Learn;
 
     private bool ShowReadAction => ShellState.Screen == AppShellScreen.Editor;
+
+    private bool HasTrackedScriptContext => !string.IsNullOrWhiteSpace(ShellState.ScriptId);
 
     private bool ShowHeaderSubtitle => !string.IsNullOrWhiteSpace(HeaderSubtitle);
 
@@ -161,6 +164,8 @@ public partial class MainLayout : LayoutComponentBase, IDisposable
         await ThemeService.InitializeAsync();
         await Connectivity.StartAsync();
         await Bootstrapper.EnsureReadyAsync();
+        await RuntimeTelemetry.InitializeAsync();
+        await TrackCurrentPageViewAsync();
     }
 
     private void HandleShellStateChanged() => InvokeAsync(StateHasChanged);
@@ -176,6 +181,7 @@ public partial class MainLayout : LayoutComponentBase, IDisposable
         Logger.LogInformation(RouteChangedLogTemplate, e.Location);
         Shell.TrackNavigation(e.Location);
         SyncShellStateWithCurrentRoute(e.Location);
+        _ = InvokeAsync(TrackCurrentPageViewAsync);
         StateHasChanged();
     }
 
@@ -259,26 +265,46 @@ public partial class MainLayout : LayoutComponentBase, IDisposable
     {
         await Bootstrapper.EnsureReadyAsync();
         await SessionService.NewAsync();
+        await RuntimeTelemetry.TrackNavigationActionAsync(
+            AppRuntimeTelemetry.Events.CreateScript,
+            ShellState.Screen,
+            AppShellScreen.Editor,
+            hasScriptContext: false);
         Navigation.NavigateTo(AppRoutes.Editor);
     }
 
-    private Task HandleOpenLearnClickAsync()
+    private async Task HandleOpenLearnClickAsync()
     {
+        await RuntimeTelemetry.TrackNavigationActionAsync(
+            AppRuntimeTelemetry.Events.OpenLearn,
+            ShellState.Screen,
+            AppShellScreen.Learn,
+            HasTrackedScriptContext);
         Navigation.NavigateTo(Shell.GetLearnRoute());
-        return Task.CompletedTask;
     }
 
-    private Task HandleOpenGoLiveClickAsync()
+    private async Task HandleOpenGoLiveClickAsync()
     {
+        await RuntimeTelemetry.TrackNavigationActionAsync(
+            AppRuntimeTelemetry.Events.OpenGoLive,
+            ShellState.Screen,
+            AppShellScreen.GoLive,
+            HasTrackedScriptContext);
         Navigation.NavigateTo(GoLiveRoute);
-        return Task.CompletedTask;
     }
 
-    private Task HandleOpenReadClickAsync()
+    private async Task HandleOpenReadClickAsync()
     {
+        await RuntimeTelemetry.TrackNavigationActionAsync(
+            AppRuntimeTelemetry.Events.OpenRead,
+            ShellState.Screen,
+            AppShellScreen.Teleprompter,
+            HasTrackedScriptContext);
         Navigation.NavigateTo(Shell.GetTeleprompterRoute());
-        return Task.CompletedTask;
     }
+
+    private Task TrackCurrentPageViewAsync() =>
+        RuntimeTelemetry.TrackPageViewAsync(ShellState.Screen, HeaderTitle, HasTrackedScriptContext);
 
     private Task HandleLibrarySearchInputAsync(ChangeEventArgs args)
     {
