@@ -11,6 +11,7 @@ public partial class TeleprompterPage
     private const string ReaderCardCssClass = "rd-card";
     private const string ReaderCardNextCssClass = "rd-card-next";
     private const string ReaderCardPreviousCssClass = "rd-card-prev";
+    private const string ReaderAlignmentButtonCssClass = "rd-align-btn";
     private const int ReaderCenterOpticalInsetPixels = 0;
     private const int ReaderComfortableContentMaxWidth = 940;
     private const int ReaderComfortablePortraitContentMaxWidth = 760;
@@ -31,6 +32,7 @@ public partial class TeleprompterPage
     private const string ReaderOrientationPortraitTransform = "rotate(90deg)";
     private const string ReaderOrientationPortraitValue = "portrait";
     private const string ReaderTextAlignmentCenterValue = "center";
+    private const string ReaderTextAlignmentJustifyValue = "justify";
     private const string ReaderTextAlignmentLeftValue = "left";
     private const string ReaderTextAlignmentRightValue = "right";
     private const string ReaderMirrorTransformOrigin = "center center";
@@ -107,7 +109,11 @@ public partial class TeleprompterPage
         BuildReaderMirrorButtonCssClass(_readerTextOrientation == ReaderTextOrientation.Portrait);
 
     private string BuildReaderAlignmentButtonCssClass(ReaderTextAlignment textAlignment) =>
-        BuildReaderMirrorButtonCssClass(_readerTextAlignment == textAlignment);
+        BuildClassList(
+            ReaderControlButtonCssClass,
+            ReaderMirrorButtonCssClass,
+            ReaderAlignmentButtonCssClass,
+            _readerTextAlignment == textAlignment ? ActiveCssClass : null);
 
     private string BuildCountdownCssClass() =>
         BuildClassList(ReaderCountdownCssClass, _isReaderCountdownActive ? ActiveCssClass : null);
@@ -164,7 +170,7 @@ public partial class TeleprompterPage
 
     private int ResolveReaderTextOpticalInset(int contentMaxWidth)
     {
-        if (_readerTextAlignment == ReaderTextAlignment.Center)
+        if (_readerTextAlignment is ReaderTextAlignment.Center or ReaderTextAlignment.Justify)
         {
             return ReaderCenterOpticalInsetPixels;
         }
@@ -203,6 +209,7 @@ public partial class TeleprompterPage
         _readerTextAlignment switch
         {
             ReaderTextAlignment.Center => ReaderTextAlignmentCenterValue,
+            ReaderTextAlignment.Justify => ReaderTextAlignmentJustifyValue,
             ReaderTextAlignment.Right => ReaderTextAlignmentRightValue,
             _ => ReaderTextAlignmentLeftValue
         };

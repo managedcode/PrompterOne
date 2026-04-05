@@ -4,6 +4,7 @@ using static Microsoft.Playwright.Assertions;
 
 namespace PrompterOne.App.UITests;
 
+[Collection(EditorAuthoringCollection.Name)]
 public sealed class EditorFloatingToolbarLayoutTests(StandaloneAppFixture fixture) : IClassFixture<StandaloneAppFixture>
 {
     private const string SegmentLineSelector = ".ed-src-line-segment";

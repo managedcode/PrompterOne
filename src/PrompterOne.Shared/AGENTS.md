@@ -2,7 +2,7 @@
 
 ## Project Purpose
 
-`PrompterOne.Shared` contains the routed Razor UI, shipped runtime CSS/design-system assets, thin browser interop, and browser-side service wiring.
+`PrompterOne.Shared` contains the routed Razor UI, shipped runtime CSS assets, thin browser interop, and browser-side service wiring.
 
 ## Entry Points
 
@@ -29,8 +29,9 @@
 - For parity work, fix the whole routed screen structure and intended interactions in Blazor instead of approximating only selected sections.
 - Keep routed pages, feature components, renderers, and feature-local services inside their owning slice folders.
 - Keep app-specific UI logic here, but keep business rules in `PrompterOne.Core`.
+- User-facing library, editor, learn, and reader summaries must come from real TPS-derived metrics, never from `display_*` metadata or other presentation-only hardcoded overrides.
 - Keep feature styles owned by their routed screen; `Learn` and `Teleprompter` must not share one feature stylesheet manifest.
-- Preserve `data-testid` selectors used by Playwright.
+- Preserve dedicated test selectors used by Playwright. Prefer `data-test-id` for new markup, allow `data-test`, and do not churn existing `data-testid` contracts unless the task is an intentional migration.
 - Do not add server-only dependencies.
 - Keep keyboard shortcuts, screen ids/selectors, and reusable UI constants in Blazor/C# contracts when possible; leave JS only with unavoidable browser API interop and direct DOM work that Blazor cannot replace cleanly.
 - Prefer removing JS files that only orchestrate UI behavior, reader state, or shell interactions; keep those flows in Razor components or C# services and let JS expose only the minimal browser or SDK call surface.

@@ -121,13 +121,28 @@ public static class UiTestIds
         public const string Error = "editor-error";
         public const string FloatingAi = "editor-floating-ai";
         public const string FloatingBar = "editor-floating-bar";
+        public const string FloatingDeliverySarcasm = "editor-float-delivery-sarcasm";
         public const string FloatingEmotion = "editor-float-emotion";
         public const string FloatingEmotionMenu = "editor-floating-emotion-menu";
         public const string FloatingEmotionMotivational = "editor-float-emotion-motivational";
         public const string FloatingEmotionProfessional = "editor-float-emotion-professional";
+        public const string FloatingInsert = "editor-floating-insert";
+        public const string FloatingInsertEditPointMedium = "editor-floating-insert-edit-point-medium";
+        public const string FloatingInsertMenu = "editor-floating-insert-menu";
+        public const string FloatingInsertPronunciation = "editor-floating-insert-pronunciation";
         public const string FloatingPause = "editor-float-pause";
+        public const string FloatingPauseMenu = "editor-floating-pause-menu";
+        public const string FloatingPauseTrigger = "editor-floating-pause-trigger";
+        public const string FloatingPauseTimed = "editor-floating-pause-timed";
         public const string FloatingSlow = "editor-floating-slow";
+        public const string FloatingSpeedCustomWpm = "editor-floating-speed-custom-wpm";
+        public const string FloatingSpeedMenu = "editor-floating-speed-menu";
+        public const string FloatingSpeedTrigger = "editor-floating-speed-trigger";
+        public const string FloatingVoice = "editor-floating-voice";
+        public const string FloatingVoiceMenu = "editor-floating-voice-menu";
+        public const string FloatingVoiceWhisper = "editor-floating-voice-whisper";
         public const string FloatEmphasis = "editor-float-emphasis";
+        public const string FloatStress = "editor-float-stress";
         public const string FormatHighlight = "editor-format-highlight";
         public const string FormatTrigger = "editor-format-trigger";
         public const string InsertBlock = "editor-insert-block";
@@ -156,6 +171,7 @@ public static class UiTestIds
         public const string Redo = "editor-redo";
         public const string SourceHighlight = "editor-source-highlight";
         public const string SourceInput = "editor-source-input";
+        public const string SourceGutter = "editor-source-gutter";
         public const string SourceMinimap = "editor-source-minimap";
         public const string SourceScrollHost = "editor-source-scroll-host";
         public const string SourceStage = "editor-source-stage";
@@ -209,8 +225,19 @@ public static class UiTestIds
         public const string Back = "teleprompter-back";
         public const string AlignmentCenter = "teleprompter-alignment-center";
         public const string AlignmentControls = "teleprompter-alignment-controls";
+        public const string AlignmentJustify = "teleprompter-alignment-justify";
         public const string AlignmentLeft = "teleprompter-alignment-left";
         public const string AlignmentRight = "teleprompter-alignment-right";
+        public const string AlignmentTooltipCenterKey = "alignment-center";
+        public const string AlignmentTooltipFocalKey = "focal-slider";
+        public const string AlignmentTooltipFullscreenKey = "fullscreen";
+        public const string AlignmentTooltipJustifyKey = "alignment-justify";
+        public const string AlignmentTooltipLeftKey = "alignment-left";
+        public const string AlignmentTooltipMirrorHorizontalKey = "mirror-horizontal";
+        public const string AlignmentTooltipMirrorVerticalKey = "mirror-vertical";
+        public const string AlignmentTooltipOrientationKey = "orientation";
+        public const string AlignmentTooltipRightKey = "alignment-right";
+        public const string AlignmentTooltipWidthKey = "width-slider";
         public const string CameraBackground = "teleprompter-camera-layer-primary";
         public const string CameraToggle = "teleprompter-camera-toggle";
         public const string ClusterWrap = "teleprompter-cluster-wrap";
@@ -251,6 +278,8 @@ public static class UiTestIds
             $"teleprompter-card-word-{cardIndex}-{groupIndex}-{wordIndex}";
 
         public static string ProgressSegmentFill(int index) => $"teleprompter-progress-segment-fill-{index}";
+
+        public static string RailTooltip(string key) => $"teleprompter-rail-tooltip-{key}";
     }
 
     public static class Settings

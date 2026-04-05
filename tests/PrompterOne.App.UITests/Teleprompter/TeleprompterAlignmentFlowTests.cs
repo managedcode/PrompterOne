@@ -9,7 +9,7 @@ public sealed class TeleprompterAlignmentFlowTests(StandaloneAppFixture fixture)
     private const int OpeningCardIndex = 0;
 
     [Fact]
-    public Task TeleprompterScreen_ExposesLeftCenterRightAlignmentModes() =>
+    public Task TeleprompterScreen_ExposesFourAlignmentModes() =>
         RunPageAsync(async page =>
         {
             await page.GotoAsync(BrowserTestConstants.Routes.TeleprompterDemo);
@@ -49,6 +49,16 @@ public sealed class TeleprompterAlignmentFlowTests(StandaloneAppFixture fixture)
                 BrowserTestConstants.TeleprompterFlow.AlignmentRightValue,
                 requireLeadingInset: false,
                 requireTrailingInset: true);
+
+            await page.GetByTestId(UiTestIds.Teleprompter.AlignmentJustify).ClickAsync();
+            await Expect(clusterWrap).ToHaveAttributeAsync(
+                BrowserTestConstants.TeleprompterFlow.ReaderTextAlignmentAttribute,
+                BrowserTestConstants.TeleprompterFlow.AlignmentJustifyValue);
+            await AssertAlignmentProbeAsync(
+                cardText,
+                BrowserTestConstants.TeleprompterFlow.AlignmentJustifyValue,
+                requireLeadingInset: false,
+                requireTrailingInset: false);
 
             await UiScenarioArtifacts.CapturePageAsync(
                 page,

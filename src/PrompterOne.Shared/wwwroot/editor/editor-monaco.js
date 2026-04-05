@@ -6,6 +6,7 @@ const largeDraftDecorationViewportLinePadding = 24;
 const frontMatterDelimiter = "---";
 const emptyValue = "";
 const hostStates = new WeakMap();
+const gutterSelector = ".margin-view-overlays";
 const minimapSelector = ".minimap";
 const numericWpmRegex = /^(?<wpm>\d+)\s*WPM$/i;
 const tagPattern = /\[[^[\]]+\]/g;
@@ -83,8 +84,8 @@ const monacoDefaults = Object.freeze({
     glyphMargin: false,
     letterSpacing: 0,
     lineDecorationsWidth: 0,
-    lineNumbers: "off",
-    lineNumbersMinChars: 0,
+    lineNumbers: "on",
+    lineNumbersMinChars: 4,
     lineHeight: 32,
     minimap: monacoMinimapDefaults,
     overviewRulerBorder: false,
@@ -500,6 +501,11 @@ function ensureThemeObserver(monaco, options) {
 }
 
 function syncEditorChromeContracts(state) {
+    const gutter = state.host.querySelector(gutterSelector);
+    if (gutter instanceof HTMLElement && state.options.sourceGutterTestId) {
+        gutter.setAttribute(testIdAttributeName, state.options.sourceGutterTestId);
+    }
+
     const minimap = state.host.querySelector(minimapSelector);
     if (minimap instanceof HTMLElement && state.options.sourceMinimapTestId) {
         minimap.setAttribute(testIdAttributeName, state.options.sourceMinimapTestId);
@@ -548,6 +554,8 @@ function createThemeData(isLight) {
             { token: "cue.breath", foreground: isLight ? "7A6B4D" : "D7C79C" },
             { token: "cue.editpoint", foreground: isLight ? "9A5A63" : "FFB0BD" },
             { token: "cue.pronunciation", foreground: isLight ? "5C6AA0" : "AFC2FF" },
+            { token: "markdown.bold", foreground: isLight ? "4F3C2A" : "FFE8B2", fontStyle: "bold" },
+            { token: "markdown.italic", foreground: isLight ? "7A5A36" : "F3D39B", fontStyle: "italic" },
             { token: "wpm.badge", foreground: isLight ? "936F00" : "FFE066", fontStyle: "bold" },
             { token: "meta.tag", foreground: isLight ? "6E7781" : "B8C0C8" },
             { token: "escape.sequence", foreground: isLight ? "62708A" : "9FB2CC" }
@@ -555,6 +563,8 @@ function createThemeData(isLight) {
         colors: {
             "editor.background": isLight ? "#00000000" : "#00000000",
             "editor.foreground": isLight ? "#32281E" : "#ECF0EE",
+            "editorLineNumber.activeForeground": isLight ? "#5F4E38" : "#F2E1AA",
+            "editorLineNumber.foreground": isLight ? "#9A8A74" : "#8A9A94",
             "editor.selectionBackground": isLight ? "#FFE06633" : "#FFE0662E",
             "editorCursor.foreground": isLight ? "#5C4D3D" : "#ECF0EE",
             ...minimapColors

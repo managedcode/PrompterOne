@@ -16,6 +16,7 @@ public sealed class EditorAiScrollStabilityTests(StandaloneAppFixture fixture) :
 
         try
         {
+            await AiProviderTestSeeder.SeedConfiguredOpenAiAsync(page);
             await page.GotoAsync(BrowserTestConstants.Routes.Editor);
             await Expect(page.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync();
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
@@ -41,6 +42,7 @@ public sealed class EditorAiScrollStabilityTests(StandaloneAppFixture fixture) :
                 before.ScrollTop >= BrowserTestConstants.Editor.AiScrollJumpMinimumStartingScrollTop,
                 $"Expected the editor to be scrolled before the AI action, but scrollTop was {before.ScrollTop:0.##}.");
 
+            await Expect(page.GetByTestId(UiTestIds.Editor.Ai)).ToBeEnabledAsync();
             await page.GetByTestId(UiTestIds.Editor.Ai).ClickAsync();
             await page.WaitForTimeoutAsync(BrowserTestConstants.Editor.AiScrollJumpSettleDelayMs);
 

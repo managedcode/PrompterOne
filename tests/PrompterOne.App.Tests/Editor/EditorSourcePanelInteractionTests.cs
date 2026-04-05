@@ -5,15 +5,20 @@ using Microsoft.AspNetCore.Components.Rendering;
 using PrompterOne.Core.Models.Editor;
 using PrompterOne.Shared.Components.Editor;
 using PrompterOne.Shared.Contracts;
+using PrompterOne.Shared.Settings.Models;
 using PrompterOne.Shared.Tests;
 
 namespace PrompterOne.App.Tests;
 
 public sealed class EditorSourcePanelInteractionTests : BunitContext
 {
+    private const string ConfiguredAiApiKey = "sk-test-openai";
+    private const string ConfiguredAiModel = "gpt-4o";
+    private readonly AppHarness _harness;
+
     public EditorSourcePanelInteractionTests()
     {
-        _ = TestHarnessFactory.Create(this);
+        _harness = TestHarnessFactory.Create(this);
     }
 
     [Fact]
@@ -43,7 +48,7 @@ public sealed class EditorSourcePanelInteractionTests : BunitContext
         emotionTrigger.Click();
 
         var floatingEmotionTrigger = cut.FindByTestId(UiTestIds.Editor.FloatingEmotion);
-        AssertTooltipContract(floatingEmotionTrigger, "Emotion");
+        AssertTooltipContract(floatingEmotionTrigger, "Emotion and delivery");
 
         floatingEmotionTrigger.Click();
         var floatingMotivationalEmotion = cut.FindByTestId(UiTestIds.Editor.FloatingEmotionMotivational);
@@ -83,6 +88,77 @@ public sealed class EditorSourcePanelInteractionTests : BunitContext
 
         Assert.Equal("tooltip", toolbarTooltip.GetAttribute("role"));
         Assert.Equal("toolbar", toolbarTooltip.GetAttribute("data-tooltip-placement"));
+    }
+
+    [Fact]
+    public void EditorSourcePanel_FloatingToolbarMenusExposeExtendedTpsAuthoringOptions()
+    {
+        var cut = Render<EditorSourcePanelHost>();
+
+        var floatingVoiceTrigger = cut.FindByTestId(UiTestIds.Editor.FloatingVoice);
+        AssertTooltipContract(floatingVoiceTrigger, "Voice cues");
+        floatingVoiceTrigger.Click();
+        Assert.NotNull(cut.FindByTestId(UiTestIds.Editor.FloatingVoiceMenu));
+        AssertTooltipContract(
+            cut.FindByTestId(UiTestIds.Editor.FloatingVoiceWhisper),
+            "Very quiet, intimate delivery. [whisper]text[/whisper]");
+
+        var floatingPauseTrigger = cut.FindByTestId(UiTestIds.Editor.FloatingPauseTrigger);
+        AssertTooltipContract(floatingPauseTrigger, "Pause cues");
+        floatingPauseTrigger.Click();
+        Assert.NotNull(cut.FindByTestId(UiTestIds.Editor.FloatingPauseMenu));
+        AssertTooltipContract(
+            cut.FindByTestId(UiTestIds.Editor.FloatingPauseTimed),
+            "Custom timed pause in milliseconds. [pause:1000ms]");
+
+        var floatingSpeedTrigger = cut.FindByTestId(UiTestIds.Editor.FloatingSpeedTrigger);
+        AssertTooltipContract(floatingSpeedTrigger, "Speed cues");
+        floatingSpeedTrigger.Click();
+        Assert.NotNull(cut.FindByTestId(UiTestIds.Editor.FloatingSpeedMenu));
+        AssertTooltipContract(
+            cut.FindByTestId(UiTestIds.Editor.FloatingSpeedCustomWpm),
+            "Set an absolute WPM value for a text span. [180WPM]text[/180WPM]");
+
+        var floatingInsertTrigger = cut.FindByTestId(UiTestIds.Editor.FloatingInsert);
+        AssertTooltipContract(floatingInsertTrigger, "Insert TPS helpers");
+        floatingInsertTrigger.Click();
+        Assert.NotNull(cut.FindByTestId(UiTestIds.Editor.FloatingInsertMenu));
+        AssertTooltipContract(
+            cut.FindByTestId(UiTestIds.Editor.FloatingInsertPronunciation),
+            "Simple pronunciation guide for easy reading. [pronunciation:guide]word[/pronunciation]");
+    }
+
+    [Fact]
+    public void EditorSourcePanel_AiButtonsAreDisabled_WhenNoProviderIsConfigured()
+    {
+        var cut = Render<EditorSourcePanelHost>();
+
+        cut.WaitForAssertion(() =>
+        {
+            Assert.True(cut.FindByTestId(UiTestIds.Editor.Ai).HasAttribute("disabled"));
+            Assert.True(cut.FindByTestId(UiTestIds.Editor.FloatingAi).HasAttribute("disabled"));
+        });
+    }
+
+    [Fact]
+    public void EditorSourcePanel_AiButtonsAreEnabled_WhenAProviderIsConfigured()
+    {
+        _harness.JsRuntime.SavedValues[AiProviderSettings.StorageKey] = new AiProviderSettings
+        {
+            OpenAi = new OpenAiProviderSettings
+            {
+                ApiKey = ConfiguredAiApiKey,
+                Model = ConfiguredAiModel
+            }
+        };
+
+        var cut = Render<EditorSourcePanelHost>();
+
+        cut.WaitForAssertion(() =>
+        {
+            Assert.False(cut.FindByTestId(UiTestIds.Editor.Ai).HasAttribute("disabled"));
+            Assert.False(cut.FindByTestId(UiTestIds.Editor.FloatingAi).HasAttribute("disabled"));
+        });
     }
 
     private static void AssertTooltipContract(IElement element, string expectedTooltip)

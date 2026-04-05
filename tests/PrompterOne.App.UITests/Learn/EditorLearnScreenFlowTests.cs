@@ -9,6 +9,7 @@ public sealed class EditorLearnScreenFlowTests(StandaloneAppFixture fixture) : A
     public Task EditorAndLearnScreens_ExposeExpectedInteractiveControls() =>
         RunPageAsync(async page =>
         {
+            await AiProviderTestSeeder.SeedConfiguredOpenAiAsync(page);
             await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
             await Expect(page.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
@@ -20,6 +21,7 @@ public sealed class EditorLearnScreenFlowTests(StandaloneAppFixture fixture) : A
             await page.GetByTestId(UiTestIds.Editor.ColorTrigger).ClickAsync();
             await Expect(page.GetByTestId(UiTestIds.Editor.MenuColor)).ToBeVisibleAsync();
             await page.GetByTestId(UiTestIds.Editor.Bold).ClickAsync();
+            await Expect(page.GetByTestId(UiTestIds.Editor.Ai)).ToBeEnabledAsync();
             await page.GetByTestId(UiTestIds.Editor.Ai).ClickAsync();
             await page.GetByTestId(UiTestIds.Editor.BlockNavigation(2, 1)).ClickAsync();
             await Expect(page.GetByTestId(UiTestIds.Editor.BlockNavigation(2, 1))).ToHaveClassAsync(BrowserTestConstants.Regexes.ActiveClass);

@@ -82,6 +82,7 @@ Rule format:
 - Public-facing screenshots that include camera or preview feeds must not ship mirrored or reversed readable text; choose or configure the capture so visible text reads correctly in the final asset.
 - Teleprompter reader text alignment must expose explicit left, center, and right modes, default to left alignment, and keep the left-aligned mode optically centered by offsetting the text mass away from a visibly left-heavy block.
 - The TPS editor migration to Monaco must be complete: syntax coloring, IntelliSense/autocomplete, hover or inline tooltip help, decorations, and TPS authoring feedback must be Monaco-native instead of split across legacy overlay or hidden-textarea behavior.
+- TPS authoring completeness must be checked against the upstream `managedcode/TPS` README, not only the currently shipped editor menus, so new editor support stays aligned with the full spec for emotions, delivery, pauses, speed, pronunciation, and related cues.
 - User-facing file transfer actions in the shell should use `Import` and `Export` wording instead of `Open Script` and `Save File`, because the app also has its own internal script/workspace structure.
 - File workflows must stay local-first inside PrompterOne: scripts need in-app autosave and an internal change-history path in the browser environment, not only external disk import/export actions.
 
@@ -132,9 +133,9 @@ Do not hijack shared user dev ports for agent-run preview servers. The user's st
 
 Selector and constant rules:
 
-- UI contracts MUST expose stable `data-testid` hooks for any flow covered by automated tests.
-- Browser and component tests MUST prefer `data-testid` selectors over text, role-name, CSS-class, or DOM-shape selectors.
-- If a stable `data-testid` exists, raw `GetByText`, `GetByRole(... Name = ...)`, `.Locator(".class")`, and `[data-testid='literal']` selectors are forbidden.
+- UI contracts MUST expose stable dedicated test hooks for any flow covered by automated tests. Prefer `data-test-id` for new contracts, allow `data-test`, and keep existing `data-testid` stable until a deliberate migration replaces it.
+- Browser and component tests MUST prefer dedicated test attributes over text, role-name, CSS-class, or DOM-shape selectors.
+- If a stable dedicated test hook exists, raw `GetByText`, `GetByRole(... Name = ...)`, `.Locator(".class")`, and literal attribute selectors are forbidden.
 - Routes, route patterns, test ids, DOM ids, storage keys, keyboard shortcuts, seeded values, wait durations, and other repeated test inputs MUST come from named constants.
 - URLs in tests MUST come from shared route helpers or constants, never inline literals.
 - Magic numbers in tests are forbidden. Put timeouts, delays, counts, percentages, and seeded numeric inputs behind named constants.
@@ -311,8 +312,8 @@ Repo-specific design rules:
 - Release-ready work is not done until the requested branch is pushed and the corresponding GitHub CI run finishes green; if the user asks to land in `main`, use `main` and wait for the full resulting `Release Pipeline` to finish green, including release creation and deploy steps, instead of stopping at local verification or the first green build job.
 - About content must stay factual and current: do not invent team members or contributor names; use Managed Code attribution and official company links only.
 - Do not introduce a server host for the app runtime.
-- Preserve stable `data-testid` selectors on core flows because the Playwright suite depends on them.
-- Keep UI routes in shared route constants and keep `data-testid` names in shared UI contract constants.
+- Preserve stable dedicated test selectors on core flows because the Playwright suite depends on them.
+- Keep UI routes in shared route constants and keep dedicated test-hook names in shared UI contract constants.
 - Keep UI flow logic, keyboard shortcuts, DOM ids/selectors, and reusable UI constants in C#/Blazor contracts whenever the platform allows it; use JS only for unavoidable browser API interop or DOM access that Blazor cannot own directly.
 - Prefer deleting JS files entirely when they only hold product UI behavior or duplicated constants; JS modules may exist only as thin bridges to browser APIs or external JS SDKs, with the owning workflow and state kept in C#/Blazor.
 - TPS front matter pasted or imported into the editor source MUST be parsed into the metadata rail automatically and removed from the visible body text instead of staying inline in the source editor.
@@ -336,6 +337,7 @@ Repo-specific design rules:
 - Teleprompter block transitions MUST stay visually consistent and direction-aware: moving forward keeps the straight reference motion with outgoing cards moving upward and incoming cards rising from below, while stepping backward must visibly reverse that path so the returning previous block comes in from above; alternating, diagonal, bouncing, or intermediate-card motion is forbidden.
 - Teleprompter focus treatment MUST stay visually calm: the active focus word may be emphasized, but surrounding text should be gently dimmed instead of creating a bright moving blot, fake box, or attention-grabbing patch that flies up and down.
 - Teleprompter emotion styling may tint the surface or accents, but reader text itself MUST stay easy to read and must not become harsh, over-bright, or saturated enough to hurt readability.
+- Teleprompter progress and control chrome MUST stay visually subdued during reading, especially on strong emotion-tinted surfaces; bright gold fills, shells, or buttons that pull attention away from the script are regressions.
 - Teleprompter back navigation MUST stay as visible and readable as the rest of the page controls; a dim or low-contrast back button on the reader screen is a regression.
 - Teleprompter MUST expose both horizontal and vertical mirror toggles on the reader screen so tablet or reflected-glass setups can flip the output without leaving the route or editing CSS manually.
 - Teleprompter MUST expose an in-reader orientation toggle, matching the phone control pattern, so operators can switch the text flow direction directly on the reader screen without leaving playback.
@@ -412,7 +414,7 @@ Ask first:
 
 ### Likes
 
-- exact fidelity with `design`
+- exact fidelity with the shipped Blazor UI and current runtime behavior, not a separate prototype tree
 - thin WASM host boundaries
 - browser-realistic UI verification
 - domain logic that stays reusable and serializable
@@ -426,11 +428,12 @@ Ask first:
 - OBS-coupled runtime architecture or UI; `PrompterOne` must be the streaming system itself, not an OBS companion or Browser Source wrapper
 - hardcoded fallback reader/test fixtures such as inline `Ready` chunks, fake word models, or synthetic UI state embedded directly in tests when the same behavior can be exercised through shared script fixtures, builders, or production-owned constants
 - agent-started local servers taking shared user ports or using ports outside the reserved `5050-5070` agent range
-- brittle selectors without `data-testid`
+- brittle selectors without dedicated test attributes
 - progress updates that imply a fix is done before there is concrete implementation and verification evidence; keep status factual and let the user verify final behavior personally
 - automated test or coverage runs for UI-behavior fixes before the user has manually checked the change locally; wait for the user's confirmation before resuming automation
 - mixed-language root README or public entry docs; keep them English-only unless the user explicitly asks otherwise
-- design drift from `design`
+- any reintroduction of a repo-local `design/` prototype folder as a parallel source of truth; the shipped Blazor UI must be the only product reference
+- fake `display_*` or other presentation-only script metrics that override real TPS-derived words, segments, speed, or duration in user-facing UI
 - made-up About/team content or stale attribution; About must point to real Managed Code ownership and official links
 - any visible typing latency in the editor; plain input must feel immediate with no observable delay
 - teleprompter controls that fade so much they become hard to see during real reading

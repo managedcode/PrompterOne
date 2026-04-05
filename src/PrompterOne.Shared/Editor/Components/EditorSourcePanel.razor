@@ -121,6 +121,8 @@
                                     data-tip="@action.Tooltip"
                                     data-testid="@action.TestId"
                                     aria-label="@action.Tooltip"
+                                    aria-expanded="@GetActionAriaExpanded(action)"
+                                    disabled="@GetActionDisabled(action)"
                                     @onmousedown:preventDefault="@action.PreventMouseDown"
                                     @onclick="() => ExecuteToolbarActionAsync(action)">
                                 <span class="tb-btn-content">@((MarkupString)action.ContentHtml)</span>
@@ -137,29 +139,38 @@
                         }
                     }
 
-                    @if (IsFloatingMenuOpen(EditorToolbarMenuIds.FloatingEmotion))
+                    @if (OpenFloatingMenu is { } floatingMenu)
                     {
                         <span class="efb-dropdown"
-                              data-testid="@UiTestIds.Editor.FloatingEmotionMenu">
-                            <span class="efb-dropdown-label">TPS Emotions</span>
-                            <span class="efb-menu-list">
-                                @foreach (var action in FloatingEmotionActions)
+                              data-testid="@floatingMenu.PanelTestId"
+                              style="@floatingMenu.Style">
+                            @for (var groupIndex = 0; groupIndex < floatingMenu.DropdownGroups.Count; groupIndex++)
+                            {
+                                var dropdownGroup = floatingMenu.DropdownGroups[groupIndex];
+                                @if (dropdownGroup.HasSeparatorBefore)
                                 {
-                                    <button class="@action.CssClass"
-                                            type="button"
-                                            data-tip="@action.Tooltip"
-                                            data-testid="@action.TestId"
-                                            aria-label="@action.Tooltip"
-                                            @onmousedown:preventDefault="@action.PreventMouseDown"
-                                            @onclick="() => ExecuteToolbarActionAsync(action)">
-                                        <span class="tb-btn-content">@((MarkupString)action.ContentHtml)</span>
-                                        <span class="@GetTooltipCssClass(EditorToolbarTooltipPlacement.FloatingMenu)"
-                                              role="tooltip"
-                                              data-testid="@UiTestIds.Editor.ToolbarTooltip"
-                                              data-tooltip-placement="@GetTooltipPlacementValue(EditorToolbarTooltipPlacement.FloatingMenu)">@action.Tooltip</span>
-                                    </button>
+                                    <div class="efb-drop-sep"></div>
                                 }
-                            </span>
+                                <span class="efb-dropdown-label">@dropdownGroup.Label</span>
+                                <span class="efb-menu-list">
+                                    @foreach (var action in dropdownGroup.Actions)
+                                    {
+                                        <button class="@action.CssClass"
+                                                type="button"
+                                                data-tip="@action.Tooltip"
+                                                data-testid="@action.TestId"
+                                                aria-label="@action.Tooltip"
+                                                @onmousedown:preventDefault="@action.PreventMouseDown"
+                                                @onclick="() => ExecuteToolbarActionAsync(action)">
+                                            <span class="tb-btn-content">@((MarkupString)action.ContentHtml)</span>
+                                            <span class="@GetTooltipCssClass(EditorToolbarTooltipPlacement.FloatingMenu)"
+                                                  role="tooltip"
+                                                  data-testid="@UiTestIds.Editor.ToolbarTooltip"
+                                                  data-tooltip-placement="@GetTooltipPlacementValue(EditorToolbarTooltipPlacement.FloatingMenu)">@action.Tooltip</span>
+                                        </button>
+                                    }
+                                </span>
+                            }
                         </span>
                     }
                 </span>

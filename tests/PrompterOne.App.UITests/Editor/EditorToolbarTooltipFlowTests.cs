@@ -5,6 +5,7 @@ using static Microsoft.Playwright.Assertions;
 
 namespace PrompterOne.App.UITests;
 
+[Collection(EditorAuthoringCollection.Name)]
 public sealed class EditorToolbarTooltipFlowTests(StandaloneAppFixture fixture) : AppUiTestBase(fixture), IClassFixture<StandaloneAppFixture>
 {
     private const string EmotionTooltipText =

@@ -3,6 +3,7 @@ using static Microsoft.Playwright.Assertions;
 
 namespace PrompterOne.App.UITests;
 
+[Collection(EditorAuthoringCollection.Name)]
 public sealed class EditorMonacoAssistanceRegressionTests(StandaloneAppFixture fixture) : IClassFixture<StandaloneAppFixture>
 {
     private const int TitleLineNumber = 1;
@@ -16,7 +17,7 @@ public sealed class EditorMonacoAssistanceRegressionTests(StandaloneAppFixture f
     private const string InlineGuideLine = "[edit_point:high] [pause:1500ms] [pronunciation:KAM-uhl]teleprompter[/pronunciation]";
     private const string SimpleSegmentLine = "## Segment Title";
     private const string SimpleBlockLine = "### Block Title";
-    private const string TokenizationLine = @"Escaped slash \/ should stay literal [180WPM] [normal]steady[/normal]";
+    private const string TokenizationLine = @"Escaped slash \/ pipe \| star \* slash \\ should stay literal [180WPM] [normal]steady[/normal] *calm* **loud**";
     private const string MetadataDocument = """
         # System Design and Software Architecture for Vibe Coders
         ## [Episode 2 - How Systems Talk to Each Other|140WPM|Professional|Speaker:Alex|0:00-0:30]
@@ -26,11 +27,15 @@ public sealed class EditorMonacoAssistanceRegressionTests(StandaloneAppFixture f
     private const string SimpleHeaderDocument = """
         ## Segment Title
         ### Block Title
-        Escaped slash \/ should stay literal [180WPM] [normal]steady[/normal]
+        Escaped slash \/ pipe \| star \* slash \\ should stay literal [180WPM] [normal]steady[/normal] *calm* **loud**
         """;
     private const string PronunciationCompletionLabel = "[pronunciation:guide]text[/pronunciation]";
     private const string SegmentCompletionLabel = "## [Segment Name|Speaker:Host|140WPM|neutral|0:00-0:30]";
     private const string TimedPauseCompletionLabel = "[pause:2s]";
+    private const string MarkdownBoldCompletionLabel = "**text**";
+    private const string MarkdownItalicCompletionLabel = "*text*";
+    private const string MillisecondPauseCompletionLabel = "[pause:1000ms]";
+    private const string MediumEditPointCompletionLabel = "[edit_point:medium]";
 
     [Fact]
     public async Task EditorScreen_CompletionsExposeDetailedPayloadsForStructuredTpsSuggestions()
@@ -44,6 +49,10 @@ public sealed class EditorMonacoAssistanceRegressionTests(StandaloneAppFixture f
 
             var pronunciationCompletion = FindCompletion(completions, PronunciationCompletionLabel);
             var segmentCompletion = FindCompletion(completions, SegmentCompletionLabel);
+            var markdownBoldCompletion = FindCompletion(completions, MarkdownBoldCompletionLabel);
+            var markdownItalicCompletion = FindCompletion(completions, MarkdownItalicCompletionLabel);
+            var millisecondPauseCompletion = FindCompletion(completions, MillisecondPauseCompletionLabel);
+            var mediumEditPointCompletion = FindCompletion(completions, MediumEditPointCompletionLabel);
 
             Assert.Equal("Simple pronunciation guide", pronunciationCompletion.Detail);
             Assert.Contains("readable pronunciation guide", pronunciationCompletion.Documentation, StringComparison.OrdinalIgnoreCase);
@@ -51,6 +60,14 @@ public sealed class EditorMonacoAssistanceRegressionTests(StandaloneAppFixture f
             Assert.Equal("Segment header", segmentCompletion.Detail);
             Assert.Contains("structured TPS segment header", segmentCompletion.Documentation, StringComparison.OrdinalIgnoreCase);
             Assert.Equal("## [${1:Segment Name}|Speaker:${2:Host}|${3:140}WPM|${4:neutral}|${5:0:00-0:30}]", segmentCompletion.InsertText);
+            Assert.Equal("Markdown bold", markdownBoldCompletion.Detail);
+            Assert.Equal("**${1:text}**", markdownBoldCompletion.InsertText);
+            Assert.Equal("Markdown italic", markdownItalicCompletion.Detail);
+            Assert.Equal("*${1:text}*", markdownItalicCompletion.InsertText);
+            Assert.Equal("Timed pause (ms)", millisecondPauseCompletion.Detail);
+            Assert.Contains("milliseconds", millisecondPauseCompletion.Documentation, StringComparison.OrdinalIgnoreCase);
+            Assert.Equal("Priority edit point", mediumEditPointCompletion.Detail);
+            Assert.Contains("medium priority", mediumEditPointCompletion.Documentation, StringComparison.OrdinalIgnoreCase);
         }
         finally
         {
@@ -161,7 +178,30 @@ public sealed class EditorMonacoAssistanceRegressionTests(StandaloneAppFixture f
             Assert.Contains(edgeCaseTokens.Tokens, token => token.Type.Contains("wpm.badge", StringComparison.Ordinal));
             Assert.Contains(edgeCaseTokens.Tokens, token => token.Type.Contains("cue.open", StringComparison.Ordinal));
             Assert.Contains(edgeCaseTokens.Tokens, token => token.Type.Contains("cue.close", StringComparison.Ordinal));
+            Assert.Contains(edgeCaseTokens.Tokens, token => token.Type.Contains("markdown.italic", StringComparison.Ordinal));
+            Assert.Contains(edgeCaseTokens.Tokens, token => token.Type.Contains("markdown.bold", StringComparison.Ordinal));
             Assert.DoesNotContain(edgeCaseTokens.Tokens, token => token.Type.Contains("pause.short", StringComparison.Ordinal));
+        }
+        finally
+        {
+            await page.Context.CloseAsync();
+        }
+    }
+
+    [Fact]
+    public async Task EditorScreen_HoverExplainsMarkdownItalicSyntax()
+    {
+        var page = await OpenEditorAsync();
+
+        try
+        {
+            await EditorMonacoDriver.SetTextAsync(page, SimpleHeaderDocument);
+
+            var italicHover = await EditorMonacoDriver.GetHoverAsync(page, 3, FindColumn(TokenizationLine, "*calm*"));
+
+            Assert.NotNull(italicHover);
+            Assert.Contains(italicHover!.Contents, content => content.Contains("Markdown italic", StringComparison.Ordinal));
+            Assert.Contains(italicHover.Contents, content => content.Contains("*text*", StringComparison.Ordinal));
         }
         finally
         {

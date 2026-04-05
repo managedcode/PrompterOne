@@ -5,8 +5,10 @@ using static Microsoft.Playwright.Assertions;
 
 namespace PrompterOne.App.UITests;
 
+[Collection(EditorAuthoringCollection.Name)]
 public sealed class EditorToolbarCoverageTests(StandaloneAppFixture fixture) : IClassFixture<StandaloneAppFixture>
 {
+    private const int OpenEditorAttemptCount = 2;
     private readonly StandaloneAppFixture _fixture = fixture;
 
     [Fact]
@@ -20,6 +22,17 @@ public sealed class EditorToolbarCoverageTests(StandaloneAppFixture fixture) : I
             foreach (var scenario in EditorToolbarCoverageScenarios.MenuScenarios)
             {
                 await OpenEditorAsync(page);
+                await page.GetByTestId(scenario.TriggerTestId).ClickAsync();
+                await Expect(page.GetByTestId(scenario.PanelTestId))
+                    .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.FastVisibleTimeoutMs });
+            }
+
+            foreach (var scenario in EditorToolbarCoverageScenarios.FloatingMenuScenarios)
+            {
+                await OpenEditorAsync(page);
+                await SetSourceTextAndSelectPhraseAsync(page, BrowserTestSource.AlphaSource, BrowserTestSource.AlphaToken);
+                await Expect(page.GetByTestId(UiTestIds.Editor.FloatingBar))
+                    .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.FastVisibleTimeoutMs });
                 await page.GetByTestId(scenario.TriggerTestId).ClickAsync();
                 await Expect(page.GetByTestId(scenario.PanelTestId))
                     .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.FastVisibleTimeoutMs });
@@ -98,10 +111,14 @@ public sealed class EditorToolbarCoverageTests(StandaloneAppFixture fixture) : I
             foreach (var scenario in EditorToolbarCoverageScenarios.FloatingCommandScenarios)
             {
                 await OpenEditorAsync(page);
-                await SetSourceTextAndSelectAlphaAsync(page, BrowserTestSource.AlphaSource);
+                await PrepareScenarioAsync(page, scenario);
                 await Expect(page.GetByTestId(UiTestIds.Editor.FloatingBar))
                     .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.FastVisibleTimeoutMs });
                 await page.WaitForTimeoutAsync(BrowserTestConstants.Timing.FloatingToolbarSettleDelayMs);
+                if (!string.IsNullOrWhiteSpace(scenario.MenuTriggerTestId))
+                {
+                    await page.GetByTestId(scenario.MenuTriggerTestId).ClickAsync();
+                }
 
                 var beforeValue = await EditorMonacoDriver.SourceInput(page).InputValueAsync();
                 await page.GetByTestId(scenario.TestId).ClickAsync();
@@ -146,10 +163,27 @@ public sealed class EditorToolbarCoverageTests(StandaloneAppFixture fixture) : I
 
     private static async Task OpenEditorAsync(IPage page)
     {
-        await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
-        await Expect(page.GetByTestId(UiTestIds.Editor.Page))
-            .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
-        await EditorMonacoDriver.WaitUntilReadyAsync(page);
+        Exception? lastFailure = null;
+
+        for (var attempt = 0; attempt < OpenEditorAttemptCount; attempt++)
+        {
+            try
+            {
+                await page.GotoAsync(
+                    BrowserTestConstants.Routes.EditorDemo,
+                    new() { WaitUntil = WaitUntilState.NetworkIdle });
+                await Expect(page.GetByTestId(UiTestIds.Editor.Page))
+                    .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
+                await EditorMonacoDriver.WaitUntilReadyAsync(page);
+                return;
+            }
+            catch (Exception exception) when (attempt < OpenEditorAttemptCount - 1)
+            {
+                lastFailure = exception;
+            }
+        }
+
+        throw lastFailure ?? new InvalidOperationException("The editor page did not become ready.");
     }
 
     private static Task PrepareScenarioAsync(IPage page, EditorCommandScenario scenario) =>

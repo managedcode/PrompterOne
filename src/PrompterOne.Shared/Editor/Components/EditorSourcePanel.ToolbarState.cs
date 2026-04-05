@@ -11,9 +11,11 @@ public partial class EditorSourcePanel
 
     private static IReadOnlyList<EditorToolbarSectionDescriptor> ToolbarSections => EditorToolbarCatalog.Sections;
 
-    private static IReadOnlyList<EditorToolbarActionDescriptor> FloatingEmotionActions => EditorToolbarCatalog.FloatingEmotionActions;
+    private static IReadOnlyList<EditorFloatingMenuDescriptor> FloatingMenus => EditorToolbarCatalog.FloatingMenus;
 
     private static IReadOnlyList<IReadOnlyList<EditorToolbarActionDescriptor>> FloatingActionGroups => EditorToolbarCatalog.FloatingActionGroups;
+
+    private EditorFloatingMenuDescriptor? OpenFloatingMenu => EditorFloatingToolbarCatalog.FindMenu(_openFloatingMenuId);
 
     private Task ExecuteAiActionAsync(EditorAiAssistAction action)
     {
@@ -24,6 +26,11 @@ public partial class EditorSourcePanel
 
     private async Task ExecuteToolbarActionAsync(EditorToolbarActionDescriptor action)
     {
+        if (GetActionDisabled(action))
+        {
+            return;
+        }
+
         if (action.ActionType != EditorToolbarActionType.ToggleMenu)
         {
             await RefreshSelectionAsync(dismissMenus: false, requestComponentRender: false);
@@ -89,7 +96,9 @@ public partial class EditorSourcePanel
 
     private string? GetActionAriaExpanded(EditorToolbarActionDescriptor action) =>
         action.ActionType == EditorToolbarActionType.ToggleMenu && !string.IsNullOrWhiteSpace(action.MenuId)
-            ? IsMenuOpen(action.MenuId) ? "true" : "false"
+            ? IsFloatingMenu(action.MenuId)
+                ? IsFloatingMenuOpen(action.MenuId) ? "true" : "false"
+                : IsMenuOpen(action.MenuId) ? "true" : "false"
             : null;
 
     private static string GetDropdownListCss(EditorToolbarSectionDescriptor section) =>
@@ -102,11 +111,15 @@ public partial class EditorSourcePanel
     private bool ShouldRenderFloatingBar => _floatingBarAnchor.HasSelection && !HasOpenToolbarMenu;
 
     private bool GetActionDisabled(EditorToolbarActionDescriptor action) =>
-        action.HistoryCommand switch
+        action.ActionType switch
         {
-            EditorHistoryCommand.Undo => !_visibleCanUndo,
-            EditorHistoryCommand.Redo => !_visibleCanRedo,
-            _ => false
+            EditorToolbarActionType.Ai => !_hasConfiguredAiProvider,
+            _ => action.HistoryCommand switch
+            {
+                EditorHistoryCommand.Undo => !_visibleCanUndo,
+                EditorHistoryCommand.Redo => !_visibleCanRedo,
+                _ => false
+            }
         };
 
     private bool IsMenuOpen(string menuId) =>
@@ -115,10 +128,14 @@ public partial class EditorSourcePanel
     private bool IsFloatingMenuOpen(string menuId) =>
         string.Equals(_openFloatingMenuId, menuId, StringComparison.Ordinal);
 
+    private static bool IsFloatingMenu(string menuId) =>
+        FloatingMenus.Any(menu => string.Equals(menu.MenuId, menuId, StringComparison.Ordinal));
+
     private void ToggleMenu(string menuId)
     {
-        if (string.Equals(menuId, EditorToolbarMenuIds.FloatingEmotion, StringComparison.Ordinal))
+        if (IsFloatingMenu(menuId))
         {
+            _openMenuId = null;
             _openFloatingMenuId = IsFloatingMenuOpen(menuId) ? null : menuId;
             return;
         }

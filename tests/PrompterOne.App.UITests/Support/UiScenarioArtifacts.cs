@@ -31,6 +31,19 @@ internal static class UiScenarioArtifacts
         });
     }
 
+    public static async Task CaptureLocatorAsync(ILocator locator, string scenarioName, string stepName)
+    {
+        var path = BuildArtifactPath(scenarioName, stepName);
+        var directory = Path.GetDirectoryName(path) ?? throw new InvalidOperationException("Artifact directory path is unavailable.");
+        Directory.CreateDirectory(directory);
+
+        await locator.ScreenshotAsync(new LocatorScreenshotOptions
+        {
+            Path = path,
+            Animations = ScreenshotAnimations.Disabled
+        });
+    }
+
     private static string BuildArtifactPath(string scenarioName, string stepName) =>
         Path.Combine(
             GetScenarioDirectory(scenarioName),

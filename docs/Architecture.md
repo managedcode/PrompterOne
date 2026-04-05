@@ -74,7 +74,7 @@ flowchart LR
 - `design/` is the visual source of truth for layout, hierarchy, spacing, controls, color direction, and interaction tone.
 - UI work should port markup, structure, and class intent from `design/` instead of inventing a parallel design language.
 - Routed screens should keep strong visual identities while still using the shared shell and contracts from `AppShell`.
-- Stable `data-testid` hooks are part of the UI contract, not optional test-only extras.
+- Stable dedicated test hooks are part of the UI contract, not optional test-only extras.
 - Browser-first behavior matters more than server assumptions. Media, storage, and stream state stay client-side.
 
 ### Code Structure Principles

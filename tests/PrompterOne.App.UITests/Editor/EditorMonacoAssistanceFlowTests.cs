@@ -3,6 +3,7 @@ using static Microsoft.Playwright.Assertions;
 
 namespace PrompterOne.App.UITests;
 
+[Collection(EditorAuthoringCollection.Name)]
 public sealed class EditorMonacoAssistanceFlowTests(StandaloneAppFixture fixture) : IClassFixture<StandaloneAppFixture>
 {
     private const int TitleLineNumber = 1;
@@ -15,20 +16,24 @@ public sealed class EditorMonacoAssistanceFlowTests(StandaloneAppFixture fixture
     private const string TitleLine = "# System Design and Software Architecture for Vibe Coders";
     private const string SegmentLine = "## [Episode 2 - How Systems Talk to Each Other|140WPM|Professional|Speaker:Alex]";
     private const string BlockLine = "### Connection Patterns";
-    private const string InlineLine = "[breath] [edit_point:high] [phonetic:ˈkæməl]camel[/phonetic] [pronunciation:KAM-uhl]teleprompter[/pronunciation] [stress:de-VE-lop-ment]development[/stress] / // [pause:2s]";
+    private const string InlineLine = "[breath] [edit_point:medium] *carefully* **really** [phonetic:ˈkæməl]camel[/phonetic] [pronunciation:KAM-uhl]teleprompter[/pronunciation] [stress:de-VE-lop-ment]development[/stress] / // [pause:1000ms] [pause:2s]";
     private const string AssistanceDocument = """
         # System Design and Software Architecture for Vibe Coders
         ## [Episode 2 - How Systems Talk to Each Other|140WPM|Professional|Speaker:Alex]
         ### Connection Patterns
-        [breath] [edit_point:high] [phonetic:ˈkæməl]camel[/phonetic] [pronunciation:KAM-uhl]teleprompter[/pronunciation] [stress:de-VE-lop-ment]development[/stress] / // [pause:2s]
+        [breath] [edit_point:medium] *carefully* **really** [phonetic:ˈkæməl]camel[/phonetic] [pronunciation:KAM-uhl]teleprompter[/pronunciation] [stress:de-VE-lop-ment]development[/stress] / // [pause:1000ms] [pause:2s]
         """;
     private static readonly string[] ExpectedCompletionLabels =
     [
         "# Title",
         "## [Segment Name|Speaker:Host|140WPM|neutral|0:00-0:30]",
         "### [Block Name|Speaker:Host|140WPM|focused]",
+        "*text*",
+        "**text**",
         "[breath]",
         "[edit_point:high]",
+        "[edit_point:medium]",
+        "[pause:1000ms]",
         "[phonetic:guide]text[/phonetic]",
         "[pronunciation:guide]text[/pronunciation]",
         "[stress:guide]text[/stress]",
@@ -67,6 +72,8 @@ public sealed class EditorMonacoAssistanceFlowTests(StandaloneAppFixture fixture
             Assert.Contains(blockTokens.Tokens, token => token.Type.Contains("header.block.body", StringComparison.Ordinal));
             Assert.Contains(inlineTokens.Tokens, token => token.Type.Contains("cue.breath", StringComparison.Ordinal));
             Assert.Contains(inlineTokens.Tokens, token => token.Type.Contains("cue.editpoint", StringComparison.Ordinal));
+            Assert.Contains(inlineTokens.Tokens, token => token.Type.Contains("markdown.italic", StringComparison.Ordinal));
+            Assert.Contains(inlineTokens.Tokens, token => token.Type.Contains("markdown.bold", StringComparison.Ordinal));
             Assert.Contains(inlineTokens.Tokens, token => token.Type.Contains("cue.pronunciation", StringComparison.Ordinal));
             Assert.Contains(inlineTokens.Tokens, token => token.Type.Contains("pause.short", StringComparison.Ordinal));
             Assert.Contains(inlineTokens.Tokens, token => token.Type.Contains("pause.long", StringComparison.Ordinal));
@@ -122,11 +129,13 @@ public sealed class EditorMonacoAssistanceFlowTests(StandaloneAppFixture fixture
             var speakerHover = await EditorMonacoDriver.GetHoverAsync(page, SegmentLineNumber, FindColumn(SegmentLine, "Speaker:Alex"));
             var pauseHover = await EditorMonacoDriver.GetHoverAsync(page, InlineLineNumber, FindColumn(InlineLine, "//"));
             var guideHover = await EditorMonacoDriver.GetHoverAsync(page, InlineLineNumber, FindColumn(InlineLine, "development"));
+            var markdownHover = await EditorMonacoDriver.GetHoverAsync(page, InlineLineNumber, FindColumn(InlineLine, "**really**"));
 
             Assert.NotNull(breathHover);
             Assert.NotNull(speakerHover);
             Assert.NotNull(pauseHover);
             Assert.NotNull(guideHover);
+            Assert.NotNull(markdownHover);
             Assert.Contains(breathHover!.Contents, content => content.Contains("Breath mark", StringComparison.Ordinal) &&
                 content.Contains("natural breath point", StringComparison.OrdinalIgnoreCase));
             Assert.Contains(speakerHover!.Contents, content => content.Contains("Talent assignment", StringComparison.OrdinalIgnoreCase));
@@ -134,6 +143,8 @@ public sealed class EditorMonacoAssistanceFlowTests(StandaloneAppFixture fixture
                 content.Contains("600ms", StringComparison.Ordinal));
             Assert.Contains(guideHover!.Contents, content => content.Contains("Syllable guide", StringComparison.Ordinal) &&
                 content.Contains("de-VE-lop-ment", StringComparison.Ordinal));
+            Assert.Contains(markdownHover!.Contents, content => content.Contains("Markdown bold", StringComparison.Ordinal) &&
+                content.Contains("**text**", StringComparison.Ordinal));
         }
         finally
         {

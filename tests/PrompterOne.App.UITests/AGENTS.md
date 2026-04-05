@@ -34,7 +34,7 @@
 - This suite resolves its origin at runtime and uses one `dotnet test` process with up to `2` parallel xUnit workers.
 - Do not keep separate concurrent `dotnet build` or `dotnet test` processes alive against the same test assets.
 - Prefer `PrompterOne.Shared.Contracts.AppRoutes`, `UiTestIds`, and other named constants over inline route or selector strings.
-- Use `data-testid` first. Raw text, role-name, and CSS selectors are allowed only when no stable `data-testid` contract exists yet and the missing contract is fixed in the same task.
+- Use dedicated test attributes first. Prefer `data-test-id`, allow `data-test`, and keep existing `data-testid` contracts until a deliberate migration replaces them. Raw text, role-name, and CSS selectors are allowed only when no stable dedicated test hook exists yet and the missing contract is fixed in the same task.
 - Magic numbers in waits, delays, seeded values, and timeouts must be named constants.
 
 ## Project-Local Commands
@@ -48,7 +48,7 @@
 
 ## Local Risks Or Protected Areas
 
-- Keep selectors stable via `data-testid` whenever possible.
+- Keep selectors stable via dedicated test attributes whenever possible.
 - Production media permissions still depend on the stable launch-settings origin, but this synthetic browser harness must use the fixture-resolved dynamic loopback origin. Do not hardcode ports or require manual startup steps.
 - Flaky browser tests are failures; fix the cause instead of weakening the assertion.
 - Do not duplicate route strings, test ids, or storage keys across tests; centralize them.

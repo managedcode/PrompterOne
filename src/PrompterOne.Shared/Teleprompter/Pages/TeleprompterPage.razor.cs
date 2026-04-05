@@ -26,24 +26,12 @@ public partial class TeleprompterPage : IAsyncDisposable
     private const int ReaderFontStep = 4;
     private const int ReaderForwardStep = 1;
     private const int ReaderGuideActiveDurationMilliseconds = 800;
-    private const string ReaderFullscreenTitle = "Toggle fullscreen";
-    private const string ReaderMirrorHorizontalLabel = "H";
-    private const string ReaderMirrorHorizontalTitle = "Mirror horizontally";
-    private const string ReaderTextAlignCenterLabel = "C";
-    private const string ReaderTextAlignCenterTitle = "Align text to center";
-    private const string ReaderTextAlignLeftLabel = "L";
-    private const string ReaderTextAlignLeftTitle = "Align text to left";
-    private const string ReaderTextAlignRightLabel = "R";
-    private const string ReaderTextAlignRightTitle = "Align text to right";
     private const int ReaderMaxFontSize = 56;
     private const int ReaderMaxTextWidth = 1100;
     private const int ReaderMaxFocalPointPercent = 55;
     private const int ReaderMinFontSize = 24;
     private const int ReaderMinTextWidth = 400;
     private const int ReaderMinFocalPointPercent = 15;
-    private const string ReaderOrientationTitle = "Rotate text";
-    private const string ReaderMirrorVerticalLabel = "V";
-    private const string ReaderMirrorVerticalTitle = "Mirror vertically";
     private const int DefaultReaderTextWidth = ReaderMaxTextWidth;
 
     [Inject] private AppBootstrapper Bootstrapper { get; set; } = null!;

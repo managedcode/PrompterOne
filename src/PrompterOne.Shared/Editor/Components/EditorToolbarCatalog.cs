@@ -47,7 +47,11 @@ public static class EditorToolbarMenuIds
     public const string Format = "format";
     public const string Color = "color";
     public const string Emotion = "emotion";
+    public const string FloatingVoice = "floating-voice";
     public const string FloatingEmotion = "floating-emotion";
+    public const string FloatingPause = "floating-pause";
+    public const string FloatingSpeed = "floating-speed";
+    public const string FloatingInsert = "floating-insert";
     public const string Pause = "pause";
     public const string Speed = "speed";
     public const string Insert = "insert";
@@ -64,7 +68,6 @@ public static class EditorToolbarCatalog
     private const string EditPointIconRed = """<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF6060" stroke-width="2" style="flex-shrink:0"><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg>""";
     private const string EditPointIconOrange = """<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFB86A" stroke-width="2" style="flex-shrink:0"><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg>""";
     private const string PhoneticIcon = """<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D88AFF" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" /><path d="M19 10v2a7 7 0 0 1-14 0v-2" /></svg>""";
-    private const string HighlightIcon = """<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#FFE066" stroke-width="2"><rect x="3" y="14" width="18" height="6" rx="2"></rect><path d="M8 14V8a4 4 0 0 1 8 0v6"></path></svg>""";
     private const string UndoIcon = """<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1,4 1,10 7,10" /><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" /></svg>""";
     private const string RedoIcon = """<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23,4 23,10 17,10" /><path d="M20.49 15a9 9 0 1 1-2.13-9.36L23 10" /></svg>""";
 
@@ -251,48 +254,11 @@ public static class EditorToolbarCatalog
             [])
     ];
 
-    public static IReadOnlyList<IReadOnlyList<EditorToolbarActionDescriptor>> FloatingActionGroups { get; } =
-    [
-        [
-            FloatingWrap("float-bold", "<b>B</b>", "Bold", "editor-float-bold", "**", "**"),
-            FloatingWrap("float-italic", "<i>I</i>", "Italic", "editor-float-italic", "*", "*"),
-            FloatingWrap("float-emphasis", "Em", "Emphasis [emphasis]", "editor-float-emphasis", "[emphasis]", "[/emphasis]"),
-            FloatingWrap("float-highlight", HighlightIcon, "Highlight [highlight]", "editor-float-highlight", "[highlight]", "[/highlight]")
-        ],
-        [
-            FloatingWrap("float-voice", "<span class=\"cdot\" style=\"background:#FFD060\"></span>", "Loud [loud]", "editor-float-color", "[loud]", "[/loud]"),
-            FloatingToggle(EditorToolbarMenuIds.FloatingEmotion, "<span class=\"cdot\" style=\"background:#FFB840\"></span>" + ChevronDownIcon, "Emotion", UiTestIds.Editor.FloatingEmotion)
-        ],
-        [
-            FloatingWrap("float-slow", ".8×", "Slow [slow]", "editor-floating-slow", "[slow]", "[/slow]"),
-            FloatingWrap("float-fast", "1.25×", "Fast [fast]", "editor-float-fast", "[fast]", "[/fast]"),
-            FloatingInsert("float-pause", PauseFloatIcon, "Breath [breath]", "editor-float-pause", "[breath]")
-        ],
-        [
-            FloatingAi(
-                "float-ai",
-                $"{SparkIcon}AI",
-                "AI — rewrite, expand, simplify",
-                UiTestIds.Editor.FloatingAi,
-                EditorAiAssistAction.Simplify)
-        ]
-    ];
+    public static IReadOnlyList<IReadOnlyList<EditorToolbarActionDescriptor>> FloatingActionGroups =>
+        EditorFloatingToolbarCatalog.ActionGroups;
 
-    public static IReadOnlyList<EditorToolbarActionDescriptor> FloatingEmotionActions { get; } =
-    [
-        FloatingWrap("float-emotion-warm", "<span class=\"cdot\" style=\"background:#FFB840\"></span> Warm <small>😊</small>", "Friendly, welcoming tone. Inline: [warm]text[/warm]", "editor-float-emotion-warm", "[warm]", "[/warm]", cssClass: "efb-menu-item"),
-        FloatingWrap("float-emotion-concerned", "<span class=\"cdot\" style=\"background:#FF7A7A\"></span> Concerned <small>😟</small>", "Worried, empathetic. Inline: [concerned]text[/concerned]", "editor-float-emotion-concerned", "[concerned]", "[/concerned]", cssClass: "efb-menu-item"),
-        FloatingWrap("float-emotion-focused", "<span class=\"cdot\" style=\"background:#4AE0A0\"></span> Focused <small>🎯</small>", "Concentrated, precise. Inline: [focused]text[/focused]", "editor-float-emotion-focused", "[focused]", "[/focused]", cssClass: "efb-menu-item"),
-        FloatingWrap("float-emotion-motivational", "<span class=\"cdot\" style=\"background:#C88AFF\"></span> Motivational <small>💪</small>", "Inspiring, encouraging. Inline: [motivational]text[/motivational]", UiTestIds.Editor.FloatingEmotionMotivational, "[motivational]", "[/motivational]", cssClass: "efb-menu-item"),
-        FloatingWrap("float-emotion-neutral", "<span class=\"cdot\" style=\"background:#8ECFFF\"></span> Neutral <small>😐</small>", "Default balanced tone. Inline: [neutral]text[/neutral]", "editor-float-emotion-neutral", "[neutral]", "[/neutral]", cssClass: "efb-menu-item"),
-        FloatingWrap("float-emotion-urgent", "<span class=\"cdot\" style=\"background:#FF6060\"></span> Urgent <small>🚨</small>", "Critical, immediate attention. Inline: [urgent]text[/urgent]", "editor-float-emotion-urgent", "[urgent]", "[/urgent]", cssClass: "efb-menu-item"),
-        FloatingWrap("float-emotion-happy", "<span class=\"cdot\" style=\"background:#FFE87A\"></span> Happy <small>😄</small>", "Joyful, positive. Inline: [happy]text[/happy]", "editor-float-emotion-happy", "[happy]", "[/happy]", cssClass: "efb-menu-item"),
-        FloatingWrap("float-emotion-excited", "<span class=\"cdot\" style=\"background:#FF8AC8\"></span> Excited <small>🚀</small>", "Enthusiastic, energetic. Inline: [excited]text[/excited]", "editor-float-emotion-excited", "[excited]", "[/excited]", cssClass: "efb-menu-item"),
-        FloatingWrap("float-emotion-sad", "<span class=\"cdot\" style=\"background:#A0A8FF\"></span> Sad <small>😢</small>", "Melancholy, somber. Inline: [sad]text[/sad]", "editor-float-emotion-sad", "[sad]", "[/sad]", cssClass: "efb-menu-item"),
-        FloatingWrap("float-emotion-calm", "<span class=\"cdot\" style=\"background:#5EECC2\"></span> Calm <small>😌</small>", "Peaceful, relaxed. Inline: [calm]text[/calm]", "editor-float-emotion-calm", "[calm]", "[/calm]", cssClass: "efb-menu-item"),
-        FloatingWrap("float-emotion-energetic", "<span class=\"cdot\" style=\"background:#FFA050\"></span> Energetic <small>⚡</small>", "High energy, dynamic. Inline: [energetic]text[/energetic]", "editor-float-emotion-energetic", "[energetic]", "[/energetic]", cssClass: "efb-menu-item"),
-        FloatingWrap("float-emotion-professional", "<span class=\"cdot\" style=\"background:#80B8FF\"></span> Professional <small>💼</small>", "Business-like, formal. Inline: [professional]text[/professional]", UiTestIds.Editor.FloatingEmotionProfessional, "[professional]", "[/professional]", cssClass: "efb-menu-item")
-    ];
+    public static IReadOnlyList<EditorFloatingMenuDescriptor> FloatingMenus =>
+        EditorFloatingToolbarCatalog.Menus;
 
     private static EditorToolbarActionDescriptor Ai(
         string key,
@@ -313,65 +279,6 @@ public static class EditorToolbarCatalog
             testId,
             "background:transparent;border:1px dashed var(--gold-20)",
             Command: new EditorCommandRequest(EditorCommandKind.ClearColor, string.Empty),
-            PreventMouseDown: true);
-
-    private static EditorToolbarActionDescriptor FloatingAi(
-        string key,
-        string contentHtml,
-        string tooltip,
-        string testId,
-        EditorAiAssistAction aiAction) =>
-        new(
-            key,
-            EditorToolbarActionType.Ai,
-            "efb-btn efb-ai",
-            contentHtml,
-            tooltip,
-            testId,
-            AiAction: aiAction,
-            PreventMouseDown: true);
-
-    private static EditorToolbarActionDescriptor FloatingInsert(string key, string contentHtml, string tooltip, string testId, string token) =>
-        new(
-            key,
-            EditorToolbarActionType.Command,
-            "efb-btn",
-            contentHtml,
-            tooltip,
-            testId,
-            Command: new EditorCommandRequest(EditorCommandKind.Insert, token),
-            PreventMouseDown: true);
-
-    private static EditorToolbarActionDescriptor FloatingToggle(string menuId, string contentHtml, string tooltip, string testId) =>
-        new(
-            menuId,
-            EditorToolbarActionType.ToggleMenu,
-            "efb-btn",
-            contentHtml,
-            tooltip,
-            testId,
-            MenuId: menuId,
-            PreventMouseDown: true);
-
-    private static EditorToolbarActionDescriptor FloatingWrap(string key, string contentHtml, string tooltip, string testId, string openingToken, string closingToken) =>
-        FloatingWrap(key, contentHtml, tooltip, testId, openingToken, closingToken, "efb-btn");
-
-    private static EditorToolbarActionDescriptor FloatingWrap(
-        string key,
-        string contentHtml,
-        string tooltip,
-        string testId,
-        string openingToken,
-        string closingToken,
-        string cssClass) =>
-        new(
-            key,
-            EditorToolbarActionType.Command,
-            cssClass,
-            contentHtml,
-            tooltip,
-            testId,
-            Command: new EditorCommandRequest(EditorCommandKind.Wrap, openingToken, closingToken, "text"),
             PreventMouseDown: true);
 
     private static EditorToolbarActionDescriptor History(string key, string contentHtml, string tooltip, string testId, EditorHistoryCommand command) =>

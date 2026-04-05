@@ -62,31 +62,31 @@ public partial class SettingsAiSection : ComponentBase
     }
 
     private static string BuildCardCssClass(AnthropicAiProviderSettings settings) =>
-        IsConfigured(settings) ? ActiveCssClass : string.Empty;
+        settings.IsConfigured() ? ActiveCssClass : string.Empty;
 
     private static string BuildCardCssClass(OpenAiProviderSettings settings) =>
-        IsConfigured(settings) ? ActiveCssClass : string.Empty;
+        settings.IsConfigured() ? ActiveCssClass : string.Empty;
 
     private static string BuildCardCssClass(OllamaAiProviderSettings settings) =>
-        IsConfigured(settings) ? ActiveCssClass : string.Empty;
+        settings.IsConfigured() ? ActiveCssClass : string.Empty;
 
     private static string BuildStatusClass(AnthropicAiProviderSettings settings) =>
-        IsConfigured(settings) ? LocalStatusClass : DisconnectedStatusClass;
+        settings.IsConfigured() ? LocalStatusClass : DisconnectedStatusClass;
 
     private static string BuildStatusClass(OpenAiProviderSettings settings) =>
-        IsConfigured(settings) ? LocalStatusClass : DisconnectedStatusClass;
+        settings.IsConfigured() ? LocalStatusClass : DisconnectedStatusClass;
 
     private static string BuildStatusClass(OllamaAiProviderSettings settings) =>
-        IsConfigured(settings) ? LocalStatusClass : DisconnectedStatusClass;
+        settings.IsConfigured() ? LocalStatusClass : DisconnectedStatusClass;
 
     private static string BuildStatusLabel(AnthropicAiProviderSettings settings) =>
-        IsConfigured(settings) ? LocalStatusLabel : DisconnectedStatusLabel;
+        settings.IsConfigured() ? LocalStatusLabel : DisconnectedStatusLabel;
 
     private static string BuildStatusLabel(OpenAiProviderSettings settings) =>
-        IsConfigured(settings) ? LocalStatusLabel : DisconnectedStatusLabel;
+        settings.IsConfigured() ? LocalStatusLabel : DisconnectedStatusLabel;
 
     private static string BuildStatusLabel(OllamaAiProviderSettings settings) =>
-        IsConfigured(settings) ? LocalStatusLabel : DisconnectedStatusLabel;
+        settings.IsConfigured() ? LocalStatusLabel : DisconnectedStatusLabel;
 
     private static string BuildClaudeSubtitle(AnthropicAiProviderSettings settings) =>
         BuildCatalogSubtitle(AnthropicLabel, settings.Model, ClaudeModelOptions);
@@ -113,18 +113,6 @@ public partial class SettingsAiSection : ComponentBase
 
     private string GetMessage(string providerId) =>
         _messages.GetValueOrDefault(providerId) ?? string.Empty;
-
-    private static bool IsConfigured(AnthropicAiProviderSettings settings) =>
-        !string.IsNullOrWhiteSpace(settings.ApiKey) &&
-        !string.IsNullOrWhiteSpace(settings.Model);
-
-    private static bool IsConfigured(OpenAiProviderSettings settings) =>
-        !string.IsNullOrWhiteSpace(settings.ApiKey) &&
-        !string.IsNullOrWhiteSpace(settings.Model);
-
-    private static bool IsConfigured(OllamaAiProviderSettings settings) =>
-        !string.IsNullOrWhiteSpace(settings.Endpoint) &&
-        !string.IsNullOrWhiteSpace(settings.Model);
 
     private static string BuildCatalogSubtitle(
         string providerLabel,

@@ -17,7 +17,8 @@ The important contracts are:
 - Teleprompter block transitions always move in one upward direction: the outgoing card exits up and the incoming card rises from below.
 - Teleprompter controls stay readable at rest; they must not fade until they become unusable.
 - Teleprompter route styles must already be present on first paint from the app host document; a late style attach during route entry is a regression.
-- Teleprompter exposes explicit left, center, and right text alignment modes, defaults to left alignment, and keeps left- or right-aligned text optically inset so the text mass still reads near the center of the stage.
+- Teleprompter exposes explicit left, center, right, and full-width text alignment modes, defaults to left alignment, and keeps left- or right-aligned text optically inset so the text mass still reads near the center of the stage.
+- Teleprompter side rails use delayed hover tooltips instead of browser-native `title` popups, so alignment and slider hints stay readable without covering the control itself.
 - Teleprompter user-adjusted font size, text width, text alignment, focal position, and camera preference survive reloads through the shared user-settings contract.
 
 ## Flow
@@ -59,7 +60,8 @@ flowchart LR
 - `teleprompter` applies TPS inline emotion colors only when a word is explicitly tagged; untagged reader words must stay on the base reader palette instead of inheriting an implicit `neutral` word class.
 - `teleprompter` keeps TPS inline colors visible even when a phrase group is active or the active word is highlighted.
 - `teleprompter` keeps the active focus word calm: the active word may be brighter than its neighbors, but upcoming and read words stay gently dimmed and active-word glow stays restrained enough to avoid a bright moving patch.
-- `teleprompter` exposes explicit left, center, and right text-alignment controls on the reader chrome; left alignment is the default and uses an optical inset instead of hard-gluing the first line to the left edge of the readable column.
+- `teleprompter` exposes explicit left, center, right, and justified full-width text-alignment controls on the reader chrome; left alignment is the default and uses an optical inset instead of hard-gluing the first line to the left edge of the readable column.
+- `teleprompter` keeps side-rail tooltips on a delayed custom overlay so hover help does not fight the browser-native tooltip timing or cover the rail controls.
 - `teleprompter` persists font scale, text width, text alignment, focal point, and camera auto-start changes through `IUserSettingsStore` and restores them from stored `ReaderSettings` during bootstrap.
 - `teleprompter` keeps forward block jumps on the straight reference path, but backward block jumps reverse that motion so the returning previous block comes in from above while the outgoing current block drops away.
 - `teleprompter` uses one smooth paragraph realignment while words advance inside a card, but the first word of a newly entered card is already pre-centered so block changes do not trigger a second correction pass.
@@ -82,7 +84,8 @@ flowchart LR
 - Playwright verifies there is no teleprompter overlay camera box and that phrase groups do not overflow.
 - Playwright verifies the teleprompter camera button attaches and detaches a real synthetic `MediaStream` on the background video layer.
 - Playwright verifies the full `Product Launch` teleprompter scenario, including visible controls, TPS formatting parity, screenshot artifacts, and aligned post-transition playback.
-- Playwright verifies teleprompter left, center, and right alignment controls switch real browser text layout and that the default left-aligned mode keeps the visible text mass near the stage center instead of drifting too far left.
+- Playwright verifies teleprompter left, center, right, and justified full-width alignment controls switch real browser text layout and that the default left-aligned mode keeps the visible text mass near the stage center instead of drifting too far left.
+- Playwright verifies delayed teleprompter rail tooltips stay hidden during the initial hover delay, appear after the delay, and stay outside the hovered button or slider bounds.
 - Playwright verifies a dedicated reader-timing probe for both `learn` and `teleprompter`, recording emitted words in the browser and checking that sequence order and elapsed delays match the rendered timing contract word by word.
 - Playwright verifies the teleprompter stylesheet is already registered in `document.styleSheets` before the app navigates into the teleprompter route.
 - Playwright verifies custom TPS speed offsets change computed teleprompter `letter-spacing` while `[normal]` words reset back to neutral spacing and timing.

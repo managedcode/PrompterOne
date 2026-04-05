@@ -25,7 +25,7 @@
 - Do not add smoke-only placeholders; every test here must assert a meaningful UI contract.
 - Do not replace browser acceptance tests; this project complements them.
 - Prefer shared `PrompterOne.Shared.Contracts` constants over inline test ids, route literals, and DOM ids.
-- Use `data-testid` selectors via helpers instead of repeating raw selector strings in each test.
+- Use dedicated test-attribute selectors via helpers instead of repeating raw selector strings in each test. Prefer `data-test-id`, allow `data-test`, and keep existing `data-testid` contracts stable until an intentional migration replaces them.
 - Inline magic numbers and seeded values are forbidden; use named constants.
 
 ## Project-Local Commands
@@ -38,6 +38,6 @@
 
 ## Local Risks Or Protected Areas
 
-- Keep `data-testid` and exact design landmarks stable.
+- Keep dedicated test selectors and exact design landmarks stable.
 - Test support wiring must stay compatible with `PrompterOne.Shared` service registration and saved browser-state behavior.
-- If a bUnit assertion needs a new stable UI landmark, add the `data-testid` to production code instead of locking onto brittle markup structure.
+- If a bUnit assertion needs a new stable UI landmark, add a dedicated test attribute to production code instead of locking onto brittle markup structure.

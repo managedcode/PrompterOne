@@ -61,6 +61,9 @@ public partial class EditorSourcePanel
             return;
         }
 
+        // A preceding local text echo may have marked the next render as skippable,
+        // but selection UI like the floating bar must still repaint immediately.
+        _skipNextRender = false;
         _syncSurfaceAfterRender = selection.HasSelection || Selection.HasSelection;
         StateHasChanged();
     }

@@ -86,5 +86,7 @@ public static class UiDomIds
             $"rd-card-word-{cardIndex}-{groupIndex}-{wordIndex}";
 
         public static string CameraOverlay(int order) => $"rd-camera-overlay-{order}";
+
+        public static string RailTooltip(string key) => $"rd-tooltip-{key}";
     }
 }

@@ -175,9 +175,9 @@
     box-shadow: 0 18px 40px rgba(0,0,0,.24);
 }
 .rd-progress-shell.rd-reading-active {
-    border-color: rgba(232,213,176,.10);
-    background: rgba(14,12,9,.58);
-    box-shadow: 0 12px 30px rgba(0,0,0,.18);
+    border-color: rgba(232,213,176,.08);
+    background: rgba(14,12,9,.54);
+    box-shadow: 0 10px 24px rgba(0,0,0,.16);
 }
 .rd-progress-meta {
     display: flex;
@@ -199,10 +199,10 @@
     font-family: var(--mono);
 }
 .rd-progress-shell.rd-reading-active .rd-progress-title {
-    color: rgba(232,213,176,.42);
+    color: rgba(210,188,150,.34);
 }
 .rd-progress-shell.rd-reading-active .rd-progress-label {
-    color: rgba(242,230,204,.68);
+    color: rgba(224,208,178,.52);
 }
 .rd-progress-track {
     display: flex;
@@ -221,8 +221,8 @@
     border: 1px solid rgba(232,213,176,.08);
 }
 .rd-progress-shell.rd-reading-active .rd-progress-segment {
-    background: rgba(232,213,176,.08);
-    border-color: rgba(232,213,176,.05);
+    background: rgba(232,213,176,.06);
+    border-color: rgba(232,213,176,.04);
 }
 .rd-progress-segment-fill {
     position: absolute;
@@ -233,7 +233,7 @@
     transition: width .32s ease;
 }
 .rd-progress-shell.rd-reading-active .rd-progress-segment-fill {
-    background: linear-gradient(90deg, rgba(208,170,106,.66), rgba(229,199,149,.74));
+    background: linear-gradient(90deg, rgba(168,136,88,.42), rgba(192,164,120,.50));
 }
 
 /* ── Countdown overlay ── */
@@ -280,6 +280,7 @@
 }
 .rd-mirror-controls {
     left: 12px;
+    min-width: 52px;
     gap: 10px;
     padding: 10px 6px;
 }
@@ -287,12 +288,20 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    width: 100%;
     gap: 8px;
 }
 .rd-rail-divider {
     width: 18px;
     height: 1px;
     background: rgba(232,213,176,.16);
+}
+.rd-rail-tip-anchor {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
 }
 .rd-sliders:hover,
 .rd-mirror-controls:hover {
@@ -309,9 +318,68 @@
     font-weight: 700;
     letter-spacing: 0.6px;
 }
+.rd-align-btn {
+    width: 100%;
+    min-width: 0;
+    height: 42px;
+    padding: 0;
+}
+.rd-align-icon {
+    width: 18px;
+    height: 18px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
 .rd-mirror-btn svg {
     width: 14px;
     height: 14px;
+}
+.rd-align-btn .rd-align-icon {
+    width: 18px;
+    height: 18px;
+}
+.rd-rail-tooltip {
+    position: absolute;
+    top: 50%;
+    z-index: 18;
+    min-width: 164px;
+    max-width: 220px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(232,213,176,.14);
+    background: rgba(11,10,8,.92);
+    color: rgba(242,230,204,.9);
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.45;
+    letter-spacing: 0.02em;
+    text-align: left;
+    white-space: normal;
+    pointer-events: none;
+    visibility: hidden;
+    opacity: 0;
+    box-shadow: 0 14px 28px rgba(0,0,0,.24);
+    transition-property: opacity, transform, visibility;
+    transition-duration: .18s, .18s, 0s;
+    transition-timing-function: ease, ease, linear;
+    transition-delay: 0s, 0s, .18s;
+}
+.rd-rail-tooltip--right {
+    left: calc(100% + 14px);
+    transform: translate3d(-4px, -50%, 0);
+}
+.rd-rail-tooltip--left {
+    right: calc(100% + 14px);
+    transform: translate3d(4px, -50%, 0);
+}
+.rd-rail-tip-anchor:is(:hover, :focus-within) > .rd-rail-tooltip {
+    visibility: visible;
+    opacity: 1;
+    transition-delay: 3.2s, 3.2s, 3.2s;
+}
+.rd-rail-tip-anchor:is(:hover, :focus-within) > .rd-rail-tooltip--right,
+.rd-rail-tip-anchor:is(:hover, :focus-within) > .rd-rail-tooltip--left {
+    transform: translate3d(0, -50%, 0);
 }
 .rd-slider-icon {
     color: rgba(232,213,176,.72);
@@ -393,12 +461,12 @@
 }
 .rd-controls:hover { opacity: 1; }
 .rd-controls.rd-reading-active {
-    background: rgba(20,18,12,.72);
-    border-color: rgba(232,213,176,.10);
-    opacity: .88;
+    background: rgba(20,18,12,.68);
+    border-color: rgba(232,213,176,.08);
+    opacity: .84;
 }
 .rd-controls.rd-reading-active:hover {
-    opacity: .95;
+    opacity: .9;
 }
 
 .rd-ctrl-group {
@@ -426,6 +494,9 @@
     cursor: pointer;
     transition: all .2s;
 }
+.rd-controls.rd-reading-active .rd-ctrl-btn {
+    color: rgba(216,196,160,.56);
+}
 .rd-ctrl-btn:hover {
     background: var(--gold-12);
     color: #E8D5B0;
@@ -446,8 +517,14 @@
     border-radius: 50%;
     background: var(--gold-12);
 }
+.rd-controls.rd-reading-active .rd-ctrl-play {
+    background: rgba(196,160,96,.09);
+}
 .rd-ctrl-play:hover {
     background: var(--gold-16);
+}
+.rd-controls.rd-reading-active .rd-ctrl-play:hover {
+    background: rgba(196,160,96,.13);
 }
 
 .rd-ctrl-label {
@@ -457,6 +534,9 @@
     min-width: 24px;
     text-align: center;
     user-select: none;
+}
+.rd-controls.rd-reading-active .rd-ctrl-label {
+    color: rgba(208,188,152,.46);
 }
 .rd-block-indicator {
     font-size: 10px;

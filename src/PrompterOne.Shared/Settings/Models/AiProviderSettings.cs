@@ -19,6 +19,11 @@ public sealed class AiProviderSettings
         Ollama ??= new OllamaAiProviderSettings();
         return this;
     }
+
+    public bool HasConfiguredProvider() =>
+        ClaudeApi.IsConfigured() ||
+        OpenAi.IsConfigured() ||
+        Ollama.IsConfigured();
 }
 
 public sealed class AnthropicAiProviderSettings
@@ -28,6 +33,10 @@ public sealed class AnthropicAiProviderSettings
     public string BaseUrl { get; set; } = string.Empty;
 
     public string Model { get; set; } = "claude-sonnet-4-6";
+
+    public bool IsConfigured() =>
+        !string.IsNullOrWhiteSpace(ApiKey) &&
+        !string.IsNullOrWhiteSpace(Model);
 }
 
 public sealed class OpenAiProviderSettings
@@ -37,6 +46,10 @@ public sealed class OpenAiProviderSettings
     public string BaseUrl { get; set; } = string.Empty;
 
     public string Model { get; set; } = "gpt-4o";
+
+    public bool IsConfigured() =>
+        !string.IsNullOrWhiteSpace(ApiKey) &&
+        !string.IsNullOrWhiteSpace(Model);
 }
 
 public sealed class OllamaAiProviderSettings
@@ -44,4 +57,8 @@ public sealed class OllamaAiProviderSettings
     public string Endpoint { get; set; } = "http://localhost:11434";
 
     public string Model { get; set; } = string.Empty;
+
+    public bool IsConfigured() =>
+        !string.IsNullOrWhiteSpace(Endpoint) &&
+        !string.IsNullOrWhiteSpace(Model);
 }

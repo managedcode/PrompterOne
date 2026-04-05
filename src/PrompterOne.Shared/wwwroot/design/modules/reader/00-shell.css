@@ -196,6 +196,15 @@
     padding-inline-end: var(--rd-text-optical-inset, 56px);
 }
 
+.rd-cluster-wrap[data-reader-text-alignment='justify'] .rd-cluster-text {
+    width: 100%;
+    max-width: 100%;
+    text-align: justify;
+    text-align-last: left;
+    text-wrap: pretty;
+    padding-inline: 0;
+}
+
 .rd-cluster p {
     line-height: 1.6;
     letter-spacing: -.2px;

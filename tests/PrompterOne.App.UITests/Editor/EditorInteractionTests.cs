@@ -4,7 +4,8 @@ using static Microsoft.Playwright.Assertions;
 
 namespace PrompterOne.App.UITests;
 
-public sealed class EditorInteractionTests(StandaloneAppFixture fixture) : IClassFixture<StandaloneAppFixture>
+[Collection(EditorAuthoringCollection.Name)]
+public sealed partial class EditorInteractionTests(StandaloneAppFixture fixture) : IClassFixture<StandaloneAppFixture>
 {
     private readonly StandaloneAppFixture _fixture = fixture;
 
@@ -79,6 +80,7 @@ public sealed class EditorInteractionTests(StandaloneAppFixture fixture) : IClas
 
         try
         {
+            await AiProviderTestSeeder.SeedConfiguredOpenAiAsync(page);
             await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
             await EditorMonacoDriver.SetSelectionByTextAsync(page, BrowserTestConstants.Editor.Welcome);
@@ -120,6 +122,122 @@ public sealed class EditorInteractionTests(StandaloneAppFixture fixture) : IClas
 
             await Expect(EditorMonacoDriver.SourceInput(page)).ToHaveValueAsync(
                 new Regex(Regex.Escape(BrowserTestConstants.Editor.ProfessionalFragment)));
+        }
+        finally
+        {
+            await page.Context.CloseAsync();
+        }
+    }
+
+    [Fact]
+    public async Task EditorScreen_FloatingMenusExposeExpandedTpsSurface()
+    {
+        const string scenarioName = "editor-floating-tps-surface";
+        var page = await _fixture.NewPageAsync();
+        UiScenarioArtifacts.ResetScenario(scenarioName);
+
+        try
+        {
+            await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
+            await EditorMonacoDriver.WaitUntilReadyAsync(page);
+            await EditorMonacoDriver.SetSelectionByTextAsync(page, BrowserTestConstants.Editor.TransformativeMoment);
+
+            await Expect(page.GetByTestId(UiTestIds.Editor.FloatingBar)).ToBeVisibleAsync();
+
+            await OpenFloatingMenuAsync(page, UiTestIds.Editor.FloatingVoice, UiTestIds.Editor.FloatingVoiceMenu);
+            await OpenFloatingMenuAsync(page, UiTestIds.Editor.FloatingEmotion, UiTestIds.Editor.FloatingEmotionMenu);
+            await OpenFloatingMenuAsync(page, UiTestIds.Editor.FloatingPauseTrigger, UiTestIds.Editor.FloatingPauseMenu);
+            await OpenFloatingMenuAsync(page, UiTestIds.Editor.FloatingSpeedTrigger, UiTestIds.Editor.FloatingSpeedMenu);
+            await OpenFloatingMenuAsync(page, UiTestIds.Editor.FloatingInsert, UiTestIds.Editor.FloatingInsertMenu);
+            await UiScenarioArtifacts.CapturePageAsync(page, scenarioName, "01-floating-menu-expanded");
+        }
+        finally
+        {
+            await page.Context.CloseAsync();
+        }
+    }
+
+    [Fact]
+    public async Task EditorScreen_FloatingVoiceMenuAppliesWhisperCue()
+    {
+        var page = await _fixture.NewPageAsync();
+
+        try
+        {
+            await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
+            await EditorMonacoDriver.WaitUntilReadyAsync(page);
+            await EditorMonacoDriver.SetSelectionByTextAsync(page, BrowserTestConstants.Editor.OurCompany);
+
+            await Expect(page.GetByTestId(UiTestIds.Editor.FloatingBar)).ToBeVisibleAsync();
+            await page.GetByTestId(UiTestIds.Editor.FloatingVoice).ClickAsync();
+            await Expect(page.GetByTestId(UiTestIds.Editor.FloatingVoiceMenu)).ToBeVisibleAsync();
+            await page.GetByTestId(UiTestIds.Editor.FloatingVoiceWhisper).ClickAsync();
+
+            await Expect(EditorMonacoDriver.SourceInput(page)).ToHaveValueAsync(
+                new Regex(Regex.Escape(BrowserTestConstants.Editor.WhisperCompanyFragment)));
+        }
+        finally
+        {
+            await page.Context.CloseAsync();
+        }
+    }
+
+    [Fact]
+    public async Task EditorScreen_FloatingEmotionMenuAppliesDeliveryModeCue()
+    {
+        var page = await _fixture.NewPageAsync();
+
+        try
+        {
+            await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
+            await EditorMonacoDriver.WaitUntilReadyAsync(page);
+            await EditorMonacoDriver.SetSelectionByTextAsync(page, BrowserTestConstants.Editor.TransformativeMoment);
+
+            await Expect(page.GetByTestId(UiTestIds.Editor.FloatingBar)).ToBeVisibleAsync();
+            await page.GetByTestId(UiTestIds.Editor.FloatingEmotion).ClickAsync();
+            await Expect(page.GetByTestId(UiTestIds.Editor.FloatingEmotionMenu)).ToBeVisibleAsync();
+            await page.GetByTestId(UiTestIds.Editor.FloatingDeliverySarcasm).ClickAsync();
+
+            await Expect(EditorMonacoDriver.SourceInput(page)).ToHaveValueAsync(
+                new Regex(Regex.Escape(BrowserTestConstants.Editor.SarcasmMomentFragment)));
+        }
+        finally
+        {
+            await page.Context.CloseAsync();
+        }
+    }
+
+    [Fact]
+    public async Task EditorScreen_FloatingPauseSpeedAndInsertMenusApplyExtendedTpsCues()
+    {
+        var page = await _fixture.NewPageAsync();
+
+        try
+        {
+            await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
+            await EditorMonacoDriver.WaitUntilReadyAsync(page);
+            await EditorMonacoDriver.SetSelectionByTextAsync(page, BrowserTestConstants.Editor.TransformativeMoment);
+
+            await Expect(page.GetByTestId(UiTestIds.Editor.FloatingBar)).ToBeVisibleAsync();
+            await page.GetByTestId(UiTestIds.Editor.FloatingPauseTrigger).ClickAsync();
+            await Expect(page.GetByTestId(UiTestIds.Editor.FloatingPauseMenu)).ToBeVisibleAsync();
+            await page.GetByTestId(UiTestIds.Editor.FloatingPauseTimed).ClickAsync();
+            await Expect(EditorMonacoDriver.SourceInput(page)).ToHaveValueAsync(
+                new Regex(Regex.Escape(BrowserTestConstants.Editor.TimedPauseFragment)));
+
+            await EditorMonacoDriver.SetSelectionByTextAsync(page, BrowserTestConstants.Editor.OurCompany);
+            await page.GetByTestId(UiTestIds.Editor.FloatingSpeedTrigger).ClickAsync();
+            await Expect(page.GetByTestId(UiTestIds.Editor.FloatingSpeedMenu)).ToBeVisibleAsync();
+            await page.GetByTestId(UiTestIds.Editor.FloatingSpeedCustomWpm).ClickAsync();
+            await Expect(EditorMonacoDriver.SourceInput(page)).ToHaveValueAsync(
+                new Regex(Regex.Escape(BrowserTestConstants.Editor.CustomWpmCompanyFragment)));
+
+            await EditorMonacoDriver.SetSelectionByTextAsync(page, BrowserTestConstants.Editor.OurCompany);
+            await page.GetByTestId(UiTestIds.Editor.FloatingInsert).ClickAsync();
+            await Expect(page.GetByTestId(UiTestIds.Editor.FloatingInsertMenu)).ToBeVisibleAsync();
+            await page.GetByTestId(UiTestIds.Editor.FloatingInsertPronunciation).ClickAsync();
+            await Expect(EditorMonacoDriver.SourceInput(page)).ToHaveValueAsync(
+                new Regex(Regex.Escape(BrowserTestConstants.Editor.PronunciationCompanyFragment)));
         }
         finally
         {
@@ -210,6 +328,7 @@ public sealed class EditorInteractionTests(StandaloneAppFixture fixture) : IClas
 
         try
         {
+            await AiProviderTestSeeder.SeedConfiguredOpenAiAsync(page);
             await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
             await EditorMonacoDriver.SetSelectionByTextAsync(page, BrowserTestConstants.Editor.Welcome);
@@ -236,6 +355,7 @@ public sealed class EditorInteractionTests(StandaloneAppFixture fixture) : IClas
             await EditorMonacoDriver.SetSelectionByTextAsync(page, BrowserTestConstants.Editor.TransformativeMoment);
 
             var valueBeforeAi = await EditorMonacoDriver.SourceInput(page).InputValueAsync();
+            await Expect(page.GetByTestId(UiTestIds.Editor.Ai)).ToBeEnabledAsync();
             await page.GetByTestId(UiTestIds.Editor.Ai).ClickAsync();
 
             var valueAfterAi = await EditorMonacoDriver.SourceInput(page).InputValueAsync();

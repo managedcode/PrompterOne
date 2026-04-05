@@ -97,6 +97,11 @@ public partial class EditorSourcePanel : IAsyncDisposable
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (await TryLoadInitialAiAvailabilityAfterRenderAsync(firstRender))
+        {
+            return;
+        }
+
         var surfaceBecameReady = await EnsureSurfaceInteropReadyAsync();
         if (surfaceBecameReady)
         {
@@ -148,6 +153,7 @@ public partial class EditorSourcePanel : IAsyncDisposable
 
         await OnSelectionChanged.InvokeAsync(selection);
         _syncSurfaceAfterRender = true;
+        _skipNextRender = false;
         StateHasChanged();
     }
 
@@ -229,6 +235,7 @@ public partial class EditorSourcePanel : IAsyncDisposable
         await OnSelectionChanged.InvokeAsync(selection);
         if (requestComponentRender)
         {
+            _skipNextRender = false;
             _syncSurfaceAfterRender = Selection.HasSelection || selection.HasSelection;
             StateHasChanged();
         }
@@ -297,6 +304,7 @@ public partial class EditorSourcePanel : IAsyncDisposable
         monacoVsPath = EditorMonacoRuntimeContract.MonacoVsPath,
         placeholder = DefaultPlaceholderText,
         selectionChangedCallbackName = EditorMonacoInteropMethodNames.NotifySelectionChanged,
+        sourceGutterTestId = UiTestIds.Editor.SourceGutter,
         sourceMinimapTestId = UiTestIds.Editor.SourceMinimap,
         supportedFileNameSuffixes = ScriptDocumentFileTypes.SupportedFileNameSuffixes,
         textChangedCallbackName = EditorMonacoInteropMethodNames.NotifyTextChanged
@@ -349,6 +357,8 @@ public partial class EditorSourcePanel : IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
+        BrowserSettingsChangeNotifier.Changed -= HandleBrowserSettingsChangedAsync;
+
         if (_surfaceInteropReady)
         {
             try

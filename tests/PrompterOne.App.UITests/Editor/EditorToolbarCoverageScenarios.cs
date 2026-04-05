@@ -33,6 +33,8 @@ internal static class EditorToolbarCoverageScenarios
 
     public static IReadOnlyList<EditorMenuScenario> MenuScenarios { get; } = BuildMenuScenarios();
 
+    public static IReadOnlyList<EditorMenuScenario> FloatingMenuScenarios { get; } = BuildFloatingMenuScenarios();
+
     public static IReadOnlyList<EditorAiScenario> AiScenarios { get; } = BuildAiScenarios();
 
     private static IReadOnlyList<EditorAiScenario> BuildAiScenarios()
@@ -63,14 +65,13 @@ internal static class EditorToolbarCoverageScenarios
     }
 
     private static IReadOnlyList<EditorCommandScenario> BuildFloatingCommandScenarios() =>
-        EditorToolbarCatalog.FloatingActionGroups
-            .SelectMany(group => group)
-            .Where(action => action.ActionType == EditorToolbarActionType.Command && action.Command is not null && !string.IsNullOrWhiteSpace(action.TestId))
-            .Select(action => new EditorCommandScenario(
-                action.TestId!,
-                null,
-                action.Command!,
-                GetSelectionMode(action.Command!)))
+        BuildFloatingDirectCommandScenarios()
+            .Concat(BuildFloatingMenuCommandScenarios())
+            .ToArray();
+
+    private static IReadOnlyList<EditorMenuScenario> BuildFloatingMenuScenarios() =>
+        EditorToolbarCatalog.FloatingMenus
+            .Select(menu => new EditorMenuScenario(menu.TriggerTestId, menu.PanelTestId))
             .ToArray();
 
     private static IReadOnlyList<EditorMenuScenario> BuildMenuScenarios() =>
@@ -80,6 +81,27 @@ internal static class EditorToolbarCoverageScenarios
                 .Where(action => action.ActionType == EditorToolbarActionType.ToggleMenu && !string.IsNullOrWhiteSpace(action.TestId))
                 .Select(action => new EditorMenuScenario(action.TestId!, section.DropdownTestId!)))
             .ToArray();
+
+    private static IEnumerable<EditorCommandScenario> BuildFloatingDirectCommandScenarios() =>
+        EditorToolbarCatalog.FloatingActionGroups
+            .SelectMany(group => group)
+            .Where(action => action.ActionType == EditorToolbarActionType.Command && action.Command is not null && !string.IsNullOrWhiteSpace(action.TestId))
+            .Select(action => new EditorCommandScenario(
+                action.TestId!,
+                null,
+                action.Command!,
+                GetFloatingSelectionMode(action.Command!)));
+
+    private static IEnumerable<EditorCommandScenario> BuildFloatingMenuCommandScenarios() =>
+        EditorToolbarCatalog.FloatingMenus
+            .SelectMany(menu => menu.DropdownGroups
+                .SelectMany(group => group.Actions
+                    .Where(action => action.ActionType == EditorToolbarActionType.Command && action.Command is not null && !string.IsNullOrWhiteSpace(action.TestId))
+                    .Select(action => new EditorCommandScenario(
+                        action.TestId!,
+                        menu.TriggerTestId,
+                        action.Command!,
+                        GetFloatingSelectionMode(action.Command!)))));
 
     private static IReadOnlyList<EditorCommandScenario> BuildToolbarCommandScenarios()
     {
@@ -123,6 +145,11 @@ internal static class EditorToolbarCoverageScenarios
             EditorCommandKind.ClearColor => EditorScenarioSelectionMode.ClearColorSelection,
             _ => EditorScenarioSelectionMode.InsertAtCaret
         };
+
+    private static EditorScenarioSelectionMode GetFloatingSelectionMode(EditorCommandRequest command) =>
+        command.Kind == EditorCommandKind.ClearColor
+            ? EditorScenarioSelectionMode.ClearColorSelection
+            : EditorScenarioSelectionMode.WrapSelection;
 
     private static class BrowserTestSource
     {
