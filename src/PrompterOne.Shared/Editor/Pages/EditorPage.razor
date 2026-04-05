@@ -18,8 +18,9 @@
                                     ActiveSegmentIndex="@_activeSegmentIndex"
                                     ActiveBlockIndex="@_activeBlockIndex"
                                     OnNavigate="OnNavigateAsync"
+                                    OnOpenLibraryRequested="OnOpenLibraryRequested"
                                     OnSplitRequested="OnSplitRequestedAsync"
-                                    StatusMessage="@_splitStatusMessage" />
+                                    SplitFeedback="@_splitFeedback" />
 
             <EditorSourcePanel @ref="_sourcePanel"
                                Text="@_sourceText"

@@ -65,6 +65,16 @@ public sealed record EditorStructureHeaderEditorViewModel(
         new(label, 0, string.Empty, null, string.Empty, string.Empty, string.Empty, supportsTiming);
 }
 
+public sealed record EditorSplitFeedbackViewModel(
+    string Title,
+    string Summary,
+    string HeadingBadge,
+    string DestinationNote,
+    string DraftNote,
+    string OpenLibraryLabel,
+    IReadOnlyList<string> CreatedTitles,
+    int AdditionalCount);
+
 public sealed record EditorSelectionViewModel(
     EditorSelectionRange Range,
     int Line,

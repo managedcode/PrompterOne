@@ -62,7 +62,7 @@ public partial class EditorPage
     private EditorSelectionViewModel _selection = EditorSelectionViewModel.Empty;
     private IReadOnlyList<EditorOutlineSegmentViewModel> _segments = [];
     private bool _skipNextRenderFromTyping;
-    private string? _splitStatusMessage;
+    private EditorSplitFeedbackViewModel? _splitFeedback;
     private EditorSourcePanel? _sourcePanel;
     private string _sourceText = string.Empty;
     private EditorDraftMetrics _draftMetrics = EditorDraftMetrics.Empty;

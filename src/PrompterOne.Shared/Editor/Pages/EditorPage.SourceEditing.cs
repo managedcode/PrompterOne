@@ -66,7 +66,7 @@ public partial class EditorPage
     {
         var sourceText = text ?? string.Empty;
         var importedFrontMatter = TryImportFrontMatterFromSource(sourceText, out var bodyText);
-        _splitStatusMessage = null;
+        _splitFeedback = null;
         Diagnostics.ClearRecoverable(SplitDraftOperation);
         _sourceText = importedFrontMatter ? bodyText : sourceText;
         _history.TryRecord(_sourceText, _selection.Range);

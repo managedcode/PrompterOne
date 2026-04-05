@@ -18,6 +18,8 @@ internal static partial class BrowserTestConstants
         public const string LayoutCollapsedStep = "02-collapsed-metadata";
         public const string LineNumbersScenario = "editor-line-numbers";
         public const string LineNumbersStep = "01-gutter-visible";
+        public const string SplitFeedbackScenario = "editor-split-feedback";
+        public const string SplitFeedbackStep = "01-split-result-card";
         public const string LocalHistoryScenario = "editor-local-history";
         public const string LocalHistorySavedStep = "01-history-populated";
         public const string LocalHistoryRestoredStep = "02-history-restored";

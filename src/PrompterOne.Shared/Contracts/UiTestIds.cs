@@ -183,6 +183,14 @@ public static class UiTestIds
         public const string SplitSegment = "editor-split-segment";
         public const string SplitStatus = "editor-split-status";
         public const string SplitTopLevel = "editor-split-top-level";
+        public const string SplitResultBadge = "editor-split-result-badge";
+        public const string SplitResultCurrentDraft = "editor-split-result-current-draft";
+        public const string SplitResultLibrary = "editor-split-result-library";
+        public const string SplitResultList = "editor-split-result-list";
+        public const string SplitResultMore = "editor-split-result-more";
+        public const string SplitResultOpenLibrary = "editor-split-result-open-library";
+        public const string SplitResultSummary = "editor-split-result-summary";
+        public const string SplitResultTitle = "editor-split-result-title";
         public const string SpeedXfast = "editor-speed-xfast";
         public const string SpeedXslow = "editor-speed-xslow";
         public const string Title = "editor-title";
@@ -195,6 +203,8 @@ public static class UiTestIds
         public static string LocalHistoryItem(int index) => $"editor-local-history-item-{index}";
 
         public static string LocalHistoryRestore(int index) => $"editor-local-history-restore-{index}";
+
+        public static string SplitResultItem(int index) => $"editor-split-result-item-{index}";
 
         public static string SegmentNavigation(int segmentIndex) => $"editor-structure-segment-{segmentIndex}";
     }
