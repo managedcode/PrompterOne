@@ -686,13 +686,6 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
         return false;
     }
 
-    private static string SerializeDiagnosticState(JsonElement? state)
-    {
-        return state.HasValue
-            ? JsonSerializer.Serialize(state.Value)
-            : "null";
-    }
-
     private readonly record struct LayoutBounds(double X, double Y, double Width, double Height);
 
     [Test]

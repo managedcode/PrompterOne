@@ -20,6 +20,7 @@
   <ItemGroup>
     <ProjectReference Include="../../src/PrompterOne.Web/PrompterOne.Web.csproj" ReferenceOutputAssembly="false" />
     <ProjectReference Include="../../src/PrompterOne.Shared/PrompterOne.Shared.csproj" />
+    <ProjectReference Include="../PrompterOne.Testing/PrompterOne.Testing.csproj" />
   </ItemGroup>
 
 </Project>

@@ -2,9 +2,10 @@
 
 namespace PrompterOne.Web.UITests;
 
-public sealed record UiTestParallelLimit : IParallelLimit
+public sealed class UiTestParallelLimit : PrompterOne.Testing.EnvironmentAwareParallelLimitBase
 {
-    public int Limit => UiTestParallelization.DefaultWorkerLimit;
+    protected override int CiLimit { get; } = 2;
+    protected override int LocalLimit { get; } = UiTestParallelization.DefaultWorkerLimit;
 }
 
 internal static class UiTestParallelization

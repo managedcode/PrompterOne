@@ -132,14 +132,12 @@ public sealed class GoLiveOutputFailureRollbackTests(StandaloneAppFixture fixtur
     private static async Task WaitForRuntimeSessionClearedAsync(Microsoft.Playwright.IPage page)
     {
         var deadline = DateTimeOffset.UtcNow.AddMilliseconds(BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs);
-        JsonElement? lastRuntimeState = null;
 
         while (DateTimeOffset.UtcNow < deadline)
         {
-            lastRuntimeState = await page.EvaluateAsync<JsonElement?>(
-                BrowserTestConstants.GoLive.GetRuntimeStateScript,
-                BrowserTestConstants.GoLive.RuntimeSessionId);
-
+            var lastRuntimeState = await page.EvaluateAsync<JsonElement?>(
+        BrowserTestConstants.GoLive.GetRuntimeStateScript,
+        BrowserTestConstants.GoLive.RuntimeSessionId);
             if (!lastRuntimeState.HasValue)
             {
                 return;

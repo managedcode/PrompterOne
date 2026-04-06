@@ -130,7 +130,7 @@ Browser test execution rules:
 - Use one `dotnet test` process at a time for the browser suite.
 - The browser suite self-hosts the built WASM assets on a dynamically assigned loopback HTTP origin.
 - Each browser-suite host startup MUST request a fresh OS-assigned loopback port via `http://127.0.0.1:0`. Never pin or reuse a fixed browser-test port across runs.
-- Inside that single process, the browser suite may run up to `4` parallel TUnit workers.
+- Inside that single process, the browser suite may run up to `4` parallel TUnit workers locally; when repeated full-suite CI runs prove resource contention, lower the CI worker cap instead of weakening browser assertions.
 - Do not run `PrompterOne.Web.UITests` in parallel with another `dotnet build` or `dotnet test` command.
 - Browser acceptance tests must stay on the production-shaped runtime path; do not add or keep `?wasm-debug=1` or similar debug-query scenarios in automated acceptance coverage unless the user explicitly asks for that path.
 - Do not add Python or ad-hoc runner scripts to bootstrap browser verification. The repo test commands must self-host the app and execute the flows end to end on their own.
