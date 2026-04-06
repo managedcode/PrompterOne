@@ -15,6 +15,7 @@ public sealed class TeleprompterPersistenceTests(StandaloneAppFixture fixture)
     private const string PersistedFocalPointValue = "37";
     private const string PersistedFocalGuideStyle = "top:37%;";
     private const string PersistedTextWidthValue = "980";
+    private const double ReaderWidthBaselinePixels = 1240d;
     private const string PersistedTextAlignmentValue = BrowserTestConstants.TeleprompterFlow.AlignmentJustifyValue;
     private const string ReaderCardActiveClass = "rd-card-active";
     private const string ReaderCardNextClass = "rd-card-next";
@@ -47,7 +48,7 @@ public sealed class TeleprompterPersistenceTests(StandaloneAppFixture fixture)
 
             Assert.NotNull(storedSettings);
             Assert.Equal(int.Parse(PersistedFocalPointValue, CultureInfo.InvariantCulture), storedSettings.FocalPointPercent);
-            Assert.Equal(double.Parse(PersistedTextWidthValue, CultureInfo.InvariantCulture) / 1100d, storedSettings.TextWidth, 4);
+            Assert.Equal(double.Parse(PersistedTextWidthValue, CultureInfo.InvariantCulture) / ReaderWidthBaselinePixels, storedSettings.TextWidth, 4);
             Assert.Equal(ReaderTextAlignment.Justify, storedSettings.TextAlignment);
 
             await page.ReloadAsync();

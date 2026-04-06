@@ -4,5 +4,5 @@ namespace PrompterOne.Web.UITests;
 
 internal static class UiTestExecution
 {
-    public const int MaxParallelThreads = 2;
+    public const int MaxParallelThreads = 1;
 }

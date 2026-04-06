@@ -21,9 +21,10 @@ public sealed class TeleprompterPersistenceTests : BunitContext
     private const int UpdatedFocalPointPercent = 37;
     private const int UpdatedFontSize = 40;
     private const int UpdatedTextWidthPixels = 980;
+    private const double ReaderWidthBaselinePixels = 1240d;
     private const double PersistedFontScale = PersistedFontSize / 36d;
-    private const double PersistedTextWidthRatio = PersistedTextWidthPixels / 1100d;
-    private const double UpdatedTextWidthRatio = UpdatedTextWidthPixels / 1100d;
+    private const double PersistedTextWidthRatio = PersistedTextWidthPixels / ReaderWidthBaselinePixels;
+    private const double UpdatedTextWidthRatio = UpdatedTextWidthPixels / ReaderWidthBaselinePixels;
     private const string DisabledCameraAttribute = "false";
     private const string JustifyAlignmentValue = "justify";
     private const string PortraitOrientationTransform = "rotate(90deg)";

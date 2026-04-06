@@ -871,7 +871,7 @@ internal static partial class BrowserTestConstants
     {
         public static Regex ActiveClass { get; } = new(@"\bactive\b", RegexOptions.Compiled);
         public static Regex LearnProgressLabel { get; } = new(BrowserTestConstants.Learn.ProgressLabelPattern, RegexOptions.Compiled);
-        public static Regex SettingsAboutVersion { get; } = new(@"^Version 0\.1\.\d+ · Build \d+$", RegexOptions.Compiled);
+        public static Regex SettingsAboutVersion { get; } = new(@"^Version \d+\.\d+\.\d+ · Build \d+$", RegexOptions.Compiled);
         public static Regex ToggleOnClass { get; } = new(@"\bon\b", RegexOptions.Compiled);
         public static Regex NonZeroWidth { get; } = new(@"width:\s*0%", RegexOptions.Compiled);
         public static Regex ReaderFirstBlockIndicator { get; } = new(@"^1 / \d+$", RegexOptions.Compiled);

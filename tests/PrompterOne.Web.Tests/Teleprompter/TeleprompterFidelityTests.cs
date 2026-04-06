@@ -20,7 +20,7 @@ public sealed class TeleprompterFidelityTests : BunitContext
     private const int InspirationCardIndex = 6;
     private const double MinimumVisibleFastLetterSpacingEm = -0.024d;
     private const double MinimumVisibleSlowLetterSpacingEm = 0.045d;
-    private const string MaximumReaderWidth = "1100";
+    private const string MaximumReaderWidth = "1240";
     private const string NeutralWord = "Good";
     private const int OpeningCardIndex = 0;
     private const int PurposeCardIndex = 1;

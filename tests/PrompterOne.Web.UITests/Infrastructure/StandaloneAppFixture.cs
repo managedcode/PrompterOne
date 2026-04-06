@@ -71,25 +71,63 @@ public sealed partial class StandaloneAppFixture : IAsyncLifetime
 
     private async Task<IBrowserContext> NewContextAsync()
     {
-        var context = await Browser.NewContextAsync(new BrowserNewContextOptions
-        {
-            BaseURL = BaseAddress,
-            ViewportSize = new()
-            {
-                Width = BrowserTestConstants.Viewport.DefaultWidth,
-                Height = BrowserTestConstants.Viewport.DefaultHeight
-            }
-        });
+        var runtime = await EnsureRuntimeHandleAsync();
+        var context = await CreateContextAsync(runtime.Browser);
         await context.AddInitScriptAsync(BrowserTestLibrarySeedData.CreateInitializationScript());
         await context.AddInitScriptAsync(UiTestHostConstants.RuntimeTelemetryHarnessInitializationScript);
         await context.GrantPermissionsAsync(UiTestHostConstants.GrantedPermissions, new BrowserContextGrantPermissionsOptions
         {
-            Origin = BaseAddress
+            Origin = runtime.BaseAddress
         });
         await ConfigureMediaHarnessAsync(context);
         _contexts.Add(context);
         return context;
     }
+
+    private async Task<SharedRuntimeHandle> EnsureRuntimeHandleAsync()
+    {
+        _runtimeHandle ??= await SharedRuntime.AcquireAsync();
+        if (_runtimeHandle.Browser.IsConnected)
+        {
+            return _runtimeHandle;
+        }
+
+        _runtimeHandle = await SharedRuntime.AcquireAsync();
+        return _runtimeHandle;
+    }
+
+    private async Task<IBrowserContext> CreateContextAsync(IBrowser browser)
+    {
+        try
+        {
+            return await browser.NewContextAsync(new BrowserNewContextOptions
+            {
+                BaseURL = BaseAddress,
+                ViewportSize = new()
+                {
+                    Width = BrowserTestConstants.Viewport.DefaultWidth,
+                    Height = BrowserTestConstants.Viewport.DefaultHeight
+                }
+            });
+        }
+        catch (PlaywrightException exception) when (IsBrowserClosedException(exception))
+        {
+            _runtimeHandle = await SharedRuntime.AcquireAsync();
+            return await _runtimeHandle.Browser.NewContextAsync(new BrowserNewContextOptions
+            {
+                BaseURL = _runtimeHandle.BaseAddress,
+                ViewportSize = new()
+                {
+                    Width = BrowserTestConstants.Viewport.DefaultWidth,
+                    Height = BrowserTestConstants.Viewport.DefaultHeight
+                }
+            });
+        }
+    }
+
+    private static bool IsBrowserClosedException(PlaywrightException exception) =>
+        exception.Message.Contains("Target page, context or browser has been closed", StringComparison.Ordinal)
+        || exception.Message.Contains("Process exited", StringComparison.Ordinal);
 
     private async Task PrimeIsolatedBrowserStorageAsync(IPage page)
     {
@@ -118,10 +156,11 @@ public sealed partial class StandaloneAppFixture : IAsyncLifetime
             await LifecycleGate.WaitAsync();
             try
             {
-                if (_server is null || _playwright is null || _browser is null)
+                if (_server is null || _playwright is null || _browser is null || !_browser.IsConnected)
                 {
                     try
                     {
+                        await DisposeRuntimeAsync();
                         await StartRuntimeAsync();
                     }
                     catch
