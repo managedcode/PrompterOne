@@ -51,7 +51,7 @@ jobs:
           dotnet test "$APP_TEST_PROJECT" --no-build
 
       - name: Test browser suite
-        run: dotnet test "$UI_TEST_PROJECT" --no-build --logger "console;verbosity=detailed"
+        run: dotnet test "$UI_TEST_PROJECT" --no-build
 
   prepare_release:
     name: Resolve Release Version

@@ -453,6 +453,7 @@ Ask first:
 - brittle selectors without dedicated test attributes
 - progress updates that imply a fix is done before there is concrete implementation and verification evidence; keep status factual and let the user verify final behavior personally
 - automated test or coverage runs for UI-behavior fixes before the user has manually checked the change locally; wait for the user's confirmation before resuming automation
+- CI `dotnet test` steps configured with verbose or detailed console loggers that flood the logs with info output; prefer the default or otherwise minimal output that surfaces warnings and errors without noise
 - mixed-language root README or public entry docs; keep them English-only unless the user explicitly asks otherwise
 - any reintroduction of a repo-local `design/` prototype folder as a parallel source of truth; the shipped Blazor UI must be the only product reference
 - fake `display_*` or other presentation-only script metrics that override real TPS-derived words, segments, speed, or duration in user-facing UI
