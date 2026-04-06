@@ -92,7 +92,7 @@ jobs:
       APP_PROJECT: src/PrompterOne.Web/PrompterOne.Web.csproj
       PAGES_ARTIFACT_ROOT: .artifacts/prompterone-pages
       PAGES_BASE_PATH: /
-      PAGES_CNAME: prompter.managed-code.com
+      PAGES_CNAME: app.prompter.one
       PUBLISH_ROOT: .artifacts/prompterone-publish
       RELEASE_ARCHIVE_NAME: prompterone-pages.zip
       RELEASE_ARTIFACT_NAME: prompterone-release-package

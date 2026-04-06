@@ -27,7 +27,7 @@ flowchart LR
     Publish["dotnet publish"]
     Release["GitHub Release<br/>tag + release asset"]
     PagesPrep["Pages artifact prep<br/>root base href + CNAME + 404.html"]
-    Pages["GitHub Pages<br/>prompter.managed-code.com"]
+    Pages["GitHub Pages<br/>app.prompter.one"]
 
     Pr --> Validate
     Run --> BuildProps
@@ -52,9 +52,10 @@ flowchart LR
 ## GitHub Pages Rules
 
 - GitHub Pages publishes the standalone `src/PrompterOne.Web` artifact only.
-- `prompter.managed-code.com` is a custom-domain root deployment, so the Pages artifact must keep `<base href="/">`.
+- `app.prompter.one` is a custom-domain root deployment, so the Pages artifact must keep `<base href="/">`.
 - The workflow copies the published `wwwroot` output, not the host wrapper files around it.
-- The workflow writes `CNAME` for `prompter.managed-code.com` into the Pages artifact.
+- The workflow writes `CNAME` for `app.prompter.one` into the Pages artifact.
+- The public landing site at `prompter.one` is hosted from the separate `PrompterOne-LandingPage` repository and must not be folded back into this app deployment.
 - The workflow copies `index.html` to `404.html` so client-side routes keep working on repository Pages hosting.
 - `.nojekyll` must be present in the Pages artifact so framework and `_content` assets are served as-is.
 - The release workflow must run build and tests before it publishes the release asset, GitHub Release, and GitHub Pages deployment.

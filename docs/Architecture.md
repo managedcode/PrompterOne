@@ -112,7 +112,8 @@ flowchart LR
 - `Directory.Build.props` is the canonical source for shared target framework, analyzer policy, and assembly/app version settings.
 - `global.json` pins the expected .NET SDK for local and CI builds.
 - `.github/workflows/pr-validation.yml` is the canonical pull-request validation flow for repo build and test gates; it runs the browser-realistic Playwright suite in a dedicated `dotnet test` step after the non-browser test projects finish.
-- `.github/workflows/deploy-github-pages.yml` is the canonical release pipeline for the standalone WASM app: build and test, resolve the release version from `Directory.Build.props`, publish the release artifact, publish the GitHub Release, and deploy GitHub Pages on the custom-domain root. Its validation job isolates `PrompterOne.Web.UITests` from the supporting test projects so the self-hosted browser harness owns the test assets during its run.
+- `.github/workflows/deploy-github-pages.yml` is the canonical release pipeline for the standalone WASM app: build and test, resolve the release version from `Directory.Build.props`, publish the release artifact, publish the GitHub Release, and deploy GitHub Pages on `app.prompter.one`. Its validation job isolates `PrompterOne.Web.UITests` from the supporting test projects so the self-hosted browser harness owns the test assets during its run.
+- The marketing landing site for `prompter.one` is intentionally outside this repository in `PrompterOne-LandingPage`; this repo owns only the app runtime and its app-domain deployment.
 - Vendored browser SDK release pins live in `vendored-streaming-sdks.json`, and the exact release sync or watch flow is documented in `docs/Features/VendoredStreamingSdkReleases.md`.
 
 ## Runtime Boundaries

@@ -6,7 +6,7 @@
 </p>
 
 <p align="center">
-  <a href="https://prompter.managed-code.com/">Try it now</a> &middot;
+  <a href="https://app.prompter.one/">Try it now</a> &middot;
   <a href="https://github.com/managedcode/PrompterOne">GitHub</a> &middot;
   <a href="https://github.com/managedcode/TPS">TPS</a> &middot;
   <a href="docs/Architecture.md">Architecture</a> &middot;
@@ -190,11 +190,11 @@ cd PrompterOne
 dotnet run --project src/PrompterOne.Web
 ```
 
-Or just open [prompter.managed-code.com](https://prompter.managed-code.com/) — no install needed.
+Or just open [app.prompter.one](https://app.prompter.one/) — no install needed.
 
 ## Technology
 
-PrompterOne is a standalone [Blazor WebAssembly](https://dotnet.microsoft.com/en-us/apps/aspnet/web-apps/blazor) app on [.NET 10](https://dotnet.microsoft.com/en-us/download/dotnet/10.0). The browser is the runtime: media capture, composition, recording, and transport-aware output happen through browser APIs such as MediaDevices, WebRTC, MediaRecorder, Web Audio, and Canvas. Transport integrations use [LiveKit](https://livekit.io/) and [VDO.Ninja](https://vdo.ninja/). Verification uses [xUnit](https://xunit.net/), [bUnit](https://bunit.dev/), and [Playwright](https://playwright.dev/), with browser scenarios acting as the main release bar. Deployment is a static GitHub Pages build.
+PrompterOne is a standalone [Blazor WebAssembly](https://dotnet.microsoft.com/en-us/apps/aspnet/web-apps/blazor) app on [.NET 10](https://dotnet.microsoft.com/en-us/download/dotnet/10.0). The browser is the runtime: media capture, composition, recording, and transport-aware output happen through browser APIs such as MediaDevices, WebRTC, MediaRecorder, Web Audio, and Canvas. Transport integrations use [LiveKit](https://livekit.io/) and [VDO.Ninja](https://vdo.ninja/). Verification uses [xUnit](https://xunit.net/), [bUnit](https://bunit.dev/), and [Playwright](https://playwright.dev/), with browser scenarios acting as the main release bar. The app deploys to `app.prompter.one` through a static GitHub Pages build, while the public landing site lives separately on `prompter.one`.
 
 ## For Contributors
 
