@@ -910,7 +910,6 @@ internal static partial class BrowserTestConstants
         public static string Editor => AppRoutes.Editor;
         public static string GoLive => AppRoutes.GoLive;
         public static string Library => AppRoutes.Library;
-        public static string LibraryWithWasmDebug => AppendWasmDebug(Library);
         public static string Settings => AppRoutes.Settings;
         public static string EditorDemo => AppRoutes.EditorWithId(Scripts.DemoId);
         public static string EditorHugeDraft => AppRoutes.EditorWithId(Scripts.HugeDraftId);
@@ -936,9 +935,6 @@ internal static partial class BrowserTestConstants
         public static string TeleprompterSpeedOffsets => AppRoutes.TeleprompterWithId(Scripts.SpeedOffsetsId);
 
         public static string Pattern(string route) => string.Concat("**", route);
-
-        private static string AppendWasmDebug(string route) =>
-            string.Concat(route, "?", Telemetry.WasmDebugEnabledQueryKey, "=", Telemetry.WasmDebugEnabledValue);
     }
 
     public static class Telemetry
@@ -955,8 +951,6 @@ internal static partial class BrowserTestConstants
         public const string PageViewsCollection = "pageViews";
         public const int TelemetryWaitTimeoutMs = 5_000;
         public const string VendorLoadsCollection = "vendorLoads";
-        public const string WasmDebugEnabledQueryKey = "wasm-debug";
-        public const string WasmDebugEnabledValue = "1";
     }
 
     public static class Elements

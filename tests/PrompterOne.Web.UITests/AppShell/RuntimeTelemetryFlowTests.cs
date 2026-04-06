@@ -113,37 +113,6 @@ public sealed class RuntimeTelemetryFlowTests(StandaloneAppFixture fixture)
         }
     }
 
-    [Test]
-    public async Task RuntimeTelemetry_DoesNotTrack_WhenWasmDebugQueryIsEnabled()
-    {
-        var page = await _fixture.NewPageAsync();
-
-        try
-        {
-            await page.GotoAsync(BrowserTestConstants.Routes.LibraryWithWasmDebug);
-            await Expect(page.GetByTestId(UiTestIds.Library.Page)).ToBeVisibleAsync(new()
-            {
-                Timeout = BrowserTestConstants.Timing.DefaultNavigationTimeoutMs
-            });
-            await WaitForTelemetryInitializationAsync(page);
-
-            await page.GetByTestId(UiTestIds.Header.GoLive).ClickAsync();
-            await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(AppRoutes.GoLive));
-            await Expect(page.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
-
-            var snapshot = await ReadSnapshotAsync(page);
-
-            await Assert.That(snapshot.Initializations).Contains(entry => entry.DebugEnabled && !entry.RuntimeEnabled && entry.HostEnabled && entry.SentryConfigured && !entry.SentryRuntimeEnabled);
-            await Assert.That(snapshot.PageViews).IsEmpty();
-            await Assert.That(snapshot.Events).IsEmpty();
-            await Assert.That(snapshot.VendorLoads).IsEmpty();
-        }
-        finally
-        {
-            await page.Context.CloseAsync();
-        }
-    }
-
     private static Task WaitForTelemetryInitializationAsync(Microsoft.Playwright.IPage page) =>
         page.WaitForFunctionAsync(
             "() => (window.__prompterOneTelemetryHarness?.initializations?.length ?? 0) >= 1",

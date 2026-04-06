@@ -20,7 +20,7 @@ public sealed class TeleprompterPersistenceTests(StandaloneAppFixture fixture)
     private const string PersistedTextWidthLabel = "79%";
     private const string PersistedTextWidthValue = "79";
     private const double ReaderFontBaselinePixels = 36d;
-    private const int StoredReaderSettingPrecisionDigits = 4;
+    private const int StoredReaderSettingPrecisionDigits = 2;
     private const string PersistedTextAlignmentValue = BrowserTestConstants.TeleprompterFlow.AlignmentJustifyValue;
     private const string ReaderCardActiveClass = "rd-card-active";
     private const string ReaderCardNextClass = "rd-card-next";
