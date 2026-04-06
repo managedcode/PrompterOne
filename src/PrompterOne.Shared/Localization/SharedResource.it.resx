@@ -558,12 +558,14 @@
   <data name="OnboardingProgressFormat" xml:space="preserve"><value>Passaggio {0} di {1}</value></data>
   <data name="OnboardingDismiss" xml:space="preserve"><value>Non mi interessa</value></data>
   <data name="OnboardingBack" xml:space="preserve"><value>Indietro</value></data>
+  <data name="OnboardingOpenTps" xml:space="preserve"><value>Apri TPS</value></data>
   <data name="OnboardingOpenEditor" xml:space="preserve"><value>Apri editor</value></data>
   <data name="OnboardingOpenLearn" xml:space="preserve"><value>Apri Learn</value></data>
   <data name="OnboardingOpenTeleprompter" xml:space="preserve"><value>Apri teleprompter</value></data>
   <data name="OnboardingOpenGoLive" xml:space="preserve"><value>Apri Go Live</value></data>
   <data name="OnboardingFinish" xml:space="preserve"><value>Termina il tour</value></data>
   <data name="OnboardingStepLibrary" xml:space="preserve"><value>PrompterOne</value></data>
+  <data name="OnboardingStepTps" xml:space="preserve"><value>TPS</value></data>
   <data name="OnboardingStepEditor" xml:space="preserve"><value>Editor</value></data>
   <data name="OnboardingStepLearn" xml:space="preserve"><value>Learn</value></data>
   <data name="OnboardingStepTeleprompter" xml:space="preserve"><value>Teleprompter</value></data>
@@ -574,12 +576,18 @@
   <data name="OnboardingWelcomeBulletSearch" xml:space="preserve"><value>Usa la ricerca della libreria per trovare script per titolo, nome file o testo contenuto nello script.</value></data>
   <data name="OnboardingWelcomeBulletModes" xml:space="preserve"><value>Un solo script TPS alimenta Editor, Learn, Teleprompter e Go Live invece di copie separate.</value></data>
   <data name="OnboardingWelcomeBulletLocal" xml:space="preserve"><value>Il tuo workspace resta local-first in questo browser, con salvataggio automatico, cronologia, importazione ed esportazione integrati.</value></data>
-  <data name="OnboardingEditorEyebrow" xml:space="preserve"><value>AUTHORING TPS</value></data>
-  <data name="OnboardingEditorTitle" xml:space="preserve"><value>Scrivi il sorgente TPS</value></data>
-  <data name="OnboardingEditorBody" xml:space="preserve"><value>L’editor è il luogo in cui modelli TPS, il formato TelePrompterScript basato su Markdown che porta struttura, timing, emozioni, pause e indicazioni di delivery in testo semplice.</value></data>
-  <data name="OnboardingEditorBulletTps" xml:space="preserve"><value>TPS resta leggibile in qualsiasi editor di testo, ma PrompterOne capisce in tempo reale i suoi tag, titoli e la semantica del timing.</value></data>
+  <data name="OnboardingTpsEyebrow" xml:space="preserve"><value>FORMATO TPS</value></data>
+  <data name="OnboardingTpsTitle" xml:space="preserve"><value>Capisci che cos’è TPS</value></data>
+  <data name="OnboardingTpsBody" xml:space="preserve"><value>TPS, abbreviazione di TelePrompterScript, è il formato in testo semplice che PrompterOne usa per tenere struttura, ritmo, pause e indicazioni di delivery in un’unica fonte leggibile.</value></data>
+  <data name="OnboardingTpsBulletFormat" xml:space="preserve"><value>TPS resta portabile: puoi versionarlo, confrontarlo, importarlo ed esportarlo senza bloccare lo script in un file di progetto proprietario.</value></data>
+  <data name="OnboardingTpsBulletRuntime" xml:space="preserve"><value>PrompterOne usa la stessa fonte TPS in Editor, Learn, Teleprompter e Go Live così authoring, prova e lettura live restano allineati.</value></data>
+  <data name="OnboardingTpsBulletGlossary" xml:space="preserve"><value>Termini come segment, block, WPM effettivo, archetype, compiler e player vengono dalla specifica e dal glossario TPS ufficiali.</value></data>
+  <data name="OnboardingEditorEyebrow" xml:space="preserve"><value>FLUSSO EDITOR</value></data>
+  <data name="OnboardingEditorTitle" xml:space="preserve"><value>Dai forma allo script nell’editor</value></data>
+  <data name="OnboardingEditorBody" xml:space="preserve"><value>L’editor è il luogo in cui scrivi, ispezioni e rifinisci la fonte TPS attiva con strumenti sensibili alla struttura, metadati analizzati e aiuti di authoring legati allo stesso script.</value></data>
+  <data name="OnboardingEditorBulletTps" xml:space="preserve"><value>L’analisi TPS in tempo reale evidenzia titoli, tag, pause ed errori di authoring mentre lavori.</value></data>
   <data name="OnboardingEditorBulletMetadata" xml:space="preserve"><value>Front matter, WPM, profilo, versione e speed offset restano legati alla bozza invece di finire in note separate.</value></data>
-  <data name="OnboardingEditorBulletAuthoring" xml:space="preserve"><value>Usa la ricerca dell’editor, i menu, gli strumenti di struttura e gli aiuti IA per rifinire lo stesso script che verrà usato nelle superfici di lettura.</value></data>
+  <data name="OnboardingEditorBulletAuthoring" xml:space="preserve"><value>Usa ricerca, menu, strumenti di struttura, cronologia locale e aiuti IA prima di passare alla prova o alla lettura live.</value></data>
   <data name="OnboardingLearnEyebrow" xml:space="preserve"><value>PROVA RSVP</value></data>
   <data name="OnboardingLearnTitle" xml:space="preserve"><value>Prova con RSVP</value></data>
   <data name="OnboardingLearnBody" xml:space="preserve"><value>Learn usa RSVP, o Rapid Serial Visual Presentation, per mostrare le parole con un ritmo focalizzato così da allenare cadenza, articolazione e memorizzazione senza scorrere un intero paragrafo.</value></data>

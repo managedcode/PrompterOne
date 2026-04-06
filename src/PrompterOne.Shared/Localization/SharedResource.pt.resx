@@ -618,6 +618,9 @@
   <data name="OnboardingBack" xml:space="preserve">
     <value>Voltar</value>
   </data>
+  <data name="OnboardingOpenTps" xml:space="preserve">
+    <value>Abrir TPS</value>
+  </data>
   <data name="OnboardingOpenEditor" xml:space="preserve">
     <value>Abrir Editor</value>
   </data>
@@ -635,6 +638,9 @@
   </data>
   <data name="OnboardingStepLibrary" xml:space="preserve">
     <value>PrompterOne</value>
+  </data>
+  <data name="OnboardingStepTps" xml:space="preserve">
+    <value>TPS</value>
   </data>
   <data name="OnboardingStepEditor" xml:space="preserve">
     <value>Editor</value>
@@ -666,23 +672,41 @@
   <data name="OnboardingWelcomeBulletLocal" xml:space="preserve">
     <value>Seu workspace continua local-first neste navegador, com salvamento automático, histórico, importação e exportação integrados.</value>
   </data>
+  <data name="OnboardingTpsEyebrow" xml:space="preserve">
+    <value>FORMATO TPS</value>
+  </data>
+  <data name="OnboardingTpsTitle" xml:space="preserve">
+    <value>Entenda o que é TPS</value>
+  </data>
+  <data name="OnboardingTpsBody" xml:space="preserve">
+    <value>TPS, abreviação de TelePrompterScript, é o formato em texto simples que o PrompterOne usa para manter estrutura, ritmo, pausas e sinais de delivery em uma única fonte legível.</value>
+  </data>
+  <data name="OnboardingTpsBulletFormat" xml:space="preserve">
+    <value>TPS continua portátil: você pode versionar, comparar, importar e exportar sem prender o roteiro a um arquivo de projeto proprietário.</value>
+  </data>
+  <data name="OnboardingTpsBulletRuntime" xml:space="preserve">
+    <value>O PrompterOne usa a mesma fonte TPS no Editor, Learn, Teleprompter e Go Live para manter autoria, ensaio e leitura ao vivo alinhados.</value>
+  </data>
+  <data name="OnboardingTpsBulletGlossary" xml:space="preserve">
+    <value>Termos como segment, block, WPM efetivo, archetype, compiler e player vêm da especificação e do glossário oficiais do TPS.</value>
+  </data>
   <data name="OnboardingEditorEyebrow" xml:space="preserve">
-    <value>AUTORIA TPS</value>
+    <value>FLUXO DO EDITOR</value>
   </data>
   <data name="OnboardingEditorTitle" xml:space="preserve">
-    <value>Escreva a fonte TPS</value>
+    <value>Modele o roteiro no Editor</value>
   </data>
   <data name="OnboardingEditorBody" xml:space="preserve">
-    <value>O editor é onde você molda o TPS, o formato TelePrompterScript baseado em Markdown que carrega estrutura, timing, emoções, pausas e pistas de entrega em texto simples.</value>
+    <value>O editor é onde você redige, inspeciona e refina a fonte TPS ativa com ferramentas sensíveis à estrutura, metadados analisados e auxiliares de autoria ligados ao mesmo roteiro.</value>
   </data>
   <data name="OnboardingEditorBulletTps" xml:space="preserve">
-    <value>O TPS continua legível em qualquer editor de texto, mas o PrompterOne entende suas tags, cabeçalhos e semântica de tempo em tempo real.</value>
+    <value>A análise TPS em tempo real destaca títulos, tags, pausas e erros de autoria enquanto você trabalha.</value>
   </data>
   <data name="OnboardingEditorBulletMetadata" xml:space="preserve">
     <value>Front matter, WPM, perfil, versão e ajustes de velocidade permanecem ligados ao rascunho em vez de se espalharem por notas separadas.</value>
   </data>
   <data name="OnboardingEditorBulletAuthoring" xml:space="preserve">
-    <value>Use a busca do editor, menus, ferramentas de estrutura e ajudas de IA para refinar o mesmo roteiro que as superfícies de leitura vão executar.</value>
+    <value>Use busca, menus, ferramentas de estrutura, histórico local e ajudas de IA antes de levar o roteiro para ensaio ou leitura ao vivo.</value>
   </data>
   <data name="OnboardingLearnEyebrow" xml:space="preserve">
     <value>ENSAIO RSVP</value>

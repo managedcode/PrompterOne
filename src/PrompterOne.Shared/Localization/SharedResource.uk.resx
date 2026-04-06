@@ -855,6 +855,9 @@
   <data name="OnboardingBack" xml:space="preserve">
     <value>Назад</value>
   </data>
+  <data name="OnboardingOpenTps" xml:space="preserve">
+    <value>Відкрити TPS</value>
+  </data>
   <data name="OnboardingOpenEditor" xml:space="preserve">
     <value>Відкрити редактор</value>
   </data>
@@ -872,6 +875,9 @@
   </data>
   <data name="OnboardingStepLibrary" xml:space="preserve">
     <value>Бібліотека</value>
+  </data>
+  <data name="OnboardingStepTps" xml:space="preserve">
+    <value>TPS</value>
   </data>
   <data name="OnboardingStepEditor" xml:space="preserve">
     <value>Редактор</value>
@@ -903,23 +909,41 @@
   <data name="OnboardingWelcomeBulletLocal" xml:space="preserve">
     <value>Ваш workspace лишається local-first у цьому браузері з autosave, history, import та export.</value>
   </data>
+  <data name="OnboardingTpsEyebrow" xml:space="preserve">
+    <value>ФОРМАТ TPS</value>
+  </data>
+  <data name="OnboardingTpsTitle" xml:space="preserve">
+    <value>Зрозумійте, що таке TPS</value>
+  </data>
+  <data name="OnboardingTpsBody" xml:space="preserve">
+    <value>TPS, або TelePrompterScript, — це plain-text формат, який PrompterOne використовує, щоб тримати структуру, темп, паузи та delivery cues в одному читабельному джерелі.</value>
+  </data>
+  <data name="OnboardingTpsBulletFormat" xml:space="preserve">
+    <value>TPS лишається переносним: його можна версіонувати, diff-ити, імпортувати й експортувати без прив’язки сценарію до закритого project file.</value>
+  </data>
+  <data name="OnboardingTpsBulletRuntime" xml:space="preserve">
+    <value>PrompterOne проганяє той самий TPS-сценарій через Editor, Learn, Teleprompter і Go Live, тому авторинг, репетиція й live playback лишаються узгодженими.</value>
+  </data>
+  <data name="OnboardingTpsBulletGlossary" xml:space="preserve">
+    <value>Терміни segment, block, effective WPM, archetype, compiler і player походять з офіційної TPS-специфікації та glossary.</value>
+  </data>
   <data name="OnboardingEditorEyebrow" xml:space="preserve">
-    <value>АВТОРИНГ TPS</value>
+    <value>РОБОТА В РЕДАКТОРІ</value>
   </data>
   <data name="OnboardingEditorTitle" xml:space="preserve">
-    <value>Пишіть TPS-сценарій</value>
+    <value>Формуйте сценарій у редакторі</value>
   </data>
   <data name="OnboardingEditorBody" xml:space="preserve">
-    <value>Редактор — це місце, де ви формуєте TPS, markdown-формат TelePrompterScript, що несе структуру, таймінг, емоції, паузи та delivery cues у звичайному тексті.</value>
+    <value>Редактор — це місце, де ви пишете, перевіряєте й шліфуєте живий TPS-сценарій за допомогою structure-aware інструментів, розібраних метаданих і authoring helpers, прив’язаних до того самого джерела.</value>
   </data>
   <data name="OnboardingEditorBulletTps" xml:space="preserve">
-    <value>TPS лишається читабельним у будь-якому текстовому редакторі, але PrompterOne в реальному часі розуміє його теги, заголовки й таймінгову семантику.</value>
+    <value>Парсинг TPS у реальному часі підсвічує заголовки, теги, паузи та помилки авторингу під час роботи.</value>
   </data>
   <data name="OnboardingEditorBulletMetadata" xml:space="preserve">
     <value>Front matter, WPM, profile, version і speed offsets лишаються прив’язаними до чернетки, а не роз’їжджаються по окремих нотатках.</value>
   </data>
   <data name="OnboardingEditorBulletAuthoring" xml:space="preserve">
-    <value>Використовуйте editor find, меню, structure tools і AI helpers, щоб відшліфувати той самий сценарій, який запускатимуть reader surfaces.</value>
+    <value>Використовуйте пошук, меню, structure tools, local history та AI helpers перед репетицією або живим читанням.</value>
   </data>
   <data name="OnboardingLearnEyebrow" xml:space="preserve">
     <value>RSVP-РЕПЕТИЦІЯ</value>

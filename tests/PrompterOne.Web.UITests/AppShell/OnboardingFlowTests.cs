@@ -19,33 +19,44 @@ public sealed class OnboardingFlowTests(StandaloneAppFixture fixture) : AppUiTes
             await page.GotoAsync(BrowserTestConstants.Routes.Library);
 
             await Expect(page.GetByTestId(UiTestIds.Onboarding.Surface)).ToBeVisibleAsync();
-            await Expect(page.GetByTestId(UiTestIds.Onboarding.Title))
-                .ToHaveTextAsync(BrowserTestConstants.AppShellFlow.OnboardingEnglishWelcomeTitle);
-            await UiScenarioArtifacts.CapturePageAsync(page, BrowserTestConstants.AppShellFlow.OnboardingScenario, BrowserTestConstants.AppShellFlow.OnboardingLibraryStep);
+            await AssertOnboardingStepAsync(
+                page,
+                BrowserTestConstants.AppShellFlow.OnboardingEnglishWelcomeTitle,
+                BrowserTestConstants.AppShellFlow.OnboardingLibraryStep);
 
             await page.GetByTestId(UiTestIds.Onboarding.Next).ClickAsync();
-            await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(BrowserTestConstants.Routes.EditorQuantum));
-            await Expect(page.GetByTestId(UiTestIds.Onboarding.Title))
-                .ToHaveTextAsync(BrowserTestConstants.AppShellFlow.OnboardingEditorTitle);
-            await UiScenarioArtifacts.CapturePageAsync(page, BrowserTestConstants.AppShellFlow.OnboardingScenario, BrowserTestConstants.AppShellFlow.OnboardingEditorStep);
+            await AssertOnboardingStepAsync(
+                page,
+                BrowserTestConstants.AppShellFlow.OnboardingTpsTitle,
+                BrowserTestConstants.AppShellFlow.OnboardingTpsStep,
+                BrowserTestConstants.Routes.Pattern(BrowserTestConstants.Routes.EditorQuantum));
 
             await page.GetByTestId(UiTestIds.Onboarding.Next).ClickAsync();
-            await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(BrowserTestConstants.Routes.LearnQuantum));
-            await Expect(page.GetByTestId(UiTestIds.Onboarding.Title))
-                .ToHaveTextAsync(BrowserTestConstants.AppShellFlow.OnboardingLearnTitle);
-            await UiScenarioArtifacts.CapturePageAsync(page, BrowserTestConstants.AppShellFlow.OnboardingScenario, BrowserTestConstants.AppShellFlow.OnboardingLearnStep);
+            await AssertOnboardingStepAsync(
+                page,
+                BrowserTestConstants.AppShellFlow.OnboardingEditorTitle,
+                BrowserTestConstants.AppShellFlow.OnboardingEditorStep);
 
             await page.GetByTestId(UiTestIds.Onboarding.Next).ClickAsync();
-            await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(BrowserTestConstants.Routes.TeleprompterQuantum));
-            await Expect(page.GetByTestId(UiTestIds.Onboarding.Title))
-                .ToHaveTextAsync(BrowserTestConstants.AppShellFlow.OnboardingTeleprompterTitle);
-            await UiScenarioArtifacts.CapturePageAsync(page, BrowserTestConstants.AppShellFlow.OnboardingScenario, BrowserTestConstants.AppShellFlow.OnboardingTeleprompterStep);
+            await AssertOnboardingStepAsync(
+                page,
+                BrowserTestConstants.AppShellFlow.OnboardingLearnTitle,
+                BrowserTestConstants.AppShellFlow.OnboardingLearnStep,
+                BrowserTestConstants.Routes.Pattern(BrowserTestConstants.Routes.LearnQuantum));
 
             await page.GetByTestId(UiTestIds.Onboarding.Next).ClickAsync();
-            await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(BrowserTestConstants.Routes.GoLiveQuantum));
-            await Expect(page.GetByTestId(UiTestIds.Onboarding.Title))
-                .ToHaveTextAsync(BrowserTestConstants.AppShellFlow.OnboardingGoLiveTitle);
-            await UiScenarioArtifacts.CapturePageAsync(page, BrowserTestConstants.AppShellFlow.OnboardingScenario, BrowserTestConstants.AppShellFlow.OnboardingGoLiveStep);
+            await AssertOnboardingStepAsync(
+                page,
+                BrowserTestConstants.AppShellFlow.OnboardingTeleprompterTitle,
+                BrowserTestConstants.AppShellFlow.OnboardingTeleprompterStep,
+                BrowserTestConstants.Routes.Pattern(BrowserTestConstants.Routes.TeleprompterQuantum));
+
+            await page.GetByTestId(UiTestIds.Onboarding.Next).ClickAsync();
+            await AssertOnboardingStepAsync(
+                page,
+                BrowserTestConstants.AppShellFlow.OnboardingGoLiveTitle,
+                BrowserTestConstants.AppShellFlow.OnboardingGoLiveStep,
+                BrowserTestConstants.Routes.Pattern(BrowserTestConstants.Routes.GoLiveQuantum));
 
             await page.GetByTestId(UiTestIds.Onboarding.Next).ClickAsync();
             await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(BrowserTestConstants.Routes.Library));
@@ -143,5 +154,24 @@ public sealed class OnboardingFlowTests(StandaloneAppFixture fixture) : AppUiTes
                 BrowserStorageKeys.SettingsPrefix + SettingsPagePreferences.StorageKey,
                 completedPreferences
             });
+    }
+
+    private static async Task AssertOnboardingStepAsync(
+        Microsoft.Playwright.IPage page,
+        string expectedTitle,
+        string artifactStep,
+        string? expectedRoutePattern = null)
+    {
+        if (!string.IsNullOrWhiteSpace(expectedRoutePattern))
+        {
+            await page.WaitForURLAsync(expectedRoutePattern);
+        }
+
+        await Expect(page.GetByTestId(UiTestIds.Onboarding.Title))
+            .ToHaveTextAsync(expectedTitle);
+        await UiScenarioArtifacts.CapturePageAsync(
+            page,
+            BrowserTestConstants.AppShellFlow.OnboardingScenario,
+            artifactStep);
     }
 }

@@ -12,6 +12,8 @@ namespace PrompterOne.Web.Tests;
 
 public sealed class MainLayoutOnboardingTests : BunitContext
 {
+    private const string EditorTitle = "Shape the script in Editor";
+    private const string TpsTitle = "Understand what TPS is";
     private const string UkrainianDismissLabel = "Не цікаво";
     private const string UkrainianWelcomeTitle = "Як працює PrompterOne";
 
@@ -97,7 +99,7 @@ public sealed class MainLayoutOnboardingTests : BunitContext
         var cut = RenderLayout();
         cut.WaitForAssertion(() => Assert.NotNull(cut.FindByTestId(UiTestIds.Onboarding.Next)));
 
-        for (var stepIndex = 0; stepIndex < 5; stepIndex++)
+        for (var stepIndex = 0; stepIndex < 6; stepIndex++)
         {
             cut.FindByTestId(UiTestIds.Onboarding.Next).Click();
         }
@@ -111,6 +113,39 @@ public sealed class MainLayoutOnboardingTests : BunitContext
 
         Assert.NotNull(savedPreferences);
         Assert.True(savedPreferences!.HasSeenOnboarding);
+    }
+
+    [Fact]
+    public void MainLayout_OnboardingKeepsTpsAndEditorAsDistinctSteps_OnSharedEditorRoute()
+    {
+        var harness = TestHarnessFactory.Create(this);
+        harness.JsRuntime.SavedValues[SettingsPagePreferences.StorageKey] = SettingsPagePreferences.Default with
+        {
+            HasSeenOnboarding = false
+        };
+        var navigation = Services.GetRequiredService<NavigationManager>();
+        navigation.NavigateTo(AppRoutes.Library);
+
+        var cut = RenderLayout();
+        cut.WaitForAssertion(() => Assert.NotNull(cut.FindByTestId(UiTestIds.Onboarding.Next)));
+
+        cut.FindByTestId(UiTestIds.Onboarding.Next).Click();
+
+        cut.WaitForAssertion(() =>
+        {
+            Assert.Contains(TpsTitle, cut.FindByTestId(UiTestIds.Onboarding.Title).TextContent, StringComparison.Ordinal);
+            Assert.Contains(AppRoutes.Editor, navigation.Uri, StringComparison.Ordinal);
+        });
+
+        var editorRoute = navigation.Uri;
+
+        cut.FindByTestId(UiTestIds.Onboarding.Next).Click();
+
+        cut.WaitForAssertion(() =>
+        {
+            Assert.Contains(EditorTitle, cut.FindByTestId(UiTestIds.Onboarding.Title).TextContent, StringComparison.Ordinal);
+            Assert.Equal(editorRoute, navigation.Uri);
+        });
     }
 
     [Fact]
