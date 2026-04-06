@@ -95,6 +95,8 @@ Rule format:
 - The onboarding flow must include a dedicated TPS explainer step or page, separate from the generic editor step, that tells users what TPS is, why it exists, and how PrompterOne uses it.
 - The dedicated TPS onboarding step must explain TPS in concrete beginner terms: what the format is, why it exists, how PrompterOne uses it across Editor/Learn/Teleprompter/Go Live, and where users can continue with the official TPS site or glossary.
 - Script discovery and authoring surfaces must support real search by script name and script content; Library/script pages and editor flows must not force manual browsing when the user needs to find files or text inside files.
+- Public web hosting is split by role: the standalone PrompterOne app in this repo must publish on `app.prompter.one`, while the marketing landing site for `prompter.one` lives in the separate `PrompterOne-LandingPage` repository.
+- For deploy-only, domain, CI, or static-site hosting tasks, do not spend time on unrelated app/browser test suites unless the user explicitly asks or the runtime behavior itself changes; prefer workflow, build, and publish-config validation only.
 
 ## Rules to Follow (Mandatory)
 
