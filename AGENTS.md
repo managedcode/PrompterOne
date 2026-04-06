@@ -174,6 +174,7 @@ Current local `AGENTS.md` files:
 - [src/PrompterOne.Core/AGENTS.md](./src/PrompterOne.Core/AGENTS.md)
 - [src/PrompterOne.Shared/AGENTS.md](./src/PrompterOne.Shared/AGENTS.md)
 - [tests/PrompterOne.Core.Tests/AGENTS.md](./tests/PrompterOne.Core.Tests/AGENTS.md)
+- [tests/PrompterOne.Testing/AGENTS.md](./tests/PrompterOne.Testing/AGENTS.md)
 - [tests/PrompterOne.Web.Tests/AGENTS.md](./tests/PrompterOne.Web.Tests/AGENTS.md)
 - [tests/PrompterOne.Web.UITests/AGENTS.md](./tests/PrompterOne.Web.UITests/AGENTS.md)
 
@@ -284,6 +285,8 @@ Local `AGENTS.md` files may tighten these values, but they must not loosen them 
 - Do not use mocks, fakes, stubs, or service doubles in verification.
 - Exercise internal and external dependencies through real containers, test instances, or sandbox environments that match the real contract.
 - Flaky tests are failures. Fix the cause.
+- Do not hide multiple verification scenarios inside one test with a `foreach`; split them into separate TUnit data-driven test cases so failures stay isolated and the runner can schedule the cases independently.
+- Supporting TUnit suites should use environment-aware parallel limits: cap CI worker counts lower than local runs, and keep timer-, storage-, or culture-mutation-heavy classes isolated when they prove flaky under suite-wide parallelism.
 - Changed production code MUST reach at least 80% line coverage, and at least 70% branch coverage where branch coverage is available.
 - Critical flows and public contracts MUST reach at least 90% line coverage with explicit success and failure assertions.
 - Repository or module coverage must not decrease without an explicit written exception. Coverage after the change must stay at least at the previous baseline or improve.

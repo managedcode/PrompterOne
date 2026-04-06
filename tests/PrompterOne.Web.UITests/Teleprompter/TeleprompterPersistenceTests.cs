@@ -19,7 +19,7 @@ public sealed class TeleprompterPersistenceTests(StandaloneAppFixture fixture)
     private const string PersistedFontStyleFragment = "--rd-font-size:52px";
     private const string PersistedTextWidthLabel = "79%";
     private const string PersistedTextWidthValue = "79";
-    private const double ReaderFontBaselinePixels = 36d;
+    private const decimal ReaderFontBaselinePixels = 36m;
     private const int StoredReaderSettingPrecisionDigits = 2;
     private const string PersistedTextAlignmentValue = BrowserTestConstants.TeleprompterFlow.AlignmentJustifyValue;
     private const string ReaderCardActiveClass = "rd-card-active";
@@ -54,17 +54,15 @@ public sealed class TeleprompterPersistenceTests(StandaloneAppFixture fixture)
                 "(storageKey) => localStorage.getItem(storageKey) ?? ''",
                 StoredReaderSettingsKey);
             var storedSettings = JsonSerializer.Deserialize<ReaderSettings>(storedJson);
-            var expectedFontScale = Math.Round(
-                double.Parse(PersistedFontValue, CultureInfo.InvariantCulture) / ReaderFontBaselinePixels,
-                StoredReaderSettingPrecisionDigits);
-            var expectedTextWidth = Math.Round(
-                double.Parse(PersistedTextWidthValue, CultureInfo.InvariantCulture) / 100d,
-                StoredReaderSettingPrecisionDigits);
+            var expectedFontScale = RoundStoredReaderSetting(
+                decimal.Parse(PersistedFontValue, CultureInfo.InvariantCulture) / ReaderFontBaselinePixels);
+            var expectedTextWidth = RoundStoredReaderSetting(
+                decimal.Parse(PersistedTextWidthValue, CultureInfo.InvariantCulture) / 100m);
 
             await Assert.That(storedSettings).IsNotNull();
             await Assert.That(storedSettings.FocalPointPercent).IsEqualTo(int.Parse(PersistedFocalPointValue, CultureInfo.InvariantCulture));
-            await Assert.That(Math.Round(storedSettings.FontScale, StoredReaderSettingPrecisionDigits)).IsEqualTo(expectedFontScale);
-            await Assert.That(Math.Round(storedSettings.TextWidth, StoredReaderSettingPrecisionDigits)).IsEqualTo(expectedTextWidth);
+            await Assert.That(RoundStoredReaderSetting((decimal)storedSettings.FontScale)).IsEqualTo(expectedFontScale);
+            await Assert.That(RoundStoredReaderSetting((decimal)storedSettings.TextWidth)).IsEqualTo(expectedTextWidth);
             await Assert.That(storedSettings.TextAlignment).IsEqualTo(ReaderTextAlignment.Justify);
 
             await page.ReloadAsync();
@@ -82,6 +80,9 @@ public sealed class TeleprompterPersistenceTests(StandaloneAppFixture fixture)
             await Expect(page.GetByTestId(UiTestIds.Teleprompter.ClusterWrap))
                 .ToHaveAttributeAsync(BrowserTestConstants.TeleprompterFlow.ReaderTextAlignmentAttribute, PersistedTextAlignmentValue);
         });
+
+    private static decimal RoundStoredReaderSetting(decimal value) =>
+        Math.Round(value, StoredReaderSettingPrecisionDigits);
 
     [Test]
     public Task Teleprompter_BackwardBlockJump_ReversesOutgoingCardDirection() =>

@@ -14,57 +14,98 @@ public sealed class EditorToolbarCoverageTests(StandaloneAppFixture fixture)
     private const int OpenEditorAttemptCount = 2;
     private readonly StandaloneAppFixture _fixture = fixture;
 
+    public static IEnumerable<EditorMenuScenario> MenuScenarios => EditorToolbarCoverageScenarios.MenuScenarios;
+
+    public static IEnumerable<EditorMenuScenario> FloatingMenuScenarios => EditorToolbarCoverageScenarios.FloatingMenuScenarios;
+
+    public static IEnumerable<EditorAiScenario> AiScenarios => EditorToolbarCoverageScenarios.AiScenarios;
+
+    public static IEnumerable<EditorCommandScenario> ToolbarCommandScenarios => EditorToolbarCoverageScenarios.ToolbarCommandScenarios;
+
+    public static IEnumerable<EditorCommandScenario> FloatingCommandScenarios => EditorToolbarCoverageScenarios.FloatingCommandScenarios;
+
     [Test]
-    public async Task EditorToolbar_AllMenuTriggersAndAiButtonsExposeExpectedBehavior()
+    [MethodDataSource(nameof(MenuScenarios))]
+    public async Task EditorToolbar_MenuTrigger_ExposesExpectedBehavior(EditorMenuScenario scenario)
     {
         var page = await _fixture.NewPageAsync();
         var browserErrors = BrowserErrorCollector.Attach(page);
 
         try
         {
-            foreach (var scenario in EditorToolbarCoverageScenarios.MenuScenarios)
-            {
-                await OpenEditorAsync(page);
-                await page.GetByTestId(scenario.TriggerTestId).ClickAsync();
-                await Expect(page.GetByTestId(scenario.PanelTestId))
-                    .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.FastVisibleTimeoutMs });
-            }
+            await OpenEditorAsync(page);
+            await page.GetByTestId(scenario.TriggerTestId).ClickAsync();
+            await Expect(page.GetByTestId(scenario.PanelTestId))
+                .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.FastVisibleTimeoutMs });
+        }
+        catch (Exception exception)
+        {
+            throw new InvalidOperationException(
+                $"Toolbar menu coverage failed for scenario '{scenario.TriggerTestId}' with browser errors:{Environment.NewLine}{browserErrors.Describe()}{Environment.NewLine}{exception}");
+        }
+        finally
+        {
+            await page.Context.CloseAsync();
+        }
+    }
 
-            foreach (var scenario in EditorToolbarCoverageScenarios.FloatingMenuScenarios)
-            {
-                await OpenEditorAsync(page);
-                await SetSourceTextAndSelectPhraseAsync(page, BrowserTestSource.AlphaSource, BrowserTestSource.AlphaToken);
-                await Expect(page.GetByTestId(UiTestIds.Editor.FloatingBar))
-                    .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.FastVisibleTimeoutMs });
-                await page.GetByTestId(scenario.TriggerTestId).ClickAsync();
-                await Expect(page.GetByTestId(scenario.PanelTestId))
-                    .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.FastVisibleTimeoutMs });
-            }
+    [Test]
+    [MethodDataSource(nameof(FloatingMenuScenarios))]
+    public async Task EditorToolbar_FloatingMenuTrigger_ExposesExpectedBehavior(EditorMenuScenario scenario)
+    {
+        var page = await _fixture.NewPageAsync();
+        var browserErrors = BrowserErrorCollector.Attach(page);
 
+        try
+        {
+            await OpenEditorAsync(page);
+            await SetSourceTextAndSelectPhraseAsync(page, BrowserTestSource.AlphaSource, BrowserTestSource.AlphaToken);
+            await Expect(page.GetByTestId(UiTestIds.Editor.FloatingBar))
+                .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.FastVisibleTimeoutMs });
+            await page.GetByTestId(scenario.TriggerTestId).ClickAsync();
+            await Expect(page.GetByTestId(scenario.PanelTestId))
+                .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.FastVisibleTimeoutMs });
+        }
+        catch (Exception exception)
+        {
+            throw new InvalidOperationException(
+                $"Floating toolbar menu coverage failed for scenario '{scenario.TriggerTestId}' with browser errors:{Environment.NewLine}{browserErrors.Describe()}{Environment.NewLine}{exception}");
+        }
+        finally
+        {
+            await page.Context.CloseAsync();
+        }
+    }
+
+    [Test]
+    [MethodDataSource(nameof(AiScenarios))]
+    public async Task EditorToolbar_AiAction_MutatesSource(EditorAiScenario scenario)
+    {
+        var page = await _fixture.NewPageAsync();
+        var browserErrors = BrowserErrorCollector.Attach(page);
+
+        try
+        {
             await OpenEditorAsync(page);
             await AiProviderTestSeeder.SeedConfiguredOpenAiAsync(page);
 
-            foreach (var scenario in EditorToolbarCoverageScenarios.AiScenarios)
+            if (scenario.RequiresSelection)
             {
-                await OpenEditorAsync(page);
-                if (scenario.RequiresSelection)
-                {
-                    await SetSourceTextAndSelectPhraseAsync(page, scenario.SourceText, BrowserTestConstants.Editor.TransformativeMoment);
-                    await page.WaitForTimeoutAsync(BrowserTestConstants.Timing.FloatingToolbarSettleDelayMs);
-                }
-
-                var beforeValue = await EditorMonacoDriver.SourceInput(page).InputValueAsync();
-                await page.GetByTestId(scenario.TestId).ClickAsync();
-                var afterValue = await EditorMonacoDriver.SourceInput(page).InputValueAsync();
-
-                await Assert.That(afterValue).IsNotEqualTo(beforeValue);
-                await Assert.That(afterValue).Contains(scenario.ExpectedFragment);
+                await SetSourceTextAndSelectPhraseAsync(page, scenario.SourceText, BrowserTestConstants.Editor.TransformativeMoment);
+                await page.WaitForTimeoutAsync(BrowserTestConstants.Timing.FloatingToolbarSettleDelayMs);
             }
+
+            var beforeValue = await EditorMonacoDriver.SourceInput(page).InputValueAsync();
+            await page.GetByTestId(scenario.TestId).ClickAsync();
+            var afterValue = await EditorMonacoDriver.SourceInput(page).InputValueAsync();
+
+            await Assert.That(afterValue).IsNotEqualTo(beforeValue);
+            await Assert.That(afterValue).Contains(scenario.ExpectedFragment);
         }
         catch (Exception exception)
         {
             throw new InvalidOperationException(
-                $"Toolbar coverage failed with browser errors:{Environment.NewLine}{browserErrors.Describe()}{Environment.NewLine}{exception}");
+                $"AI toolbar coverage failed for scenario '{scenario.TestId}' with browser errors:{Environment.NewLine}{browserErrors.Describe()}{Environment.NewLine}{exception}");
         }
         finally
         {
@@ -73,33 +114,31 @@ public sealed class EditorToolbarCoverageTests(StandaloneAppFixture fixture)
     }
 
     [Test]
-    public async Task EditorToolbar_AllToolbarCommandButtonsMutateSource()
+    [MethodDataSource(nameof(ToolbarCommandScenarios))]
+    public async Task EditorToolbar_CommandButton_MutatesSource(EditorCommandScenario scenario)
     {
         var page = await _fixture.NewPageAsync();
         var browserErrors = BrowserErrorCollector.Attach(page);
 
         try
         {
-            foreach (var scenario in EditorToolbarCoverageScenarios.ToolbarCommandScenarios)
+            await OpenEditorAsync(page);
+            await PrepareScenarioAsync(page, scenario);
+            if (!string.IsNullOrWhiteSpace(scenario.MenuTriggerTestId))
             {
-                await OpenEditorAsync(page);
-                await PrepareScenarioAsync(page, scenario);
-                if (!string.IsNullOrWhiteSpace(scenario.MenuTriggerTestId))
-                {
-                    await page.GetByTestId(scenario.MenuTriggerTestId).ClickAsync();
-                }
-
-                var beforeValue = await EditorMonacoDriver.SourceInput(page).InputValueAsync();
-                await page.GetByTestId(scenario.TestId).ClickAsync();
-                var afterValue = await EditorMonacoDriver.SourceInput(page).InputValueAsync();
-
-                await AssertCommandMutation(scenario, beforeValue, afterValue);
+                await page.GetByTestId(scenario.MenuTriggerTestId).ClickAsync();
             }
+
+            var beforeValue = await EditorMonacoDriver.SourceInput(page).InputValueAsync();
+            await page.GetByTestId(scenario.TestId).ClickAsync();
+            var afterValue = await EditorMonacoDriver.SourceInput(page).InputValueAsync();
+
+            await AssertCommandMutation(scenario, beforeValue, afterValue);
         }
         catch (Exception exception)
         {
             throw new InvalidOperationException(
-                $"Toolbar command coverage failed with browser errors:{Environment.NewLine}{browserErrors.Describe()}{Environment.NewLine}{exception}");
+                $"Toolbar command coverage failed for scenario '{scenario.TestId}' with browser errors:{Environment.NewLine}{browserErrors.Describe()}{Environment.NewLine}{exception}");
         }
         finally
         {
@@ -108,37 +147,33 @@ public sealed class EditorToolbarCoverageTests(StandaloneAppFixture fixture)
     }
 
     [Test]
-    public async Task EditorToolbar_AllFloatingCommandButtonsMutateSource()
+    [MethodDataSource(nameof(FloatingCommandScenarios))]
+    public async Task EditorToolbar_FloatingCommandButton_MutatesSource(EditorCommandScenario scenario)
     {
         var page = await _fixture.NewPageAsync();
 
         try
         {
-            foreach (var scenario in EditorToolbarCoverageScenarios.FloatingCommandScenarios)
+            await OpenEditorAsync(page);
+            await PrepareScenarioAsync(page, scenario);
+            await Expect(page.GetByTestId(UiTestIds.Editor.FloatingBar))
+                .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.FastVisibleTimeoutMs });
+            await page.WaitForTimeoutAsync(BrowserTestConstants.Timing.FloatingToolbarSettleDelayMs);
+            if (!string.IsNullOrWhiteSpace(scenario.MenuTriggerTestId))
             {
-                try
-                {
-                    await OpenEditorAsync(page);
-                    await PrepareScenarioAsync(page, scenario);
-                    await Expect(page.GetByTestId(UiTestIds.Editor.FloatingBar))
-                        .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.FastVisibleTimeoutMs });
-                    await page.WaitForTimeoutAsync(BrowserTestConstants.Timing.FloatingToolbarSettleDelayMs);
-                    if (!string.IsNullOrWhiteSpace(scenario.MenuTriggerTestId))
-                    {
-                        await page.GetByTestId(scenario.MenuTriggerTestId).ClickAsync();
-                    }
-
-                    var beforeValue = await EditorMonacoDriver.SourceInput(page).InputValueAsync();
-                    await page.GetByTestId(scenario.TestId).ClickAsync();
-                    var afterValue = await EditorMonacoDriver.SourceInput(page).InputValueAsync();
-
-                    await AssertCommandMutation(scenario, beforeValue, afterValue);
-                }
-                catch (Exception exception)
-                {
-                    throw new InvalidOperationException($"Floating toolbar coverage failed for scenario '{scenario.TestId}'.{Environment.NewLine}{exception}");
-                }
+                await page.GetByTestId(scenario.MenuTriggerTestId).ClickAsync();
             }
+
+            var beforeValue = await EditorMonacoDriver.SourceInput(page).InputValueAsync();
+            await page.GetByTestId(scenario.TestId).ClickAsync();
+            var afterValue = await EditorMonacoDriver.SourceInput(page).InputValueAsync();
+
+            await AssertCommandMutation(scenario, beforeValue, afterValue);
+        }
+        catch (Exception exception)
+        {
+            throw new InvalidOperationException(
+                $"Floating toolbar coverage failed for scenario '{scenario.TestId}'.{Environment.NewLine}{exception}");
         }
         finally
         {

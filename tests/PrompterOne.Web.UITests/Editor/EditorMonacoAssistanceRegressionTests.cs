@@ -64,6 +64,10 @@ public sealed class EditorMonacoAssistanceRegressionTests(StandaloneAppFixture f
             .Concat(TpsSpec.RelativeSpeedTags.Select(BuildWrapCompletionLabel))
             .ToArray();
 
+    public static IEnumerable<string> ArchetypeSegmentCompletionLabels => ExpectedArchetypeSegmentCompletionLabels;
+
+    public static IEnumerable<string> VendoredWrapperLabels => ExpectedVendoredWrapperLabels;
+
     [Test]
     public async Task EditorScreen_CompletionsExposeDetailedPayloadsForStructuredTpsSuggestions()
     {
@@ -131,10 +135,6 @@ public sealed class EditorMonacoAssistanceRegressionTests(StandaloneAppFixture f
             await Assert.That(staccatoCompletion.Documentation).Contains("staccato");
             await Assert.That(archetypeSegmentCompletion.Detail).IsEqualTo("Segment header (archetype)");
             await Assert.That(archetypeSegmentCompletion.InsertText).Contains("Archetype:${3:Coach}");
-            foreach (var completionLabel in ExpectedArchetypeSegmentCompletionLabels)
-            {
-                _ = FindCompletion(completions, completionLabel);
-            }
         }
         finally
         {
@@ -143,7 +143,8 @@ public sealed class EditorMonacoAssistanceRegressionTests(StandaloneAppFixture f
     }
 
     [Test]
-    public async Task EditorScreen_CompletionsExposeVendoredEmotionVoiceAndDeliveryWrappers()
+    [MethodDataSource(nameof(ArchetypeSegmentCompletionLabels))]
+    public async Task EditorScreen_CompletionsExposeEveryArchetypeSegmentCompletion(string completionLabel)
     {
         var page = await OpenEditorAsync();
 
@@ -152,10 +153,26 @@ public sealed class EditorMonacoAssistanceRegressionTests(StandaloneAppFixture f
             await EditorMonacoDriver.SetTextAsync(page, "[");
             var completions = await EditorMonacoDriver.GetCompletionsAsync(page, TitleLineNumber, CompletionStartColumn);
 
-            foreach (var expectedLabel in ExpectedVendoredWrapperLabels)
-            {
-                _ = FindCompletion(completions, expectedLabel);
-            }
+            _ = FindCompletion(completions, completionLabel);
+        }
+        finally
+        {
+            await page.Context.CloseAsync();
+        }
+    }
+
+    [Test]
+    [MethodDataSource(nameof(VendoredWrapperLabels))]
+    public async Task EditorScreen_CompletionsExposeVendoredEmotionVoiceAndDeliveryWrapper(string expectedLabel)
+    {
+        var page = await OpenEditorAsync();
+
+        try
+        {
+            await EditorMonacoDriver.SetTextAsync(page, "[");
+            var completions = await EditorMonacoDriver.GetCompletionsAsync(page, TitleLineNumber, CompletionStartColumn);
+
+            _ = FindCompletion(completions, expectedLabel);
         }
         finally
         {

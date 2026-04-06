@@ -13,8 +13,17 @@ public sealed class EditorToolbarDropdownPaintTests(StandaloneAppFixture fixture
     private const double MenuProbeInsetPx = 24;
     private const string ScenarioName = "editor-toolbar-dropdown-paint";
 
+    public static IEnumerable<DropdownPaintScenario> ToolbarDropdownPaintScenarios =>
+        EditorToolbarCoverageScenarios.MenuScenarios
+            .Select((scenario, index) => new DropdownPaintScenario(index + 1, scenario.TriggerTestId, scenario.PanelTestId));
+
+    public static IEnumerable<DropdownPaintScenario> FloatingDropdownPaintScenarios =>
+        EditorToolbarCoverageScenarios.FloatingMenuScenarios
+            .Select((scenario, index) => new DropdownPaintScenario(index + 100, scenario.TriggerTestId, scenario.PanelTestId));
+
     [Test]
-    public Task EditorToolbar_DropdownMenus_RenderAboveEditorSurface_AndReceivePointerHits() =>
+    [MethodDataSource(nameof(ToolbarDropdownPaintScenarios))]
+    public Task EditorToolbar_DropdownMenu_RendersAboveEditorSurface_AndReceivesPointerHits(DropdownPaintScenario scenario) =>
         RunPageAsync(async page =>
         {
             UiScenarioArtifacts.ResetScenario(ScenarioName);
@@ -26,59 +35,12 @@ public sealed class EditorToolbarDropdownPaintTests(StandaloneAppFixture fixture
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
 
-            var scenarioIndex = 1;
-            foreach (var scenario in EditorToolbarCoverageScenarios.MenuScenarios)
-            {
-                await page.GetByTestId(scenario.TriggerTestId).ClickAsync();
-                var panel = page.GetByTestId(scenario.PanelTestId);
-                await Expect(panel)
-                    .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.FastVisibleTimeoutMs });
-
-                var hitTest = await page.EvaluateAsync<DropdownHitTestResult>(
-                    """
-                    args => {
-                        const menu = document.querySelector(`[data-testid="${args.panelTestId}"]`);
-                        if (!menu) {
-                            return null;
-                        }
-
-                        const rect = menu.getBoundingClientRect();
-                        const probeX = rect.left + (rect.width / 2);
-                        const probeY = Math.min(rect.top + args.probeInsetPx, rect.bottom - 4);
-                        const hitElement = document.elementFromPoint(probeX, probeY);
-
-                        return {
-                            hitInsideMenu: !!hitElement && (hitElement === menu || menu.contains(hitElement)),
-                            hitTestId: hitElement?.getAttribute('data-testid') ?? '',
-                            hitTagName: hitElement?.tagName ?? '',
-                            hitClassName: hitElement?.className ?? '',
-                            menuHeight: rect.height,
-                            menuWidth: rect.width,
-                            probeX,
-                            probeY
-                        };
-                    }
-                    """,
-                    new
-                    {
-                        panelTestId = scenario.PanelTestId,
-                        probeInsetPx = MenuProbeInsetPx
-                    });
-
-                await UiScenarioArtifacts.CaptureLocatorAsync(
-                    panel,
-                    ScenarioName,
-                    BuildStepName(scenarioIndex, scenario.TriggerTestId));
-
-                await Assert.That(hitTest).IsNotNull();
-                await Assert.That(hitTest!.HitInsideMenu).IsTrue().Because($"Expected dropdown '{scenario.PanelTestId}' to paint above the editor surface and receive pointer hits, but the probe hit '{hitTest.HitTagName}' with data-testid '{hitTest.HitTestId}' and class '{hitTest.HitClassName}'. Menu size was {hitTest.MenuWidth:0.##}x{hitTest.MenuHeight:0.##} at probe ({hitTest.ProbeX:0.##}, {hitTest.ProbeY:0.##}).");
-
-                scenarioIndex++;
-            }
+            await AssertDropdownPaintAsync(page, scenario);
         });
 
     [Test]
-    public Task EditorToolbar_FloatingDropdownMenus_RenderAboveEditorSurface_AndReceivePointerHits() =>
+    [MethodDataSource(nameof(FloatingDropdownPaintScenarios))]
+    public Task EditorToolbar_FloatingDropdownMenu_RendersAboveEditorSurface_AndReceivesPointerHits(DropdownPaintScenario scenario) =>
         RunPageAsync(async page =>
         {
             UiScenarioArtifacts.ResetScenario(ScenarioName);
@@ -93,59 +55,58 @@ public sealed class EditorToolbarDropdownPaintTests(StandaloneAppFixture fixture
             await Expect(page.GetByTestId(UiTestIds.Editor.FloatingBar))
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.FastVisibleTimeoutMs });
 
-            var scenarioIndex = 100;
-            foreach (var scenario in EditorToolbarCoverageScenarios.FloatingMenuScenarios)
-            {
-                await page.GetByTestId(scenario.TriggerTestId).ClickAsync();
-                var panel = page.GetByTestId(scenario.PanelTestId);
-                await Expect(panel)
-                    .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.FastVisibleTimeoutMs });
-
-                var hitTest = await page.EvaluateAsync<DropdownHitTestResult>(
-                    """
-                    args => {
-                        const menu = document.querySelector(`[data-testid="${args.panelTestId}"]`);
-                        if (!menu) {
-                            return null;
-                        }
-
-                        const rect = menu.getBoundingClientRect();
-                        const probeX = rect.left + (rect.width / 2);
-                        const probeY = Math.min(rect.top + args.probeInsetPx, rect.bottom - 4);
-                        const hitElement = document.elementFromPoint(probeX, probeY);
-
-                        return {
-                            hitInsideMenu: !!hitElement && (hitElement === menu || menu.contains(hitElement)),
-                            hitTestId: hitElement?.getAttribute('data-testid') ?? '',
-                            hitTagName: hitElement?.tagName ?? '',
-                            hitClassName: hitElement?.className ?? '',
-                            menuHeight: rect.height,
-                            menuWidth: rect.width,
-                            probeX,
-                            probeY
-                        };
-                    }
-                    """,
-                    new
-                    {
-                        panelTestId = scenario.PanelTestId,
-                        probeInsetPx = MenuProbeInsetPx
-                    });
-
-                await UiScenarioArtifacts.CaptureLocatorAsync(
-                    panel,
-                    ScenarioName,
-                    BuildStepName(scenarioIndex, scenario.TriggerTestId));
-
-                await Assert.That(hitTest).IsNotNull();
-                await Assert.That(hitTest!.HitInsideMenu).IsTrue().Because($"Expected floating dropdown '{scenario.PanelTestId}' to paint above the editor surface and receive pointer hits, but the probe hit '{hitTest.HitTagName}' with data-testid '{hitTest.HitTestId}' and class '{hitTest.HitClassName}'. Menu size was {hitTest.MenuWidth:0.##}x{hitTest.MenuHeight:0.##} at probe ({hitTest.ProbeX:0.##}, {hitTest.ProbeY:0.##}).");
-
-                scenarioIndex++;
-            }
+            await AssertDropdownPaintAsync(page, scenario);
         });
 
     private static string BuildStepName(int scenarioIndex, string triggerTestId) =>
         $"{scenarioIndex:D2}-{triggerTestId}";
+
+    private static async Task AssertDropdownPaintAsync(Microsoft.Playwright.IPage page, DropdownPaintScenario scenario)
+    {
+        await page.GetByTestId(scenario.TriggerTestId).ClickAsync();
+        var panel = page.GetByTestId(scenario.PanelTestId);
+        await Expect(panel)
+            .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.FastVisibleTimeoutMs });
+
+        var hitTest = await page.EvaluateAsync<DropdownHitTestResult>(
+            """
+            args => {
+                const menu = document.querySelector(`[data-testid="${args.panelTestId}"]`);
+                if (!menu) {
+                    return null;
+                }
+
+                const rect = menu.getBoundingClientRect();
+                const probeX = rect.left + (rect.width / 2);
+                const probeY = Math.min(rect.top + args.probeInsetPx, rect.bottom - 4);
+                const hitElement = document.elementFromPoint(probeX, probeY);
+
+                return {
+                    hitInsideMenu: !!hitElement && (hitElement === menu || menu.contains(hitElement)),
+                    hitTestId: hitElement?.getAttribute('data-testid') ?? '',
+                    hitTagName: hitElement?.tagName ?? '',
+                    hitClassName: hitElement?.className ?? '',
+                    menuHeight: rect.height,
+                    menuWidth: rect.width,
+                    probeX,
+                    probeY
+                };
+            }
+            """,
+            new
+            {
+                panelTestId = scenario.PanelTestId,
+                probeInsetPx = MenuProbeInsetPx
+            });
+
+        await UiScenarioArtifacts.CaptureLocatorAsync(
+            panel,
+            ScenarioName,
+            BuildStepName(scenario.ScenarioIndex, scenario.TriggerTestId));
+
+        await Assert.That(hitTest).IsNotNull();
+        await Assert.That(hitTest!.HitInsideMenu).IsTrue().Because($"Expected dropdown '{scenario.PanelTestId}' to paint above the editor surface and receive pointer hits, but the probe hit '{hitTest.HitTagName}' with data-testid '{hitTest.HitTestId}' and class '{hitTest.HitClassName}'. Menu size was {hitTest.MenuWidth:0.##}x{hitTest.MenuHeight:0.##} at probe ({hitTest.ProbeX:0.##}, {hitTest.ProbeY:0.##}).");
+    }
 
     private sealed class DropdownHitTestResult
     {
@@ -165,4 +126,9 @@ public sealed class EditorToolbarDropdownPaintTests(StandaloneAppFixture fixture
 
         public double ProbeY { get; init; }
     }
+
+    public sealed record DropdownPaintScenario(
+        int ScenarioIndex,
+        string TriggerTestId,
+        string PanelTestId);
 }

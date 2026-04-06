@@ -2,24 +2,24 @@ using PrompterOne.Shared.Components.Editor;
 
 namespace PrompterOne.Web.UITests;
 
-internal enum EditorScenarioSelectionMode
+public enum EditorScenarioSelectionMode
 {
     WrapSelection,
     InsertAtCaret,
     ClearColorSelection
 }
 
-internal sealed record EditorCommandScenario(
+public sealed record EditorCommandScenario(
     string TestId,
     string? MenuTriggerTestId,
     EditorCommandRequest Command,
     EditorScenarioSelectionMode SelectionMode);
 
-internal sealed record EditorMenuScenario(
+public sealed record EditorMenuScenario(
     string TriggerTestId,
     string PanelTestId);
 
-internal sealed record EditorAiScenario(
+public sealed record EditorAiScenario(
     string TestId,
     bool RequiresSelection,
     string SourceText,

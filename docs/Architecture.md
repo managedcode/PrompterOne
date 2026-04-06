@@ -50,7 +50,7 @@ flowchart LR
     Shared["src/PrompterOne.Shared<br/>Razor pages, layout, CSS, JS interop"]
     Core["src/PrompterOne.Core<br/>TPS, RSVP, workspace, media, streaming"]
     Docs["docs/<br/>Architecture + TPS reference + feature docs"]
-    Tests["tests/*<br/>TUnit + bUnit + Playwright"]
+    Tests["tests/*<br/>TUnit + bUnit + Playwright + shared test support"]
 
     App --> Shared
     Shared --> Core
@@ -65,7 +65,8 @@ flowchart LR
 
 - `src/PrompterOne.Shared` keeps routed UI in feature slices: `AppShell`, `Diagnostics`, `Editor`, `Library`, `Learn`, `Teleprompter`, `GoLive`, `Settings`, and `Media`.
 - `src/PrompterOne.Core` keeps host-neutral behavior in matching domain slices: `Tps`, `Editor`, `Workspace`, `Library`, `Rsvp`, `Media`, `Streaming`, and `Localization`.
-- `tests/PrompterOne.Core.Tests`, `tests/PrompterOne.Web.Tests`, and `tests/PrompterOne.Web.UITests` mirror those feature slices and reserve `Support` or `Infrastructure` for shared harness code.
+- `tests/PrompterOne.Core.Tests`, `tests/PrompterOne.Web.Tests`, and `tests/PrompterOne.Web.UITests` mirror those feature slices.
+- `tests/PrompterOne.Testing` owns reusable test assertions and runner configuration shared across multiple test projects.
 
 ## Design And Structure Principles
 
@@ -530,10 +531,13 @@ sequenceDiagram
 
 ```mermaid
 flowchart LR
+    TestSupport["tests/PrompterOne.Testing"]
     CoreTests["tests/PrompterOne.Core.Tests"]
     AppTests["tests/PrompterOne.Web.Tests"]
     UiTests["tests/PrompterOne.Web.UITests"]
 
+    CoreTests --> TestSupport
+    AppTests --> TestSupport
     CoreTests --> Core["src/PrompterOne.Core"]
     AppTests --> Shared["src/PrompterOne.Shared"]
     UiTests --> App["src/PrompterOne.Web"]
@@ -544,6 +548,7 @@ flowchart LR
 - `PrompterOne.Core.Tests`: domain correctness and regression tests grouped by core slice plus `Support/`
 - `PrompterOne.Web.Tests`: bUnit coverage grouped by routed feature slice plus `Support/`
 - `PrompterOne.Web.UITests`: Playwright browser flows grouped by browser feature slice plus `Infrastructure/`, `Scenarios/`, `Media/`, and `Support/`
+- `PrompterOne.Testing`: shared test-only infrastructure such as assertion adapters and environment-aware runner limits
 
 ## Constraints
 

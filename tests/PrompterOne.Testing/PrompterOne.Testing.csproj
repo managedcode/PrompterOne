@@ -1,19 +1,14 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <IsPackable>false</IsPackable>
-    <OutputType>Exe</OutputType>
     <TUnitImplicitUsings>false</TUnitImplicitUsings>
     <TUnitAssertionsImplicitUsings>false</TUnitAssertionsImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Shouldly" />
     <PackageReference Include="TUnit" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\PrompterOne.Core\PrompterOne.Core.csproj" />
-    <ProjectReference Include="..\PrompterOne.Testing\PrompterOne.Testing.csproj" />
   </ItemGroup>
 
 </Project>

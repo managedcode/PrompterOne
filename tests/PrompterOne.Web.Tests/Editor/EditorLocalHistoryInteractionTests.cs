@@ -10,6 +10,7 @@ using PrompterOne.Shared.Tests;
 
 namespace PrompterOne.Web.Tests;
 
+[NotInParallel]
 public sealed class EditorLocalHistoryInteractionTests : BunitContext
 {
     private readonly AppHarness _harness;

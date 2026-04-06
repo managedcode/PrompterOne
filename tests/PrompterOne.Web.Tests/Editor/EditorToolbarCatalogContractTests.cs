@@ -4,6 +4,12 @@ namespace PrompterOne.Web.Tests;
 
 public sealed class EditorToolbarCatalogContractTests
 {
+    public static IEnumerable<string> VoiceDropdownGroupLabels =>
+        EditorToolbarCatalog.Sections
+            .Single(candidate => string.Equals(candidate.Key, "voice", StringComparison.Ordinal))
+            .DropdownGroups
+            .Select(group => group.Label);
+
     [Test]
     public void TopToolbarDropdowns_FollowVendoredTpsOrder()
     {
@@ -71,24 +77,17 @@ public sealed class EditorToolbarCatalogContractTests
     }
 
     [Test]
-    public void VoiceDropdowns_StayAligned_BetweenTopToolbarAndFloatingToolbar()
+    [MethodDataSource(nameof(VoiceDropdownGroupLabels))]
+    public void VoiceDropdownGroup_StaysAligned_BetweenTopToolbarAndFloatingToolbar(string groupLabel)
     {
         var topVoiceGroups = FindTopSection("voice").DropdownGroups;
         var floatingVoiceGroups = FindFloatingMenu(EditorToolbarMenuIds.FloatingVoice).DropdownGroups;
+        var topGroup = Assert.Single(topVoiceGroups, group => string.Equals(group.Label, groupLabel, StringComparison.Ordinal));
+        var floatingGroup = Assert.Single(floatingVoiceGroups, group => string.Equals(group.Label, groupLabel, StringComparison.Ordinal));
 
         Assert.Equal(
-            topVoiceGroups.Select(group => group.Label),
-            floatingVoiceGroups.Select(group => group.Label));
-
-        foreach (var groupLabel in topVoiceGroups.Select(group => group.Label))
-        {
-            var topGroup = Assert.Single(topVoiceGroups, group => string.Equals(group.Label, groupLabel, StringComparison.Ordinal));
-            var floatingGroup = Assert.Single(floatingVoiceGroups, group => string.Equals(group.Label, groupLabel, StringComparison.Ordinal));
-
-            Assert.Equal(
-                topGroup.Actions.Select(action => NormalizeFloatingKey(action.Key)),
-                floatingGroup.Actions.Select(action => NormalizeFloatingKey(action.Key)));
-        }
+            topGroup.Actions.Select(action => NormalizeFloatingKey(action.Key)),
+            floatingGroup.Actions.Select(action => NormalizeFloatingKey(action.Key)));
     }
 
     [Test]

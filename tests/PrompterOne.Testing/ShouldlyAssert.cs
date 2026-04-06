@@ -3,7 +3,7 @@ using Shouldly;
 
 namespace PrompterOne.Testing;
 
-internal static class ShouldlyAssert
+public static class ShouldlyAssert
 {
     public static void Equal<T>(T expected, T actual)
         => actual.ShouldBe(expected);

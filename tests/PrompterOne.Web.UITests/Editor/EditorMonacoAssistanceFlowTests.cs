@@ -46,6 +46,8 @@ public sealed class EditorMonacoAssistanceFlowTests(StandaloneAppFixture fixture
         "//"
     ];
 
+    public static IEnumerable<string> CompletionLabels => ExpectedCompletionLabels;
+
     [Test]
     public async Task EditorScreen_TokenizesSupportedTpsSyntaxWithMonacoLanguage()
     {
@@ -90,7 +92,8 @@ public sealed class EditorMonacoAssistanceFlowTests(StandaloneAppFixture fixture
     }
 
     [Test]
-    public async Task EditorScreen_ProvidesMonacoTpsCompletions()
+    [MethodDataSource(nameof(CompletionLabels))]
+    public async Task EditorScreen_ProvidesMonacoTpsCompletionLabel(string expectedLabel)
     {
         var page = await fixture.NewPageAsync();
 
@@ -105,10 +108,7 @@ public sealed class EditorMonacoAssistanceFlowTests(StandaloneAppFixture fixture
             var completions = await EditorMonacoDriver.GetCompletionsAsync(page, CompletionInvokeLineNumber, CompletionInvokeColumn);
 
             await Assert.That(completions.Suggestions).IsNotEmpty();
-            foreach (var expectedLabel in ExpectedCompletionLabels)
-            {
-                await Assert.That(completions.Suggestions).Contains(suggestion => string.Equals(suggestion.Label, expectedLabel, StringComparison.Ordinal));
-            }
+            await Assert.That(completions.Suggestions).Contains(suggestion => string.Equals(suggestion.Label, expectedLabel, StringComparison.Ordinal));
         }
         finally
         {
