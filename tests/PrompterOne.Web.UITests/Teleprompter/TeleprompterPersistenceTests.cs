@@ -6,13 +6,13 @@ using PrompterOne.Shared.Contracts;
 using PrompterOne.Shared.Services;
 using PrompterOne.Shared.Storage;
 using static Microsoft.Playwright.Assertions;
-using System.Threading.Tasks;
 
 namespace PrompterOne.Web.UITests;
 
 [ClassDataSource<StandaloneAppFixture>(Shared = SharedType.PerClass)]
 public sealed class TeleprompterPersistenceTests(StandaloneAppFixture fixture)
-    : AppUiTestBase(fixture){
+    : AppUiTestBase(fixture)
+{
     private const string PersistedFocalPointValue = "37";
     private const string PersistedFontValue = "52";
     private const string PersistedFocalGuideStyle = "top:37%;";

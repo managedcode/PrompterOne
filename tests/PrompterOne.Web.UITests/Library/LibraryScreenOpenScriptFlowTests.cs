@@ -1,12 +1,11 @@
-using System.IO;
 using PrompterOne.Shared.Contracts;
 using static Microsoft.Playwright.Assertions;
-using System.Threading.Tasks;
 
 namespace PrompterOne.Web.UITests;
 
 [ClassDataSource<StandaloneAppFixture>(Shared = SharedType.PerClass)]
-public sealed class LibraryScreenOpenScriptFlowTests(StandaloneAppFixture fixture) : AppUiTestBase(fixture){
+public sealed class LibraryScreenOpenScriptFlowTests(StandaloneAppFixture fixture) : AppUiTestBase(fixture)
+{
     private const string BodyOnlyFileName = "Quarterly Town Hall Notes.txt";
     private const string BodyOnlyTitle = "Quarterly Town Hall Notes";
     private const string BodyOnlyDocument =

@@ -3,7 +3,8 @@ using PrompterOne.Shared.Contracts;
 namespace PrompterOne.Web.UITests;
 
 [ClassDataSource<StandaloneAppFixture>(Shared = SharedType.PerClass)]
-public sealed class ResponsiveLayoutTests(StandaloneAppFixture fixture) : AppUiTestBase(fixture){
+public sealed class ResponsiveLayoutTests(StandaloneAppFixture fixture) : AppUiTestBase(fixture)
+{
     public static IEnumerable<ResponsiveViewport> ResponsiveViewports =>
         BrowserTestConstants.ResponsiveLayout.Viewports;
 

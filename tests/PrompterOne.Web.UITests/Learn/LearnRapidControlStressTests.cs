@@ -1,12 +1,12 @@
 using PrompterOne.Shared.Contracts;
 using static Microsoft.Playwright.Assertions;
-using System.Threading.Tasks;
 
 namespace PrompterOne.Web.UITests;
 
 [ClassDataSource<StandaloneAppFixture>(Shared = SharedType.PerClass)]
 public sealed class LearnRapidControlStressTests(StandaloneAppFixture fixture)
-    : AppUiTestBase(fixture){
+    : AppUiTestBase(fixture)
+{
     private const string RapidControlsScenario = "learn-rapid-controls";
     private const string RapidControlsStep = "01-rapid-controls";
 

@@ -2,7 +2,6 @@ using Microsoft.Playwright;
 using PrompterOne.Shared.Contracts;
 using PrompterOne.Shared.Services.Editor;
 using static Microsoft.Playwright.Assertions;
-using System.Threading.Tasks;
 
 namespace PrompterOne.Web.UITests;
 
@@ -62,7 +61,7 @@ public sealed class EditorTypingTests(StandaloneAppFixture fixture)
             });
 
             var editorSurfaceState = await EditorMonacoDriver.GetStateAsync(page);
-            await Assert.That(editorSurfaceState.Selection.Start).IsBetween(0,BrowserTestConstants.Editor.ClickCaretThreshold);
+            await Assert.That(editorSurfaceState.Selection.Start).IsBetween(0, BrowserTestConstants.Editor.ClickCaretThreshold);
             await Assert.That(editorSurfaceState.Ready).IsTrue();
             await Assert.That(editorSurfaceState.Engine).IsEqualTo(EditorMonacoRuntimeContract.EditorEngineAttributeValue);
             await Assert.That(editorSurfaceState.DecorationClasses.Count > 0).IsTrue();
@@ -290,8 +289,8 @@ public sealed class EditorTypingTests(StandaloneAppFixture fixture)
 
             await Assert.That(probeResult.SampleCount > 0).IsTrue();
             await Assert.That(probeResult.SawVisibleInput).IsFalse();
-            await Assert.That(probeResult.P95Latency).IsBetween(0,BrowserTestConstants.Editor.MaxVisibleRenderP95LatencyMs);
-            await Assert.That(probeResult.MaxLatency).IsBetween(0,BrowserTestConstants.Editor.MaxVisibleRenderSpikeLatencyMs);
+            await Assert.That(probeResult.P95Latency).IsBetween(0, BrowserTestConstants.Editor.MaxVisibleRenderP95LatencyMs);
+            await Assert.That(probeResult.MaxLatency).IsBetween(0, BrowserTestConstants.Editor.MaxVisibleRenderSpikeLatencyMs);
             await Assert.That(probeResult.LongTaskCount <= BrowserTestConstants.Editor.MaxTypingLongTaskCount).IsTrue().Because($"Expected Monaco typing to avoid browser long tasks, but observed {probeResult.LongTaskCount} long task(s) with max duration {probeResult.MaxLongTaskDuration:0.##}ms.");
             await Assert.That(probeResult.FinalInputColor).IsEqualTo(BrowserTestConstants.Editor.TransparentInputColor);
             await Assert.That(probeResult.ReadyDuringTyping).IsTrue();

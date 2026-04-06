@@ -2,7 +2,6 @@ using System.Globalization;
 using System.Text;
 using PrompterOne.Shared.Contracts;
 using static Microsoft.Playwright.Assertions;
-using System.Threading.Tasks;
 
 namespace PrompterOne.Web.UITests;
 
@@ -44,7 +43,7 @@ public sealed class EditorAiScrollStabilityTests(StandaloneAppFixture fixture)
             var value = await EditorMonacoDriver.SourceInput(page).InputValueAsync();
 
             await Assert.That(value).Contains(BrowserTestConstants.Editor.SimplifiedMoment);
-            await Assert.That(Math.Abs(after.ScrollTop - before.ScrollTop)).IsBetween(0,BrowserTestConstants.Editor.AiScrollJumpMaximumAllowedDeltaPx);
+            await Assert.That(Math.Abs(after.ScrollTop - before.ScrollTop)).IsBetween(0, BrowserTestConstants.Editor.AiScrollJumpMaximumAllowedDeltaPx);
         }
         finally
         {

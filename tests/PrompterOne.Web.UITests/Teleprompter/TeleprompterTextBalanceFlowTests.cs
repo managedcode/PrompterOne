@@ -1,12 +1,12 @@
 using PrompterOne.Shared.Contracts;
 using static Microsoft.Playwright.Assertions;
-using System.Threading.Tasks;
 
 namespace PrompterOne.Web.UITests;
 
 [ClassDataSource<StandaloneAppFixture>(Shared = SharedType.PerClass)]
 public sealed class TeleprompterTextBalanceFlowTests(StandaloneAppFixture fixture)
-    : AppUiTestBase(fixture){
+    : AppUiTestBase(fixture)
+{
     private const int OpeningCardIndex = 0;
 
     [Test]
@@ -85,9 +85,9 @@ public sealed class TeleprompterTextBalanceFlowTests(StandaloneAppFixture fixtur
             await Assert.That(balance).IsNotNull();
             await Assert.That(balance.TextAlign).IsEqualTo(BrowserTestConstants.TeleprompterFlow.AlignmentLeftValue);
             await Assert.That(balance.LineCount >= BrowserTestConstants.TeleprompterFlow.MinimumBalancedTextLineCount).IsTrue().Because($"Expected at least {BrowserTestConstants.TeleprompterFlow.MinimumBalancedTextLineCount} visible text lines, but found {balance.LineCount}.");
-            await Assert.That(balance.PaddingInlineStartPx).IsBetween(BrowserTestConstants.TeleprompterFlow.MinimumOpticalInsetPx,double.MaxValue);
-            await Assert.That(balance.MaxCenterOffsetPx).IsBetween(0,BrowserTestConstants.TeleprompterFlow.MaximumDefaultLeftLineCenterOffsetPx);
-            await Assert.That(balance.AverageCenterOffsetPx).IsBetween(0,BrowserTestConstants.TeleprompterFlow.MaximumDefaultLeftAverageCenterOffsetPx);
+            await Assert.That(balance.PaddingInlineStartPx).IsBetween(BrowserTestConstants.TeleprompterFlow.MinimumOpticalInsetPx, double.MaxValue);
+            await Assert.That(balance.MaxCenterOffsetPx).IsBetween(0, BrowserTestConstants.TeleprompterFlow.MaximumDefaultLeftLineCenterOffsetPx);
+            await Assert.That(balance.AverageCenterOffsetPx).IsBetween(0, BrowserTestConstants.TeleprompterFlow.MaximumDefaultLeftAverageCenterOffsetPx);
         });
 
     private sealed class ReaderOpticalAlignmentProbe

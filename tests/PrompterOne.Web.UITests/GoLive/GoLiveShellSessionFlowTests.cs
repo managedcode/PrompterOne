@@ -1,11 +1,9 @@
-using System.IO;
 using System.Globalization;
 using System.Text.Json;
 using Microsoft.Playwright;
 using PrompterOne.Shared.Contracts;
 using PrompterOne.Shared.Settings.Models;
 using static Microsoft.Playwright.Assertions;
-using System.Threading.Tasks;
 
 namespace PrompterOne.Web.UITests;
 
@@ -289,7 +287,8 @@ public sealed class GoLiveShellSessionFlowTests(StandaloneAppFixture fixture)
 
             var savedRecording = await page.EvaluateAsync<JsonElement>(BrowserTestConstants.Media.GetSavedRecordingStateScript);
             var savedAnalysis = await page.EvaluateAsync<JsonElement>(BrowserTestConstants.Media.AnalyzeSavedRecordingScript);
-            var savedAnalysisJson = savedAnalysis.GetRawText();
+
+            _ = savedAnalysis.GetRawText();
 
             await Assert.That(savedRecording.GetProperty("pickerCallCount").GetInt32() >= 1).IsTrue();
             await Assert.That(savedRecording.GetProperty("sizeBytes").GetInt64() > 0).IsTrue();

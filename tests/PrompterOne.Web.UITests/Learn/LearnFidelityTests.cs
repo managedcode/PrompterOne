@@ -1,7 +1,6 @@
 using System.Globalization;
 using PrompterOne.Shared.Contracts;
 using static Microsoft.Playwright.Assertions;
-using System.Threading.Tasks;
 
 namespace PrompterOne.Web.UITests;
 
@@ -31,14 +30,14 @@ public sealed class LearnFidelityTests(StandaloneAppFixture fixture)
             await WaitForLearnLayoutReadyAsync(page);
 
             var initialDelta = await MeasureOrpDeltaAsync(page);
-            await Assert.That(initialDelta).IsBetween(0,6);
+            await Assert.That(initialDelta).IsBetween(0, 6);
 
             await page.GetByTestId(UiTestIds.Learn.PlayToggle).ClickAsync();
             await page.WaitForTimeoutAsync(BrowserTestConstants.Timing.LearnPlaybackDelayMs);
             await WaitForLearnLayoutReadyAsync(page);
 
             var playbackDelta = await MeasureOrpDeltaAsync(page);
-            await Assert.That(playbackDelta).IsBetween(0,6);
+            await Assert.That(playbackDelta).IsBetween(0, 6);
         }
         finally
         {

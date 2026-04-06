@@ -1,12 +1,12 @@
 using PrompterOne.Shared.Contracts;
 using static Microsoft.Playwright.Assertions;
-using System.Threading.Tasks;
 
 namespace PrompterOne.Web.UITests;
 
 [ClassDataSource<StandaloneAppFixture>(Shared = SharedType.PerClass)]
 public sealed class TeleprompterAlignmentFlowTests(StandaloneAppFixture fixture)
-    : AppUiTestBase(fixture){
+    : AppUiTestBase(fixture)
+{
     private const int OpeningCardIndex = 0;
 
     [Test]
@@ -89,20 +89,20 @@ public sealed class TeleprompterAlignmentFlowTests(StandaloneAppFixture fixture)
 
         if (requireLeadingInset)
         {
-            await Assert.That(probe.PaddingInlineStartPx).IsBetween(BrowserTestConstants.TeleprompterFlow.MinimumOpticalInsetPx,double.MaxValue);
+            await Assert.That(probe.PaddingInlineStartPx).IsBetween(BrowserTestConstants.TeleprompterFlow.MinimumOpticalInsetPx, double.MaxValue);
         }
         else
         {
-            await Assert.That(probe.PaddingInlineStartPx).IsBetween(0,BrowserTestConstants.TeleprompterFlow.MinimumOpticalInsetPx);
+            await Assert.That(probe.PaddingInlineStartPx).IsBetween(0, BrowserTestConstants.TeleprompterFlow.MinimumOpticalInsetPx);
         }
 
         if (requireTrailingInset)
         {
-            await Assert.That(probe.PaddingInlineEndPx).IsBetween(BrowserTestConstants.TeleprompterFlow.MinimumOpticalInsetPx,double.MaxValue);
+            await Assert.That(probe.PaddingInlineEndPx).IsBetween(BrowserTestConstants.TeleprompterFlow.MinimumOpticalInsetPx, double.MaxValue);
         }
         else
         {
-            await Assert.That(probe.PaddingInlineEndPx).IsBetween(0,BrowserTestConstants.TeleprompterFlow.MinimumOpticalInsetPx);
+            await Assert.That(probe.PaddingInlineEndPx).IsBetween(0, BrowserTestConstants.TeleprompterFlow.MinimumOpticalInsetPx);
         }
     }
 

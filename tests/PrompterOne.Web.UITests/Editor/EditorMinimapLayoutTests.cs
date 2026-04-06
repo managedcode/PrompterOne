@@ -1,7 +1,6 @@
 using Microsoft.Playwright;
 using PrompterOne.Shared.Contracts;
 using static Microsoft.Playwright.Assertions;
-using System.Threading.Tasks;
 
 namespace PrompterOne.Web.UITests;
 
@@ -33,8 +32,8 @@ public sealed class EditorMinimapLayoutTests(StandaloneAppFixture fixture)
             var stageRight = stageBounds.X + stageBounds.Width;
 
             await Assert.That(state.Layout.MinimapWidth >= BrowserTestConstants.Editor.MinimapMinimumWidthPx).IsTrue().Because($"Expected Monaco minimap width to be at least {BrowserTestConstants.Editor.MinimapMinimumWidthPx}px, but was {state.Layout.MinimapWidth:0.##}px.");
-            await Assert.That(minimapBounds.X - stageBounds.X).IsBetween(0,stageBounds.Width);
-            await Assert.That(stageRight - (minimapBounds.X + minimapBounds.Width)).IsBetween(0,BrowserTestConstants.Editor.MinimapStageEdgeTolerancePx);
+            await Assert.That(minimapBounds.X - stageBounds.X).IsBetween(0, stageBounds.Width);
+            await Assert.That(stageRight - (minimapBounds.X + minimapBounds.Width)).IsBetween(0, BrowserTestConstants.Editor.MinimapStageEdgeTolerancePx);
         }
         finally
         {

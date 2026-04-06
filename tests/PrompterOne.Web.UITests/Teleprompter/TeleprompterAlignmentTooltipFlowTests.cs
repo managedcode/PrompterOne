@@ -1,13 +1,13 @@
 using Microsoft.Playwright;
 using PrompterOne.Shared.Contracts;
 using static Microsoft.Playwright.Assertions;
-using System.Threading.Tasks;
 
 namespace PrompterOne.Web.UITests;
 
 [ClassDataSource<StandaloneAppFixture>(Shared = SharedType.PerClass)]
 public sealed class TeleprompterAlignmentTooltipFlowTests(StandaloneAppFixture fixture)
-    : AppUiTestBase(fixture){
+    : AppUiTestBase(fixture)
+{
     private const string LeftRailTooltipScenario = "teleprompter-alignment-tooltips-left";
     private const string LeftRailTooltipStep = "01-left-rail-tooltip";
     private const string RightRailTooltipScenario = "teleprompter-alignment-tooltips-right";
@@ -29,7 +29,7 @@ public sealed class TeleprompterAlignmentTooltipFlowTests(StandaloneAppFixture f
             await trigger.HoverAsync();
             await page.WaitForTimeoutAsync(BrowserTestConstants.TeleprompterFlow.TooltipEarlyCheckDelayMs);
 
-            await Assert.That(await ReadOpacityAsync(tooltip)).IsBetween(0,BrowserTestConstants.TeleprompterFlow.MaximumEarlyTooltipOpacity);
+            await Assert.That(await ReadOpacityAsync(tooltip)).IsBetween(0, BrowserTestConstants.TeleprompterFlow.MaximumEarlyTooltipOpacity);
 
             await page.WaitForTimeoutAsync(
                 BrowserTestConstants.TeleprompterFlow.TooltipSettleDelayMs - BrowserTestConstants.TeleprompterFlow.TooltipEarlyCheckDelayMs);
@@ -37,7 +37,7 @@ public sealed class TeleprompterAlignmentTooltipFlowTests(StandaloneAppFixture f
             await Expect(tooltip).ToHaveTextAsync(BrowserTestConstants.TeleprompterFlow.AlignmentJustifyTooltipText);
 
             var overlap = CalculateIntersectionArea(await ReadBoundsAsync(trigger), await ReadBoundsAsync(tooltip));
-            await Assert.That(overlap).IsBetween(0,BrowserTestConstants.TeleprompterFlow.MaximumTooltipControlOverlapPx);
+            await Assert.That(overlap).IsBetween(0, BrowserTestConstants.TeleprompterFlow.MaximumTooltipControlOverlapPx);
 
             await UiScenarioArtifacts.CapturePageAsync(
                 page,
@@ -59,7 +59,7 @@ public sealed class TeleprompterAlignmentTooltipFlowTests(StandaloneAppFixture f
             await trigger.HoverAsync();
             await page.WaitForTimeoutAsync(BrowserTestConstants.TeleprompterFlow.TooltipEarlyCheckDelayMs);
 
-            await Assert.That(await ReadOpacityAsync(tooltip)).IsBetween(0,BrowserTestConstants.TeleprompterFlow.MaximumEarlyTooltipOpacity);
+            await Assert.That(await ReadOpacityAsync(tooltip)).IsBetween(0, BrowserTestConstants.TeleprompterFlow.MaximumEarlyTooltipOpacity);
 
             await page.WaitForTimeoutAsync(
                 BrowserTestConstants.TeleprompterFlow.TooltipSettleDelayMs - BrowserTestConstants.TeleprompterFlow.TooltipEarlyCheckDelayMs);
@@ -67,7 +67,7 @@ public sealed class TeleprompterAlignmentTooltipFlowTests(StandaloneAppFixture f
             await Expect(tooltip).ToHaveTextAsync(BrowserTestConstants.TeleprompterFlow.WidthSliderTooltipText);
 
             var overlap = CalculateIntersectionArea(await ReadBoundsAsync(trigger), await ReadBoundsAsync(tooltip));
-            await Assert.That(overlap).IsBetween(0,BrowserTestConstants.TeleprompterFlow.MaximumTooltipControlOverlapPx);
+            await Assert.That(overlap).IsBetween(0, BrowserTestConstants.TeleprompterFlow.MaximumTooltipControlOverlapPx);
 
             await UiScenarioArtifacts.CapturePageAsync(
                 page,

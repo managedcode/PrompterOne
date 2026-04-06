@@ -1,13 +1,13 @@
 using Microsoft.Playwright;
 using PrompterOne.Shared.Contracts;
 using static Microsoft.Playwright.Assertions;
-using System.Threading.Tasks;
 
 namespace PrompterOne.Web.UITests;
 
 [ClassDataSource<StandaloneAppFixture>(Shared = SharedType.PerClass)]
 public sealed class TooltipSurfaceAuditFlowTests(StandaloneAppFixture fixture)
-    : AppUiTestBase(fixture){
+    : AppUiTestBase(fixture)
+{
     private const string GoldAccentSwatchId = "gold";
 
     private readonly record struct ElementBounds(double Left, double Top, double Right, double Bottom);
@@ -131,7 +131,7 @@ public sealed class TooltipSurfaceAuditFlowTests(StandaloneAppFixture fixture)
         await Assert.That(metrics.TextTransform).IsEqualTo(BrowserTestConstants.TooltipAuditFlow.TextTransformNone);
         await Assert.That(metrics.BorderAlpha >= BrowserTestConstants.TooltipAuditFlow.MinimumBorderAlpha).IsTrue();
         await Assert.That(metrics.HasShadow).IsTrue();
-        await Assert.That(overlap).IsBetween(0,BrowserTestConstants.TooltipAuditFlow.MaximumOverlapPx);
+        await Assert.That(overlap).IsBetween(0, BrowserTestConstants.TooltipAuditFlow.MaximumOverlapPx);
     }
 
     private static double CalculateIntersectionArea(ElementBounds left, ElementBounds right)

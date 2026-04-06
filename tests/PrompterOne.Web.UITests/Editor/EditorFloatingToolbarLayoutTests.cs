@@ -1,9 +1,9 @@
 using Microsoft.Playwright;
 using PrompterOne.Shared.Contracts;
 using static Microsoft.Playwright.Assertions;
-using System.Threading.Tasks;
 
 namespace PrompterOne.Web.UITests;
+
 [System.Obsolete]
 
 [ClassDataSource<StandaloneAppFixture>(Shared = SharedType.PerClass)]
@@ -30,7 +30,7 @@ public sealed class EditorFloatingToolbarLayoutTests(StandaloneAppFixture fixtur
             await page.WaitForTimeoutAsync(BrowserTestConstants.Timing.FloatingToolbarSettleDelayMs);
 
             var bounds = await GetRequiredBoundingBoxAsync(floatingBar);
-            await Assert.That(bounds.Height).IsBetween(BrowserTestConstants.Editor.FloatingBarMinHeightPx,double.MaxValue);
+            await Assert.That(bounds.Height).IsBetween(BrowserTestConstants.Editor.FloatingBarMinHeightPx, double.MaxValue);
         }
         finally
         {
@@ -81,7 +81,7 @@ public sealed class EditorFloatingToolbarLayoutTests(StandaloneAppFixture fixtur
             await page.WaitForTimeoutAsync(BrowserTestConstants.Timing.FloatingToolbarSettleDelayMs);
 
             var bounds = await GetRequiredBoundingBoxAsync(floatingBar);
-            await Assert.That(geometry.SelectionTop - (bounds.Y + bounds.Height)).IsBetween(BrowserTestConstants.Editor.FloatingBarMinGapAboveSelectionPx,double.MaxValue);
+            await Assert.That(geometry.SelectionTop - (bounds.Y + bounds.Height)).IsBetween(BrowserTestConstants.Editor.FloatingBarMinGapAboveSelectionPx, double.MaxValue);
         }
         finally
         {
@@ -125,8 +125,8 @@ public sealed class EditorFloatingToolbarLayoutTests(StandaloneAppFixture fixtur
 
             var after = await GetRequiredAnchorAsync(floatingBar);
 
-            await Assert.That(Math.Abs(after.Left - before.Left)).IsBetween(0,BrowserTestConstants.Editor.FloatingBarPinnedMaxDriftPx);
-            await Assert.That(Math.Abs(after.Top - before.Top)).IsBetween(0,BrowserTestConstants.Editor.FloatingBarPinnedMaxDriftPx);
+            await Assert.That(Math.Abs(after.Left - before.Left)).IsBetween(0, BrowserTestConstants.Editor.FloatingBarPinnedMaxDriftPx);
+            await Assert.That(Math.Abs(after.Top - before.Top)).IsBetween(0, BrowserTestConstants.Editor.FloatingBarPinnedMaxDriftPx);
         }
         finally
         {

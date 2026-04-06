@@ -2,9 +2,9 @@ using Microsoft.Playwright;
 using PrompterOne.Shared.Components.Editor;
 using PrompterOne.Shared.Contracts;
 using static Microsoft.Playwright.Assertions;
-using System.Threading.Tasks;
 
 namespace PrompterOne.Web.UITests;
+
 [System.Obsolete]
 
 [ClassDataSource<StandaloneAppFixture>(Shared = SharedType.PerClass)]
@@ -86,8 +86,8 @@ public sealed class EditorToolbarCoverageTests(StandaloneAppFixture fixture)
 
         try
         {
-            await OpenEditorAsync(page);
             await AiProviderTestSeeder.SeedConfiguredOpenAiAsync(page);
+            await OpenEditorAsync(page);
 
             if (scenario.RequiresSelection)
             {
@@ -96,7 +96,10 @@ public sealed class EditorToolbarCoverageTests(StandaloneAppFixture fixture)
             }
 
             var beforeValue = await EditorMonacoDriver.SourceInput(page).InputValueAsync();
-            await page.GetByTestId(scenario.TestId).ClickAsync();
+            var actionButton = page.GetByTestId(scenario.TestId);
+            await Expect(actionButton)
+                .ToBeEnabledAsync(new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
+            await actionButton.ClickAsync();
             var afterValue = await EditorMonacoDriver.SourceInput(page).InputValueAsync();
 
             await Assert.That(afterValue).IsNotEqualTo(beforeValue);

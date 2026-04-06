@@ -1,12 +1,12 @@
 using Microsoft.Playwright;
 using PrompterOne.Shared.Contracts;
 using static Microsoft.Playwright.Assertions;
-using System.Threading.Tasks;
 
 namespace PrompterOne.Web.UITests;
 
 [ClassDataSource<StandaloneAppFixture>(Shared = SharedType.PerClass)]
-public sealed class EditorDatePickerThemeTests(StandaloneAppFixture fixture) : AppUiTestBase(fixture){
+public sealed class EditorDatePickerThemeTests(StandaloneAppFixture fixture) : AppUiTestBase(fixture)
+{
     [Test]
     public Task EditorScreen_CreatedDateField_UsesThemeAwarePickerChrome_WithoutClipping() =>
         RunPageAsync(async page =>

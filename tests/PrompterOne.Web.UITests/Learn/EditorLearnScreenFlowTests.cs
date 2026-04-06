@@ -1,11 +1,11 @@
 using PrompterOne.Shared.Contracts;
 using static Microsoft.Playwright.Assertions;
-using System.Threading.Tasks;
 
 namespace PrompterOne.Web.UITests;
 
 [ClassDataSource<StandaloneAppFixture>(Shared = SharedType.PerClass)]
-public sealed class EditorLearnScreenFlowTests(StandaloneAppFixture fixture) : AppUiTestBase(fixture){
+public sealed class EditorLearnScreenFlowTests(StandaloneAppFixture fixture) : AppUiTestBase(fixture)
+{
     [Test]
     public Task EditorAndLearnScreens_ExposeExpectedInteractiveControls() =>
         RunPageAsync(async page =>

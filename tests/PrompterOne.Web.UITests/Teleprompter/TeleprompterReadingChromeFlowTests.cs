@@ -2,13 +2,13 @@ using System.Text.RegularExpressions;
 using Microsoft.Playwright;
 using PrompterOne.Shared.Contracts;
 using static Microsoft.Playwright.Assertions;
-using System.Threading.Tasks;
 
 namespace PrompterOne.Web.UITests;
 
 [ClassDataSource<StandaloneAppFixture>(Shared = SharedType.PerClass)]
 public sealed class TeleprompterReadingChromeFlowTests(StandaloneAppFixture fixture)
-    : AppUiTestBase(fixture){
+    : AppUiTestBase(fixture)
+{
     private static readonly Regex ReadingActiveClassRegex = new(
         $@"\b{BrowserTestConstants.TeleprompterFlow.ReadingActiveCssClass}\b",
         RegexOptions.Compiled);

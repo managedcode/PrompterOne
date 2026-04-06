@@ -1,4 +1,3 @@
-using System.IO;
 using System.Text.Json;
 using Microsoft.Playwright;
 using PrompterOne.Core.Models.Workspace;
@@ -7,13 +6,13 @@ using PrompterOne.Shared.Contracts;
 using PrompterOne.Shared.Services;
 using PrompterOne.Shared.Storage;
 using static Microsoft.Playwright.Assertions;
-using System.Threading.Tasks;
 
 namespace PrompterOne.Web.UITests;
 
 [ClassDataSource<StandaloneAppFixture>(Shared = SharedType.PerClass)]
 public sealed class ReaderPlaybackTimingTests(StandaloneAppFixture fixture)
-    : AppUiTestBase(fixture){
+    : AppUiTestBase(fixture)
+{
     private const int LearnMinimumWordDurationMilliseconds = 60;
     private const string LearnWordSelector = "[data-testid='learn-word']";
     private const string ReaderTimingRecorderKey = "__prompterOneReaderTimingRecorder";
@@ -58,7 +57,7 @@ public sealed class ReaderPlaybackTimingTests(StandaloneAppFixture fixture)
                 var observedDelay = currentSample.AtMs - previousSample.AtMs;
                 var expectedDelay = previousSample.DurationMs + previousSample.PauseMs;
 
-                await Assert.That(observedDelay).IsBetween(expectedDelay - BrowserTestConstants.ReaderTiming.TeleprompterTimingToleranceMs,expectedDelay + BrowserTestConstants.ReaderTiming.TeleprompterTimingToleranceMs);
+                await Assert.That(observedDelay).IsBetween(expectedDelay - BrowserTestConstants.ReaderTiming.TeleprompterTimingToleranceMs, expectedDelay + BrowserTestConstants.ReaderTiming.TeleprompterTimingToleranceMs);
             }
         });
 
@@ -265,7 +264,7 @@ public sealed class ReaderPlaybackTimingTests(StandaloneAppFixture fixture)
                 : BrowserTestConstants.ReaderTiming.LearnTimingToleranceMs;
 
             await Assert.That(previousSample.Word).IsEqualTo(expected.Word);
-            await Assert.That(observedDelay).IsBetween(expectedDelay - toleranceMilliseconds,expectedDelay + toleranceMilliseconds);
+            await Assert.That(observedDelay).IsBetween(expectedDelay - toleranceMilliseconds, expectedDelay + toleranceMilliseconds);
         }
     }
 

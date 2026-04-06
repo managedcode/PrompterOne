@@ -2,14 +2,15 @@ using System.Text.RegularExpressions;
 using Microsoft.Playwright;
 using PrompterOne.Shared.Contracts;
 using static Microsoft.Playwright.Assertions;
-using System.Threading.Tasks;
 
 namespace PrompterOne.Web.UITests;
+
 [System.Obsolete]
 
 [ClassDataSource<StandaloneAppFixture>(Shared = SharedType.PerClass)]
 [NotInParallel(UiTestParallelization.EditorAuthoringConstraintKey)]
-public sealed class EditorToolbarTooltipFlowTests(StandaloneAppFixture fixture) : AppUiTestBase(fixture){
+public sealed class EditorToolbarTooltipFlowTests(StandaloneAppFixture fixture) : AppUiTestBase(fixture)
+{
     private const string WrappedTooltipSelectionFragment = "[motivational]script[/motivational]";
 
     private readonly record struct ElementBounds(double Left, double Top, double Right, double Bottom);
@@ -28,7 +29,7 @@ public sealed class EditorToolbarTooltipFlowTests(StandaloneAppFixture fixture) 
             await emotionTrigger.HoverAsync();
             await page.WaitForTimeoutAsync(BrowserTestConstants.EditorFlow.TooltipEarlyCheckDelayMs);
 
-            await Assert.That(await ReadOpacityAsync(tooltip)).IsBetween(0,BrowserTestConstants.EditorFlow.MaximumEarlyTooltipOpacity);
+            await Assert.That(await ReadOpacityAsync(tooltip)).IsBetween(0, BrowserTestConstants.EditorFlow.MaximumEarlyTooltipOpacity);
 
             await page.WaitForTimeoutAsync(
                 BrowserTestConstants.EditorFlow.TooltipSettleDelayMs - BrowserTestConstants.EditorFlow.TooltipEarlyCheckDelayMs);
@@ -61,7 +62,7 @@ public sealed class EditorToolbarTooltipFlowTests(StandaloneAppFixture fixture) 
             await motivationalEmotion.HoverAsync();
             await page.WaitForTimeoutAsync(BrowserTestConstants.EditorFlow.TooltipEarlyCheckDelayMs);
 
-            await Assert.That(await ReadOpacityAsync(tooltip)).IsBetween(0,BrowserTestConstants.EditorFlow.MaximumEarlyTooltipOpacity);
+            await Assert.That(await ReadOpacityAsync(tooltip)).IsBetween(0, BrowserTestConstants.EditorFlow.MaximumEarlyTooltipOpacity);
 
             await page.WaitForTimeoutAsync(
                 BrowserTestConstants.EditorFlow.TooltipSettleDelayMs - BrowserTestConstants.EditorFlow.TooltipEarlyCheckDelayMs);
@@ -77,7 +78,7 @@ public sealed class EditorToolbarTooltipFlowTests(StandaloneAppFixture fixture) 
             var tooltipBounds = await ReadBoundsAsync(tooltip);
             var overlap = CalculateIntersectionArea(menuBounds, tooltipBounds);
 
-            await Assert.That(overlap).IsBetween(0,BrowserTestConstants.EditorFlow.MaximumTooltipMenuOverlapPx);
+            await Assert.That(overlap).IsBetween(0, BrowserTestConstants.EditorFlow.MaximumTooltipMenuOverlapPx);
 
             await motivationalEmotion.ClickAsync();
             await Expect(EditorMonacoDriver.SourceInput(page))
@@ -111,7 +112,7 @@ public sealed class EditorToolbarTooltipFlowTests(StandaloneAppFixture fixture) 
 
             await Assert.That(tooltipBounds.Top >= 0).IsTrue().Because($"Expected tooltip top to stay within viewport, but it was {tooltipBounds.Top:0.##}.");
             await Assert.That(tooltipBounds.Bottom <= viewportHeight + BrowserTestConstants.EditorFlow.ToolbarOverflowTolerancePx).IsTrue().Because($"Expected tooltip bottom to stay within viewport height {viewportHeight:0.##}, but it was {tooltipBounds.Bottom:0.##}.");
-            await Assert.That(overlap).IsBetween(0,BrowserTestConstants.EditorFlow.MaximumTooltipMenuOverlapPx);
+            await Assert.That(overlap).IsBetween(0, BrowserTestConstants.EditorFlow.MaximumTooltipMenuOverlapPx);
 
             await UiScenarioArtifacts.CapturePageAsync(
                 page,

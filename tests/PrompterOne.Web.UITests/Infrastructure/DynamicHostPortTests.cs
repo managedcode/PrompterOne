@@ -1,6 +1,5 @@
 using PrompterOne.Shared.Contracts;
 using static Microsoft.Playwright.Assertions;
-using System.Threading.Tasks;
 
 namespace PrompterOne.Web.UITests;
 
@@ -16,7 +15,7 @@ public sealed class DynamicHostPortTests(StandaloneAppFixture fixture)
 
         await Assert.That(baseAddress.Scheme).IsEqualTo(Uri.UriSchemeHttp);
         await Assert.That(baseAddress.IsLoopback).IsTrue();
-        await Assert.That(baseAddress.Port).IsBetween(UiTestHostConstants.MinimumDynamicPort,UiTestHostConstants.MaximumTcpPort);
+        await Assert.That(baseAddress.Port).IsBetween(UiTestHostConstants.MinimumDynamicPort, UiTestHostConstants.MaximumTcpPort);
 
         var page = await _fixture.NewPageAsync();
 

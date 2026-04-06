@@ -2,7 +2,6 @@ using Microsoft.Playwright;
 using PrompterOne.Shared.Contracts;
 using PrompterOne.Shared.Services.Editor;
 using static Microsoft.Playwright.Assertions;
-using System.Threading.Tasks;
 
 namespace PrompterOne.Web.UITests;
 
@@ -33,9 +32,9 @@ public sealed class EditorLayoutTests(StandaloneAppFixture fixture)
             var dockGap = railBounds.X - (mainBounds.X + mainBounds.Width);
             var bottomEdgeDrift = Math.Abs((railBounds.Y + railBounds.Height) - (mainBounds.Y + mainBounds.Height));
 
-            await Assert.That(Math.Abs(dockGap - BrowserTestConstants.Editor.MetadataRailDockGapPx)).IsBetween(0,BrowserTestConstants.Editor.MetadataRailDockTolerancePx);
-            await Assert.That(Math.Abs(railBounds.Y - mainBounds.Y)).IsBetween(0,BrowserTestConstants.Editor.MetadataRailDockTolerancePx);
-            await Assert.That(bottomEdgeDrift).IsBetween(0,BrowserTestConstants.Editor.MetadataRailDockTolerancePx);
+            await Assert.That(Math.Abs(dockGap - BrowserTestConstants.Editor.MetadataRailDockGapPx)).IsBetween(0, BrowserTestConstants.Editor.MetadataRailDockTolerancePx);
+            await Assert.That(Math.Abs(railBounds.Y - mainBounds.Y)).IsBetween(0, BrowserTestConstants.Editor.MetadataRailDockTolerancePx);
+            await Assert.That(bottomEdgeDrift).IsBetween(0, BrowserTestConstants.Editor.MetadataRailDockTolerancePx);
         }
         finally
         {
@@ -189,8 +188,8 @@ public sealed class EditorLayoutTests(StandaloneAppFixture fixture)
             var aiOverflowRight = (aiButtonBounds.X + aiButtonBounds.Width) - (toolbarBounds.X + toolbarBounds.Width);
             var aiOverflowLeft = toolbarBounds.X - aiButtonBounds.X;
 
-            await Assert.That(aiOverflowRight).IsBetween(double.MinValue,BrowserTestConstants.EditorFlow.ToolbarOverflowTolerancePx);
-            await Assert.That(aiOverflowLeft).IsBetween(double.MinValue,BrowserTestConstants.EditorFlow.ToolbarOverflowTolerancePx);
+            await Assert.That(aiOverflowRight).IsBetween(double.MinValue, BrowserTestConstants.EditorFlow.ToolbarOverflowTolerancePx);
+            await Assert.That(aiOverflowLeft).IsBetween(double.MinValue, BrowserTestConstants.EditorFlow.ToolbarOverflowTolerancePx);
         }
         finally
         {
@@ -229,7 +228,7 @@ public sealed class EditorLayoutTests(StandaloneAppFixture fixture)
                 BrowserTestConstants.EditorFlow.LayoutScenario,
                 BrowserTestConstants.EditorFlow.LayoutExpandedStep);
 
-            await Assert.That(expandedMetrics.LayoutViewportRightGap).IsBetween(0,BrowserTestConstants.Editor.MaximumLayoutViewportRightGapPx);
+            await Assert.That(expandedMetrics.LayoutViewportRightGap).IsBetween(0, BrowserTestConstants.Editor.MaximumLayoutViewportRightGapPx);
             await Assert.That(expandedMetrics.MetadataRailCollapsed).IsFalse();
             await Assert.That(expandedMetrics.MetadataToggleChevronDirection).IsEqualTo(BrowserTestConstants.EditorFlow.MetadataRailExpandedChevronDirection);
 
@@ -243,11 +242,11 @@ public sealed class EditorLayoutTests(StandaloneAppFixture fixture)
                 BrowserTestConstants.EditorFlow.LayoutScenario,
                 BrowserTestConstants.EditorFlow.LayoutCollapsedStep);
 
-            await Assert.That(collapsedMetrics.LayoutViewportRightGap).IsBetween(0,BrowserTestConstants.Editor.MaximumLayoutViewportRightGapPx);
+            await Assert.That(collapsedMetrics.LayoutViewportRightGap).IsBetween(0, BrowserTestConstants.Editor.MaximumLayoutViewportRightGapPx);
             await Assert.That(collapsedMetrics.MetadataRailCollapsed).IsTrue();
             await Assert.That(collapsedMetrics.MetadataToggleChevronDirection).IsEqualTo(BrowserTestConstants.EditorFlow.MetadataRailCollapsedChevronDirection);
             await Assert.That(expandedMetrics.MainWidth + BrowserTestConstants.Editor.MinimumMainPanelGrowthOnCollapsePx <= collapsedMetrics.MainWidth).IsTrue().Because($"Expected the main editor panel to grow by at least {BrowserTestConstants.Editor.MinimumMainPanelGrowthOnCollapsePx}px after collapsing metadata, but it changed from {expandedMetrics.MainWidth:0.##} to {collapsedMetrics.MainWidth:0.##}.");
-            await Assert.That(collapsedMetrics.MetadataRailWidth).IsBetween(0,BrowserTestConstants.Editor.MaximumCollapsedMetadataRailWidthPx);
+            await Assert.That(collapsedMetrics.MetadataRailWidth).IsBetween(0, BrowserTestConstants.Editor.MaximumCollapsedMetadataRailWidthPx);
         }
         finally
         {

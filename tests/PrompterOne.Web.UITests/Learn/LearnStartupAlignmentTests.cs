@@ -1,7 +1,6 @@
 using System.Globalization;
 using PrompterOne.Shared.Contracts;
 using static Microsoft.Playwright.Assertions;
-using System.Threading.Tasks;
 
 namespace PrompterOne.Web.UITests;
 
@@ -55,7 +54,7 @@ public sealed class LearnStartupAlignmentTests(StandaloneAppFixture fixture)
 
             var readyStartupWordSample = await WaitForStableLearnLayoutAsync(page);
             await Assert.That(readyStartupWordSample.LayoutReady).IsEqualTo(LayoutReadyTrueValue);
-            await Assert.That(readyStartupWordSample.OrpDeltaPx).IsBetween(0,MaxReadyOrpDeltaPx);
+            await Assert.That(readyStartupWordSample.OrpDeltaPx).IsBetween(0, MaxReadyOrpDeltaPx);
         }
         finally
         {

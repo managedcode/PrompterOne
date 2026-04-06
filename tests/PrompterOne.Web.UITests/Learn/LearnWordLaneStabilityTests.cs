@@ -1,7 +1,6 @@
 using Microsoft.Playwright;
 using PrompterOne.Shared.Contracts;
 using static Microsoft.Playwright.Assertions;
-using System.Threading.Tasks;
 
 namespace PrompterOne.Web.UITests;
 
@@ -36,9 +35,9 @@ public sealed class LearnWordLaneStabilityTests(StandaloneAppFixture fixture)
             await ExpectFocusWordAsync(page, ShortProbeWord);
             var shortWordLane = await MeasureRsvpLaneAsync(page);
 
-            await Assert.That(Math.Abs(longWordLane.OrpCenterPx - shortWordLane.OrpCenterPx)).IsBetween(0,MaxOrpCenterDriftPx);
-            await Assert.That(Math.Abs(longWordLane.LeftVisibleGapPx - shortWordLane.LeftVisibleGapPx)).IsBetween(0,MaxVisibleContextGapDriftPx);
-            await Assert.That(Math.Abs(longWordLane.RightVisibleGapPx - shortWordLane.RightVisibleGapPx)).IsBetween(0,MaxVisibleContextGapDriftPx);
+            await Assert.That(Math.Abs(longWordLane.OrpCenterPx - shortWordLane.OrpCenterPx)).IsBetween(0, MaxOrpCenterDriftPx);
+            await Assert.That(Math.Abs(longWordLane.LeftVisibleGapPx - shortWordLane.LeftVisibleGapPx)).IsBetween(0, MaxVisibleContextGapDriftPx);
+            await Assert.That(Math.Abs(longWordLane.RightVisibleGapPx - shortWordLane.RightVisibleGapPx)).IsBetween(0, MaxVisibleContextGapDriftPx);
         }
         finally
         {

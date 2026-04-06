@@ -1,12 +1,12 @@
 using Microsoft.Playwright;
 using PrompterOne.Shared.Contracts;
 using static Microsoft.Playwright.Assertions;
-using System.Threading.Tasks;
 
 namespace PrompterOne.Web.UITests;
 
 [ClassDataSource<StandaloneAppFixture>(Shared = SharedType.PerClass)]
-public sealed class EditorLightThemeSurfaceTests(StandaloneAppFixture fixture) : AppUiTestBase(fixture){
+public sealed class EditorLightThemeSurfaceTests(StandaloneAppFixture fixture) : AppUiTestBase(fixture)
+{
     private const string BackgroundColorProperty = "backgroundColor";
     private const string ColorProperty = "color";
     private const string ScenarioName = "editor-light-theme-surface";

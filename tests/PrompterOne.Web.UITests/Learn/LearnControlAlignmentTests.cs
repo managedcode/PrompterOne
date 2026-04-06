@@ -1,7 +1,6 @@
 using Microsoft.Playwright;
 using PrompterOne.Shared.Contracts;
 using static Microsoft.Playwright.Assertions;
-using System.Threading.Tasks;
 
 namespace PrompterOne.Web.UITests;
 
@@ -28,10 +27,10 @@ public sealed class LearnControlAlignmentTests(StandaloneAppFixture fixture)
 
             var alignment = await MeasureControlAlignmentAsync(page);
 
-            await Assert.That(Math.Abs(alignment.SpeedCenterPx - alignment.PlayCenterPx)).IsBetween(0,MaxCenterlineDeltaPx);
-            await Assert.That(Math.Abs(alignment.PlayCenterPx - alignment.ProgressCenterPx)).IsBetween(0,MaxCenterlineDeltaPx);
-            await Assert.That(Math.Abs(alignment.BackLargeOffsetPx - alignment.ForwardLargeOffsetPx)).IsBetween(0,MaxTransportSymmetryDeltaPx);
-            await Assert.That(Math.Abs(alignment.BackSmallOffsetPx - alignment.ForwardSmallOffsetPx)).IsBetween(0,MaxTransportSymmetryDeltaPx);
+            await Assert.That(Math.Abs(alignment.SpeedCenterPx - alignment.PlayCenterPx)).IsBetween(0, MaxCenterlineDeltaPx);
+            await Assert.That(Math.Abs(alignment.PlayCenterPx - alignment.ProgressCenterPx)).IsBetween(0, MaxCenterlineDeltaPx);
+            await Assert.That(Math.Abs(alignment.BackLargeOffsetPx - alignment.ForwardLargeOffsetPx)).IsBetween(0, MaxTransportSymmetryDeltaPx);
+            await Assert.That(Math.Abs(alignment.BackSmallOffsetPx - alignment.ForwardSmallOffsetPx)).IsBetween(0, MaxTransportSymmetryDeltaPx);
         }
         finally
         {

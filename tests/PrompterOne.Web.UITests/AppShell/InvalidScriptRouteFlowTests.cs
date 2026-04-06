@@ -1,12 +1,12 @@
 using PrompterOne.Shared.Contracts;
 using static Microsoft.Playwright.Assertions;
-using System.Threading.Tasks;
 
 namespace PrompterOne.Web.UITests;
 
 [ClassDataSource<StandaloneAppFixture>(Shared = SharedType.PerClass)]
 public sealed class InvalidScriptRouteFlowTests(StandaloneAppFixture fixture)
-    : AppUiTestBase(fixture){
+    : AppUiTestBase(fixture)
+{
     public static IEnumerable<(string ValidRoute, string MissingRoute, string PageTestId)> MissingPlaybackRoutes =>
     [
         (BrowserTestConstants.Routes.LearnDemo, BrowserTestConstants.Routes.LearnMissing, UiTestIds.Learn.Page),

@@ -1,7 +1,6 @@
 using System.Globalization;
 using PrompterOne.Shared.Contracts;
 using static Microsoft.Playwright.Assertions;
-using System.Threading.Tasks;
 
 namespace PrompterOne.Web.UITests;
 
@@ -203,7 +202,7 @@ public sealed class TeleprompterFullFlowTests(StandaloneAppFixture fixture)
             await page.WaitForTimeoutAsync(BrowserTestConstants.Teleprompter.AlignmentPollDelayMs);
         }
 
-        await Assert.That(Math.Abs(lastDelta)).IsBetween(0,BrowserTestConstants.Teleprompter.AlignmentTolerancePx);
+        await Assert.That(Math.Abs(lastDelta)).IsBetween(0, BrowserTestConstants.Teleprompter.AlignmentTolerancePx);
     }
 
     private static async Task<double> MeasureVerticalCenterDeltaAsync(

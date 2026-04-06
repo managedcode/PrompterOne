@@ -1,15 +1,16 @@
 using Microsoft.Playwright;
 using PrompterOne.Shared.Contracts;
 using static Microsoft.Playwright.Assertions;
-using System.Threading.Tasks;
 
 namespace PrompterOne.Web.UITests;
+
 [System.Obsolete]
 
 [ClassDataSource<StandaloneAppFixture>(Shared = SharedType.PerClass)]
 [NotInParallel(UiTestParallelization.EditorAuthoringConstraintKey)]
 public sealed class EditorToolbarDropdownPaintTests(StandaloneAppFixture fixture)
-    : AppUiTestBase(fixture){
+    : AppUiTestBase(fixture)
+{
     private const double MenuProbeInsetPx = 24;
     private const string ScenarioName = "editor-toolbar-dropdown-paint";
 

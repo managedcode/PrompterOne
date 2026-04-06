@@ -2,12 +2,12 @@ using Microsoft.Playwright;
 using PrompterOne.Shared.Contracts;
 using PrompterOne.Shared.Storage.Cloud;
 using static Microsoft.Playwright.Assertions;
-using System.Threading.Tasks;
 
 namespace PrompterOne.Web.UITests;
 
 [ClassDataSource<StandaloneAppFixture>(Shared = SharedType.PerClass)]
-public sealed class SettingsCloudStorageFlowTests(StandaloneAppFixture fixture) : AppUiTestBase(fixture){
+public sealed class SettingsCloudStorageFlowTests(StandaloneAppFixture fixture) : AppUiTestBase(fixture)
+{
     private readonly record struct CssColor(double R, double G, double B, double A);
 
     [Test]

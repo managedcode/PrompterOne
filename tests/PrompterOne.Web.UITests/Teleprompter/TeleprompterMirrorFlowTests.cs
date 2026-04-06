@@ -2,12 +2,12 @@ using System.Text.RegularExpressions;
 using Microsoft.Playwright;
 using PrompterOne.Shared.Contracts;
 using static Microsoft.Playwright.Assertions;
-using System.Threading.Tasks;
 
 namespace PrompterOne.Web.UITests;
 
 [ClassDataSource<StandaloneAppFixture>(Shared = SharedType.PerClass)]
-public sealed class TeleprompterMirrorFlowTests(StandaloneAppFixture fixture) : AppUiTestBase(fixture){
+public sealed class TeleprompterMirrorFlowTests(StandaloneAppFixture fixture) : AppUiTestBase(fixture)
+{
     [Test]
     public Task TeleprompterScreen_ExposesVisibleBackButtonAndMirrorControls() =>
         RunPageAsync(async page =>

@@ -1,9 +1,9 @@
 using PrompterOne.Shared.Contracts;
 using PrompterOne.Shared.Services.Editor;
 using static Microsoft.Playwright.Assertions;
-using System.Threading.Tasks;
 
 namespace PrompterOne.Web.UITests;
+
 [System.Obsolete]
 
 [ClassDataSource<StandaloneAppFixture>(Shared = SharedType.PerClass)]

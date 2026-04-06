@@ -1,11 +1,11 @@
 using PrompterOne.Shared.Contracts;
 using static Microsoft.Playwright.Assertions;
-using System.Threading.Tasks;
 
 namespace PrompterOne.Web.UITests;
 
 [ClassDataSource<StandaloneAppFixture>(Shared = SharedType.PerClass)]
-public sealed class EditorFindFlowTests(StandaloneAppFixture fixture) : AppUiTestBase(fixture){
+public sealed class EditorFindFlowTests(StandaloneAppFixture fixture) : AppUiTestBase(fixture)
+{
     [Test]
     public Task EditorScreen_FindBarSelectsMatches_AndShowsNoResultState() =>
         RunPageAsync(async page =>

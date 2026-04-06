@@ -1,11 +1,11 @@
 using PrompterOne.Shared.Contracts;
 using static Microsoft.Playwright.Assertions;
-using System.Threading.Tasks;
 
 namespace PrompterOne.Web.UITests;
 
 [ClassDataSource<StandaloneAppFixture>(Shared = SharedType.PerClass)]
-public sealed class EditorDocumentSplitFlowTests(StandaloneAppFixture fixture) : AppUiTestBase(fixture){
+public sealed class EditorDocumentSplitFlowTests(StandaloneAppFixture fixture) : AppUiTestBase(fixture)
+{
     private const string EpisodeOneCardId = "untitled-script-split-01-episode-1-how-to-think-about-systems";
     private const string EpisodeOneTitle = "Episode 1 - How to Think About Systems";
     private const string EpisodeTwoCardId = "untitled-script-split-02-episode-2-how-systems-talk-to-each-other";

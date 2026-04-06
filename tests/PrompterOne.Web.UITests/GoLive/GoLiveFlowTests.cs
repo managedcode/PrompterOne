@@ -3,7 +3,6 @@ using Microsoft.Playwright;
 using PrompterOne.Core.Models.Workspace;
 using PrompterOne.Shared.Contracts;
 using static Microsoft.Playwright.Assertions;
-using System.Threading.Tasks;
 
 namespace PrompterOne.Web.UITests;
 
@@ -206,18 +205,18 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
             var streamButtonBox = await GetRequiredBoxAsync(streamButton);
             var timerBox = await GetRequiredBoxAsync(timer);
 
-            await Assert.That(sourceRailBox.Width).IsBetween(MinSourcesRailWidth,MaxSourcesRailWidth);
-            await Assert.That(previewRailBox.Width).IsBetween(MinPreviewRailWidth,MaxPreviewRailWidth);
+            await Assert.That(sourceRailBox.Width).IsBetween(MinSourcesRailWidth, MaxSourcesRailWidth);
+            await Assert.That(previewRailBox.Width).IsBetween(MinPreviewRailWidth, MaxPreviewRailWidth);
             await Assert.That(programCardBox.Width > sourceRailBox.Width).IsTrue();
             await Assert.That(programCardBox.Width > previewRailBox.Width).IsTrue();
 
             var programAspectRatio = programVideoBox.Width / programVideoBox.Height;
-            await Assert.That(programAspectRatio).IsBetween(MinProgramAspectRatio,MaxProgramAspectRatio);
+            await Assert.That(programAspectRatio).IsBetween(MinProgramAspectRatio, MaxProgramAspectRatio);
             await Assert.That(streamButtonBox.X > settingsButtonBox.X).IsTrue();
 
             var sessionCenter = sessionBarBox.X + (sessionBarBox.Width / 2d);
             var timerCenter = timerBox.X + (timerBox.Width / 2d);
-            await Assert.That(Math.Abs(timerCenter - sessionCenter)).IsBetween(0d,TimerCenterTolerancePixels);
+            await Assert.That(Math.Abs(timerCenter - sessionCenter)).IsBetween(0d, TimerCenterTolerancePixels);
 
             await UiScenarioArtifacts.CapturePageAsync(
                 page,
@@ -630,10 +629,11 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
             await page.WaitForTimeoutAsync(BrowserTestConstants.Timing.DiagnosticPollDelayMs);
         }
 
-        var failedRuntimeState = await page.EvaluateAsync<JsonElement?>(
+        _ = await page.EvaluateAsync<JsonElement?>(
             BrowserTestConstants.GoLive.GetRuntimeStateScript,
             BrowserTestConstants.GoLive.RuntimeSessionId);
-        var failedHarnessState = await page.EvaluateAsync<JsonElement?>(BrowserTestConstants.GoLive.GetLiveKitHarnessScript);
+
+        _ = await page.EvaluateAsync<JsonElement?>(BrowserTestConstants.GoLive.GetLiveKitHarnessScript);
 
         Assert.Fail("Unexpected execution path.");
     }

@@ -1,7 +1,6 @@
 using System.Text.RegularExpressions;
 using PrompterOne.Shared.Contracts;
 using static Microsoft.Playwright.Assertions;
-using System.Threading.Tasks;
 
 namespace PrompterOne.Web.UITests;
 
@@ -162,9 +161,9 @@ public sealed class TeleprompterFidelityTests(StandaloneAppFixture fixture)
             await page.WaitForTimeoutAsync(ImmediateAlignmentFollowUpDelayMilliseconds);
             var settledDelta = await MeasureVerticalCenterDeltaAsync(focalGuide, activeWord);
 
-            await Assert.That(Math.Abs(immediateDelta)).IsBetween(0d,BrowserTestConstants.Teleprompter.AlignmentTolerancePx);
-            await Assert.That(Math.Abs(settledDelta)).IsBetween(0d,BrowserTestConstants.Teleprompter.AlignmentTolerancePx);
-            await Assert.That(Math.Abs(immediateDelta - settledDelta)).IsBetween(0d,ParagraphMotionTolerancePixels);
+            await Assert.That(Math.Abs(immediateDelta)).IsBetween(0d, BrowserTestConstants.Teleprompter.AlignmentTolerancePx);
+            await Assert.That(Math.Abs(settledDelta)).IsBetween(0d, BrowserTestConstants.Teleprompter.AlignmentTolerancePx);
+            await Assert.That(Math.Abs(immediateDelta - settledDelta)).IsBetween(0d, ParagraphMotionTolerancePixels);
         }
         finally
         {
@@ -234,7 +233,7 @@ public sealed class TeleprompterFidelityTests(StandaloneAppFixture fixture)
             await page.WaitForTimeoutAsync(BrowserTestConstants.Teleprompter.AlignmentPollDelayMs);
         }
 
-        await Assert.That(Math.Abs(lastDelta)).IsBetween(0,BrowserTestConstants.Teleprompter.AlignmentTolerancePx);
+        await Assert.That(Math.Abs(lastDelta)).IsBetween(0, BrowserTestConstants.Teleprompter.AlignmentTolerancePx);
     }
 
     private static async Task<double> MeasureVerticalCenterDeltaAsync(
@@ -263,8 +262,8 @@ public sealed class TeleprompterFidelityTests(StandaloneAppFixture fixture)
 
         await Assert.That(string.IsNullOrWhiteSpace(immediate.ActiveText)).IsFalse();
         await Assert.That(settled.ActiveText).IsEqualTo(immediate.ActiveText);
-        await Assert.That(Math.Abs(immediate.TextTop - settled.TextTop)).IsBetween(0d,ParagraphMotionTolerancePixels);
-        await Assert.That(Math.Abs(immediate.ActiveCenterDelta - settled.ActiveCenterDelta)).IsBetween(0d,ParagraphMotionTolerancePixels);
+        await Assert.That(Math.Abs(immediate.TextTop - settled.TextTop)).IsBetween(0d, ParagraphMotionTolerancePixels);
+        await Assert.That(Math.Abs(immediate.ActiveCenterDelta - settled.ActiveCenterDelta)).IsBetween(0d, ParagraphMotionTolerancePixels);
     }
 
     private static async Task AssertParagraphMotionStableAfterFontSizeChangeAsync(
@@ -279,8 +278,8 @@ public sealed class TeleprompterFidelityTests(StandaloneAppFixture fixture)
 
         await Assert.That(string.IsNullOrWhiteSpace(immediate.ActiveText)).IsFalse();
         await Assert.That(settled.ActiveText).IsEqualTo(immediate.ActiveText);
-        await Assert.That(Math.Abs(immediate.TextTop - settled.TextTop)).IsBetween(0d,ParagraphMotionTolerancePixels);
-        await Assert.That(Math.Abs(immediate.ActiveCenterDelta - settled.ActiveCenterDelta)).IsBetween(0d,ParagraphMotionTolerancePixels);
+        await Assert.That(Math.Abs(immediate.TextTop - settled.TextTop)).IsBetween(0d, ParagraphMotionTolerancePixels);
+        await Assert.That(Math.Abs(immediate.ActiveCenterDelta - settled.ActiveCenterDelta)).IsBetween(0d, ParagraphMotionTolerancePixels);
     }
 
     private static Task<ReaderParagraphMotionSample> CaptureParagraphMotionSampleAsync(Microsoft.Playwright.IPage page) =>

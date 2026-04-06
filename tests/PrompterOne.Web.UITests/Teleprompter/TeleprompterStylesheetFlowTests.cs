@@ -1,11 +1,11 @@
 using PrompterOne.Shared.Contracts;
 using static Microsoft.Playwright.Assertions;
-using System.Threading.Tasks;
 
 namespace PrompterOne.Web.UITests;
 
 [ClassDataSource<StandaloneAppFixture>(Shared = SharedType.PerClass)]
-public sealed class TeleprompterStylesheetFlowTests(StandaloneAppFixture fixture) : AppUiTestBase(fixture){
+public sealed class TeleprompterStylesheetFlowTests(StandaloneAppFixture fixture) : AppUiTestBase(fixture)
+{
     private const string HasTeleprompterStylesheetScript = """
         teleprompterHref => {
             const normalizedTargetPath = teleprompterHref.startsWith('/') ? teleprompterHref : `/${teleprompterHref}`;

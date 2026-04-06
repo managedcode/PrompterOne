@@ -1,11 +1,11 @@
 using PrompterOne.Shared.Contracts;
 using static Microsoft.Playwright.Assertions;
-using System.Threading.Tasks;
 
 namespace PrompterOne.Web.UITests;
 
 [ClassDataSource<StandaloneAppFixture>(Shared = SharedType.PerClass)]
-public sealed class EditorDragDropFlowTests(StandaloneAppFixture fixture) : AppUiTestBase(fixture){
+public sealed class EditorDragDropFlowTests(StandaloneAppFixture fixture) : AppUiTestBase(fixture)
+{
     private const string DocumentSeparator = "\n\n";
     private const string DropImportMessage = "Unable to import this script.";
     private const string DropUnsupportedDetail = "Drop a .tps, .tps.md, .md.tps, .md, or .txt file onto the editor.";

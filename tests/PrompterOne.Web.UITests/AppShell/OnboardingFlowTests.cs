@@ -3,12 +3,12 @@ using PrompterOne.Shared.Contracts;
 using PrompterOne.Shared.Services;
 using PrompterOne.Shared.Settings.Models;
 using static Microsoft.Playwright.Assertions;
-using System.Threading.Tasks;
 
 namespace PrompterOne.Web.UITests;
 
 [ClassDataSource<StandaloneAppFixture>(Shared = SharedType.PerClass)]
-public sealed class OnboardingFlowTests(StandaloneAppFixture fixture) : AppUiTestBase(fixture){
+public sealed class OnboardingFlowTests(StandaloneAppFixture fixture) : AppUiTestBase(fixture)
+{
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 
     [Test]
