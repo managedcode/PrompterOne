@@ -42,6 +42,23 @@ public sealed partial class StandaloneAppFixture : IAsyncLifetime
         }
     }
 
+    public async Task ResetRuntimeAsync()
+    {
+        while (_contexts.TryTake(out var context))
+        {
+            try
+            {
+                await context.DisposeAsync();
+            }
+            catch
+            {
+            }
+        }
+
+        _runtimeHandle = null;
+        await SharedRuntime.ResetAsync();
+    }
+
     public async Task<IPage> NewPageAsync()
     {
         var context = await NewContextAsync();
@@ -179,6 +196,19 @@ public sealed partial class StandaloneAppFixture : IAsyncLifetime
         }
 
         public static Task ReleaseAsync() => Task.CompletedTask;
+
+        public static async Task ResetAsync()
+        {
+            await LifecycleGate.WaitAsync();
+            try
+            {
+                await DisposeRuntimeAsync();
+            }
+            finally
+            {
+                LifecycleGate.Release();
+            }
+        }
 
         private static async Task StartRuntimeAsync()
         {

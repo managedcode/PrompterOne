@@ -12,6 +12,7 @@ public sealed class EditorAiScrollStabilityTests(StandaloneAppFixture fixture) :
     [Fact]
     public async Task EditorScreen_AiAction_DoesNotJumpScrollPositionForVisibleSelection()
     {
+        await _fixture.ResetRuntimeAsync();
         var page = await _fixture.NewPageAsync();
 
         try

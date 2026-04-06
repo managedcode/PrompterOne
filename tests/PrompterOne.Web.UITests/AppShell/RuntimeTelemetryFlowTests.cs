@@ -116,6 +116,7 @@ public sealed class RuntimeTelemetryFlowTests(StandaloneAppFixture fixture) : IC
     [Fact]
     public async Task RuntimeTelemetry_DoesNotTrack_WhenWasmDebugQueryIsEnabled()
     {
+        await _fixture.ResetRuntimeAsync();
         var page = await _fixture.NewPageAsync();
 
         try
