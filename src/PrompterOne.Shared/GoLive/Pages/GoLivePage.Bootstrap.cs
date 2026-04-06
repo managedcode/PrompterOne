@@ -135,10 +135,11 @@ public partial class GoLivePage
 
     private async Task EnsureSessionLoadedAsync()
     {
-        if (!string.IsNullOrWhiteSpace(ScriptId))
+        var requestedScriptId = ScriptRouteSessionLoader.ResolveRequestedScriptId(ScriptId, Navigation.Uri);
+        if (!string.IsNullOrWhiteSpace(requestedScriptId))
         {
             await ScriptRouteSessionLoader.EnsureRequestedSessionAsync(
-                ScriptId,
+                requestedScriptId,
                 ScriptRepository,
                 SessionService);
             return;

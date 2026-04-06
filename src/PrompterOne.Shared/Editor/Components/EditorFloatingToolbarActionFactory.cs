@@ -6,19 +6,19 @@ internal static class EditorFloatingToolbarActionFactory
 {
     public static EditorToolbarActionDescriptor Ai(
         string key,
-        string contentHtml,
+        EditorActionContentDescriptor content,
         string tooltip,
         string testId,
         EditorAiAssistAction aiAction,
         string cssClass = "efb-btn efb-ai") =>
-        new(key, EditorToolbarActionType.Ai, cssClass, contentHtml, tooltip, testId, AiAction: aiAction, PreventMouseDown: true);
+        new(key, EditorToolbarActionType.Ai, cssClass, content, tooltip, testId, AiAction: aiAction, PreventMouseDown: true);
 
     public static EditorToolbarActionDescriptor ClearColor(string key, string tooltip, string testId) =>
         new(
             key,
             EditorToolbarActionType.Command,
             "efb-menu-item",
-            "<span style=\"color:var(--text-4);font-weight:700;width:44px;text-align:right\">RESET</span> Remove cues",
+            EditorActionContents.Label("RESET", "Remove cues", "unwrap", EditorActionContentTone.Reset),
             tooltip,
             testId,
             Command: new EditorCommandRequest(EditorCommandKind.ClearColor, string.Empty),
@@ -26,7 +26,7 @@ internal static class EditorFloatingToolbarActionFactory
 
     public static EditorToolbarActionDescriptor Insert(
         string key,
-        string contentHtml,
+        EditorActionContentDescriptor content,
         string tooltip,
         string testId,
         string token,
@@ -35,7 +35,7 @@ internal static class EditorFloatingToolbarActionFactory
             key,
             EditorToolbarActionType.Command,
             cssClass,
-            contentHtml,
+            content,
             tooltip,
             testId,
             Command: new EditorCommandRequest(EditorCommandKind.Insert, token),
@@ -43,15 +43,15 @@ internal static class EditorFloatingToolbarActionFactory
 
     public static EditorToolbarActionDescriptor Toggle(
         string menuId,
-        string contentHtml,
+        EditorActionContentDescriptor content,
         string tooltip,
         string testId,
         string cssClass = "efb-btn") =>
-        new(menuId, EditorToolbarActionType.ToggleMenu, cssClass, contentHtml, tooltip, testId, MenuId: menuId, PreventMouseDown: true);
+        new(menuId, EditorToolbarActionType.ToggleMenu, cssClass, content, tooltip, testId, MenuId: menuId, PreventMouseDown: true);
 
     public static EditorToolbarActionDescriptor Wrap(
         string key,
-        string contentHtml,
+        EditorActionContentDescriptor content,
         string tooltip,
         string testId,
         string openingToken,
@@ -62,7 +62,7 @@ internal static class EditorFloatingToolbarActionFactory
             key,
             EditorToolbarActionType.Command,
             cssClass,
-            contentHtml,
+            content,
             tooltip,
             testId,
             Command: new EditorCommandRequest(EditorCommandKind.Wrap, openingToken, closingToken, placeholder),

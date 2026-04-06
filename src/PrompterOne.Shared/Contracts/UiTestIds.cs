@@ -35,6 +35,20 @@ public static class UiTestIds
         public const string Wpm = "header-wpm";
     }
 
+    public static class Onboarding
+    {
+        public const string Surface = "onboarding-surface";
+        public const string Eyebrow = "onboarding-eyebrow";
+        public const string Title = "onboarding-title";
+        public const string Body = "onboarding-body";
+        public const string Progress = "onboarding-progress";
+        public const string Back = "onboarding-back";
+        public const string Next = "onboarding-next";
+        public const string Dismiss = "onboarding-dismiss";
+
+        public static string Step(string stepId) => $"onboarding-step-{stepId}";
+    }
+
     public static class Diagnostics
     {
         public const string Banner = "diagnostics-banner";
@@ -143,6 +157,13 @@ public static class UiTestIds
         public const string EmotionProfessional = "editor-emotion-professional";
         public const string EmotionTrigger = "editor-emotion-trigger";
         public const string Error = "editor-error";
+        public const string FindBar = "editor-find-bar";
+        public const string FindClose = "editor-find-close";
+        public const string FindInput = "editor-find-input";
+        public const string FindNext = "editor-find-next";
+        public const string FindPrevious = "editor-find-previous";
+        public const string FindResult = "editor-find-result";
+        public const string FindToggle = "editor-find-toggle";
         public const string FloatingAi = "editor-floating-ai";
         public const string FloatingBar = "editor-floating-bar";
         public const string FloatingDeliverySarcasm = "editor-float-delivery-sarcasm";
@@ -151,9 +172,13 @@ public static class UiTestIds
         public const string FloatingEmotionMotivational = "editor-float-emotion-motivational";
         public const string FloatingEmotionProfessional = "editor-float-emotion-professional";
         public const string FloatingInsert = "editor-floating-insert";
+        public const string FloatingInsertBlockArchetypeMenu = "editor-floating-insert-block-archetype-menu";
+        public const string FloatingInsertBlockMenu = "editor-floating-insert-block-menu";
         public const string FloatingInsertEditPointMedium = "editor-floating-insert-edit-point-medium";
         public const string FloatingInsertMenu = "editor-floating-insert-menu";
         public const string FloatingInsertPronunciation = "editor-floating-insert-pronunciation";
+        public const string FloatingInsertSegmentArchetypeMenu = "editor-floating-insert-segment-archetype-menu";
+        public const string FloatingInsertSegmentMenu = "editor-floating-insert-segment-menu";
         public const string FloatingPause = "editor-float-pause";
         public const string FloatingPauseMenu = "editor-floating-pause-menu";
         public const string FloatingPauseTrigger = "editor-floating-pause-trigger";

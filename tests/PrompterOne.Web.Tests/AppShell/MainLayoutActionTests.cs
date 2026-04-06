@@ -101,6 +101,29 @@ public sealed class MainLayoutActionTests : BunitContext
         });
     }
 
+    [Fact]
+    public void MainLayout_LibraryHeader_UsesSharedBrandAndIconPrimitives()
+    {
+        _ = TestHarnessFactory.Create(this);
+        var navigation = Services.GetRequiredService<NavigationManager>();
+        navigation.NavigateTo(AppRoutes.Library);
+
+        var cut = Render<MainLayout>(parameters => parameters
+            .Add(layout => layout.Body, (RenderFragment)(builder => builder.AddMarkupContent(0, "<div>Body</div>"))));
+
+        cut.WaitForAssertion(() =>
+        {
+            var home = cut.FindByTestId(UiTestIds.Header.Home);
+            var header = cut.Find("header");
+
+            Assert.NotNull(home.QuerySelector(".app-brand-mark"));
+            Assert.NotNull(cut.FindByTestId(UiTestIds.Header.GoLive).QuerySelector(".ui-icon"));
+            Assert.NotNull(cut.FindByTestId(UiTestIds.Header.LibraryOpenScript).QuerySelector(".ui-icon"));
+            Assert.NotNull(cut.FindByTestId(UiTestIds.Header.LibraryNewScript).QuerySelector(".ui-icon"));
+            Assert.True(header.QuerySelectorAll(".ui-icon").Length >= 3);
+        });
+    }
+
     [Theory]
     [InlineData(AppRoutes.Settings)]
     [InlineData(AppRoutes.Editor)]

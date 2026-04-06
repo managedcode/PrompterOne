@@ -49,6 +49,7 @@ public partial class TeleprompterPage : IAsyncDisposable
     [Inject] private TeleprompterReaderInterop ReaderInterop { get; set; } = null!;
     [Inject] private IUserSettingsStore UserSettingsStore { get; set; } = null!;
 
+    [Parameter]
     [SupplyParameterFromQuery(Name = AppRoutes.ScriptIdQueryKey)]
     public string? ScriptId { get; set; }
 
@@ -142,10 +143,11 @@ public partial class TeleprompterPage : IAsyncDisposable
 
     private async Task EnsureSessionLoadedAsync()
     {
-        if (!string.IsNullOrWhiteSpace(ScriptId))
+        var requestedScriptId = ScriptRouteSessionLoader.ResolveRequestedScriptId(ScriptId, Navigation.Uri);
+        if (!string.IsNullOrWhiteSpace(requestedScriptId))
         {
             await ScriptRouteSessionLoader.EnsureRequestedSessionAsync(
-                ScriptId,
+                requestedScriptId,
                 ScriptRepository,
                 SessionService);
             return;

@@ -1,5 +1,6 @@
 @namespace PrompterOne.Shared.Components.Settings
 @using Microsoft.Extensions.Localization
+@using PrompterOne.Shared.Components
 @using PrompterOne.Shared.Pages
 @using PrompterOne.Shared.Localization
 @using PrompterOne.Shared.Settings.Components
@@ -18,7 +19,7 @@
                                 Subtitle="@BuildClaudeSubtitle(_settings.ClaudeApi)"
                                 StatusLabel="@BuildStatusLabel(_settings.ClaudeApi)"
                                 StatusClass="@BuildStatusClass(_settings.ClaudeApi)"
-                                IconStyle="background:rgba(196,160,96,.16); color:#E8D5B0;"
+                                IconTone="UiIconSurfaceTone.Gold"
                                 AdditionalCssClass="@BuildCardCssClass(_settings.ClaudeApi)"
                                 IsOpen="@IsCardOpen(ClaudeApiCardId)"
                                 OnToggle="@(() => ToggleCard.InvokeAsync(ClaudeApiCardId))"
@@ -31,9 +32,7 @@
                                 Message="@GetMessage(SettingsAiProviderIds.ClaudeApi)"
                                 MessageTestId="@UiTestIds.Settings.AiProviderMessage(SettingsAiProviderIds.ClaudeApi)">
             <Icon>
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 2L9 9 2 12l7 3 3 7 3-7 7-3-7-3z" />
-                </svg>
+                <UiIcon Kind="UiIconKind.Spark" Size="17" />
             </Icon>
             <ChildContent>
                 <div class="set-device-fields">
@@ -59,7 +58,7 @@
                                 Subtitle="@BuildOpenAiSubtitle(_settings.OpenAi)"
                                 StatusLabel="@BuildStatusLabel(_settings.OpenAi)"
                                 StatusClass="@BuildStatusClass(_settings.OpenAi)"
-                                IconStyle="background:rgba(16,163,127,.16); color:#7DE0BD;"
+                                IconTone="UiIconSurfaceTone.Emerald"
                                 AdditionalCssClass="@BuildCardCssClass(_settings.OpenAi)"
                                 IsOpen="@IsCardOpen(OpenAiCardId)"
                                 OnToggle="@(() => ToggleCard.InvokeAsync(OpenAiCardId))"
@@ -72,10 +71,7 @@
                                 Message="@GetMessage(SettingsAiProviderIds.OpenAi)"
                                 MessageTestId="@UiTestIds.Settings.AiProviderMessage(SettingsAiProviderIds.OpenAi)">
             <Icon>
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="3" />
-                    <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83" />
-                </svg>
+                <UiIcon Kind="UiIconKind.OpenAiBurst" Size="17" />
             </Icon>
             <ChildContent>
                 <div class="set-device-fields">
@@ -101,7 +97,7 @@
                                 Subtitle="@BuildOllamaSubtitle(_settings.Ollama)"
                                 StatusLabel="@BuildStatusLabel(_settings.Ollama)"
                                 StatusClass="@BuildStatusClass(_settings.Ollama)"
-                                IconStyle="background:rgba(99,102,241,.16); color:#A5B4FC;"
+                                IconTone="UiIconSurfaceTone.Indigo"
                                 AdditionalCssClass="@BuildCardCssClass(_settings.Ollama)"
                                 IsOpen="@IsCardOpen(OllamaCardId)"
                                 OnToggle="@(() => ToggleCard.InvokeAsync(OllamaCardId))"
@@ -114,11 +110,7 @@
                                 Message="@GetMessage(SettingsAiProviderIds.Ollama)"
                                 MessageTestId="@UiTestIds.Settings.AiProviderMessage(SettingsAiProviderIds.Ollama)">
             <Icon>
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="2" y="3" width="20" height="14" rx="2" />
-                    <line x1="8" y1="21" x2="16" y2="21" />
-                    <line x1="12" y1="17" x2="12" y2="21" />
-                </svg>
+                <UiIcon Kind="UiIconKind.Monitor" Size="17" />
             </Icon>
             <ChildContent>
                 <div class="set-device-fields">

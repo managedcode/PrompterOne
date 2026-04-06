@@ -26,7 +26,8 @@ public sealed record SettingsPagePreferences(
     bool ShowShortcutOverlay,
     bool ShowHeaderChrome,
     bool AmbientGradientMotion,
-    string? LanguageCulture)
+    string? LanguageCulture,
+    bool HasSeenOnboarding)
 {
     public const string StorageKey = "prompterone.settings-page";
 
@@ -56,5 +57,6 @@ public sealed record SettingsPagePreferences(
         ShowShortcutOverlay: true,
         ShowHeaderChrome: true,
         AmbientGradientMotion: true,
-        LanguageCulture: null);
+        LanguageCulture: null,
+        HasSeenOnboarding: false);
 }

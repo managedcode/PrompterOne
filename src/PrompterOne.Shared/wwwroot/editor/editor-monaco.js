@@ -16,39 +16,6 @@ const scopeKindNeutral = "neutral";
 const scopeKindStyle = "style";
 const scopeKindWpm = "wpm";
 const scopeKindPronunciation = "pronunciation";
-const emotionClasses = new Map([
-    ["warm", `${cssClassPrefix}-inline-emotion-warm`],
-    ["concerned", `${cssClassPrefix}-inline-emotion-concerned`],
-    ["focused", `${cssClassPrefix}-inline-emotion-focused`],
-    ["motivational", `${cssClassPrefix}-inline-emotion-motivational`],
-    ["neutral", `${cssClassPrefix}-inline-emotion-neutral`],
-    ["urgent", `${cssClassPrefix}-inline-emotion-urgent`],
-    ["happy", `${cssClassPrefix}-inline-emotion-happy`],
-    ["excited", `${cssClassPrefix}-inline-emotion-excited`],
-    ["sad", `${cssClassPrefix}-inline-emotion-sad`],
-    ["calm", `${cssClassPrefix}-inline-emotion-calm`],
-    ["energetic", `${cssClassPrefix}-inline-emotion-energetic`],
-    ["professional", `${cssClassPrefix}-inline-emotion-professional`]
-]);
-const volumeClasses = new Map([
-    ["loud", `${cssClassPrefix}-inline-loud`],
-    ["soft", `${cssClassPrefix}-inline-soft`],
-    ["whisper", `${cssClassPrefix}-inline-whisper`]
-]);
-const deliveryClasses = new Map([
-    ["aside", `${cssClassPrefix}-inline-delivery-aside`],
-    ["rhetorical", `${cssClassPrefix}-inline-delivery-rhetorical`],
-    ["sarcasm", `${cssClassPrefix}-inline-delivery-sarcasm`],
-    ["building", `${cssClassPrefix}-inline-delivery-building`]
-]);
-const speedClasses = new Map([
-    ["xslow", `${cssClassPrefix}-inline-speed-xslow`],
-    ["slow", `${cssClassPrefix}-inline-speed-slow`],
-    ["normal", null],
-    ["fast", `${cssClassPrefix}-inline-speed-fast`],
-    ["xfast", `${cssClassPrefix}-inline-speed-xfast`]
-]);
-const headerEmotionTags = new Set(emotionClasses.keys());
 const monacoMinimapDefaults = Object.freeze({
     autohide: "none",
     enabled: true,
@@ -107,11 +74,41 @@ const monacoDefaults = Object.freeze({
     wordWrap: "on",
     wrappingIndent: "same"
 });
+const emptyTpsCatalog = Object.freeze({
+    articulationStyles: [],
+    deliveryModes: [],
+    emotions: [],
+    relativeSpeedTags: [],
+    volumeLevels: []
+});
 
 let stylesheetPromise;
 let loaderPromise;
 let monacoPromise;
 let themeObserverRegistered = false;
+
+function createDecorationCatalog(options) {
+    const runtimeCatalog = options?.tpsCatalog ?? emptyTpsCatalog;
+    const emotionNames = normalizeCatalogNames(runtimeCatalog.emotions);
+    const volumeNames = normalizeCatalogNames(runtimeCatalog.volumeLevels);
+    const deliveryNames = normalizeCatalogNames(runtimeCatalog.deliveryModes);
+    const speedNames = normalizeCatalogNames(runtimeCatalog.relativeSpeedTags);
+    return {
+        deliveryClasses: new Map(deliveryNames.map(name => [name, `${cssClassPrefix}-inline-delivery-${name}`])),
+        emotionClasses: new Map(emotionNames.map(name => [name, `${cssClassPrefix}-inline-emotion-${name}`])),
+        headerEmotionTags: new Set(emotionNames),
+        speedClasses: new Map(speedNames.map(name => [name, name === "normal" ? null : `${cssClassPrefix}-inline-speed-${name}`])),
+        volumeClasses: new Map(volumeNames.map(name => [name, `${cssClassPrefix}-inline-${name}`]))
+    };
+}
+
+function normalizeCatalogNames(values) {
+    return Array.isArray(values)
+        ? values
+            .map(value => String(value ?? emptyValue).trim().toLowerCase())
+            .filter(Boolean)
+        : [];
+}
 
 export async function initializeEditor(host, proxy, semanticSnapshot, dotNetRef, options) {
     if (!host || !proxy || !dotNetRef || !options) {
@@ -125,6 +122,7 @@ export async function initializeEditor(host, proxy, semanticSnapshot, dotNetRef,
         existingState.semanticSnapshot = semanticSnapshot;
         existingState.dotNetRef = dotNetRef;
         existingState.options = options;
+        existingState.tpsCatalog = createDecorationCatalog(options);
         await syncEditorState(host, proxy.value ?? emptyValue, proxy.selectionStart ?? 0, proxy.selectionEnd ?? 0);
         return true;
     }
@@ -143,6 +141,7 @@ export async function initializeEditor(host, proxy, semanticSnapshot, dotNetRef,
         dotNetRef,
         editor,
         host,
+        lastDecorationClasses: [],
         monaco,
         options,
         proxy,
@@ -150,7 +149,8 @@ export async function initializeEditor(host, proxy, semanticSnapshot, dotNetRef,
         suppressProxySelection: false,
         suppressSelectionNotification: false,
         suppressTextNotification: false,
-        subscriptions: []
+        subscriptions: [],
+        tpsCatalog: createDecorationCatalog(options)
     };
 
     state.subscriptions.push(
@@ -454,8 +454,10 @@ function createHarnessState(state, options) {
     const layoutInfo = state.editor.getLayoutInfo();
     const minimapMetrics = measureMinimapMetrics(state);
     return {
-        decorationClasses: model?.getAllDecorations().map(decoration =>
-            decoration.options.inlineClassName || decoration.options.lineClassName || "").filter(Boolean) ?? [],
+        decorationClasses: state.lastDecorationClasses?.length
+            ? state.lastDecorationClasses
+            : (model?.getAllDecorations().map(decoration =>
+                decoration.options.inlineClassName || decoration.options.lineClassName || "").filter(Boolean) ?? []),
         engine: state.host.getAttribute(options.editorEngineAttributeName) ?? emptyValue,
         layout: {
             contentLeft: layoutInfo.contentLeft ?? 0,
@@ -697,7 +699,11 @@ function scheduleDecorations(state) {
     }
 
     state.decorationFrameId = requestAnimationFrame(() => {
-        state.decorationCollection.set(buildDecorations(state));
+        const decorations = buildDecorations(state);
+        state.lastDecorationClasses = decorations
+            .map(decoration => decoration?.options?.inlineClassName || decoration?.options?.lineClassName || emptyValue)
+            .filter(Boolean);
+        state.decorationCollection.set(decorations);
         state.decorationFrameId = 0;
     });
 }
@@ -721,15 +727,15 @@ function buildDecorations(state) {
                 continue;
             }
 
-            if (decorateHeaderLine(monaco, decorations, lineNumber, line, "##", `${cssClassPrefix}-line-segment`)) {
+            if (decorateHeaderLine(monaco, decorations, lineNumber, line, "##", `${cssClassPrefix}-line-segment`, state.tpsCatalog)) {
                 continue;
             }
 
-            if (decorateHeaderLine(monaco, decorations, lineNumber, line, "###", `${cssClassPrefix}-line-block`)) {
+            if (decorateHeaderLine(monaco, decorations, lineNumber, line, "###", `${cssClassPrefix}-line-block`, state.tpsCatalog)) {
                 continue;
             }
 
-            decorateBodyLine(monaco, decorations, lineNumber, line);
+            decorateBodyLine(monaco, decorations, lineNumber, line, state.tpsCatalog);
         }
     }
 
@@ -810,7 +816,7 @@ function decorateFrontMatterLine(monaco, decorations, lineNumber, line) {
     decorations.push(createInlineDecoration(monaco, lineNumber, valueStart, line.length + 1, `${cssClassPrefix}-frontmatter-value`));
 }
 
-function decorateHeaderLine(monaco, decorations, lineNumber, line, prefix, lineClassName) {
+function decorateHeaderLine(monaco, decorations, lineNumber, line, prefix, lineClassName, tpsCatalog) {
     if (!line.startsWith(prefix + " [") || !line.endsWith("]")) {
         return false;
     }
@@ -830,7 +836,7 @@ function decorateHeaderLine(monaco, decorations, lineNumber, line, prefix, lineC
                 ? `${cssClassPrefix}-header-speaker`
                 : /\d+\s*WPM$/i.test(part)
                     ? `${cssClassPrefix}-header-wpm`
-                    : headerEmotionTags.has(part.toLowerCase())
+                    : tpsCatalog.headerEmotionTags.has(part.toLowerCase())
                         ? `${cssClassPrefix}-header-emotion`
                         : `${cssClassPrefix}-header-meta`;
         decorations.push(createInlineDecoration(monaco, lineNumber, segmentStart, segmentStart + part.length, className));
@@ -840,7 +846,7 @@ function decorateHeaderLine(monaco, decorations, lineNumber, line, prefix, lineC
     return true;
 }
 
-function decorateBodyLine(monaco, decorations, lineNumber, line) {
+function decorateBodyLine(monaco, decorations, lineNumber, line, tpsCatalog) {
     const scopes = [createInlineScopeFrame("root", scopeKindRoot, createInlineRenderState())];
     let index = 0;
 
@@ -850,7 +856,7 @@ function decorateBodyLine(monaco, decorations, lineNumber, line) {
             decorateInlineTextSegment(monaco, decorations, lineNumber, line.slice(index, tagIndex), index, scopes);
         }
 
-        decorateInlineTag(monaco, decorations, lineNumber, match[0], tagIndex, scopes);
+        decorateInlineTag(monaco, decorations, lineNumber, match[0], tagIndex, scopes, tpsCatalog);
         index = tagIndex + match[0].length;
     }
 
@@ -934,7 +940,7 @@ function decorateStyledTextSegment(monaco, decorations, lineNumber, startColumn,
     decorateRawRange(monaco, decorations, lineNumber, startColumn, endColumn, className);
 }
 
-function decorateInlineTag(monaco, decorations, lineNumber, rawTag, tagIndex, scopes) {
+function decorateInlineTag(monaco, decorations, lineNumber, rawTag, tagIndex, scopes, tpsCatalog) {
     const inner = rawTag.slice(1, -1).trim();
     if (!inner) {
         return;
@@ -1012,41 +1018,41 @@ function decorateInlineTag(monaco, decorations, lineNumber, rawTag, tagIndex, sc
         return;
     }
 
-    if (speedClasses.has(normalizedName)) {
+    if (tpsCatalog.speedClasses.has(normalizedName)) {
         decorateRawRange(monaco, decorations, lineNumber, startColumn, endColumn, `${cssClassPrefix}-tag`);
         scopes.push(createInlineScopeFrame(name, scopeKindStyle, {
             ...currentState,
-            speedClass: speedClasses.get(normalizedName),
-            speedValue: speedClasses.get(normalizedName) ? normalizedName : null
+            speedClass: tpsCatalog.speedClasses.get(normalizedName),
+            speedValue: tpsCatalog.speedClasses.get(normalizedName) ? normalizedName : null
         }));
         return;
     }
 
-    if (volumeClasses.has(normalizedName)) {
+    if (tpsCatalog.volumeClasses.has(normalizedName)) {
         decorateRawRange(monaco, decorations, lineNumber, startColumn, endColumn, `${cssClassPrefix}-tag`);
         scopes.push(createInlineScopeFrame(name, scopeKindStyle, {
             ...currentState,
-            volumeClass: volumeClasses.get(normalizedName),
+            volumeClass: tpsCatalog.volumeClasses.get(normalizedName),
             volumeValue: normalizedName
         }));
         return;
     }
 
-    if (deliveryClasses.has(normalizedName)) {
+    if (tpsCatalog.deliveryClasses.has(normalizedName)) {
         decorateRawRange(monaco, decorations, lineNumber, startColumn, endColumn, `${cssClassPrefix}-tag`);
         scopes.push(createInlineScopeFrame(name, scopeKindStyle, {
             ...currentState,
-            deliveryClass: deliveryClasses.get(normalizedName),
+            deliveryClass: tpsCatalog.deliveryClasses.get(normalizedName),
             deliveryValue: normalizedName
         }));
         return;
     }
 
-    if (emotionClasses.has(normalizedName)) {
+    if (tpsCatalog.emotionClasses.has(normalizedName)) {
         decorateRawRange(monaco, decorations, lineNumber, startColumn, endColumn, `${cssClassPrefix}-tag`);
         scopes.push(createInlineScopeFrame(name, scopeKindStyle, {
             ...currentState,
-            emotionClass: emotionClasses.get(normalizedName)
+            emotionClass: tpsCatalog.emotionClasses.get(normalizedName)
         }));
         return;
     }
@@ -1211,12 +1217,13 @@ function applySelection(state, start, end, revealSelection) {
 
     if (revealSelection) {
         const scrollType = state.monaco.editor.ScrollType.Immediate;
-        const lineHeight = state.editor.getOption(state.monaco.editor.EditorOption.lineHeight);
-        const targetScrollTop = Math.max(
-            0,
-            state.editor.getTopForLineNumber(startPosition.lineNumber) - (lineHeight * 2));
         state.editor.focus();
-        state.editor.setScrollTop(targetScrollTop, scrollType);
+        if (typeof state.editor.revealRangeInCenterIfOutsideViewport === "function") {
+            state.editor.revealRangeInCenterIfOutsideViewport(range, scrollType);
+        }
+        else {
+            state.editor.revealRangeInCenter(range, scrollType);
+        }
         state.editor.render();
     }
     else {

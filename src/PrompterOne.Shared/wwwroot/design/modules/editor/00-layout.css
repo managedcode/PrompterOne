@@ -82,6 +82,10 @@
     margin-bottom: 10px;
 }
 
+.ed-section-label--section-break {
+    margin-top: 18px;
+}
+
 .ed-tree { display: flex; flex-direction: column; gap: 2px; }
 
 .ed-tree-seg {
@@ -101,6 +105,18 @@
 }
 .ed-tree-seg:hover { background: var(--glass2); }
 .ed-tree-seg.active { background: var(--accent-g); border: 1px solid rgba(232,130,92,.1); color: #E8D5B0; }
+.ed-tree-seg--neutral { --sc: #2563EB; }
+.ed-tree-seg--warm { --sc: #E97F00; }
+.ed-tree-seg--concerned { --sc: #B91C1C; }
+.ed-tree-seg--focused { --sc: #16A34A; }
+.ed-tree-seg--motivational { --sc: #7C3AED; }
+.ed-tree-seg--urgent { --sc: #DC2626; }
+.ed-tree-seg--happy { --sc: #D97706; }
+.ed-tree-seg--excited { --sc: #DB2777; }
+.ed-tree-seg--sad { --sc: #4F46E5; }
+.ed-tree-seg--calm { --sc: #0D9488; }
+.ed-tree-seg--energetic { --sc: #EA580C; }
+.ed-tree-seg--professional { --sc: #1D4ED8; }
 
 .ed-tree-dot {
     width: 10px;

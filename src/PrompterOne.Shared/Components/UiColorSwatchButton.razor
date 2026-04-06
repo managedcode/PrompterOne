@@ -1,0 +1,34 @@
+@namespace PrompterOne.Shared.Components
+
+<button class="@CssClass"
+        type="button"
+        aria-label="@Label"
+        data-testid="@TestId"
+        @onclick="HandleClick"
+        @onclick:stopPropagation="true">
+</button>
+
+@code {
+    private string CssClass =>
+        string.Join(
+            ' ',
+            new[]
+            {
+                BaseCssClass,
+                ToneCssClass,
+                Selected ? SelectedCssClass : string.Empty
+            }.Where(static value => !string.IsNullOrWhiteSpace(value)));
+
+    private const string BaseCssClass = "set-accent-swatch ui-color-swatch";
+    private const string SelectedCssClass = "active";
+
+    private string ToneCssClass => $"ui-color-swatch--{Tone.ToString().ToLowerInvariant()}";
+
+    [Parameter] public string Label { get; set; } = string.Empty;
+    [Parameter] public EventCallback OnClick { get; set; }
+    [Parameter] public bool Selected { get; set; }
+    [Parameter] public string TestId { get; set; } = string.Empty;
+    [Parameter] public UiColorSwatchTone Tone { get; set; }
+
+    private Task HandleClick() => OnClick.InvokeAsync();
+}

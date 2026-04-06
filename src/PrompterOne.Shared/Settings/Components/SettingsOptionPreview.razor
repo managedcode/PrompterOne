@@ -1,0 +1,50 @@
+@namespace PrompterOne.Shared.Components.Settings
+@using PrompterOne.Shared.Components
+
+<div class="@CssClass">
+    <UiIcon Kind="@Icon"
+            Size="@IconSize"
+            StrokeWidth="@IconStrokeWidth"
+            CssClass="settings-option-preview__icon" />
+</div>
+
+@code {
+    private string CssClass =>
+        $"{BaseCssClass} {VariantCssClass}{(IsDensityPreview ? " set-density-swatch" : string.Empty)}";
+
+    private const string BaseCssClass = "set-theme-swatch settings-option-preview";
+
+    private UiIconKind Icon => Kind switch
+    {
+        SettingsOptionPreviewKind.ThemeDark => UiIconKind.Theme,
+        SettingsOptionPreviewKind.ThemeLight => UiIconKind.Theme,
+        SettingsOptionPreviewKind.ThemeSystem => UiIconKind.LayoutPanel,
+        SettingsOptionPreviewKind.DensityCompact => UiIconKind.TextLines,
+        SettingsOptionPreviewKind.DensityDefault => UiIconKind.TextLines,
+        SettingsOptionPreviewKind.DensitySpacious => UiIconKind.TextLines,
+        _ => UiIconKind.Theme
+    };
+
+    private int IconSize => Kind switch
+    {
+        SettingsOptionPreviewKind.ThemeDark => 14,
+        SettingsOptionPreviewKind.ThemeLight => 14,
+        SettingsOptionPreviewKind.ThemeSystem => 14,
+        _ => 16
+    };
+
+    private decimal IconStrokeWidth => Kind switch
+    {
+        SettingsOptionPreviewKind.DensityCompact => 1.5m,
+        _ => 2m
+    };
+
+    private bool IsDensityPreview =>
+        Kind is SettingsOptionPreviewKind.DensityCompact
+            or SettingsOptionPreviewKind.DensityDefault
+            or SettingsOptionPreviewKind.DensitySpacious;
+
+    private string VariantCssClass => $"settings-option-preview--{Kind.ToString().ToLowerInvariant()}";
+
+    [Parameter] public SettingsOptionPreviewKind Kind { get; set; }
+}

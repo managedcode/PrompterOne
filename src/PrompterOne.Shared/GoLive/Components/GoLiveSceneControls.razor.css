@@ -52,6 +52,9 @@
 
 .gl-scene-chip-icon {
     color: var(--text-4);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     flex-shrink: 0;
 }
 

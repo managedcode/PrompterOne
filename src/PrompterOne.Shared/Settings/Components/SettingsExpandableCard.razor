@@ -1,15 +1,17 @@
 @namespace PrompterOne.Shared.Components.Settings
+@using PrompterOne.Shared.Components
 
 <article class="@CardCssClass"
          data-testid="@TestId"
          @onclick="OnToggle">
     <div class="set-dest-header">
-        <div class="@IconCssClass" style="@IconStyle">
+        <UiIconSurface Tone="@IconTone"
+                       AdditionalCssClass="@IconCssClass">
             @if (Icon is not null)
             {
                 @Icon
             }
-        </div>
+        </UiIconSurface>
         <div class="set-dest-info">
             <span class="set-dest-name">@Title</span>
             @if (!string.IsNullOrWhiteSpace(Description))
@@ -22,9 +24,9 @@
         {
             <span class="@StatusCssClass">@StatusLabel</span>
         }
-        <svg class="set-dest-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="6,9 12,15 18,9" />
-        </svg>
+        <UiIcon Kind="UiIconKind.ChevronDown"
+                Size="14"
+                CssClass="set-dest-chevron" />
     </div>
     <div class="set-dest-body" @onclick:stopPropagation="true">
         @ChildContent
@@ -71,7 +73,7 @@
 
     [Parameter] public string IconClass { get; set; } = string.Empty;
 
-    [Parameter] public string IconStyle { get; set; } = string.Empty;
+    [Parameter] public UiIconSurfaceTone IconTone { get; set; } = UiIconSurfaceTone.Slate;
 
     [Parameter] public bool IsOpen { get; set; }
 

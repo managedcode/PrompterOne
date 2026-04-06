@@ -4,6 +4,7 @@ using PrompterOne.Core.Models.Workspace;
 using PrompterOne.Core.Services;
 using PrompterOne.Core.Services.Editor;
 using PrompterOne.Shared.Components.Editor;
+using PrompterOne.Shared.Contracts;
 using PrompterOne.Shared.Services;
 using PrompterOne.Shared.Services.Diagnostics;
 using PrompterOne.Shared.Services.Editor;
@@ -88,7 +89,8 @@ public partial class EditorPage
     [Inject] private TpsStructureEditor StructureEditor { get; set; } = null!;
     [Inject] private TpsTextEditor TextEditor { get; set; } = null!;
 
-    [SupplyParameterFromQuery(Name = "id")]
+    [Parameter]
+    [SupplyParameterFromQuery(Name = AppRoutes.ScriptIdQueryKey)]
     public string? ScriptId { get; set; }
 
     protected override bool ShouldRender()

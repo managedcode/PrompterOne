@@ -221,6 +221,22 @@ body.theme-light .ed-meta-toggle:hover {
     font-weight: 600;
 }
 
+.ed-meta-unit--xslow {
+    color: #FF8A8A;
+}
+
+.ed-meta-unit--slow {
+    color: #FFB86A;
+}
+
+.ed-meta-unit--fast {
+    color: #8ECFFF;
+}
+
+.ed-meta-unit--xfast {
+    color: #80B8FF;
+}
+
 .ed-meta-note,
 .ed-meta-empty {
     margin: 8px 0 0;

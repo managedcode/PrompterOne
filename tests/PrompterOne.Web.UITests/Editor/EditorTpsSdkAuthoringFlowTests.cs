@@ -106,6 +106,30 @@ public sealed class EditorTpsSdkAuthoringFlowTests(StandaloneAppFixture fixture)
         }
     }
 
+    [Fact]
+    public async Task EditorScreen_FloatingInsertMenuAddsArchetypeAwareSegmentHeader()
+    {
+        var page = await OpenEditorAsync();
+
+        try
+        {
+            await EditorMonacoDriver.SetTextAsync(page, SelectionDocument);
+            await EditorMonacoDriver.SetSelectionByTextAsync(page, SelectionToken);
+            await Expect(page.GetByTestId(UiTestIds.Editor.FloatingBar))
+                .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.FastVisibleTimeoutMs });
+            await page.GetByTestId(UiTestIds.Editor.FloatingInsert).ClickAsync();
+            await page.GetByTestId(UiTestIds.Editor.FloatingInsertSegmentArchetypeMenu).ClickAsync();
+
+            var source = await EditorMonacoDriver.SourceInput(page).InputValueAsync();
+
+            Assert.Contains("Archetype:Coach", source, StringComparison.Ordinal);
+        }
+        finally
+        {
+            await page.Context.CloseAsync();
+        }
+    }
+
     private async Task<Microsoft.Playwright.IPage> OpenEditorAsync()
     {
         var page = await fixture.NewPageAsync();

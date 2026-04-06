@@ -82,6 +82,11 @@ internal static class TestHarnessFactory
             settingsStore,
             loggerFactory.CreateLogger<AppBootstrapper>());
 
+        jsRuntime.SavedValues[SettingsPagePreferences.StorageKey] = SettingsPagePreferences.Default with
+        {
+            HasSeenOnboarding = true
+        };
+
         if (seedLibraryData)
         {
             folderRepository.InitializeAsync(AppTestLibrarySeedData.CreateFolders()).GetAwaiter().GetResult();

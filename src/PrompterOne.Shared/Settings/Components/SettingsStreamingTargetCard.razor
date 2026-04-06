@@ -1,5 +1,6 @@
 @namespace PrompterOne.Shared.Components.Settings
 @using Microsoft.Extensions.Localization
+@using PrompterOne.Shared.Components
 @using PrompterOne.Shared.Localization
 @inject IStringLocalizer<SharedResource> Localizer
 
@@ -18,9 +19,9 @@
             <span class="set-dest-account">@Account</span>
         </div>
         <span class="@StatusCssClass">@StatusLabel</span>
-        <svg class="set-dest-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="6,9 12,15 18,9" />
-        </svg>
+        <UiIcon Kind="UiIconKind.ChevronDown"
+                Size="14"
+                CssClass="set-dest-chevron" />
     </div>
 
     <div class="set-dest-body" @onclick:stopPropagation="true">

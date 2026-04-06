@@ -2,20 +2,16 @@ using System.Globalization;
 using PrompterOne.Core.Models.CompiledScript;
 using PrompterOne.Core.Models.Documents;
 using PrompterOne.Core.Models.Media;
-using PrompterOne.Core.Models.Tps;
 using PrompterOne.Shared.Contracts;
 
 namespace PrompterOne.Shared.Pages;
 
 public partial class TeleprompterPage
 {
-    private const string BaseWpmMetadataKey = "base_wpm";
     private const string DefaultReaderBlockName = "Reader Block";
     private const string DefaultReaderSectionName = "Section";
-    private const string DefaultReaderSegmentName = "Reader Segment";
     private const int LongPauseThresholdMilliseconds = 1500;
     private const int MediumPauseThresholdMilliseconds = 600;
-    private const int MinimumReaderBaseWpm = 80;
     private const int MinimumReaderWordDurationMilliseconds = 120;
     private const int MinimumPauseDurationMilliseconds = 250;
     private const string NeutralEmotionKey = "neutral";
@@ -24,7 +20,10 @@ public partial class TeleprompterPage
     private const string ReaderPauseMediumCssClass = "rd-pause rd-pause-med";
     private const string TpsClassPrefix = "tps";
 
-    private async Task<List<ReaderCardViewModel>> BuildReaderCardsAsync()
+    private Task<List<ReaderCardViewModel>> BuildReaderCardsAsync() =>
+        Task.FromResult(BuildReaderCards());
+
+    private List<ReaderCardViewModel> BuildReaderCards()
     {
         var scriptData = SessionService.State.ScriptData;
         if (scriptData?.Segments is not { Length: > 0 })
@@ -32,59 +31,122 @@ public partial class TeleprompterPage
             return [];
         }
 
-        var seeds = new List<ReaderCardSeed>();
-        var runtimeMetadata = await BuildReaderRuntimeMetadataAsync(scriptData.TargetWpm);
-
-        foreach (var segment in scriptData.Segments)
-        {
-            var segmentEmotion = ResolveEmotionKey(segment.Emotion);
-            var segmentAccent = ResolveAccentColor(segment.AccentColor, segmentEmotion);
-            var blocks = segment.Blocks is { Length: > 0 }
-                ? segment.Blocks
-                : [new ScriptBlock
-                {
-                    Name = string.IsNullOrWhiteSpace(segment.Name) ? DefaultReaderBlockName : segment.Name,
-                    Emotion = segment.Emotion,
-                    WpmOverride = segment.WpmOverride,
-                    Content = segment.Content
-                }];
-
-            foreach (var block in blocks)
-            {
-                var words = await CompileBlockWordsAsync(scriptData.TargetWpm, segment, block, runtimeMetadata);
-                var wordCount = CountReadableWords(words);
-                if (wordCount == 0)
-                {
-                    continue;
-                }
-
-                var emotionKey = ResolveEmotionKey(block.Emotion ?? segment.Emotion);
-                var targetWpm = block.WpmOverride ?? segment.WpmOverride ?? scriptData.TargetWpm;
-                var durationMilliseconds = Math.Max(
-                    1000,
-                    (int)Math.Ceiling(words.Sum(word => word.DisplayDuration.TotalMilliseconds)));
-
-                seeds.Add(new ReaderCardSeed(
-                    SectionName: string.IsNullOrWhiteSpace(segment.Name) ? DefaultReaderSectionName : segment.Name,
-                    DisplayName: string.IsNullOrWhiteSpace(block.Name) ? segment.Name : block.Name,
-                    EmotionKey: emotionKey,
-                    EmotionLabel: FormatEmotionLabel(emotionKey),
-                    BackgroundClass: ResolveReaderBackgroundClass(emotionKey),
-                    AccentColor: segmentAccent,
-                    TargetWpm: targetWpm,
-                    WordCount: wordCount,
-                    DurationMilliseconds: durationMilliseconds,
-                    WidthPercentString: string.Empty,
-                    EdgeColor: string.Empty,
-                    Chunks: BuildReaderChunks(words, targetWpm)));
-            }
-        }
-
+        var seeds = BuildReaderCardSeeds(scriptData, SessionService.State.CompiledScript);
         if (seeds.Count == 0)
         {
             return [];
         }
 
+        return BuildReaderCardViewModels(seeds);
+    }
+
+    private static List<ReaderCardSeed> BuildReaderCardSeeds(
+        ScriptData scriptData,
+        PrompterOne.Core.Models.CompiledScript.CompiledScript? compiledScript)
+    {
+        var seeds = new List<ReaderCardSeed>();
+        for (var segmentIndex = 0; segmentIndex < scriptData.Segments!.Length; segmentIndex++)
+        {
+            var segment = scriptData.Segments[segmentIndex];
+            var compiledSegment = compiledScript?.Segments.ElementAtOrDefault(segmentIndex);
+            AppendReaderCardSeeds(seeds, segment, compiledSegment, scriptData.TargetWpm);
+        }
+
+        return seeds;
+    }
+
+    private static void AppendReaderCardSeeds(
+        ICollection<ReaderCardSeed> seeds,
+        ScriptSegment segment,
+        CompiledSegment? compiledSegment,
+        int baseWpm)
+    {
+        var segmentEmotion = ResolveEmotionKey(segment.Emotion);
+        var segmentAccent = ResolveAccentColor(segment.AccentColor, segmentEmotion);
+        var blocks = ResolveReaderBlocks(segment);
+        var hasExplicitBlocks = segment.Blocks is { Length: > 0 };
+
+        for (var blockIndex = 0; blockIndex < blocks.Count; blockIndex++)
+        {
+            var block = blocks[blockIndex];
+            var words = ResolveCompiledWords(compiledSegment, block, blockIndex, hasExplicitBlocks);
+            var wordCount = CountReadableWords(words);
+            if (wordCount == 0)
+            {
+                continue;
+            }
+
+            var emotionKey = ResolveEmotionKey(block.Emotion ?? segment.Emotion);
+            var targetWpm = block.WpmOverride ?? segment.WpmOverride ?? baseWpm;
+            var durationMilliseconds = Math.Max(
+                1000,
+                (int)Math.Ceiling(words.Sum(word => word.DisplayDuration.TotalMilliseconds)));
+
+            seeds.Add(new ReaderCardSeed(
+                SectionName: string.IsNullOrWhiteSpace(segment.Name) ? DefaultReaderSectionName : segment.Name,
+                DisplayName: string.IsNullOrWhiteSpace(block.Name) ? segment.Name : block.Name,
+                EmotionKey: emotionKey,
+                EmotionLabel: FormatEmotionLabel(emotionKey),
+                BackgroundClass: ResolveReaderBackgroundClass(emotionKey),
+                AccentColor: segmentAccent,
+                TargetWpm: targetWpm,
+                WordCount: wordCount,
+                DurationMilliseconds: durationMilliseconds,
+                WidthPercentString: string.Empty,
+                EdgeColor: string.Empty,
+                Chunks: BuildReaderChunks(words, targetWpm)));
+        }
+    }
+
+    private static IReadOnlyList<ScriptBlock> ResolveReaderBlocks(ScriptSegment segment)
+    {
+        if (segment.Blocks is { Length: > 0 } blocks)
+        {
+            return blocks;
+        }
+
+        return
+        [
+            new ScriptBlock
+            {
+                Name = string.IsNullOrWhiteSpace(segment.Name) ? DefaultReaderBlockName : segment.Name,
+                Emotion = segment.Emotion,
+                WpmOverride = segment.WpmOverride,
+                Content = segment.Content
+            }
+        ];
+    }
+
+    private static IReadOnlyList<CompiledWord> ResolveCompiledWords(
+        CompiledSegment? compiledSegment,
+        ScriptBlock block,
+        int blockIndex,
+        bool hasExplicitBlocks)
+    {
+        if (compiledSegment is null)
+        {
+            return [];
+        }
+
+        if (!hasExplicitBlocks)
+        {
+            return compiledSegment.Words;
+        }
+
+        var matchedBlock = compiledSegment.Blocks
+            .FirstOrDefault(candidate => string.Equals(candidate.Name, block.Name, StringComparison.Ordinal));
+        if (matchedBlock is not null)
+        {
+            return matchedBlock.Words;
+        }
+
+        return compiledSegment.Blocks.ElementAtOrDefault(blockIndex + 1)?.Words
+            ?? compiledSegment.Blocks.ElementAtOrDefault(blockIndex)?.Words
+            ?? [];
+    }
+
+    private static List<ReaderCardViewModel> BuildReaderCardViewModels(IReadOnlyList<ReaderCardSeed> seeds)
+    {
         var totalWords = Math.Max(1, seeds.Sum(seed => seed.WordCount));
 
         return seeds
@@ -103,58 +165,6 @@ public partial class TeleprompterPage
                 Chunks: seed.Chunks,
                 TestId: UiTestIds.Teleprompter.Card(index)))
             .ToList();
-    }
-
-    private async Task<Dictionary<string, string>> BuildReaderRuntimeMetadataAsync(int baseWpm)
-    {
-        var sourceText = SessionService.State.Text;
-        var runtimeMetadata = string.IsNullOrWhiteSpace(sourceText)
-            ? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-            : new Dictionary<string, string>(
-                (await TpsDocumentReader.ReadAsync(sourceText)).Metadata,
-                StringComparer.OrdinalIgnoreCase);
-
-        runtimeMetadata[BaseWpmMetadataKey] = Math.Max(MinimumReaderBaseWpm, baseWpm).ToString(CultureInfo.InvariantCulture);
-        return runtimeMetadata;
-    }
-
-    private async Task<IReadOnlyList<CompiledWord>> CompileBlockWordsAsync(
-        int baseWpm,
-        ScriptSegment segment,
-        ScriptBlock block,
-        IReadOnlyDictionary<string, string> runtimeMetadata)
-    {
-        var document = new TpsDocument
-        {
-            Metadata = new Dictionary<string, string>(runtimeMetadata, StringComparer.OrdinalIgnoreCase),
-            Segments =
-            [
-                new TpsSegment
-                {
-                    Name = string.IsNullOrWhiteSpace(segment.Name) ? DefaultReaderSegmentName : segment.Name,
-                    Emotion = segment.Emotion,
-                    AccentColor = segment.AccentColor,
-                    BackgroundColor = segment.BackgroundColor,
-                    TextColor = segment.TextColor,
-                    TargetWPM = segment.WpmOverride ?? baseWpm,
-                    Blocks =
-                    [
-                        new TpsBlock
-                        {
-                            Name = string.IsNullOrWhiteSpace(block.Name) ? DefaultReaderBlockName : block.Name,
-                            Emotion = block.Emotion,
-                            TargetWPM = block.WpmOverride ?? segment.WpmOverride ?? baseWpm,
-                            Content = block.Content
-                        }
-                    ]
-                }
-            ]
-        };
-
-        var compiled = await Compiler.CompileAsync(document);
-        var compiledSegment = compiled.Segments.FirstOrDefault();
-        var compiledBlock = compiledSegment?.Blocks.FirstOrDefault();
-        return compiledBlock?.Words ?? compiledSegment?.Words ?? [];
     }
 
     private static IReadOnlyList<ReaderChunkViewModel> BuildReaderChunks(IEnumerable<CompiledWord> words, int targetWpm)

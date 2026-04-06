@@ -1,0 +1,25 @@
+@namespace PrompterOne.Shared.Components
+
+<div class="@CssClass">
+    @ChildContent
+</div>
+
+@code {
+    private string CssClass =>
+        string.Join(
+            ' ',
+            new[]
+            {
+                BaseCssClass,
+                ToneCssClass,
+                AdditionalCssClass
+            }.Where(static value => !string.IsNullOrWhiteSpace(value)));
+
+    private const string BaseCssClass = "ui-icon-surface";
+
+    private string ToneCssClass => $"ui-icon-surface--{Tone.ToString().ToLowerInvariant()}";
+
+    [Parameter] public string AdditionalCssClass { get; set; } = string.Empty;
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public UiIconSurfaceTone Tone { get; set; } = UiIconSurfaceTone.Slate;
+}

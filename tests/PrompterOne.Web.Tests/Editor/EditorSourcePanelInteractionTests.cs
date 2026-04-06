@@ -135,6 +135,10 @@ public sealed class EditorSourcePanelInteractionTests : BunitContext
         AssertTooltipContract(
             cut.FindByTestId(UiTestIds.Editor.FloatingInsertPronunciation),
             Text(UiTextKey.EditorToolbarTooltipFloatingInsertPronunciation));
+        Assert.NotNull(cut.FindByTestId(UiTestIds.Editor.FloatingInsertSegmentMenu));
+        Assert.NotNull(cut.FindByTestId(UiTestIds.Editor.FloatingInsertSegmentArchetypeMenu));
+        Assert.NotNull(cut.FindByTestId(UiTestIds.Editor.FloatingInsertBlockMenu));
+        Assert.NotNull(cut.FindByTestId(UiTestIds.Editor.FloatingInsertBlockArchetypeMenu));
 
         var insertTrigger = cut.FindByTestId(UiTestIds.Editor.InsertTrigger);
         AssertTooltipContract(insertTrigger, Text(UiTextKey.EditorToolbarTooltipMoreInsertOptions));
@@ -146,6 +150,21 @@ public sealed class EditorSourcePanelInteractionTests : BunitContext
         AssertTooltipContract(
             cut.FindByTestId(UiTestIds.Editor.InsertBlockArchetypeMenu),
             Text(UiTextKey.EditorToolbarTooltipInsertBlockArchetype));
+    }
+
+    [Fact]
+    public void EditorSourcePanel_DropdownRows_RenderSharedLeftAlignedContentClusters()
+    {
+        var cut = Render<EditorSourcePanelHost>();
+
+        cut.FindByTestId(UiTestIds.Editor.ColorTrigger).Click();
+        AssertMenuActionCluster(cut.FindByTestId(UiTestIds.Editor.ColorEnergy), "Energy", "[energy:8]");
+        cut.FindByTestId(UiTestIds.Editor.ColorTrigger).Click();
+
+        cut.FindByTestId(UiTestIds.Editor.FloatingVoice).Click();
+        AssertMenuActionCluster(cut.FindByTestId(UiTestIds.Editor.FloatingVoiceEnergy), "Energy", "[energy:8]");
+        cut.FindByTestId(UiTestIds.Editor.FloatingInsert).Click();
+        AssertMenuActionCluster(cut.FindByTestId(UiTestIds.Editor.FloatingInsertSegmentArchetypeMenu), "Segment", "Archetype aware");
     }
 
     [Fact]
@@ -186,6 +205,23 @@ public sealed class EditorSourcePanelInteractionTests : BunitContext
         Assert.Null(element.GetAttribute("title"));
         Assert.Equal(expectedTooltip, element.GetAttribute("data-tip"));
         Assert.Equal(expectedTooltip, element.GetAttribute("aria-label"));
+    }
+
+    private static void AssertMenuActionCluster(IElement action, string expectedLabel, string expectedMeta)
+    {
+        var content = action.QuerySelector(".ed-action-content");
+        var leading = action.QuerySelector(".ed-action-leading");
+        var copy = action.QuerySelector(".ed-action-copy");
+        var label = action.QuerySelector(".ed-action-label");
+        var meta = action.QuerySelector(".ed-action-meta");
+
+        Assert.NotNull(content);
+        Assert.NotNull(leading);
+        Assert.NotNull(copy);
+        Assert.NotNull(label);
+        Assert.NotNull(meta);
+        Assert.Equal(expectedLabel, label!.TextContent.Trim());
+        Assert.Equal(expectedMeta, meta!.TextContent.Trim());
     }
 
     private string Text(UiTextKey key) =>

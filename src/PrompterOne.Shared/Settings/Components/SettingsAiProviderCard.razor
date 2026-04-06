@@ -1,5 +1,6 @@
 @namespace PrompterOne.Shared.Components.Settings
 @using Microsoft.Extensions.Localization
+@using PrompterOne.Shared.Components
 @using PrompterOne.Shared.Localization
 @inject IStringLocalizer<SharedResource> Localizer
 
@@ -7,7 +8,7 @@
                         Subtitle="@Subtitle"
                         StatusLabel="@StatusLabel"
                         StatusClass="@StatusClass"
-                        IconStyle="@IconStyle"
+                        IconTone="@IconTone"
                         AdditionalCssClass="@AdditionalCssClass"
                         IsOpen="@IsOpen"
                         OnToggle="@OnToggle"
@@ -26,8 +27,8 @@
             @ChildContent
         }
 
-        <div class="set-path-field" style="margin-top:12px">
-                <button class="set-btn-golden set-btn-sm"
+        <div class="set-path-field set-path-field-actions">
+            <button class="set-btn-golden set-btn-sm"
                     type="button"
                     data-testid="@SaveTestId"
                     @onclick="Save"
@@ -64,7 +65,7 @@
 
     [Parameter] public RenderFragment? Icon { get; set; }
 
-    [Parameter] public string IconStyle { get; set; } = string.Empty;
+    [Parameter] public UiIconSurfaceTone IconTone { get; set; } = UiIconSurfaceTone.Slate;
 
     [Parameter] public bool IsOpen { get; set; }
 

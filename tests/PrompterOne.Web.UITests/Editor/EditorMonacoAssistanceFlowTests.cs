@@ -33,6 +33,7 @@ public sealed class EditorMonacoAssistanceFlowTests(StandaloneAppFixture fixture
         "[breath]",
         "[edit_point:high]",
         "[edit_point:medium]",
+        "[edit_point:low]",
         "[pause:1000ms]",
         "[phonetic:guide]text[/phonetic]",
         "[pronunciation:guide]text[/pronunciation]",

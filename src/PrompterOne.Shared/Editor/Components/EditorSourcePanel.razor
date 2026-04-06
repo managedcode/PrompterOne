@@ -1,5 +1,6 @@
 @namespace PrompterOne.Shared.Components.Editor
 @using PrompterOne.Core.Models.Editor
+@using PrompterOne.Shared.Components
 @using PrompterOne.Shared.Rendering
 @using PrompterOne.Shared.Services.Editor
 @using Microsoft.AspNetCore.Components
@@ -16,28 +17,18 @@
                 <div class="tb-row">
                     @foreach (var toolbarAction in toolbarSection.MainActions)
                     {
-                        <button class="@toolbarAction.CssClass"
-                                type="button"
-                                style="@toolbarAction.Style"
-                                data-tip="@toolbarAction.Tooltip"
-                                data-testid="@toolbarAction.TestId"
-                                aria-label="@toolbarAction.Tooltip"
-                                aria-expanded="@GetActionAriaExpanded(toolbarAction)"
-                                disabled="@GetActionDisabled(toolbarAction)"
-                                @onmousedown:preventDefault="@toolbarAction.PreventMouseDown"
-                                @onclick="() => ExecuteToolbarActionAsync(toolbarAction)">
-                            <span class="tb-btn-content">@((MarkupString)toolbarAction.ContentHtml)</span>
-                            <span class="@GetTooltipCssClass(EditorToolbarTooltipPlacement.Toolbar)"
-                                  role="tooltip"
-                                  data-testid="@UiTestIds.Editor.ToolbarTooltip"
-                                  data-tooltip-placement="@GetTooltipPlacementValue(EditorToolbarTooltipPlacement.Toolbar)">@toolbarAction.Tooltip</span>
-                        </button>
+                        <EditorActionButton Action="@toolbarAction"
+                                            ActionSelected="ExecuteToolbarActionAsync"
+                                            AriaExpanded="@GetActionAriaExpanded(toolbarAction)"
+                                            Disabled="@GetActionDisabled(toolbarAction)"
+                                            TooltipCssClass="@GetTooltipCssClass(EditorToolbarTooltipPlacement.Toolbar)"
+                                            TooltipPlacementValue="@GetTooltipPlacementValue(EditorToolbarTooltipPlacement.Toolbar)" />
                     }
                 </div>
 
                 @if (toolbarSection.HasDropdown)
                 {
-                    <div class="tb-dropdown" data-testid="@toolbarSection.DropdownTestId" style="@toolbarSection.DropdownStyle">
+                    <div class="@GetToolbarDropdownCss(toolbarSection)" data-testid="@toolbarSection.DropdownTestId">
                         @for (var groupIndex = 0; groupIndex < toolbarSection.DropdownGroups.Count; groupIndex++)
                         {
                             var dropdownGroup = toolbarSection.DropdownGroups[groupIndex];
@@ -46,25 +37,16 @@
                                 <div class="tb-drop-sep"></div>
                             }
                             <div class="tb-drop-label">@dropdownGroup.Label</div>
-                            <div class="@GetDropdownListCss(toolbarSection)">
-                                @foreach (var dropdownAction in dropdownGroup.Actions)
-                                {
-                                    <button class="@dropdownAction.CssClass"
-                                            type="button"
-                                            style="@dropdownAction.Style"
-                                            data-tip="@dropdownAction.Tooltip"
-                                            data-testid="@dropdownAction.TestId"
-                                            aria-label="@dropdownAction.Tooltip"
-                                            @onclick="() => ExecuteToolbarActionAsync(dropdownAction)">
-                                        <span class="tb-btn-content">@((MarkupString)dropdownAction.ContentHtml)</span>
-                                        <span class="@GetTooltipCssClass(EditorToolbarTooltipPlacement.ToolbarMenu)"
-                                              role="tooltip"
-                                              data-testid="@UiTestIds.Editor.ToolbarTooltip"
-                                              data-tooltip-placement="@GetTooltipPlacementValue(EditorToolbarTooltipPlacement.ToolbarMenu)">@dropdownAction.Tooltip</span>
-                                    </button>
-                                }
-                            </div>
-                        }
+                                <div class="@GetDropdownListCss(toolbarSection)">
+                                    @foreach (var dropdownAction in dropdownGroup.Actions)
+                                    {
+                                        <EditorActionButton Action="@dropdownAction"
+                                                            ActionSelected="ExecuteToolbarActionAsync"
+                                                            TooltipCssClass="@GetTooltipCssClass(EditorToolbarTooltipPlacement.ToolbarMenu)"
+                                                            TooltipPlacementValue="@GetTooltipPlacementValue(EditorToolbarTooltipPlacement.ToolbarMenu)" />
+                                    }
+                                </div>
+                            }
                     </div>
                 }
             </div>
@@ -74,7 +56,56 @@
                 <span class="tb-div"></span>
             }
         }
+
+        <div class="ed-toolbar-tools">
+            <button type="button"
+                    class="ed-find-toggle"
+                    @onclick="ToggleFindBarAsync"
+                    aria-expanded="@(_showFindBar ? "true" : "false")"
+                    data-testid="@UiTestIds.Editor.FindToggle">
+                <UiIcon Kind="UiIconKind.Search" Size="14" />
+                <span>@L(UiTextKey.EditorFindOpen)</span>
+            </button>
+        </div>
     </div>
+
+    @if (_showFindBar)
+    {
+        <div class="ed-find-bar" data-testid="@UiTestIds.Editor.FindBar">
+            <label class="ed-find-input-shell">
+                <UiIcon Kind="UiIconKind.Search" Size="14" />
+                <input class="ed-find-input"
+                       type="text"
+                       value="@_findQuery"
+                       placeholder="@L(UiTextKey.EditorFindPlaceholder)"
+                       aria-label="@L(UiTextKey.EditorFindPlaceholder)"
+                       @oninput="OnFindQueryInputAsync"
+                       data-testid="@UiTestIds.Editor.FindInput" />
+            </label>
+
+            @if (ShouldRenderFindResult)
+            {
+                <span class="ed-find-result" data-testid="@UiTestIds.Editor.FindResult">@FindResultLabel</span>
+            }
+
+            <div class="ed-find-actions">
+                <button type="button"
+                        class="ed-find-nav"
+                        @onclick="NavigateToPreviousFindMatchAsync"
+                        disabled="@(!CanNavigateFindMatches)"
+                        data-testid="@UiTestIds.Editor.FindPrevious">@L(UiTextKey.EditorFindPrevious)</button>
+                <button type="button"
+                        class="ed-find-nav"
+                        @onclick="NavigateToNextFindMatchAsync"
+                        disabled="@(!CanNavigateFindMatches)"
+                        data-testid="@UiTestIds.Editor.FindNext">@L(UiTextKey.EditorFindNext)</button>
+                <button type="button"
+                        class="ed-find-close"
+                        @onclick="CloseFindBarAsync"
+                        data-testid="@UiTestIds.Editor.FindClose">@L(UiTextKey.EditorFindClose)</button>
+            </div>
+        </div>
+    }
 
     <div class="ed-content ed-source-shell"
          data-testid="@UiTestIds.Editor.SourceScrollHost">
@@ -116,21 +147,12 @@
                         var group = FloatingActionGroups[groupIndex];
                         @foreach (var action in group)
                         {
-                            <button class="@action.CssClass"
-                                    type="button"
-                                    data-tip="@action.Tooltip"
-                                    data-testid="@action.TestId"
-                                    aria-label="@action.Tooltip"
-                                    aria-expanded="@GetActionAriaExpanded(action)"
-                                    disabled="@GetActionDisabled(action)"
-                                    @onmousedown:preventDefault="@action.PreventMouseDown"
-                                    @onclick="() => ExecuteToolbarActionAsync(action)">
-                                <span class="tb-btn-content">@((MarkupString)action.ContentHtml)</span>
-                                <span class="@GetTooltipCssClass(EditorToolbarTooltipPlacement.FloatingToolbar)"
-                                      role="tooltip"
-                                      data-testid="@UiTestIds.Editor.ToolbarTooltip"
-                                      data-tooltip-placement="@GetTooltipPlacementValue(EditorToolbarTooltipPlacement.FloatingToolbar)">@action.Tooltip</span>
-                            </button>
+                            <EditorActionButton Action="@action"
+                                                ActionSelected="ExecuteToolbarActionAsync"
+                                                AriaExpanded="@GetActionAriaExpanded(action)"
+                                                Disabled="@GetActionDisabled(action)"
+                                                TooltipCssClass="@GetTooltipCssClass(EditorToolbarTooltipPlacement.FloatingToolbar)"
+                                                TooltipPlacementValue="@GetTooltipPlacementValue(EditorToolbarTooltipPlacement.FloatingToolbar)" />
                         }
 
                         @if (groupIndex < FloatingActionGroups.Count - 1)
@@ -141,9 +163,9 @@
 
                     @if (OpenFloatingMenu is { } floatingMenu)
                     {
-                        <span class="efb-dropdown"
+                        <span class="@GetFloatingMenuCss(floatingMenu)"
                               data-testid="@floatingMenu.PanelTestId"
-                              style="@floatingMenu.Style">
+                              >
                             @for (var groupIndex = 0; groupIndex < floatingMenu.DropdownGroups.Count; groupIndex++)
                             {
                                 var dropdownGroup = floatingMenu.DropdownGroups[groupIndex];
@@ -155,19 +177,10 @@
                                 <span class="efb-menu-list">
                                     @foreach (var action in dropdownGroup.Actions)
                                     {
-                                        <button class="@action.CssClass"
-                                                type="button"
-                                                data-tip="@action.Tooltip"
-                                                data-testid="@action.TestId"
-                                                aria-label="@action.Tooltip"
-                                                @onmousedown:preventDefault="@action.PreventMouseDown"
-                                                @onclick="() => ExecuteToolbarActionAsync(action)">
-                                            <span class="tb-btn-content">@((MarkupString)action.ContentHtml)</span>
-                                            <span class="@GetTooltipCssClass(EditorToolbarTooltipPlacement.FloatingMenu)"
-                                                  role="tooltip"
-                                                  data-testid="@UiTestIds.Editor.ToolbarTooltip"
-                                                  data-tooltip-placement="@GetTooltipPlacementValue(EditorToolbarTooltipPlacement.FloatingMenu)">@action.Tooltip</span>
-                                        </button>
+                                        <EditorActionButton Action="@action"
+                                                            ActionSelected="ExecuteToolbarActionAsync"
+                                                            TooltipCssClass="@GetTooltipCssClass(EditorToolbarTooltipPlacement.FloatingMenu)"
+                                                            TooltipPlacementValue="@GetTooltipPlacementValue(EditorToolbarTooltipPlacement.FloatingMenu)" />
                                     }
                                 </span>
                             }

@@ -98,6 +98,52 @@ public sealed class GoLivePageTests : BunitContext
     }
 
     [Fact]
+    public void GoLivePage_UsesSharedIconsAndPercentFillPrimitives_ForTopbarAndSidebarChrome()
+    {
+        SeedSceneState(CreateTwoCameraScene());
+
+        Services.GetRequiredService<NavigationManager>()
+            .NavigateTo(AppTestData.Routes.GoLiveDemo);
+
+        var cut = Render<GoLivePage>();
+
+        cut.WaitForAssertion(() =>
+        {
+            Assert.NotNull(cut.FindByTestId(UiTestIds.GoLive.Back).QuerySelector(".ui-icon"));
+            Assert.NotNull(cut.FindByTestId(UiTestIds.GoLive.AddSource).QuerySelector(".ui-icon"));
+            Assert.NotNull(cut.FindByTestId(UiTestIds.GoLive.OpenSettings).QuerySelector(".ui-icon"));
+            Assert.NotNull(cut.FindByTestId(UiTestIds.GoLive.TakeToAir).QuerySelector(".ui-icon"));
+        });
+
+        cut.FindByTestId(UiTestIds.GoLive.AudioTab).Click();
+
+        cut.WaitForAssertion(() =>
+        {
+            var audioChannel = cut.FindByTestId(UiTestIds.GoLive.AudioChannel(AppTestData.GoLive.MicChannelId));
+            Assert.NotNull(audioChannel.QuerySelector(".ui-icon"));
+            Assert.NotNull(audioChannel.QuerySelector(".ui-percent-fill.gl-mix-level"));
+        });
+
+        cut.FindByTestId(UiTestIds.GoLive.RoomTab).Click();
+        cut.WaitForState(() =>
+            cut.FindAll($"[data-testid='{UiTestIds.GoLive.CreateRoom}']").Count > 0 ||
+            cut.FindAll($"[data-testid='{UiTestIds.GoLive.RoomInvite}']").Count > 0);
+
+        var createRoomButtons = cut.FindAll($"[data-testid='{UiTestIds.GoLive.CreateRoom}']");
+        if (createRoomButtons.Count > 0)
+        {
+            createRoomButtons[0].Click();
+        }
+
+        cut.WaitForAssertion(() =>
+        {
+            Assert.NotNull(cut.FindByTestId(UiTestIds.GoLive.RoomInvite).QuerySelector(".ui-icon"));
+            Assert.NotNull(cut.FindByTestId(UiTestIds.GoLive.RoomParticipant(AppTestData.GoLive.PrimaryParticipantId))
+                .QuerySelector(".ui-percent-fill.gl-part-meter-fill"));
+        });
+    }
+
+    [Fact]
     public void GoLivePage_TopLeftHomeControl_TargetsLibraryRoute()
     {
         SeedSceneState(CreateTwoCameraScene());

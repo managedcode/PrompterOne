@@ -91,6 +91,8 @@ internal static class LibraryCardFactory
             ModeLabel: ResolveModeLabel(parsed.Metadata, averageWpm, localizer),
             Duration: metrics.Duration,
             DurationLabel: $"{(int)Math.Max(metrics.Duration.TotalMinutes, 0)}:{metrics.Duration.Seconds:00}",
+            DocumentName: document.DocumentName,
+            SearchText: BuildSearchText(summary.Title, ResolveAuthor(parsed.Metadata, localizer), document.DocumentName, document.Text),
             FolderId: summary.FolderId,
             DisplayOrder: displayOrder,
             TestId: UiTestIds.Library.Card(summary.Id));
@@ -221,6 +223,21 @@ internal static class LibraryCardFactory
     }
 
     private readonly record struct LibraryCardMetrics(int WordCount, TimeSpan Duration);
+
+    private static string BuildSearchText(
+        string title,
+        string author,
+        string documentName,
+        string bodyText) =>
+        string.Join(
+            ' ',
+            new[]
+            {
+                title,
+                author,
+                documentName,
+                bodyText
+            }.Where(value => !string.IsNullOrWhiteSpace(value)));
 
     private static string Text(IStringLocalizer<SharedResource> localizer, UiTextKey key) =>
         localizer[key.ToString()];

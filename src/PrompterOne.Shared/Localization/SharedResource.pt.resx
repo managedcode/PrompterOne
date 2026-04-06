@@ -70,7 +70,7 @@
     <value>Organize roteiros em coleções aninhadas sem mexer na grade da biblioteca.</value>
   </data>
   <data name="HeaderSearchPlaceholder" xml:space="preserve">
-    <value>Pesquisar...</value>
+    <value>Pesquisar títulos, arquivos ou conteúdo...</value>
   </data>
   <data name="HeaderNewScript" xml:space="preserve">
     <value>Novo roteiro</value>
@@ -599,5 +599,155 @@
   </data>
   <data name="SettingsStreamingLocalRecordingDescription" xml:space="preserve">
     <value>Arme a gravação local como destino de primeira classe do mesmo feed de programa composto usado pelos transportes ao vivo.</value>
+  </data>
+  <data name="OnboardingProgressFormat" xml:space="preserve">
+    <value>Etapa {0} de {1}</value>
+  </data>
+  <data name="OnboardingDismiss" xml:space="preserve">
+    <value>Não me interessa</value>
+  </data>
+  <data name="OnboardingBack" xml:space="preserve">
+    <value>Voltar</value>
+  </data>
+  <data name="OnboardingOpenEditor" xml:space="preserve">
+    <value>Abrir Editor</value>
+  </data>
+  <data name="OnboardingOpenLearn" xml:space="preserve">
+    <value>Abrir Learn</value>
+  </data>
+  <data name="OnboardingOpenTeleprompter" xml:space="preserve">
+    <value>Abrir teleprompter</value>
+  </data>
+  <data name="OnboardingOpenGoLive" xml:space="preserve">
+    <value>Abrir Go Live</value>
+  </data>
+  <data name="OnboardingFinish" xml:space="preserve">
+    <value>Concluir tour</value>
+  </data>
+  <data name="OnboardingStepLibrary" xml:space="preserve">
+    <value>Biblioteca</value>
+  </data>
+  <data name="OnboardingStepEditor" xml:space="preserve">
+    <value>Editor</value>
+  </data>
+  <data name="OnboardingStepLearn" xml:space="preserve">
+    <value>Learn</value>
+  </data>
+  <data name="OnboardingStepTeleprompter" xml:space="preserve">
+    <value>Teleprompter</value>
+  </data>
+  <data name="OnboardingStepGoLive" xml:space="preserve">
+    <value>Go Live</value>
+  </data>
+  <data name="OnboardingWelcomeEyebrow" xml:space="preserve">
+    <value>PROMPTER NO NAVEGADOR</value>
+  </data>
+  <data name="OnboardingWelcomeTitle" xml:space="preserve">
+    <value>Conheça o PrompterOne</value>
+  </data>
+  <data name="OnboardingWelcomeBody" xml:space="preserve">
+    <value>O PrompterOne mantém o mesmo roteiro da biblioteca ao ensaio, à leitura ao vivo e à transmissão sem sair do navegador.</value>
+  </data>
+  <data name="OnboardingWelcomeBulletSearch" xml:space="preserve">
+    <value>Use a busca da biblioteca para encontrar roteiros por título, nome do arquivo ou texto dentro do roteiro.</value>
+  </data>
+  <data name="OnboardingWelcomeBulletModes" xml:space="preserve">
+    <value>Um único roteiro TPS alimenta Editor, Learn, Teleprompter e Go Live em vez de cópias separadas.</value>
+  </data>
+  <data name="OnboardingWelcomeBulletLocal" xml:space="preserve">
+    <value>Seu workspace continua local-first neste navegador, com salvamento automático, histórico, importação e exportação integrados.</value>
+  </data>
+  <data name="OnboardingEditorEyebrow" xml:space="preserve">
+    <value>AUTORIA TPS</value>
+  </data>
+  <data name="OnboardingEditorTitle" xml:space="preserve">
+    <value>Escreva no Editor</value>
+  </data>
+  <data name="OnboardingEditorBody" xml:space="preserve">
+    <value>O editor é onde você molda o TPS, o formato TelePrompterScript baseado em Markdown que carrega estrutura, timing, emoções, pausas e pistas de entrega em texto simples.</value>
+  </data>
+  <data name="OnboardingEditorBulletTps" xml:space="preserve">
+    <value>O TPS continua legível em qualquer editor de texto, mas o PrompterOne entende suas tags, cabeçalhos e semântica de tempo em tempo real.</value>
+  </data>
+  <data name="OnboardingEditorBulletMetadata" xml:space="preserve">
+    <value>Front matter, WPM, perfil, versão e ajustes de velocidade permanecem ligados ao rascunho em vez de se espalharem por notas separadas.</value>
+  </data>
+  <data name="OnboardingEditorBulletAuthoring" xml:space="preserve">
+    <value>Use a busca do editor, menus, ferramentas de estrutura e ajudas de IA para refinar o mesmo roteiro que as superfícies de leitura vão executar.</value>
+  </data>
+  <data name="OnboardingLearnEyebrow" xml:space="preserve">
+    <value>ENSAIO RSVP</value>
+  </data>
+  <data name="OnboardingLearnTitle" xml:space="preserve">
+    <value>Treine com Learn</value>
+  </data>
+  <data name="OnboardingLearnBody" xml:space="preserve">
+    <value>O Learn usa RSVP, ou Rapid Serial Visual Presentation, para mostrar palavras em um ritmo focado e assim treinar cadência, articulação e retenção sem varrer um parágrafo inteiro.</value>
+  </data>
+  <data name="OnboardingLearnBulletRsvp" xml:space="preserve">
+    <value>O RSVP reduz o deslocamento dos olhos mantendo a palavra ativa centralizada enquanto o contexto próximo continua visível.</value>
+  </data>
+  <data name="OnboardingLearnBulletTiming" xml:space="preserve">
+    <value>Os controles de velocidade e as pistas de tempo do TPS ajudam você a ensaiar mais perto da cadência real da fala.</value>
+  </data>
+  <data name="OnboardingLearnBulletContext" xml:space="preserve">
+    <value>Use Learn quando precisar de repetição, reforço de memória e feedback de ritmo antes de entrar em câmera.</value>
+  </data>
+  <data name="OnboardingTeleprompterEyebrow" xml:space="preserve">
+    <value>LEITURA AO VIVO</value>
+  </data>
+  <data name="OnboardingTeleprompterTitle" xml:space="preserve">
+    <value>Leia no teleprompter</value>
+  </data>
+  <data name="OnboardingTeleprompterBody" xml:space="preserve">
+    <value>O teleprompter transforma o mesmo roteiro TPS em uma superfície de leitura ao vivo com guias focais, alinhamento, controles de espelho, mudança de orientação e movimento de reprodução em tempo real.</value>
+  </data>
+  <data name="OnboardingTeleprompterBulletMirror" xml:space="preserve">
+    <value>Espelhe horizontal ou verticalmente para vidro refletido e rigs com tablet sem sair da rota do leitor.</value>
+  </data>
+  <data name="OnboardingTeleprompterBulletFocus" xml:space="preserve">
+    <value>Ajuste largura, ponto focal, tamanho do texto e alinhamento para manter a linha calma e legível em câmera.</value>
+  </data>
+  <data name="OnboardingTeleprompterBulletPlayback" xml:space="preserve">
+    <value>Pausas TPS, mudanças de velocidade, ênfase e pistas de entrega continuam visíveis enquanto você lê.</value>
+  </data>
+  <data name="OnboardingGoLiveEyebrow" xml:space="preserve">
+    <value>OPERAÇÃO AO VIVO</value>
+  </data>
+  <data name="OnboardingGoLiveTitle" xml:space="preserve">
+    <value>Conduza o show no Go Live</value>
+  </data>
+  <data name="OnboardingGoLiveBody" xml:space="preserve">
+    <value>Go Live é o estúdio no navegador para operar seu roteiro atual, feed de programa, fontes, gravação e o estado do transporte downstream em uma única superfície de controle.</value>
+  </data>
+  <data name="OnboardingGoLiveBulletProgram" xml:space="preserve">
+    <value>Mantenha um único feed de programa coerente entre prévia, fonte ativa e roteamento para destinos.</value>
+  </data>
+  <data name="OnboardingGoLiveBulletRecording" xml:space="preserve">
+    <value>Arme a gravação local e monitore o estado da sessão sem fingir que um backend de servidor está fazendo o trabalho.</value>
+  </data>
+  <data name="OnboardingGoLiveBulletRouting" xml:space="preserve">
+    <value>Use Go Live quando estiver pronto para passar do ensaio ao roteamento e à captura de produção.</value>
+  </data>
+  <data name="EditorFindOpen" xml:space="preserve">
+    <value>Buscar</value>
+  </data>
+  <data name="EditorFindPlaceholder" xml:space="preserve">
+    <value>Buscar no roteiro</value>
+  </data>
+  <data name="EditorFindPrevious" xml:space="preserve">
+    <value>Anterior</value>
+  </data>
+  <data name="EditorFindNext" xml:space="preserve">
+    <value>Próximo</value>
+  </data>
+  <data name="EditorFindClose" xml:space="preserve">
+    <value>Fechar</value>
+  </data>
+  <data name="EditorFindNoResults" xml:space="preserve">
+    <value>Nenhuma ocorrência</value>
+  </data>
+  <data name="EditorFindResultsFormat" xml:space="preserve">
+    <value>{0} / {1}</value>
   </data>
 </root>

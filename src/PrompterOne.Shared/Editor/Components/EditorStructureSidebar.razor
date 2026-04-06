@@ -11,8 +11,7 @@
             @foreach (var segment in Segments)
             {
                 var segmentIsActive = segment.Index == ActiveSegmentIndex;
-                <button class="ed-tree-seg @(segmentIsActive ? "active" : null)"
-                        style="--sc:@segment.AccentColor"
+                <button class="@GetSegmentCss(segment, segmentIsActive)"
                         data-nav="seg-@segment.Index"
                         data-testid="@UiTestIds.Editor.SegmentNavigation(segment.Index)"
                         type="button"
@@ -108,6 +107,33 @@
     [Parameter] public EditorSplitFeedbackViewModel? SplitFeedback { get; set; }
 
     private string Format(UiTextKey key, params object[] args) => Localizer[key.ToString(), args];
+
+    private static string GetEmotionClass(EditorOutlineSegmentViewModel segment) =>
+        segment.EmotionKey switch
+        {
+            "warm" => "ed-tree-seg--warm",
+            "concerned" => "ed-tree-seg--concerned",
+            "focused" => "ed-tree-seg--focused",
+            "motivational" => "ed-tree-seg--motivational",
+            "urgent" => "ed-tree-seg--urgent",
+            "happy" => "ed-tree-seg--happy",
+            "excited" => "ed-tree-seg--excited",
+            "sad" => "ed-tree-seg--sad",
+            "calm" => "ed-tree-seg--calm",
+            "energetic" => "ed-tree-seg--energetic",
+            "professional" => "ed-tree-seg--professional",
+            _ => "ed-tree-seg--neutral"
+        };
+
+    private static string GetSegmentCss(EditorOutlineSegmentViewModel segment, bool isActive) =>
+        string.Join(
+            " ",
+            new[]
+            {
+                "ed-tree-seg",
+                GetEmotionClass(segment),
+                isActive ? "active" : string.Empty
+            }.Where(static value => !string.IsNullOrWhiteSpace(value)));
 
     private string Text(UiTextKey key) => Localizer[key.ToString()];
 }

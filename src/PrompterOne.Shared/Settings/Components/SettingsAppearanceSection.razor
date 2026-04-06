@@ -17,20 +17,10 @@
     <div class="set-device-list">
         <SettingsExpandableCard Title="@Text(UiTextKey.SettingsAppearanceThemeTitle)"
                                 Subtitle="@ThemeSubtitle"
-                                IconStyle="background:rgba(196,160,96,.10); color:var(--gold);"
+                                IconTone="UiIconSurfaceTone.Gold"
                                 IsOpen="@IsCardOpen(ThemeCardId)"
                                 OnToggle="@(() => ToggleCard.InvokeAsync(ThemeCardId))">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="5" />
-                <line x1="12" y1="1" x2="12" y2="3" />
-                <line x1="12" y1="21" x2="12" y2="23" />
-                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
-                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-                <line x1="1" y1="12" x2="3" y2="12" />
-                <line x1="21" y1="12" x2="23" y2="12" />
-                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
-                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-            </svg>
+            <UiIcon Kind="UiIconKind.Theme" Size="17" />
             <div class="set-device-fields">
                 <div class="set-field">
                     <label>@Text(UiTextKey.SettingsAppearanceColorSchemeLabel)</label>
@@ -44,7 +34,7 @@
                                        name="theme"
                                        checked="@(option.Value == ColorScheme)"
                                        @onchange="@(() => UpdateColorScheme.InvokeAsync(option.Value))" />
-                                <div class="set-theme-swatch" style="@option.SwatchStyle">@((MarkupString)option.IconMarkup)</div>
+                                <SettingsOptionPreview Kind="@option.PreviewKind" />
                                 <span>@option.Label</span>
                             </label>
                         }
@@ -57,13 +47,11 @@
                         {
                             <TooltipAnchor OwnerTestId="@UiTestIds.Settings.AccentSwatch(accent.Id)"
                                            Text="@Text(accent.TooltipKey)">
-                                <button class="@(accent.Value == AccentColor ? "set-accent-swatch active" : "set-accent-swatch")"
-                                        style="@($"background:{accent.Value}")"
-                                        type="button"
-                                        aria-label="@Text(accent.TooltipKey)"
-                                        data-testid="@UiTestIds.Settings.AccentSwatch(accent.Id)"
-                                        @onclick="() => UpdateAccentColor.InvokeAsync(accent.Value)"
-                                        @onclick:stopPropagation="true"></button>
+                                <UiColorSwatchButton Tone="@accent.Tone"
+                                                    Selected="@(accent.Value == AccentColor)"
+                                                    Label="@Text(accent.TooltipKey)"
+                                                    TestId="@UiTestIds.Settings.AccentSwatch(accent.Id)"
+                                                    OnClick="@(() => UpdateAccentColor.InvokeAsync(accent.Value))" />
                             </TooltipAnchor>
                         }
                     </div>
@@ -80,12 +68,10 @@
 
         <SettingsExpandableCard Title="@Text(UiTextKey.SettingsAppearanceTeleprompterTitle)"
                                 Subtitle="@Text(UiTextKey.SettingsAppearanceTeleprompterSubtitle)"
-                                IconStyle="background:rgba(59,130,246,.10); color:#60A5FA;"
+                                IconTone="UiIconSurfaceTone.Sky"
                                 IsOpen="@IsCardOpen(TeleprompterCardId)"
                                 OnToggle="@(() => ToggleCard.InvokeAsync(TeleprompterCardId))">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M4 6h16M4 12h12M4 18h14" />
-            </svg>
+            <UiIcon Kind="UiIconKind.TextLines" Size="17" />
             <div class="set-device-fields">
                 <div class="set-field">
                     <label>@Text(UiTextKey.SettingsAppearanceFontLabel)</label>
@@ -114,13 +100,11 @@
                         {
                             <TooltipAnchor OwnerTestId="@UiTestIds.Settings.TextColorSwatch(swatch.Id)"
                                            Text="@Text(swatch.TooltipKey)">
-                                <button class="@(swatch.Value == TeleprompterTextColor ? "set-accent-swatch active" : "set-accent-swatch")"
-                                        style="@($"background:{swatch.Value}")"
-                                        type="button"
-                                        aria-label="@Text(swatch.TooltipKey)"
-                                        data-testid="@UiTestIds.Settings.TextColorSwatch(swatch.Id)"
-                                        @onclick="() => UpdateTeleprompterTextColor.InvokeAsync(swatch.Value)"
-                                        @onclick:stopPropagation="true"></button>
+                                <UiColorSwatchButton Tone="@swatch.Tone"
+                                                    Selected="@(swatch.Value == TeleprompterTextColor)"
+                                                    Label="@Text(swatch.TooltipKey)"
+                                                    TestId="@UiTestIds.Settings.TextColorSwatch(swatch.Id)"
+                                                    OnClick="@(() => UpdateTeleprompterTextColor.InvokeAsync(swatch.Value))" />
                             </TooltipAnchor>
                         }
                     </div>
@@ -146,13 +130,10 @@
 
         <SettingsExpandableCard Title="@Text(UiTextKey.SettingsAppearanceInterfaceTitle)"
                                 Subtitle="@Text(UiTextKey.SettingsAppearanceInterfaceSubtitle)"
-                                IconStyle="background:rgba(139,92,246,.10); color:#A78BFA;"
+                                IconTone="UiIconSurfaceTone.Violet"
                                 IsOpen="@IsCardOpen(InterfaceCardId)"
                                 OnToggle="@(() => ToggleCard.InvokeAsync(InterfaceCardId))">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="3" width="18" height="18" rx="2" />
-                <path d="M3 9h18M9 21V9" />
-            </svg>
+            <UiIcon Kind="UiIconKind.LayoutPanel" Size="17" />
             <div class="set-device-fields">
                 <div class="set-field">
                     <label>@Text(UiTextKey.SettingsAppearanceUiDensityLabel)</label>
@@ -165,7 +146,7 @@
                                        name="density"
                                        checked="@(density.Value == UiDensity)"
                                        @onchange="@(() => UpdateUiDensity.InvokeAsync(density.Value))" />
-                                <div class="set-theme-swatch set-density-swatch">@((MarkupString)density.IconMarkup)</div>
+                                <SettingsOptionPreview Kind="@density.PreviewKind" />
                                 <span>@density.Label</span>
                             </label>
                         }
@@ -208,34 +189,34 @@
 
     private static readonly ColorSwatchOption[] AccentOptions =
     [
-        new("gold", "#C4A060", UiTextKey.TooltipAccentGold),
-        new("blue", "#60A5FA", UiTextKey.TooltipAccentBlue),
-        new("emerald", "#34D399", UiTextKey.TooltipAccentEmerald),
-        new("pink", "#F472B6", UiTextKey.TooltipAccentPink),
-        new("purple", "#A78BFA", UiTextKey.TooltipAccentPurple),
-        new("orange", "#FB923C", UiTextKey.TooltipAccentOrange)
+        new("gold", "#C4A060", UiTextKey.TooltipAccentGold, UiColorSwatchTone.Gold),
+        new("blue", "#60A5FA", UiTextKey.TooltipAccentBlue, UiColorSwatchTone.Blue),
+        new("emerald", "#34D399", UiTextKey.TooltipAccentEmerald, UiColorSwatchTone.Emerald),
+        new("pink", "#F472B6", UiTextKey.TooltipAccentPink, UiColorSwatchTone.Pink),
+        new("purple", "#A78BFA", UiTextKey.TooltipAccentPurple, UiColorSwatchTone.Purple),
+        new("orange", "#FB923C", UiTextKey.TooltipAccentOrange, UiColorSwatchTone.Orange)
     ];
 
     private ThemeOption[] DensityOptions =>
     [
-        new(SettingsAppearanceValues.CompactDensity, Text(UiTextKey.SettingsAppearanceDensityCompact), "background:rgba(196,160,96,.08);display:flex;align-items:center;justify-content:center;", "<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" style=\"color:var(--t3)\"><line x1=\"4\" y1=\"6\" x2=\"20\" y2=\"6\"/><line x1=\"4\" y1=\"12\" x2=\"20\" y2=\"12\"/><line x1=\"4\" y1=\"18\" x2=\"20\" y2=\"18\"/></svg>"),
-        new(SettingsAppearanceValues.DefaultDensity, Text(UiTextKey.SettingsAppearanceDensityDefault), "background:rgba(196,160,96,.08);display:flex;align-items:center;justify-content:center;", "<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" style=\"color:var(--gold)\"><line x1=\"4\" y1=\"7\" x2=\"20\" y2=\"7\"/><line x1=\"4\" y1=\"14\" x2=\"20\" y2=\"14\"/></svg>"),
-        new(SettingsAppearanceValues.SpaciousDensity, Text(UiTextKey.SettingsAppearanceDensitySpacious), "background:rgba(196,160,96,.08);display:flex;align-items:center;justify-content:center;", "<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" style=\"color:var(--t3)\"><line x1=\"4\" y1=\"8\" x2=\"20\" y2=\"8\"/><line x1=\"4\" y1=\"16\" x2=\"20\" y2=\"16\"/></svg>")
+        new(SettingsAppearanceValues.CompactDensity, Text(UiTextKey.SettingsAppearanceDensityCompact), SettingsOptionPreviewKind.DensityCompact),
+        new(SettingsAppearanceValues.DefaultDensity, Text(UiTextKey.SettingsAppearanceDensityDefault), SettingsOptionPreviewKind.DensityDefault),
+        new(SettingsAppearanceValues.SpaciousDensity, Text(UiTextKey.SettingsAppearanceDensitySpacious), SettingsOptionPreviewKind.DensitySpacious)
     ];
 
     private static readonly ColorSwatchOption[] TextColorOptions =
     [
-        new("white", "#FFFFFF", UiTextKey.TooltipTextColorWhite),
-        new("warm-white", "#F5E6D0", UiTextKey.TooltipTextColorWarmWhite),
-        new("amber", "#FDE68A", UiTextKey.TooltipTextColorAmber),
-        new("mint", "#6EE7B7", UiTextKey.TooltipTextColorMint)
+        new("white", "#FFFFFF", UiTextKey.TooltipTextColorWhite, UiColorSwatchTone.White),
+        new("warm-white", "#F5E6D0", UiTextKey.TooltipTextColorWarmWhite, UiColorSwatchTone.WarmWhite),
+        new("amber", "#FDE68A", UiTextKey.TooltipTextColorAmber, UiColorSwatchTone.Amber),
+        new("mint", "#6EE7B7", UiTextKey.TooltipTextColorMint, UiColorSwatchTone.Mint)
     ];
 
     private ThemeOption[] ThemeOptions =>
     [
-        new(SettingsAppearanceValues.DarkColorScheme, Text(UiTextKey.SettingsAppearanceThemeDark), "background:linear-gradient(135deg,#0a0e14,#141c28)", "<svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" style=\"color:rgba(196,160,96,.7)\"><path d=\"M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z\"/></svg>"),
-        new(SettingsAppearanceValues.LightColorScheme, Text(UiTextKey.SettingsAppearanceThemeLight), "background:linear-gradient(135deg,#f0ebe4,#e0d8cc)", "<svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#8B7355\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"5\"/><line x1=\"12\" y1=\"1\" x2=\"12\" y2=\"3\"/><line x1=\"12\" y1=\"21\" x2=\"12\" y2=\"23\"/></svg>"),
-        new(SettingsAppearanceValues.SystemColorScheme, Text(UiTextKey.SettingsAppearanceThemeSystem), "background:linear-gradient(135deg,#0a0e14 50%,#f0ebe4 50%)", "<svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" style=\"color:rgba(196,160,96,.9)\"><rect x=\"2\" y=\"3\" width=\"20\" height=\"14\" rx=\"2\"/><line x1=\"8\" y1=\"21\" x2=\"16\" y2=\"21\"/><line x1=\"12\" y1=\"17\" x2=\"12\" y2=\"21\"/></svg>")
+        new(SettingsAppearanceValues.DarkColorScheme, Text(UiTextKey.SettingsAppearanceThemeDark), SettingsOptionPreviewKind.ThemeDark),
+        new(SettingsAppearanceValues.LightColorScheme, Text(UiTextKey.SettingsAppearanceThemeLight), SettingsOptionPreviewKind.ThemeLight),
+        new(SettingsAppearanceValues.SystemColorScheme, Text(UiTextKey.SettingsAppearanceThemeSystem), SettingsOptionPreviewKind.ThemeSystem)
     ];
 
     private string ThemeSubtitle =>
@@ -285,17 +266,7 @@
     private void OnLanguageChanged(ChangeEventArgs args) =>
         UpdateLanguageCulture.InvokeAsync(args.Value?.ToString() ?? string.Empty);
 
-    private sealed record ThemeOption(string Label, string Value)
-    {
-        public ThemeOption(string value, string label, string swatchStyle, string iconMarkup) : this(label, value)
-        {
-            SwatchStyle = swatchStyle;
-            IconMarkup = iconMarkup;
-        }
+    private sealed record ThemeOption(string Value, string Label, SettingsOptionPreviewKind PreviewKind);
 
-        public string IconMarkup { get; init; } = string.Empty;
-        public string SwatchStyle { get; init; } = string.Empty;
-    }
-
-    private sealed record ColorSwatchOption(string Id, string Value, UiTextKey TooltipKey);
+    private sealed record ColorSwatchOption(string Id, string Value, UiTextKey TooltipKey, UiColorSwatchTone Tone);
 }

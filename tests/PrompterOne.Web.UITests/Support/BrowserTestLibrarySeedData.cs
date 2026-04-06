@@ -1,5 +1,6 @@
 using System.Text.Json;
 using PrompterOne.Shared.Services;
+using PrompterOne.Shared.Settings.Models;
 
 namespace PrompterOne.Web.UITests;
 
@@ -11,10 +12,15 @@ internal static class BrowserTestLibrarySeedData
     {
         var documentsJson = JsonSerializer.Serialize(CreateDocuments(), JsonOptions);
         var foldersJson = JsonSerializer.Serialize(CreateFolders(), JsonOptions);
+        var settingsJson = JsonSerializer.Serialize(SettingsPagePreferences.Default with
+        {
+            HasSeenOnboarding = true
+        }, JsonOptions);
         var documentLibraryKey = JsonSerializer.Serialize("prompterone.library.v1");
         var documentSeedVersionKey = JsonSerializer.Serialize("prompterone.library.seed-version");
         var folderLibraryKey = JsonSerializer.Serialize("prompterone.folders.v1");
         var folderSeedVersionKey = JsonSerializer.Serialize("prompterone.folders.seed-version");
+        var settingsKey = JsonSerializer.Serialize("prompterone.settings.prompterone.settings-page");
         var materializationVersion = JsonSerializer.Serialize("2026-04-01-browser-library-materialized-v1");
 
         return $$"""
@@ -23,8 +29,10 @@ internal static class BrowserTestLibrarySeedData
                 const documentSeedVersionKey = {{documentSeedVersionKey}};
                 const folderLibraryKey = {{folderLibraryKey}};
                 const folderSeedVersionKey = {{folderSeedVersionKey}};
+                const settingsKey = {{settingsKey}};
                 const documentsJson = {{JsonSerializer.Serialize(documentsJson)}};
                 const foldersJson = {{JsonSerializer.Serialize(foldersJson)}};
+                const settingsJson = {{JsonSerializer.Serialize(settingsJson)}};
                 const materializationVersion = {{materializationVersion}};
 
                 if (!window.localStorage.getItem(folderLibraryKey)) {
@@ -33,6 +41,10 @@ internal static class BrowserTestLibrarySeedData
 
                 if (!window.localStorage.getItem(documentLibraryKey)) {
                     window.localStorage.setItem(documentLibraryKey, documentsJson);
+                }
+
+                if (!window.localStorage.getItem(settingsKey)) {
+                    window.localStorage.setItem(settingsKey, settingsJson);
                 }
 
                 window.localStorage.setItem(documentSeedVersionKey, materializationVersion);

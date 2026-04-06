@@ -1,7 +1,5 @@
 using ManagedCode.Storage.CloudKit.Options;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Rendering;
-using PrompterOne.Shared.Contracts;
 using PrompterOne.Shared.Localization;
 using PrompterOne.Shared.Settings.Components;
 using PrompterOne.Shared.Storage.Cloud;
@@ -247,37 +245,4 @@ public partial class SettingsCloudSection : ComponentBase
     private string GetSubtitle(CloudStorageConnectionState connection) =>
         string.IsNullOrWhiteSpace(connection.AccountLabel) ? Text(UiTextKey.CommonNotConnected) : connection.AccountLabel;
 
-    private RenderFragment ProviderActions(string providerId) => builder =>
-    {
-        var isConnected = GetConnection(providerId).IsConnected;
-        var message = _providerMessages.GetValueOrDefault(providerId) ?? GetConnection(providerId).LastError;
-
-        builder.AddMarkupContent(0, $"<div class=\"set-path-field\" style=\"margin-top:12px\">");
-        BuildActionButton(builder, 1, "set-btn-golden", UiTestIds.Settings.CloudProviderConnect(providerId), Text(UiTextKey.CommonSaveAndTest), () => SaveAndValidateAsync(providerId));
-        BuildActionButton(builder, 2, "set-btn-outline set-btn-sm", UiTestIds.Settings.CloudProviderExport(providerId), Text(UiTextKey.CommonExport), () => ExportAsync(providerId), !isConnected);
-        BuildActionButton(builder, 3, "set-btn-outline set-btn-sm", UiTestIds.Settings.CloudProviderImport(providerId), Text(UiTextKey.CommonImport), () => ImportAsync(providerId), !isConnected);
-        BuildActionButton(builder, 4, "set-btn-outline set-btn-sm set-danger-action", UiTestIds.Settings.CloudProviderDisconnect(providerId), Text(UiTextKey.CommonDisconnect), () => DisconnectAsync(providerId), !isConnected);
-        builder.AddMarkupContent(5, "</div>");
-
-        if (!string.IsNullOrWhiteSpace(message))
-        {
-            builder.OpenElement(6, "p");
-            builder.AddAttribute(7, "class", "set-card-copy");
-            builder.AddAttribute(8, "data-testid", UiTestIds.Settings.CloudProviderMessage(providerId));
-            builder.AddContent(9, message);
-            builder.CloseElement();
-        }
-    };
-
-    private void BuildActionButton(RenderTreeBuilder builder, int sequence, string cssClass, string testId, string label, Func<Task> callback, bool disabled = false)
-    {
-        builder.OpenElement(sequence, "button");
-        builder.AddAttribute(sequence + 1, "type", "button");
-        builder.AddAttribute(sequence + 2, "class", cssClass);
-        builder.AddAttribute(sequence + 3, "data-testid", testId);
-        builder.AddAttribute(sequence + 4, "disabled", disabled);
-        builder.AddAttribute(sequence + 5, "onclick", EventCallback.Factory.Create(this, callback));
-        builder.AddContent(sequence + 6, label);
-        builder.CloseElement();
-    }
 }

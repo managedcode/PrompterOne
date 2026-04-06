@@ -1,6 +1,7 @@
 @namespace PrompterOne.Shared.Components.Settings
 @using PrompterOne.Core.Models.Streaming
 @using PrompterOne.Core.Models.Workspace
+@using PrompterOne.Shared.Components
 @using PrompterOne.Shared.Settings.Components
 @using PrompterOne.Shared.Settings.Models
 
@@ -41,7 +42,7 @@
     </div>
 </div>
 
-<div class="set-sub-header" style="margin-bottom:14px">
+<div class="set-sub-header set-sub-header-tight">
     <h4 class="set-sub-title">@Text(SettingsStreamingText.LocalRecordingTitle)</h4>
 </div>
 
@@ -71,16 +72,15 @@
     }
 </div>
 
-<div class="set-sub-header" style="margin:18px 0 14px">
+<div class="set-sub-header set-sub-header-section">
     <h4 class="set-sub-title">@Text(SettingsStreamingText.TransportConnectionsTitle)</h4>
     <button class="set-btn-outline set-btn-sm"
             type="button"
             data-testid="@UiTestIds.Settings.StreamingTransportAdd"
             @onclick="ToggleTransportConnectionMenu">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <line x1="12" y1="5" x2="12" y2="19" />
-            <line x1="5" y1="12" x2="19" y2="12" />
-        </svg>
+        <UiIcon Kind="UiIconKind.Plus"
+                Size="12"
+                StrokeWidth="2.5m" />
         @Text(SettingsStreamingText.AddTransportConnectionButtonLabel)
     </button>
 </div>
@@ -113,16 +113,15 @@
     }
 </div>
 
-<div class="set-sub-header" style="margin:18px 0 14px">
+<div class="set-sub-header set-sub-header-section">
     <h4 class="set-sub-title">@Text(SettingsStreamingText.DistributionTargetsTitle)</h4>
     <button class="set-btn-outline set-btn-sm"
             type="button"
             data-testid="@UiTestIds.Settings.StreamingDistributionAdd"
             @onclick="ToggleDistributionTargetMenu">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <line x1="12" y1="5" x2="12" y2="19" />
-            <line x1="5" y1="12" x2="19" y2="12" />
-        </svg>
+        <UiIcon Kind="UiIconKind.Plus"
+                Size="12"
+                StrokeWidth="2.5m" />
         @Text(SettingsStreamingText.AddDistributionTargetButtonLabel)
     </button>
 </div>

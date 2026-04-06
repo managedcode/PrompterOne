@@ -1,0 +1,279 @@
+.app-onboarding {
+    position: fixed;
+    inset: 0;
+    z-index: 420;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+.app-onboarding__scrim {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at top left, rgba(214, 166, 91, .14), transparent 34%),
+        radial-gradient(circle at bottom right, rgba(94, 236, 194, .12), transparent 30%),
+        rgba(6, 10, 18, .74);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+}
+
+.app-onboarding__panel {
+    position: relative;
+    width: min(920px, calc(100vw - 32px));
+    display: grid;
+    gap: 20px;
+    padding: 28px;
+    border: 1px solid rgba(223, 187, 124, .24);
+    border-radius: 24px;
+    background:
+        linear-gradient(180deg, rgba(11, 16, 28, .97), rgba(7, 12, 22, .985)),
+        rgba(8, 12, 18, .96);
+    box-shadow:
+        0 28px 70px rgba(0, 0, 0, .44),
+        inset 0 1px 0 rgba(255, 255, 255, .04);
+    color: var(--t1);
+}
+
+.app-onboarding__hero {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 18px;
+    align-items: start;
+}
+
+.app-onboarding__icon-shell {
+    width: 52px;
+    height: 52px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 16px;
+    border: 1px solid rgba(223, 187, 124, .18);
+    background: rgba(214, 166, 91, .08);
+    color: rgba(255, 214, 145, .92);
+}
+
+.app-onboarding__copy {
+    min-width: 0;
+    display: grid;
+    gap: 8px;
+}
+
+.app-onboarding__eyebrow {
+    margin: 0;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: rgba(255, 214, 145, .74);
+}
+
+.app-onboarding__title {
+    margin: 0;
+    font-size: clamp(28px, 4vw, 38px);
+    line-height: 1.05;
+    letter-spacing: -.03em;
+}
+
+.app-onboarding__body {
+    margin: 0;
+    max-width: 68ch;
+    color: var(--t2);
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.app-onboarding__dismiss,
+.app-onboarding__secondary,
+.app-onboarding__primary,
+.app-onboarding__step {
+    font: inherit;
+    cursor: pointer;
+}
+
+.app-onboarding__dismiss {
+    min-height: 36px;
+    padding: 0 14px;
+    border: 1px solid rgba(223, 187, 124, .18);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .03);
+    color: var(--t2);
+}
+
+.app-onboarding__dismiss:hover,
+.app-onboarding__dismiss:focus-visible {
+    background: rgba(255, 255, 255, .06);
+    color: var(--t1);
+}
+
+.app-onboarding__progress-shell {
+    display: grid;
+    gap: 12px;
+}
+
+.app-onboarding__progress {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--t3);
+}
+
+.app-onboarding__steps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.app-onboarding__step {
+    min-height: 38px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 14px;
+    border: 1px solid rgba(223, 187, 124, .12);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .02);
+    color: var(--t2);
+}
+
+.app-onboarding__step--active {
+    border-color: rgba(223, 187, 124, .3);
+    background: rgba(214, 166, 91, .12);
+    color: var(--t1);
+}
+
+.app-onboarding__facts {
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    list-style: none;
+}
+
+.app-onboarding__fact {
+    min-height: 92px;
+    display: grid;
+    gap: 10px;
+    align-content: start;
+    padding: 16px;
+    border: 1px solid rgba(223, 187, 124, .12);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, .025);
+    color: var(--t2);
+    line-height: 1.5;
+}
+
+.app-onboarding__fact-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, rgba(255, 214, 145, .98), rgba(214, 166, 91, .82));
+    box-shadow: 0 0 14px rgba(214, 166, 91, .28);
+}
+
+.app-onboarding__actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.app-onboarding__secondary,
+.app-onboarding__primary {
+    min-height: 42px;
+    padding: 0 18px;
+    border-radius: 14px;
+    border: 1px solid transparent;
+}
+
+.app-onboarding__secondary {
+    background: rgba(255, 255, 255, .03);
+    border-color: rgba(223, 187, 124, .14);
+    color: var(--t2);
+}
+
+.app-onboarding__secondary:disabled {
+    cursor: default;
+    opacity: .38;
+}
+
+.app-onboarding__primary {
+    background: linear-gradient(180deg, rgba(214, 166, 91, .96), rgba(183, 136, 58, .96));
+    color: rgba(18, 14, 8, .92);
+    font-weight: 700;
+}
+
+.app-onboarding__primary:hover,
+.app-onboarding__primary:focus-visible {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 26px rgba(183, 136, 58, .26);
+}
+
+@media (max-width: 860px) {
+    .app-onboarding {
+        padding: 16px;
+    }
+
+    .app-onboarding__panel {
+        padding: 22px;
+    }
+
+    .app-onboarding__hero {
+        grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .app-onboarding__dismiss {
+        grid-column: 1 / -1;
+        justify-self: start;
+    }
+
+    .app-onboarding__facts {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .app-onboarding__steps {
+        gap: 8px;
+    }
+
+    .app-onboarding__step {
+        flex: 1 1 calc(50% - 8px);
+        justify-content: center;
+    }
+
+    .app-onboarding__actions {
+        flex-direction: column;
+    }
+
+    .app-onboarding__secondary,
+    .app-onboarding__primary {
+        width: 100%;
+    }
+}
+
+html[data-theme="light"] .app-onboarding__panel,
+html.theme-light .app-onboarding__panel,
+body.theme-light .app-onboarding__panel {
+    background:
+        linear-gradient(180deg, rgba(255, 252, 246, .98), rgba(248, 244, 236, .985)),
+        rgba(255, 255, 255, .96);
+    border-color: rgba(139, 115, 85, .18);
+    color: #30261B;
+}
+
+html[data-theme="light"] .app-onboarding__body,
+html[data-theme="light"] .app-onboarding__fact,
+html[data-theme="light"] .app-onboarding__dismiss,
+html[data-theme="light"] .app-onboarding__secondary,
+html.theme-light .app-onboarding__body,
+html.theme-light .app-onboarding__fact,
+html.theme-light .app-onboarding__dismiss,
+html.theme-light .app-onboarding__secondary,
+body.theme-light .app-onboarding__body,
+body.theme-light .app-onboarding__fact,
+body.theme-light .app-onboarding__dismiss,
+body.theme-light .app-onboarding__secondary {
+    color: #5C4D3D;
+}

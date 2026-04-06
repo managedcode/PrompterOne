@@ -47,6 +47,9 @@ internal static partial class BrowserTestConstants
         public const string ToolbarSemanticStep = "02-refined-floating-toolbar";
         public const string ToolbarSurfaceScenario = "editor-toolbar-surface-rhythm";
         public const string ToolbarSurfaceStep = "01-voice-menu-surface";
+        public const string ToolbarDropdownAlignmentScenario = "editor-toolbar-dropdown-alignment";
+        public const string ToolbarDropdownAlignmentTopStep = "01-top-voice-menu-left-cluster";
+        public const string ToolbarDropdownAlignmentFloatingStep = "02-floating-voice-menu-left-cluster";
         public const double MinimumDateFieldWidthPx = 150;
         public const int TooltipEarlyCheckDelayMs = 120;
         public const int TooltipSettleDelayMs = 560;
@@ -57,6 +60,7 @@ internal static partial class BrowserTestConstants
         public const double MaximumDropdownRowHeightDeltaPx = 4;
         public const double MaximumDropdownCompactRowHeightPx = 38;
         public const double MinimumDropdownSurfaceBorderAlpha = 0.28;
+        public const double MaximumDropdownInlineMetaGapPx = 24;
         public const string VoiceClearLabel = "RESET Remove cues unwrap";
         public const double MinimumTooltipSurfaceBorderAlpha = 0.28;
         public const double MaximumReadableTextChannel = 160;
@@ -154,6 +158,19 @@ internal static partial class BrowserTestConstants
         public const string LiveWidgetViewportName = "iphone-medium-portrait";
         public const int LiveWidgetTimerPollAttempts = 5;
         public const int LiveWidgetTimerPollDelayMs = 450;
+        public const string OnboardingScenario = "app-shell-onboarding";
+        public const string OnboardingLibraryStep = "01-library";
+        public const string OnboardingEditorStep = "02-editor";
+        public const string OnboardingLearnStep = "03-learn";
+        public const string OnboardingTeleprompterStep = "04-teleprompter";
+        public const string OnboardingGoLiveStep = "05-go-live";
+        public const string OnboardingEnglishWelcomeTitle = "Meet PrompterOne";
+        public const string OnboardingEditorTitle = "Write in the Editor";
+        public const string OnboardingLearnTitle = "Train with Learn";
+        public const string OnboardingTeleprompterTitle = "Read on the Teleprompter";
+        public const string OnboardingGoLiveTitle = "Run the show in Go Live";
+        public const string OnboardingUkrainianWelcomeTitle = "Ознайомтеся з PrompterOne";
+        public const string OnboardingUkrainianDismiss = "Не цікаво";
     }
 
     public static class TeleprompterFlow

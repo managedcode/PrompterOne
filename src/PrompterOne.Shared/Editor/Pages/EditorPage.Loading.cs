@@ -39,22 +39,23 @@ public partial class EditorPage
 
     private async Task EnsureSessionLoadedAsync()
     {
-        if (!string.IsNullOrWhiteSpace(ScriptId))
+        var requestedScriptId = ScriptRouteSessionLoader.ResolveRequestedScriptId(ScriptId, Navigation.Uri);
+        if (!string.IsNullOrWhiteSpace(requestedScriptId))
         {
-            await LoadScriptFromQueryAsync();
+            await LoadScriptFromQueryAsync(requestedScriptId);
         }
     }
 
-    private async Task LoadScriptFromQueryAsync()
+    private async Task LoadScriptFromQueryAsync(string requestedScriptId)
     {
         var didLoadRequestedScript = await ScriptRouteSessionLoader.EnsureRequestedSessionAsync(
-            ScriptId,
+            requestedScriptId,
             ScriptRepository,
             SessionService);
 
         if (didLoadRequestedScript)
         {
-            var document = await ScriptRepository.GetAsync(ScriptId!);
+            var document = await ScriptRepository.GetAsync(requestedScriptId);
             if (document is not null)
             {
                 _createdDate = document.UpdatedAt.LocalDateTime.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);

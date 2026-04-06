@@ -83,6 +83,7 @@ Rule format:
 - Teleprompter reader text alignment must expose explicit left, center, and right modes, default to left alignment, and keep the left-aligned mode optically centered by offsetting the text mass away from a visibly left-heavy block.
 - The TPS editor migration to Monaco must be complete: syntax coloring, IntelliSense/autocomplete, hover or inline tooltip help, decorations, and TPS authoring feedback must be Monaco-native instead of split across legacy overlay or hidden-textarea behavior.
 - TPS authoring completeness must be checked against the upstream `managedcode/TPS` README, not only the currently shipped editor menus, so new editor support stays aligned with the full spec for emotions, delivery, pauses, speed, pronunciation, and related cues.
+- Editor TPS command surfaces must expose the full currently supported TPS authoring set consistently across top toolbar menus, floating-toolbar menus, and Monaco assistance; do not ship partial or differently grouped command taxonomies between those surfaces.
 - User-facing file transfer actions in the shell should use `Import` and `Export` wording instead of `Open Script` and `Save File`, because the app also has its own internal script/workspace structure.
 - File workflows must stay local-first inside PrompterOne: scripts need in-app autosave and an internal change-history path in the browser environment, not only external disk import/export actions.
 - Hotkey work must target PrompterOne’s own browser surfaces and settings inventory only; do not design around OBS commands or claim OBS integration paths that the product does not have.
@@ -90,6 +91,8 @@ Rule format:
 - After syncing the vendored TPS SDK, delete repo-local TPS catalogs, constants, wrappers, or helper code that only duplicate the SDK contract; do not keep parallel spec copies in `Core` once consumers can read the vendored SDK directly.
 - Production TPS behavior must have one authoritative implementation path. Do not keep a second repo-local TPS parser, compiler, or regex-based semantic fallback beside the vendored SDK; plain-text fallbacks may exist only for truly non-TPS input.
 - Product localization must be complete across all supported UI languages: audit hardcoded user-facing strings with an explicit inventory file, move them into shared localization catalogs, and include tooltip text in the same localization pass instead of leaving tooltip copy or chrome labels hardcoded.
+- PrompterOne must ship a first-run onboarding flow that explains the product basics, TPS, RSVP, Editor, Learn, Teleprompter, and Go Live in-app; the walkthrough must appear on first launch until the user explicitly completes or dismisses it, persist that choice locally, and be fully localized across all supported UI languages.
+- Script discovery and authoring surfaces must support real search by script name and script content; Library/script pages and editor flows must not force manual browsing when the user needs to find files or text inside files.
 
 ## Rules to Follow (Mandatory)
 
@@ -326,6 +329,7 @@ Repo-specific design rules:
 - Editor authoring MUST accept direct local-file drag-and-drop on the editor surface; dropping onto an empty draft replaces it with the imported document, while dropping onto a non-empty draft appends the imported TPS text at the end without breaking undo/redo.
 - TPS support MUST fully implement the current `docs/Reference/TPS.md` contract end to end; legacy or partially compatible TPS syntax is not a supported mode, and any old incompatible behavior should be removed instead of kept behind compatibility shims.
 - TPS visual semantics MUST track the current TPS spec end to end: editor and reader surfaces should communicate delivery cues such as volume, emphasis, stress, speed, and delivery mode through typography, spacing, weight, and motion where appropriate, not through color alone.
+- Dropdown menus across the routed UI must left-align their item content as one readable cluster; right-pinned meta columns or centered item compositions inside dropdown rows are forbidden.
 - Pasted or imported TPS documents MUST render their editor-side authoring styles immediately on first load in the editor; showing the imported script as near-plain text until later interaction is a regression.
 - For standalone cloud-storage integrations, persist provider keys, tokens, and connection metadata in browser `localStorage`; do not introduce server-side secret storage for runtime auth in this app shape.
 - Third-party runtime JavaScript SDKs MUST be sourced only from explicitly pinned GitHub Release tags and assets, copied into the repo, bundled locally with their runtime dependencies, and never loaded from CDNs, package registries, `latest` endpoints, or ad-hoc remote downloads at app runtime.
@@ -336,6 +340,7 @@ Repo-specific design rules:
 - Teleprompter default reader width MUST start at the maximum readable width from the design unless the user explicitly narrows it; shipping a visibly narrower default is a regression.
 - Teleprompter speed styling MUST produce a visible but tasteful letter-spacing or kerning change: slower text opens up slightly and faster text tightens slightly, not a no-op.
 - Teleprompter reader word styling MUST mirror TPS/editor inline semantics: explicit inline TPS tags control per-word emphasis and color, while section or block emotion sets card context and must not recolor every reader word.
+- Learn, RSVP, and Teleprompter reading surfaces MUST render spoken words only; raw TPS control tags, front matter fragments, and metadata tokens must never leak into the visible reading text.
 - Teleprompter underline or highlight treatments that span a phrase or block MUST render as one continuous block-level treatment; separate per-word underlines inside the same phrase are forbidden.
 - Teleprompter read-state styling MUST mute phrase-level underline or highlight accents once the emphasized text has been read; bright lingering underline accents on already-read text are forbidden.
 - Teleprompter reader text MUST appear on the focal guide immediately when a word or block becomes active; visible post-appearance drift or settling onto the guide is forbidden.
@@ -353,6 +358,7 @@ Repo-specific design rules:
 - Reader and Learn tokenization MUST treat punctuation-only tokens such as commas, periods, and dashes as punctuation attached to nearby words or pauses, never as standalone counted words.
 - App-shell logo navigation MUST always lead to the main home/library screen; it must not deep-link into Go Live, Teleprompter, or another feature-specific route.
 - Learn rehearsal speed MUST default to about 250 WPM and stay user-adjustable upward from that baseline; shipping a 300 WPM startup default is too aggressive.
+- First-run onboarding MUST be dismissible, reopenable by the user, and after either completion or dismissal it must return the user to the main Library screen instead of leaving them on a feature route.
 - Go Live `ON AIR` badges and preview live dots MUST appear only while recording or streaming is actually active; idle selected or armed sources must stay visually non-live.
 - Go Live chrome MUST stay operational and generic; do not surface the loaded script title or script preview subtitle in the Go Live header/session bar just because a script is open.
 - Go Live back navigation MUST return to the actual previous in-app screen when known, and only fall back to library when there is no valid in-app return target; it must never hardcode teleprompter as the back target.
@@ -456,6 +462,11 @@ Ask first:
 - teleprompter camera starting enabled by default; default reader startup should keep the camera off until the user explicitly enables it
 - editor keystroke paths that persist, compile, or rebuild shared session state; keep plain typing in memory and move heavier local sync to debounce or autosave
 - murky JavaScript or interop layers that keep product UI behavior in JS when Blazor can own it cleanly
+- raw HTML blobs in editor chrome, toolbar catalogs, floating-menu catalogs, or metadata-rail rendering; editor UI content must be expressed through Blazor-owned markup/components or typed render models, with shared CSS classes and tokens instead of `MarkupString`/HTML-string composition
+- point fixes that leave the raw-HTML toolbar/floating-menu pattern alive elsewhere; when this editor chrome debt is touched, refactor the whole pattern to Blazor components/render models across the slice instead of cleaning only one or two offending items
+- visual UI elements should be extracted into reusable Blazor design-system components and then composed into pages; do not assemble repeated chrome, badges, glyph-label rows, or menu-item visuals ad hoc inside page/catalog code
+- page- or catalog-level ownership of dropdown, menu, tooltip, badge, image, or icon-row visuals; standardized interactive chrome must live in reusable Blazor components with their own styles/contracts, and page code may only compose those components
+- ad-hoc one-off UI cleanup without a repo search and explicit inventory of similar offenders first; when this class of design-system debt is touched, audit the whole slice, track the file list in a plan, and close items systematically with tests
 - runtime dependencies fetched from random external sources instead of vendored release artifacts
 - progress updates that talk about internal skill routing instead of the concrete repo change
 - long exploratory work before producing the concrete vendored files the user explicitly asked for

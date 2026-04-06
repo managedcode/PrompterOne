@@ -96,6 +96,7 @@ public partial class EditorSourcePanel : IAsyncDisposable
 
         _visibleCanUndo = CanUndo;
         _visibleCanRedo = CanRedo;
+        RefreshFindMatchesForCurrentText();
         UpdateFloatingBarAnchor();
     }
 

@@ -36,6 +36,7 @@ public partial class LearnPage : IAsyncDisposable
     [Inject] private LearnRsvpLayoutInterop LearnRsvpLayoutInterop { get; set; } = null!;
     [Inject] private RsvpTextProcessor TextProcessor { get; set; } = null!;
 
+    [Parameter]
     [SupplyParameterFromQuery(Name = AppRoutes.ScriptIdQueryKey)]
     public string? ScriptId { get; set; }
 
@@ -46,7 +47,7 @@ public partial class LearnPage : IAsyncDisposable
     private ElementReference _focusWord;
     private ElementReference _screenRoot;
     private string _nextPhrase = string.Empty;
-    private string _progressFillWidth = "0%";
+    private double _progressPercent;
     private string _progressLabel = string.Empty;
     private string _screenSubtitle = string.Empty;
     private string _screenTitle = string.Empty;
@@ -173,7 +174,7 @@ public partial class LearnPage : IAsyncDisposable
             _leftContextWords = [];
             _rightContextWords = [];
             _nextPhrase = Text(UiTextKey.LearnEndOfScript);
-            _progressFillWidth = "0%";
+            _progressPercent = 0d;
             _progressLabel = string.Empty;
             _syncFocusLayoutAfterRender = true;
             return;
@@ -204,17 +205,18 @@ public partial class LearnPage : IAsyncDisposable
             ? ResolveFallbackNextPhrase(_timeline, _currentIndex)
             : entry.NextPhrase;
         _nextPhrase = BuildDisplayPreviewText(rawPreviewText);
-        _progressFillWidth = $"{((_currentIndex + 1) * 100d / _timeline.Count):0.##}%";
+        _progressPercent = (_currentIndex + 1) * 100d / _timeline.Count;
         _progressLabel = BuildProgressLabel(_timeline, _currentIndex);
         _syncFocusLayoutAfterRender = true;
     }
 
     private async Task EnsureSessionLoadedAsync()
     {
-        if (!string.IsNullOrWhiteSpace(ScriptId))
+        var requestedScriptId = ScriptRouteSessionLoader.ResolveRequestedScriptId(ScriptId, Navigation.Uri);
+        if (!string.IsNullOrWhiteSpace(requestedScriptId))
         {
             await ScriptRouteSessionLoader.EnsureRequestedSessionAsync(
-                ScriptId,
+                requestedScriptId,
                 ScriptRepository,
                 SessionService);
             return;

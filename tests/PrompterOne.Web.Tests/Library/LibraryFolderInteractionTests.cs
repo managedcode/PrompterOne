@@ -192,7 +192,16 @@ public sealed class LibraryFolderInteractionTests : BunitContext
         });
     }
 
-    private static IElement GetCardMenuWrap(IRenderedComponent<LibraryPage> cut, string scriptId) =>
-        cut.FindByTestId(UiTestIds.Library.CardMenu(scriptId)).ParentElement
-        ?? throw new InvalidOperationException("Library card menu wrapper was not rendered.");
+    private static IElement GetCardMenuWrap(IRenderedComponent<LibraryPage> cut, string scriptId)
+    {
+        const string MenuWrapClassName = "dcard-menu-wrap";
+        var current = cut.FindByTestId(UiTestIds.Library.CardMenu(scriptId)).ParentElement;
+
+        while (current is not null && !current.ClassList.Contains(MenuWrapClassName))
+        {
+            current = current.ParentElement;
+        }
+
+        return current ?? throw new InvalidOperationException("Library card menu wrapper was not rendered.");
+    }
 }

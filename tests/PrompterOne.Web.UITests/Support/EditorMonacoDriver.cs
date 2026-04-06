@@ -2,6 +2,7 @@ using System.Text.Json;
 using Microsoft.Playwright;
 using PrompterOne.Shared.Contracts;
 using PrompterOne.Shared.Services.Editor;
+using Xunit.Sdk;
 using static Microsoft.Playwright.Assertions;
 
 namespace PrompterOne.Web.UITests;
@@ -23,25 +24,36 @@ internal static class EditorMonacoDriver
 
     internal static async Task WaitUntilReadyAsync(IPage page)
     {
+        var browserErrors = BrowserErrorCollector.Attach(page);
+
         await Expect(SourceStage(page)).ToBeVisibleAsync(new()
         {
             Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs
         });
 
-        await page.WaitForFunctionAsync(
-            """
-            (args) => {
-                const host = document.querySelector(`[data-testid="${args.testId}"]`);
-                return host?.getAttribute(args.readyAttributeName) === args.readyValue;
-            }
-            """,
-            new
-            {
-                readyAttributeName = EditorMonacoRuntimeContract.EditorReadyAttributeName,
-                readyValue = "true",
-                testId = UiTestIds.Editor.SourceStage
-            },
-            new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
+        try
+        {
+            await page.WaitForFunctionAsync(
+                """
+                (args) => {
+                    const host = document.querySelector(`[data-testid="${args.testId}"]`);
+                    return host?.getAttribute(args.readyAttributeName) === args.readyValue;
+                }
+                """,
+                new
+                {
+                    readyAttributeName = EditorMonacoRuntimeContract.EditorReadyAttributeName,
+                    readyValue = "true",
+                    testId = UiTestIds.Editor.SourceStage
+                },
+                new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
+        }
+        catch (Exception exception)
+        {
+            throw new XunitException(
+                $"Monaco editor did not become ready within {BrowserTestConstants.Timing.DefaultVisibleTimeoutMs}ms.{Environment.NewLine}" +
+                $"Captured browser diagnostics:{Environment.NewLine}{browserErrors.Describe()}{Environment.NewLine}{exception}");
+        }
     }
 
     internal static async Task ClickAsync(IPage page, Position? position = null)

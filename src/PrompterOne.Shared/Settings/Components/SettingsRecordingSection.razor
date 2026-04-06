@@ -1,5 +1,6 @@
 @namespace PrompterOne.Shared.Components.Settings
 @using Microsoft.Extensions.Localization
+@using PrompterOne.Shared.Components
 @using PrompterOne.Shared.Localization
 @using PrompterOne.Shared.Settings.Components
 @inject IStringLocalizer<SharedResource> Localizer
@@ -14,12 +15,10 @@
     <div class="set-device-list">
         <SettingsExpandableCard Title="@Text(UiTextKey.SettingsRecordingGeneralTitle)"
                                 Subtitle="@Text(UiTextKey.SettingsRecordingGeneralSubtitle)"
-                                IconStyle="background:rgba(196,160,96,.10); color:var(--gold);"
+                                IconTone="UiIconSurfaceTone.Gold"
                                 IsOpen="@IsCardOpen(GeneralCardId)"
                                 OnToggle="@(() => ToggleCard.InvokeAsync(GeneralCardId))">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
-            </svg>
+            <UiIcon Kind="UiIconKind.Folder" Size="17" />
             <div class="set-device-fields">
                 <div class="set-field set-field-toggle">
                     <label>@Text(UiTextKey.SettingsRecordingAutoRecordWhenStreaming)</label>
@@ -57,13 +56,10 @@
 
         <SettingsExpandableCard Title="@Text(UiTextKey.CommonVideo)"
                                 Subtitle="@Format(UiTextKey.SettingsRecordingVideoSubtitleFormat, RecordingVideoCodec, RecordingVideoResolution, RecordingVideoFrameRate, RecordingVideoBitrateKbps)"
-                                IconStyle="background:rgba(59,130,246,.10); color:#60A5FA;"
+                                IconTone="UiIconSurfaceTone.Sky"
                                 IsOpen="@IsCardOpen(VideoCardId)"
                                 OnToggle="@(() => ToggleCard.InvokeAsync(VideoCardId))">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polygon points="23,7 16,12 23,17" />
-                <rect x="1" y="5" width="15" height="14" rx="2" />
-            </svg>
+            <UiIcon Kind="UiIconKind.Camera" Size="17" />
             <div class="set-device-fields">
                 <div class="set-rec-grid">
                     <div class="set-field">
@@ -104,14 +100,10 @@
 
         <SettingsExpandableCard Title="@Text(UiTextKey.CommonAudio)"
                                 Subtitle="@Format(UiTextKey.SettingsRecordingAudioSubtitleFormat, RecordingAudioCodec, RecordingAudioSampleRate, RecordingAudioBitrateKbps, RecordingAudioChannels)"
-                                IconStyle="background:rgba(16,185,129,.10); color:#34D399;"
+                                IconTone="UiIconSurfaceTone.Emerald"
                                 IsOpen="@IsCardOpen(AudioCardId)"
                                 OnToggle="@(() => ToggleCard.InvokeAsync(AudioCardId))">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M9 18V5l12-2v13" />
-                <circle cx="6" cy="18" r="3" />
-                <circle cx="18" cy="16" r="3" />
-            </svg>
+            <UiIcon Kind="UiIconKind.AudioNotes" Size="17" />
             <div class="set-device-fields">
                 <div class="set-rec-grid">
                     <div class="set-field">

@@ -1,6 +1,7 @@
 @namespace PrompterOne.Shared.Components.Editor
 @using System.Globalization
 @using Microsoft.Extensions.Localization
+@using PrompterOne.Shared.Components
 @using PrompterOne.Shared.Localization
 @inject IStringLocalizer<SharedResource> Localizer
 
@@ -19,9 +20,9 @@
                 data-chevron-direction="@GetToggleChevronDirection()"
                 @onclick="() => ToggleRequested.InvokeAsync()"
                 data-testid="@UiTestIds.Editor.MetadataRailToggle">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <polyline points="@GetToggleChevronPoints()"></polyline>
-            </svg>
+            <UiIcon Kind="@(IsCollapsed ? UiIconKind.ChevronLeft : UiIconKind.ChevronRight)"
+                    Size="14"
+                    StrokeWidth="2.2m" />
         </button>
     </div>
 
@@ -82,12 +83,7 @@
                        @onchange="OnCreatedDateChange"
                        data-testid="@UiTestIds.Editor.Created" />
                 <span class="ed-meta-date-icon" data-testid="@UiTestIds.Editor.CreatedIcon" aria-hidden="true">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="5" width="18" height="16" rx="2"></rect>
-                        <line x1="16" y1="3" x2="16" y2="7"></line>
-                        <line x1="8" y1="3" x2="8" y2="7"></line>
-                        <line x1="3" y1="11" x2="21" y2="11"></line>
-                    </svg>
+                    <UiIcon Kind="UiIconKind.Calendar" Size="14" StrokeWidth="1.8m" />
                 </span>
             </div>
         </div>
@@ -109,7 +105,7 @@
                        value="@XslowOffset"
                        @onchange="OnXslowOffsetChange"
                        data-testid="@UiTestIds.Editor.SpeedXslow" />
-                <span class="ed-meta-unit" style="color:#FF8A8A">%</span>
+                <span class="ed-meta-unit ed-meta-unit--xslow">%</span>
             </div>
         </div>
         <div class="ed-meta-field">
@@ -120,7 +116,7 @@
                        value="@SlowOffset"
                        @onchange="OnSlowOffsetChange"
                        data-testid="@UiTestIds.Editor.SpeedSlow" />
-                <span class="ed-meta-unit" style="color:#FFB86A">%</span>
+                <span class="ed-meta-unit ed-meta-unit--slow">%</span>
             </div>
         </div>
         <div class="ed-meta-field">
@@ -131,7 +127,7 @@
                        value="@FastOffset"
                        @onchange="OnFastOffsetChange"
                        data-testid="@UiTestIds.Editor.SpeedFast" />
-                <span class="ed-meta-unit" style="color:#8ECFFF">%</span>
+                <span class="ed-meta-unit ed-meta-unit--fast">%</span>
             </div>
         </div>
         <div class="ed-meta-field">
@@ -142,7 +138,7 @@
                        value="@XfastOffset"
                        @onchange="OnXfastOffsetChange"
                        data-testid="@UiTestIds.Editor.SpeedXfast" />
-                <span class="ed-meta-unit" style="color:#80B8FF">%</span>
+                <span class="ed-meta-unit ed-meta-unit--xfast">%</span>
             </div>
         </div>
 
@@ -248,9 +244,7 @@
 
     private const string LastSavedTimestampFormat = "yyyy-MM-dd HH:mm:ss";
     private const string LeftChevronDirection = "left";
-    private const string LeftChevronPoints = "15,18 9,12 15,6";
     private const string RightChevronDirection = "right";
-    private const string RightChevronPoints = "9,18 15,12 9,6";
 
     private string AutoSaveLabel => Text(UiTextKey.EditorMetadataAutoSave);
 
@@ -302,8 +296,6 @@
     private string GetExpandedAttributeValue() => IsCollapsed ? "false" : "true";
 
     private string GetToggleChevronDirection() => IsCollapsed ? LeftChevronDirection : RightChevronDirection;
-
-    private string GetToggleChevronPoints() => IsCollapsed ? LeftChevronPoints : RightChevronPoints;
 
     private string GetAutoSaveStateLabel() => AutoSaveEnabled ? Text(UiTextKey.CommonOn) : Text(UiTextKey.CommonOff);
 

@@ -113,7 +113,7 @@ public partial class MainLayout : LayoutComponentBase, IDisposable
             ? GoLiveSessionState.SelectedSourceLabel
             : Text(UiTextKey.HeaderGoLive);
 
-    private bool ShowGoLiveWidget => GoLiveSessionState.HasActiveSession && ShellState.Screen != AppShellScreen.GoLive;
+    private bool ShowGoLiveWidget => !ShowOnboarding && GoLiveSessionState.HasActiveSession && ShellState.Screen != AppShellScreen.GoLive;
 
     private string GoLiveRoute => GoLiveSessionState.HasActiveSession
         ? string.IsNullOrWhiteSpace(GoLiveSessionState.ScriptId)
@@ -164,6 +164,7 @@ public partial class MainLayout : LayoutComponentBase, IDisposable
         await ThemeService.InitializeAsync();
         await Connectivity.StartAsync();
         await Bootstrapper.EnsureReadyAsync();
+        await InitializeOnboardingAsync();
         await RuntimeTelemetry.InitializeAsync();
         await TrackCurrentPageViewAsync();
     }
@@ -181,6 +182,7 @@ public partial class MainLayout : LayoutComponentBase, IDisposable
         Logger.LogInformation(RouteChangedLogTemplate, e.Location);
         Shell.TrackNavigation(e.Location);
         SyncShellStateWithCurrentRoute(e.Location);
+        SyncOnboardingStepWithCurrentRoute(e.Location);
         _ = InvokeAsync(TrackCurrentPageViewAsync);
         StateHasChanged();
     }

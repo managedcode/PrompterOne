@@ -70,15 +70,57 @@ public sealed class EditorToolbarCatalogContractTests
             speedGroup.Actions.Select(action => action.Key));
     }
 
+    [Fact]
+    public void VoiceDropdowns_StayAligned_BetweenTopToolbarAndFloatingToolbar()
+    {
+        var topVoiceGroups = FindTopSection("voice").DropdownGroups;
+        var floatingVoiceGroups = FindFloatingMenu(EditorToolbarMenuIds.FloatingVoice).DropdownGroups;
+
+        Assert.Equal(
+            topVoiceGroups.Select(group => group.Label),
+            floatingVoiceGroups.Select(group => group.Label));
+
+        foreach (var groupLabel in topVoiceGroups.Select(group => group.Label))
+        {
+            var topGroup = Assert.Single(topVoiceGroups, group => string.Equals(group.Label, groupLabel, StringComparison.Ordinal));
+            var floatingGroup = Assert.Single(floatingVoiceGroups, group => string.Equals(group.Label, groupLabel, StringComparison.Ordinal));
+
+            Assert.Equal(
+                topGroup.Actions.Select(action => NormalizeFloatingKey(action.Key)),
+                floatingGroup.Actions.Select(action => NormalizeFloatingKey(action.Key)));
+        }
+    }
+
+    [Fact]
+    public void FloatingInsertMenu_ExposesTheSameStructureHelpers_AsTopToolbarInsertMenu()
+    {
+        var topStructureGroup = FindTopDropdownGroup("insert", "Structure");
+        var floatingStructureGroup = FindFloatingDropdownGroup(EditorToolbarMenuIds.FloatingInsert, "Structure");
+
+        Assert.Equal(
+            topStructureGroup.Actions.Select(action => NormalizeFloatingKey(action.Key)),
+            floatingStructureGroup.Actions.Select(action => NormalizeFloatingKey(action.Key)));
+    }
+
     private static EditorToolbarDropdownGroupDescriptor FindTopDropdownGroup(string sectionKey, string groupLabel)
     {
-        var section = Assert.Single(EditorToolbarCatalog.Sections, candidate => string.Equals(candidate.Key, sectionKey, StringComparison.Ordinal));
+        var section = FindTopSection(sectionKey);
         return Assert.Single(section.DropdownGroups, candidate => string.Equals(candidate.Label, groupLabel, StringComparison.Ordinal));
     }
 
     private static EditorToolbarDropdownGroupDescriptor FindFloatingDropdownGroup(string menuId, string groupLabel)
     {
-        var menu = Assert.Single(EditorToolbarCatalog.FloatingMenus, candidate => string.Equals(candidate.MenuId, menuId, StringComparison.Ordinal));
+        var menu = FindFloatingMenu(menuId);
         return Assert.Single(menu.DropdownGroups, candidate => string.Equals(candidate.Label, groupLabel, StringComparison.Ordinal));
     }
+
+    private static EditorToolbarSectionDescriptor FindTopSection(string sectionKey) =>
+        Assert.Single(EditorToolbarCatalog.Sections, candidate => string.Equals(candidate.Key, sectionKey, StringComparison.Ordinal));
+
+    private static EditorFloatingMenuDescriptor FindFloatingMenu(string menuId) =>
+        Assert.Single(EditorToolbarCatalog.FloatingMenus, candidate => string.Equals(candidate.MenuId, menuId, StringComparison.Ordinal));
+
+    private static string NormalizeFloatingKey(string key) =>
+        key.Replace("float-", string.Empty, StringComparison.Ordinal)
+            .Replace("-menu", string.Empty, StringComparison.Ordinal);
 }

@@ -1,0 +1,22 @@
+@namespace PrompterOne.Shared.Components
+
+<svg class="@CssClassValue" width="@Size" height="@Size" viewBox="0 0 24 24" fill="none" aria-hidden="@AriaHidden">
+    <path d="M4 6h16M4 12h12M4 18h14" stroke="url(#po-brand-mark-gradient)" stroke-width="2.5" stroke-linecap="round" />
+    <defs>
+        <linearGradient id="po-brand-mark-gradient" x1="4" y1="6" x2="20" y2="18">
+            <stop stop-color="#F5E6D0" />
+            <stop offset="1" stop-color="#C4A882" />
+        </linearGradient>
+    </defs>
+</svg>
+
+@code {
+    private const string BaseCssClass = "app-brand-mark";
+
+    [Parameter] public bool AriaHidden { get; set; } = true;
+    [Parameter] public string CssClass { get; set; } = string.Empty;
+    [Parameter] public int Size { get; set; } = 24;
+
+    private string CssClassValue =>
+        string.IsNullOrWhiteSpace(CssClass) ? BaseCssClass : $"{BaseCssClass} {CssClass}";
+}

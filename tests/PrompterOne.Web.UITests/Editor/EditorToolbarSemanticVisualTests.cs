@@ -1,3 +1,4 @@
+using Microsoft.Playwright;
 using PrompterOne.Shared.Contracts;
 using static Microsoft.Playwright.Assertions;
 
@@ -60,13 +61,13 @@ public sealed class EditorToolbarSemanticVisualTests(StandaloneAppFixture fixtur
                     const floatingInsertButton = element.querySelector(`[data-testid="${args.floatingInsertTestId}"]`);
 
                     return {
-                        floatingDotCount: element.querySelectorAll('.efb-sem-dot').length,
-                        loudUsesDot: Boolean(loudButton?.querySelector('.cdot, .efb-sem-dot, .tb-sem-dot')),
+                        floatingDotCount: element.querySelectorAll('.ed-action-dot').length,
+                        loudUsesDot: Boolean(loudButton?.querySelector('.ed-action-dot')),
                         loudUsesSvg: Boolean(loudButton?.querySelector('svg')),
-                        voiceColorDistance: colorDistance(topVoiceButton?.querySelector('.tb-sem-dot'), voiceButton?.querySelector('.efb-sem-dot'), 'backgroundColor'),
-                        emotionColorDistance: colorDistance(topEmotionButton?.querySelector('.tb-sem-dot'), emotionButton?.querySelector('.efb-sem-dot'), 'backgroundColor'),
-                        topGroupColorDistance: colorDistance(topVoiceButton?.querySelector('.tb-sem-dot'), topEmotionButton?.querySelector('.tb-sem-dot'), 'backgroundColor'),
-                        floatingGroupColorDistance: colorDistance(voiceButton?.querySelector('.efb-sem-dot'), emotionButton?.querySelector('.efb-sem-dot'), 'backgroundColor'),
+                        voiceColorDistance: colorDistance(topVoiceButton, voiceButton),
+                        emotionColorDistance: colorDistance(topEmotionButton, emotionButton),
+                        topGroupColorDistance: colorDistance(topVoiceButton, topEmotionButton),
+                        floatingGroupColorDistance: colorDistance(voiceButton, emotionButton),
                         pauseColorDistance: colorDistance(topPauseButton, floatingPauseButton),
                         speedColorDistance: colorDistance(topSpeedButton, floatingSpeedButton),
                         insertColorDistance: colorDistance(topInsertButton, floatingInsertButton)
@@ -147,6 +148,11 @@ public sealed class EditorToolbarSemanticVisualTests(StandaloneAppFixture fixtur
                         .filter(Boolean)
                         .map(item => item.getBoundingClientRect().height);
                     const styles = window.getComputedStyle(element);
+                    const clearAction = document.querySelector(`[data-testid="${args.clearTestId}"]`);
+                    const clearLabel = Array.from(clearAction?.querySelectorAll('.ed-action-leading, .ed-action-label, .ed-action-meta') ?? [])
+                        .map(node => node.textContent?.replace(/\s+/g, ' ').trim() ?? '')
+                        .filter(Boolean)
+                        .join(' ');
 
                     return {
                         menuWidth: element.getBoundingClientRect().width,
@@ -154,7 +160,7 @@ public sealed class EditorToolbarSemanticVisualTests(StandaloneAppFixture fixtur
                         rowHeightDelta: heights.length === 0 ? 0 : Math.max(...heights) - Math.min(...heights),
                         borderAlpha: readAlpha(styles.borderTopColor),
                         borderContrast: distance(parseColor(styles.borderTopColor), parseColor(styles.backgroundColor)),
-                        clearLabel: document.querySelector(`[data-testid="${args.clearTestId}"]`)?.textContent?.replace(/\s+/g, ' ').trim() ?? ''
+                        clearLabel
                     };
                 }
                 """,
@@ -238,6 +244,83 @@ public sealed class EditorToolbarSemanticVisualTests(StandaloneAppFixture fixtur
         }
     }
 
+    [Fact]
+    public async Task EditorScreen_DropdownRows_LeftAlignMetaClusters_InToolbarAndFloatingMenus()
+    {
+        UiScenarioArtifacts.ResetScenario(BrowserTestConstants.EditorFlow.ToolbarDropdownAlignmentScenario);
+
+        var page = await _fixture.NewPageAsync();
+
+        try
+        {
+            await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
+            await Expect(page.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync(new()
+            {
+                Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs
+            });
+
+            await EditorMonacoDriver.WaitUntilReadyAsync(page);
+
+            await page.GetByTestId(UiTestIds.Editor.ColorTrigger).ClickAsync();
+            var voiceMenu = page.GetByTestId(UiTestIds.Editor.MenuColor);
+            await Expect(voiceMenu).ToBeVisibleAsync();
+            await UiScenarioArtifacts.CaptureLocatorAsync(
+                voiceMenu,
+                BrowserTestConstants.EditorFlow.ToolbarDropdownAlignmentScenario,
+                BrowserTestConstants.EditorFlow.ToolbarDropdownAlignmentTopStep);
+
+            var topMetrics = await ReadDropdownClusterMetricsAsync(page, UiTestIds.Editor.ColorEnergy);
+            Assert.True(
+                topMetrics.LabelMetaGap <= BrowserTestConstants.EditorFlow.MaximumDropdownInlineMetaGapPx,
+                $"Expected the top toolbar voice dropdown to keep label and meta in one left-aligned cluster, but the gap was {topMetrics.LabelMetaGap:0.##}px.");
+
+            await page.GetByTestId(UiTestIds.Editor.ColorTrigger).ClickAsync();
+            await EditorMonacoDriver.SetSelectionByTextAsync(page, BrowserTestConstants.Editor.TransformativeMoment);
+            await Expect(page.GetByTestId(UiTestIds.Editor.FloatingBar)).ToBeVisibleAsync();
+
+            await page.GetByTestId(UiTestIds.Editor.FloatingVoice).ClickAsync();
+            var floatingMenu = page.GetByTestId(UiTestIds.Editor.FloatingVoiceMenu);
+            await Expect(floatingMenu).ToBeVisibleAsync();
+            await UiScenarioArtifacts.CaptureLocatorAsync(
+                floatingMenu,
+                BrowserTestConstants.EditorFlow.ToolbarDropdownAlignmentScenario,
+                BrowserTestConstants.EditorFlow.ToolbarDropdownAlignmentFloatingStep);
+
+            var floatingMetrics = await ReadDropdownClusterMetricsAsync(page, UiTestIds.Editor.FloatingVoiceEnergy);
+            Assert.True(
+                floatingMetrics.LabelMetaGap <= BrowserTestConstants.EditorFlow.MaximumDropdownInlineMetaGapPx,
+                $"Expected the floating voice dropdown to keep label and meta in one left-aligned cluster, but the gap was {floatingMetrics.LabelMetaGap:0.##}px.");
+        }
+        finally
+        {
+            await page.Context.CloseAsync();
+        }
+    }
+
+    private static Task<DropdownAlignmentMetrics> ReadDropdownClusterMetricsAsync(IPage page, string itemTestId) =>
+        page.EvaluateAsync<DropdownAlignmentMetrics>(
+            """
+            (args) => {
+                const item = document.querySelector(`[data-testid="${args.itemTestId}"]`);
+                const label = item?.querySelector('.ed-action-label');
+                const meta = item?.querySelector('.ed-action-meta');
+
+                if (!item || !label || !meta) {
+                    return {
+                        labelMetaGap: Number.POSITIVE_INFINITY
+                    };
+                }
+
+                const labelRect = label.getBoundingClientRect();
+                const metaRect = meta.getBoundingClientRect();
+
+                return {
+                    labelMetaGap: Math.max(0, metaRect.left - labelRect.right)
+                };
+            }
+            """,
+            new { itemTestId });
+
     private readonly record struct FloatingToolbarSemanticMetrics(
         int FloatingDotCount,
         bool LoudUsesDot,
@@ -261,4 +344,7 @@ public sealed class EditorToolbarSemanticVisualTests(StandaloneAppFixture fixtur
     private readonly record struct DropdownCompactMetrics(
         double MaxRowHeight,
         double RowHeightDelta);
+
+    private readonly record struct DropdownAlignmentMetrics(
+        double LabelMetaGap);
 }

@@ -1,0 +1,98 @@
+@namespace PrompterOne.Shared.Components.Editor
+
+<span class="ed-action-content">
+    @if (Content.HasLeadingIcon)
+    {
+        <EditorActionIcon Kind="@Content.LeadingIcon" Tone="@Content.LeadingIconTone" />
+    }
+
+    @if (Content.HasLeadingText)
+    {
+        <span class="@GetLeadingTextCss()">@Content.LeadingText</span>
+    }
+
+    @if (Content.HasLabel || Content.HasMetaText)
+    {
+        <span class="ed-action-copy">
+            @if (Content.HasLabel)
+            {
+                <span class="ed-action-label">@Content.Label</span>
+            }
+
+            @if (Content.HasMetaText)
+            {
+                <small class="ed-action-meta">@Content.MetaText</small>
+            }
+        </span>
+    }
+
+    @if (Content.HasTrailingIcon)
+    {
+        <EditorActionIcon Kind="@Content.TrailingIcon" Tone="@Content.TrailingIconTone" />
+    }
+</span>
+
+@code {
+    [Parameter] public EditorActionContentDescriptor Content { get; set; } = new();
+
+    private string GetLeadingTextCss()
+    {
+        var classes = new List<string> { "ed-action-leading" };
+
+        if (Content.LeadingBold)
+        {
+            classes.Add("ed-action-leading--bold");
+        }
+
+        if (Content.LeadingItalic)
+        {
+            classes.Add("ed-action-leading--italic");
+        }
+
+        if (Content.LeadingMono)
+        {
+            classes.Add("ed-action-leading--mono");
+        }
+
+        classes.Add(Content.LeadingTone switch
+        {
+            EditorActionContentTone.Emphasis => "ed-action-leading--emphasis",
+            EditorActionContentTone.Highlight => "ed-action-leading--highlight",
+            EditorActionContentTone.Loud => "ed-action-leading--loud",
+            EditorActionContentTone.Soft => "ed-action-leading--soft",
+            EditorActionContentTone.Whisper => "ed-action-leading--whisper",
+            EditorActionContentTone.Legato => "ed-action-leading--legato",
+            EditorActionContentTone.Staccato => "ed-action-leading--staccato",
+            EditorActionContentTone.Energy => "ed-action-leading--energy",
+            EditorActionContentTone.Melody => "ed-action-leading--melody",
+            EditorActionContentTone.Stress => "ed-action-leading--stress",
+            EditorActionContentTone.SpeedXslow => "ed-action-leading--speed-xslow",
+            EditorActionContentTone.SpeedSlow => "ed-action-leading--speed-slow",
+            EditorActionContentTone.SpeedNormal => "ed-action-leading--speed-normal",
+            EditorActionContentTone.SpeedFast => "ed-action-leading--speed-fast",
+            EditorActionContentTone.SpeedXfast => "ed-action-leading--speed-xfast",
+            EditorActionContentTone.Structure => "ed-action-leading--structure",
+            EditorActionContentTone.Pronunciation => "ed-action-leading--pronunciation",
+            EditorActionContentTone.Reset => "ed-action-leading--reset",
+            EditorActionContentTone.DeliverySarcasm => "ed-action-leading--delivery-sarcasm",
+            EditorActionContentTone.DeliveryAside => "ed-action-leading--delivery-aside",
+            EditorActionContentTone.DeliveryRhetorical => "ed-action-leading--delivery-rhetorical",
+            EditorActionContentTone.DeliveryBuilding => "ed-action-leading--delivery-building",
+            EditorActionContentTone.EmotionNeutral => "ed-action-leading--emotion-neutral",
+            EditorActionContentTone.EmotionWarm => "ed-action-leading--emotion-warm",
+            EditorActionContentTone.EmotionProfessional => "ed-action-leading--emotion-professional",
+            EditorActionContentTone.EmotionFocused => "ed-action-leading--emotion-focused",
+            EditorActionContentTone.EmotionConcerned => "ed-action-leading--emotion-concerned",
+            EditorActionContentTone.EmotionUrgent => "ed-action-leading--emotion-urgent",
+            EditorActionContentTone.EmotionMotivational => "ed-action-leading--emotion-motivational",
+            EditorActionContentTone.EmotionExcited => "ed-action-leading--emotion-excited",
+            EditorActionContentTone.EmotionHappy => "ed-action-leading--emotion-happy",
+            EditorActionContentTone.EmotionSad => "ed-action-leading--emotion-sad",
+            EditorActionContentTone.EmotionCalm => "ed-action-leading--emotion-calm",
+            EditorActionContentTone.EmotionEnergetic => "ed-action-leading--emotion-energetic",
+            _ => string.Empty
+        });
+
+        return string.Join(" ", classes.Where(static value => !string.IsNullOrWhiteSpace(value)));
+    }
+}

@@ -1,0 +1,32 @@
+.settings-option-preview--themedark {
+    background: linear-gradient(135deg, #0a0e14, #141c28);
+}
+
+.settings-option-preview--themedark .settings-option-preview__icon {
+    color: rgba(196, 160, 96, .7);
+}
+
+.settings-option-preview--themelight {
+    background: linear-gradient(135deg, #f0ebe4, #e0d8cc);
+}
+
+.settings-option-preview--themelight .settings-option-preview__icon {
+    color: #8B7355;
+}
+
+.settings-option-preview--themesystem {
+    background: linear-gradient(135deg, #0a0e14 50%, #f0ebe4 50%);
+}
+
+.settings-option-preview--themesystem .settings-option-preview__icon {
+    color: rgba(196, 160, 96, .9);
+}
+
+.settings-option-preview--densitycompact .settings-option-preview__icon,
+.settings-option-preview--densityspacious .settings-option-preview__icon {
+    color: var(--t3);
+}
+
+.settings-option-preview--densitydefault .settings-option-preview__icon {
+    color: var(--gold);
+}

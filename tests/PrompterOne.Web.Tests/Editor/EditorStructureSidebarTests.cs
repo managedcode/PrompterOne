@@ -10,8 +10,8 @@ public sealed class EditorStructureSidebarTests : BunitContext
 {
     private const string FocusedAccentColor = "#16A34A";
     private const string SplitActionLabel = "Open In Library";
-    private const string SplitFeedbackBadge = "## headings";
-    private const string SplitFeedbackDestination = "New scripts were added next to this draft in the same Library folder.";
+    private const string SplitFeedbackBadge = "From ##";
+    private const string SplitFeedbackDestination = "New scripts were saved to the library.";
     private const string SplitFeedbackDraftNote = "This draft stayed open here so you can keep editing.";
     private const string SplitFeedbackSummary = "2 new scripts created.";
     private const string SplitFeedbackTitle = "Split complete";

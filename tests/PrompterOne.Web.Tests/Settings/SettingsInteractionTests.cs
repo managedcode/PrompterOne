@@ -332,6 +332,30 @@ public sealed class SettingsInteractionTests : BunitContext
     }
 
     [Fact]
+    public void AppearanceSection_UsesSharedPreviewAndSwatchComponents_InsteadOfInlineStyleBlobs()
+    {
+        var cut = Render<SettingsPage>();
+
+        cut.WaitForAssertion(() => Assert.Contains(UiTestIds.Settings.NavAppearance, cut.Markup, StringComparison.Ordinal));
+
+        cut.FindByTestId(UiTestIds.Settings.NavAppearance).Click();
+
+        cut.WaitForAssertion(() =>
+        {
+            var appearancePanel = cut.FindByTestId(UiTestIds.Settings.AppearancePanel);
+            var appearanceMarkup = appearancePanel.OuterHtml;
+
+            Assert.Contains("settings-option-preview--themedark", appearanceMarkup, StringComparison.Ordinal);
+            Assert.Contains("settings-option-preview--densitydefault", appearanceMarkup, StringComparison.Ordinal);
+            Assert.Contains("ui-color-swatch--gold", appearanceMarkup, StringComparison.Ordinal);
+            Assert.Contains("ui-color-swatch--white", appearanceMarkup, StringComparison.Ordinal);
+            Assert.DoesNotContain("style=\"background:linear-gradient", appearanceMarkup, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("style=\"background:#", appearanceMarkup, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("display:flex;align-items:center;justify-content:center;", appearanceMarkup, StringComparison.Ordinal);
+        });
+    }
+
+    [Fact]
     public void AboutSection_RendersInjectedAppVersionMetadata_AndOfficialManagedCodeLinks()
     {
         var cut = Render<SettingsPage>();
@@ -377,6 +401,43 @@ public sealed class SettingsInteractionTests : BunitContext
             Assert.DoesNotContain(FakeFounderName, cut.Markup, StringComparison.Ordinal);
             Assert.DoesNotContain(FakeEngineerName, cut.Markup, StringComparison.Ordinal);
             Assert.DoesNotContain(FakeInfrastructureName, cut.Markup, StringComparison.Ordinal);
+        });
+    }
+
+    [Fact]
+    public void AboutSection_UsesTypedIconSurfaceClasses_InsteadOfInlineCardIconStyles()
+    {
+        var cut = Render<SettingsPage>();
+
+        cut.WaitForAssertion(() => Assert.Contains(UiTestIds.Settings.NavAbout, cut.Markup, StringComparison.Ordinal));
+
+        cut.FindByTestId(UiTestIds.Settings.NavAbout).Click();
+
+        cut.WaitForAssertion(() =>
+        {
+            var appCard = cut.FindByTestId(UiTestIds.Settings.AboutAppCard);
+            var iconSurface = appCard.QuerySelector(".ui-icon-surface--gold");
+
+            Assert.NotNull(iconSurface);
+            Assert.DoesNotContain("style=", iconSurface!.OuterHtml, StringComparison.OrdinalIgnoreCase);
+        });
+    }
+
+    [Fact]
+    public void CloudSection_UsesTypedProviderActionComponent_InsteadOfInlineBuilderStyleMarkup()
+    {
+        var cut = Render<SettingsPage>();
+
+        cut.WaitForAssertion(() => Assert.Contains(UiTestIds.Settings.CloudPanel, cut.Markup, StringComparison.Ordinal));
+
+        cut.WaitForAssertion(() =>
+        {
+            var providerCard = cut.FindByTestId(UiTestIds.Settings.CloudProviderCard(CloudStorageProviderIds.OneDrive));
+            var actionRow = providerCard.QuerySelector(".set-path-field-actions");
+
+            Assert.NotNull(actionRow);
+            Assert.DoesNotContain("style=", actionRow!.OuterHtml, StringComparison.OrdinalIgnoreCase);
+            Assert.NotNull(providerCard.QuerySelector("[data-testid='" + UiTestIds.Settings.CloudProviderConnect(CloudStorageProviderIds.OneDrive) + "']"));
         });
     }
 

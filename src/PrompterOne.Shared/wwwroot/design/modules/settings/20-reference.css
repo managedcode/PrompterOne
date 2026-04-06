@@ -154,6 +154,10 @@
     letter-spacing: .5px;
 }
 
+.set-dest-status-compact {
+    font-size: 12px;
+}
+
 .set-dest-idle {
     color: rgba(245, 230, 208, .76);
 }
@@ -705,6 +709,34 @@
 
 .set-size-label-lg {
     font-size: 18px;
+}
+
+.set-path-field-actions {
+    margin-top: 12px;
+}
+
+.set-subsection-spaced {
+    margin-bottom: 16px;
+}
+
+.set-subsection-top-gap {
+    margin-top: 12px;
+}
+
+.set-subsection-lg-top-gap {
+    margin-top: 28px;
+}
+
+.set-sub-header-tight {
+    margin-bottom: 14px;
+}
+
+.set-sub-header-section {
+    margin: 18px 0 14px;
+}
+
+.set-about-link-chevron {
+    color: var(--t4);
 }
 
 .set-about-hero {

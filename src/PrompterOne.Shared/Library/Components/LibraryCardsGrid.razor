@@ -20,6 +20,7 @@
                             type="button"
                             aria-label="@Text(UiTextKey.TooltipMoreScriptActions)"
                             data-testid="@UiTestIds.Library.CardMenu(card.Id)"
+                            @onclick:stopPropagation="true"
                             @onclick="() => ToggleCardMenu(card.Id)">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                             <circle cx="12" cy="5" r="2" />
@@ -170,6 +171,8 @@
 
     [Parameter, EditorRequired] public IReadOnlyList<LibraryCardViewModel> Cards { get; set; } = [];
 
+    [Parameter] public int DismissMenuRevision { get; set; }
+
     [Parameter, EditorRequired] public IReadOnlyList<LibraryFolderOptionViewModel> FolderOptions { get; set; } = [];
 
     [Parameter, EditorRequired] public EventCallback<string> OnOpenScript { get; set; }
@@ -188,20 +191,21 @@
 
     [Parameter, EditorRequired] public EventCallback OnStartCreateFolder { get; set; }
 
-    private string GetCardMenuWrapClass(string cardId) =>
-        string.Equals(_openCardMenuId, cardId, StringComparison.Ordinal)
-            ? CardMenuWrapOpenClass
-            : CardMenuWrapClass;
-
-    public void DismissOpenCardMenu()
+    protected override void OnParametersSet()
     {
-        if (!ClearOpenCardMenu())
+        if (DismissMenuRevision == _lastDismissMenuRevision)
         {
             return;
         }
 
-        StateHasChanged();
+        _lastDismissMenuRevision = DismissMenuRevision;
+        ClearOpenCardMenu();
     }
+
+    private string GetCardMenuWrapClass(string cardId) =>
+        string.Equals(_openCardMenuId, cardId, StringComparison.Ordinal)
+            ? CardMenuWrapOpenClass
+            : CardMenuWrapClass;
 
     private void ToggleCardMenu(string cardId)
     {
@@ -263,6 +267,8 @@
         segmentCount == 1
             ? Text(UiTextKey.LibraryCardOneSegment)
             : Format(UiTextKey.LibraryCardSegmentsFormat, segmentCount);
+
+    private int _lastDismissMenuRevision;
 
     private string Format(UiTextKey key, params object[] args) => Localizer[key.ToString(), args];
 

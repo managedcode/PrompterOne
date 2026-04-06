@@ -78,6 +78,7 @@ sequenceDiagram
 - selection interop stays off the keystroke path and runs only for caret/selection workflows that actually need toolbar anchoring or focus moves
 - the source highlight and textarea share the same wrapping metrics, preventing caret/text drift on multiline editing
 - segment and block header lines keep their styled header treatment even while the user is in a temporarily dirty edit state such as trailing text after `]` or an incomplete closing bracket
+- Monaco TPS completions, hover help, and runtime tag/header vocabularies now project their catalog from the vendored `ManagedCode.Tps` SDK contract instead of a duplicated JS-owned list
 - the authoring surface exposes a single vertical scroll container so the editor body does not fight a nested shell scrollbar
 - the floating selection toolbar emotion affordance opens a real TPS emotion picker instead of applying a single hardcoded wrap
 - the top toolbar shows direct TPS structure insert actions for `##` segments and `###` blocks, with the same actions still available from the insert dropdown

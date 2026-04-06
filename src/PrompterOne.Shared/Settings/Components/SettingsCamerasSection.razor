@@ -2,6 +2,7 @@
 @using Microsoft.Extensions.Localization
 @using PrompterOne.Core.Models.Media
 @using PrompterOne.Core.Models.Workspace
+@using PrompterOne.Shared.Components
 @using PrompterOne.Shared.Localization
 @using PrompterOne.Shared.Services
 @using PrompterOne.Shared.Settings.Components
@@ -48,10 +49,9 @@
                                 @if (isPrimary)
                                 {
                                     <span class="set-device-badge set-badge-primary">
-                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                                            <circle cx="12" cy="12" r="3" />
-                                        </svg>
+                                        <UiIcon Kind="UiIconKind.Eye"
+                                                Size="10"
+                                                StrokeWidth="3m" />
                                         @Text(UiTextKey.SettingsCamerasPrimaryBadge)
                                     </span>
                                 }
@@ -102,10 +102,7 @@
                                         @onclick="() => SetPrimaryCamera.InvokeAsync(camera)"
                                         @onclick:stopPropagation="true"
                                         data-testid="@UiTestIds.Settings.CameraPrimaryAction(camera.DeviceId)">
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                                        <circle cx="12" cy="12" r="3" />
-                                    </svg>
+                                    <UiIcon Kind="UiIconKind.Eye" Size="12" />
                                     @(isPrimary ? Text(UiTextKey.SettingsCamerasPrimaryButton) : Text(UiTextKey.SettingsCamerasSetPrimaryButton))
                                 </button>
                             </div>
@@ -114,7 +111,7 @@
                 }
             }
 
-            <div class="set-subsection" style="margin-top:12px">
+            <div class="set-subsection set-subsection-top-gap">
                 <h4 class="set-sub-title">@Text(UiTextKey.SettingsCamerasGeneralTitle)</h4>
                 <div class="set-devices">
                     <div class="set-field set-field-toggle">

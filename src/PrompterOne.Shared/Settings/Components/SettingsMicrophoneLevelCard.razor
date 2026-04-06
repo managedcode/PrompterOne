@@ -2,6 +2,7 @@
 @namespace PrompterOne.Shared.Components
 @using System.Globalization
 @using Microsoft.JSInterop
+@using PrompterOne.Shared.Components
 @using PrompterOne.Shared.Localization
 @using PrompterOne.Shared.Services
 @inject Microsoft.Extensions.Localization.IStringLocalizer<SharedResource> Localizer
@@ -12,12 +13,9 @@
          data-testid="@CardTestId">
     <div class="set-device-header">
         <div class="set-device-preview set-mic-preview @(CanRenderMonitor && IsEnabled ? string.Empty : "set-mic-off")">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
-                <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-                <line x1="12" y1="19" x2="12" y2="23" />
-                <line x1="8" y1="23" x2="16" y2="23" />
-            </svg>
+            <UiIcon Kind="UiIconKind.Microphone"
+                    Size="24"
+                    StrokeWidth="1.5m" />
             <div class="set-mic-level-indicator">
                 <div class="set-mic-bar" style="@BuildHeaderBarStyle(0.18)"></div>
                 <div class="set-mic-bar" style="@BuildHeaderBarStyle(0.00)"></div>

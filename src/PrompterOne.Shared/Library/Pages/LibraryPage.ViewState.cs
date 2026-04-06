@@ -38,9 +38,7 @@ public partial class LibraryPage
             return cards;
         }
 
-        return cards.Where(card =>
-            card.Title.Contains(query, StringComparison.OrdinalIgnoreCase) ||
-            card.Author.Contains(query, StringComparison.OrdinalIgnoreCase));
+        return cards.Where(card => card.SearchText.Contains(query, StringComparison.OrdinalIgnoreCase));
     }
 
     private HashSet<string> CollectVisibleFolderIds(string selectedFolderId)

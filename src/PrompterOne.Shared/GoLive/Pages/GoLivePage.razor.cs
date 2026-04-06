@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using PrompterOne.Core.Abstractions;
 using PrompterOne.Core.Models.Media;
 using PrompterOne.Core.Models.Workspace;
+using PrompterOne.Shared.Contracts;
 using PrompterOne.Shared.GoLive.Models;
 using PrompterOne.Shared.Services;
 using PrompterOne.Shared.Services.Diagnostics;
@@ -19,6 +20,7 @@ public partial class GoLivePage : ComponentBase, IDisposable, IAsyncDisposable
     [Inject] private BrowserMediaCaptureCapabilitiesService BrowserMediaCaptureCapabilityService { get; set; } = null!;
     [Inject] private MicrophoneLevelInterop MicrophoneLevelInterop { get; set; } = null!;
     [Inject] private StreamingPublishDescriptorResolver StreamingDescriptorResolver { get; set; } = null!;
+    [Inject] private NavigationManager Navigation { get; set; } = null!;
     [Inject] private UiDiagnosticsService Diagnostics { get; set; } = null!;
     [Inject] private IMediaDeviceService MediaDeviceService { get; set; } = null!;
     [Inject] private IMediaSceneService MediaSceneService { get; set; } = null!;
@@ -27,7 +29,8 @@ public partial class GoLivePage : ComponentBase, IDisposable, IAsyncDisposable
     [Inject] private IUserSettingsStore SettingsStore { get; set; } = null!;
     [Inject] private StudioSettingsStore StudioSettingsStore { get; set; } = null!;
 
-    [SupplyParameterFromQuery(Name = "id")]
+    [Parameter]
+    [SupplyParameterFromQuery(Name = AppRoutes.ScriptIdQueryKey)]
     public string? ScriptId { get; set; }
 
     private Task? _bootstrapTask;

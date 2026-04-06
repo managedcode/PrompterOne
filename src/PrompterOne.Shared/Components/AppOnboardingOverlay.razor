@@ -1,0 +1,103 @@
+@namespace PrompterOne.Shared.Components
+@using System.Globalization
+@using Microsoft.Extensions.Localization
+@using PrompterOne.Shared.Contracts
+@using PrompterOne.Shared.Localization
+@inject IStringLocalizer<SharedResource> Localizer
+
+<div class="app-onboarding" data-testid="@UiTestIds.Onboarding.Surface">
+    <div class="app-onboarding__scrim"></div>
+
+    <section class="app-onboarding__panel"
+             role="dialog"
+             aria-modal="true"
+             aria-labelledby="@UiDomIds.AppShell.OnboardingTitle">
+        <header class="app-onboarding__hero">
+            <div class="app-onboarding__icon-shell">
+                <UiIcon Kind="@CurrentStep.IconKind" Size="22" StrokeWidth="2.2m" />
+            </div>
+            <div class="app-onboarding__copy">
+                <p id="@UiDomIds.AppShell.OnboardingEyebrow"
+                   class="app-onboarding__eyebrow"
+                   data-testid="@UiTestIds.Onboarding.Eyebrow">@Text(CurrentStep.EyebrowKey)</p>
+                <h2 id="@UiDomIds.AppShell.OnboardingTitle"
+                    class="app-onboarding__title"
+                    data-testid="@UiTestIds.Onboarding.Title">@Text(CurrentStep.TitleKey)</h2>
+                <p class="app-onboarding__body"
+                   data-testid="@UiTestIds.Onboarding.Body">@Text(CurrentStep.BodyKey)</p>
+            </div>
+            <button type="button"
+                    class="app-onboarding__dismiss"
+                    @onclick="OnDismissRequested"
+                    data-testid="@UiTestIds.Onboarding.Dismiss">@Text(UiTextKey.OnboardingDismiss)</button>
+        </header>
+
+        <div class="app-onboarding__progress-shell">
+            <span class="app-onboarding__progress"
+                  data-testid="@UiTestIds.Onboarding.Progress">@ProgressLabel</span>
+
+            <div class="app-onboarding__steps">
+                @foreach (var step in Steps)
+                {
+                    <button type="button"
+                            class="@GetStepCss(step)"
+                            @onclick="() => OnStepSelected.InvokeAsync(step.StepId)"
+                            data-testid="@UiTestIds.Onboarding.Step(ToStepKey(step.StepId))">
+                        <UiIcon Kind="@step.IconKind" Size="14" StrokeWidth="2.2m" />
+                        <span>@Text(step.StepLabelKey)</span>
+                    </button>
+                }
+            </div>
+        </div>
+
+        <ul class="app-onboarding__facts">
+            @foreach (var bulletKey in CurrentStep.BulletKeys)
+            {
+                <li class="app-onboarding__fact">
+                    <span class="app-onboarding__fact-dot" aria-hidden="true"></span>
+                    <span>@Text(bulletKey)</span>
+                </li>
+            }
+        </ul>
+
+        <footer class="app-onboarding__actions">
+            <button type="button"
+                    class="app-onboarding__secondary"
+                    @onclick="OnBackRequested"
+                    disabled="@(!CanGoBack)"
+                    data-testid="@UiTestIds.Onboarding.Back">@Text(UiTextKey.OnboardingBack)</button>
+            <button type="button"
+                    class="app-onboarding__primary"
+                    @onclick="OnNextRequested"
+                    data-testid="@UiTestIds.Onboarding.Next">@Text(CurrentStep.ActionKey)</button>
+        </footer>
+    </section>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public IReadOnlyList<AppOnboardingStepDescriptor> Steps { get; set; } = [];
+    [Parameter] public int CurrentStepIndex { get; set; }
+    [Parameter] public EventCallback OnDismissRequested { get; set; }
+    [Parameter] public EventCallback OnBackRequested { get; set; }
+    [Parameter] public EventCallback OnNextRequested { get; set; }
+    [Parameter] public EventCallback<AppOnboardingStepId> OnStepSelected { get; set; }
+
+    private bool CanGoBack => CurrentStepIndex > 0;
+
+    private AppOnboardingStepDescriptor CurrentStep => Steps[Math.Clamp(CurrentStepIndex, 0, Steps.Count - 1)];
+
+    private string ProgressLabel => string.Format(
+        CultureInfo.CurrentCulture,
+        Text(UiTextKey.OnboardingProgressFormat),
+        CurrentStepIndex + 1,
+        Steps.Count);
+
+    private static string ToStepKey(AppOnboardingStepId stepId) => stepId.ToString().ToLowerInvariant();
+
+    private string GetStepCss(AppOnboardingStepDescriptor step) =>
+        step.StepId == CurrentStep.StepId
+            ? "app-onboarding__step app-onboarding__step--active"
+            : "app-onboarding__step";
+
+    private string Text(UiTextKey key) => Localizer[key.ToString()];
+}

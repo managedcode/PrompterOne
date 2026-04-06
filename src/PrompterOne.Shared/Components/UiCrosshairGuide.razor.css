@@ -1,0 +1,55 @@
+.ui-crosshair-guide {
+    --ui-crosshair-stroke: rgba(255, 82, 82, .3);
+    --ui-crosshair-dot: rgba(255, 82, 82, .5);
+    position: relative;
+    display: inline-flex;
+    width: 16px;
+    height: 16px;
+}
+
+.ui-crosshair-guide__line,
+.ui-crosshair-guide__dot {
+    position: absolute;
+    inset: 0;
+}
+
+.ui-crosshair-guide__line::before,
+.ui-crosshair-guide__dot::before {
+    content: "";
+    position: absolute;
+    display: block;
+}
+
+.ui-crosshair-guide__line--vertical::before {
+    left: 50%;
+    top: 0;
+    width: 1.5px;
+    height: 100%;
+    transform: translateX(-50%);
+    background: repeating-linear-gradient(
+        to bottom,
+        var(--ui-crosshair-stroke) 0 3px,
+        transparent 3px 5px);
+}
+
+.ui-crosshair-guide__line--horizontal::before {
+    left: 0;
+    top: 50%;
+    width: 100%;
+    height: 1.5px;
+    transform: translateY(-50%);
+    background: repeating-linear-gradient(
+        to right,
+        var(--ui-crosshair-stroke) 0 3px,
+        transparent 3px 5px);
+}
+
+.ui-crosshair-guide__dot::before {
+    left: 50%;
+    top: 50%;
+    width: 4px;
+    height: 4px;
+    border-radius: 999px;
+    transform: translate(-50%, -50%);
+    background: var(--ui-crosshair-dot);
+}

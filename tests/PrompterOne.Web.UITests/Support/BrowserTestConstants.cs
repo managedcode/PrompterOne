@@ -171,6 +171,8 @@ internal static partial class BrowserTestConstants
     public static class Library
     {
         public const string HoverBoxShadowNone = "none";
+        public const string ContentSearchQuery = "intuition";
+        public const string FileNameSearchQuery = "test-quantum-computing.tps";
         public const string SearchQuery = "Quantum";
         public const string ModeLabel = "Actor";
     }
@@ -178,6 +180,10 @@ internal static partial class BrowserTestConstants
     public static class Editor
     {
         public const string CalendarIconUnexpectedColor = "rgb(0, 0, 0)";
+        public const string FindNoMatches = "No matches";
+        public const string FindSingleMatchSummary = "1 / 1";
+        public const string FindQuery = "intuition";
+        public const string FindMissingQuery = "nonexistent";
         public const string FirstProbeCharacter = "d";
         public const string NewDraftProbeText = "dc";
         public const string SecondProbeCharacter = "c";
@@ -900,6 +906,7 @@ internal static partial class BrowserTestConstants
         public static string LearnReaderTiming => AppRoutes.LearnWithId(Scripts.ReaderTimingId);
         public static string LearnSecurityIncident => AppRoutes.LearnWithId(Scripts.SecurityIncidentId);
         public static string GoLiveDemo => AppRoutes.GoLiveWithId(Scripts.DemoId);
+        public static string GoLiveQuantum => AppRoutes.GoLiveWithId(Scripts.QuantumId);
         public static string TeleprompterDemo => AppRoutes.TeleprompterWithId(Scripts.DemoId);
         public static string TeleprompterLeadership => AppRoutes.TeleprompterWithId(Scripts.LeadershipId);
         public static string TeleprompterMissing => AppRoutes.TeleprompterWithId(Scripts.MissingId);

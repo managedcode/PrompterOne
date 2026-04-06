@@ -108,7 +108,8 @@ public sealed class EditorMetadataInteractionTests : BunitContext
 
             Assert.Equal("true", toggle.GetAttribute("aria-expanded"));
             Assert.Equal(EditorMetadataTestSource.RightChevronDirection, toggle.GetAttribute(EditorMetadataTestSource.ChevronDirectionAttribute));
-            Assert.Equal(EditorMetadataTestSource.RightChevronPoints, toggle.QuerySelector("polyline")?.GetAttribute("points"));
+            Assert.NotNull(toggle.QuerySelector(".ui-icon"));
+            Assert.NotNull(cut.FindByTestId(UiTestIds.Editor.CreatedIcon).QuerySelector(".ui-icon"));
             Assert.Equal(EditorMetadataTestSource.FalseText, rail.GetAttribute("data-collapsed"));
         });
 
@@ -121,7 +122,7 @@ public sealed class EditorMetadataInteractionTests : BunitContext
 
             Assert.Equal("false", toggle.GetAttribute("aria-expanded"));
             Assert.Equal(EditorMetadataTestSource.LeftChevronDirection, toggle.GetAttribute(EditorMetadataTestSource.ChevronDirectionAttribute));
-            Assert.Equal(EditorMetadataTestSource.LeftChevronPoints, toggle.QuerySelector("polyline")?.GetAttribute("points"));
+            Assert.NotNull(toggle.QuerySelector(".ui-icon"));
             Assert.Equal(EditorMetadataTestSource.TrueText, rail.GetAttribute("data-collapsed"));
             Assert.True(cut.Find($"#{UiDomIds.Editor.MetadataRailBody}").HasAttribute("hidden"));
         });
@@ -135,7 +136,7 @@ public sealed class EditorMetadataInteractionTests : BunitContext
 
             Assert.Equal("true", toggle.GetAttribute("aria-expanded"));
             Assert.Equal(EditorMetadataTestSource.RightChevronDirection, toggle.GetAttribute(EditorMetadataTestSource.ChevronDirectionAttribute));
-            Assert.Equal(EditorMetadataTestSource.RightChevronPoints, toggle.QuerySelector("polyline")?.GetAttribute("points"));
+            Assert.NotNull(toggle.QuerySelector(".ui-icon"));
             Assert.Equal(EditorMetadataTestSource.FalseText, rail.GetAttribute("data-collapsed"));
             Assert.False(cut.Find($"#{UiDomIds.Editor.MetadataRailBody}").HasAttribute("hidden"));
         });
@@ -152,11 +153,9 @@ public sealed class EditorMetadataInteractionTests : BunitContext
         public const string DurationPersistenceLine = "duration: \"12:34\"";
         public const string FalseText = "false";
         public const string LeftChevronDirection = "left";
-        public const string LeftChevronPoints = "15,18 9,12 15,6";
         public const string ProfileRsvp = "RSVP";
         public const string RetitledScript = "Renamed Product Launch";
         public const string RightChevronDirection = "right";
-        public const string RightChevronPoints = "9,18 15,12 9,6";
         public const string TitleField = "title:";
         public const string TitlePersistenceLine = "title: \"Renamed Product Launch\"";
         public const string TrueText = "true";

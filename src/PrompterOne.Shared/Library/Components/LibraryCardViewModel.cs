@@ -15,6 +15,8 @@ public sealed record LibraryCardViewModel(
     string ModeLabel,
     TimeSpan Duration,
     string DurationLabel,
+    string DocumentName,
+    string SearchText,
     string? FolderId,
     int DisplayOrder,
     string TestId)

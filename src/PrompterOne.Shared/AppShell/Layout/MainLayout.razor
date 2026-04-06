@@ -1,6 +1,7 @@
 @namespace PrompterOne.Shared.Layout
 @inherits LayoutComponentBase
 @using Microsoft.AspNetCore.Components.Forms
+@using PrompterOne.Shared.Components
 @using PrompterOne.Shared.Localization
 
 @if (ShowAppHeader)
@@ -11,15 +12,7 @@
                 @onclick="HandleHomeClickAsync"
                 data-testid="@UiTestIds.Header.Home">
             <div class="logo-icon">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <path d="M4 6h16M4 12h12M4 18h14" stroke="url(#glogo)" stroke-width="2.5" stroke-linecap="round" />
-                    <defs>
-                        <linearGradient id="glogo" x1="4" y1="6" x2="20" y2="18">
-                            <stop stop-color="#F5E6D0" />
-                            <stop offset="1" stop-color="#C4A882" />
-                        </linearGradient>
-                    </defs>
-                </svg>
+                <AppBrandMark />
             </div>
             <span class="app-logo-text" data-testid="@UiTestIds.Header.Brand">PrompterOne</span>
         </button>
@@ -49,9 +42,7 @@
                             class="btn-back"
                             @onclick="HandleBackClickAsync"
                             data-testid="@UiTestIds.Header.Back">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="15,18 9,12 15,6" />
-                        </svg>
+                        <UiIcon Kind="UiIconKind.ChevronLeft" Size="18" />
                     </button>
                 }
 
@@ -69,10 +60,7 @@
             @if (ShowLibraryActions)
             {
                 <div class="lib-search" data-testid="@UiTestIds.Header.LibrarySearchSurface">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="11" cy="11" r="8" />
-                        <path d="m21 21-4.35-4.35" />
-                    </svg>
+                    <UiIcon Kind="UiIconKind.Search" Size="15" />
                     <input type="text"
                            value="@ShellState.SearchText"
                            placeholder="@Text(UiTextKey.HeaderSearchPlaceholder)"
@@ -85,10 +73,7 @@
                         data-live-state="@GoLiveIndicatorState"
                         data-testid="@UiTestIds.Header.GoLive">
                     <span class="btn-golive-dot" aria-hidden="true"></span>
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polygon points="23,7 16,12 23,17" />
-                        <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
-                    </svg>
+                    <UiIcon Kind="UiIconKind.Video" Size="15" />
                     <span class="app-header-action-label">@Text(UiTextKey.HeaderGoLive)</span>
                 </button>
                 <div class="app-header-file-action"
@@ -97,12 +82,7 @@
                             class="btn-ghost btn-open-script"
                             aria-haspopup="dialog"
                             @onclick="HandleOpenScriptTriggerAsync">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                            <path d="M14 2v6h6" />
-                            <path d="M12 18v-6" />
-                            <path d="m9 15 3-3 3 3" />
-                        </svg>
+                        <UiIcon Kind="UiIconKind.DocumentImport" Size="16" />
                         <span class="app-header-action-label">@Text(UiTextKey.HeaderOpenScript)</span>
                     </button>
                     <InputFile @key="_openScriptPickerVersion"
@@ -117,10 +97,7 @@
                         class="btn-create"
                         @onclick="HandleCreateScriptClickAsync"
                         data-testid="@UiTestIds.Header.LibraryNewScript">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                        <line x1="12" y1="5" x2="12" y2="19" />
-                        <line x1="5" y1="12" x2="19" y2="12" />
-                    </svg>
+                    <UiIcon Kind="UiIconKind.Plus" Size="16" StrokeWidth="2.5m" />
                     <span class="app-header-action-label">@Text(UiTextKey.HeaderNewScript)</span>
                 </button>
             }
@@ -132,13 +109,7 @@
                         data-live-state="@GoLiveIndicatorState"
                         data-testid="@UiTestIds.Header.GoLive">
                     <span class="btn-live-shell-icon" aria-hidden="true">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M4 12a8 8 0 0 1 8-8" />
-                            <path d="M20 12a8 8 0 0 0-8-8" />
-                            <path d="M4 12a8 8 0 0 0 8 8" />
-                            <path d="M20 12a8 8 0 0 1-8 8" />
-                            <circle cx="12" cy="12" r="2.5" />
-                        </svg>
+                        <UiIcon Kind="UiIconKind.Broadcast" Size="15" />
                     </span>
                     <span class="btn-live-shell-copy">
                         <span class="btn-live-shell-label">@Text(UiTextKey.HeaderGoLive)</span>
@@ -156,11 +127,7 @@
                         class="btn-ghost"
                         @onclick="HandleSaveFileClickAsync"
                         data-testid="@UiTestIds.Header.EditorSaveFile">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M5 3h11l3 3v15H5z" />
-                        <path d="M9 3v6h6V3" />
-                        <path d="M9 17h6" />
-                    </svg>
+                    <UiIcon Kind="UiIconKind.SaveFile" Size="15" />
                     <span class="app-header-action-label">@Text(UiTextKey.HeaderSaveFile)</span>
                 </button>
             }
@@ -171,10 +138,7 @@
                         class="btn-ghost"
                         @onclick="HandleOpenLearnClickAsync"
                         data-testid="@UiTestIds.Header.EditorLearn">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-                    </svg>
+                    <UiIcon Kind="UiIconKind.BookOpen" Size="15" />
                     <span class="app-header-action-label">@Text(UiTextKey.HeaderLearn)</span>
                 </button>
             }
@@ -192,9 +156,7 @@
                         class="btn-gold"
                         @onclick="HandleOpenReadClickAsync"
                         data-testid="@UiTestIds.Header.EditorRead">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polygon points="5,3 19,12 5,21" />
-                    </svg>
+                    <UiIcon Kind="UiIconKind.Play" Size="15" />
                     <span class="app-header-action-label">@Text(UiTextKey.HeaderRead)</span>
                 </button>
             }
@@ -206,6 +168,16 @@
 <PrompterOne.Shared.Components.Diagnostics.ConnectivityOverlay />
 
 @Body
+
+@if (ShowOnboarding)
+{
+    <AppOnboardingOverlay Steps="@_onboardingSteps"
+                          CurrentStepIndex="@_onboardingStepIndex"
+                          OnBackRequested="HandleOnboardingBackAsync"
+                          OnNextRequested="HandleOnboardingNextAsync"
+                          OnDismissRequested="HandleOnboardingDismissAsync"
+                          OnStepSelected="HandleOnboardingStepSelectedAsync" />
+}
 
 @if (ShowGoLiveWidget)
 {

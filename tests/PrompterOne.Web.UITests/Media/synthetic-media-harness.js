@@ -421,12 +421,14 @@
     Object.defineProperty(mediaDevices, enumerateDevicesMethod, {
         configurable: true,
         enumerable: true,
+        writable: true,
         value: async () => devices.map(toDeviceDescriptor)
     });
 
     Object.defineProperty(mediaDevices, getUserMediaMethod, {
         configurable: true,
         enumerable: true,
+        writable: true,
         value: async constraints => createMediaStream(constraints || {})
     });
 

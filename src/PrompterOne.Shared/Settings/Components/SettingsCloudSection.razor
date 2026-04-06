@@ -1,6 +1,7 @@
 @namespace PrompterOne.Shared.Components.Settings
 @using ManagedCode.Storage.CloudKit.Options
 @using Microsoft.Extensions.Localization
+@using PrompterOne.Shared.Components
 @using PrompterOne.Shared.Localization
 @using PrompterOne.Shared.Settings.Components
 @using PrompterOne.Shared.Storage.Cloud
@@ -13,7 +14,7 @@
     <h3 class="set-section-title">@Text(UiTextKey.SettingsCloudSectionTitle)</h3>
     <p class="set-section-desc">@Text(UiTextKey.SettingsCloudSectionDescription)</p>
 
-    <div class="set-subsection" style="margin-bottom:16px">
+    <div class="set-subsection set-subsection-spaced">
         <h4 class="set-sub-title">@Text(UiTextKey.SettingsCloudSyncDefaultsTitle)</h4>
         <div class="set-device-fields">
             <div class="set-field">
@@ -50,13 +51,11 @@
                                 SubtitleTestId="@UiTestIds.Settings.CloudProviderSubtitle(CloudStorageProviderIds.OneDrive)"
                                 StatusLabel="@GetStatusLabel(_preferences.OneDrive.Connection)"
                                 StatusClass="@GetStatusClass(_preferences.OneDrive.Connection)"
-                                IconStyle="background:rgba(0,120,212,.15); color:#4BA3E3;"
+                                IconTone="UiIconSurfaceTone.OneDrive"
                                 IsOpen="@IsCardOpen(CloudStorageProviderIds.OneDrive)"
                                 TestId="@UiTestIds.Settings.CloudProviderCard(CloudStorageProviderIds.OneDrive)"
                                 OnToggle="@(() => ToggleCard.InvokeAsync(CloudStorageProviderIds.OneDrive))">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12.5 6c-1.8 0-3.4.8-4.5 2.1C7.3 7.4 6.2 7 5 7 2.2 7 0 9.2 0 12s2.2 5 5 5h14c2.8 0 5-2.2 5-5 0-2.5-1.8-4.5-4.2-4.9C18.7 5.2 16.8 4 14.5 4c-.7 0-1.4.1-2 .3V6z" />
-            </svg>
+            <UiIcon Kind="UiIconKind.Cloud" Size="18" />
             <div class="set-device-fields">
                 <div class="set-field">
                     <label>@Text(UiTextKey.CommonAccountLabel)</label>
@@ -83,7 +82,21 @@
                     <input type="text" class="set-input" @bind="_preferences.OneDrive.Connection.RootPath" data-testid="@UiTestIds.Settings.CloudProviderField(CloudStorageProviderIds.OneDrive, CloudStorageFieldIds.RootPath)" />
                 </div>
             </div>
-            @ProviderActions(CloudStorageProviderIds.OneDrive)
+            <SettingsCloudProviderActions IsConnected="@_preferences.OneDrive.Connection.IsConnected"
+                                          Message="@(_providerMessages.GetValueOrDefault(CloudStorageProviderIds.OneDrive) ?? _preferences.OneDrive.Connection.LastError)"
+                                          MessageTestId="@UiTestIds.Settings.CloudProviderMessage(CloudStorageProviderIds.OneDrive)"
+                                          ConnectLabel="@Text(UiTextKey.CommonSaveAndTest)"
+                                          ConnectTestId="@UiTestIds.Settings.CloudProviderConnect(CloudStorageProviderIds.OneDrive)"
+                                          Connect="@(() => SaveAndValidateAsync(CloudStorageProviderIds.OneDrive))"
+                                          ExportLabel="@Text(UiTextKey.CommonExport)"
+                                          ExportTestId="@UiTestIds.Settings.CloudProviderExport(CloudStorageProviderIds.OneDrive)"
+                                          Export="@(() => ExportAsync(CloudStorageProviderIds.OneDrive))"
+                                          ImportLabel="@Text(UiTextKey.CommonImport)"
+                                          ImportTestId="@UiTestIds.Settings.CloudProviderImport(CloudStorageProviderIds.OneDrive)"
+                                          Import="@(() => ImportAsync(CloudStorageProviderIds.OneDrive))"
+                                          DisconnectLabel="@Text(UiTextKey.CommonDisconnect)"
+                                          DisconnectTestId="@UiTestIds.Settings.CloudProviderDisconnect(CloudStorageProviderIds.OneDrive)"
+                                          Disconnect="@(() => DisconnectAsync(CloudStorageProviderIds.OneDrive))" />
         </SettingsExpandableCard>
 
         <SettingsExpandableCard Title="Google Drive"
@@ -92,14 +105,11 @@
                                 SubtitleTestId="@UiTestIds.Settings.CloudProviderSubtitle(CloudStorageProviderIds.GoogleDrive)"
                                 StatusLabel="@GetStatusLabel(_preferences.GoogleDrive.Connection)"
                                 StatusClass="@GetStatusClass(_preferences.GoogleDrive.Connection)"
-                                IconStyle="background:rgba(66,133,244,.12); color:#4285F4;"
+                                IconTone="UiIconSurfaceTone.GoogleDrive"
                                 IsOpen="@IsCardOpen(CloudStorageProviderIds.GoogleDrive)"
                                 TestId="@UiTestIds.Settings.CloudProviderCard(CloudStorageProviderIds.GoogleDrive)"
                                 OnToggle="@(() => ToggleCard.InvokeAsync(CloudStorageProviderIds.GoogleDrive))">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M7.71 3.5L1.15 15l3.43 5.96h6.86L18 15 11.44 3.5H7.71zm.86 1.73L13 13.5H4.59l4-8.27z" />
-                <path d="M22.85 15L16.29 3.5h-3.43L19.43 15l-3.43 5.96h6.86L22.85 15z" opacity=".6" />
-            </svg>
+            <UiIcon Kind="UiIconKind.CloudGoogleDrive" Size="18" />
             <div class="set-device-fields">
                 <div class="set-field">
                     <label>@Text(UiTextKey.CommonAccountLabel)</label>
@@ -126,7 +136,21 @@
                     <textarea class="set-input" rows="6" @bind="_googleDriveCredentials.ServiceAccountJson" data-testid="@UiTestIds.Settings.CloudProviderField(CloudStorageProviderIds.GoogleDrive, CloudStorageFieldIds.ServiceAccountJson)"></textarea>
                 </div>
             </div>
-            @ProviderActions(CloudStorageProviderIds.GoogleDrive)
+            <SettingsCloudProviderActions IsConnected="@_preferences.GoogleDrive.Connection.IsConnected"
+                                          Message="@(_providerMessages.GetValueOrDefault(CloudStorageProviderIds.GoogleDrive) ?? _preferences.GoogleDrive.Connection.LastError)"
+                                          MessageTestId="@UiTestIds.Settings.CloudProviderMessage(CloudStorageProviderIds.GoogleDrive)"
+                                          ConnectLabel="@Text(UiTextKey.CommonSaveAndTest)"
+                                          ConnectTestId="@UiTestIds.Settings.CloudProviderConnect(CloudStorageProviderIds.GoogleDrive)"
+                                          Connect="@(() => SaveAndValidateAsync(CloudStorageProviderIds.GoogleDrive))"
+                                          ExportLabel="@Text(UiTextKey.CommonExport)"
+                                          ExportTestId="@UiTestIds.Settings.CloudProviderExport(CloudStorageProviderIds.GoogleDrive)"
+                                          Export="@(() => ExportAsync(CloudStorageProviderIds.GoogleDrive))"
+                                          ImportLabel="@Text(UiTextKey.CommonImport)"
+                                          ImportTestId="@UiTestIds.Settings.CloudProviderImport(CloudStorageProviderIds.GoogleDrive)"
+                                          Import="@(() => ImportAsync(CloudStorageProviderIds.GoogleDrive))"
+                                          DisconnectLabel="@Text(UiTextKey.CommonDisconnect)"
+                                          DisconnectTestId="@UiTestIds.Settings.CloudProviderDisconnect(CloudStorageProviderIds.GoogleDrive)"
+                                          Disconnect="@(() => DisconnectAsync(CloudStorageProviderIds.GoogleDrive))" />
         </SettingsExpandableCard>
 
         <SettingsExpandableCard Title="Dropbox"
@@ -135,13 +159,11 @@
                                 SubtitleTestId="@UiTestIds.Settings.CloudProviderSubtitle(CloudStorageProviderIds.Dropbox)"
                                 StatusLabel="@GetStatusLabel(_preferences.Dropbox.Connection)"
                                 StatusClass="@GetStatusClass(_preferences.Dropbox.Connection)"
-                                IconStyle="background:rgba(0,97,255,.12); color:#0061FF;"
+                                IconTone="UiIconSurfaceTone.Dropbox"
                                 IsOpen="@IsCardOpen(CloudStorageProviderIds.Dropbox)"
                                 TestId="@UiTestIds.Settings.CloudProviderCard(CloudStorageProviderIds.Dropbox)"
                                 OnToggle="@(() => ToggleCard.InvokeAsync(CloudStorageProviderIds.Dropbox))">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2L6 6.5 12 11l-6 4.5L12 20l6-4.5L12 11l6-4.5L12 2z" />
-            </svg>
+            <UiIcon Kind="UiIconKind.CloudDropbox" Size="18" />
             <div class="set-device-fields">
                 <div class="set-field">
                     <label>@Text(UiTextKey.CommonAccountLabel)</label>
@@ -168,7 +190,21 @@
                     <input type="password" class="set-input" @bind="_dropboxCredentials.AppSecret" data-testid="@UiTestIds.Settings.CloudProviderField(CloudStorageProviderIds.Dropbox, CloudStorageFieldIds.AppSecret)" />
                 </div>
             </div>
-            @ProviderActions(CloudStorageProviderIds.Dropbox)
+            <SettingsCloudProviderActions IsConnected="@_preferences.Dropbox.Connection.IsConnected"
+                                          Message="@(_providerMessages.GetValueOrDefault(CloudStorageProviderIds.Dropbox) ?? _preferences.Dropbox.Connection.LastError)"
+                                          MessageTestId="@UiTestIds.Settings.CloudProviderMessage(CloudStorageProviderIds.Dropbox)"
+                                          ConnectLabel="@Text(UiTextKey.CommonSaveAndTest)"
+                                          ConnectTestId="@UiTestIds.Settings.CloudProviderConnect(CloudStorageProviderIds.Dropbox)"
+                                          Connect="@(() => SaveAndValidateAsync(CloudStorageProviderIds.Dropbox))"
+                                          ExportLabel="@Text(UiTextKey.CommonExport)"
+                                          ExportTestId="@UiTestIds.Settings.CloudProviderExport(CloudStorageProviderIds.Dropbox)"
+                                          Export="@(() => ExportAsync(CloudStorageProviderIds.Dropbox))"
+                                          ImportLabel="@Text(UiTextKey.CommonImport)"
+                                          ImportTestId="@UiTestIds.Settings.CloudProviderImport(CloudStorageProviderIds.Dropbox)"
+                                          Import="@(() => ImportAsync(CloudStorageProviderIds.Dropbox))"
+                                          DisconnectLabel="@Text(UiTextKey.CommonDisconnect)"
+                                          DisconnectTestId="@UiTestIds.Settings.CloudProviderDisconnect(CloudStorageProviderIds.Dropbox)"
+                                          Disconnect="@(() => DisconnectAsync(CloudStorageProviderIds.Dropbox))" />
         </SettingsExpandableCard>
 
         <SettingsExpandableCard Title="Google Cloud Storage"
@@ -177,13 +213,11 @@
                                 SubtitleTestId="@UiTestIds.Settings.CloudProviderSubtitle(CloudStorageProviderIds.GoogleCloudStorage)"
                                 StatusLabel="@GetStatusLabel(_preferences.GoogleCloudStorage.Connection)"
                                 StatusClass="@GetStatusClass(_preferences.GoogleCloudStorage.Connection)"
-                                IconStyle="background:rgba(34,197,94,.12); color:#4ADE80;"
+                                IconTone="UiIconSurfaceTone.GoogleCloud"
                                 IsOpen="@IsCardOpen(CloudStorageProviderIds.GoogleCloudStorage)"
                                 TestId="@UiTestIds.Settings.CloudProviderCard(CloudStorageProviderIds.GoogleCloudStorage)"
                                 OnToggle="@(() => ToggleCard.InvokeAsync(CloudStorageProviderIds.GoogleCloudStorage))">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3zm0 2.3L6 8.1v7.8l6 3.4 6-3.4V8.1L12 5.3z" />
-            </svg>
+            <UiIcon Kind="UiIconKind.CloudGoogleStorage" Size="18" />
             <div class="set-device-fields">
                 <div class="set-field">
                     <label>@Text(UiTextKey.CommonAccountLabel)</label>
@@ -206,7 +240,21 @@
                     <textarea class="set-input" rows="6" @bind="_googleCloudStorageCredentials.ServiceAccountJson" data-testid="@UiTestIds.Settings.CloudProviderField(CloudStorageProviderIds.GoogleCloudStorage, CloudStorageFieldIds.ServiceAccountJson)"></textarea>
                 </div>
             </div>
-            @ProviderActions(CloudStorageProviderIds.GoogleCloudStorage)
+            <SettingsCloudProviderActions IsConnected="@_preferences.GoogleCloudStorage.Connection.IsConnected"
+                                          Message="@(_providerMessages.GetValueOrDefault(CloudStorageProviderIds.GoogleCloudStorage) ?? _preferences.GoogleCloudStorage.Connection.LastError)"
+                                          MessageTestId="@UiTestIds.Settings.CloudProviderMessage(CloudStorageProviderIds.GoogleCloudStorage)"
+                                          ConnectLabel="@Text(UiTextKey.CommonSaveAndTest)"
+                                          ConnectTestId="@UiTestIds.Settings.CloudProviderConnect(CloudStorageProviderIds.GoogleCloudStorage)"
+                                          Connect="@(() => SaveAndValidateAsync(CloudStorageProviderIds.GoogleCloudStorage))"
+                                          ExportLabel="@Text(UiTextKey.CommonExport)"
+                                          ExportTestId="@UiTestIds.Settings.CloudProviderExport(CloudStorageProviderIds.GoogleCloudStorage)"
+                                          Export="@(() => ExportAsync(CloudStorageProviderIds.GoogleCloudStorage))"
+                                          ImportLabel="@Text(UiTextKey.CommonImport)"
+                                          ImportTestId="@UiTestIds.Settings.CloudProviderImport(CloudStorageProviderIds.GoogleCloudStorage)"
+                                          Import="@(() => ImportAsync(CloudStorageProviderIds.GoogleCloudStorage))"
+                                          DisconnectLabel="@Text(UiTextKey.CommonDisconnect)"
+                                          DisconnectTestId="@UiTestIds.Settings.CloudProviderDisconnect(CloudStorageProviderIds.GoogleCloudStorage)"
+                                          Disconnect="@(() => DisconnectAsync(CloudStorageProviderIds.GoogleCloudStorage))" />
         </SettingsExpandableCard>
 
         <SettingsExpandableCard Title="CloudKit"
@@ -215,13 +263,11 @@
                                 SubtitleTestId="@UiTestIds.Settings.CloudProviderSubtitle(CloudStorageProviderIds.CloudKit)"
                                 StatusLabel="@GetStatusLabel(_preferences.CloudKit.Connection)"
                                 StatusClass="@GetStatusClass(_preferences.CloudKit.Connection)"
-                                IconStyle="background:rgba(244,114,182,.12); color:#F472B6;"
+                                IconTone="UiIconSurfaceTone.Pink"
                                 IsOpen="@IsCardOpen(CloudStorageProviderIds.CloudKit)"
                                 TestId="@UiTestIds.Settings.CloudProviderCard(CloudStorageProviderIds.CloudKit)"
                                 OnToggle="@(() => ToggleCard.InvokeAsync(CloudStorageProviderIds.CloudKit))">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2a7 7 0 0 1 7 7c0 2.1-.95 4.15-2.58 5.5L12 22l-4.42-7.5A6.95 6.95 0 0 1 5 9a7 7 0 0 1 7-7zm0 3a4 4 0 0 0-4 4c0 1.15.48 2.25 1.31 3.01L12 16.5l2.69-4.49A4.01 4.01 0 0 0 16 9a4 4 0 0 0-4-4z" />
-            </svg>
+            <UiIcon Kind="UiIconKind.CloudKit" Size="18" />
             <div class="set-device-fields">
                 <div class="set-field">
                     <label>@Text(UiTextKey.CommonAccountLabel)</label>
@@ -266,7 +312,21 @@
                     <textarea class="set-input" rows="6" @bind="_cloudKitCredentials.ServerToServerPrivateKeyPem" data-testid="@UiTestIds.Settings.CloudProviderField(CloudStorageProviderIds.CloudKit, CloudStorageFieldIds.ServerPrivateKeyPem)"></textarea>
                 </div>
             </div>
-            @ProviderActions(CloudStorageProviderIds.CloudKit)
+            <SettingsCloudProviderActions IsConnected="@_preferences.CloudKit.Connection.IsConnected"
+                                          Message="@(_providerMessages.GetValueOrDefault(CloudStorageProviderIds.CloudKit) ?? _preferences.CloudKit.Connection.LastError)"
+                                          MessageTestId="@UiTestIds.Settings.CloudProviderMessage(CloudStorageProviderIds.CloudKit)"
+                                          ConnectLabel="@Text(UiTextKey.CommonSaveAndTest)"
+                                          ConnectTestId="@UiTestIds.Settings.CloudProviderConnect(CloudStorageProviderIds.CloudKit)"
+                                          Connect="@(() => SaveAndValidateAsync(CloudStorageProviderIds.CloudKit))"
+                                          ExportLabel="@Text(UiTextKey.CommonExport)"
+                                          ExportTestId="@UiTestIds.Settings.CloudProviderExport(CloudStorageProviderIds.CloudKit)"
+                                          Export="@(() => ExportAsync(CloudStorageProviderIds.CloudKit))"
+                                          ImportLabel="@Text(UiTextKey.CommonImport)"
+                                          ImportTestId="@UiTestIds.Settings.CloudProviderImport(CloudStorageProviderIds.CloudKit)"
+                                          Import="@(() => ImportAsync(CloudStorageProviderIds.CloudKit))"
+                                          DisconnectLabel="@Text(UiTextKey.CommonDisconnect)"
+                                          DisconnectTestId="@UiTestIds.Settings.CloudProviderDisconnect(CloudStorageProviderIds.CloudKit)"
+                                          Disconnect="@(() => DisconnectAsync(CloudStorageProviderIds.CloudKit))" />
         </SettingsExpandableCard>
     </div>
 </section>

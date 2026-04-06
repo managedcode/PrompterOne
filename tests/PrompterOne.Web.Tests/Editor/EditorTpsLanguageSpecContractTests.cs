@@ -1,57 +1,45 @@
-using System.Text.RegularExpressions;
 using ManagedCode.Tps;
+using PrompterOne.Shared.Services.Editor;
 
 namespace PrompterOne.Web.Tests;
 
 public sealed class EditorTpsLanguageSpecContractTests
 {
-    private static readonly Regex ArrayRegexTemplate = new(
-        @"const\s+(?<name>[A-Za-z0-9_]+)\s*=\s*\[(?<values>.*?)\];",
-        RegexOptions.Singleline | RegexOptions.Compiled);
-
-    [Theory]
-    [InlineData("archetypeNames", nameof(TpsSpec.Archetypes))]
-    [InlineData("emotionTagNames", nameof(TpsSpec.Emotions))]
-    [InlineData("volumeTagNames", nameof(TpsSpec.VolumeLevels))]
-    [InlineData("deliveryTagNames", nameof(TpsSpec.DeliveryModes))]
-    [InlineData("articulationTagNames", nameof(TpsSpec.ArticulationStyles))]
-    [InlineData("speedTagNames", nameof(TpsSpec.RelativeSpeedTags))]
-    public void MonacoTpsLanguageSpec_ContainsTheSameVocabularyAsVendoredSdk(string arrayName, string sdkPropertyName)
+    [Fact]
+    public void MonacoTpsCatalog_ContainsTheSameVocabularyAsVendoredSdk()
     {
-        var source = File.ReadAllText(GetLanguageSpecPath());
-        var actual = ExtractStringArray(source, arrayName);
-        var expected = GetSdkVocabulary(sdkPropertyName);
+        var catalog = EditorTpsCatalog.Current;
 
-        Assert.Equal(expected, actual, StringComparer.OrdinalIgnoreCase);
+        Assert.Equal(TpsSpec.Archetypes, catalog.Archetypes, StringComparer.OrdinalIgnoreCase);
+        Assert.Equal(TpsSpec.Emotions, catalog.Emotions, StringComparer.OrdinalIgnoreCase);
+        Assert.Equal(TpsSpec.VolumeLevels, catalog.VolumeLevels, StringComparer.OrdinalIgnoreCase);
+        Assert.Equal(TpsSpec.DeliveryModes, catalog.DeliveryModes, StringComparer.OrdinalIgnoreCase);
+        Assert.Equal(TpsSpec.ArticulationStyles, catalog.ArticulationStyles, StringComparer.OrdinalIgnoreCase);
+        Assert.Equal(TpsSpec.RelativeSpeedTags, catalog.RelativeSpeedTags, StringComparer.OrdinalIgnoreCase);
+        Assert.Equal(TpsSpec.EditPointPriorities, catalog.EditPointPriorities, StringComparer.OrdinalIgnoreCase);
     }
 
-    private static string GetLanguageSpecPath() =>
-        Path.GetFullPath(Path.Combine(
-            AppContext.BaseDirectory,
-            "../../../../../src/PrompterOne.Shared/wwwroot/editor/editor-monaco-tps-language-spec.js"));
-
-    private static IReadOnlyList<string> ExtractStringArray(string source, string arrayName)
+    [Fact]
+    public void MonacoTpsCatalog_ProjectsVendoredArchetypeProfiles()
     {
-        var match = ArrayRegexTemplate.Matches(source)
-            .Cast<Match>()
-            .Single(candidate => string.Equals(candidate.Groups["name"].Value, arrayName, StringComparison.Ordinal));
+        var catalog = EditorTpsCatalog.Current;
 
-        return Regex.Matches(match.Groups["values"].Value, "\"([^\"]+)\"")
-            .Select(token => token.Groups[1].Value)
-            .ToArray();
-    }
-
-    private static IReadOnlyList<string> GetSdkVocabulary(string sdkPropertyName)
-    {
-        return sdkPropertyName switch
+        foreach (var archetype in TpsSpec.Archetypes)
         {
-            nameof(TpsSpec.Archetypes) => TpsSpec.Archetypes.ToArray(),
-            nameof(TpsSpec.Emotions) => TpsSpec.Emotions.ToArray(),
-            nameof(TpsSpec.VolumeLevels) => TpsSpec.VolumeLevels.ToArray(),
-            nameof(TpsSpec.DeliveryModes) => TpsSpec.DeliveryModes.ToArray(),
-            nameof(TpsSpec.ArticulationStyles) => TpsSpec.ArticulationStyles.ToArray(),
-            nameof(TpsSpec.RelativeSpeedTags) => TpsSpec.RelativeSpeedTags.ToArray(),
-            _ => throw new InvalidOperationException($"Unknown TPS SDK vocabulary property '{sdkPropertyName}'.")
-        };
+            var descriptor = Assert.Single(
+                catalog.ArchetypeDescriptors,
+                candidate => string.Equals(candidate.Name, archetype, StringComparison.OrdinalIgnoreCase));
+            var profile = TpsSpec.ArchetypeProfiles[archetype];
+
+            Assert.Equal(TpsSpec.ArchetypeRecommendedWpm[archetype], descriptor.RecommendedWpm);
+            Assert.Equal(profile.Articulation, descriptor.Articulation);
+            Assert.Equal(profile.Energy.Min, descriptor.EnergyMin);
+            Assert.Equal(profile.Energy.Max, descriptor.EnergyMax);
+            Assert.Equal(profile.Melody.Min, descriptor.MelodyMin);
+            Assert.Equal(profile.Melody.Max, descriptor.MelodyMax);
+            Assert.Equal(profile.Speed.Min, descriptor.SpeedMin);
+            Assert.Equal(profile.Speed.Max, descriptor.SpeedMax);
+            Assert.Equal(profile.Volume, descriptor.Volume);
+        }
     }
 }

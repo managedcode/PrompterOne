@@ -101,9 +101,19 @@ public partial class EditorSourcePanel
             ? "tb-color-grid"
             : "tb-emo-list";
 
+    private static string GetToolbarDropdownCss(EditorToolbarSectionDescriptor section) =>
+        string.IsNullOrWhiteSpace(section.DropdownPanelCssClass)
+            ? "tb-dropdown"
+            : $"tb-dropdown {section.DropdownPanelCssClass}";
+
+    private static string GetFloatingMenuCss(EditorFloatingMenuDescriptor menu) =>
+        string.IsNullOrWhiteSpace(menu.PanelCssClass)
+            ? "efb-dropdown"
+            : $"efb-dropdown {menu.PanelCssClass}";
+
     private bool HasOpenToolbarMenu => !string.IsNullOrWhiteSpace(_openMenuId);
 
-    private bool ShouldRenderFloatingBar => CanRenderFloatingToolbar && _floatingBarAnchor.HasSelection && !HasOpenToolbarMenu;
+    private bool ShouldRenderFloatingBar => CanRenderFloatingToolbar && _floatingBarAnchor.HasSelection && !HasOpenToolbarMenu && !_showFindBar;
 
     private bool GetActionDisabled(EditorToolbarActionDescriptor action) =>
         action.ActionType switch

@@ -70,7 +70,7 @@
     <value>Організуйте сценарії у вкладені колекції, не порушуючи сітку бібліотеки.</value>
   </data>
   <data name="HeaderSearchPlaceholder" xml:space="preserve">
-    <value>Пошук...</value>
+    <value>Шукати назви, файли або вміст...</value>
   </data>
   <data name="HeaderNewScript" xml:space="preserve">
     <value>Новий сценарій</value>
@@ -836,5 +836,155 @@
   </data>
   <data name="SettingsStreamingLocalRecordingDescription" xml:space="preserve">
     <value>Озбройте локальний запис як повноцінний sink того самого скомпонованого program feed, який використовують live-транспорти.</value>
+  </data>
+  <data name="OnboardingProgressFormat" xml:space="preserve">
+    <value>Крок {0} з {1}</value>
+  </data>
+  <data name="OnboardingDismiss" xml:space="preserve">
+    <value>Не цікаво</value>
+  </data>
+  <data name="OnboardingBack" xml:space="preserve">
+    <value>Назад</value>
+  </data>
+  <data name="OnboardingOpenEditor" xml:space="preserve">
+    <value>Відкрити редактор</value>
+  </data>
+  <data name="OnboardingOpenLearn" xml:space="preserve">
+    <value>Відкрити Learn</value>
+  </data>
+  <data name="OnboardingOpenTeleprompter" xml:space="preserve">
+    <value>Відкрити телесуфлер</value>
+  </data>
+  <data name="OnboardingOpenGoLive" xml:space="preserve">
+    <value>Відкрити Go Live</value>
+  </data>
+  <data name="OnboardingFinish" xml:space="preserve">
+    <value>Завершити тур</value>
+  </data>
+  <data name="OnboardingStepLibrary" xml:space="preserve">
+    <value>Бібліотека</value>
+  </data>
+  <data name="OnboardingStepEditor" xml:space="preserve">
+    <value>Редактор</value>
+  </data>
+  <data name="OnboardingStepLearn" xml:space="preserve">
+    <value>Learn</value>
+  </data>
+  <data name="OnboardingStepTeleprompter" xml:space="preserve">
+    <value>Телесуфлер</value>
+  </data>
+  <data name="OnboardingStepGoLive" xml:space="preserve">
+    <value>Go Live</value>
+  </data>
+  <data name="OnboardingWelcomeEyebrow" xml:space="preserve">
+    <value>ПРОМПТЕР У БРАУЗЕРІ</value>
+  </data>
+  <data name="OnboardingWelcomeTitle" xml:space="preserve">
+    <value>Ознайомтеся з PrompterOne</value>
+  </data>
+  <data name="OnboardingWelcomeBody" xml:space="preserve">
+    <value>PrompterOne веде один сценарій від бібліотеки до репетиції, живого читання й ефіру без виходу з браузера.</value>
+  </data>
+  <data name="OnboardingWelcomeBulletSearch" xml:space="preserve">
+    <value>Використовуйте пошук у бібліотеці, щоб знаходити сценарії за назвою, назвою файлу або текстом усередині сценарію.</value>
+  </data>
+  <data name="OnboardingWelcomeBulletModes" xml:space="preserve">
+    <value>Один TPS-сценарій живить Editor, Learn, Teleprompter і Go Live замість окремих копій.</value>
+  </data>
+  <data name="OnboardingWelcomeBulletLocal" xml:space="preserve">
+    <value>Ваш workspace лишається local-first у цьому браузері з autosave, history, import та export.</value>
+  </data>
+  <data name="OnboardingEditorEyebrow" xml:space="preserve">
+    <value>АВТОРИНГ TPS</value>
+  </data>
+  <data name="OnboardingEditorTitle" xml:space="preserve">
+    <value>Пишіть у редакторі</value>
+  </data>
+  <data name="OnboardingEditorBody" xml:space="preserve">
+    <value>Редактор — це місце, де ви формуєте TPS, markdown-формат TelePrompterScript, що несе структуру, таймінг, емоції, паузи та delivery cues у звичайному тексті.</value>
+  </data>
+  <data name="OnboardingEditorBulletTps" xml:space="preserve">
+    <value>TPS лишається читабельним у будь-якому текстовому редакторі, але PrompterOne в реальному часі розуміє його теги, заголовки й таймінгову семантику.</value>
+  </data>
+  <data name="OnboardingEditorBulletMetadata" xml:space="preserve">
+    <value>Front matter, WPM, profile, version і speed offsets лишаються прив’язаними до чернетки, а не роз’їжджаються по окремих нотатках.</value>
+  </data>
+  <data name="OnboardingEditorBulletAuthoring" xml:space="preserve">
+    <value>Використовуйте editor find, меню, structure tools і AI helpers, щоб відшліфувати той самий сценарій, який запускатимуть reader surfaces.</value>
+  </data>
+  <data name="OnboardingLearnEyebrow" xml:space="preserve">
+    <value>RSVP-РЕПЕТИЦІЯ</value>
+  </data>
+  <data name="OnboardingLearnTitle" xml:space="preserve">
+    <value>Тренуйтеся в Learn</value>
+  </data>
+  <data name="OnboardingLearnBody" xml:space="preserve">
+    <value>Learn використовує RSVP, або Rapid Serial Visual Presentation, щоб показувати слова у сфокусованому ритмі й тренувати темп, артикуляцію та запам’ятовування без сканування всього абзацу.</value>
+  </data>
+  <data name="OnboardingLearnBulletRsvp" xml:space="preserve">
+    <value>RSVP зменшує рух очей, тримаючи активне слово по центру, а сусідній контекст — видимим.</value>
+  </data>
+  <data name="OnboardingLearnBulletTiming" xml:space="preserve">
+    <value>Керування швидкістю та TPS-таймінг дають змогу проганяти сценарій ближче до реального spoken cadence.</value>
+  </data>
+  <data name="OnboardingLearnBulletContext" xml:space="preserve">
+    <value>Використовуйте Learn, коли потрібні повторення, підсилення пам’яті та feedback по темпу перед камерою.</value>
+  </data>
+  <data name="OnboardingTeleprompterEyebrow" xml:space="preserve">
+    <value>ЖИВЕ ЧИТАННЯ</value>
+  </data>
+  <data name="OnboardingTeleprompterTitle" xml:space="preserve">
+    <value>Читайте в телесуфлері</value>
+  </data>
+  <data name="OnboardingTeleprompterBody" xml:space="preserve">
+    <value>Телесуфлер перетворює той самий TPS-сценарій на live reading surface з фокальною лінією, вирівнюванням, mirror controls, зміною орієнтації та живим рухом playback.</value>
+  </data>
+  <data name="OnboardingTeleprompterBulletMirror" xml:space="preserve">
+    <value>Дзеркальте зображення по горизонталі або вертикалі для скляних відбивачів і планшетних рігів без виходу з reader route.</value>
+  </data>
+  <data name="OnboardingTeleprompterBulletFocus" xml:space="preserve">
+    <value>Налаштовуйте ширину, фокальну точку, розмір тексту та вирівнювання, щоб рядок лишався спокійним і читабельним у кадрі.</value>
+  </data>
+  <data name="OnboardingTeleprompterBulletPlayback" xml:space="preserve">
+    <value>TPS-паузи, зміни швидкості, emphasis і delivery cues залишаються видимими під час читання.</value>
+  </data>
+  <data name="OnboardingGoLiveEyebrow" xml:space="preserve">
+    <value>ЖИВА ОПЕРАЦІЯ</value>
+  </data>
+  <data name="OnboardingGoLiveTitle" xml:space="preserve">
+    <value>Ведіть сесію в Go Live</value>
+  </data>
+  <data name="OnboardingGoLiveBody" xml:space="preserve">
+    <value>Go Live — це браузерна студія для керування поточним сценарієм, program feed, джерелами, записом і downstream transport state з однієї control surface.</value>
+  </data>
+  <data name="OnboardingGoLiveBulletProgram" xml:space="preserve">
+    <value>Тримайте один program feed чесним між preview, active source і routing до destination.</value>
+  </data>
+  <data name="OnboardingGoLiveBulletRecording" xml:space="preserve">
+    <value>Озброюйте локальний запис і відстежуйте session state без вигляду, ніби всю роботу робить серверний backend.</value>
+  </data>
+  <data name="OnboardingGoLiveBulletRouting" xml:space="preserve">
+    <value>Використовуйте Go Live, коли готові перейти від репетиції до production routing і capture.</value>
+  </data>
+  <data name="EditorFindOpen" xml:space="preserve">
+    <value>Пошук</value>
+  </data>
+  <data name="EditorFindPlaceholder" xml:space="preserve">
+    <value>Шукати в сценарії</value>
+  </data>
+  <data name="EditorFindPrevious" xml:space="preserve">
+    <value>Попередній</value>
+  </data>
+  <data name="EditorFindNext" xml:space="preserve">
+    <value>Наступний</value>
+  </data>
+  <data name="EditorFindClose" xml:space="preserve">
+    <value>Закрити</value>
+  </data>
+  <data name="EditorFindNoResults" xml:space="preserve">
+    <value>Нічого не знайдено</value>
+  </data>
+  <data name="EditorFindResultsFormat" xml:space="preserve">
+    <value>{0} / {1}</value>
   </data>
 </root>

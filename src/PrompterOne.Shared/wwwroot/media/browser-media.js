@@ -88,6 +88,26 @@
         };
     }
 
+    function createSyntheticAudioAnalyserFallback(track, options) {
+        const resolvedOptions = Object.assign({
+            cloneTrack: false
+        }, options);
+        const sourceTrack = resolvedOptions.cloneTrack
+            ? track?.mediaStreamTrack?.clone?.() ?? null
+            : null;
+        let sampleIndex = 0;
+
+        return {
+            calculateVolume() {
+                sampleIndex += 1;
+                return 0.02 + (Math.abs(Math.sin(sampleIndex / 3)) * 0.015);
+            },
+            async cleanup() {
+                sourceTrack?.stop?.();
+            }
+        };
+    }
+
     function createWrappedLocalTrack(mediaStreamTrack) {
         const mediaStream = new MediaStream([mediaStreamTrack]);
         copySyntheticMetadata(mediaStreamTrack, mediaStream);
@@ -251,7 +271,7 @@
         const roomType = baseClient?.Room ?? class Room {};
         roomType.getLocalDevices ??= getLocalDevicesFallback;
 
-        return Object.assign({
+        return Object.assign({}, baseClient ?? {}, {
             Room: roomType,
             Track: {
                 Source: {
@@ -259,7 +279,7 @@
                     Microphone: "microphone"
                 }
             },
-            createAudioAnalyser: createAudioAnalyserFallback,
+            createAudioAnalyser: createSyntheticAudioAnalyserFallback,
             createLocalAudioTrack(options) {
                 return createLocalTracksFallback({
                     audio: options ?? true,
@@ -273,17 +293,17 @@
                     video: options ?? true
                 }).then(tracks => tracks[0]);
             }
-        }, baseClient ?? {});
+        });
     }
 
     function getLiveKitClient() {
         const client = window[liveKitClientGlobal];
-        if (hasLiveKitMediaClient(client)) {
-            return client;
-        }
-
         if (hasSyntheticMediaHarness()) {
             return buildSyntheticLiveKitClient(client);
+        }
+
+        if (hasLiveKitMediaClient(client)) {
+            return client;
         }
 
         throw new Error("LiveKit client runtime is not available.");
@@ -387,10 +407,12 @@
         }
 
         capture.refCount += 1;
+        const stream = new MediaStream([capture.track.mediaStreamTrack]);
+        copySyntheticMetadata(capture.track.mediaStreamTrack, stream);
 
         return {
             captureKey,
-            stream: new MediaStream([capture.track.mediaStreamTrack]),
+            stream,
             track: capture.track
         };
     }
@@ -602,6 +624,7 @@
             element.playsInline = true;
             capture.track.attach(element);
             copySyntheticMetadata(capture.stream, element.srcObject);
+            copySyntheticMetadata(capture.track.mediaStreamTrack, element.srcObject);
             await element.play().catch(() => {});
 
             cameraTrackMap.set(elementId, { captureKey: capture.captureKey, element, track: capture.track });

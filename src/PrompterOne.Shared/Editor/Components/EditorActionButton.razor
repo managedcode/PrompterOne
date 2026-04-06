@@ -1,0 +1,35 @@
+@namespace PrompterOne.Shared.Components.Editor
+
+<button class="@Action.CssClass"
+        type="button"
+        data-tip="@Action.Tooltip"
+        data-testid="@Action.TestId"
+        aria-label="@Action.Tooltip"
+        aria-expanded="@AriaExpanded"
+        disabled="@Disabled"
+        @onmousedown:preventDefault="@Action.PreventMouseDown"
+        @onclick="HandleClickAsync">
+    <span class="tb-btn-content">
+        <EditorActionContent Content="@Action.Content" />
+    </span>
+    <span class="@TooltipCssClass"
+          role="tooltip"
+          data-testid="@UiTestIds.Editor.ToolbarTooltip"
+          data-tooltip-placement="@TooltipPlacementValue">@Action.Tooltip</span>
+</button>
+
+@code {
+    [Parameter] public EditorToolbarActionDescriptor Action { get; set; } = default!;
+
+    [Parameter] public EventCallback<EditorToolbarActionDescriptor> ActionSelected { get; set; }
+
+    [Parameter] public string? AriaExpanded { get; set; }
+
+    [Parameter] public bool Disabled { get; set; }
+
+    [Parameter] public string TooltipCssClass { get; set; } = string.Empty;
+
+    [Parameter] public string TooltipPlacementValue { get; set; } = string.Empty;
+
+    private Task HandleClickAsync() => ActionSelected.InvokeAsync(Action);
+}
