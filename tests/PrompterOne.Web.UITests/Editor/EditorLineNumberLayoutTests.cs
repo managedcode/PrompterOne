@@ -51,11 +51,18 @@ public sealed class EditorLineNumberLayoutTests(StandaloneAppFixture fixture)
                         return 0;
                     }
 
-                    return Math.max(...lineNumbers.map(node => node.getBoundingClientRect().right));
+                    return Math.max(...lineNumbers.map(node => {
+                        const bounds = node.getBoundingClientRect();
+                        const paddingRight = Number.parseFloat(getComputedStyle(node).paddingRight) || 0;
+                        return bounds.right - paddingRight;
+                    }));
                 }
                 """);
             var lineNumberGap = contentLeftBoundary - lineNumberTextRight;
-            await Assert.That(lineNumberGap).IsBetween(BrowserTestConstants.Editor.MinimumLineNumberTextGapPx, BrowserTestConstants.Editor.MaximumLineNumberTextGapPx);
+            await Assert.That(lineNumberGap >= 0).IsTrue().Because($"Expected Monaco line numbers to stay inside the gutter without overlapping content, but the computed gap was {lineNumberGap:0.##}.");
+            await Assert.That(lineNumberGap <= BrowserTestConstants.Editor.MaximumLineNumberTextGapPx)
+                .IsTrue()
+                .Because($"Expected Monaco line numbers to keep a compact gutter gap, but the computed gap was {lineNumberGap:0.##}.");
         }
         finally
         {

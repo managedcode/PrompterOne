@@ -32,6 +32,7 @@ public sealed class EditorSplitFeedbackInteractionTests : BunitContext
             Assert.Contains(AppTestData.Editor.BodyHeading, source.GetAttribute("value"));
         });
 
+        cut.FindByTestId(UiTestIds.Editor.ToolsTab).Click();
         cut.FindByTestId(UiTestIds.Editor.SourceInput).Input(EditorSplitFeedbackTestData.SplitSource);
         cut.FindByTestId(UiTestIds.Editor.SplitSegment).Click();
 
@@ -75,6 +76,7 @@ public sealed class EditorSplitFeedbackInteractionTests : BunitContext
             Assert.Contains(AppTestData.Editor.BodyHeading, source.GetAttribute("value"));
         });
 
+        cut.FindByTestId(UiTestIds.Editor.ToolsTab).Click();
         cut.FindByTestId(UiTestIds.Editor.SourceInput).Input(EditorSplitFeedbackTestData.SplitSource);
         cut.FindByTestId(UiTestIds.Editor.SplitSegment).Click();
 
@@ -127,6 +129,7 @@ public sealed class EditorSplitFeedbackInteractionTests : BunitContext
             Assert.Contains(AppTestData.Editor.BodyHeading, source.GetAttribute("value"));
         });
 
+        cut.FindByTestId(UiTestIds.Editor.ToolsTab).Click();
         cut.FindByTestId(UiTestIds.Editor.SourceInput).Input(EditorSplitFeedbackTestData.SplitSource);
         cut.FindByTestId(UiTestIds.Editor.SplitSegment).Click();
 
@@ -166,6 +169,7 @@ public sealed class EditorSplitFeedbackInteractionTests : BunitContext
             Assert.NotNull(cut.FindByTestId(UiTestIds.Editor.SourceInput));
         });
 
+        cut.FindByTestId(UiTestIds.Editor.ToolsTab).Click();
         cut.FindByTestId(UiTestIds.Editor.SourceInput).Input(EditorSplitFeedbackTestData.SplitSource);
         cut.FindByTestId(UiTestIds.Editor.SplitSegment).Click();
 

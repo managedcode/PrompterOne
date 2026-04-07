@@ -1,0 +1,147 @@
+@namespace PrompterOne.Shared.Pages
+@using Microsoft.AspNetCore.Components.Web
+@using PrompterOne.Shared.Contracts
+
+<div class="rd-align-controls" data-test="@UiTestIds.Teleprompter.AlignmentControls">
+    <div class="rd-rail-tip-anchor"
+         @onmouseenter="@(() => HandleTooltipPointerEnter(UiTestIds.Teleprompter.AlignmentTooltipLeftKey))"
+         @onmouseleave="@(() => HandleTooltipPointerLeave(UiTestIds.Teleprompter.AlignmentTooltipLeftKey))"
+         @onfocusin="@(() => HandleTooltipFocusIn(UiTestIds.Teleprompter.AlignmentTooltipLeftKey))"
+         @onfocusout="@(() => HandleTooltipFocusOut(UiTestIds.Teleprompter.AlignmentTooltipLeftKey))"
+         @onpointerdown="@(() => HandleTooltipPointerDown(UiTestIds.Teleprompter.AlignmentTooltipLeftKey))"
+         @onkeydown="@((KeyboardEventArgs args) => HandleTooltipKeyDown(UiTestIds.Teleprompter.AlignmentTooltipLeftKey, args))">
+        <button class="@AlignmentLeftButtonCssClass"
+                @onclick="OnSetLeftAlignment"
+                aria-label="@AlignLeftTitle"
+                data-active="@BuildBooleanDataAttribute(IsLeftAlignment)"
+                data-test="@UiTestIds.Teleprompter.AlignmentLeft">
+            <svg class="rd-align-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
+                <line x1="3" y1="4.5" x2="13" y2="4.5" />
+                <line x1="3" y1="10" x2="17" y2="10" />
+                <line x1="3" y1="15.5" x2="11.5" y2="15.5" />
+            </svg>
+        </button>
+        <span id="@BuildTooltipDomId(UiTestIds.Teleprompter.AlignmentTooltipLeftKey)"
+              class="@BuildTooltipCssClass(UiTestIds.Teleprompter.AlignmentTooltipLeftKey, true)"
+              role="tooltip"
+              data-test="@BuildTooltipTestId(UiTestIds.Teleprompter.AlignmentTooltipLeftKey)">@AlignLeftTitle</span>
+    </div>
+    <div class="rd-rail-tip-anchor"
+         @onmouseenter="@(() => HandleTooltipPointerEnter(UiTestIds.Teleprompter.AlignmentTooltipCenterKey))"
+         @onmouseleave="@(() => HandleTooltipPointerLeave(UiTestIds.Teleprompter.AlignmentTooltipCenterKey))"
+         @onfocusin="@(() => HandleTooltipFocusIn(UiTestIds.Teleprompter.AlignmentTooltipCenterKey))"
+         @onfocusout="@(() => HandleTooltipFocusOut(UiTestIds.Teleprompter.AlignmentTooltipCenterKey))"
+         @onpointerdown="@(() => HandleTooltipPointerDown(UiTestIds.Teleprompter.AlignmentTooltipCenterKey))"
+         @onkeydown="@((KeyboardEventArgs args) => HandleTooltipKeyDown(UiTestIds.Teleprompter.AlignmentTooltipCenterKey, args))">
+        <button class="@AlignmentCenterButtonCssClass"
+                @onclick="OnSetCenterAlignment"
+                aria-label="@AlignCenterTitle"
+                data-active="@BuildBooleanDataAttribute(IsCenterAlignment)"
+                data-test="@UiTestIds.Teleprompter.AlignmentCenter">
+            <svg class="rd-align-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
+                <line x1="5" y1="4.5" x2="15" y2="4.5" />
+                <line x1="3" y1="10" x2="17" y2="10" />
+                <line x1="6" y1="15.5" x2="14" y2="15.5" />
+            </svg>
+        </button>
+        <span id="@BuildTooltipDomId(UiTestIds.Teleprompter.AlignmentTooltipCenterKey)"
+              class="@BuildTooltipCssClass(UiTestIds.Teleprompter.AlignmentTooltipCenterKey, true)"
+              role="tooltip"
+              data-test="@BuildTooltipTestId(UiTestIds.Teleprompter.AlignmentTooltipCenterKey)">@AlignCenterTitle</span>
+    </div>
+    <div class="rd-rail-tip-anchor"
+         @onmouseenter="@(() => HandleTooltipPointerEnter(UiTestIds.Teleprompter.AlignmentTooltipRightKey))"
+         @onmouseleave="@(() => HandleTooltipPointerLeave(UiTestIds.Teleprompter.AlignmentTooltipRightKey))"
+         @onfocusin="@(() => HandleTooltipFocusIn(UiTestIds.Teleprompter.AlignmentTooltipRightKey))"
+         @onfocusout="@(() => HandleTooltipFocusOut(UiTestIds.Teleprompter.AlignmentTooltipRightKey))"
+         @onpointerdown="@(() => HandleTooltipPointerDown(UiTestIds.Teleprompter.AlignmentTooltipRightKey))"
+         @onkeydown="@((KeyboardEventArgs args) => HandleTooltipKeyDown(UiTestIds.Teleprompter.AlignmentTooltipRightKey, args))">
+        <button class="@AlignmentRightButtonCssClass"
+                @onclick="OnSetRightAlignment"
+                aria-label="@AlignRightTitle"
+                data-active="@BuildBooleanDataAttribute(IsRightAlignment)"
+                data-test="@UiTestIds.Teleprompter.AlignmentRight">
+            <svg class="rd-align-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
+                <line x1="7" y1="4.5" x2="17" y2="4.5" />
+                <line x1="3" y1="10" x2="17" y2="10" />
+                <line x1="8.5" y1="15.5" x2="17" y2="15.5" />
+            </svg>
+        </button>
+        <span id="@BuildTooltipDomId(UiTestIds.Teleprompter.AlignmentTooltipRightKey)"
+              class="@BuildTooltipCssClass(UiTestIds.Teleprompter.AlignmentTooltipRightKey, true)"
+              role="tooltip"
+              data-test="@BuildTooltipTestId(UiTestIds.Teleprompter.AlignmentTooltipRightKey)">@AlignRightTitle</span>
+    </div>
+    <div class="rd-rail-tip-anchor"
+         @onmouseenter="@(() => HandleTooltipPointerEnter(UiTestIds.Teleprompter.AlignmentTooltipJustifyKey))"
+         @onmouseleave="@(() => HandleTooltipPointerLeave(UiTestIds.Teleprompter.AlignmentTooltipJustifyKey))"
+         @onfocusin="@(() => HandleTooltipFocusIn(UiTestIds.Teleprompter.AlignmentTooltipJustifyKey))"
+         @onfocusout="@(() => HandleTooltipFocusOut(UiTestIds.Teleprompter.AlignmentTooltipJustifyKey))"
+         @onpointerdown="@(() => HandleTooltipPointerDown(UiTestIds.Teleprompter.AlignmentTooltipJustifyKey))"
+         @onkeydown="@((KeyboardEventArgs args) => HandleTooltipKeyDown(UiTestIds.Teleprompter.AlignmentTooltipJustifyKey, args))">
+        <button class="@AlignmentJustifyButtonCssClass"
+                @onclick="OnSetJustifyAlignment"
+                aria-label="@AlignJustifyTitle"
+                data-active="@BuildBooleanDataAttribute(IsJustifyAlignment)"
+                data-test="@UiTestIds.Teleprompter.AlignmentJustify">
+            <svg class="rd-align-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
+                <line x1="3" y1="4.5" x2="17" y2="4.5" />
+                <line x1="3" y1="8.75" x2="17" y2="8.75" />
+                <line x1="3" y1="13" x2="17" y2="13" />
+                <line x1="3" y1="17.25" x2="17" y2="17.25" />
+            </svg>
+        </button>
+        <span id="@BuildTooltipDomId(UiTestIds.Teleprompter.AlignmentTooltipJustifyKey)"
+              class="@BuildTooltipCssClass(UiTestIds.Teleprompter.AlignmentTooltipJustifyKey, true)"
+              role="tooltip"
+              data-test="@BuildTooltipTestId(UiTestIds.Teleprompter.AlignmentTooltipJustifyKey)">@AlignJustifyTitle</span>
+    </div>
+</div>
+
+@code {
+    [Parameter] public bool IsCenterAlignment { get; set; }
+    [Parameter] public bool IsJustifyAlignment { get; set; }
+    [Parameter] public bool IsLeftAlignment { get; set; }
+    [Parameter] public bool IsRightAlignment { get; set; }
+    [Parameter, EditorRequired] public string AlignmentCenterButtonCssClass { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string AlignmentJustifyButtonCssClass { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string AlignmentLeftButtonCssClass { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string AlignmentRightButtonCssClass { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string AlignCenterTitle { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string AlignJustifyTitle { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string AlignLeftTitle { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string AlignRightTitle { get; set; } = string.Empty;
+    [Parameter] public EventCallback OnSetCenterAlignment { get; set; }
+    [Parameter] public EventCallback OnSetJustifyAlignment { get; set; }
+    [Parameter] public EventCallback OnSetLeftAlignment { get; set; }
+    [Parameter] public EventCallback OnSetRightAlignment { get; set; }
+    [Parameter] public Action<string>? TooltipFocusIn { get; set; }
+    [Parameter] public Action<string>? TooltipFocusOut { get; set; }
+    [Parameter] public Action<string, KeyboardEventArgs>? TooltipKeyDown { get; set; }
+    [Parameter] public Action<string>? TooltipPointerDown { get; set; }
+    [Parameter] public Action<string>? TooltipPointerEnter { get; set; }
+    [Parameter] public Action<string>? TooltipPointerLeave { get; set; }
+    [Parameter, EditorRequired] public Func<string, bool, string> TooltipCssClassFactory { get; set; } = (_, _) => string.Empty;
+    [Parameter, EditorRequired] public Func<string, string> TooltipDomIdFactory { get; set; } = key => key;
+    [Parameter, EditorRequired] public Func<string, string> TooltipTestIdFactory { get; set; } = key => key;
+
+    private static string BuildBooleanDataAttribute(bool value) => value ? "true" : "false";
+
+    private string BuildTooltipCssClass(string key, bool placeOnRightSide) => TooltipCssClassFactory(key, placeOnRightSide);
+
+    private string BuildTooltipDomId(string key) => TooltipDomIdFactory(key);
+
+    private string BuildTooltipTestId(string key) => TooltipTestIdFactory(key);
+
+    private void HandleTooltipFocusIn(string key) => TooltipFocusIn?.Invoke(key);
+
+    private void HandleTooltipFocusOut(string key) => TooltipFocusOut?.Invoke(key);
+
+    private void HandleTooltipKeyDown(string key, KeyboardEventArgs args) => TooltipKeyDown?.Invoke(key, args);
+
+    private void HandleTooltipPointerDown(string key) => TooltipPointerDown?.Invoke(key);
+
+    private void HandleTooltipPointerEnter(string key) => TooltipPointerEnter?.Invoke(key);
+
+    private void HandleTooltipPointerLeave(string key) => TooltipPointerLeave?.Invoke(key);
+}

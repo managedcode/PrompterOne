@@ -15,6 +15,8 @@ public sealed class EditorLocalHistoryFlowTests(StandaloneAppFixture fixture)
 
             await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
+            await page.GetByTestId(UiTestIds.Editor.ToolsTab).ClickAsync();
+            await Expect(page.GetByTestId(UiTestIds.Editor.ToolsPanel)).ToBeVisibleAsync();
 
             var sourceInput = EditorMonacoDriver.SourceInput(page);
             var initialText = await sourceInput.InputValueAsync();
@@ -33,6 +35,7 @@ public sealed class EditorLocalHistoryFlowTests(StandaloneAppFixture fixture)
 
             await page.ReloadAsync();
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
+            await page.GetByTestId(UiTestIds.Editor.ToolsTab).ClickAsync();
             await Expect(sourceInput).ToHaveValueAsync(secondRevisionText);
 
             await page.GetByTestId(UiTestIds.Editor.LocalHistoryRestore(1)).ClickAsync();
@@ -44,6 +47,7 @@ public sealed class EditorLocalHistoryFlowTests(StandaloneAppFixture fixture)
 
             await page.ReloadAsync();
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
+            await page.GetByTestId(UiTestIds.Editor.ToolsTab).ClickAsync();
             await Expect(sourceInput).ToHaveValueAsync(firstRevisionText);
         });
 
@@ -62,6 +66,8 @@ public sealed class EditorLocalHistoryFlowTests(StandaloneAppFixture fixture)
 
             await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
+            await page.GetByTestId(UiTestIds.Editor.ToolsTab).ClickAsync();
+            await Expect(page.GetByTestId(UiTestIds.Editor.ToolsPanel)).ToBeVisibleAsync();
 
             var sourceInput = EditorMonacoDriver.SourceInput(page);
             var originalText = await sourceInput.InputValueAsync();
@@ -86,6 +92,8 @@ public sealed class EditorLocalHistoryFlowTests(StandaloneAppFixture fixture)
 
             await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
+            await page.GetByTestId(UiTestIds.Editor.ToolsTab).ClickAsync();
+            await Expect(page.GetByTestId(UiTestIds.Editor.ToolsPanel)).ToBeVisibleAsync();
 
             var resavedText = string.Concat(
                 await sourceInput.InputValueAsync(),

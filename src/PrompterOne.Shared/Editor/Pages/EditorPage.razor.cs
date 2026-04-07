@@ -59,6 +59,7 @@ public partial class EditorPage
     private BrowserFileStorageSettings _fileStorageSettings = BrowserFileStorageSettings.Default;
     private IReadOnlyList<EditorLocalRevisionViewModel> _localHistory = [];
     private DateTimeOffset? _lastLocalSaveAt;
+    private EditorMetadataRailTab _metadataRailSelectedTab = EditorMetadataRailTab.Metadata;
     private string _profile = DefaultProfileActor;
     private bool _preserveSplitFeedbackOnNextLoad;
     private string? _pendingAutosaveSelfNavigationScriptId;
@@ -106,5 +107,11 @@ public partial class EditorPage
 
         _skipNextRenderFromTyping = false;
         return false;
+    }
+
+    private Task OnMetadataRailTabChanged(EditorMetadataRailTab tab)
+    {
+        _metadataRailSelectedTab = tab;
+        return Task.CompletedTask;
     }
 }

@@ -1,0 +1,137 @@
+@namespace PrompterOne.Shared.Pages
+@using Microsoft.AspNetCore.Components.Web
+@using PrompterOne.Shared.Contracts
+
+<div class="rd-sliders" data-test="@UiTestIds.Teleprompter.Sliders">
+    <div class="rd-rail-tip-anchor"
+         @onmouseenter="@(() => HandleTooltipPointerEnter(UiTestIds.Teleprompter.AlignmentTooltipFontSizeKey))"
+         @onmouseleave="@(() => HandleTooltipPointerLeave(UiTestIds.Teleprompter.AlignmentTooltipFontSizeKey))"
+         @onfocusin="@(() => HandleTooltipFocusIn(UiTestIds.Teleprompter.AlignmentTooltipFontSizeKey))"
+         @onfocusout="@(() => HandleTooltipFocusOut(UiTestIds.Teleprompter.AlignmentTooltipFontSizeKey))"
+         @onpointerdown="@(() => HandleTooltipPointerDown(UiTestIds.Teleprompter.AlignmentTooltipFontSizeKey))"
+         @onkeydown="@((KeyboardEventArgs args) => HandleTooltipKeyDown(UiTestIds.Teleprompter.AlignmentTooltipFontSizeKey, args))">
+        <div class="rd-slider-group">
+            <span class="rd-slider-icon rd-slider-icon--glyph"
+                  id="@UiDomIds.Teleprompter.FontLabel"
+                  data-test="@UiTestIds.Teleprompter.FontLabel"
+                  aria-hidden="true">T</span>
+            <input type="range"
+                   class="rd-vslider"
+                   id="@UiDomIds.Teleprompter.FontSlider"
+                   min="@FontMin"
+                   max="@FontMax"
+                   value="@FontValue"
+                   @oninput="OnFontInput"
+                   @onkeydown:stopPropagation="true"
+                   aria-label="@FontTitle"
+                   data-test="@UiTestIds.Teleprompter.FontSlider">
+            <span class="rd-slider-val" id="@UiDomIds.Teleprompter.FontValue" data-test="@UiTestIds.Teleprompter.FontValue">@FontValue</span>
+        </div>
+        <span id="@BuildTooltipDomId(UiTestIds.Teleprompter.AlignmentTooltipFontSizeKey)"
+              class="@BuildTooltipCssClass(UiTestIds.Teleprompter.AlignmentTooltipFontSizeKey, false)"
+              role="tooltip"
+              data-test="@BuildTooltipTestId(UiTestIds.Teleprompter.AlignmentTooltipFontSizeKey)">@FontTitle</span>
+    </div>
+    <div class="rd-rail-tip-anchor"
+         @onmouseenter="@(() => HandleTooltipPointerEnter(UiTestIds.Teleprompter.AlignmentTooltipFocalKey))"
+         @onmouseleave="@(() => HandleTooltipPointerLeave(UiTestIds.Teleprompter.AlignmentTooltipFocalKey))"
+         @onfocusin="@(() => HandleTooltipFocusIn(UiTestIds.Teleprompter.AlignmentTooltipFocalKey))"
+         @onfocusout="@(() => HandleTooltipFocusOut(UiTestIds.Teleprompter.AlignmentTooltipFocalKey))"
+         @onpointerdown="@(() => HandleTooltipPointerDown(UiTestIds.Teleprompter.AlignmentTooltipFocalKey))"
+         @onkeydown="@((KeyboardEventArgs args) => HandleTooltipKeyDown(UiTestIds.Teleprompter.AlignmentTooltipFocalKey, args))">
+        <div class="rd-slider-group">
+            <svg class="rd-slider-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="8" x2="3" y2="16" /><line x1="21" y1="8" x2="21" y2="16" /></svg>
+            <input type="range"
+                   class="rd-vslider"
+                   id="@FocalSliderId"
+                   min="@FocalMin"
+                   max="@FocalMax"
+                   value="@FocalValue"
+                   @oninput="OnFocalInput"
+                   @onkeydown:stopPropagation="true"
+                   aria-label="@FocalTitle"
+                   data-test="@UiTestIds.Teleprompter.FocalSlider">
+            <span class="rd-slider-val" id="@FocalValueId">@FocalValue%</span>
+        </div>
+        <span id="@BuildTooltipDomId(UiTestIds.Teleprompter.AlignmentTooltipFocalKey)"
+              class="@BuildTooltipCssClass(UiTestIds.Teleprompter.AlignmentTooltipFocalKey, false)"
+              role="tooltip"
+              data-test="@BuildTooltipTestId(UiTestIds.Teleprompter.AlignmentTooltipFocalKey)">@FocalTitle</span>
+    </div>
+    <div class="rd-rail-tip-anchor"
+         @onmouseenter="@(() => HandleTooltipPointerEnter(UiTestIds.Teleprompter.AlignmentTooltipWidthKey))"
+         @onmouseleave="@(() => HandleTooltipPointerLeave(UiTestIds.Teleprompter.AlignmentTooltipWidthKey))"
+         @onfocusin="@(() => HandleTooltipFocusIn(UiTestIds.Teleprompter.AlignmentTooltipWidthKey))"
+         @onfocusout="@(() => HandleTooltipFocusOut(UiTestIds.Teleprompter.AlignmentTooltipWidthKey))"
+         @onpointerdown="@(() => HandleTooltipPointerDown(UiTestIds.Teleprompter.AlignmentTooltipWidthKey))"
+         @onkeydown="@((KeyboardEventArgs args) => HandleTooltipKeyDown(UiTestIds.Teleprompter.AlignmentTooltipWidthKey, args))">
+        <div class="rd-slider-group">
+            <svg class="rd-slider-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="8,9 5,12 8,15" /><polyline points="16,9 19,12 16,15" /></svg>
+            <input type="range"
+                   class="rd-vslider"
+                   id="@WidthSliderId"
+                   min="@WidthMin"
+                   max="@WidthMax"
+                   value="@WidthValue"
+                   @oninput="OnWidthInput"
+                   @onkeydown:stopPropagation="true"
+                   aria-label="@WidthTitle"
+                   data-test="@UiTestIds.Teleprompter.WidthSlider">
+            <span class="rd-slider-val" id="@UiDomIds.Teleprompter.WidthValue" data-test="@UiTestIds.Teleprompter.WidthValue">@WidthValueLabel</span>
+        </div>
+        <span id="@BuildTooltipDomId(UiTestIds.Teleprompter.AlignmentTooltipWidthKey)"
+              class="@BuildTooltipCssClass(UiTestIds.Teleprompter.AlignmentTooltipWidthKey, false)"
+              role="tooltip"
+              data-test="@BuildTooltipTestId(UiTestIds.Teleprompter.AlignmentTooltipWidthKey)">@WidthTitle</span>
+    </div>
+</div>
+
+@code {
+    private const string FocalSliderId = "rd-focal-slider";
+    private const string FocalValueId = "rd-focal-val";
+    private const string WidthSliderId = "rd-width-slider";
+
+    [Parameter] public int FocalMax { get; set; }
+    [Parameter] public int FocalMin { get; set; }
+    [Parameter] public int FocalValue { get; set; }
+    [Parameter] public int FontMax { get; set; }
+    [Parameter] public int FontMin { get; set; }
+    [Parameter] public int FontValue { get; set; }
+    [Parameter] public int WidthMax { get; set; }
+    [Parameter] public int WidthMin { get; set; }
+    [Parameter] public int WidthValue { get; set; }
+    [Parameter, EditorRequired] public string FontTitle { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string FocalTitle { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public EventCallback<ChangeEventArgs> OnFontInput { get; set; }
+    [Parameter, EditorRequired] public EventCallback<ChangeEventArgs> OnFocalInput { get; set; }
+    [Parameter, EditorRequired] public EventCallback<ChangeEventArgs> OnWidthInput { get; set; }
+    [Parameter] public Action<string>? TooltipFocusIn { get; set; }
+    [Parameter] public Action<string>? TooltipFocusOut { get; set; }
+    [Parameter] public Action<string, KeyboardEventArgs>? TooltipKeyDown { get; set; }
+    [Parameter] public Action<string>? TooltipPointerDown { get; set; }
+    [Parameter] public Action<string>? TooltipPointerEnter { get; set; }
+    [Parameter] public Action<string>? TooltipPointerLeave { get; set; }
+    [Parameter, EditorRequired] public Func<string, bool, string> TooltipCssClassFactory { get; set; } = (_, _) => string.Empty;
+    [Parameter, EditorRequired] public Func<string, string> TooltipDomIdFactory { get; set; } = key => key;
+    [Parameter, EditorRequired] public Func<string, string> TooltipTestIdFactory { get; set; } = key => key;
+    [Parameter, EditorRequired] public string WidthTitle { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string WidthValueLabel { get; set; } = string.Empty;
+
+    private string BuildTooltipCssClass(string key, bool placeOnRightSide) => TooltipCssClassFactory(key, placeOnRightSide);
+
+    private string BuildTooltipDomId(string key) => TooltipDomIdFactory(key);
+
+    private string BuildTooltipTestId(string key) => TooltipTestIdFactory(key);
+
+    private void HandleTooltipFocusIn(string key) => TooltipFocusIn?.Invoke(key);
+
+    private void HandleTooltipFocusOut(string key) => TooltipFocusOut?.Invoke(key);
+
+    private void HandleTooltipKeyDown(string key, KeyboardEventArgs args) => TooltipKeyDown?.Invoke(key, args);
+
+    private void HandleTooltipPointerDown(string key) => TooltipPointerDown?.Invoke(key);
+
+    private void HandleTooltipPointerEnter(string key) => TooltipPointerEnter?.Invoke(key);
+
+    private void HandleTooltipPointerLeave(string key) => TooltipPointerLeave?.Invoke(key);
+}

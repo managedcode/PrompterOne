@@ -56,6 +56,7 @@ public partial class EditorPage
                     }
 
                     _splitFeedback = BuildSplitFeedback(splitDocuments, sourceDocument, mode);
+                    _metadataRailSelectedTab = EditorMetadataRailTab.Tools;
                     await InvokeAsync(StateHasChanged);
                 }
                 finally

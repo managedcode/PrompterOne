@@ -1,0 +1,37 @@
+@namespace PrompterOne.Shared.Pages
+@using PrompterOne.Shared.Contracts
+
+<div class="@GradientCssClass"
+     id="rd-gradient"
+     data-gradient="@GradientValue"
+     data-test="@UiTestIds.Teleprompter.Gradient"></div>
+<video class="@CameraCssClass"
+       id="@CameraElementId"
+       autoplay
+       muted
+       playsinline
+       data-active="@BuildBooleanDataAttribute(IsCameraActive)"
+       data-camera-device-id="@CameraDeviceId"
+       data-camera-role="@CameraRole"
+       data-camera-order="@CameraOrder"
+       data-camera-autostart="@BuildBooleanDataAttribute(CameraAutoStart)"
+       data-test="@CameraTestId"
+       style="@CameraStyle"></video>
+<div class="@CameraTintCssClass" id="@UiDomIds.Teleprompter.CameraTint"></div>
+
+@code {
+    [Parameter] public bool CameraAutoStart { get; set; }
+    [Parameter] public bool IsCameraActive { get; set; }
+    [Parameter] public int CameraOrder { get; set; }
+    [Parameter, EditorRequired] public string CameraCssClass { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string CameraDeviceId { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string CameraElementId { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string CameraRole { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string CameraStyle { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string CameraTestId { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string CameraTintCssClass { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string GradientCssClass { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string GradientValue { get; set; } = string.Empty;
+
+    private static string BuildBooleanDataAttribute(bool value) => value ? "true" : "false";
+}

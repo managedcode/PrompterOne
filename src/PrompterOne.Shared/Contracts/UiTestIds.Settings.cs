@@ -103,76 +103,40 @@ public static partial class UiTestIds
         public const string TestConnection = "settings-test-connection";
 
         public static string AiProvider(string providerId) => $"settings-ai-provider-{providerId}";
-
         public static string AccentSwatch(string swatchId) => $"settings-accent-swatch-{swatchId}";
-
         public static string AiProviderClear(string providerId) => $"settings-ai-provider-{providerId}-clear";
-
         public static string AiProviderMessage(string providerId) => $"settings-ai-provider-{providerId}-message";
-
         public static string AiProviderSave(string providerId) => $"settings-ai-provider-{providerId}-save";
-
         public static string AiProviderSubtitle(string providerId) => $"settings-ai-provider-{providerId}-subtitle";
-
         public static string TextColorSwatch(string swatchId) => $"settings-text-color-swatch-{swatchId}";
-
         public static string CameraDevice(string deviceId) => $"settings-camera-device-{deviceId}";
-
         public static string CameraDeviceAction(string deviceId) => $"settings-camera-device-action-{deviceId}";
-
         public static string CameraDeviceLabel(string deviceId) => $"settings-camera-device-label-{deviceId}";
-
         public static string ShortcutsAction(string groupId, string actionId) => $"settings-shortcuts-action-{groupId}-{actionId}";
-
         public static string ShortcutsGroup(string groupId) => $"settings-shortcuts-group-{groupId}";
-
         public static string CameraPrimaryAction(string deviceId) => $"settings-camera-primary-{deviceId}";
-
         public static string CloudProviderCard(string providerId) => $"settings-cloud-{providerId}-card";
-
         public static string CloudProviderActions(string providerId) => $"settings-cloud-{providerId}-actions";
-
         public static string CloudProviderConnect(string providerId) => $"settings-cloud-{providerId}-connect";
-
         public static string CloudProviderDisconnect(string providerId) => $"settings-cloud-{providerId}-disconnect";
-
         public static string CloudProviderExport(string providerId) => $"settings-cloud-{providerId}-export";
-
         public static string CloudProviderField(string providerId, string fieldId) => $"settings-cloud-{providerId}-{fieldId}";
-
         public static string CloudProviderImport(string providerId) => $"settings-cloud-{providerId}-import";
-
         public static string CloudProviderMessage(string providerId) => $"settings-cloud-{providerId}-message";
-
         public static string CloudProviderSubtitle(string providerId) => $"settings-cloud-{providerId}-subtitle";
-
         public static string MicDelay(string deviceId) => $"settings-mic-delay-{deviceId}";
-
         public static string MicDevice(string deviceId) => $"settings-mic-device-{deviceId}";
-
         public static string MicDeviceLabel(string deviceId) => $"settings-mic-device-label-{deviceId}";
-
         public static string ThemeOption(string value) => $"settings-theme-option-{value}";
-
         public static string SceneCamera(string sourceId) => $"settings-scene-camera-{sourceId}";
-
         public static string SceneFlip(string sourceId) => $"settings-scene-flip-{sourceId}";
-
         public static string SceneMirror(string sourceId) => $"settings-scene-mirror-{sourceId}";
-
         public static string SelectPanel(string triggerTestId) => $"{triggerTestId}-panel";
-
-        public static string SelectOption(string triggerTestId, string optionValue) =>
-            $"{triggerTestId}-option-{optionValue}";
-
+        public static string SelectOption(string triggerTestId, string optionValue) => $"{triggerTestId}-option-{optionValue}";
         public static string StreamingProviderCard(string providerId) => $"settings-streaming-provider-{providerId}";
-
         public static string StreamingProviderSourcePicker(string providerId) => $"settings-streaming-provider-sources-{providerId}";
-
         public static string StreamingProviderSourceSummary(string providerId) => $"settings-streaming-provider-source-summary-{providerId}";
-
         public static string StreamingProviderSourceToggle(string providerId, string sourceId) => $"settings-streaming-provider-source-{providerId}-{sourceId}";
-
         public static string StreamingDistributionAddOption(string platformId) => $"settings-streaming-distribution-add-{platformId}";
 
         public static string StreamingDistributionField(string targetId, string fieldId) => (targetId, fieldId) switch
@@ -187,15 +151,9 @@ public static partial class UiTestIds
             _ => $"settings-streaming-distribution-field-{targetId}-{fieldId}"
         };
 
-        public static string StreamingDistributionRemove(string targetId) =>
-            $"settings-streaming-distribution-remove-{targetId}";
-
-        public static string StreamingDistributionToggle(string targetId) =>
-            $"settings-streaming-distribution-toggle-{targetId}";
-
-        public static string StreamingDistributionTransport(string targetId, string connectionId) =>
-            $"settings-streaming-distribution-transport-{targetId}-{connectionId}";
-
+        public static string StreamingDistributionRemove(string targetId) => $"settings-streaming-distribution-remove-{targetId}";
+        public static string StreamingDistributionToggle(string targetId) => $"settings-streaming-distribution-toggle-{targetId}";
+        public static string StreamingDistributionTransport(string targetId, string connectionId) => $"settings-streaming-distribution-transport-{targetId}-{connectionId}";
         public static string StreamingTransportAddOption(string platformId) => $"settings-streaming-transport-add-{platformId}";
 
         public static string StreamingTransportField(string connectionId, string fieldId) => (connectionId, fieldId) switch
@@ -210,13 +168,8 @@ public static partial class UiTestIds
             _ => $"settings-streaming-transport-field-{connectionId}-{fieldId}"
         };
 
-        public static string StreamingTransportRemove(string connectionId) =>
-            $"settings-streaming-transport-remove-{connectionId}";
-
-        public static string StreamingTransportRole(string connectionId) =>
-            $"settings-streaming-transport-role-{connectionId}";
-
-        public static string StreamingTransportToggle(string connectionId) =>
-            $"settings-streaming-transport-toggle-{connectionId}";
+        public static string StreamingTransportRemove(string connectionId) => $"settings-streaming-transport-remove-{connectionId}";
+        public static string StreamingTransportRole(string connectionId) => $"settings-streaming-transport-role-{connectionId}";
+        public static string StreamingTransportToggle(string connectionId) => $"settings-streaming-transport-toggle-{connectionId}";
     }
 }

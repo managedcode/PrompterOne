@@ -543,6 +543,9 @@
   <data name="CommonStats" xml:space="preserve">
     <value>Stats</value>
   </data>
+  <data name="CommonTools" xml:space="preserve">
+    <value>Tools</value>
+  </data>
   <data name="CommonHistory" xml:space="preserve">
     <value>History</value>
   </data>

@@ -1017,6 +1017,15 @@
   <data name="EditorFindResultsFormat" xml:space="preserve">
     <value>{0} / {1}</value>
   </data>
+  <data name="EditorMetadataSection" xml:space="preserve">
+    <value>Métadonnées</value>
+  </data>
+  <data name="EditorMetadataLocalFileSection" xml:space="preserve">
+    <value>Fichier local</value>
+  </data>
+  <data name="CommonTools" xml:space="preserve">
+    <value>Outils</value>
+  </data>
   <data name="EditorMetadataSplitSection" xml:space="preserve">
     <value>Découper en nouveaux scripts</value>
   </data>

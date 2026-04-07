@@ -795,6 +795,15 @@
   <data name="EditorFindResultsFormat" xml:space="preserve">
     <value>{0} / {1}</value>
   </data>
+  <data name="EditorMetadataSection" xml:space="preserve">
+    <value>Metadados</value>
+  </data>
+  <data name="EditorMetadataLocalFileSection" xml:space="preserve">
+    <value>Arquivo local</value>
+  </data>
+  <data name="CommonTools" xml:space="preserve">
+    <value>Ferramentas</value>
+  </data>
   <data name="EditorMetadataSplitSection" xml:space="preserve">
     <value>Dividir em novos roteiros</value>
   </data>

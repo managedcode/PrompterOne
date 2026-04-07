@@ -1032,6 +1032,15 @@
   <data name="EditorFindResultsFormat" xml:space="preserve">
     <value>{0} / {1}</value>
   </data>
+  <data name="EditorMetadataSection" xml:space="preserve">
+    <value>Метадані</value>
+  </data>
+  <data name="EditorMetadataLocalFileSection" xml:space="preserve">
+    <value>Локальний файл</value>
+  </data>
+  <data name="CommonTools" xml:space="preserve">
+    <value>Інструменти</value>
+  </data>
   <data name="EditorMetadataSplitSection" xml:space="preserve">
     <value>Розділити на нові скрипти</value>
   </data>

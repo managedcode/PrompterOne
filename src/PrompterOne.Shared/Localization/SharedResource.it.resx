@@ -617,6 +617,9 @@
   <data name="EditorFindClose" xml:space="preserve"><value>Chiudi</value></data>
   <data name="EditorFindNoResults" xml:space="preserve"><value>Nessuna corrispondenza</value></data>
   <data name="EditorFindResultsFormat" xml:space="preserve"><value>{0} / {1}</value></data>
+  <data name="EditorMetadataSection" xml:space="preserve"><value>Metadati</value></data>
+  <data name="EditorMetadataLocalFileSection" xml:space="preserve"><value>File locale</value></data>
+  <data name="CommonTools" xml:space="preserve"><value>Strumenti</value></data>
   <data name="EditorMetadataSplitSection" xml:space="preserve">
     <value>Dividi in nuovi script</value>
   </data>

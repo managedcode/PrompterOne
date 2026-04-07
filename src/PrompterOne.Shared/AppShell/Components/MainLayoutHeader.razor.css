@@ -1,0 +1,157 @@
+.app-header-file-action {
+    position: relative;
+    display: inline-flex;
+    flex: 0 0 auto;
+}
+
+.app-header--reader-muted .app-header-subtitle {
+    color: rgba(232, 213, 176, .20);
+}
+
+.app-header--reader-muted .btn-back {
+    background: rgba(255, 255, 255, .012);
+    border: 1px solid rgba(214, 166, 91, .08);
+    color: rgba(248, 241, 226, .50);
+    box-shadow: none;
+}
+
+.app-header--reader-muted .btn-back:hover {
+    background: rgba(255, 255, 255, .024);
+    border-color: rgba(214, 166, 91, .14);
+    color: rgba(248, 241, 226, .68);
+    box-shadow: 0 0 10px rgba(214, 166, 91, .04);
+}
+
+.app-header[data-reader-muted="true"] .btn-back {
+    background: rgba(255, 255, 255, .012) !important;
+    border: 1px solid rgba(214, 166, 91, .08);
+    color: rgba(248, 241, 226, .50);
+    box-shadow: none;
+}
+
+.app-header[data-reader-muted="true"] .btn-back:hover {
+    background: rgba(255, 255, 255, .024) !important;
+    border-color: rgba(214, 166, 91, .14);
+    color: rgba(248, 241, 226, .68);
+    box-shadow: 0 0 10px rgba(214, 166, 91, .04);
+}
+
+.app-header[data-reader-muted="true"] ::deep .go-live-shell-button {
+    background: rgba(255, 255, 255, .01) !important;
+    border-color: rgba(214, 166, 91, .08);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .02);
+    color: rgba(248, 241, 226, .58);
+}
+
+.app-header[data-reader-muted="true"] ::deep .go-live-shell-button:hover {
+    background: rgba(255, 255, 255, .022) !important;
+    border-color: rgba(214, 166, 91, .14);
+    box-shadow: 0 0 12px rgba(214, 166, 91, .04);
+}
+
+.btn-open-script {
+    cursor: pointer;
+}
+
+.app-header-file-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.app-header-file-action:focus-within .btn-open-script {
+    border-color: rgba(214, 166, 91, .42);
+    box-shadow: 0 0 0 2px rgba(214, 166, 91, .16);
+}
+
+@media (max-width: 960px) {
+    .app-header-library .app-header-right {
+        gap: 6px;
+    }
+
+    .app-header-library .app-header-action-label {
+        display: none;
+    }
+
+    .app-header-library .btn-gold,
+    .app-header-library .btn-ghost,
+    .app-header-library .btn-create {
+        min-width: 34px;
+        height: 34px;
+        padding: 0 10px;
+        justify-content: center;
+        gap: 6px;
+    }
+
+    .app-header-library .lib-search {
+        flex: 1 1 140px;
+        max-width: 160px;
+    }
+
+    .app-header-library ::deep .go-live-shell-button {
+        min-width: 34px;
+        min-height: 34px;
+        padding: 0 10px;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .app-header-library ::deep .go-live-shell-button__copy {
+        display: none;
+    }
+}
+
+@media (max-width: 720px) {
+    .app-header-library {
+        grid-template-columns: 44px minmax(0, 1fr);
+        height: auto;
+        padding: 8px;
+        row-gap: 8px;
+    }
+
+    .app-header-library .app-header-left {
+        padding: 0;
+        justify-content: center;
+        border-right: none;
+    }
+
+    .app-header-library .app-header-center {
+        display: none;
+    }
+
+    .app-header-library .app-header-right {
+        grid-column: 1 / -1;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        padding: 0;
+        overflow: visible;
+    }
+
+    .app-header-library .lib-search {
+        order: -1;
+        flex: 1 1 100%;
+        max-width: none;
+    }
+}
+
+@media (max-width: 560px) {
+    .app-header-library .app-header-right {
+        gap: 4px;
+    }
+
+    .app-header-library .lib-search {
+        min-width: 0;
+        padding: 0 10px;
+    }
+}

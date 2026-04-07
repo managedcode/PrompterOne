@@ -1,0 +1,158 @@
+@namespace PrompterOne.Shared.Pages
+@using PrompterOne.Shared.Components
+@using PrompterOne.Shared.Contracts
+
+<div class="@EdgeProgressCssClass">
+    <div class="rd-edge-fill" id="@UiDomIds.Teleprompter.ProgressFill" data-test="@UiTestIds.Teleprompter.ProgressFill" style="@ProgressFillStyle"></div>
+    <div class="rd-edge-segs">
+        @foreach (var segment in EdgeSegments)
+        {
+            <div style="@segment.Style"></div>
+        }
+    </div>
+</div>
+<div class="@EdgeInfoCssClass"
+     data-active="@BuildBooleanDataAttribute(IsReaderPlaying)"
+     data-test="@UiTestIds.Teleprompter.EdgeInfo">
+    <span class="rd-edge-section" data-test="@UiTestIds.Teleprompter.EdgeSection">@EdgeSectionLabel</span>
+    <span class="rd-time"
+          id="@UiDomIds.Teleprompter.Time"
+          data-test="@UiTestIds.Teleprompter.TimeValue"
+          @attributes="TimeDataAttributes">@ElapsedLabel</span>
+</div>
+
+<div class="@ProgressShellCssClass"
+     data-active="@BuildBooleanDataAttribute(IsReaderPlaying)"
+     data-test="@UiTestIds.Teleprompter.Progress">
+    <div class="rd-progress-meta">
+        <span class="rd-progress-title">@BlockIndicatorLabel</span>
+        <span class="rd-progress-label" data-test="@UiTestIds.Teleprompter.ProgressLabel">@ProgressLabel</span>
+    </div>
+    <div class="rd-progress-track" data-test="@UiTestIds.Teleprompter.ProgressSegments">
+        @foreach (var segment in ProgressSegments)
+        {
+            <div class="rd-progress-segment" style="@segment.Style">
+                <div class="rd-progress-segment-fill"
+                     data-test="@segment.FillTestId"
+                     style="@segment.FillStyle"></div>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="@ControlsCssClass"
+     data-active="@BuildBooleanDataAttribute(IsReaderPlaying)"
+     data-test="@UiTestIds.Teleprompter.Controls">
+    <div class="rd-ctrl-group">
+        <TooltipAnchor OwnerTestId="@UiTestIds.Teleprompter.SpeedDown" Text="@SpeedDownTooltip">
+            <button class="rd-ctrl-btn"
+                    @onclick="OnSpeedDown"
+                    aria-label="@SpeedDownTooltip"
+                    data-test="@UiTestIds.Teleprompter.SpeedDown">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12" /></svg>
+            </button>
+        </TooltipAnchor>
+        <span class="rd-ctrl-label" id="@UiDomIds.Teleprompter.SpeedValue" data-test="@UiTestIds.Teleprompter.SpeedValue">@SpeedValueLabel</span>
+        <TooltipAnchor OwnerTestId="@UiTestIds.Teleprompter.SpeedUp" Text="@SpeedUpTooltip">
+            <button class="rd-ctrl-btn"
+                    @onclick="OnSpeedUp"
+                    aria-label="@SpeedUpTooltip"
+                    data-test="@UiTestIds.Teleprompter.SpeedUp">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+            </button>
+        </TooltipAnchor>
+    </div>
+
+    <div class="rd-ctrl-group rd-ctrl-main">
+        <TooltipAnchor OwnerTestId="@UiTestIds.Teleprompter.PreviousBlock" Text="@PreviousBlockTooltip">
+            <button class="rd-ctrl-btn"
+                    @onclick="OnPreviousBlock"
+                    aria-label="@PreviousBlockTooltip"
+                    data-test="@UiTestIds.Teleprompter.PreviousBlock"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="19,20 9,12 19,4" /><line x1="5" y1="4" x2="5" y2="20" /></svg></button>
+        </TooltipAnchor>
+        <TooltipAnchor OwnerTestId="@UiTestIds.Teleprompter.PreviousWord" Text="@PreviousWordTooltip">
+            <button class="rd-ctrl-btn rd-ctrl-sm"
+                    @onclick="OnPreviousWord"
+                    aria-label="@PreviousWordTooltip"
+                    data-test="@UiTestIds.Teleprompter.PreviousWord"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15,18 9,12 15,6" /></svg></button>
+        </TooltipAnchor>
+        <TooltipAnchor OwnerTestId="@UiTestIds.Teleprompter.PlayToggle" Text="@PlayToggleTooltip">
+            <button class="rd-ctrl-btn rd-ctrl-play"
+                    id="tp-play-btn"
+                    @onclick="OnPlayToggle"
+                    aria-label="@PlayToggleTooltip"
+                    data-active="@BuildBooleanDataAttribute(IsReaderPlaying)"
+                    data-test="@UiTestIds.Teleprompter.PlayToggle">
+                <span data-toggle-icon="play" data-test="@UiTestIds.Teleprompter.PlayIcon" hidden="@IsReaderPlaying">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5,3 19,12 5,21" /></svg>
+                </span>
+                <span data-toggle-icon="pause" data-test="@UiTestIds.Teleprompter.PauseIcon" hidden="@(!IsReaderPlaying)">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16" /><rect x="14" y="4" width="4" height="16" /></svg>
+                </span>
+            </button>
+        </TooltipAnchor>
+        <TooltipAnchor OwnerTestId="@UiTestIds.Teleprompter.NextWord" Text="@NextWordTooltip">
+            <button class="rd-ctrl-btn rd-ctrl-sm"
+                    @onclick="OnNextWord"
+                    aria-label="@NextWordTooltip"
+                    data-test="@UiTestIds.Teleprompter.NextWord"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9,6 15,12 9,18" /></svg></button>
+        </TooltipAnchor>
+        <TooltipAnchor OwnerTestId="@UiTestIds.Teleprompter.NextBlock" Text="@NextBlockTooltip">
+            <button class="rd-ctrl-btn"
+                    @onclick="OnNextBlock"
+                    aria-label="@NextBlockTooltip"
+                    data-test="@UiTestIds.Teleprompter.NextBlock"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="5,4 15,12 5,20" /><line x1="19" y1="4" x2="19" y2="20" /></svg></button>
+        </TooltipAnchor>
+    </div>
+
+    <div class="rd-ctrl-group">
+        <span class="rd-ctrl-label rd-block-indicator" id="@UiDomIds.Teleprompter.BlockIndicator" data-test="@UiTestIds.Teleprompter.BlockIndicator">@BlockIndicatorLabel</span>
+        <TooltipAnchor OwnerTestId="@UiTestIds.Teleprompter.CameraToggle" Text="@CameraTooltip">
+            <button class="@CameraButtonCssClass"
+                    id="@UiDomIds.Teleprompter.CameraButton"
+                    @onclick="OnCameraToggle"
+                    aria-label="@CameraTooltip"
+                    data-active="@BuildBooleanDataAttribute(IsCameraActive)"
+                    data-test="@UiTestIds.Teleprompter.CameraToggle">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" /><circle cx="12" cy="13" r="4" /></svg>
+            </button>
+        </TooltipAnchor>
+    </div>
+</div>
+
+@code {
+    [Parameter] public bool IsCameraActive { get; set; }
+    [Parameter] public bool IsReaderPlaying { get; set; }
+    [Parameter, EditorRequired] public string BlockIndicatorLabel { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string CameraButtonCssClass { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string CameraTooltip { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string ControlsCssClass { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string EdgeInfoCssClass { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public IReadOnlyList<TeleprompterEdgeSegmentViewModel> EdgeSegments { get; set; } = [];
+    [Parameter, EditorRequired] public string EdgeProgressCssClass { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string EdgeSectionLabel { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string ElapsedLabel { get; set; } = string.Empty;
+    [Parameter] public EventCallback OnCameraToggle { get; set; }
+    [Parameter] public EventCallback OnNextBlock { get; set; }
+    [Parameter] public EventCallback OnNextWord { get; set; }
+    [Parameter] public EventCallback OnPlayToggle { get; set; }
+    [Parameter] public EventCallback OnPreviousBlock { get; set; }
+    [Parameter] public EventCallback OnPreviousWord { get; set; }
+    [Parameter] public EventCallback OnSpeedDown { get; set; }
+    [Parameter] public EventCallback OnSpeedUp { get; set; }
+    [Parameter, EditorRequired] public string NextBlockTooltip { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string NextWordTooltip { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string PlayToggleTooltip { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string PreviousBlockTooltip { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string PreviousWordTooltip { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string ProgressFillStyle { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string ProgressLabel { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public IReadOnlyList<TeleprompterProgressSegmentViewModel> ProgressSegments { get; set; } = [];
+    [Parameter, EditorRequired] public string ProgressShellCssClass { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string SpeedDownTooltip { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string SpeedUpTooltip { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string SpeedValueLabel { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public IReadOnlyDictionary<string, object> TimeDataAttributes { get; set; } = new Dictionary<string, object>();
+
+    private static string BuildBooleanDataAttribute(bool value) => value ? "true" : "false";
+}

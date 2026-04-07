@@ -1,0 +1,17 @@
+@namespace PrompterOne.Shared.Pages
+@using PrompterOne.Shared.Contracts
+
+<button class="@BackButtonCssClass"
+        @onclick="OnBack"
+        data-test="@UiTestIds.Teleprompter.Back">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15,18 9,12 15,6" /></svg>
+</button>
+
+<div class="@CountdownCssClass" id="@UiDomIds.Teleprompter.Countdown">@CountdownLabel</div>
+
+@code {
+    [Parameter, EditorRequired] public string BackButtonCssClass { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string CountdownCssClass { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string CountdownLabel { get; set; } = string.Empty;
+    [Parameter] public EventCallback OnBack { get; set; }
+}

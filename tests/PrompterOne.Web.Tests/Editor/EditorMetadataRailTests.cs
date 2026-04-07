@@ -32,10 +32,17 @@ public sealed class EditorMetadataRailTests : BunitContext
             .Add(component => component.OpenLibraryRequested, () => openLibraryRequests++)
             .Add(component => component.SplitRequested, mode => requestedModes.Add(mode)));
 
-        Assert.Contains(SplitSection, cut.Markup, StringComparison.Ordinal);
+        Assert.Equal("true", cut.FindByTestId(UiTestIds.Editor.MetadataTab).GetAttribute("aria-selected"));
+        Assert.NotNull(cut.FindByTestId(UiTestIds.Editor.MetadataPanel));
+
+        cut.FindByTestId(UiTestIds.Editor.ToolsTab).Click();
+
+        Assert.Equal("true", cut.FindByTestId(UiTestIds.Editor.ToolsTab).GetAttribute("aria-selected"));
+        Assert.NotNull(cut.FindByTestId(UiTestIds.Editor.ToolsPanel));
         Assert.Equal(SplitHint, cut.FindByTestId(UiTestIds.Editor.SplitHint).TextContent.Trim());
         Assert.Equal(SplitTopLevelLabel, cut.FindByTestId(UiTestIds.Editor.SplitTopLevel).TextContent.Trim());
         Assert.Equal(EditorSplitFeedbackTestData.SplitSegmentActionLabel, cut.FindByTestId(UiTestIds.Editor.SplitSegment).TextContent.Trim());
+        Assert.Contains(SplitSection, cut.Markup, StringComparison.Ordinal);
 
         cut.FindByTestId(UiTestIds.Editor.SplitTopLevel).Click();
         cut.FindByTestId(UiTestIds.Editor.SplitSegment).Click();

@@ -41,6 +41,14 @@ public sealed class BrowserConnectivityInterop(IJSRuntime jsRuntime) : IDisposab
         var module = await _moduleTask;
         if (module is not null)
         {
+            try
+            {
+                await module.InvokeVoidAsync(BrowserConnectivityInteropMethodNames.Dispose);
+            }
+            catch (JSException)
+            {
+            }
+
             await module.DisposeAsync();
         }
     }

@@ -15,23 +15,25 @@ public sealed class EditorDocumentSplitFlowTests(StandaloneAppFixture fixture) :
             await page.GotoAsync(BrowserTestConstants.Routes.Editor);
             await Expect(page.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync();
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
+            await page.GetByTestId(UiTestIds.Editor.ToolsTab).ClickAsync();
+            await Expect(page.GetByTestId(UiTestIds.Editor.ToolsPanel)).ToBeVisibleAsync();
             await EditorMonacoDriver.SetTextAsync(page, EditorSplitFeedbackTestData.SplitSource);
             await Expect(page.GetByTestId(UiTestIds.Editor.SplitSegment)).ToHaveTextAsync(EditorSplitFeedbackTestData.SplitSegmentActionLabel);
 
-            var splitActionLivesInMetadataRail = await page.EvaluateAsync<bool>(
+            var splitActionLivesInToolsPanel = await page.EvaluateAsync<bool>(
                 """
                 args => {
-                    const metadataRail = document.querySelector(`[data-test="${args.metadataRailTestId}"]`);
+                    const toolsPanel = document.querySelector(`[data-test="${args.toolsPanelTestId}"]`);
                     const splitAction = document.querySelector(`[data-test="${args.splitActionTestId}"]`);
-                    return Boolean(metadataRail && splitAction && metadataRail.contains(splitAction));
+                    return Boolean(toolsPanel && splitAction && toolsPanel.contains(splitAction));
                 }
                 """,
                 new
                 {
-                    metadataRailTestId = UiTestIds.Editor.MetadataRail,
+                    toolsPanelTestId = UiTestIds.Editor.ToolsPanel,
                     splitActionTestId = UiTestIds.Editor.SplitSegment
                 });
-            await Assert.That(splitActionLivesInMetadataRail).IsTrue();
+            await Assert.That(splitActionLivesInToolsPanel).IsTrue();
 
             await page.GetByTestId(UiTestIds.Editor.SplitSegment).ClickAsync();
 

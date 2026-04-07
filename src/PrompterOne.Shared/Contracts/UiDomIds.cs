@@ -41,6 +41,10 @@ public static class UiDomIds
     public static class Editor
     {
         public const string MetadataRailBody = "editor-metadata-rail-body";
+        public const string MetadataPanel = "editor-metadata-panel";
+        public const string MetadataTab = "editor-metadata-tab";
+        public const string ToolsPanel = "editor-tools-panel";
+        public const string ToolsTab = "editor-tools-tab";
     }
 
     public static class GoLive

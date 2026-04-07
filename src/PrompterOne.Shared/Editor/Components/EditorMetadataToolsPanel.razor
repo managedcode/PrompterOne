@@ -1,0 +1,113 @@
+@namespace PrompterOne.Shared.Components.Editor
+@using System.Globalization
+@using Microsoft.Extensions.Localization
+@using PrompterOne.Core.Models.Editor
+@using PrompterOne.Shared.Localization
+@inject IStringLocalizer<SharedResource> Localizer
+
+<div id="@UiDomIds.Editor.ToolsPanel"
+     class="ed-meta-panel ed-meta-panel--tools"
+     role="tabpanel"
+     aria-labelledby="@UiDomIds.Editor.ToolsTab"
+     data-test="@UiTestIds.Editor.ToolsPanel">
+    <div class="ed-meta-panel-section">
+        <div class="ed-section-label ed-meta-priority-label">@Text(UiTextKey.EditorMetadataSplitSection)</div>
+        <p class="ed-meta-note ed-meta-action-note" data-test="@UiTestIds.Editor.SplitHint">@Text(UiTextKey.EditorMetadataSplitHint)</p>
+        <div class="ed-meta-actions">
+            <button type="button"
+                    class="ed-meta-action"
+                    data-test="@UiTestIds.Editor.SplitTopLevel"
+                    @onclick="() => SplitRequested.InvokeAsync(TpsDocumentSplitMode.TopLevelHeading)">
+                @Text(UiTextKey.EditorSplitTopLevel)
+            </button>
+            <button type="button"
+                    class="ed-meta-action"
+                    data-test="@UiTestIds.Editor.SplitSegment"
+                    @onclick="() => SplitRequested.InvokeAsync(TpsDocumentSplitMode.SegmentHeading)">
+                @Text(UiTextKey.EditorSplitSegment)
+            </button>
+        </div>
+
+        @if (SplitFeedback is not null)
+        {
+            <EditorSplitFeedbackCard Feedback="@SplitFeedback"
+                                     OpenLibraryRequested="OpenLibraryRequested" />
+        }
+    </div>
+
+    <div class="ed-meta-panel-section">
+        <div class="ed-section-label ed-meta-subsection">@Text(UiTextKey.EditorMetadataLocalFileSection)</div>
+        <div class="ed-stat" data-test="@UiTestIds.Editor.LocalHistoryStatus"><span>@Text(UiTextKey.EditorMetadataAutoSave)</span><b>@GetAutoSaveStateLabel()</b></div>
+        <div class="ed-stat"><span>@Text(UiTextKey.CommonHistory)</span><b>@GetHistoryCountLabel()</b></div>
+        <p class="ed-meta-note">@GetLocalFileNote()</p>
+
+        @if (LocalHistory.Count == 0)
+        {
+            <p class="ed-meta-empty" data-test="@UiTestIds.Editor.LocalHistoryEmpty">@Text(UiTextKey.EditorMetadataNoLocalHistory)</p>
+        }
+        else
+        {
+            <div class="ed-local-history" data-test="@UiTestIds.Editor.LocalHistoryPanel">
+                @for (var index = 0; index < LocalHistory.Count; index++)
+                {
+                    var revision = LocalHistory[index];
+                    <div class="ed-local-history-item" data-test="@UiTestIds.Editor.LocalHistoryItem(index)">
+                        <div class="ed-local-history-copy">
+                            <span class="ed-local-history-time">@revision.SavedAtLabel</span>
+                            <span class="ed-local-history-file">@revision.DocumentName</span>
+                        </div>
+                        <button type="button"
+                                class="ed-local-history-restore"
+                                data-test="@UiTestIds.Editor.LocalHistoryRestore(index)"
+                                @onclick="() => LocalHistoryRestoreRequested.InvokeAsync(revision.Id)">
+                            @Text(UiTextKey.CommonRestore)
+                        </button>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public bool AutoSaveEnabled { get; set; }
+
+    [Parameter] public DateTimeOffset? LastLocalSaveAt { get; set; }
+
+    [Parameter] public IReadOnlyList<EditorLocalRevisionViewModel> LocalHistory { get; set; } = [];
+
+    [Parameter] public EventCallback OpenLibraryRequested { get; set; }
+
+    [Parameter] public EventCallback<string> LocalHistoryRestoreRequested { get; set; }
+
+    [Parameter] public EditorSplitFeedbackViewModel? SplitFeedback { get; set; }
+
+    [Parameter] public EventCallback<TpsDocumentSplitMode> SplitRequested { get; set; }
+
+    private const string LastSavedTimestampFormat = "yyyy-MM-dd HH:mm:ss";
+
+    private string GetAutoSaveStateLabel() => AutoSaveEnabled ? Text(UiTextKey.CommonOn) : Text(UiTextKey.CommonOff);
+
+    private string GetHistoryCountLabel()
+    {
+        var count = LocalHistory.Count;
+        return count == 1
+            ? Text(UiTextKey.EditorMetadataOneRevision)
+            : Format(UiTextKey.EditorMetadataMultipleRevisionsFormat, count);
+    }
+
+    private string GetLocalFileNote()
+    {
+        if (LastLocalSaveAt is null)
+        {
+            return Text(UiTextKey.EditorMetadataHistoryHint);
+        }
+
+        var timestamp = LastLocalSaveAt.Value.LocalDateTime.ToString(LastSavedTimestampFormat, CultureInfo.InvariantCulture);
+        return Format(UiTextKey.EditorMetadataLastInternalSaveFormat, timestamp);
+    }
+
+    private string Format(UiTextKey key, params object[] args) => Localizer[key.ToString(), args];
+
+    private string Text(UiTextKey key) => Localizer[key.ToString()];
+}

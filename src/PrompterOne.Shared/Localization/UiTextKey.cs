@@ -228,6 +228,7 @@ public enum UiTextKey
     CommonFast,
     CommonXfast,
     CommonStats,
+    CommonTools,
     CommonHistory,
     CommonRestore,
     CommonScripts,

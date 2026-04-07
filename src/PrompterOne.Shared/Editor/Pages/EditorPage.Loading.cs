@@ -1,5 +1,6 @@
 using System.Globalization;
 using PrompterOne.Core.Models.Workspace;
+using PrompterOne.Shared.Components.Editor;
 using PrompterOne.Shared.Services;
 
 namespace PrompterOne.Shared.Pages;
@@ -101,6 +102,10 @@ public partial class EditorPage
         if (clearSplitFeedback)
         {
             _splitFeedback = null;
+        }
+        else if (_splitFeedback is not null)
+        {
+            _metadataRailSelectedTab = EditorMetadataRailTab.Tools;
         }
         _sourceText = document.Body;
         ApplyLoadedMetadata(metadata, state);

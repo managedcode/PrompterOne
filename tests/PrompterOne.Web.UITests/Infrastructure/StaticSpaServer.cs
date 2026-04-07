@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.Logging;
 
 namespace PrompterOne.Web.UITests;
 
@@ -70,6 +71,10 @@ internal sealed class StaticSpaServer(
     {
         var builder = WebApplication.CreateBuilder();
         builder.WebHost.UseUrls(_requestedBaseAddress);
+        builder.Logging.ClearProviders();
+        builder.Logging.AddSimpleConsole();
+        builder.Logging.SetMinimumLevel(LogLevel.Warning);
+        builder.Logging.AddFilter("Microsoft.Hosting.Lifetime", LogLevel.None);
 
         var provider = BuildContentTypeProvider();
         var app = builder.Build();

@@ -96,7 +96,10 @@ public static partial class UiTestIds
         public const string MainPanel = "editor-main-panel";
         public const string MetadataRail = "editor-metadata-rail";
         public const string MetadataRailBody = "editor-metadata-rail-body";
+        public const string MetadataRailTabs = "editor-metadata-rail-tabs";
         public const string MetadataRailToggle = "editor-metadata-rail-toggle";
+        public const string MetadataPanel = "editor-metadata-panel";
+        public const string MetadataTab = "editor-metadata-tab";
         public const string LocalHistoryEmpty = "editor-local-history-empty";
         public const string LocalHistoryPanel = "editor-local-history-panel";
         public const string LocalHistoryStatus = "editor-local-history-status";
@@ -132,6 +135,8 @@ public static partial class UiTestIds
         public const string SpeedXslow = "editor-speed-xslow";
         public const string Title = "editor-title";
         public const string ToolbarTooltip = "editor-toolbar-tooltip";
+        public const string ToolsPanel = "editor-tools-panel";
+        public const string ToolsTab = "editor-tools-tab";
         public const string Undo = "editor-undo";
         public const string Version = "editor-version";
 

@@ -10,9 +10,50 @@
     margin-bottom: 4px;
 }
 
-.ed-meta-header-label {
-    padding: 0;
-    margin-bottom: 0;
+.ed-meta-tabs {
+    display: inline-flex;
+    align-items: stretch;
+    gap: 4px;
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 4px;
+    border-radius: 14px;
+    border: 1px solid var(--gold-08);
+    background: var(--gold-03);
+}
+
+.ed-meta-tab {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 34px;
+    padding: 0 12px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--t2);
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color .18s ease, border-color .18s ease, color .18s ease;
+}
+
+.ed-meta-tab:hover,
+.ed-meta-tab:focus-visible {
+    color: var(--t1);
+    background: var(--gold-05);
+    border-color: var(--gold-10);
+}
+
+.ed-meta-tab.is-active,
+.ed-meta-tab[aria-selected="true"] {
+    color: var(--t1);
+    background: var(--glass2);
+    border-color: var(--gold-14);
 }
 
 .ed-meta-toggle {
@@ -51,6 +92,16 @@
 
 .ed-meta-body[hidden] {
     display: none;
+}
+
+.ed-meta-panel {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.ed-meta-panel-section + .ed-meta-panel-section {
+    margin-top: 18px;
 }
 
 .ed-meta-subsection {

@@ -36,6 +36,8 @@ public sealed class EditorLocalHistoryInteractionTests : BunitContext
             Assert.Contains(AppTestData.Editor.BodyHeading, source.GetAttribute("value"));
         });
 
+        cut.FindByTestId(UiTestIds.Editor.ToolsTab).Click();
+
         var updatedSource = string.Concat(
             cut.FindByTestId(UiTestIds.Editor.SourceInput).GetAttribute("value"),
             Environment.NewLine,
@@ -72,6 +74,8 @@ public sealed class EditorLocalHistoryInteractionTests : BunitContext
             var source = cut.FindByTestId(UiTestIds.Editor.SourceInput);
             Assert.Contains(AppTestData.Editor.BodyHeading, source.GetAttribute("value"));
         });
+
+        cut.FindByTestId(UiTestIds.Editor.ToolsTab).Click();
 
         var initialSource = cut.FindByTestId(UiTestIds.Editor.SourceInput).GetAttribute("value")!;
         var firstRevisionSource = string.Concat(
