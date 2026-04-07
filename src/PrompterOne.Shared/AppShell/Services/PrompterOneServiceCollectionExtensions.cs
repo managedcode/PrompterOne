@@ -50,7 +50,6 @@ public static class PrompterOneServiceCollectionExtensions
         services.AddScoped<TpsStructureEditor>();
         services.AddScoped<EditorLocalAssistant>();
         services.AddScoped<RsvpOrpCalculator>();
-        services.AddScoped<RsvpEmotionAnalyzer>();
         services.AddScoped<RsvpTextProcessor>();
         services.AddScoped<RsvpPlaybackEngine>();
         services.AddScoped<IScriptPreviewService, ScriptPreviewService>();

@@ -101,6 +101,7 @@ Rule format:
 - Repo-wide quality audits and agent-generated review handoff artifacts must be written as root-level task files so other coding agents can pick them up quickly; do not bury those temporary audit results under `docs/` unless the task is explicitly about durable product documentation.
 - Repo-wide cleanup and review passes must explicitly inventory forbidden implementation string literals, `MarkupString` or raw-HTML UI composition, duplicated JS/CSS patterns, architecture-boundary drift, and `foreach`-driven test scenarios that should become isolated TUnit cases.
 - Repo-wide audits should use multiple independent reviewers with distinct focuses when the tooling is available, including external CLI reviewers such as Claude and Copilot plus internal agents, and all review outputs should be captured in root-level task files before remediation starts.
+- Legacy, dead, duplicate, or speculative code paths should be deleted aggressively instead of being preserved behind compatibility instincts; if code has no clear runtime owner or authoritative contract, remove it rather than keep it as “just in case” ballast.
 
 ## Rules to Follow (Mandatory)
 

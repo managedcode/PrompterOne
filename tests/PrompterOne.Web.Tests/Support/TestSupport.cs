@@ -124,7 +124,6 @@ internal static class TestHarnessFactory
         context.Services.AddSingleton(crossTabMessageBus);
         context.Services.AddSingleton<RsvpOrpCalculator>();
         context.Services.AddSingleton<RsvpTextProcessor>();
-        context.Services.AddSingleton<RsvpEmotionAnalyzer>();
         context.Services.AddSingleton<RsvpPlaybackEngine>();
         context.Services.AddSingleton(settingsStore);
         context.Services.AddSingleton<IUserSettingsStore>(settingsStore);
