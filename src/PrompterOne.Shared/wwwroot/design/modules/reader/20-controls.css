@@ -258,7 +258,7 @@
 
 /* ── Side control rails ── */
 .rd-sliders,
-.rd-mirror-controls {
+.rd-left-rail {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
@@ -278,11 +278,16 @@
 .rd-sliders {
     right: 12px;
 }
-.rd-mirror-controls {
+.rd-left-rail {
     left: 12px;
+    gap: 12px;
+}
+.rd-mirror-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     min-width: 52px;
     gap: 10px;
-    padding: 10px 6px;
 }
 .rd-align-controls {
     display: flex;
@@ -304,7 +309,7 @@
     width: 100%;
 }
 .rd-sliders:hover,
-.rd-mirror-controls:hover {
+.rd-left-rail:hover {
     opacity: .96;
 }
 .rd-slider-group {

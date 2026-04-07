@@ -48,7 +48,14 @@ internal static partial class BrowserTestConstants
         public const string ToolbarDropdownAlignmentScenario = "editor-toolbar-dropdown-alignment";
         public const string ToolbarDropdownAlignmentTopStep = "01-top-voice-menu-left-cluster";
         public const string ToolbarDropdownAlignmentFloatingStep = "02-floating-voice-menu-left-cluster";
+        public const string FindSurfaceScenario = "editor-find-surface";
+        public const string FindSurfaceStep = "01-styled-find-bar";
         public const double MinimumDateFieldWidthPx = 150;
+        public const double MinimumFindShellBackgroundAlpha = 0.01;
+        public const double MaximumFindButtonBackgroundAlpha = 0.2;
+        public const double MinimumFindShellBorderRadiusPx = 10;
+        public const double MinimumFindButtonBorderRadiusPx = 9;
+        public const string NoneValue = "none";
         public const int TooltipEarlyCheckDelayMs = 180;
         public const int TooltipSettleDelayMs = 720;
         public const int FloatingSemanticDotCount = 2;
@@ -185,6 +192,8 @@ internal static partial class BrowserTestConstants
         public const string SecurityIncidentChromeControlsStep = "03-muted-controls";
         public const string CenterAlignmentScenarioName = "teleprompter-text-alignment";
         public const string CenterAlignmentStep = "01-four-alignment-modes";
+        public const string LeftRailScenarioName = "teleprompter-left-rail";
+        public const string LeftRailStep = "01-mirror-and-alignment-rail";
         public const string AlignmentTooltipScenarioName = "teleprompter-alignment-tooltips";
         public const string AlignmentTooltipStep = "01-delayed-rail-tooltip";
         public const string ColorProperty = "color";
@@ -201,8 +210,10 @@ internal static partial class BrowserTestConstants
         public const double MaximumClusterWrapPaddingPx = 16.5;
         public const double MaximumOpticalInsetPx = 28.5;
         public const double MaximumFullWidthButtonGapPx = 6;
+        public const double MaximumLeftRailGroupLeftDeltaPx = 18;
         public const double MaximumDefaultLeftAverageCenterOffsetPx = 170;
         public const double MaximumDefaultLeftLineCenterOffsetPx = 225;
+        public const double MinimumLeftRailStageGapPx = 24;
         public const string MirrorHorizontalTooltipText = "Mirror the reader horizontally";
         public const string MirrorVerticalTooltipText = "Mirror the reader vertically";
         public const string OrientationTooltipText = "Rotate the reader between landscape and portrait";

@@ -8,6 +8,14 @@ namespace PrompterOne.Web.UITests;
 [ClassDataSource<StandaloneAppFixture>(Shared = SharedType.PerClass)]
 public sealed class TeleprompterMirrorFlowTests(StandaloneAppFixture fixture) : AppUiTestBase(fixture)
 {
+    private readonly record struct LeftRailLayoutProbe(
+        double AlignmentLeft,
+        double AlignmentRight,
+        double ClusterLeft,
+        double MirrorBottom,
+        double MirrorLeft,
+        double MirrorRight);
+
     [Test]
     public Task TeleprompterScreen_ExposesVisibleBackButtonAndMirrorControls() =>
         RunPageAsync(async page =>
@@ -55,6 +63,62 @@ public sealed class TeleprompterMirrorFlowTests(StandaloneAppFixture fixture) : 
                 page,
                 BrowserTestConstants.TeleprompterFlow.MirrorScenarioName,
                 BrowserTestConstants.TeleprompterFlow.MirrorStep);
+        });
+
+    [Test]
+    public Task TeleprompterScreen_KeepsAlignmentControlsDockedOnLeftRail() =>
+        RunPageAsync(async page =>
+        {
+            UiScenarioArtifacts.ResetScenario(BrowserTestConstants.TeleprompterFlow.LeftRailScenarioName);
+
+            await page.GotoAsync(BrowserTestConstants.Routes.TeleprompterDemo);
+            await Expect(page.GetByTestId(UiTestIds.Teleprompter.Page)).ToBeVisibleAsync(new()
+            {
+                Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs
+            });
+
+            await Expect(page.GetByTestId(UiTestIds.Teleprompter.MirrorControls)).ToBeVisibleAsync();
+            await Expect(page.GetByTestId(UiTestIds.Teleprompter.AlignmentControls)).ToBeVisibleAsync();
+
+            var layout = await page.EvaluateAsync<LeftRailLayoutProbe>(
+                """
+                (args) => {
+                    const byTestId = testId => document.querySelector(`[data-test="${testId}"]`);
+                    const alignment = byTestId(args.alignmentControls);
+                    const cluster = byTestId(args.clusterWrap);
+                    const mirror = byTestId(args.mirrorControls);
+                    const alignmentRect = alignment?.getBoundingClientRect();
+                    const clusterRect = cluster?.getBoundingClientRect();
+                    const mirrorRect = mirror?.getBoundingClientRect();
+
+                    return {
+                        alignmentLeft: alignmentRect?.left ?? 0,
+                        alignmentRight: alignmentRect?.right ?? 0,
+                        clusterLeft: clusterRect?.left ?? 0,
+                        mirrorBottom: mirrorRect?.bottom ?? 0,
+                        mirrorLeft: mirrorRect?.left ?? 0,
+                        mirrorRight: mirrorRect?.right ?? 0
+                    };
+                }
+                """,
+                new
+                {
+                    alignmentControls = UiTestIds.Teleprompter.AlignmentControls,
+                    clusterWrap = UiTestIds.Teleprompter.ClusterWrap,
+                    mirrorControls = UiTestIds.Teleprompter.MirrorControls
+                });
+
+            await Assert.That(Math.Abs(layout.AlignmentLeft - layout.MirrorLeft))
+                .IsBetween(0d, BrowserTestConstants.TeleprompterFlow.MaximumLeftRailGroupLeftDeltaPx);
+            await Assert.That(layout.ClusterLeft - layout.AlignmentRight)
+                .IsBetween(BrowserTestConstants.TeleprompterFlow.MinimumLeftRailStageGapPx, double.MaxValue);
+            await Assert.That(layout.AlignmentRight)
+                .IsBetween(0d, layout.MirrorRight);
+
+            await UiScenarioArtifacts.CapturePageAsync(
+                page,
+                BrowserTestConstants.TeleprompterFlow.LeftRailScenarioName,
+                BrowserTestConstants.TeleprompterFlow.LeftRailStep);
         });
 
     private static Task<string> GetComputedStyleValueAsync(ILocator locator, string propertyName) =>

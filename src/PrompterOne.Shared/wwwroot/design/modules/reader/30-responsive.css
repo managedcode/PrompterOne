@@ -75,16 +75,18 @@
     }
 
     .rd-sliders,
-    .rd-mirror-controls {
+    .rd-left-rail {
         gap: 12px;
         padding: 8px 4px;
     }
 
-    .rd-mirror-controls {
+    .rd-left-rail {
         left: 8px;
+    }
+
+    .rd-mirror-controls {
         min-width: auto;
         gap: 4px;
-        padding: 6px 4px;
     }
 
     .rd-align-controls {

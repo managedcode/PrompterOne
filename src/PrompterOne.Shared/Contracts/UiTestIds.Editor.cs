@@ -39,6 +39,7 @@ public static partial class UiTestIds
         public const string FindBar = "editor-find-bar";
         public const string FindClose = "editor-find-close";
         public const string FindInput = "editor-find-input";
+        public const string FindInputShell = "editor-find-input-shell";
         public const string FindNext = "editor-find-next";
         public const string FindPrevious = "editor-find-previous";
         public const string FindResult = "editor-find-result";
