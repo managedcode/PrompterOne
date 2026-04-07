@@ -466,6 +466,7 @@ Ask first:
 - agent-started local servers taking shared user ports or using ports outside the reserved `5050-5070` agent range
 - brittle selectors without dedicated test attributes
 - progress updates that imply a fix is done before there is concrete implementation and verification evidence; keep status factual and let the user verify final behavior personally
+- prematurely interrupting or stopping sub-agents during a requested parallel review/audit pass; when the user asks for multiple agents or external reviewers, let them finish and wait for their results unless the user explicitly redirects the workflow
 - automated test or coverage runs for UI-behavior fixes before the user has manually checked the change locally; wait for the user's confirmation before resuming automation
 - CI `dotnet test` steps configured with verbose or detailed console loggers that flood the logs with info output; prefer the default or otherwise minimal output that surfaces warnings and errors without noise
 - browser-suite CI runs that effectively serialize the Playwright workload and drift into `40+` minute executions; keep real TUnit parallelism enabled and fix bottlenecks or flaky blockers instead of accepting that runtime

@@ -279,10 +279,10 @@ public sealed class SettingsInteractionTests : BunitContext
         cut.WaitForAssertion(() =>
         {
             Assert.Equal(
-                $"Anthropic · {ClaudeConfiguredModel}",
+                $"{Text(UiTextKey.SettingsAiClaudeTitle)} · {ClaudeConfiguredModel}",
                 cut.FindByTestId(UiTestIds.Settings.AiProviderSubtitle(SettingsAiProviderIds.ClaudeApi)).TextContent.Trim());
             Assert.Equal(
-                $"OpenAI · {OpenAiConfiguredModel}",
+                $"{Text(UiTextKey.SettingsAiOpenAiTitle)} · {OpenAiConfiguredModel}",
                 cut.FindByTestId(UiTestIds.Settings.AiProviderSubtitle(SettingsAiProviderIds.OpenAi)).TextContent.Trim());
             Assert.Equal(
                 $"Self-hosted · {OllamaConfiguredAuthority} · {OllamaConfiguredModel}",
