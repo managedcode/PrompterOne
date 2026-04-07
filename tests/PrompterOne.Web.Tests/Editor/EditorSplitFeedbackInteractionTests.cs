@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PrompterOne.Shared.Contracts;
 using PrompterOne.Shared.Pages;
 using PrompterOne.Shared.Tests;
+using PrompterOne.Testing.Editor;
 
 namespace PrompterOne.Web.Tests;
 
@@ -28,25 +29,25 @@ public sealed class EditorSplitFeedbackInteractionTests : BunitContext
             Assert.Contains(AppTestData.Editor.BodyHeading, source.GetAttribute("value"));
         });
 
-        cut.FindByTestId(UiTestIds.Editor.SourceInput).Input(EditorSplitFeedbackInteractionTestSource.SplitSource);
+        cut.FindByTestId(UiTestIds.Editor.SourceInput).Input(EditorSplitFeedbackTestData.SplitSource);
         cut.FindByTestId(UiTestIds.Editor.SplitSegment).Click();
 
         cut.WaitForAssertion(() =>
         {
             Assert.Equal(
-                EditorSplitFeedbackInteractionTestSource.SplitFeedbackTitle,
+                EditorSplitFeedbackTestData.SplitFeedbackTitle,
                 cut.FindByTestId(UiTestIds.Editor.SplitResultTitle).TextContent.Trim());
             Assert.Equal(
-                EditorSplitFeedbackInteractionTestSource.SplitActionLabel,
+                EditorSplitFeedbackTestData.SplitActionLabel,
                 cut.FindByTestId(UiTestIds.Editor.SplitResultOpenLibrary).TextContent.Trim());
         });
 
-        cut.FindByTestId(UiTestIds.Editor.SourceInput).Input(EditorSplitFeedbackInteractionTestSource.SplitSource);
+        cut.FindByTestId(UiTestIds.Editor.SourceInput).Input(EditorSplitFeedbackTestData.SplitSource);
 
         cut.WaitForAssertion(() =>
         {
             Assert.Equal(
-                EditorSplitFeedbackInteractionTestSource.SplitActionLabel,
+                EditorSplitFeedbackTestData.SplitActionLabel,
                 cut.FindByTestId(UiTestIds.Editor.SplitResultOpenLibrary).TextContent.Trim());
         });
 
@@ -71,22 +72,22 @@ public sealed class EditorSplitFeedbackInteractionTests : BunitContext
             Assert.Contains(AppTestData.Editor.BodyHeading, source.GetAttribute("value"));
         });
 
-        cut.FindByTestId(UiTestIds.Editor.SourceInput).Input(EditorSplitFeedbackInteractionTestSource.SplitSource);
+        cut.FindByTestId(UiTestIds.Editor.SourceInput).Input(EditorSplitFeedbackTestData.SplitSource);
         cut.FindByTestId(UiTestIds.Editor.SplitSegment).Click();
 
         cut.WaitForAssertion(() =>
         {
             Assert.Equal(
-                EditorSplitFeedbackInteractionTestSource.SplitActionLabel,
+                EditorSplitFeedbackTestData.SplitActionLabel,
                 cut.FindByTestId(UiTestIds.Editor.SplitResultOpenLibrary).TextContent.Trim());
         });
 
-        await Task.Delay(EditorSplitFeedbackInteractionTestSource.PostAutosaveObservationDelayMs);
+        await Task.Delay(EditorSplitFeedbackTestData.PostAutosaveObservationDelayMs);
 
         cut.WaitForAssertion(() =>
         {
             Assert.Equal(
-                EditorSplitFeedbackInteractionTestSource.SplitActionLabel,
+                EditorSplitFeedbackTestData.SplitActionLabel,
                 cut.FindByTestId(UiTestIds.Editor.SplitResultOpenLibrary).TextContent.Trim());
         });
 
@@ -111,22 +112,22 @@ public sealed class EditorSplitFeedbackInteractionTests : BunitContext
             Assert.Contains(AppTestData.Editor.BodyHeading, source.GetAttribute("value"));
         });
 
-        cut.FindByTestId(UiTestIds.Editor.SourceInput).Input(EditorSplitFeedbackInteractionTestSource.SplitSource);
+        cut.FindByTestId(UiTestIds.Editor.SourceInput).Input(EditorSplitFeedbackTestData.SplitSource);
         cut.FindByTestId(UiTestIds.Editor.SplitSegment).Click();
 
         cut.WaitForAssertion(() =>
         {
             Assert.Equal(
-                EditorSplitFeedbackInteractionTestSource.SplitActionLabel,
+                EditorSplitFeedbackTestData.SplitActionLabel,
                 cut.FindByTestId(UiTestIds.Editor.SplitResultOpenLibrary).TextContent.Trim());
         });
 
-        cut.FindByTestId(UiTestIds.Editor.SourceInput).Input(EditorSplitFeedbackInteractionTestSource.EditedSplitSource);
+        cut.FindByTestId(UiTestIds.Editor.SourceInput).Input(EditorSplitFeedbackTestData.EditedSplitSource);
 
         cut.WaitForAssertion(() =>
         {
             Assert.Equal(
-                EditorSplitFeedbackInteractionTestSource.SplitActionLabel,
+                EditorSplitFeedbackTestData.SplitActionLabel,
                 cut.FindByTestId(UiTestIds.Editor.SplitResultOpenLibrary).TextContent.Trim());
         });
 
@@ -136,30 +137,5 @@ public sealed class EditorSplitFeedbackInteractionTests : BunitContext
         {
             Assert.EndsWith(AppRoutes.Library, navigationManager.Uri, StringComparison.Ordinal);
         });
-    }
-
-    private static class EditorSplitFeedbackInteractionTestSource
-    {
-        public const int PostAutosaveObservationDelayMs = 1_700;
-        public const string EditedSplitSource =
-            """
-            ## [Episode 1 - How to Think About Systems|140WPM|Professional]
-            Before you write code, / you need to think about the system. //
-
-            ## [Episode 2 - How Systems Talk to Each Other|140WPM|Professional]
-            APIs, events, and retries matter. //
-
-            Notes: keep the current draft open while reviewing the split.
-            """;
-        public const string SplitActionLabel = "Open in Library";
-        public const string SplitFeedbackTitle = "Split complete";
-        public const string SplitSource =
-            """
-            ## [Episode 1 - How to Think About Systems|140WPM|Professional]
-            Before you write code, / you need to think about the system. //
-
-            ## [Episode 2 - How Systems Talk to Each Other|140WPM|Professional]
-            APIs, events, and retries matter. //
-            """;
     }
 }
