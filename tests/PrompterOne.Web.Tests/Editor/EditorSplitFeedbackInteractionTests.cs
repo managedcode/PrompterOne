@@ -58,8 +58,58 @@ public sealed class EditorSplitFeedbackInteractionTests : BunitContext
         });
     }
 
+    [Test]
+    public void EditorPage_SplitFeedbackStaysVisibleAfterSourceEdits()
+    {
+        var navigationManager = Services.GetRequiredService<NavigationManager>();
+        navigationManager.NavigateTo(AppTestData.Routes.EditorDemo);
+        var cut = Render<EditorPage>();
+
+        cut.WaitForAssertion(() =>
+        {
+            var source = cut.FindByTestId(UiTestIds.Editor.SourceInput);
+            Assert.Contains(AppTestData.Editor.BodyHeading, source.GetAttribute("value"));
+        });
+
+        cut.FindByTestId(UiTestIds.Editor.SourceInput).Input(EditorSplitFeedbackInteractionTestSource.SplitSource);
+        cut.FindByTestId(UiTestIds.Editor.SplitSegment).Click();
+
+        cut.WaitForAssertion(() =>
+        {
+            Assert.Equal(
+                EditorSplitFeedbackInteractionTestSource.SplitActionLabel,
+                cut.FindByTestId(UiTestIds.Editor.SplitResultOpenLibrary).TextContent.Trim());
+        });
+
+        cut.FindByTestId(UiTestIds.Editor.SourceInput).Input(EditorSplitFeedbackInteractionTestSource.EditedSplitSource);
+
+        cut.WaitForAssertion(() =>
+        {
+            Assert.Equal(
+                EditorSplitFeedbackInteractionTestSource.SplitActionLabel,
+                cut.FindByTestId(UiTestIds.Editor.SplitResultOpenLibrary).TextContent.Trim());
+        });
+
+        cut.FindByTestId(UiTestIds.Editor.SplitResultOpenLibrary).Click();
+
+        cut.WaitForAssertion(() =>
+        {
+            Assert.EndsWith(AppRoutes.Library, navigationManager.Uri, StringComparison.Ordinal);
+        });
+    }
+
     private static class EditorSplitFeedbackInteractionTestSource
     {
+        public const string EditedSplitSource =
+            """
+            ## [Episode 1 - How to Think About Systems|140WPM|Professional]
+            Before you write code, / you need to think about the system. //
+
+            ## [Episode 2 - How Systems Talk to Each Other|140WPM|Professional]
+            APIs, events, and retries matter. //
+
+            Notes: keep the current draft open while reviewing the split.
+            """;
         public const string SplitActionLabel = "Open in Library";
         public const string SplitFeedbackTitle = "Split complete";
         public const string SplitSource =

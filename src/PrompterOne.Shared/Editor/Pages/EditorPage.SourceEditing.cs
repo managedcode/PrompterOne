@@ -71,7 +71,6 @@ public partial class EditorPage
 
         if (sourceChanged)
         {
-            _splitFeedback = null;
             Diagnostics.ClearRecoverable(SplitDraftOperation);
         }
 
