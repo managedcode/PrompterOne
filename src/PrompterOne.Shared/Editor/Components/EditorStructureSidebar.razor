@@ -38,57 +38,6 @@
         </div>
     </div>
 
-    <div class="ed-sidebar-actions">
-        <button class="ed-sidebar-action"
-                data-testid="@UiTestIds.Editor.SplitTopLevel"
-                type="button"
-                @onclick="() => OnSplitRequested.InvokeAsync(TpsDocumentSplitMode.TopLevelHeading)">@Text(UiTextKey.EditorSplitTopLevel)</button>
-        <button class="ed-sidebar-action"
-                data-testid="@UiTestIds.Editor.SplitSegment"
-                type="button"
-                @onclick="() => OnSplitRequested.InvokeAsync(TpsDocumentSplitMode.SegmentHeading)">@Text(UiTextKey.EditorSplitSegment)</button>
-    </div>
-
-    @if (SplitFeedback is not null)
-    {
-        <div class="ed-sidebar-note ed-sidebar-note-split" data-testid="@UiTestIds.Editor.SplitStatus">
-            <div class="ed-sidebar-note-head">
-                <div>
-                    <div class="ed-sidebar-note-kicker" data-testid="@UiTestIds.Editor.SplitResultTitle">@SplitFeedback.Title</div>
-                    <div class="ed-sidebar-note-summary" data-testid="@UiTestIds.Editor.SplitResultSummary">@SplitFeedback.Summary</div>
-                </div>
-                <span class="ed-sidebar-note-badge" data-testid="@UiTestIds.Editor.SplitResultBadge">@SplitFeedback.HeadingBadge</span>
-            </div>
-
-            <p class="ed-sidebar-note-copy" data-testid="@UiTestIds.Editor.SplitResultLibrary">@SplitFeedback.DestinationNote</p>
-            <p class="ed-sidebar-note-copy ed-sidebar-note-copy-muted" data-testid="@UiTestIds.Editor.SplitResultCurrentDraft">@SplitFeedback.DraftNote</p>
-
-            @if (SplitFeedback.CreatedTitles.Count > 0)
-            {
-                <div class="ed-sidebar-note-list" data-testid="@UiTestIds.Editor.SplitResultList">
-                    @for (var index = 0; index < SplitFeedback.CreatedTitles.Count; index++)
-                    {
-                        <div class="ed-sidebar-note-item" data-testid="@UiTestIds.Editor.SplitResultItem(index)">
-                            <span class="ed-sidebar-note-item-index">@($"{index + 1:00}")</span>
-                            <span class="ed-sidebar-note-item-title">@SplitFeedback.CreatedTitles[index]</span>
-                        </div>
-                    }
-                </div>
-            }
-
-            @if (SplitFeedback.AdditionalCount > 0)
-            {
-                <div class="ed-sidebar-note-more" data-testid="@UiTestIds.Editor.SplitResultMore">@Format(UiTextKey.EditorSplitMoreInLibraryFormat, SplitFeedback.AdditionalCount)</div>
-            }
-
-            <button class="ed-sidebar-note-link"
-                    data-testid="@UiTestIds.Editor.SplitResultOpenLibrary"
-                    type="button"
-                    @onclick="() => OnOpenLibraryRequested.InvokeAsync()">
-                @SplitFeedback.OpenLibraryLabel
-            </button>
-        </div>
-    }
 </div>
 
 @code {
@@ -98,15 +47,7 @@
 
     [Parameter] public EventCallback<EditorNavigationTarget> OnNavigate { get; set; }
 
-    [Parameter] public EventCallback OnOpenLibraryRequested { get; set; }
-
-    [Parameter] public EventCallback<TpsDocumentSplitMode> OnSplitRequested { get; set; }
-
     [Parameter] public IReadOnlyList<EditorOutlineSegmentViewModel> Segments { get; set; } = [];
-
-    [Parameter] public EditorSplitFeedbackViewModel? SplitFeedback { get; set; }
-
-    private string Format(UiTextKey key, params object[] args) => Localizer[key.ToString(), args];
 
     private static string GetEmotionClass(EditorOutlineSegmentViewModel segment) =>
         segment.EmotionKey switch

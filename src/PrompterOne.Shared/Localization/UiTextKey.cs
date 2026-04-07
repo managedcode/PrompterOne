@@ -311,6 +311,8 @@ public enum UiTextKey
     EditorMetadataMultipleRevisionsFormat,
     EditorMetadataToggleExpand,
     EditorMetadataToggleCollapse,
+    EditorMetadataSplitSection,
+    EditorMetadataSplitHint,
     EditorStructureSection,
     EditorStructureActiveSegment,
     EditorStructureActiveBlock,

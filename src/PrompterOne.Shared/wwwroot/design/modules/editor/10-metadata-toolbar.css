@@ -245,6 +245,50 @@ body.theme-light .ed-meta-toggle:hover {
     line-height: 1.5;
 }
 
+.ed-meta-action-note {
+    margin-top: 8px;
+}
+
+.ed-meta-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.ed-meta-action {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid var(--gold-10);
+    background: var(--glass2);
+    color: var(--t1);
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.35;
+    text-align: left;
+    cursor: pointer;
+    transition:
+        background .18s ease,
+        border-color .18s ease,
+        color .18s ease,
+        transform .18s ease;
+}
+
+.ed-meta-action:hover,
+.ed-meta-action:focus-visible {
+    background: var(--accent-g);
+    border-color: rgba(232,130,92,.18);
+    color: #E8D5B0;
+    transform: translateY(-1px);
+}
+
+.ed-meta-split-feedback {
+    margin: 12px 0 0;
+}
+
 .ed-local-history {
     display: flex;
     flex-direction: column;

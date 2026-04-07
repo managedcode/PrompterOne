@@ -1017,4 +1017,16 @@
   <data name="EditorFindResultsFormat" xml:space="preserve">
     <value>{0} / {1}</value>
   </data>
+  <data name="EditorMetadataSplitSection" xml:space="preserve">
+    <value>In neue Skripte aufteilen</value>
+  </data>
+  <data name="EditorMetadataSplitHint" xml:space="preserve">
+    <value>Erstelle aus Überschriften im aktuellen Entwurf separate Skripte.</value>
+  </data>
+  <data name="EditorSplitTopLevel" xml:space="preserve">
+    <value>Neue Skripte aus #-Überschriften</value>
+  </data>
+  <data name="EditorSplitSegment" xml:space="preserve">
+    <value>Neue Skripte aus ##-Überschriften</value>
+  </data>
 </root>

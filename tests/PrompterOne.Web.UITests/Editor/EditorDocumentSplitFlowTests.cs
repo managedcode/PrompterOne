@@ -16,6 +16,7 @@ public sealed class EditorDocumentSplitFlowTests(StandaloneAppFixture fixture) :
     private const string SplitFeedbackDraftNote = "The current draft stayed open.";
     private const string SplitFeedbackSummary = "2 new scripts created.";
     private const string SplitFeedbackTitle = "Split complete";
+    private const string SplitSegmentActionLabel = "New scripts from ## headings";
     private const string SplitSource =
         """
         ## [Episode 1 - How to Think About Systems|140WPM|Professional]
@@ -34,6 +35,22 @@ public sealed class EditorDocumentSplitFlowTests(StandaloneAppFixture fixture) :
             await Expect(page.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync();
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
             await EditorMonacoDriver.SetTextAsync(page, SplitSource);
+            await Expect(page.GetByTestId(UiTestIds.Editor.SplitSegment)).ToHaveTextAsync(SplitSegmentActionLabel);
+
+            var splitActionLivesInMetadataRail = await page.EvaluateAsync<bool>(
+                """
+                args => {
+                    const metadataRail = document.querySelector(`[data-testid="${args.metadataRailTestId}"]`);
+                    const splitAction = document.querySelector(`[data-testid="${args.splitActionTestId}"]`);
+                    return Boolean(metadataRail && splitAction && metadataRail.contains(splitAction));
+                }
+                """,
+                new
+                {
+                    metadataRailTestId = UiTestIds.Editor.MetadataRail,
+                    splitActionTestId = UiTestIds.Editor.SplitSegment
+                });
+            await Assert.That(splitActionLivesInMetadataRail).IsTrue();
 
             await page.GetByTestId(UiTestIds.Editor.SplitSegment).ClickAsync();
 

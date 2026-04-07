@@ -617,4 +617,16 @@
   <data name="EditorFindClose" xml:space="preserve"><value>Chiudi</value></data>
   <data name="EditorFindNoResults" xml:space="preserve"><value>Nessuna corrispondenza</value></data>
   <data name="EditorFindResultsFormat" xml:space="preserve"><value>{0} / {1}</value></data>
+  <data name="EditorMetadataSplitSection" xml:space="preserve">
+    <value>Dividi in nuovi script</value>
+  </data>
+  <data name="EditorMetadataSplitHint" xml:space="preserve">
+    <value>Crea script separati a partire dalle intestazioni della bozza corrente.</value>
+  </data>
+  <data name="EditorSplitTopLevel" xml:space="preserve">
+    <value>Nuovi script dalle intestazioni #</value>
+  </data>
+  <data name="EditorSplitSegment" xml:space="preserve">
+    <value>Nuovi script dalle intestazioni ##</value>
+  </data>
 </root>

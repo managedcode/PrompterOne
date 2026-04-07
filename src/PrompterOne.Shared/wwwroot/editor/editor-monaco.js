@@ -218,15 +218,25 @@ export async function syncEditorState(host, text, selectionStart, selectionEnd) 
     }
 
     const nextText = text ?? emptyValue;
+    const preservedScrollPosition = captureEditorScrollPosition(state);
     state.suppressTextNotification = true;
     state.suppressSelectionNotification = true;
 
     const model = state.editor.getModel();
     if (model) {
-        replaceModelTextPreservingViewport(state, nextText);
+        replaceModelTextPreservingViewport(state, nextText, preservedScrollPosition);
     }
 
-    applySelection(state, selectionStart ?? 0, selectionEnd ?? 0, false);
+    applySelection(state, selectionStart ?? 0, selectionEnd ?? 0, false, undefined, preservedScrollPosition);
+    restoreEditorScrollPosition(state, preservedScrollPosition);
+    requestAnimationFrame(() => {
+        const currentState = hostStates.get(state.host);
+        if (!currentState) {
+            return;
+        }
+
+        restoreEditorScrollPosition(currentState, preservedScrollPosition);
+    });
     state.suppressTextNotification = false;
     state.suppressSelectionNotification = false;
     syncProxyFromEditor(state);
@@ -1273,22 +1283,22 @@ function restoreEditorScrollPosition(state, scrollPosition) {
     state.editor.setScrollPosition(scrollPosition, state.monaco.editor.ScrollType.Immediate);
 }
 
-function replaceModelTextPreservingViewport(state, nextText) {
+function replaceModelTextPreservingViewport(state, nextText, preservedScrollPosition) {
     const model = state.editor.getModel();
     if (!model || model.getValue() === nextText) {
         return false;
     }
 
-    const preservedScrollPosition = captureEditorScrollPosition(state);
+    const stableScrollPosition = preservedScrollPosition ?? captureEditorScrollPosition(state);
     model.setValue(nextText);
-    restoreEditorScrollPosition(state, preservedScrollPosition);
+    restoreEditorScrollPosition(state, stableScrollPosition);
     requestAnimationFrame(() => {
         const currentState = hostStates.get(state.host);
         if (!currentState) {
             return;
         }
 
-        restoreEditorScrollPosition(currentState, preservedScrollPosition);
+        restoreEditorScrollPosition(currentState, stableScrollPosition);
     });
     return true;
 }
@@ -1321,7 +1331,7 @@ function centerSelectionLineInViewport(state) {
     state.editor.focus();
 }
 
-function applySelection(state, start, end, revealSelection, selectionDirection) {
+function applySelection(state, start, end, revealSelection, selectionDirection, preservedScrollPositionOverride) {
     const model = state.editor.getModel();
     if (!model) {
         return;
@@ -1337,7 +1347,7 @@ function applySelection(state, start, end, revealSelection, selectionDirection) 
     const focusOffset = direction === "backward" ? orderedStart : orderedEnd;
     const anchorPosition = model.getPositionAt(anchorOffset);
     const focusPosition = model.getPositionAt(focusOffset);
-    const preservedScrollPosition = captureEditorScrollPosition(state);
+    const preservedScrollPosition = preservedScrollPositionOverride ?? captureEditorScrollPosition(state);
 
     state.editor.setSelection(new state.monaco.Selection(
         anchorPosition.lineNumber,

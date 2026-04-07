@@ -795,4 +795,16 @@
   <data name="EditorFindResultsFormat" xml:space="preserve">
     <value>{0} / {1}</value>
   </data>
+  <data name="EditorMetadataSplitSection" xml:space="preserve">
+    <value>Dividir em novos roteiros</value>
+  </data>
+  <data name="EditorMetadataSplitHint" xml:space="preserve">
+    <value>Crie roteiros separados a partir dos títulos no rascunho atual.</value>
+  </data>
+  <data name="EditorSplitTopLevel" xml:space="preserve">
+    <value>Novos roteiros a partir de títulos #</value>
+  </data>
+  <data name="EditorSplitSegment" xml:space="preserve">
+    <value>Novos roteiros a partir de títulos ##</value>
+  </data>
 </root>

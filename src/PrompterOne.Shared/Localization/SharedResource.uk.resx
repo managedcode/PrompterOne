@@ -1032,4 +1032,16 @@
   <data name="EditorFindResultsFormat" xml:space="preserve">
     <value>{0} / {1}</value>
   </data>
+  <data name="EditorMetadataSplitSection" xml:space="preserve">
+    <value>Розділити на нові скрипти</value>
+  </data>
+  <data name="EditorMetadataSplitHint" xml:space="preserve">
+    <value>Створюйте окремі скрипти з заголовків у поточній чернетці.</value>
+  </data>
+  <data name="EditorSplitTopLevel" xml:space="preserve">
+    <value>Нові скрипти з заголовків #</value>
+  </data>
+  <data name="EditorSplitSegment" xml:space="preserve">
+    <value>Нові скрипти з заголовків ##</value>
+  </data>
 </root>

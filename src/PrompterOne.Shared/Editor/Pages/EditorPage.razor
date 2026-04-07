@@ -17,10 +17,7 @@
             <EditorStructureSidebar Segments="@_segments"
                                     ActiveSegmentIndex="@_activeSegmentIndex"
                                     ActiveBlockIndex="@_activeBlockIndex"
-                                    OnNavigate="OnNavigateAsync"
-                                    OnOpenLibraryRequested="OnOpenLibraryRequested"
-                                    OnSplitRequested="OnSplitRequestedAsync"
-                                    SplitFeedback="@_splitFeedback" />
+                                    OnNavigate="OnNavigateAsync" />
 
             <EditorSourcePanel @ref="_sourcePanel"
                                Text="@_sourceText"
@@ -53,6 +50,7 @@
                                 AutoSaveEnabled="@_fileStorageSettings.FileAutoSaveEnabled"
                                 LastLocalSaveAt="@_lastLocalSaveAt"
                                 LocalHistory="@_localHistory"
+                                SplitFeedback="@_splitFeedback"
                                 ProfileChanged="OnProfileChangedAsync"
                                 TitleChanged="OnTitleChangedAsync"
                                 BaseWpmChanged="OnBaseWpmChangedAsync"
@@ -65,6 +63,8 @@
                                 CreatedDateChanged="OnCreatedDateChangedAsync"
                                 VersionChanged="OnVersionChangedAsync"
                                 LocalHistoryRestoreRequested="OnLocalHistoryRestoreRequestedAsync"
+                                OpenLibraryRequested="OnOpenLibraryRequested"
+                                SplitRequested="OnSplitRequestedAsync"
                                 IsCollapsed="@_isMetadataRailCollapsed"
                                 ToggleLabel="@GetMetadataRailToggleLabel()"
                                 ToggleRequested="OnMetadataRailToggleAsync" />

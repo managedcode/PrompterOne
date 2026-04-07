@@ -1017,4 +1017,16 @@
   <data name="EditorFindResultsFormat" xml:space="preserve">
     <value>{0} / {1}</value>
   </data>
+  <data name="EditorMetadataSplitSection" xml:space="preserve">
+    <value>Découper en nouveaux scripts</value>
+  </data>
+  <data name="EditorMetadataSplitHint" xml:space="preserve">
+    <value>Créez des scripts séparés à partir des titres du brouillon actuel.</value>
+  </data>
+  <data name="EditorSplitTopLevel" xml:space="preserve">
+    <value>Nouveaux scripts depuis les titres #</value>
+  </data>
+  <data name="EditorSplitSegment" xml:space="preserve">
+    <value>Nouveaux scripts depuis les titres ##</value>
+  </data>
 </root>
