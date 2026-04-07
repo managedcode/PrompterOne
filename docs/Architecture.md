@@ -49,22 +49,27 @@ flowchart LR
     App["src/PrompterOne.Web<br/>Standalone WASM host"]
     Shared["src/PrompterOne.Shared<br/>Razor pages, layout, CSS, JS interop"]
     Core["src/PrompterOne.Core<br/>TPS, RSVP, workspace, media, streaming"]
+    TpsSdk["src/PrompterOne.TpsSdk<br/>Vendored TPS runtime + parser/compiler"]
     Docs["docs/<br/>Architecture + TPS reference + feature docs"]
     Tests["tests/*<br/>TUnit + bUnit + Playwright + shared test support"]
 
     App --> Shared
     Shared --> Core
+    Core --> TpsSdk
     Docs -. UI and TPS contracts .-> Shared
     Docs -. domain and parsing contracts .-> Core
+    Docs -. TPS runtime contract .-> TpsSdk
     Tests --> App
     Tests --> Shared
     Tests --> Core
+    Tests --> TpsSdk
 ```
 
 ## Vertical Slice Layout
 
 - `src/PrompterOne.Shared` keeps routed UI in feature slices: `AppShell`, `Diagnostics`, `Editor`, `Library`, `Learn`, `Teleprompter`, `GoLive`, `Settings`, and `Media`.
 - `src/PrompterOne.Core` keeps host-neutral behavior in matching domain slices: `Tps`, `Editor`, `Workspace`, `Library`, `Rsvp`, `Media`, `Streaming`, and `Localization`.
+- `src/PrompterOne.TpsSdk` keeps the vendored `ManagedCode.Tps` parser/compiler/runtime that `PrompterOne.Core` adapts into app-owned contracts.
 - `tests/PrompterOne.Core.Tests`, `tests/PrompterOne.Web.Tests`, and `tests/PrompterOne.Web.UITests` mirror those feature slices.
 - `tests/PrompterOne.Testing` owns reusable test assertions and runner configuration shared across multiple test projects.
 
@@ -83,6 +88,7 @@ flowchart LR
 - `src/PrompterOne.Web` hosts only bootstrapping and runtime startup concerns.
 - `src/PrompterOne.Shared` owns routed pages, Razor components, CSS, UI state wiring, and browser interop.
 - `src/PrompterOne.Core` owns reusable domain logic, parsing, workspace state, media models, and streaming logic.
+- `src/PrompterOne.TpsSdk` owns vendored TPS parser/compiler internals and spec-aligned runtime contracts; `PrompterOne.Core` should adapt it, not duplicate it.
 - `tests/` mirrors production ownership and proves behavior through real UI, component, and core flows.
 - New code should be added where the owning boundary already lives; do not create duplicate feature centers.
 
@@ -94,6 +100,7 @@ flowchart LR
 | `AppShell` | Shared routed layout and navigation shell | Keeps one navigation, header, widget, and screen-frame contract across the app | `src/PrompterOne.Shared/AppShell` | layout chrome, route-aware header state, persistent shell widgets, runtime page/event telemetry ownership | feature-specific editing, streaming, or document logic |
 | `Library` | Script and folder browsing surface | Lets users discover, search, and organize scripts | `src/PrompterOne.Shared/Library`, `src/PrompterOne.Core/Library` | cards, folder tree UI, repository-backed browse flows | TPS authoring rules, reader rendering, streaming orchestration |
 | `Editor` | TPS authoring surface | Creates and reshapes scripts with structure-aware tooling | `src/PrompterOne.Shared/Editor`, `src/PrompterOne.Core/Editor`, `src/PrompterOne.Core/Tps` | source editing UI, toolbar actions, front matter, TPS transforms | shell navigation policy, teleprompter playback, live runtime wiring |
+| `PrompterOne.TpsSdk` | Vendored TPS parser/compiler/runtime | Keeps `PrompterOne` aligned with the upstream TPS contract without parallel local spec copies | `src/PrompterOne.TpsSdk` | TPS parser internals, runtime models, diagnostics, compile-time phrase/block/segment contracts | Blazor UI state, app-specific repositories, parallel repo-local parser implementations |
 | `Learn` | RSVP rehearsal mode | Trains delivery with timing and context | `src/PrompterOne.Shared/Learn`, `src/PrompterOne.Core/Rsvp` | ORP playback, rehearsal pacing, next-phrase context | document storage, scene routing, destination configuration |
 | `Teleprompter` | Read-mode playback surface | Presents the script for live reading with camera-backed composition | `src/PrompterOne.Shared/Teleprompter` | reading layout, background camera composition, runtime reading flow | script persistence rules, destination setup screens |
 | `GoLive` | Operational browser studio surface | Operates the composed program feed and exposes honest live/runtime state | `src/PrompterOne.Shared/GoLive`, `src/PrompterOne.Core/Streaming` | studio layout, left-rail source control, selected vs on-air source state, browser-owned program capture, local recording control, concurrent transport publish state, right-rail telemetry and downstream health summaries | provider credential editing, source inventory, per-device sync definitions, PrompterOne-managed server media processing, unrelated editor or library concerns |
@@ -114,7 +121,7 @@ flowchart LR
 - `global.json` pins the expected .NET SDK for local and CI builds.
 - `.github/workflows/pr-validation.yml` is the canonical pull-request validation flow for repo build and test gates; it runs the browser-realistic Playwright suite in a dedicated `dotnet test` step after the non-browser test projects finish.
 - `.github/workflows/deploy-github-pages.yml` is the canonical release pipeline for the standalone WASM app: build and test, resolve the release version from `Directory.Build.props`, publish the release artifact, publish the GitHub Release, and deploy GitHub Pages on the custom-domain root. Its validation job isolates `PrompterOne.Web.UITests` from the supporting test projects so the self-hosted browser harness owns the test assets during its run.
-- Vendored browser SDK release pins live in `vendored-streaming-sdks.json`, and the exact release sync or watch flow is documented in `docs/Features/VendoredStreamingSdkReleases.md`.
+- Vendored browser SDK release pins live in `vendored-streaming-sdks.json`, and the exact release sync or watch flow is documented in `docs/Features/VendoredBrowserRuntimeReleases.md`.
 
 ## Runtime Boundaries
 

@@ -1,0 +1,17 @@
+{
+  "name": "prompterone-tooling",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint:css": "stylelint \"src/PrompterOne.Shared/wwwroot/**/*.css\" \"src/PrompterOne.Shared/**/*.razor.css\"",
+    "lint:frontend": "npm run lint:js && npm run lint:css",
+    "lint:js": "eslint \"src/PrompterOne.Shared/wwwroot/**/*.js\" \"tests/PrompterOne.Web.UITests/**/*.js\""
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.2.0",
+    "globals": "^17.4.0",
+    "stylelint": "^17.6.0",
+    "stylelint-config-standard": "^40.0.0"
+  }
+}

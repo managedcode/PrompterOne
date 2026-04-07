@@ -94,6 +94,38 @@ public sealed class ScriptSessionServiceTests
         Assert.Contains(session.State.PreviewSegments, segment => segment.Title == "Open");
     }
 
+    [Test]
+    public async Task SaveAsync_RebuildsDerivedStateAfterOnlyRawDraftFieldsWereStaged()
+    {
+        var repository = new InMemoryScriptRepository();
+        var session = CreateSession(repository);
+        const string source = """
+            ---
+            title: "Camera Check"
+            base_wpm: 145
+            ---
+
+            ## [Open|145WPM|focused]
+            ### [Slate|145WPM]
+            Camera one is live and audio delay is calibrated.
+            """;
+
+        await session.InitializeAsync();
+        session.StageDraftText(
+            "Camera Check",
+            source,
+            documentName: "camera-check.tps",
+            errorMessage: "stale-error");
+
+        var saved = await session.SaveAsync();
+
+        Assert.Equal(saved.Id, session.State.ScriptId);
+        Assert.Null(session.State.ErrorMessage);
+        Assert.True(session.State.WordCount > 0);
+        Assert.True(session.State.EstimatedDuration > TimeSpan.Zero);
+        Assert.Contains(session.State.PreviewSegments, segment => segment.Title == "Open");
+    }
+
     private static ScriptSessionService CreateSession(InMemoryScriptRepository repository)
     {
         var documentReader = new TpsDocumentReader();

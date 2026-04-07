@@ -107,3 +107,11 @@ jobs:
 
       - name: Test browser suite
         run: dotnet test --project "$UI_TEST_PROJECT"
+
+      - name: Upload Playwright artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-artifacts-pr-validation
+          path: output/playwright/
+          if-no-files-found: ignore

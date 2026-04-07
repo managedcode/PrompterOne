@@ -892,11 +892,6 @@ function decorateBodyLine(monaco, decorations, lineNumber, line, tpsCatalog) {
     }
 }
 
-function decorateMatch(monaco, decorations, lineNumber, match, className) {
-    const startColumn = (match.index ?? 0) + 1;
-    decorateRawRange(monaco, decorations, lineNumber, startColumn, startColumn + match[0].length, className);
-}
-
 function decorateRawRange(monaco, decorations, lineNumber, startColumn, endColumn, className) {
     decorations.push(createInlineDecoration(monaco, lineNumber, startColumn, endColumn, className));
 }

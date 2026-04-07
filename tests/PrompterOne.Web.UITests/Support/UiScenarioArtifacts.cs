@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.Playwright;
 
 namespace PrompterOne.Web.UITests;
@@ -64,10 +65,12 @@ internal static class UiScenarioArtifacts
 
     public static async Task CaptureFailurePageAsync(IPage page, string testName)
     {
+        var failureTimestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmssfff", CultureInfo.InvariantCulture);
         var scenarioName = string.Join(
             BrowserTestConstants.ScenarioArtifacts.Separator,
             BrowserTestConstants.ScenarioArtifacts.FailureScenarioPrefix,
-            testName);
+            testName,
+            failureTimestamp);
         await CapturePageAsync(page, scenarioName, BrowserTestConstants.ScenarioArtifacts.FailureStepName);
     }
 

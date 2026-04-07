@@ -217,11 +217,17 @@ public static partial class TpsRuntime
         var phrases = new List<CompiledPhrase>();
         for (var index = 0; index < content.Phrases.Count; index++)
         {
-            var phraseWords = content.Phrases[index].Words.Select(word => wordMap[word]).ToList();
+            var sourcePhrase = content.Phrases[index];
+            var phraseWords = ResolvePhraseWords(sourcePhrase, wordMap);
+            if (phraseWords.Count == 0)
+            {
+                continue;
+            }
+
             var phrase = new CompiledPhrase
             {
                 Id = $"{block.Id}-phrase-{index + 1}",
-                Text = content.Phrases[index].Text,
+                Text = sourcePhrase.Text,
                 StartWordIndex = phraseWords[0].Index,
                 EndWordIndex = phraseWords[^1].Index,
                 StartMs = phraseWords[0].StartMs,
@@ -239,6 +245,22 @@ public static partial class TpsRuntime
 
         ApplyTimeRange(block, words);
         return new FinalizedBlock(words, phrases, elapsedMs, wordIndex);
+    }
+
+    private static List<CompiledWord> ResolvePhraseWords(
+        PhraseSeed phrase,
+        IReadOnlyDictionary<WordSeed, CompiledWord> wordMap)
+    {
+        var phraseWords = new List<CompiledWord>(phrase.Words.Count);
+        foreach (var word in phrase.Words)
+        {
+            if (wordMap.TryGetValue(word, out var compiledWord))
+            {
+                phraseWords.Add(compiledWord);
+            }
+        }
+
+        return phraseWords;
     }
 
     private static void ApplyTimeRange(ICompiledTimeRange target, IReadOnlyList<CompiledWord> words)

@@ -39,55 +39,6 @@
         });
     }
 
-    function createAudioAnalyserFallback(track, options) {
-        const resolvedOptions = Object.assign({
-            cloneTrack: false,
-            fftSize: 2048,
-            smoothingTimeConstant: 0.8,
-            minDecibels: -100,
-            maxDecibels: -80
-        }, options);
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        if (!AudioContext) {
-            throw new Error("Audio Context not supported on this browser");
-        }
-
-        const audioContext = new AudioContext({ latencyHint: "interactive" });
-        const sourceTrack = resolvedOptions.cloneTrack ? track.mediaStreamTrack.clone() : track.mediaStreamTrack;
-        const sourceNode = audioContext.createMediaStreamSource(new MediaStream([sourceTrack]));
-        const analyser = audioContext.createAnalyser();
-        analyser.minDecibels = resolvedOptions.minDecibels;
-        analyser.maxDecibels = resolvedOptions.maxDecibels;
-        analyser.fftSize = resolvedOptions.fftSize;
-        analyser.smoothingTimeConstant = resolvedOptions.smoothingTimeConstant;
-        sourceNode.connect(analyser);
-
-        const dataArray = new Uint8Array(analyser.frequencyBinCount);
-
-        return {
-            analyser,
-            calculateVolume() {
-                analyser.getByteFrequencyData(dataArray);
-
-                let sum = 0;
-                for (const amplitude of dataArray) {
-                    sum += Math.pow(amplitude / 255, 2);
-                }
-
-                return Math.sqrt(sum / dataArray.length);
-            },
-            async cleanup() {
-                sourceNode.disconnect();
-                analyser.disconnect();
-                await audioContext.close().catch(() => {});
-
-                if (resolvedOptions.cloneTrack) {
-                    sourceTrack.stop();
-                }
-            }
-        };
-    }
-
     function createSyntheticAudioAnalyserFallback(track, options) {
         const resolvedOptions = Object.assign({
             cloneTrack: false

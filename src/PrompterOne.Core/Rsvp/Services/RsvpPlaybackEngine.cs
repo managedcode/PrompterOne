@@ -155,7 +155,7 @@ public class RsvpPlaybackEngine
 
         // Get the last character, handling quotes
         var lastChar = word[^1];
-        if (lastChar is '"' or '"' or '"' && word.Length > 1)
+        if (word.Length > 1 && IsTrailingQuote(lastChar))
         {
             lastChar = word[^2];
         }
@@ -193,6 +193,8 @@ public class RsvpPlaybackEngine
         // Normal words get standard timing
         return 1.0;
     }
+
+    private static bool IsTrailingQuote(char character) => character is '"' or '\'' or '”' or '’';
 
     private double GetWordDisplayMilliseconds(int wordIndex, string word)
     {

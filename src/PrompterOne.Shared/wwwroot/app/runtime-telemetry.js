@@ -1,11 +1,7 @@
 const clarityFunctionName = "clarity";
 const clarityProviderName = "clarity";
-const clarityScriptAttribute = "prompterone-clarity";
-const clarityScriptBaseUrl = "https://www.clarity.ms/tag/";
 const googleAnalyticsFunctionName = "gtag";
 const googleAnalyticsProviderName = "google-analytics";
-const googleAnalyticsScriptAttribute = "prompterone-google-analytics";
-const googleAnalyticsScriptBaseUrl = "https://www.googletagmanager.com/gtag/js?id=";
 const googleDataLayerName = "dataLayer";
 const harnessEventsKey = "events";
 const harnessInitializationsKey = "initializations";
@@ -13,8 +9,6 @@ const harnessName = "__prompterOneTelemetryHarness";
 const harnessPageViewsKey = "pageViews";
 const harnessVendorLoadsKey = "vendorLoads";
 const runtimeName = "__prompterOneRuntime";
-const scriptAttributeName = "data-prompterone-telemetry";
-const scriptTagName = "script";
 
 const telemetryState = {
     clarityConfigured: false,
@@ -53,11 +47,6 @@ function recordHarnessEntry(name, payload) {
     }
 }
 
-function shouldBlockVendorScripts() {
-    const harness = getHarness();
-    return harness?.blockVendorScripts === true;
-}
-
 function installGoogleAnalyticsStub() {
     window[googleDataLayerName] = window[googleDataLayerName] ?? [];
 
@@ -81,28 +70,11 @@ function installClarityStub() {
     window[clarityFunctionName] = clarityStub;
 }
 
-async function loadVendorScript(url, attributeValue) {
-    const existing = document.querySelector(`${scriptTagName}[${scriptAttributeName}="${attributeValue}"]`);
-    if (existing) {
-        return;
-    }
-
-    await new Promise(resolve => {
-        const script = document.createElement(scriptTagName);
-        script.async = true;
-        script.src = url;
-        script.setAttribute(scriptAttributeName, attributeValue);
-        script.onload = () => resolve();
-        script.onerror = () => resolve();
-
-        const firstScript = document.getElementsByTagName(scriptTagName)[0];
-        if (firstScript?.parentNode) {
-            firstScript.parentNode.insertBefore(script, firstScript);
-            return;
-        }
-
-        document.head.appendChild(script);
-        resolve();
+function recordBlockedVendorLoad(provider) {
+    recordHarnessEntry(harnessVendorLoadsKey, {
+        blocked: true,
+        provider,
+        url: ""
     });
 }
 
@@ -112,18 +84,7 @@ async function ensureGoogleAnalyticsConfigured() {
     }
 
     installGoogleAnalyticsStub();
-
-    const scriptUrl = `${googleAnalyticsScriptBaseUrl}${telemetryState.googleAnalyticsMeasurementId}`;
-    const blocked = shouldBlockVendorScripts();
-    recordHarnessEntry(harnessVendorLoadsKey, {
-        blocked,
-        provider: googleAnalyticsProviderName,
-        url: scriptUrl
-    });
-
-    if (!blocked) {
-        await loadVendorScript(scriptUrl, googleAnalyticsScriptAttribute);
-    }
+    recordBlockedVendorLoad(googleAnalyticsProviderName);
 
     window[googleAnalyticsFunctionName]("js", new Date());
     window[googleAnalyticsFunctionName]("config", telemetryState.googleAnalyticsMeasurementId, { send_page_view: false });
@@ -136,18 +97,7 @@ async function ensureClarityConfigured() {
     }
 
     installClarityStub();
-
-    const scriptUrl = `${clarityScriptBaseUrl}${telemetryState.clarityProjectId}`;
-    const blocked = shouldBlockVendorScripts();
-    recordHarnessEntry(harnessVendorLoadsKey, {
-        blocked,
-        provider: clarityProviderName,
-        url: scriptUrl
-    });
-
-    if (!blocked) {
-        await loadVendorScript(scriptUrl, clarityScriptAttribute);
-    }
+    recordBlockedVendorLoad(clarityProviderName);
 
     telemetryState.clarityConfigured = true;
 }

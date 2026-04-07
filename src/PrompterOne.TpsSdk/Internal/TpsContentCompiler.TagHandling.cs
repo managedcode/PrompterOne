@@ -43,6 +43,7 @@ internal sealed partial class TpsContentCompiler
 
         if (string.Equals(tag.Name, TpsSpec.Tags.Breath, StringComparison.Ordinal))
         {
+            FlushPhrase(phrases, currentPhrase);
             words.Add(CreateControlWord(TpsSpec.WordKinds.Breath, inherited));
             return true;
         }
@@ -60,6 +61,7 @@ internal sealed partial class TpsContentCompiler
                 return false;
             }
 
+            FlushPhrase(phrases, currentPhrase);
             words.Add(CreateControlWord(TpsSpec.WordKinds.EditPoint, inherited, null, tag.Argument));
             return true;
         }

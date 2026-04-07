@@ -68,69 +68,20 @@ public sealed class ScriptSessionService(
 
         if (string.IsNullOrWhiteSpace(text))
         {
-            State = State with
-            {
-                ScriptId = scriptId ?? string.Empty,
-                Title = title,
-                Text = text,
-                DocumentName = documentName,
-                ScriptData = null,
-                CompiledScript = null,
-                PreviewSegments = Array.Empty<SegmentPreviewModel>(),
-                WordCount = 0,
-                EstimatedDuration = TimeSpan.Zero,
-                ErrorMessage = null
-            };
-
+            State = CreateEmptyDraftState(title, text, documentName, scriptId);
             NotifyChanged();
             return;
         }
 
         try
         {
-            var scriptData = _scriptDataFactory.Build(text) with
-            {
-                ScriptId = scriptId,
-                Title = title,
-                Content = text
-            };
-
-            var document = await _documentReader.ReadAsync(text);
-            var compiledScript = await _compiler.CompileAsync(document);
-            var previewSegments = await _previewService.BuildPreviewAsync(text, cancellationToken);
-
-            State = State with
-            {
-                ScriptId = scriptId ?? string.Empty,
-                Title = title,
-                Text = text,
-                DocumentName = documentName,
-                ScriptData = scriptData,
-                CompiledScript = compiledScript,
-                PreviewSegments = previewSegments,
-                WordCount = CountWords(compiledScript),
-                EstimatedDuration = CalculateDuration(compiledScript),
-                ErrorMessage = null
-            };
-
+            State = await BuildDraftStateAsync(title, text, documentName, scriptId, cancellationToken);
             _logger.LogDebug("Draft updated successfully for {Title}.", title);
         }
         catch (Exception exception) when (exception is not OperationCanceledException)
         {
             _logger.LogError(exception, "Failed to update draft for {Title}.", title);
-            State = State with
-            {
-                ScriptId = scriptId ?? string.Empty,
-                Title = title,
-                Text = text,
-                DocumentName = documentName,
-                ScriptData = null,
-                CompiledScript = null,
-                PreviewSegments = Array.Empty<SegmentPreviewModel>(),
-                WordCount = 0,
-                EstimatedDuration = TimeSpan.Zero,
-                ErrorMessage = exception.Message
-            };
+            State = CreateFailureDraftState(title, text, documentName, scriptId, exception);
         }
 
         NotifyChanged();
@@ -169,15 +120,7 @@ public sealed class ScriptSessionService(
             existingId: State.ScriptId,
             cancellationToken: cancellationToken);
 
-        State = State with
-        {
-            ScriptId = document.Id,
-            Title = document.Title,
-            Text = document.Text,
-            DocumentName = document.DocumentName
-        };
-
-        NotifyChanged();
+        await UpdateDraftAsync(document.Title, document.Text, document.DocumentName, document.Id, cancellationToken);
         _logger.LogInformation("Saved script {ScriptId}.", document.Id);
         return document;
     }
@@ -195,6 +138,73 @@ public sealed class ScriptSessionService(
         NotifyChanged();
         return Task.CompletedTask;
     }
+
+    private async Task<ScriptWorkspaceState> BuildDraftStateAsync(
+        string title,
+        string text,
+        string documentName,
+        string? scriptId,
+        CancellationToken cancellationToken)
+    {
+        var scriptData = _scriptDataFactory.Build(text) with
+        {
+            ScriptId = scriptId,
+            Title = title,
+            Content = text
+        };
+
+        var document = await _documentReader.ReadAsync(text);
+        var compiledScript = await _compiler.CompileAsync(document);
+        var previewSegments = await _previewService.BuildPreviewAsync(text, cancellationToken);
+
+        return State with
+        {
+            ScriptId = scriptId ?? string.Empty,
+            Title = title,
+            Text = text,
+            DocumentName = documentName,
+            ScriptData = scriptData,
+            CompiledScript = compiledScript,
+            PreviewSegments = previewSegments,
+            WordCount = CountWords(compiledScript),
+            EstimatedDuration = CalculateDuration(compiledScript),
+            ErrorMessage = null
+        };
+    }
+
+    private ScriptWorkspaceState CreateEmptyDraftState(
+        string title,
+        string text,
+        string documentName,
+        string? scriptId) =>
+        State with
+        {
+            ScriptId = scriptId ?? string.Empty,
+            Title = title,
+            Text = text,
+            DocumentName = documentName,
+            ScriptData = null,
+            CompiledScript = null,
+            PreviewSegments = Array.Empty<SegmentPreviewModel>(),
+            WordCount = 0,
+            EstimatedDuration = TimeSpan.Zero,
+            ErrorMessage = null
+        };
+
+    private ScriptWorkspaceState CreateFailureDraftState(
+        string title,
+        string text,
+        string documentName,
+        string? scriptId,
+        Exception exception) =>
+        State with
+        {
+            ScriptId = scriptId ?? string.Empty,
+            Title = title,
+            Text = text,
+            DocumentName = documentName,
+            ErrorMessage = exception.Message
+        };
 
     private void NotifyChanged() => StateChanged?.Invoke(this, EventArgs.Empty);
 

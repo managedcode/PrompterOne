@@ -121,6 +121,14 @@ jobs:
 
       - name: Test browser suite
         run: dotnet test --project "$UI_TEST_PROJECT"
+
+      - name: Upload Playwright artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-artifacts-release-pipeline
+          path: output/playwright/
+          if-no-files-found: ignore
   prepare_release:
     name: Resolve Release Version
     needs:
@@ -162,7 +170,7 @@ jobs:
       APP_PROJECT: src/PrompterOne.Web/PrompterOne.Web.csproj
       PAGES_ARTIFACT_ROOT: .artifacts/prompterone-pages
       PAGES_BASE_PATH: /
-      PAGES_CNAME: prompter.managed-code.com
+      PAGES_CNAME: app.prompter.one
       PUBLISH_ROOT: .artifacts/prompterone-publish
       RELEASE_ARCHIVE_NAME: prompterone-pages.zip
       RELEASE_ARTIFACT_NAME: prompterone-release-package
