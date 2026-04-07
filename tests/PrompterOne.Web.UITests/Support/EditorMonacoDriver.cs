@@ -203,6 +203,11 @@ internal static class EditorMonacoDriver
         await SetSelectionAsync(page, start, start + targetText.Length);
     }
 
+    internal static async Task CenterSelectionLineAsync(IPage page)
+    {
+        _ = await InvokeHarnessAsync<EditorMonacoState>(page, "centerSelectionLine");
+    }
+
     internal static async Task WaitForSelectionScrollAsync(IPage page, int minimumScrollTop, int timeoutMs)
     {
         await page.WaitForFunctionAsync(

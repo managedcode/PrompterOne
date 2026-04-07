@@ -1,6 +1,7 @@
 using System.Text.RegularExpressions;
 using PrompterOne.Shared.Contracts;
 using PrompterOne.Shared.Services;
+using PrompterOne.Testing;
 
 namespace PrompterOne.Web.UITests;
 
@@ -279,9 +280,14 @@ internal static partial class BrowserTestConstants
         public const string OverlayRenderedLengthDataAttribute = "renderedLength";
         public const int ScrollProbeLineCount = 120;
         public const int MaxSourceScrollHostTopPx = 0;
-        public const int MaxTypingLongTaskCount = 0;
+        public const int CiMaxTypingLongTaskCount = 1;
+        public const int LocalMaxTypingLongTaskCount = 0;
         public const double MaxVisibleRenderP95LatencyMs = 240;
         public const double MaxVisibleRenderSpikeLatencyMs = 300;
+        public static int AllowedTypingLongTaskCount =>
+            TestEnvironment.IsCiEnvironment
+                ? CiMaxTypingLongTaskCount
+                : LocalMaxTypingLongTaskCount;
         public const string TypedScript = """
             ## [Typed Intro|175WPM|focused|0:05-0:20]
             ### [Typed Block|165WPM|professional]

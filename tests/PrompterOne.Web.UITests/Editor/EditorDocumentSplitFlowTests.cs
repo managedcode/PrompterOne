@@ -49,8 +49,8 @@ public sealed class EditorDocumentSplitFlowTests(StandaloneAppFixture fixture) :
             await Expect(page.GetByTestId(UiTestIds.Editor.SplitResultItem(0))).ToContainTextAsync(EpisodeOneTitle);
             await Expect(page.GetByTestId(UiTestIds.Editor.SplitResultItem(1))).ToContainTextAsync(EpisodeTwoTitle);
             await Expect(page.GetByTestId(UiTestIds.Editor.SplitResultOpenLibrary)).ToHaveTextAsync(SplitFeedbackActionLabel);
-            await UiScenarioArtifacts.CaptureLocatorAsync(
-                page.GetByTestId(UiTestIds.Editor.SplitStatus),
+            await UiScenarioArtifacts.CapturePageAsync(
+                page,
                 BrowserTestConstants.EditorFlow.SplitFeedbackScenario,
                 BrowserTestConstants.EditorFlow.SplitFeedbackStep);
             await Expect(EditorMonacoDriver.SourceInput(page)).ToHaveValueAsync(SplitSource);

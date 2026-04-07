@@ -405,6 +405,20 @@ function ensureHarness(options) {
             notifySelectionChanged(state, false);
             return createSelectionState(state);
         },
+        centerSelectionLine: testId => {
+            const state = getRequiredHarnessState(testId);
+            centerSelectionLineInViewport(state);
+            requestAnimationFrame(() => {
+                const currentState = getOptionalHarnessState(testId);
+                if (!currentState) {
+                    return;
+                }
+
+                centerSelectionLineInViewport(currentState);
+                currentState.editor.render();
+            });
+            return createHarnessState(state, options);
+        },
         setText: (testId, text) => {
             const state = getRequiredHarnessState(testId);
             const model = state.editor.getModel();
@@ -1282,6 +1296,34 @@ function replaceModelTextPreservingViewport(state, nextText) {
         restoreEditorScrollPosition(currentState, preservedScrollPosition);
     });
     return true;
+}
+
+function centerSelectionLineInViewport(state) {
+    const selection = createSelectionState(state);
+    const lineNumber = Math.max(1, selection.line ?? 1);
+    const scrollType = state.monaco.editor.ScrollType.Immediate;
+
+    if (typeof state.editor.getTopForLineNumber === "function") {
+        const layoutInfo = state.editor.getLayoutInfo?.();
+        const lineHeight = typeof state.editor.getOption === "function"
+            ? (state.editor.getOption(state.monaco.editor.EditorOption.lineHeight) ?? 0)
+            : 0;
+        const viewportHeight = layoutInfo?.height ?? 0;
+        const lineTop = state.editor.getTopForLineNumber(lineNumber);
+        const centeredScrollTop = Math.max(0, lineTop - Math.max(0, (viewportHeight - lineHeight) / 2));
+
+        state.editor.setScrollPosition(
+            {
+                scrollLeft: state.editor.getScrollLeft(),
+                scrollTop: centeredScrollTop
+            },
+            scrollType);
+    }
+    else {
+        revealSelectionInViewport(state, scrollType);
+    }
+
+    state.editor.focus();
 }
 
 function applySelection(state, start, end, revealSelection, selectionDirection) {

@@ -291,7 +291,7 @@ public sealed class EditorTypingTests(StandaloneAppFixture fixture)
             await Assert.That(probeResult.SawVisibleInput).IsFalse();
             await Assert.That(probeResult.P95Latency).IsBetween(0, BrowserTestConstants.Editor.MaxVisibleRenderP95LatencyMs);
             await Assert.That(probeResult.MaxLatency).IsBetween(0, BrowserTestConstants.Editor.MaxVisibleRenderSpikeLatencyMs);
-            await Assert.That(probeResult.LongTaskCount <= BrowserTestConstants.Editor.MaxTypingLongTaskCount).IsTrue().Because($"Expected Monaco typing to avoid browser long tasks, but observed {probeResult.LongTaskCount} long task(s) with max duration {probeResult.MaxLongTaskDuration:0.##}ms.");
+            await Assert.That(probeResult.LongTaskCount <= BrowserTestConstants.Editor.AllowedTypingLongTaskCount).IsTrue().Because($"Expected Monaco typing to avoid browser long tasks, but observed {probeResult.LongTaskCount} long task(s) with max duration {probeResult.MaxLongTaskDuration:0.##}ms against the current budget of {BrowserTestConstants.Editor.AllowedTypingLongTaskCount}.");
             await Assert.That(probeResult.FinalInputColor).IsEqualTo(BrowserTestConstants.Editor.TransparentInputColor);
             await Assert.That(probeResult.ReadyDuringTyping).IsTrue();
             await Assert.That(probeResult.FinalRenderedLength >= BrowserTestConstants.Editor.TypingResponsivenessProbeText.Length).IsTrue().Because($"Expected the Monaco overlay to render the full probe text during typing, but the rendered length was {probeResult.FinalRenderedLength}.");

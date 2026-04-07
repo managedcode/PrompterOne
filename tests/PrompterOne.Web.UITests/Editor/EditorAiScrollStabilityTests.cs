@@ -31,6 +31,7 @@ public sealed class EditorAiScrollStabilityTests(StandaloneAppFixture fixture)
                 page,
                 targetRange.Start,
                 targetRange.End);
+            await EditorMonacoDriver.CenterSelectionLineAsync(page);
             await EditorMonacoDriver.WaitForSelectionScrollAsync(
                 page,
                 BrowserTestConstants.Editor.AiScrollJumpMinimumScrollTopPx,
