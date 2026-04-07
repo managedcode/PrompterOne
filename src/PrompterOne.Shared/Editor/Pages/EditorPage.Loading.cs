@@ -63,7 +63,7 @@ public partial class EditorPage
         }
     }
 
-    private void PopulateEditorState(bool resetHistory = false)
+    private void PopulateEditorState(bool resetHistory = false, bool clearSplitFeedback = true)
     {
         var state = SessionService.State;
         var document = _frontMatterService.Parse(state.Text);
@@ -75,7 +75,10 @@ public partial class EditorPage
         }
 
         ResetMetadataDefaults(state);
-        _splitFeedback = null;
+        if (clearSplitFeedback)
+        {
+            _splitFeedback = null;
+        }
         _sourceText = document.Body;
         ApplyLoadedMetadata(metadata, state);
         _segments = OutlineBuilder.Build(state.ScriptData, document.Body, 0);

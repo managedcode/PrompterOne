@@ -100,7 +100,7 @@ public partial class EditorPage
             return;
         }
 
-        PopulateEditorState();
+        PopulateEditorState(clearSplitFeedback: false);
         _ = InvokeAsync(StateHasChanged);
     }
 

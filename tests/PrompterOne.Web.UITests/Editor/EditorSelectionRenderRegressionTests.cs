@@ -7,16 +7,11 @@ namespace PrompterOne.Web.UITests;
 
 [ClassDataSource<StandaloneAppFixture>(Shared = SharedType.PerClass)]
 [NotInParallel(UiTestParallelization.EditorAuthoringConstraintKey)]
-public sealed class EditorSelectionRenderRegressionTests(StandaloneAppFixture fixture)
+public sealed class EditorSelectionRenderRegressionTests(StandaloneAppFixture fixture) : AppUiTestBase(fixture)
 {
-    private readonly StandaloneAppFixture _fixture = fixture;
-
     [Test]
-    public async Task EditorScreen_SetTextThenSelectStillRendersFloatingBar()
-    {
-        var page = await _fixture.NewPageAsync();
-
-        try
+    public Task EditorScreen_SetTextThenSelectStillRendersFloatingBar() =>
+        RunPageAsync(async page =>
         {
             await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
             await Expect(page.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync();
@@ -27,19 +22,11 @@ public sealed class EditorSelectionRenderRegressionTests(StandaloneAppFixture fi
 
             await Expect(page.GetByTestId(UiTestIds.Editor.FloatingBar))
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.FastVisibleTimeoutMs });
-        }
-        finally
-        {
-            await page.Context.CloseAsync();
-        }
-    }
+        });
 
     [Test]
-    public async Task EditorScreen_BackwardSelection_SelectsExpectedTrailingCharactersFromWordEnd()
-    {
-        var page = await _fixture.NewPageAsync();
-
-        try
+    public Task EditorScreen_BackwardSelection_SelectsExpectedTrailingCharactersFromWordEnd() =>
+        RunPageAsync(async page =>
         {
             await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
             await Expect(page.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync();
@@ -55,19 +42,11 @@ public sealed class EditorSelectionRenderRegressionTests(StandaloneAppFixture fi
             var selectedText = ReadSelectedText(state);
 
             await Assert.That(selectedText).IsEqualTo(BrowserTestConstants.Editor.ReverseSelectionExpectedText);
-        }
-        finally
-        {
-            await page.Context.CloseAsync();
-        }
-    }
+        });
 
     [Test]
-    public async Task EditorScreen_BackwardSelection_CanExtendAcrossLineBreaks()
-    {
-        var page = await _fixture.NewPageAsync();
-
-        try
+    public Task EditorScreen_BackwardSelection_CanExtendAcrossLineBreaks() =>
+        RunPageAsync(async page =>
         {
             await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
             await Expect(page.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync();
@@ -84,12 +63,7 @@ public sealed class EditorSelectionRenderRegressionTests(StandaloneAppFixture fi
 
             await Assert.That(selectedText.Length >= BrowserTestConstants.Editor.ReverseMultilineSelectionCharacterCount).IsTrue().Because($"Expected backward selection to keep growing across lines, but only selected {selectedText.Length} characters.");
             await Assert.That(selectedText).Contains(BrowserTestConstants.Editor.LineFeed);
-        }
-        finally
-        {
-            await page.Context.CloseAsync();
-        }
-    }
+        });
 
     private static string ReadSelectedText(EditorMonacoState state)
     {

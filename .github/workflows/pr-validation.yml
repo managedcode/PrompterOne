@@ -21,8 +21,8 @@ env:
   UI_TEST_PROJECT: tests/PrompterOne.Web.UITests/PrompterOne.Web.UITests.csproj
 
 jobs:
-  build_and_test_supporting:
-    name: Validate Supporting Suites
+  build_supporting_suites:
+    name: Restore + Build Supporting Suites
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -35,16 +35,34 @@ jobs:
         with:
           global-json-file: global.json
 
+      - name: Restore solution
+        run: dotnet restore "$SOLUTION_FILE"
+
       - name: Build solution
         run: dotnet build "$SOLUTION_FILE" -warnaserror
+
+  test_supporting_suites:
+    name: Run Supporting Suites
+    needs: build_supporting_suites
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
 
       - name: Test supporting suites
         run: |
           dotnet test --project "$CORE_TEST_PROJECT"
           dotnet test --project "$APP_TEST_PROJECT"
 
-  build_and_test_browser:
-    name: Validate Browser Suite
+  build_browser_suite:
+    name: Restore + Build Browser Suite
     runs-on: macos-latest
     timeout-minutes: 30
 
@@ -57,8 +75,26 @@ jobs:
         with:
           global-json-file: global.json
 
+      - name: Restore solution
+        run: dotnet restore "$SOLUTION_FILE"
+
       - name: Build solution
         run: dotnet build "$SOLUTION_FILE" -warnaserror
+
+  test_browser_suite:
+    name: Run Browser Suite
+    needs: build_browser_suite
+    runs-on: macos-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
 
       - name: Install Playwright browser
         run: node "$PLAYWRIGHT_CLI" install chromium

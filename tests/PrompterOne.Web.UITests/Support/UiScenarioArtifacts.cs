@@ -62,6 +62,15 @@ internal static class UiScenarioArtifacts
         }
     }
 
+    public static async Task CaptureFailurePageAsync(IPage page, string testName)
+    {
+        var scenarioName = string.Join(
+            BrowserTestConstants.ScenarioArtifacts.Separator,
+            BrowserTestConstants.ScenarioArtifacts.FailureScenarioPrefix,
+            testName);
+        await CapturePageAsync(page, scenarioName, BrowserTestConstants.ScenarioArtifacts.FailureStepName);
+    }
+
     private static string BuildArtifactPath(string scenarioName, string stepName) =>
         Path.Combine(
             GetScenarioDirectory(scenarioName),

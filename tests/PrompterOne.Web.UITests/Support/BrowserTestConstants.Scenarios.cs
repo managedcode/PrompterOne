@@ -8,6 +8,8 @@ internal static partial class BrowserTestConstants
         public const int CaptureRetryDelayMs = 150;
         public const int CaptureVisibleTimeoutMs = 15_000;
         public const string DetachedElementMessageFragment = "Element is not attached to the DOM";
+        public const string FailureScenarioPrefix = "failure";
+        public const string FailureStepName = "00-failure";
         public const string OutputDirectoryName = "output";
         public const string PlaywrightDirectoryName = "playwright";
         public const string ImageExtension = ".png";

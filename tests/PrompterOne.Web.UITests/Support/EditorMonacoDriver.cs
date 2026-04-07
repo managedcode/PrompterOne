@@ -178,19 +178,29 @@ internal static class EditorMonacoDriver
             revealSelection
         });
 
+        var orderedStart = Math.Min(start, end);
+        var orderedEnd = Math.Max(start, end);
+
         await page.WaitForFunctionAsync(
             """
             (args) => {
                 const harness = window[args.harnessGlobalName];
                 const state = harness?.getState(args.testId);
-                return state?.selection?.start === args.start && state?.selection?.end === args.end;
+                const selection = state?.selection;
+                if (!selection) {
+                    return false;
+                }
+
+                const normalizedStart = Math.min(selection.start, selection.end);
+                const normalizedEnd = Math.max(selection.start, selection.end);
+                return normalizedStart === args.orderedStart && normalizedEnd === args.orderedEnd;
             }
             """,
             new
             {
-                end,
                 harnessGlobalName = EditorMonacoRuntimeContract.BrowserHarnessGlobalName,
-                start,
+                orderedEnd,
+                orderedStart,
                 testId = UiTestIds.Editor.SourceStage
             },
             new() { Timeout = BrowserTestConstants.Timing.FastVisibleTimeoutMs });

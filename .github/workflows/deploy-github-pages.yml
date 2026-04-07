@@ -23,8 +23,8 @@ env:
   UI_TEST_PROJECT: tests/PrompterOne.Web.UITests/PrompterOne.Web.UITests.csproj
 
 jobs:
-  validate_supporting_suites:
-    name: Validate Supporting Suites
+  build_supporting_suites:
+    name: Restore + Build Supporting Suites
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -40,16 +40,37 @@ jobs:
         with:
           global-json-file: global.json
 
+      - name: Restore solution
+        run: dotnet restore "$SOLUTION_FILE"
+
       - name: Build solution
         run: dotnet build "$SOLUTION_FILE" -warnaserror
+
+  test_supporting_suites:
+    name: Run Supporting Suites
+    needs: build_supporting_suites
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
 
       - name: Test supporting suites
         run: |
           dotnet test --project "$CORE_TEST_PROJECT"
           dotnet test --project "$APP_TEST_PROJECT"
 
-  validate_browser_suite:
-    name: Validate Browser Suite
+  build_browser_suite:
+    name: Restore + Build Browser Suite
     runs-on: macos-latest
     timeout-minutes: 30
 
@@ -65,8 +86,29 @@ jobs:
         with:
           global-json-file: global.json
 
+      - name: Restore solution
+        run: dotnet restore "$SOLUTION_FILE"
+
       - name: Build solution
         run: dotnet build "$SOLUTION_FILE" -warnaserror
+
+  test_browser_suite:
+    name: Run Browser Suite
+    needs: build_browser_suite
+    runs-on: macos-latest
+    timeout-minutes: 30
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
 
       - name: Install Playwright browser
         run: node "$PLAYWRIGHT_CLI" install chromium
@@ -76,8 +118,8 @@ jobs:
   prepare_release:
     name: Resolve Release Version
     needs:
-      - validate_supporting_suites
-      - validate_browser_suite
+      - test_supporting_suites
+      - test_browser_suite
     runs-on: ubuntu-latest
     env:
       APP_PROJECT: src/PrompterOne.Web/PrompterOne.Web.csproj
