@@ -166,7 +166,8 @@
 
     .lib-folders-section {
         margin-top: 12px;
-        max-height: none;
+        max-height: clamp(72px, 24vh, 104px);
+        overflow-y: auto;
     }
 
     .lib-nav-bottom {

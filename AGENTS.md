@@ -506,6 +506,7 @@ Ask first:
 - ad-hoc one-off UI cleanup without a repo search and explicit inventory of similar offenders first; when this class of design-system debt is touched, audit the whole slice, track the file list in a plan, and close items systematically with tests
 - broad quality reviews that end at a report; when the audit finds concrete code smells or architecture violations, follow through with fixes in the same task unless an explicit blocker is documented
 - repo-wide review or audit requests that start with broad automated test runs before the initial findings are written down; review artifacts and ranked findings must come first unless the user explicitly asks for a test baseline
+- when the user asks to finish everything left in a backlog or root plan set, do not stop after the live regressions are green and leave remaining structural refactors as a follow-up; inventory the remaining items explicitly and either complete them in the same task or document the concrete blocker before claiming the work is done
 - Blazor UI authored as page-sized raw markup blobs or HTML-string composition instead of small reusable Razor components with clear contracts; routed screens should read as composed component trees, not pasted HTML fragments
 - duplicated styling or browser-behavior logic split across CSS, JS, and Razor when one reusable Blazor component or C# contract can own it cleanly
 - runtime dependencies fetched from random external sources instead of vendored release artifacts

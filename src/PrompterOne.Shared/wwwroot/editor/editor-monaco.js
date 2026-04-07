@@ -5,6 +5,8 @@ const largeDraftDecorationCharacterThreshold = 16000;
 const largeDraftDecorationViewportLinePadding = 24;
 const frontMatterDelimiter = "---";
 const emptyValue = "";
+const floatingToolbarMinimumTop = 44;
+const floatingToolbarSelectionOffset = 5;
 const hostStates = new WeakMap();
 const gutterSelector = ".margin-view-overlays";
 const minimapSelector = ".minimap";
@@ -1564,9 +1566,11 @@ function createSelectionState(state) {
     const end = model.getOffsetAt(focusPosition);
     const direction = normalizeSelectionDirection(selection.getDirection?.(), start, end);
     const visiblePosition = state.editor.getScrolledVisiblePosition(selection.getStartPosition());
-    const rawToolbarTop = visiblePosition ? Math.max(44, (visiblePosition.top ?? 0) + 10) : 44;
+    const rawToolbarTop = visiblePosition
+        ? Math.max(floatingToolbarMinimumTop, (visiblePosition.top ?? 0) + floatingToolbarSelectionOffset)
+        : floatingToolbarMinimumTop;
     const rawToolbarLeft = visiblePosition ? (visiblePosition.left ?? 0) + ((visiblePosition.width ?? 0) / 2) : 0;
-    const toolbarTop = Number.isFinite(rawToolbarTop) ? rawToolbarTop : 44;
+    const toolbarTop = Number.isFinite(rawToolbarTop) ? rawToolbarTop : floatingToolbarMinimumTop;
     const toolbarLeft = Number.isFinite(rawToolbarLeft) ? rawToolbarLeft : 0;
 
     return {
@@ -1588,6 +1592,6 @@ function createEmptySelectionState() {
         line: 1,
         start: 0,
         toolbarLeft: 0,
-        toolbarTop: 44
+        toolbarTop: floatingToolbarMinimumTop
     };
 }
