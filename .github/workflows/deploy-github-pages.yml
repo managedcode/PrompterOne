@@ -110,6 +110,12 @@ jobs:
         with:
           global-json-file: global.json
 
+      - name: Restore solution
+        run: dotnet restore "$SOLUTION_FILE"
+
+      - name: Build solution
+        run: dotnet build "$SOLUTION_FILE" -warnaserror
+
       - name: Install Playwright browser
         run: node "$PLAYWRIGHT_CLI" install chromium
 
