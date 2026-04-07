@@ -275,6 +275,7 @@
                     @foreach (var entry in _cards.Select((card, index) => (card, index)))
                     {
                         <div class="@BuildReaderCardCssClass(entry.index)"
+                             data-reader-card-state="@BuildReaderCardStateDataAttribute(entry.index)"
                              data-testid="@entry.card.TestId">
                             <div class="rd-cluster rd-cluster-active">
                                 <div class="rd-cluster-emotion">
@@ -304,6 +305,7 @@
                                                           data-ms="@word.DurationMs"
                                                           data-pause-ms="@word.PauseAfterMs"
                                                           data-effective-wpm="@word.EffectiveWpm"
+                                                          data-reader-word-state="@BuildReaderWordStateDataAttribute(entry.index, chunkIndex, wordIndex)"
                                                           data-pronunciation="@word.PronunciationGuide"
                                                            @attributes="word.Attributes"
                                                            style="@word.Style"

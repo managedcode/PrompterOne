@@ -1,7 +1,5 @@
 (function () {
-    const namespace = "PrompterOneGoLiveOutputVdoNinja";
     const connectedEvent = "connected";
-    const defaultStreamLabel = "PrompterOne Program";
     const detailKey = "detail";
     const disconnectedEvent = "disconnected";
     const peerConnectedEvent = "peerConnected";
@@ -18,6 +16,26 @@
     const streamIdSeparator = "-";
     const streamIdUnsafePattern = /[^a-z0-9]+/gi;
     const viewParam = "view";
+    const runtimeGlobalName = "__prompterOneRuntime";
+    const mediaContractProperty = "media";
+    const defaultMediaRuntimeContract = Object.freeze({
+        defaultVdoNinjaBaseUrl: "https://vdo.ninja/",
+        defaultVdoNinjaStreamLabel: "PrompterOne Program",
+        goLiveOutputVdoNinjaNamespace: "PrompterOneGoLiveOutputVdoNinja",
+        vdoNinjaLegacyGlobalName: "VDONinja",
+        vdoNinjaSdkGlobalName: "VDONinjaSDK"
+    });
+
+    function getMediaRuntimeContract() {
+        return window[runtimeGlobalName]?.[mediaContractProperty] ?? defaultMediaRuntimeContract;
+    }
+
+    function getMediaRuntimeString(propertyName) {
+        const value = getMediaRuntimeContract()?.[propertyName];
+        return typeof value === "string" && value.length > 0
+            ? value
+            : defaultMediaRuntimeContract[propertyName];
+    }
 
     function ensureSessionDefaults(session) {
         session.vdoNinjaActive = Boolean(session.vdoNinjaActive);
@@ -48,7 +66,8 @@
     }
 
     function getSdkConstructor() {
-        const ctor = window.VDONinjaSDK || window.VDONinja;
+        const ctor = window[getMediaRuntimeString("vdoNinjaSdkGlobalName")]
+            || window[getMediaRuntimeString("vdoNinjaLegacyGlobalName")];
         if (typeof ctor !== "function") {
             throw new Error("VDO.Ninja SDK runtime is not available.");
         }
@@ -90,7 +109,7 @@
 
     function resolveConfig(connection) {
         const parsed = parsePublishUrl(connection.publishUrl);
-        const baseUrl = connection.baseUrl || "https://vdo.ninja/";
+        const baseUrl = connection.baseUrl || getMediaRuntimeString("defaultVdoNinjaBaseUrl");
         const roomName = connection.roomName || parsed.roomName;
         const streamId = parsed.streamId
             || [connection.connectionId, roomName].filter(Boolean).map(sanitizeStreamSegment).join(streamIdSeparator);
@@ -112,7 +131,7 @@
 
         return {
             connectionId: connection.connectionId,
-            label: defaultStreamLabel,
+            label: getMediaRuntimeString("defaultVdoNinjaStreamLabel"),
             publishUrl,
             roomName,
             streamId: streamId || sanitizeStreamSegment(connection.connectionId),
@@ -263,7 +282,7 @@
         };
     }
 
-    window[namespace] = {
+    window[getMediaRuntimeString("goLiveOutputVdoNinjaNamespace")] = {
         buildSnapshot,
         startSession,
         stopSession

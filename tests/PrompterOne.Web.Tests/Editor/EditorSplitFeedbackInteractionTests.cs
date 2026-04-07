@@ -153,4 +153,50 @@ public sealed class EditorSplitFeedbackInteractionTests : BunitContext
             Assert.EndsWith(AppRoutes.Library, navigationManager.Uri, StringComparison.Ordinal);
         });
     }
+
+    [Test]
+    public void EditorPage_SplitFeedbackStaysVisibleAcrossUntitledDraftAutosaveNavigation()
+    {
+        var navigationManager = Services.GetRequiredService<NavigationManager>();
+        navigationManager.NavigateTo(AppRoutes.Editor);
+        var cut = Render<EditorPage>();
+
+        cut.WaitForAssertion(() =>
+        {
+            Assert.NotNull(cut.FindByTestId(UiTestIds.Editor.SourceInput));
+        });
+
+        cut.FindByTestId(UiTestIds.Editor.SourceInput).Input(EditorSplitFeedbackTestData.SplitSource);
+        cut.FindByTestId(UiTestIds.Editor.SplitSegment).Click();
+
+        cut.WaitForAssertion(() =>
+        {
+            Assert.Equal(
+                EditorSplitFeedbackTestData.SplitFeedbackDestination,
+                cut.FindByTestId(UiTestIds.Editor.SplitResultLibrary).TextContent.Trim());
+            Assert.Equal(
+                EditorSplitFeedbackTestData.SplitActionLabel,
+                cut.FindByTestId(UiTestIds.Editor.SplitResultOpenLibrary).TextContent.Trim());
+        }, AutosaveAssertionTimeout);
+
+        cut.WaitForAssertion(() =>
+        {
+            var uri = new Uri(navigationManager.Uri);
+            Assert.Equal(AppRoutes.Editor, uri.AbsolutePath);
+            Assert.Contains(
+                $"{AppRoutes.ScriptIdQueryKey}=",
+                uri.Query,
+                StringComparison.Ordinal);
+        }, AutosaveAssertionTimeout);
+
+        cut.WaitForAssertion(() =>
+        {
+            Assert.Equal(
+                EditorSplitFeedbackTestData.SplitFeedbackDestination,
+                cut.FindByTestId(UiTestIds.Editor.SplitResultLibrary).TextContent.Trim());
+            Assert.Equal(
+                EditorSplitFeedbackTestData.SplitActionLabel,
+                cut.FindByTestId(UiTestIds.Editor.SplitResultOpenLibrary).TextContent.Trim());
+        }, AutosaveAssertionTimeout);
+    }
 }

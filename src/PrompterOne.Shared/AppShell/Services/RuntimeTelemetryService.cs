@@ -30,6 +30,17 @@ public sealed class RuntimeTelemetryService(IJSRuntime jsRuntime, RuntimeTelemet
             new
             {
                 clarityProjectId = _options.ClarityProjectId,
+                contract = new
+                {
+                    eventsCollection = AppRuntimeTelemetry.Harness.EventsCollection,
+                    harnessGlobalName = AppRuntimeTelemetry.Harness.GlobalName,
+                    initializationsCollection = AppRuntimeTelemetry.Harness.InitializationsCollection,
+                    pageViewsCollection = AppRuntimeTelemetry.Harness.PageViewsCollection,
+                    runtimeGlobalName = AppRuntimeTelemetry.Harness.RuntimeGlobalName,
+                    runtimeHarnessEnabledProperty = AppRuntimeTelemetry.Harness.RuntimeHarnessEnabledProperty,
+                    runtimeWasmDebugEnabledProperty = AppRuntimeTelemetry.Harness.RuntimeWasmDebugEnabledProperty,
+                    vendorLoadsCollection = AppRuntimeTelemetry.Harness.VendorLoadsCollection
+                },
                 googleAnalyticsMeasurementId = _options.GoogleAnalyticsMeasurementId,
                 hostEnabled = _options.HostEnabled,
                 sentryConfigured = _options.SentryConfigured

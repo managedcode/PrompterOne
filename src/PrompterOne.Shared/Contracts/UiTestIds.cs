@@ -471,6 +471,8 @@ public static class UiTestIds
 
         public static string CameraDeviceAction(string deviceId) => $"settings-camera-device-action-{deviceId}";
 
+        public static string CameraDeviceLabel(string deviceId) => $"settings-camera-device-label-{deviceId}";
+
         public static string ShortcutsAction(string groupId, string actionId) => $"settings-shortcuts-action-{groupId}-{actionId}";
 
         public static string ShortcutsGroup(string groupId) => $"settings-shortcuts-group-{groupId}";
@@ -496,6 +498,8 @@ public static class UiTestIds
         public static string MicDelay(string deviceId) => $"settings-mic-delay-{deviceId}";
 
         public static string MicDevice(string deviceId) => $"settings-mic-device-{deviceId}";
+
+        public static string MicDeviceLabel(string deviceId) => $"settings-mic-device-label-{deviceId}";
 
         public static string ThemeOption(string value) => $"settings-theme-option-{value}";
 

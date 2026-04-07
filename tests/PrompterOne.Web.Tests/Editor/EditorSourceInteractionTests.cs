@@ -19,7 +19,7 @@ public sealed class EditorSourceInteractionTests : BunitContext
     }
 
     [Test]
-    public async Task EditorPage_UsesVisibleBodyTextareaAndRebuildsStructureWhenSourceChanges()
+    public void EditorPage_UsesVisibleBodyTextareaAndRebuildsStructureWhenSourceChanges()
     {
         Services.GetRequiredService<NavigationManager>()
             .NavigateTo(AppTestData.Routes.EditorDemo);
@@ -40,24 +40,20 @@ public sealed class EditorSourceInteractionTests : BunitContext
 
         cut.FindByTestId(UiTestIds.Editor.SourceInput).Input(updatedSource);
 
-        await Task.Delay(EditorSourceInteractionTestSource.PostDraftAnalysisObservationDelay);
-
         cut.WaitForAssertion(() =>
         {
             Assert.Equal(updatedSource, cut.FindByTestId(UiTestIds.Editor.SourceInput).GetAttribute("value"));
             Assert.Contains("Fresh Opening", cut.Markup);
             Assert.Contains("Renamed Block", cut.Markup);
             Assert.Contains(EditorSourceInteractionTestSource.SingleSegmentLabel, cut.Markup);
-        });
-
-        await Task.Delay(EditorSourceInteractionTestSource.PostAutosaveObservationDelay);
+        }, TimeSpan.FromMilliseconds(EditorSourceInteractionTestSource.AutosaveAssertionTimeout));
 
         cut.WaitForAssertion(() =>
         {
             Assert.Contains(EditorSourceInteractionTestSource.TitlePersistenceLine, _harness.Session.State.Text, StringComparison.Ordinal);
             Assert.Contains(EditorSourceInteractionTestSource.AuthorPersistenceLine, _harness.Session.State.Text, StringComparison.Ordinal);
             Assert.Contains(updatedSource, _harness.Session.State.Text, StringComparison.Ordinal);
-        });
+        }, TimeSpan.FromMilliseconds(EditorSourceInteractionTestSource.AutosaveAssertionTimeout));
     }
 
     [Test]
@@ -95,7 +91,7 @@ public sealed class EditorSourceInteractionTests : BunitContext
     }
 
     [Test]
-    public async Task EditorPage_HistoryButtonsReplaySourceChanges()
+    public void EditorPage_HistoryButtonsReplaySourceChanges()
     {
         Services.GetRequiredService<NavigationManager>()
             .NavigateTo(AppTestData.Routes.EditorDemo);
@@ -113,12 +109,10 @@ public sealed class EditorSourceInteractionTests : BunitContext
 
         sourceEditor.Input(updatedSource);
 
-        await Task.Delay(EditorSourceInteractionTestSource.PostDraftAnalysisObservationDelay);
-
         cut.WaitForAssertion(() =>
         {
             Assert.Equal(updatedSource, cut.FindByTestId(UiTestIds.Editor.SourceInput).GetAttribute("value"));
-        });
+        }, TimeSpan.FromMilliseconds(EditorSourceInteractionTestSource.AutosaveAssertionTimeout));
 
         cut.WaitForAssertion(() =>
         {
@@ -142,7 +136,7 @@ public sealed class EditorSourceInteractionTests : BunitContext
     }
 
     [Test]
-    public async Task EditorPage_TypingStaysLocalFirstUntilAutosaveDebounce()
+    public void EditorPage_TypingStaysLocalFirstUntilAutosaveDebounce()
     {
         Services.GetRequiredService<NavigationManager>()
             .NavigateTo(AppTestData.Routes.EditorDemo);
@@ -173,16 +167,12 @@ public sealed class EditorSourceInteractionTests : BunitContext
             Assert.Equal(initialSessionWordCount, _harness.Session.State.WordCount);
         });
 
-        await Task.Delay(EditorSourceInteractionTestSource.PostDraftAnalysisObservationDelay);
-
         cut.WaitForAssertion(() =>
         {
             Assert.Equal(updatedSource, cut.FindByTestId(UiTestIds.Editor.SourceInput).GetAttribute("value"));
             Assert.Contains(EditorSourceInteractionTestSource.LocalFirstTypingLine, cut.Markup, StringComparison.Ordinal);
             Assert.Equal(initialSessionWordCount, _harness.Session.State.WordCount);
-        });
-
-        await Task.Delay(EditorSourceInteractionTestSource.PostAutosaveObservationDelay);
+        }, TimeSpan.FromMilliseconds(EditorSourceInteractionTestSource.AutosaveAssertionTimeout));
 
         cut.WaitForState(
             () => _harness.Session.State.WordCount > initialSessionWordCount,
@@ -192,7 +182,7 @@ public sealed class EditorSourceInteractionTests : BunitContext
     }
 
     [Test]
-    public async Task EditorPage_PastedFrontMatterHydratesMetadataAndKeepsVisibleBodyClean()
+    public void EditorPage_PastedFrontMatterHydratesMetadataAndKeepsVisibleBodyClean()
     {
         Services.GetRequiredService<NavigationManager>()
             .NavigateTo(AppTestData.Routes.EditorDemo);
@@ -237,8 +227,6 @@ public sealed class EditorSourceInteractionTests : BunitContext
                 cut.FindByTestId(UiTestIds.Editor.SpeedFast).GetAttribute("value"));
         });
 
-        await Task.Delay(EditorSourceInteractionTestSource.PostAutosaveObservationDelay);
-
         cut.WaitForAssertion(() =>
         {
             var persistedText = _harness.Session.State.Text;
@@ -252,11 +240,11 @@ public sealed class EditorSourceInteractionTests : BunitContext
             Assert.Contains(EditorSourceInteractionTestSource.ImportedFastOffsetPersistenceLine, persistedText, StringComparison.Ordinal);
             Assert.Contains(EditorSourceInteractionTestSource.ImportedBodyOnly, persistedText, StringComparison.Ordinal);
             Assert.DoesNotContain(EditorSourceInteractionTestSource.FrontMatterDelimiterWithTitle, cut.FindByTestId(UiTestIds.Editor.SourceInput).GetAttribute("value"), StringComparison.Ordinal);
-        });
+        }, TimeSpan.FromMilliseconds(EditorSourceInteractionTestSource.AutosaveAssertionTimeout));
     }
 
     [Test]
-    public async Task EditorPage_KeyboardUndoAndRedoReplaySourceChanges()
+    public void EditorPage_KeyboardUndoAndRedoReplaySourceChanges()
     {
         Services.GetRequiredService<NavigationManager>()
             .NavigateTo(AppTestData.Routes.EditorDemo);
@@ -274,12 +262,10 @@ public sealed class EditorSourceInteractionTests : BunitContext
 
         sourceEditor.Input(updatedSource);
 
-        await Task.Delay(EditorSourceInteractionTestSource.PostDraftAnalysisObservationDelay);
-
         cut.WaitForAssertion(() =>
         {
             Assert.Equal(updatedSource, cut.FindByTestId(UiTestIds.Editor.SourceInput).GetAttribute("value"));
-        });
+        }, TimeSpan.FromMilliseconds(EditorSourceInteractionTestSource.AutosaveAssertionTimeout));
 
         var currentSourceEditor = cut.FindByTestId(UiTestIds.Editor.SourceInput);
 
@@ -379,8 +365,6 @@ public sealed class EditorSourceInteractionTests : BunitContext
         public const string ProfilePersistenceLine = "profile: \"RSVP\"";
         public const string ProfileRsvp = "RSVP";
         public const string RedoKey = "y";
-        public const int PostDraftAnalysisObservationDelay = 1_200;
-        public const int PostAutosaveObservationDelay = 1_700;
         public const string SingleSegmentLabel = "1 Segments";
         public const string TestSpeakerPersistenceLine = "author: \"Test Speaker\"";
         public const string TitlePersistenceLine = "title: \"Product Launch\"";

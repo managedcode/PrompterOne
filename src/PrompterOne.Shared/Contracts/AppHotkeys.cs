@@ -64,81 +64,99 @@ public readonly record struct AppKeyboardShortcut(
 public sealed record AppHotkeyDefinition(
     string Id,
     AppHotkeyAction Action,
-    string ActionLabel,
-    string Description,
     IReadOnlyList<AppKeyboardShortcut> Shortcuts);
 
 public sealed record AppHotkeyGroup(
     AppHotkeySurface Surface,
     string Id,
-    string Title,
-    string Subtitle,
     IReadOnlyList<AppHotkeyDefinition> Definitions);
 
 public static class AppHotkeys
 {
+    private static class ShortcutDisplayText
+    {
+        public const string BracketLeft = "[";
+        public const string BracketRight = "]";
+        public const string Camera = "C";
+        public const string CommandA = "Ctrl/Cmd+A";
+        public const string CommandShiftZ = "Ctrl/Cmd+Shift+Z";
+        public const string CommandZ = "Ctrl/Cmd+Z";
+        public const string Digit1 = "1";
+        public const string Digit2 = "2";
+        public const string Digit3 = "3";
+        public const string Digit4 = "4";
+        public const string Down = "Down";
+        public const string Enter = "Enter";
+        public const string Escape = "Esc";
+        public const string Fullscreen = "F";
+        public const string Left = "Left";
+        public const string Loop = "L";
+        public const string MirrorHorizontal = "H";
+        public const string MirrorVertical = "V";
+        public const string Orientation = "O";
+        public const string PageDown = "PageDown";
+        public const string PageUp = "PageUp";
+        public const string Recording = "R";
+        public const string Right = "Right";
+        public const string Space = "Space";
+        public const string Streaming = "S";
+        public const string Up = "Up";
+    }
+
     public static IReadOnlyList<AppHotkeyGroup> Groups { get; } =
     [
         new(
             AppHotkeySurface.Editor,
-            "editor",
-            "Editor",
-            "Core authoring shortcuts",
+            AppHotkeyIds.Groups.Editor,
             [
-                new("editor-undo", AppHotkeyAction.EditorUndo, "Undo", "Revert the last editor change.", [new("Ctrl/Cmd+Z", UiKeyboardKeys.ZLower, Ctrl: true)]),
-                new("editor-redo", AppHotkeyAction.EditorRedo, "Redo", "Re-apply the last reverted editor change.", [new("Ctrl/Cmd+Shift+Z", UiKeyboardKeys.ZLower, Shift: true, Ctrl: true)]),
-                new("editor-select-all", AppHotkeyAction.EditorSelectAll, "Select all", "Select the whole document in the source editor.", [new("Ctrl/Cmd+A", UiKeyboardKeys.ALower, Ctrl: true)])
+                new(AppHotkeyIds.Definitions.EditorUndo, AppHotkeyAction.EditorUndo, [new(ShortcutDisplayText.CommandZ, UiKeyboardKeys.ZLower, Ctrl: true)]),
+                new(AppHotkeyIds.Definitions.EditorRedo, AppHotkeyAction.EditorRedo, [new(ShortcutDisplayText.CommandShiftZ, UiKeyboardKeys.ZLower, Shift: true, Ctrl: true)]),
+                new(AppHotkeyIds.Definitions.EditorSelectAll, AppHotkeyAction.EditorSelectAll, [new(ShortcutDisplayText.CommandA, UiKeyboardKeys.ALower, Ctrl: true)])
             ]),
         new(
             AppHotkeySurface.Learn,
-            "learn",
-            "Learn",
-            "RSVP rehearsal controls",
+            AppHotkeyIds.Groups.Learn,
             [
-                new("learn-back", AppHotkeyAction.LearnBack, "Back to editor", "Leave Learn and return to the current script.", [new("Esc", UiKeyboardKeys.Escape)]),
-                new("learn-play-pause", AppHotkeyAction.LearnPlayPause, "Play or pause", "Start or pause RSVP playback.", [new("Space", UiKeyboardKeys.Space)]),
-                new("learn-speed-down", AppHotkeyAction.LearnSpeedDown, "Slow down", "Reduce RSVP speed.", [new("Down", UiKeyboardKeys.ArrowDown)]),
-                new("learn-speed-up", AppHotkeyAction.LearnSpeedUp, "Speed up", "Increase RSVP speed.", [new("Up", UiKeyboardKeys.ArrowUp)]),
-                new("learn-step-backward", AppHotkeyAction.LearnStepBackward, "Previous word", "Step back one word.", [new("Left", UiKeyboardKeys.ArrowLeft)]),
-                new("learn-step-backward-large", AppHotkeyAction.LearnStepBackwardLarge, "Previous phrase jump", "Step back five words.", [new("PageUp", UiKeyboardKeys.PageUp)]),
-                new("learn-step-forward", AppHotkeyAction.LearnStepForward, "Next word", "Step forward one word.", [new("Right", UiKeyboardKeys.ArrowRight)]),
-                new("learn-step-forward-large", AppHotkeyAction.LearnStepForwardLarge, "Next phrase jump", "Step forward five words.", [new("PageDown", UiKeyboardKeys.PageDown)]),
-                new("learn-toggle-loop", AppHotkeyAction.LearnToggleLoop, "Loop playback", "Toggle RSVP loop mode.", [new("L", UiKeyboardKeys.LLower)])
+                new(AppHotkeyIds.Definitions.LearnBack, AppHotkeyAction.LearnBack, [new(ShortcutDisplayText.Escape, UiKeyboardKeys.Escape)]),
+                new(AppHotkeyIds.Definitions.LearnPlayPause, AppHotkeyAction.LearnPlayPause, [new(ShortcutDisplayText.Space, UiKeyboardKeys.Space)]),
+                new(AppHotkeyIds.Definitions.LearnSpeedDown, AppHotkeyAction.LearnSpeedDown, [new(ShortcutDisplayText.Down, UiKeyboardKeys.ArrowDown)]),
+                new(AppHotkeyIds.Definitions.LearnSpeedUp, AppHotkeyAction.LearnSpeedUp, [new(ShortcutDisplayText.Up, UiKeyboardKeys.ArrowUp)]),
+                new(AppHotkeyIds.Definitions.LearnStepBackward, AppHotkeyAction.LearnStepBackward, [new(ShortcutDisplayText.Left, UiKeyboardKeys.ArrowLeft)]),
+                new(AppHotkeyIds.Definitions.LearnStepBackwardLarge, AppHotkeyAction.LearnStepBackwardLarge, [new(ShortcutDisplayText.PageUp, UiKeyboardKeys.PageUp)]),
+                new(AppHotkeyIds.Definitions.LearnStepForward, AppHotkeyAction.LearnStepForward, [new(ShortcutDisplayText.Right, UiKeyboardKeys.ArrowRight)]),
+                new(AppHotkeyIds.Definitions.LearnStepForwardLarge, AppHotkeyAction.LearnStepForwardLarge, [new(ShortcutDisplayText.PageDown, UiKeyboardKeys.PageDown)]),
+                new(AppHotkeyIds.Definitions.LearnToggleLoop, AppHotkeyAction.LearnToggleLoop, [new(ShortcutDisplayText.Loop, UiKeyboardKeys.LLower)])
             ]),
         new(
             AppHotkeySurface.Teleprompter,
-            "teleprompter",
-            "Teleprompter",
-            "Reader playback and display controls",
+            AppHotkeyIds.Groups.Teleprompter,
             [
-                new("teleprompter-back", AppHotkeyAction.TeleprompterBack, "Back to editor", "Exit fullscreen when needed, then return to the script.", [new("Esc", UiKeyboardKeys.Escape)]),
-                new("teleprompter-play-pause", AppHotkeyAction.TeleprompterPlayPause, "Play or pause", "Start or pause teleprompter playback.", [new("Space", UiKeyboardKeys.Space)]),
-                new("teleprompter-previous-block", AppHotkeyAction.TeleprompterPreviousBlock, "Previous block", "Jump to the previous reader block.", [new("Left", UiKeyboardKeys.ArrowLeft), new("PageUp", UiKeyboardKeys.PageUp)]),
-                new("teleprompter-next-block", AppHotkeyAction.TeleprompterNextBlock, "Next block", "Jump to the next reader block.", [new("Right", UiKeyboardKeys.ArrowRight), new("PageDown", UiKeyboardKeys.PageDown)]),
-                new("teleprompter-mirror-horizontal", AppHotkeyAction.TeleprompterMirrorHorizontal, "Mirror horizontally", "Flip the reader horizontally.", [new("H", UiKeyboardKeys.HLower)]),
-                new("teleprompter-mirror-vertical", AppHotkeyAction.TeleprompterMirrorVertical, "Mirror vertically", "Flip the reader vertically.", [new("V", UiKeyboardKeys.VLower)]),
-                new("teleprompter-orientation", AppHotkeyAction.TeleprompterOrientation, "Rotate reader", "Toggle landscape and portrait reader orientation.", [new("O", UiKeyboardKeys.OLower)]),
-                new("teleprompter-fullscreen", AppHotkeyAction.TeleprompterFullscreen, "Toggle fullscreen", "Enter or leave browser fullscreen.", [new("F", UiKeyboardKeys.FLower)]),
-                new("teleprompter-alignment-left", AppHotkeyAction.TeleprompterAlignmentLeft, "Align left", "Use the left-aligned reader lane.", [new("1", UiKeyboardKeys.Digit1)]),
-                new("teleprompter-alignment-center", AppHotkeyAction.TeleprompterAlignmentCenter, "Align center", "Use the centered reader lane.", [new("2", UiKeyboardKeys.Digit2)]),
-                new("teleprompter-alignment-right", AppHotkeyAction.TeleprompterAlignmentRight, "Align right", "Use the right-aligned reader lane.", [new("3", UiKeyboardKeys.Digit3)]),
-                new("teleprompter-alignment-justify", AppHotkeyAction.TeleprompterAlignmentJustify, "Align justify", "Stretch text across the full readable width.", [new("4", UiKeyboardKeys.Digit4)]),
-                new("teleprompter-camera", AppHotkeyAction.TeleprompterCamera, "Toggle camera", "Show or hide the reader camera layer.", [new("C", UiKeyboardKeys.CLower)])
+                new(AppHotkeyIds.Definitions.TeleprompterBack, AppHotkeyAction.TeleprompterBack, [new(ShortcutDisplayText.Escape, UiKeyboardKeys.Escape)]),
+                new(AppHotkeyIds.Definitions.TeleprompterPlayPause, AppHotkeyAction.TeleprompterPlayPause, [new(ShortcutDisplayText.Space, UiKeyboardKeys.Space)]),
+                new(AppHotkeyIds.Definitions.TeleprompterPreviousBlock, AppHotkeyAction.TeleprompterPreviousBlock, [new(ShortcutDisplayText.Left, UiKeyboardKeys.ArrowLeft), new(ShortcutDisplayText.PageUp, UiKeyboardKeys.PageUp)]),
+                new(AppHotkeyIds.Definitions.TeleprompterNextBlock, AppHotkeyAction.TeleprompterNextBlock, [new(ShortcutDisplayText.Right, UiKeyboardKeys.ArrowRight), new(ShortcutDisplayText.PageDown, UiKeyboardKeys.PageDown)]),
+                new(AppHotkeyIds.Definitions.TeleprompterMirrorHorizontal, AppHotkeyAction.TeleprompterMirrorHorizontal, [new(ShortcutDisplayText.MirrorHorizontal, UiKeyboardKeys.HLower)]),
+                new(AppHotkeyIds.Definitions.TeleprompterMirrorVertical, AppHotkeyAction.TeleprompterMirrorVertical, [new(ShortcutDisplayText.MirrorVertical, UiKeyboardKeys.VLower)]),
+                new(AppHotkeyIds.Definitions.TeleprompterOrientation, AppHotkeyAction.TeleprompterOrientation, [new(ShortcutDisplayText.Orientation, UiKeyboardKeys.OLower)]),
+                new(AppHotkeyIds.Definitions.TeleprompterFullscreen, AppHotkeyAction.TeleprompterFullscreen, [new(ShortcutDisplayText.Fullscreen, UiKeyboardKeys.FLower)]),
+                new(AppHotkeyIds.Definitions.TeleprompterAlignmentLeft, AppHotkeyAction.TeleprompterAlignmentLeft, [new(ShortcutDisplayText.Digit1, UiKeyboardKeys.Digit1)]),
+                new(AppHotkeyIds.Definitions.TeleprompterAlignmentCenter, AppHotkeyAction.TeleprompterAlignmentCenter, [new(ShortcutDisplayText.Digit2, UiKeyboardKeys.Digit2)]),
+                new(AppHotkeyIds.Definitions.TeleprompterAlignmentRight, AppHotkeyAction.TeleprompterAlignmentRight, [new(ShortcutDisplayText.Digit3, UiKeyboardKeys.Digit3)]),
+                new(AppHotkeyIds.Definitions.TeleprompterAlignmentJustify, AppHotkeyAction.TeleprompterAlignmentJustify, [new(ShortcutDisplayText.Digit4, UiKeyboardKeys.Digit4)]),
+                new(AppHotkeyIds.Definitions.TeleprompterCamera, AppHotkeyAction.TeleprompterCamera, [new(ShortcutDisplayText.Camera, UiKeyboardKeys.CLower)])
             ]),
         new(
             AppHotkeySurface.GoLive,
-            "go-live",
-            "Go Live",
-            "Studio and session controls",
+            AppHotkeyIds.Groups.GoLive,
             [
-                new("go-live-director-mode", AppHotkeyAction.GoLiveDirectorMode, "Director mode", "Switch the studio to Director mode.", [new("1", UiKeyboardKeys.Digit1)]),
-                new("go-live-studio-mode", AppHotkeyAction.GoLiveStudioMode, "Studio mode", "Switch the studio to Studio mode.", [new("2", UiKeyboardKeys.Digit2)]),
-                new("go-live-left-rail", AppHotkeyAction.GoLiveToggleLeftRail, "Toggle source rail", "Show or hide the left source rail.", [new("[", UiKeyboardKeys.BracketLeft)]),
-                new("go-live-right-rail", AppHotkeyAction.GoLiveToggleRightRail, "Toggle output rail", "Show or hide the right preview rail.", [new("]", UiKeyboardKeys.BracketRight)]),
-                new("go-live-full-program", AppHotkeyAction.GoLiveToggleFullProgram, "Toggle full program", "Expand or collapse the full-program monitor layout.", [new("F", UiKeyboardKeys.FLower)]),
-                new("go-live-take-to-air", AppHotkeyAction.GoLiveTakeToAir, "Take to air", "Switch the selected source to program.", [new("Enter", UiKeyboardKeys.Enter)]),
-                new("go-live-recording", AppHotkeyAction.GoLiveToggleRecording, "Start or stop recording", "Toggle local recording for the active program.", [new("R", UiKeyboardKeys.RLower)]),
-                new("go-live-stream", AppHotkeyAction.GoLiveToggleStream, "Start or stop streaming", "Toggle the live stream session.", [new("S", UiKeyboardKeys.SLower)])
+                new(AppHotkeyIds.Definitions.GoLiveDirectorMode, AppHotkeyAction.GoLiveDirectorMode, [new(ShortcutDisplayText.Digit1, UiKeyboardKeys.Digit1)]),
+                new(AppHotkeyIds.Definitions.GoLiveStudioMode, AppHotkeyAction.GoLiveStudioMode, [new(ShortcutDisplayText.Digit2, UiKeyboardKeys.Digit2)]),
+                new(AppHotkeyIds.Definitions.GoLiveToggleLeftRail, AppHotkeyAction.GoLiveToggleLeftRail, [new(ShortcutDisplayText.BracketLeft, UiKeyboardKeys.BracketLeft)]),
+                new(AppHotkeyIds.Definitions.GoLiveToggleRightRail, AppHotkeyAction.GoLiveToggleRightRail, [new(ShortcutDisplayText.BracketRight, UiKeyboardKeys.BracketRight)]),
+                new(AppHotkeyIds.Definitions.GoLiveToggleFullProgram, AppHotkeyAction.GoLiveToggleFullProgram, [new(ShortcutDisplayText.Fullscreen, UiKeyboardKeys.FLower)]),
+                new(AppHotkeyIds.Definitions.GoLiveTakeToAir, AppHotkeyAction.GoLiveTakeToAir, [new(ShortcutDisplayText.Enter, UiKeyboardKeys.Enter)]),
+                new(AppHotkeyIds.Definitions.GoLiveToggleRecording, AppHotkeyAction.GoLiveToggleRecording, [new(ShortcutDisplayText.Recording, UiKeyboardKeys.RLower)]),
+                new(AppHotkeyIds.Definitions.GoLiveToggleStream, AppHotkeyAction.GoLiveToggleStream, [new(ShortcutDisplayText.Streaming, UiKeyboardKeys.SLower)])
             ])
     ];
 

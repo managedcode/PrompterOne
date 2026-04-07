@@ -57,7 +57,8 @@
                                 }
                             </div>
                             <div class="set-device-info">
-                                <span class="set-device-name">@MediaDeviceLabelSanitizer.Sanitize(camera.Label)</span>
+                                <span class="set-device-name"
+                                      data-testid="@UiTestIds.Settings.CameraDeviceLabel(camera.DeviceId)">@MediaDeviceLabelSanitizer.Sanitize(camera.Label)</span>
                                 <span class="set-device-meta">@BuildCameraMeta(camera, isPrimary)</span>
                             </div>
                             <div class="set-device-actions" @onclick:stopPropagation="true">

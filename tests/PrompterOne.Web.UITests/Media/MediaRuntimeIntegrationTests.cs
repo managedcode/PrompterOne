@@ -164,18 +164,6 @@ public sealed class MediaRuntimeIntegrationTests(StandaloneAppFixture fixture)
     public async Task SettingsScreen_BlankBrowserDeviceLabels_DoNotRenderFabricatedFallbackNames()
     {
         var page = await _fixture.NewPageAsync();
-        var disallowedCameraLabels = new[]
-        {
-            BrowserTestConstants.Media.PrimaryCameraLabel,
-            BrowserTestConstants.Media.FabricatedCameraLabel,
-            BrowserTestConstants.Media.FabricatedUnnamedDeviceLabel
-        };
-        var disallowedMicrophoneLabels = new[]
-        {
-            BrowserTestConstants.Media.PrimaryMicrophoneLabel,
-            BrowserTestConstants.Media.FabricatedMicrophoneLabel,
-            BrowserTestConstants.Media.FabricatedUnnamedDeviceLabel
-        };
 
         try
         {
@@ -191,50 +179,38 @@ public sealed class MediaRuntimeIntegrationTests(StandaloneAppFixture fixture)
             await requestMediaButton.ClickAsync();
 
             var primaryCameraCard = page.GetByTestId(UiTestIds.Settings.CameraDevice(BrowserTestConstants.Media.PrimaryCameraId));
+            var primaryCameraLabel = page.GetByTestId(UiTestIds.Settings.CameraDeviceLabel(BrowserTestConstants.Media.PrimaryCameraId));
             await Expect(primaryCameraCard).ToBeVisibleAsync();
             await Expect(page.GetByTestId(UiTestIds.Settings.CameraPreviewVideo)).ToBeVisibleAsync();
             await page.WaitForFunctionAsync(
-                BrowserTestConstants.Media.ElementTextExcludesValuesScript,
-                new object[]
-                {
-                    UiTestIds.Settings.CameraDevice(BrowserTestConstants.Media.PrimaryCameraId),
-                    disallowedCameraLabels
-                },
+                BrowserTestConstants.Media.ElementTextIsBlankScript,
+                UiTestIds.Settings.CameraDeviceLabel(BrowserTestConstants.Media.PrimaryCameraId),
                 new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
             await page.WaitForFunctionAsync(
                 BrowserTestConstants.Media.ElementTextIsBlankScript,
                 UiTestIds.Settings.CameraPreviewLabel,
                 new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
 
-            var primaryCameraCardText = await primaryCameraCard.TextContentAsync() ?? string.Empty;
-            await Assert.That(primaryCameraCardText).DoesNotContain(BrowserTestConstants.Media.PrimaryCameraLabel);
-            await Assert.That(primaryCameraCardText).DoesNotContain(BrowserTestConstants.Media.FabricatedCameraLabel);
-            await Assert.That(primaryCameraCardText).DoesNotContain(BrowserTestConstants.Media.FabricatedUnnamedDeviceLabel);
+            await Assert.That(string.IsNullOrWhiteSpace(await primaryCameraLabel.TextContentAsync())).IsTrue();
             await Assert.That(string.IsNullOrWhiteSpace(await page.GetByTestId(UiTestIds.Settings.CameraPreviewLabel).TextContentAsync())).IsTrue();
 
             await page.GetByTestId(UiTestIds.Settings.NavMics).ClickAsync();
             await Expect(page.GetByTestId(UiTestIds.Settings.MicsPanel)).ToBeVisibleAsync();
 
             var primaryMicrophoneCard = page.GetByTestId(UiTestIds.Settings.MicDevice(BrowserTestConstants.Media.PrimaryMicrophoneId));
+            var primaryMicrophoneLabel = page.GetByTestId(UiTestIds.Settings.MicDeviceLabel(BrowserTestConstants.Media.PrimaryMicrophoneId));
             await Expect(primaryMicrophoneCard).ToBeVisibleAsync();
             await Expect(page.GetByTestId(UiTestIds.Settings.MicPreviewMeter)).ToBeVisibleAsync();
             await page.WaitForFunctionAsync(
-                BrowserTestConstants.Media.ElementTextExcludesValuesScript,
-                new object[]
-                {
-                    UiTestIds.Settings.MicDevice(BrowserTestConstants.Media.PrimaryMicrophoneId),
-                    disallowedMicrophoneLabels
-                },
+                BrowserTestConstants.Media.ElementTextIsBlankScript,
+                UiTestIds.Settings.MicDeviceLabel(BrowserTestConstants.Media.PrimaryMicrophoneId),
                 new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
             await page.WaitForFunctionAsync(
                 BrowserTestConstants.Media.ElementTextIsBlankScript,
                 UiTestIds.Settings.MicPreviewLabel,
                 new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
 
-            var primaryMicrophoneCardText = await primaryMicrophoneCard.TextContentAsync() ?? string.Empty;
-            await Assert.That(primaryMicrophoneCardText).DoesNotContain(BrowserTestConstants.Media.PrimaryMicrophoneLabel);
-            await Assert.That(primaryMicrophoneCardText).DoesNotContain(BrowserTestConstants.Media.FabricatedMicrophoneLabel);
-            await Assert.That(primaryMicrophoneCardText).DoesNotContain(BrowserTestConstants.Media.FabricatedUnnamedDeviceLabel);
+            await Assert.That(string.IsNullOrWhiteSpace(await primaryMicrophoneLabel.TextContentAsync())).IsTrue();
             await Assert.That(string.IsNullOrWhiteSpace(await page.GetByTestId(UiTestIds.Settings.MicPreviewLabel).TextContentAsync())).IsTrue();
         }
         finally

@@ -3,6 +3,7 @@
 @using PrompterOne.Shared.Components
 @using PrompterOne.Shared.Localization
 @using PrompterOne.Shared.Services
+@using PrompterOne.Shared.Settings.Models
 @inject CameraPreviewInterop CameraPreviewInterop
 @inject Microsoft.Extensions.Localization.IStringLocalizer<SharedResource> Localizer
 @inject Microsoft.Extensions.Logging.ILogger<SettingsCameraPreviewCard> Logger
@@ -21,7 +22,7 @@
                    data-testid="@UiTestIds.Settings.CameraPreviewVideo"></video>
             <span class="set-camera-preview-label">
                 <span class="live-dot"></span>
-                @Text(PreviewEyebrowKey)
+                @Text(SettingsCameraPreviewText.EyebrowKey)
             </span>
         }
         else
@@ -48,16 +49,8 @@
 </section>
 
 @code {
-    private const string DefaultDescriptionKey = "SettingsCameraPreviewDefaultDescription";
-    private const string DefaultTitleKey = "SettingsCameraPreviewDefaultTitle";
-    private const string NoCameraDescriptionKey = "SettingsCameraPreviewNoCameraDescription";
-    private const string NoCameraTitleKey = "SettingsCameraPreviewNoCameraTitle";
-    private const string PermissionDescriptionKey = "SettingsCameraPreviewPermissionDescription";
-    private const string PermissionTitleKey = "SettingsCameraPreviewPermissionTitle";
     private const string PreviewAttachFailureMessage = "Failed to attach Settings camera preview for device {DeviceId}.";
     private const string PreviewDetachFailureMessage = "Failed to detach Settings camera preview.";
-    private const string PreviewEyebrowKey = "SettingsCameraPreviewEyebrow";
-    private const string PreviewReadyDescriptionKey = "SettingsCameraPreviewReadyDescription";
 
     [Parameter] public bool AccessGranted { get; set; }
 
@@ -79,16 +72,16 @@
 
     private string EmptyDescription =>
         !AccessGranted
-            ? Text(PermissionDescriptionKey)
-            : Text(NoCameraDescriptionKey);
+            ? Text(SettingsCameraPreviewText.PermissionDescriptionKey)
+            : Text(SettingsCameraPreviewText.NoCameraDescriptionKey);
 
     private string EmptyTitle =>
         !AccessGranted
-            ? Text(PermissionTitleKey)
-            : Text(NoCameraTitleKey);
+            ? Text(SettingsCameraPreviewText.PermissionTitleKey)
+            : Text(SettingsCameraPreviewText.NoCameraTitleKey);
 
     private string PreviewDescription => string.IsNullOrWhiteSpace(Description)
-        ? Text(PreviewReadyDescriptionKey)
+        ? Text(SettingsCameraPreviewText.PreviewReadyDescriptionKey)
         : Description;
 
     private string PreviewVideoStyle => BuildPreviewVideoStyle(MirrorHorizontal, MirrorVertical);

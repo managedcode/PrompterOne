@@ -19,7 +19,7 @@ public sealed class GoLiveSessionInteractionTests : BunitContext
     private const int RecordingAudioBitrateKbps = 256;
     private const int RecordingVideoBitrateKbps = 12000;
     private const string SceneSettingsStorageKey = "prompterone.scene";
-    private const string StartLocalRecordingInteropMethod = "PrompterOneGoLiveOutput.startLocalRecording";
+    private const string StartLocalRecordingInteropMethod = GoLiveOutputInteropMethodNames.StartLocalRecording;
     private const string StreamingResolutionLabel = "1920 × 1080";
     private const string VideoFrameRateLabel = "30 FPS";
 

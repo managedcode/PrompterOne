@@ -16,7 +16,6 @@ public sealed class ReaderPlaybackTimingTests(StandaloneAppFixture fixture)
     private const int LearnMinimumWordDurationMilliseconds = 60;
     private const string LearnWordSelector = "[data-testid='learn-word']";
     private const string ReaderTimingRecorderKey = "__prompterOneReaderTimingRecorder";
-    private const string TeleprompterActiveWordSelector = ".rd-card-active .rd-w.rd-now";
     private const string TimingProbeScriptFileName = "test-reader-timing.tps";
 
     private static readonly IReadOnlyList<LearnTimingExpectation> LearnExpectations =
@@ -42,7 +41,7 @@ public sealed class ReaderPlaybackTimingTests(StandaloneAppFixture fixture)
             await Expect(page.GetByTestId(UiTestIds.Teleprompter.Page))
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
 
-            await InstallWordRecorderAsync(page, TeleprompterActiveWordSelector);
+            await InstallWordRecorderAsync(page, BrowserTestConstants.Teleprompter.ActiveWordSelector);
             await page.GetByTestId(UiTestIds.Teleprompter.PlayToggle).ClickAsync();
 
             var samples = await WaitForRecordedSamplesAsync(page, BrowserTestConstants.ReaderTiming.WordCount);

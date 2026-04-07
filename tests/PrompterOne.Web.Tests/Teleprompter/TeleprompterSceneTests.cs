@@ -66,7 +66,7 @@ public sealed class TeleprompterSceneTests : BunitContext
 
         cut.WaitForAssertion(() =>
         {
-            var activeText = cut.Find(".rd-card-active .rd-cluster-text").TextContent;
+            var activeText = cut.FindByTestId(UiTestIds.Teleprompter.CardText(0)).TextContent;
 
             Assert.Contains("Good morning everyone", activeText, StringComparison.Ordinal);
             Assert.Contains("what I believe", activeText, StringComparison.Ordinal);

@@ -1,18 +1,40 @@
 (function () {
-    const browserMediaNamespace = "BrowserMediaInterop";
-    const interopNamespace = "PrompterOneGoLiveRemoteSources";
     const reconnectDelayMs = 5000;
     const sourceRoleFlag = 1;
     const streamingPlatformLiveKit = 0;
     const streamingPlatformVdoNinja = 1;
-    const supportNamespace = "PrompterOneGoLiveOutputSupport";
-    const syntheticHarnessGlobal = "__prompterOneMediaHarness";
-    const vdoSdkGlobal = "VDONinjaSDK";
     const streamMetadataVersion = 1;
     const sessions = new Map();
+    const runtimeGlobalName = "__prompterOneRuntime";
+    const mediaContractProperty = "media";
+    const defaultMediaRuntimeContract = Object.freeze({
+        browserMediaInteropNamespace: "BrowserMediaInterop",
+        goLiveOutputSupportNamespace: "PrompterOneGoLiveOutputSupport",
+        goLiveRemoteSourcesNamespace: "PrompterOneGoLiveRemoteSources",
+        liveKitClientGlobalName: "LivekitClient",
+        mediaHarnessEnabledProperty: "mediaHarnessEnabled",
+        syntheticHarnessGlobalName: "__prompterOneMediaHarness",
+        vdoNinjaLegacyGlobalName: "VDONinja",
+        vdoNinjaSdkGlobalName: "VDONinjaSDK"
+    });
+
+    function getMediaRuntimeContract() {
+        return window[runtimeGlobalName]?.[mediaContractProperty] ?? defaultMediaRuntimeContract;
+    }
+
+    function getMediaRuntimeString(propertyName) {
+        const value = getMediaRuntimeContract()?.[propertyName];
+        return typeof value === "string" && value.length > 0
+            ? value
+            : defaultMediaRuntimeContract[propertyName];
+    }
+
+    function isMediaHarnessEnabled() {
+        return window[runtimeGlobalName]?.[getMediaRuntimeString("mediaHarnessEnabledProperty")] === true;
+    }
 
     function getBrowserMedia() {
-        const browserMedia = window[browserMediaNamespace];
+        const browserMedia = window[getMediaRuntimeString("browserMediaInteropNamespace")];
         if (!browserMedia?.registerRemoteStream || !browserMedia?.unregisterRemoteStream) {
             throw new Error("Browser media remote-stream registry is not available.");
         }
@@ -21,7 +43,7 @@
     }
 
     function getSupport() {
-        const support = window[supportNamespace];
+        const support = window[getMediaRuntimeString("goLiveOutputSupportNamespace")];
         if (!support?.normalizeRequest) {
             throw new Error("Go Live output support runtime is not available.");
         }
@@ -38,7 +60,11 @@
     }
 
     function getSyntheticHarness() {
-        const harness = window[syntheticHarnessGlobal];
+        if (!isMediaHarnessEnabled()) {
+            return null;
+        }
+
+        const harness = window[getMediaRuntimeString("syntheticHarnessGlobalName")];
         return harness && typeof harness.getRemoteSources === "function"
             ? harness
             : null;
@@ -236,7 +262,7 @@
     }
 
     function getLiveKitClient() {
-        const client = window.LivekitClient;
+        const client = window[getMediaRuntimeString("liveKitClientGlobalName")];
         if (!client?.Room) {
             throw new Error("LiveKit client runtime is not available.");
         }
@@ -386,7 +412,8 @@
             await disconnectConnection(existing);
         }
 
-        const VdoCtor = window[vdoSdkGlobal] || window.VDONinja;
+        const VdoCtor = window[getMediaRuntimeString("vdoNinjaSdkGlobalName")]
+            || window[getMediaRuntimeString("vdoNinjaLegacyGlobalName")];
         if (typeof VdoCtor !== "function") {
             throw new Error("VDO.Ninja SDK runtime is not available.");
         }
@@ -416,7 +443,7 @@
         return connectionState;
     }
 
-    window[interopNamespace] = {
+    window[getMediaRuntimeString("goLiveRemoteSourcesNamespace")] = {
         getSessionState(sessionId) {
             const session = sessions.get(sessionId);
             return session ? buildSnapshot(session) : null;

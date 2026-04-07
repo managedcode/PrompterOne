@@ -1,8 +1,10 @@
+using PrompterOne.Shared.Contracts;
+
 namespace PrompterOne.Shared.Services;
 
 public static class GoLiveOutputInteropMethodNames
 {
-    private const string NamespacePrefix = "PrompterOneGoLiveOutput";
+    private const string NamespacePrefix = AppMediaRuntime.GoLive.OutputNamespace;
 
     public const string GetSessionState = NamespacePrefix + ".getSessionState";
     public const string StartLocalRecording = NamespacePrefix + ".startLocalRecording";

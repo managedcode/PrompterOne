@@ -154,7 +154,7 @@ public sealed class TeleprompterFidelityTests(StandaloneAppFixture fixture)
             var focalGuide = page.GetByTestId(UiTestIds.Teleprompter.FocalGuide);
             await page.GetByTestId(UiTestIds.Teleprompter.NextWord).ClickAsync();
 
-            var activeWord = page.GetByTestId(UiTestIds.Teleprompter.CardText(0)).Locator(".rd-now");
+            var activeWord = page.Locator(BrowserTestConstants.Teleprompter.ActiveWordSelector);
             await Expect(activeWord).ToBeVisibleAsync();
 
             var immediateDelta = await MeasureVerticalCenterDeltaAsync(focalGuide, activeWord);
@@ -285,10 +285,10 @@ public sealed class TeleprompterFidelityTests(StandaloneAppFixture fixture)
     private static Task<ReaderParagraphMotionSample> CaptureParagraphMotionSampleAsync(Microsoft.Playwright.IPage page) =>
         page.GetByTestId(UiTestIds.Teleprompter.Page).EvaluateAsync<ReaderParagraphMotionSample>(
             $$"""
-            element => {
+            (element, args) => {
                 const text = element.querySelector('#{{UiDomIds.Teleprompter.CardText(0)}}');
                 const focalGuide = element.querySelector('#{{UiDomIds.Teleprompter.FocalGuide}}');
-                const activeWord = element.querySelector('.rd-card-active .rd-w.rd-now');
+                const activeWord = element.querySelector(args.activeWordSelector);
 
                 if (!(text instanceof HTMLElement) || !(focalGuide instanceof HTMLElement) || !(activeWord instanceof HTMLElement)) {
                     return null;
@@ -305,7 +305,11 @@ public sealed class TeleprompterFidelityTests(StandaloneAppFixture fixture)
                         (activeWordRect.top + activeWordRect.height / 2)
                 };
             }
-            """);
+            """,
+            new
+            {
+                activeWordSelector = BrowserTestConstants.Teleprompter.ActiveWordSelector
+            });
 
     private sealed class ReaderParagraphMotionSample
     {

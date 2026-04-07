@@ -14,14 +14,15 @@ internal static class UiTestHostConstants
     public const int MaximumTcpPort = 65535;
     public const int MinimumDynamicPort = 1;
     public const string ProductionEnvironmentName = "Production";
-    public const string RuntimeTelemetryHarnessInitializationScript =
-        """
-        window.__prompterOneTelemetryHarness = {
-            blockVendorScripts: true,
-            events: [],
-            initializations: [],
-            pageViews: [],
-            vendorLoads: []
+    public static string RuntimeTelemetryHarnessInitializationScript =>
+        $$"""
+        window["{{BrowserTestConstants.Telemetry.RuntimeGlobal}}"] = window["{{BrowserTestConstants.Telemetry.RuntimeGlobal}}"] || {};
+        window["{{BrowserTestConstants.Telemetry.RuntimeGlobal}}"]["{{BrowserTestConstants.Telemetry.RuntimeHarnessEnabledProperty}}"] = true;
+        window["{{BrowserTestConstants.Telemetry.HarnessGlobal}}"] = {
+            "{{BrowserTestConstants.Telemetry.EventsCollection}}": [],
+            "{{BrowserTestConstants.Telemetry.InitializationsCollection}}": [],
+            "{{BrowserTestConstants.Telemetry.PageViewsCollection}}": [],
+            "{{BrowserTestConstants.Telemetry.VendorLoadsCollection}}": []
         };
         """;
     public static readonly string[] GrantedPermissions = ["camera", "microphone"];

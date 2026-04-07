@@ -389,6 +389,7 @@ body.theme-light .ed-main ::deep .efb-menu-item:hover {
 .ed-main ::deep .po-header-speaker{color:#9ED6FF;}
 .ed-main ::deep .h-meta,
 .ed-main ::deep .po-header-meta{color:#B8C0C8;}
+.ed-main ::deep .h-timing{color:#E0C070;background-image:linear-gradient(180deg, transparent 62%, rgba(224,192,112,.14) 62%);box-shadow:inset 0 -1px 0 rgba(224,192,112,.2);}
 .ed-main ::deep .mk-pause,
 .ed-main ::deep .po-pause-short,
 .ed-main ::deep .po-pause-timed{color:#E0C070;background-image:linear-gradient(180deg, transparent 62%, rgba(224,192,112,.18) 62%);text-shadow:0 0 10px rgba(224,192,112,.18);}

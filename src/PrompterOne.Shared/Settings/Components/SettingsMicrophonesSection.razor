@@ -40,6 +40,7 @@
                 var primaryEnabled = IsMicrophoneEnabled(SelectedMicrophone);
                 <div data-testid="@UiTestIds.Settings.MicDevice(SelectedMicrophone.DeviceId)">
                     <SettingsMicrophoneLevelCard AccessGranted="@MicrophoneAccessGranted"
+                                                 DeviceLabelTestId="@UiTestIds.Settings.MicDeviceLabel(SelectedMicrophone.DeviceId)"
                                                  IsActive="@IsSectionActive"
                                                  IsEnabled="@primaryEnabled"
                                                  Microphone="@SelectedMicrophone"
@@ -113,6 +114,7 @@
                 <div @onclick="() => SelectPrimaryMicrophone.InvokeAsync(microphone)"
                      data-testid="@UiTestIds.Settings.MicDevice(microphone.DeviceId)">
                     <SettingsMicrophoneLevelCard AccessGranted="@MicrophoneAccessGranted"
+                                                 DeviceLabelTestId="@UiTestIds.Settings.MicDeviceLabel(microphone.DeviceId)"
                                                  IsActive="@(IsSectionActive && isEnabled)"
                                                  IsEnabled="@isEnabled"
                                                  CardTestId="@null"

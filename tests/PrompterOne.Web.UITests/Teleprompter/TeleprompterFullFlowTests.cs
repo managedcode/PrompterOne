@@ -156,30 +156,15 @@ public sealed class TeleprompterFullFlowTests(StandaloneAppFixture fixture)
 
     private static async Task AssertCurrentActiveWordAlignedAsync(Microsoft.Playwright.IPage page)
     {
-        var activeWordTestId = string.Empty;
-        var attemptCount = BrowserTestConstants.Teleprompter.AlignmentTimeoutMs /
-            BrowserTestConstants.Teleprompter.AlignmentPollDelayMs;
-
-        for (var attempt = 0; attempt < attemptCount; attempt++)
+        var activeWord = page.Locator(BrowserTestConstants.Teleprompter.ActiveWordSelector);
+        await Expect(activeWord).ToBeVisibleAsync(new()
         {
-            activeWordTestId = await page.GetByTestId(UiTestIds.Teleprompter.Page).EvaluateAsync<string>(
-                """
-                element => element.querySelector('.rd-card-active .rd-w.rd-now')?.getAttribute('data-testid') ?? ''
-                """);
-
-            if (!string.IsNullOrWhiteSpace(activeWordTestId))
-            {
-                break;
-            }
-
-            await page.WaitForTimeoutAsync(BrowserTestConstants.Teleprompter.AlignmentPollDelayMs);
-        }
-
-        await Assert.That(string.IsNullOrWhiteSpace(activeWordTestId)).IsFalse();
+            Timeout = BrowserTestConstants.Teleprompter.AlignmentTimeoutMs
+        });
         await AssertGuideAlignmentAsync(
             page,
             page.GetByTestId(UiTestIds.Teleprompter.FocalGuide),
-            page.GetByTestId(activeWordTestId));
+            activeWord);
     }
 
     private static async Task AssertGuideAlignmentAsync(

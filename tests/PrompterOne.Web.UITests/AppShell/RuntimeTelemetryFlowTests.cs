@@ -13,6 +13,29 @@ public sealed class RuntimeTelemetryFlowTests(StandaloneAppFixture fixture)
     {
         PropertyNameCaseInsensitive = true
     };
+    private const string WaitForTelemetryInitializationScript =
+        $$"""
+        () => (window["{{BrowserTestConstants.Telemetry.HarnessGlobal}}"]?.["{{BrowserTestConstants.Telemetry.InitializationsCollection}}"]?.length ?? 0) >= 1
+        """;
+    private const string WaitForTelemetryCollectionsScript =
+        $$"""
+        ([minimumInitializations, minimumPageViews, minimumEvents, minimumVendorLoads]) => {
+            const harness = window["{{BrowserTestConstants.Telemetry.HarnessGlobal}}"];
+            return (harness?.["{{BrowserTestConstants.Telemetry.InitializationsCollection}}"]?.length ?? 0) >= minimumInitializations
+                && (harness?.["{{BrowserTestConstants.Telemetry.PageViewsCollection}}"]?.length ?? 0) >= minimumPageViews
+                && (harness?.["{{BrowserTestConstants.Telemetry.EventsCollection}}"]?.length ?? 0) >= minimumEvents
+                && (harness?.["{{BrowserTestConstants.Telemetry.VendorLoadsCollection}}"]?.length ?? 0) >= minimumVendorLoads;
+        }
+        """;
+    private const string ReadTelemetrySnapshotScript =
+        $$"""
+        () => JSON.stringify({
+            events: window["{{BrowserTestConstants.Telemetry.HarnessGlobal}}"]?.["{{BrowserTestConstants.Telemetry.EventsCollection}}"] ?? [],
+            initializations: window["{{BrowserTestConstants.Telemetry.HarnessGlobal}}"]?.["{{BrowserTestConstants.Telemetry.InitializationsCollection}}"] ?? [],
+            pageViews: window["{{BrowserTestConstants.Telemetry.HarnessGlobal}}"]?.["{{BrowserTestConstants.Telemetry.PageViewsCollection}}"] ?? [],
+            vendorLoads: window["{{BrowserTestConstants.Telemetry.HarnessGlobal}}"]?.["{{BrowserTestConstants.Telemetry.VendorLoadsCollection}}"] ?? []
+        })
+        """;
 
     [Test]
     public async Task RuntimeTelemetry_TracksPageViewsAndShellActions_InProductionMode()
@@ -114,7 +137,7 @@ public sealed class RuntimeTelemetryFlowTests(StandaloneAppFixture fixture)
 
     private static Task WaitForTelemetryInitializationAsync(Microsoft.Playwright.IPage page) =>
         page.WaitForFunctionAsync(
-            "() => (window.__prompterOneTelemetryHarness?.initializations?.length ?? 0) >= 1",
+            WaitForTelemetryInitializationScript,
             null,
             new() { Timeout = BrowserTestConstants.Telemetry.TelemetryWaitTimeoutMs });
 
@@ -125,29 +148,13 @@ public sealed class RuntimeTelemetryFlowTests(StandaloneAppFixture fixture)
         int eventCount,
         int vendorLoadCount) =>
         page.WaitForFunctionAsync(
-            """
-            ([minimumInitializations, minimumPageViews, minimumEvents, minimumVendorLoads]) => {
-                const harness = window.__prompterOneTelemetryHarness;
-                return (harness?.initializations?.length ?? 0) >= minimumInitializations
-                    && (harness?.pageViews?.length ?? 0) >= minimumPageViews
-                    && (harness?.events?.length ?? 0) >= minimumEvents
-                    && (harness?.vendorLoads?.length ?? 0) >= minimumVendorLoads;
-            }
-            """,
+            WaitForTelemetryCollectionsScript,
             new object[] { initializationCount, pageViewCount, eventCount, vendorLoadCount },
             new() { Timeout = BrowserTestConstants.Telemetry.TelemetryWaitTimeoutMs });
 
     private static async Task<TelemetryHarnessSnapshot> ReadSnapshotAsync(Microsoft.Playwright.IPage page)
     {
-        var json = await page.EvaluateAsync<string>(
-            """
-            () => JSON.stringify({
-                events: window.__prompterOneTelemetryHarness?.events ?? [],
-                initializations: window.__prompterOneTelemetryHarness?.initializations ?? [],
-                pageViews: window.__prompterOneTelemetryHarness?.pageViews ?? [],
-                vendorLoads: window.__prompterOneTelemetryHarness?.vendorLoads ?? []
-            })
-            """);
+        var json = await page.EvaluateAsync<string>(ReadTelemetrySnapshotScript);
 
         return JsonSerializer.Deserialize<TelemetryHarnessSnapshot>(json, SnapshotJsonOptions)
             ?? new TelemetryHarnessSnapshot();

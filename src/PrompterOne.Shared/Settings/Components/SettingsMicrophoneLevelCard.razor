@@ -25,7 +25,9 @@
         <div class="set-device-info">
             <span class="set-device-name"
                   data-testid="@LabelTestId">
-                @(CanRenderMonitor ? MicrophoneLabel : EmptyTitle)
+                <span data-testid="@DeviceLabelTestId">
+                    @(CanRenderMonitor ? MicrophoneLabel : EmptyTitle)
+                </span>
             </span>
             <span class="set-device-meta">@MonitorDescription</span>
         </div>
@@ -104,6 +106,8 @@
     [Parameter] public RenderFragment? ChildContent { get; set; }
 
     [Parameter] public string Description { get; set; } = string.Empty;
+
+    [Parameter] public string? DeviceLabelTestId { get; set; }
 
     [Parameter] public RenderFragment? HeaderAction { get; set; }
 

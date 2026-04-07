@@ -81,10 +81,10 @@ public sealed class GoLiveOutputFailureRollbackTests(StandaloneAppFixture fixtur
         }
     }
 
-    private static string BuildVdoNinjaPublishFailurePatchScript() => """
+    private static string BuildVdoNinjaPublishFailurePatchScript() => $$"""
         () => {
-            const harness = window.__prompterOneVdoNinjaHarness;
-            const sdk = window.VDONinjaSDK || window.VDONinja;
+            const harness = window["{{BrowserTestConstants.GoLive.VdoNinjaHarnessGlobal}}"];
+            const sdk = window["{{AppMediaRuntime.Vendor.VdoNinjaSdkGlobalName}}"] || window["{{AppMediaRuntime.Vendor.VdoNinjaLegacyGlobalName}}"];
             if (!harness || !sdk?.prototype) {
                 throw new Error('VDO.Ninja harness is not available.');
             }
@@ -102,10 +102,10 @@ public sealed class GoLiveOutputFailureRollbackTests(StandaloneAppFixture fixtur
         }
         """;
 
-    private static string BuildLiveKitConnectFailurePatchScript() => """
+    private static string BuildLiveKitConnectFailurePatchScript() => $$"""
         () => {
-            const harness = window.__prompterOneLiveKitHarness;
-            const room = window.LivekitClient?.Room;
+            const harness = window["{{BrowserTestConstants.GoLive.LiveKitHarnessGlobal}}"];
+            const room = window["{{AppMediaRuntime.Vendor.LiveKitClientGlobalName}}"]?.Room;
             if (!harness || !room?.prototype) {
                 throw new Error('LiveKit harness is not available.');
             }

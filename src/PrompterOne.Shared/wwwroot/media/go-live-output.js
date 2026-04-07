@@ -3,10 +3,6 @@
     const audioLevelMultiplier = 2800;
     const audioMeterFftSize = 1024;
     const audioMeterSmoothingTime = 0.82;
-    const composerNamespace = "PrompterOneGoLiveMediaComposer";
-    const interopNamespace = "PrompterOneGoLiveOutput";
-    const supportNamespace = "PrompterOneGoLiveOutputSupport";
-    const vdoNinjaNamespace = "PrompterOneGoLiveOutputVdoNinja";
     const outputSessions = new Map();
     const liveKitAudioSource = "microphone";
     const liveKitAudioTrackName = "prompterone-program-audio";
@@ -14,9 +10,29 @@
     const liveKitVideoTrackName = "prompterone-program-video";
     const streamingPlatformLiveKit = 0;
     const streamingPlatformVdoNinja = 1;
+    const runtimeGlobalName = "__prompterOneRuntime";
+    const mediaContractProperty = "media";
+    const defaultMediaRuntimeContract = Object.freeze({
+        goLiveMediaComposerNamespace: "PrompterOneGoLiveMediaComposer",
+        goLiveOutputNamespace: "PrompterOneGoLiveOutput",
+        goLiveOutputSupportNamespace: "PrompterOneGoLiveOutputSupport",
+        goLiveOutputVdoNinjaNamespace: "PrompterOneGoLiveOutputVdoNinja",
+        liveKitClientGlobalName: "LivekitClient"
+    });
+
+    function getMediaRuntimeContract() {
+        return window[runtimeGlobalName]?.[mediaContractProperty] ?? defaultMediaRuntimeContract;
+    }
+
+    function getMediaRuntimeString(propertyName) {
+        const value = getMediaRuntimeContract()?.[propertyName];
+        return typeof value === "string" && value.length > 0
+            ? value
+            : defaultMediaRuntimeContract[propertyName];
+    }
 
     function getComposer() {
-        const composer = window[composerNamespace];
+        const composer = window[getMediaRuntimeString("goLiveMediaComposerNamespace")];
         if (!composer?.ensureProgramSession) {
             throw new Error("Go Live media compositor runtime is not available.");
         }
@@ -25,7 +41,7 @@
     }
 
     function getSupport() {
-        const support = window[supportNamespace];
+        const support = window[getMediaRuntimeString("goLiveOutputSupportNamespace")];
         if (!support?.normalizeRequest) {
             throw new Error("Go Live output support runtime is not available.");
         }
@@ -34,7 +50,7 @@
     }
 
     function getVdoNinjaRuntime() {
-        const runtime = window[vdoNinjaNamespace];
+        const runtime = window[getMediaRuntimeString("goLiveOutputVdoNinjaNamespace")];
         if (!runtime?.startSession || !runtime?.stopSession || !runtime?.buildSnapshot) {
             throw new Error("Go Live VDO.Ninja runtime is not available.");
         }
@@ -43,7 +59,7 @@
     }
 
     function getLiveKitClient() {
-        const client = window.LivekitClient;
+        const client = window[getMediaRuntimeString("liveKitClientGlobalName")];
         if (!client?.Room) {
             throw new Error("LiveKit client runtime is not available.");
         }
@@ -300,7 +316,7 @@
         };
     }
 
-    window[interopNamespace] = {
+    window[getMediaRuntimeString("goLiveOutputNamespace")] = {
         async startLiveKitSession(sessionId, rawRequest) {
             const session = ensureSession(sessionId);
             try {

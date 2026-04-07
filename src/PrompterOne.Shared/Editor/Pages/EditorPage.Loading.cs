@@ -29,7 +29,9 @@ public partial class EditorPage
                 await Bootstrapper.EnsureReadyAsync();
                 await EnsureSessionLoadedAsync();
                 await LoadEditorFileWorkflowAsync();
-                PopulateEditorState(resetHistory: true);
+                PopulateEditorState(
+                    resetHistory: true,
+                    clearSplitFeedback: !ConsumePreserveSplitFeedbackOnNextLoad());
                 StateHasChanged();
             });
 
@@ -91,6 +93,13 @@ public partial class EditorPage
         RefreshStructureAuthoringState();
         UpdateStatus();
         Shell.ShowEditor(_screenTitle, state.ScriptId);
+    }
+
+    private bool ConsumePreserveSplitFeedbackOnNextLoad()
+    {
+        var shouldPreserveSplitFeedback = _preserveSplitFeedbackOnNextLoad;
+        _preserveSplitFeedbackOnNextLoad = false;
+        return shouldPreserveSplitFeedback;
     }
 
     private void ResetMetadataDefaults(ScriptWorkspaceState state)

@@ -1,9 +1,7 @@
 (() => {
-    const harnessGlobalName = "__prompterOneMediaHarness";
     const mediaDevicesProperty = "mediaDevices";
     const enumerateDevicesMethod = "enumerateDevices";
     const getUserMediaMethod = "getUserMedia";
-    const syntheticProperty = "__prompterOneSyntheticMedia";
     const videoKind = "videoinput";
     const audioKind = "audioinput";
     const defaultVideoFrameRate = 24;
@@ -28,10 +26,32 @@
     const secondaryCameraGroupId = "prompterone-camera-b";
     const primaryMicrophoneGroupId = "prompterone-mic-a";
     const streamMetadataVersion = 1;
-    const concealIdentitySessionFlag = "__prompterOneConcealDeviceIdentityUntilMediaRequest";
     const remoteSourceColors = ["#5fd2ff", "#f98f6f", "#8fd56e", "#f1c75c"];
     const remoteSourceToneBase = 310;
-    const remoteSourceSeedGlobal = "__prompterOneRemoteSourceSeed";
+    const runtimeGlobalName = "__prompterOneRuntime";
+    const mediaContractProperty = "media";
+    const defaultMediaRuntimeContract = Object.freeze({
+        concealDeviceIdentitySessionFlag: "__prompterOneConcealDeviceIdentityUntilMediaRequest",
+        remoteSourceSeedGlobalName: "__prompterOneRemoteSourceSeed",
+        syntheticHarnessGlobalName: "__prompterOneMediaHarness",
+        syntheticMetadataProperty: "__prompterOneSyntheticMedia"
+    });
+
+    function getMediaRuntimeContract() {
+        return window[runtimeGlobalName]?.[mediaContractProperty] ?? defaultMediaRuntimeContract;
+    }
+
+    function getMediaRuntimeString(propertyName) {
+        const value = getMediaRuntimeContract()?.[propertyName];
+        return typeof value === "string" && value.length > 0
+            ? value
+            : defaultMediaRuntimeContract[propertyName];
+    }
+
+    const harnessGlobalName = getMediaRuntimeString("syntheticHarnessGlobalName");
+    const syntheticProperty = getMediaRuntimeString("syntheticMetadataProperty");
+    const concealIdentitySessionFlag = getMediaRuntimeString("concealDeviceIdentitySessionFlag");
+    const remoteSourceSeedGlobal = getMediaRuntimeString("remoteSourceSeedGlobalName");
 
     if (typeof window[harnessGlobalName] === "object" && window[harnessGlobalName] !== null) {
         return;

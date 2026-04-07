@@ -1,14 +1,30 @@
+using PrompterOne.Shared.Components;
+using PrompterOne.Shared.Contracts;
+using PrompterOne.Shared.Localization;
+using PrompterOne.Shared.Settings.Models;
+
 namespace PrompterOne.Shared.Pages;
 
 public partial class SettingsPage
 {
     private const string DisplayNoneStyle = "display:none";
-    private const string SetNavItemCssClass = "set-nav-item";
+
+    private static readonly IReadOnlyList<SettingsSidebarNavigationItem> NavigationItems =
+    [
+        new(SettingsSection.Cloud, UiIconKind.Cloud, UiTextKey.SettingsNavCloud, UiTestIds.Settings.NavCloud),
+        new(SettingsSection.Files, UiIconKind.Folder, UiTextKey.SettingsNavFiles, UiTestIds.Settings.NavFiles),
+        new(SettingsSection.Cameras, UiIconKind.Camera, UiTextKey.SettingsNavCameras, UiTestIds.Settings.NavCameras),
+        new(SettingsSection.Mics, UiIconKind.Microphone, UiTextKey.SettingsNavMicrophones, UiTestIds.Settings.NavMics),
+        new(SettingsSection.Streaming, UiIconKind.ArrowRight, UiTextKey.SettingsNavStreaming, UiTestIds.Settings.NavStreaming),
+        new(SettingsSection.Recording, UiIconKind.RecordTarget, UiTextKey.SettingsNavRecording, UiTestIds.Settings.NavRecording),
+        new(SettingsSection.Ai, UiIconKind.Spark, UiTextKey.SettingsNavAi, UiTestIds.Settings.NavAi),
+        new(SettingsSection.Appearance, UiIconKind.Theme, UiTextKey.SettingsNavAppearance, UiTestIds.Settings.NavAppearance),
+        new(SettingsSection.Language, UiIconKind.Message, UiTextKey.SettingsNavLanguage, UiTestIds.Settings.NavLanguage),
+        new(SettingsSection.Shortcuts, UiIconKind.Keyboard, UiTextKey.SettingsNavShortcuts, UiTestIds.Settings.NavShortcuts),
+        new(SettingsSection.About, UiIconKind.HelpCircle, UiTextKey.SettingsNavAbout, UiTestIds.Settings.NavAbout)
+    ];
 
     private SettingsSection _activeSection = SettingsSection.Cloud;
-
-    private string GetNavItemCssClass(SettingsSection section) =>
-        section == _activeSection ? $"{SetNavItemCssClass} {ActiveCssClass}" : SetNavItemCssClass;
 
     private string GetSectionDisplayStyle(SettingsSection section) =>
         section == _activeSection ? string.Empty : DisplayNoneStyle;

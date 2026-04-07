@@ -4,21 +4,41 @@
     const cameraCaptureMap = new Map();
     const cameraTrackMap = new Map();
     const defaultDeviceId = "default";
-    const interopNamespace = "BrowserMediaInterop";
-    const liveKitClientGlobal = "LivekitClient";
     const microphoneMonitorLevelMultiplier = 2800;
     const monitorMap = new Map();
     const remoteCaptureMap = new Map();
     const remoteStreamMap = new Map();
     const appleVendorFragment = "Apple";
-    const captureCapabilitiesOverrideGlobal = "__prompterOneMediaCapabilityOverride";
     const touchMacPlatform = "MacIntel";
-    const syntheticHarnessGlobal = "__prompterOneMediaHarness";
-    const syntheticMetadataProperty = "__prompterOneSyntheticMedia";
     const videoInputKind = "videoinput";
+    const runtimeGlobalName = "__prompterOneRuntime";
+    const mediaContractProperty = "media";
+    const defaultMediaRuntimeContract = Object.freeze({
+        browserMediaInteropNamespace: "BrowserMediaInterop",
+        captureCapabilitiesOverrideGlobalName: "__prompterOneMediaCapabilityOverride",
+        liveKitClientGlobalName: "LivekitClient",
+        mediaHarnessEnabledProperty: "mediaHarnessEnabled",
+        syntheticHarnessGlobalName: "__prompterOneMediaHarness",
+        syntheticMetadataProperty: "__prompterOneSyntheticMedia"
+    });
+
+    function getMediaRuntimeContract() {
+        return window[runtimeGlobalName]?.[mediaContractProperty] ?? defaultMediaRuntimeContract;
+    }
+
+    function getMediaRuntimeString(propertyName) {
+        const value = getMediaRuntimeContract()?.[propertyName];
+        return typeof value === "string" && value.length > 0
+            ? value
+            : defaultMediaRuntimeContract[propertyName];
+    }
+
+    function isMediaHarnessEnabled() {
+        return window[runtimeGlobalName]?.[getMediaRuntimeString("mediaHarnessEnabledProperty")] === true;
+    }
 
     function copySyntheticMetadata(source, target) {
-        const metadata = source?.[syntheticMetadataProperty];
+        const metadata = source?.[getMediaRuntimeString("syntheticMetadataProperty")];
         if (!metadata || !target || typeof target !== "object") {
             return;
         }
@@ -31,7 +51,7 @@
             return;
         }
 
-        Object.defineProperty(target, syntheticMetadataProperty, {
+        Object.defineProperty(target, getMediaRuntimeString("syntheticMetadataProperty"), {
             configurable: true,
             enumerable: false,
             value: metadata,
@@ -145,7 +165,10 @@
     }
 
     function hasSyntheticMediaHarness() {
-        return typeof window[syntheticHarnessGlobal] === "object" && window[syntheticHarnessGlobal] !== null;
+        const harnessGlobalName = getMediaRuntimeString("syntheticHarnessGlobalName");
+        return isMediaHarnessEnabled()
+            && typeof window[harnessGlobalName] === "object"
+            && window[harnessGlobalName] !== null;
     }
 
     function normalizeCaptureCapabilities(rawCapabilities) {
@@ -166,13 +189,15 @@
     }
 
     function getCaptureCapabilities() {
-        const overriddenCapabilities = window[captureCapabilitiesOverrideGlobal];
+        const overriddenCapabilities = isMediaHarnessEnabled()
+            ? window[getMediaRuntimeString("captureCapabilitiesOverrideGlobalName")]
+            : null;
         if (overriddenCapabilities && typeof overriddenCapabilities === "object") {
             return normalizeCaptureCapabilities(overriddenCapabilities);
         }
 
         if (hasSyntheticMediaHarness()) {
-            const harnessCapabilities = window[syntheticHarnessGlobal]?.getCaptureCapabilities?.();
+            const harnessCapabilities = window[getMediaRuntimeString("syntheticHarnessGlobalName")]?.getCaptureCapabilities?.();
             if (harnessCapabilities && typeof harnessCapabilities === "object") {
                 return normalizeCaptureCapabilities(harnessCapabilities);
             }
@@ -248,7 +273,7 @@
     }
 
     function getLiveKitClient() {
-        const client = window[liveKitClientGlobal];
+        const client = window[getMediaRuntimeString("liveKitClientGlobalName")];
         if (hasSyntheticMediaHarness()) {
             return buildSyntheticLiveKitClient(client);
         }
@@ -303,7 +328,7 @@
 
     async function loadDevicesForKind(kind) {
         if (hasSyntheticMediaHarness()) {
-            const syntheticDevices = window[syntheticHarnessGlobal]?.listDevices?.();
+            const syntheticDevices = window[getMediaRuntimeString("syntheticHarnessGlobalName")]?.listDevices?.();
             if (Array.isArray(syntheticDevices)) {
                 return syntheticDevices.filter(device => device?.kind === kind);
             }
@@ -521,7 +546,7 @@
         }
     }
 
-    window[interopNamespace] = {
+    window[getMediaRuntimeString("browserMediaInteropNamespace")] = {
         getCaptureCapabilities() {
             return getCaptureCapabilities();
         },
@@ -550,7 +575,7 @@
 
         async requestPermissions() {
             await requestMediaPermissions();
-            return await window[interopNamespace].queryPermissions();
+            return await window[getMediaRuntimeString("browserMediaInteropNamespace")].queryPermissions();
         },
 
         async listDevices() {

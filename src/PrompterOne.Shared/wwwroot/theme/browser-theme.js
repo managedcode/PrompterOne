@@ -1,16 +1,36 @@
 (() => {
-    const settingsPrefix = "prompterone.settings.";
-    const settingsPageKey = `${settingsPrefix}prompterone.settings-page`;
-    const darkTheme = "dark";
-    const lightTheme = "light";
-    const systemTheme = "system";
-    const defaultAccent = "#C4A060";
-    const defaultDensity = "default";
+    const runtimeGlobalNameFallback = "__prompterOneRuntime";
+    const defaultThemeRuntime = {
+        contractProperty: "theme",
+        darkTheme: "dark",
+        defaultAccent: "#C4A060",
+        defaultDensity: "default",
+        densityRootAttribute: "data-density",
+        lightTheme: "light",
+        runtimeGlobalName: runtimeGlobalNameFallback,
+        settingsPageStorageKey: "prompterone.settings.prompterone.settings-page",
+        systemTheme: "system",
+        themeDarkClass: "theme-dark",
+        themeGlobalName: "prompterOneTheme",
+        themeLightClass: "theme-light",
+        themeRootAttribute: "data-theme",
+        themeSourceAttribute: "data-theme-source"
+    };
     const root = document.documentElement;
     const themeMedia = typeof window.matchMedia === "function"
         ? window.matchMedia("(prefers-color-scheme: light)")
         : null;
-    let selectedTheme = darkTheme;
+    let selectedTheme = defaultThemeRuntime.darkTheme;
+
+    function getThemeRuntime() {
+        const runtime = window[defaultThemeRuntime.runtimeGlobalName];
+        const configuredThemeRuntime = runtime?.[defaultThemeRuntime.contractProperty];
+
+        return {
+            ...defaultThemeRuntime,
+            ...(configuredThemeRuntime ?? {})
+        };
+    }
 
     function clampColor(value) {
         return Math.max(0, Math.min(255, Math.round(value)));
@@ -60,26 +80,28 @@
     }
 
     function resolveEffectiveTheme(theme) {
-        if (theme === systemTheme) {
-            return themeMedia?.matches ? lightTheme : darkTheme;
+        const themeRuntime = getThemeRuntime();
+        if (theme === themeRuntime.systemTheme) {
+            return themeMedia?.matches ? themeRuntime.lightTheme : themeRuntime.darkTheme;
         }
 
-        return theme === lightTheme ? lightTheme : darkTheme;
+        return theme === themeRuntime.lightTheme ? themeRuntime.lightTheme : themeRuntime.darkTheme;
     }
 
     function setAccentTokens(accentHex, effectiveTheme) {
-        const rgb = hexToRgb(accentHex) ?? hexToRgb(defaultAccent);
+        const themeRuntime = getThemeRuntime();
+        const rgb = hexToRgb(accentHex) ?? hexToRgb(themeRuntime.defaultAccent);
         if (!rgb) {
             return;
         }
 
-        const accentText = effectiveTheme === lightTheme
+        const accentText = effectiveTheme === themeRuntime.lightTheme
             ? mixWithBlack(rgb, 0.35)
             : mixWithWhite(rgb, 0.45);
-        const accentLight = effectiveTheme === lightTheme
+        const accentLight = effectiveTheme === themeRuntime.lightTheme
             ? mixWithBlack(rgb, 0.12)
             : mixWithWhite(rgb, 0.72);
-        const accentMid = effectiveTheme === lightTheme
+        const accentMid = effectiveTheme === themeRuntime.lightTheme
             ? mixWithBlack(rgb, 0.22)
             : mixWithWhite(rgb, 0.28);
 
@@ -99,63 +121,65 @@
             ["--gold-04", 0.04],
             ["--gold-05", 0.05],
             ["--gold-06", 0.06],
-            ["--gold-07", effectiveTheme === lightTheme ? 0.08 : 0.07],
-            ["--gold-08", effectiveTheme === lightTheme ? 0.10 : 0.08],
-            ["--gold-09", effectiveTheme === lightTheme ? 0.12 : 0.09],
-            ["--gold-10", effectiveTheme === lightTheme ? 0.14 : 0.10],
-            ["--gold-12", effectiveTheme === lightTheme ? 0.18 : 0.12],
-            ["--gold-14", effectiveTheme === lightTheme ? 0.22 : 0.14],
-            ["--gold-15", effectiveTheme === lightTheme ? 0.25 : 0.15],
-            ["--gold-16", effectiveTheme === lightTheme ? 0.28 : 0.16],
-            ["--gold-20", effectiveTheme === lightTheme ? 0.32 : 0.20],
-            ["--gold-25", effectiveTheme === lightTheme ? 0.38 : 0.25],
-            ["--gold-30", effectiveTheme === lightTheme ? 0.45 : 0.30],
-            ["--gold-35", effectiveTheme === lightTheme ? 0.52 : 0.35],
-            ["--gold-45", effectiveTheme === lightTheme ? 0.65 : 0.45]
+            ["--gold-07", effectiveTheme === themeRuntime.lightTheme ? 0.08 : 0.07],
+            ["--gold-08", effectiveTheme === themeRuntime.lightTheme ? 0.10 : 0.08],
+            ["--gold-09", effectiveTheme === themeRuntime.lightTheme ? 0.12 : 0.09],
+            ["--gold-10", effectiveTheme === themeRuntime.lightTheme ? 0.14 : 0.10],
+            ["--gold-12", effectiveTheme === themeRuntime.lightTheme ? 0.18 : 0.12],
+            ["--gold-14", effectiveTheme === themeRuntime.lightTheme ? 0.22 : 0.14],
+            ["--gold-15", effectiveTheme === themeRuntime.lightTheme ? 0.25 : 0.15],
+            ["--gold-16", effectiveTheme === themeRuntime.lightTheme ? 0.28 : 0.16],
+            ["--gold-20", effectiveTheme === themeRuntime.lightTheme ? 0.32 : 0.20],
+            ["--gold-25", effectiveTheme === themeRuntime.lightTheme ? 0.38 : 0.25],
+            ["--gold-30", effectiveTheme === themeRuntime.lightTheme ? 0.45 : 0.30],
+            ["--gold-35", effectiveTheme === themeRuntime.lightTheme ? 0.52 : 0.35],
+            ["--gold-45", effectiveTheme === themeRuntime.lightTheme ? 0.65 : 0.45]
         ].forEach(([token, alpha]) => root.style.setProperty(token, buildRgba(rgb.red, rgb.green, rgb.blue, alpha)));
     }
 
     function applySettingsTheme(theme, accentColor, density) {
-        selectedTheme = theme ?? darkTheme;
+        const themeRuntime = getThemeRuntime();
+        selectedTheme = theme ?? themeRuntime.darkTheme;
         const effectiveTheme = resolveEffectiveTheme(selectedTheme);
 
-        root.setAttribute("data-theme", effectiveTheme);
-        root.setAttribute("data-theme-source", selectedTheme);
-        root.setAttribute("data-density", density ?? defaultDensity);
-        root.classList.toggle("theme-light", effectiveTheme === lightTheme);
-        root.classList.toggle("theme-dark", effectiveTheme === darkTheme);
-        setBodyClass("theme-light", effectiveTheme === lightTheme);
-        setBodyClass("theme-dark", effectiveTheme === darkTheme);
-        setAccentTokens(accentColor ?? defaultAccent, effectiveTheme);
+        root.setAttribute(themeRuntime.themeRootAttribute, effectiveTheme);
+        root.setAttribute(themeRuntime.themeSourceAttribute, selectedTheme);
+        root.setAttribute(themeRuntime.densityRootAttribute, density ?? themeRuntime.defaultDensity);
+        root.classList.toggle(themeRuntime.themeLightClass, effectiveTheme === themeRuntime.lightTheme);
+        root.classList.toggle(themeRuntime.themeDarkClass, effectiveTheme === themeRuntime.darkTheme);
+        setBodyClass(themeRuntime.themeLightClass, effectiveTheme === themeRuntime.lightTheme);
+        setBodyClass(themeRuntime.themeDarkClass, effectiveTheme === themeRuntime.darkTheme);
+        setAccentTokens(accentColor ?? themeRuntime.defaultAccent, effectiveTheme);
     }
 
     function loadStoredPreferences() {
+        const themeRuntime = getThemeRuntime();
         try {
-            const stored = window.localStorage.getItem(settingsPageKey);
+            const stored = window.localStorage.getItem(themeRuntime.settingsPageStorageKey);
             if (!stored) {
-                applySettingsTheme(darkTheme, defaultAccent, defaultDensity);
+                applySettingsTheme(themeRuntime.darkTheme, themeRuntime.defaultAccent, themeRuntime.defaultDensity);
                 return;
             }
 
             const preferences = JSON.parse(stored);
             applySettingsTheme(
-                preferences?.ColorScheme ?? darkTheme,
-                preferences?.AccentColor ?? defaultAccent,
-                preferences?.UiDensity ?? defaultDensity);
+                preferences?.ColorScheme ?? themeRuntime.darkTheme,
+                preferences?.AccentColor ?? themeRuntime.defaultAccent,
+                preferences?.UiDensity ?? themeRuntime.defaultDensity);
         } catch {
-            applySettingsTheme(darkTheme, defaultAccent, defaultDensity);
+            applySettingsTheme(themeRuntime.darkTheme, themeRuntime.defaultAccent, themeRuntime.defaultDensity);
         }
     }
 
     if (themeMedia) {
         themeMedia.addEventListener("change", () => {
-            if (selectedTheme === systemTheme) {
+            if (selectedTheme === getThemeRuntime().systemTheme) {
                 loadStoredPreferences();
             }
         });
     }
 
-    window.prompterOneTheme = {
+    window[getThemeRuntime().themeGlobalName] = {
         applySettingsTheme
     };
 

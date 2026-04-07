@@ -4,9 +4,10 @@ namespace PrompterOne.Web.UITests;
 
 public sealed partial class StandaloneAppFixture
 {
-    private static Task ConfigureMediaHarnessAsync(IBrowserContext context)
+    private static async Task ConfigureMediaHarnessAsync(IBrowserContext context)
     {
-        return context.AddInitScriptAsync(scriptPath: GetMediaHarnessScriptPath());
+        await context.AddInitScriptAsync(BrowserTestConstants.Media.RuntimeContractInitializationScript);
+        await context.AddInitScriptAsync(scriptPath: GetMediaHarnessScriptPath());
     }
 
     private static string GetMediaHarnessScriptPath() =>

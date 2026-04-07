@@ -2,7 +2,6 @@
     const audioContextCtor = window.AudioContext || window.webkitAudioContext;
     const audibleAudioProbeTimeoutMs = 1500;
     const audibleAudioPollDelayMs = 100;
-    const harnessGlobalName = "__prompterOneRecordingFileHarness";
     const audioSampleWaitMs = 100;
     const blobMimeFallback = "video/webm";
     const minimumAudibleFrequencyValue = 8;
@@ -12,6 +11,24 @@
     const visibleVideoProbeTimeoutMs = 1500;
     const visibleVideoPollDelayMs = 100;
     const readyStateHaveCurrentData = 2;
+    const runtimeGlobalName = "__prompterOneRuntime";
+    const mediaContractProperty = "media";
+    const defaultMediaRuntimeContract = Object.freeze({
+        recordingFileHarnessGlobalName: "__prompterOneRecordingFileHarness"
+    });
+
+    function getMediaRuntimeContract() {
+        return window[runtimeGlobalName]?.[mediaContractProperty] ?? defaultMediaRuntimeContract;
+    }
+
+    function getMediaRuntimeString(propertyName) {
+        const value = getMediaRuntimeContract()?.[propertyName];
+        return typeof value === "string" && value.length > 0
+            ? value
+            : defaultMediaRuntimeContract[propertyName];
+    }
+
+    const harnessGlobalName = getMediaRuntimeString("recordingFileHarnessGlobalName");
 
     if (typeof window[harnessGlobalName] === "object" && window[harnessGlobalName] !== null) {
         return;

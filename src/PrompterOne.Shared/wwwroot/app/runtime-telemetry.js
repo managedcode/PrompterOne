@@ -3,12 +3,17 @@ const clarityProviderName = "clarity";
 const googleAnalyticsFunctionName = "gtag";
 const googleAnalyticsProviderName = "google-analytics";
 const googleDataLayerName = "dataLayer";
-const harnessEventsKey = "events";
-const harnessInitializationsKey = "initializations";
-const harnessName = "__prompterOneTelemetryHarness";
-const harnessPageViewsKey = "pageViews";
-const harnessVendorLoadsKey = "vendorLoads";
-const runtimeName = "__prompterOneRuntime";
+
+const telemetryContract = {
+    eventsCollection: "",
+    harnessGlobalName: "",
+    initializationsCollection: "",
+    pageViewsCollection: "",
+    runtimeGlobalName: "",
+    runtimeHarnessEnabledProperty: "",
+    runtimeWasmDebugEnabledProperty: "",
+    vendorLoadsCollection: ""
+};
 
 const telemetryState = {
     clarityConfigured: false,
@@ -19,12 +24,28 @@ const telemetryState = {
     runtimeEnabled: false
 };
 
+function applyTelemetryContract(contract) {
+    telemetryContract.eventsCollection = contract?.eventsCollection ?? "";
+    telemetryContract.harnessGlobalName = contract?.harnessGlobalName ?? "";
+    telemetryContract.initializationsCollection = contract?.initializationsCollection ?? "";
+    telemetryContract.pageViewsCollection = contract?.pageViewsCollection ?? "";
+    telemetryContract.runtimeGlobalName = contract?.runtimeGlobalName ?? "";
+    telemetryContract.runtimeHarnessEnabledProperty = contract?.runtimeHarnessEnabledProperty ?? "";
+    telemetryContract.runtimeWasmDebugEnabledProperty = contract?.runtimeWasmDebugEnabledProperty ?? "";
+    telemetryContract.vendorLoadsCollection = contract?.vendorLoadsCollection ?? "";
+}
+
 function getHarness() {
-    return window[harnessName] ?? null;
+    const runtime = getRuntime();
+    if (runtime[telemetryContract.runtimeHarnessEnabledProperty] !== true) {
+        return null;
+    }
+
+    return window[telemetryContract.harnessGlobalName] ?? null;
 }
 
 function getRuntime() {
-    return window[runtimeName] ?? {};
+    return window[telemetryContract.runtimeGlobalName] ?? {};
 }
 
 function ensureHarnessCollection(name) {
@@ -71,7 +92,7 @@ function installClarityStub() {
 }
 
 function recordBlockedVendorLoad(provider) {
-    recordHarnessEntry(harnessVendorLoadsKey, {
+    recordHarnessEntry(telemetryContract.vendorLoadsCollection, {
         blocked: true,
         provider,
         url: ""
@@ -108,7 +129,7 @@ function buildInitializationSnapshot(config) {
 
     return {
         clarityConfigured: Boolean(config?.clarityProjectId),
-        debugEnabled: runtime.wasmDebugEnabled === true,
+        debugEnabled: runtime[telemetryContract.runtimeWasmDebugEnabledProperty] === true,
         googleAnalyticsConfigured: Boolean(config?.googleAnalyticsMeasurementId),
         hostEnabled: config?.hostEnabled === true,
         runtimeEnabled: telemetryState.runtimeEnabled,
@@ -126,12 +147,15 @@ function normalizePayload(eventName, payload) {
 }
 
 export async function initializeRuntimeTelemetry(config) {
+    applyTelemetryContract(config?.contract);
     telemetryState.initialized = true;
     telemetryState.googleAnalyticsMeasurementId = config?.googleAnalyticsMeasurementId ?? "";
     telemetryState.clarityProjectId = config?.clarityProjectId ?? "";
-    telemetryState.runtimeEnabled = config?.hostEnabled === true && getRuntime().wasmDebugEnabled !== true;
+    telemetryState.runtimeEnabled =
+        config?.hostEnabled === true
+        && getRuntime()[telemetryContract.runtimeWasmDebugEnabledProperty] !== true;
 
-    recordHarnessEntry(harnessInitializationsKey, buildInitializationSnapshot(config));
+    recordHarnessEntry(telemetryContract.initializationsCollection, buildInitializationSnapshot(config));
 
     if (!telemetryState.runtimeEnabled) {
         return false;
@@ -143,11 +167,11 @@ export async function initializeRuntimeTelemetry(config) {
 }
 
 export async function trackRuntimeTelemetryPageView(eventName, payload) {
-    return trackRuntimeTelemetryEventInternal(eventName, payload, harnessPageViewsKey);
+    return trackRuntimeTelemetryEventInternal(eventName, payload, telemetryContract.pageViewsCollection);
 }
 
 export async function trackRuntimeTelemetryEvent(eventName, payload) {
-    return trackRuntimeTelemetryEventInternal(eventName, payload, harnessEventsKey);
+    return trackRuntimeTelemetryEventInternal(eventName, payload, telemetryContract.eventsCollection);
 }
 
 async function trackRuntimeTelemetryEventInternal(eventName, payload, harnessCollectionName) {

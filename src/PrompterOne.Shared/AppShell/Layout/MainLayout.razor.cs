@@ -29,6 +29,8 @@ public partial class MainLayout : LayoutComponentBase, IDisposable
     [Inject] private IScriptSessionService SessionService { get; set; } = null!;
     [Inject] private ILogger<MainLayout> Logger { get; set; } = null!;
     [Inject] private IStringLocalizer<SharedResource> Localizer { get; set; } = null!;
+    [Inject] private MediaRuntimeContractService MediaRuntimeContracts { get; set; } = null!;
+    [Inject] private ThemeRuntimeContractService ThemeRuntimeContracts { get; set; } = null!;
     [Inject] private NavigationManager Navigation { get; set; } = null!;
     [Inject] private RuntimeTelemetryService RuntimeTelemetry { get; set; } = null!;
 
@@ -180,6 +182,8 @@ public partial class MainLayout : LayoutComponentBase, IDisposable
         }
 
         await GoLiveSession.StartCrossTabSyncAsync();
+        await MediaRuntimeContracts.InitializeAsync();
+        await ThemeRuntimeContracts.InitializeAsync();
         await ThemeService.InitializeAsync();
         await Connectivity.StartAsync();
         await Bootstrapper.EnsureReadyAsync();

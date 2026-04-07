@@ -133,6 +133,10 @@ internal static partial class BrowserTestConstants
         public const string AdjustedFocalPointPercent = "45";
         public static readonly Regex AdjustedFocalGuideStyle = new("top:\\s*45%", RegexOptions.Compiled);
         public const int AlignmentTimeoutMs = 1000;
+        public const string ActiveCardSelector =
+            $"[{UiDataAttributes.Teleprompter.CardState}='{UiDataAttributes.Teleprompter.ActiveState}']";
+        public const string ActiveWordSelector =
+            $"[{UiDataAttributes.Teleprompter.CardState}='{UiDataAttributes.Teleprompter.ActiveState}'] [{UiDataAttributes.Teleprompter.WordState}='{UiDataAttributes.Teleprompter.ActiveState}']";
         public const int TransitionProbeIntervalMs = 50;
         public const int TransitionProbeSampleCount = 28;
         public const double TransitionReversalTolerancePx = 6;
@@ -329,7 +333,7 @@ internal static partial class BrowserTestConstants
         public const string HostParticipantName = "Host";
         public const string IdleStateValue = "idle";
         public const string LegacyNetworkUploadMetric = "8.2 Mbps";
-        public const string LiveKitHarnessGlobal = "__prompterOneLiveKitHarness";
+        public const string LiveKitHarnessGlobal = AppMediaRuntime.GoLive.LiveKitHarnessGlobalName;
         public const string LiveKitRoom = "launch-room";
         public const string LiveKitServer = "wss://livekit.example.com";
         public const string LiveKitTransportId = "livekit";
@@ -361,7 +365,7 @@ internal static partial class BrowserTestConstants
         public const int AudioRouteBothValue = 2;
         public const int PublishOnlyRoleValue = 2;
         public const int SourceAndPublishRoleValue = 3;
-        public const string VdoNinjaHarnessGlobal = "__prompterOneVdoNinjaHarness";
+        public const string VdoNinjaHarnessGlobal = AppMediaRuntime.GoLive.VdoNinjaHarnessGlobalName;
         public const string VdoNinjaTransportId = "vdoninja";
         public const string VdoNinjaPublishStreamId = "prompterone-program";
         public const string VdoNinjaPublishUrl = "https://vdo.ninja/?room=launch-room&push=prompterone-program";
@@ -371,7 +375,7 @@ internal static partial class BrowserTestConstants
         public const string ZeroLevelValue = "0";
         public const string ShortcutScenario = "go-live-keyboard-shortcuts";
         public const string ShortcutStep = "01-mode-layout-and-recording";
-        public const string InstallVdoNinjaHarnessScript = """
+        public static string InstallVdoNinjaHarnessScript => $$"""
             () => {
                 const harness = {
                     connectCalls: [],
@@ -446,15 +450,15 @@ internal static partial class BrowserTestConstants
                     }
                 }
 
-                window.__prompterOneVdoNinjaHarness = harness;
-                window.VDONinjaSDK = FakeVdoNinjaSdk;
-                window.VDONinja = FakeVdoNinjaSdk;
+                window["{{VdoNinjaHarnessGlobal}}"] = harness;
+                window["{{AppMediaRuntime.Vendor.VdoNinjaSdkGlobalName}}"] = FakeVdoNinjaSdk;
+                window["{{AppMediaRuntime.Vendor.VdoNinjaLegacyGlobalName}}"] = FakeVdoNinjaSdk;
             }
             """;
-        public const string GetVdoNinjaHarnessScript = "() => window.__prompterOneVdoNinjaHarness";
-        public const string VdoNinjaHarnessReadyScript =
-            "() => Boolean(window.__prompterOneVdoNinjaHarness && window.__prompterOneVdoNinjaHarness.connectCalls.length === 1 && window.__prompterOneVdoNinjaHarness.joinRoomCalls.length === 1 && window.__prompterOneVdoNinjaHarness.publishCalls.length === 1 && window.__prompterOneVdoNinjaHarness.publishCalls[0].trackKinds.includes('video') && window.__prompterOneVdoNinjaHarness.publishCalls[0].trackKinds.includes('audio'))";
-        public const string InstallLiveKitHarnessScript = """
+        public static string GetVdoNinjaHarnessScript => $$"""() => window["{{VdoNinjaHarnessGlobal}}"]""";
+        public static string VdoNinjaHarnessReadyScript =>
+            $$"""() => Boolean(window["{{VdoNinjaHarnessGlobal}}"] && window["{{VdoNinjaHarnessGlobal}}"].connectCalls.length === 1 && window["{{VdoNinjaHarnessGlobal}}"].joinRoomCalls.length === 1 && window["{{VdoNinjaHarnessGlobal}}"].publishCalls.length === 1 && window["{{VdoNinjaHarnessGlobal}}"].publishCalls[0].trackKinds.includes('video') && window["{{VdoNinjaHarnessGlobal}}"].publishCalls[0].trackKinds.includes('audio'))""";
+        public static string InstallLiveKitHarnessScript => $$"""
             () => {
                 const harness = {
                     connectCalls: [],
@@ -492,8 +496,8 @@ internal static partial class BrowserTestConstants
                     }
                 }
 
-                window.__prompterOneLiveKitHarness = harness;
-                window.LivekitClient = {
+                window["{{LiveKitHarnessGlobal}}"] = harness;
+                window["{{AppMediaRuntime.Vendor.LiveKitClientGlobalName}}"] = {
                     Room: FakeRoom,
                     Track: {
                         Source: {
@@ -504,22 +508,23 @@ internal static partial class BrowserTestConstants
                 };
             }
             """;
-        public const string GetLiveKitHarnessScript = "() => window.__prompterOneLiveKitHarness";
-        public const string LiveKitHarnessReadyScript =
-            "() => Boolean(window.__prompterOneLiveKitHarness && window.__prompterOneLiveKitHarness.connectCalls.length >= 1 && window.__prompterOneLiveKitHarness.publishCalls.some(call => call.kind === 'video') && window.__prompterOneLiveKitHarness.publishCalls.some(call => call.kind === 'audio'))";
-        public const string LiveKitRollbackHarnessReadyScript =
-            "() => Boolean(window.__prompterOneLiveKitHarness && window.__prompterOneLiveKitHarness.connectCalls.length === 1 && window.__prompterOneLiveKitHarness.disconnectCount === 1)";
-        public const string GetRuntimeStateScript = "sessionId => window.PrompterOneGoLiveOutput.getSessionState(sessionId)";
-        public const string RecordingRuntimeActiveScript =
-            "sessionId => Boolean(window.PrompterOneGoLiveOutput.getSessionState(sessionId)?.recording?.active)";
-        public const string RecordingRuntimeMetadataReadyScript =
-            "sessionId => { const state = window.PrompterOneGoLiveOutput.getSessionState(sessionId); return Boolean(state?.recording?.active && state?.recording?.fileName && state?.recording?.mimeType && (state?.recording?.sizeBytes ?? 0) > 0); }";
-        public const string RecordingRuntimeInactiveScript =
-            "sessionId => !Boolean(window.PrompterOneGoLiveOutput.getSessionState(sessionId)?.recording?.active)";
-        public const string RecordingRuntimeUsesProgramSourceScript =
-            "([sessionId, sourceId]) => window.PrompterOneGoLiveOutput.getSessionState(sessionId)?.program?.primarySourceId === sourceId";
+        public static string GetLiveKitHarnessScript => $$"""() => window["{{LiveKitHarnessGlobal}}"]""";
+        public static string LiveKitHarnessReadyScript =>
+            $$"""() => Boolean(window["{{LiveKitHarnessGlobal}}"] && window["{{LiveKitHarnessGlobal}}"].connectCalls.length >= 1 && window["{{LiveKitHarnessGlobal}}"].publishCalls.some(call => call.kind === 'video') && window["{{LiveKitHarnessGlobal}}"].publishCalls.some(call => call.kind === 'audio'))""";
+        public static string LiveKitRollbackHarnessReadyScript =>
+            $$"""() => Boolean(window["{{LiveKitHarnessGlobal}}"] && window["{{LiveKitHarnessGlobal}}"].connectCalls.length === 1 && window["{{LiveKitHarnessGlobal}}"].disconnectCount === 1)""";
+        public static string GetRuntimeStateScript =>
+            $$"""sessionId => window["{{AppMediaRuntime.GoLive.OutputNamespace}}"].getSessionState(sessionId)""";
+        public static string RecordingRuntimeActiveScript =>
+            $$"""sessionId => Boolean(window["{{AppMediaRuntime.GoLive.OutputNamespace}}"].getSessionState(sessionId)?.recording?.active)""";
+        public static string RecordingRuntimeMetadataReadyScript =>
+            $$"""sessionId => { const state = window["{{AppMediaRuntime.GoLive.OutputNamespace}}"].getSessionState(sessionId); return Boolean(state?.recording?.active && state?.recording?.fileName && state?.recording?.mimeType && (state?.recording?.sizeBytes ?? 0) > 0); }""";
+        public static string RecordingRuntimeInactiveScript =>
+            $$"""sessionId => !Boolean(window["{{AppMediaRuntime.GoLive.OutputNamespace}}"].getSessionState(sessionId)?.recording?.active)""";
+        public static string RecordingRuntimeUsesProgramSourceScript =>
+            $$"""([sessionId, sourceId]) => window["{{AppMediaRuntime.GoLive.OutputNamespace}}"].getSessionState(sessionId)?.program?.primarySourceId === sourceId""";
         public static string RecordingRuntimeAudioLevelsReadyScript { get; } =
-            "([sessionId, minimumLevel]) => { const state = window.PrompterOneGoLiveOutput.getSessionState(sessionId); return (state?.audio?.programLevelPercent ?? 0) >= minimumLevel && (state?.audio?.recordingLevelPercent ?? 0) >= minimumLevel; }";
+            $$"""([sessionId, minimumLevel]) => { const state = window["{{AppMediaRuntime.GoLive.OutputNamespace}}"].getSessionState(sessionId); return (state?.audio?.programLevelPercent ?? 0) >= minimumLevel && (state?.audio?.recordingLevelPercent ?? 0) >= minimumLevel; }""";
         public const string ResolveCameraDeviceScript = """
             async () => {
                 const mediaDevices = navigator.mediaDevices;
@@ -949,14 +954,17 @@ internal static partial class BrowserTestConstants
         public const int ExpectedActionEventCount = 1;
         public const int ExpectedActionPageViewCount = 2;
         public const int ExpectedVendorLoadCount = 2;
-        public const string EventsCollection = "events";
+        public const string EventsCollection = AppRuntimeTelemetry.Harness.EventsCollection;
         public const string GoogleAnalyticsProvider = "google-analytics";
-        public const string InitializationsCollection = "initializations";
+        public const string HarnessGlobal = AppRuntimeTelemetry.Harness.GlobalName;
+        public const string InitializationsCollection = AppRuntimeTelemetry.Harness.InitializationsCollection;
         public const int MinimumInitializationCount = 1;
         public const int MinimumPageViewCount = 1;
-        public const string PageViewsCollection = "pageViews";
+        public const string PageViewsCollection = AppRuntimeTelemetry.Harness.PageViewsCollection;
+        public const string RuntimeGlobal = AppRuntimeTelemetry.Harness.RuntimeGlobalName;
+        public const string RuntimeHarnessEnabledProperty = AppRuntimeTelemetry.Harness.RuntimeHarnessEnabledProperty;
         public const int TelemetryWaitTimeoutMs = 5_000;
-        public const string VendorLoadsCollection = "vendorLoads";
+        public const string VendorLoadsCollection = AppRuntimeTelemetry.Harness.VendorLoadsCollection;
     }
 
     public static class Elements

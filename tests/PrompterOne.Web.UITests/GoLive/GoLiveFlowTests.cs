@@ -607,7 +607,7 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
             ]
         });
 
-        return $"window.__prompterOneRemoteSourceSeed = {seed};";
+        return $$"""window["{{AppMediaRuntime.BrowserMedia.RemoteSourceSeedGlobalName}}"] = {{seed}};""";
     }
 
     private static async Task WaitForLiveKitPublishAsync(IPage page)

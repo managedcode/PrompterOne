@@ -155,6 +155,9 @@ public sealed class EditorLayoutTests(StandaloneAppFixture fixture)
                 BrowserTestConstants.ResponsiveLayout.IphoneMediumHeight,
                 BrowserTestConstants.ResponsiveLayout.IphoneMediumWidth);
             await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
+            await Expect(page.GetByTestId(UiTestIds.Editor.Page))
+                .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
+            await EditorMonacoDriver.WaitUntilReadyAsync(page);
 
             var toolbar = page.GetByTestId(UiTestIds.Editor.Toolbar);
             var aiButton = page.GetByTestId(UiTestIds.Editor.Ai);

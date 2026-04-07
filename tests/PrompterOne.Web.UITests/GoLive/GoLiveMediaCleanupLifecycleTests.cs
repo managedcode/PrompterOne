@@ -7,8 +7,8 @@ namespace PrompterOne.Web.UITests;
 [ClassDataSource<StandaloneAppFixture>(Shared = SharedType.PerClass)]
 public sealed class GoLiveMediaCleanupLifecycleTests(StandaloneAppFixture fixture)
 {
-    private const string BrowserMediaInteropNamespace = "BrowserMediaInterop";
-    private const string CleanupHarnessGlobal = "__prompterOneGoLiveCleanupHarness";
+    private const string BrowserMediaInteropNamespace = AppMediaRuntime.BrowserMedia.InteropNamespace;
+    private const string CleanupHarnessGlobal = AppMediaRuntime.GoLive.CleanupHarnessGlobalName;
 
     private const string InstallCleanupSpiesScript = $$"""
         () => {
@@ -68,10 +68,10 @@ public sealed class GoLiveMediaCleanupLifecycleTests(StandaloneAppFixture fixtur
             await page.EvaluateAsync(InstallCleanupSpiesScript);
             await page.EvaluateAsync(BrowserTestConstants.Media.ClearRequestLogScript);
             var cleanupResult = await page.EvaluateAsync<JsonElement>(
-                """
+                $$"""
                 async () => {
-                    const support = window.PrompterOneGoLiveOutputSupport;
-                    const composer = window.PrompterOneGoLiveMediaComposer;
+                    const support = window["{{AppMediaRuntime.GoLive.OutputSupportNamespace}}"];
+                    const composer = window["{{AppMediaRuntime.GoLive.MediaComposerNamespace}}"];
 
                     if (!support?.normalizeRequest || !composer?.ensureProgramSession || !composer?.cleanupProgramSession) {
                         throw new Error("Go Live media runtimes are not available.");
@@ -146,17 +146,17 @@ public sealed class GoLiveMediaCleanupLifecycleTests(StandaloneAppFixture fixtur
                     const session = {};
                     await composer.ensureProgramSession(session, request);
 
-                    const firstRequests = window["__prompterOneMediaHarness"].getRequestLog();
+                    const firstRequests = window["{{BrowserTestConstants.Media.HarnessGlobal}}"].getRequestLog();
                     const firstVideoRequestCount = firstRequests.filter(request => request.hasVideo).length;
                     const firstAudioRequestCount = firstRequests.filter(request => request.hasAudio).length;
 
                     await composer.cleanupProgramSession(session);
 
-                    const cleanupState = window["__prompterOneGoLiveCleanupHarness"];
+                    const cleanupState = window["{{CleanupHarnessGlobal}}"];
 
                     await composer.ensureProgramSession(session, request);
 
-                    const restartRequests = window["__prompterOneMediaHarness"].getRequestLog();
+                    const restartRequests = window["{{BrowserTestConstants.Media.HarnessGlobal}}"].getRequestLog();
                     const restartVideoRequestCount = restartRequests.filter(request => request.hasVideo).length;
                     const restartAudioRequestCount = restartRequests.filter(request => request.hasAudio).length;
 

@@ -1,6 +1,4 @@
 (function () {
-    const browserMediaNamespace = "BrowserMediaInterop";
-    const composerNamespace = "PrompterOneGoLiveMediaComposer";
     const audioContextCtor = window.AudioContext || window.webkitAudioContext;
     const canvasContextType = "2d";
     const hiddenMediaStyle = "position:fixed;left:-10000px;top:-10000px;width:1px;height:1px;opacity:0;pointer-events:none;";
@@ -9,6 +7,23 @@
     const overlayMaximumOpacity = 1;
     const primaryScale = 1;
     const videoReadyStateThreshold = 2;
+    const runtimeGlobalName = "__prompterOneRuntime";
+    const mediaContractProperty = "media";
+    const defaultMediaRuntimeContract = Object.freeze({
+        browserMediaInteropNamespace: "BrowserMediaInterop",
+        goLiveMediaComposerNamespace: "PrompterOneGoLiveMediaComposer"
+    });
+
+    function getMediaRuntimeContract() {
+        return window[runtimeGlobalName]?.[mediaContractProperty] ?? defaultMediaRuntimeContract;
+    }
+
+    function getMediaRuntimeString(propertyName) {
+        const value = getMediaRuntimeContract()?.[propertyName];
+        return typeof value === "string" && value.length > 0
+            ? value
+            : defaultMediaRuntimeContract[propertyName];
+    }
 
     function ensureSessionInfrastructure(session) {
         session.videoBindings ??= new Map();
@@ -27,7 +42,7 @@
     }
 
     function getBrowserMedia() {
-        const browserMedia = window[browserMediaNamespace];
+        const browserMedia = window[getMediaRuntimeString("browserMediaInteropNamespace")];
         if (!browserMedia?.createSharedCameraTrack || !browserMedia?.createLocalAudioTrack || !browserMedia?.releaseSharedCameraTrack) {
             throw new Error("Browser media runtime is not available.");
         }
@@ -544,7 +559,7 @@
         };
     }
 
-    window[composerNamespace] = {
+    window[getMediaRuntimeString("goLiveMediaComposerNamespace")] = {
         cleanupProgramSession,
         ensureProgramSession,
         getProgramState

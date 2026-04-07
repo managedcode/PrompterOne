@@ -1,12 +1,17 @@
 @namespace PrompterOne.Shared.Components.GoLive
+@using Microsoft.Extensions.Localization
 @using PrompterOne.Core.Models.Media
+@using PrompterOne.Shared.GoLive.Models
+@using PrompterOne.Shared.Localization
+@using PrompterOne.Shared.Settings.Models
+@inject IStringLocalizer<SharedResource> Localizer
 
 <section class="gl-program-monitor-shell"
          data-live-state="@LiveState">
     <div class="gl-monitor gl-monitor-program"
          data-testid="@UiTestIds.GoLive.ProgramCard">
         <div class="gl-monitor-label-top gl-label-canvas">
-            <span>@Title</span>
+            <span>@EffectiveTitle</span>
         </div>
         <GoLiveCameraSurface Camera="@Camera"
                              ContainerClass="gl-monitor-feed"
@@ -16,14 +21,14 @@
                              VideoTestId="@UiTestIds.GoLive.ProgramVideo">
             <OverlayContent>
                 <div class="gl-program-overlay">
-                    <span class="gl-program-reader-tag">@SelectedLabel</span>
+                    <span class="gl-program-reader-tag">@Text(SettingsStreamingText.SourcePickerSelectedLabel)</span>
                 </div>
             </OverlayContent>
             <EmptyContent>
                 <div class="gl-preview-empty"
                      data-testid="@UiTestIds.GoLive.ProgramEmpty">
-                    <div class="gl-empty-title">@NoCameraTitle</div>
-                    <div class="gl-empty-copy">@NoCameraDescription</div>
+                    <div class="gl-empty-title">@Text(SettingsCameraPreviewText.NoCameraTitleKey)</div>
+                    <div class="gl-empty-copy">@Text(SettingsCameraPreviewText.NoCameraDescriptionKey)</div>
                 </div>
             </EmptyContent>
         </GoLiveCameraSurface>
@@ -43,12 +48,8 @@
 </section>
 
 @code {
-    private const string DefaultTitle = "Canvas";
     private const string IdleStateCss = "idle";
-    private const string NoCameraDescription = "Select or add a camera source to build the live canvas.";
-    private const string NoCameraTitle = "No canvas source";
     private const string RecordingStateCss = "recording";
-    private const string SelectedLabel = "Selected";
     private const string StreamingStateCss = "streaming";
 
     [Parameter] public string ActiveSessionLabel { get; set; } = string.Empty;
@@ -59,11 +60,17 @@
     [Parameter] public string ProgramResolutionLabel { get; set; } = string.Empty;
     [Parameter] public string SelectedSourceLabel { get; set; } = string.Empty;
     [Parameter] public string StageFrameRateLabel { get; set; } = string.Empty;
-    [Parameter] public string Title { get; set; } = DefaultTitle;
+    [Parameter] public string Title { get; set; } = string.Empty;
+
+    private string EffectiveTitle => string.IsNullOrWhiteSpace(Title)
+        ? Text(GoLiveText.Surface.DetailLocalProgramLabel)
+        : Title;
 
     private string LiveState => IsRecordingActive
         ? RecordingStateCss
         : IsStreamActive
             ? StreamingStateCss
             : IdleStateCss;
+
+    private string Text(string key) => Localizer[key];
 }

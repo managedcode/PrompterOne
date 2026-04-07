@@ -1,5 +1,6 @@
 using System.Globalization;
 using PrompterOne.Core.Models.Workspace;
+using PrompterOne.Shared.Contracts;
 
 namespace PrompterOne.Shared.Pages;
 
@@ -212,21 +213,21 @@ public partial class TeleprompterPage
 
     private string BuildReaderCardCssClass(int index)
     {
-        var stateClass = index == _activeReaderCardIndex
-            ? ReaderCardActiveCssClass
-            : index == _readerTransitionSourceCardIndex
-                ? ResolveTransitionSourceCardCssClass()
-                : index == _preparedReaderCardIndex
-                    ? ResolvePreparedReaderCardCssClass()
-                    : index < _activeReaderCardIndex
-                        ? ReaderCardPreviousCssClass
-                        : ReaderCardNextCssClass;
+        var stateClass = ResolveReaderCardCssClass(index);
         var transitionClass = _readerCardsWithoutMotionTransition.Contains(index)
             ? ReaderCardNoTransitionCssClass
             : null;
 
         return BuildClassList(ReaderCardCssClass, stateClass, transitionClass);
     }
+
+    private string BuildReaderCardStateDataAttribute(int index) =>
+        ResolveReaderCardCssClass(index) switch
+        {
+            ReaderCardActiveCssClass => UiDataAttributes.Teleprompter.ActiveState,
+            ReaderCardPreviousCssClass => UiDataAttributes.Teleprompter.PreviousState,
+            _ => UiDataAttributes.Teleprompter.NextState
+        };
 
     private string ResolvePreparedReaderCardCssClass() =>
         _readerCardTransitionDirection == ReaderCardBackwardStep
@@ -264,15 +265,47 @@ public partial class TeleprompterPage
         var group = (ReaderGroupViewModel)_cards[cardIndex].Chunks[chunkIndex];
         var word = group.Words[wordIndex];
         var wordOrdinal = GetChunkWordStartIndex(cardIndex, chunkIndex) + wordIndex;
-        var stateClass = cardIndex == _activeReaderCardIndex
-            ? wordOrdinal < _activeReaderWordIndex
-                ? ReaderWordReadCssClass
-                : wordOrdinal == _activeReaderWordIndex
-                    ? ReaderWordActiveCssClass
-                    : null
-            : null;
+        var stateClass = ResolveReaderWordCssClass(cardIndex, chunkIndex, wordIndex);
 
         return BuildClassList(ReaderWordCssClass, word.CssClass, stateClass);
+    }
+
+    private string? BuildReaderWordStateDataAttribute(int cardIndex, int chunkIndex, int wordIndex) =>
+        ResolveReaderWordCssClass(cardIndex, chunkIndex, wordIndex) switch
+        {
+            ReaderWordActiveCssClass => UiDataAttributes.Teleprompter.ActiveState,
+            ReaderWordReadCssClass => UiDataAttributes.Teleprompter.ReadState,
+            _ => null
+        };
+
+    private string ResolveReaderCardCssClass(int index) =>
+        index == _activeReaderCardIndex
+            ? ReaderCardActiveCssClass
+            : index == _readerTransitionSourceCardIndex
+                ? ResolveTransitionSourceCardCssClass()
+                : index == _preparedReaderCardIndex
+                    ? ResolvePreparedReaderCardCssClass()
+                    : index < _activeReaderCardIndex
+                        ? ReaderCardPreviousCssClass
+                        : ReaderCardNextCssClass;
+
+    private string? ResolveReaderWordCssClass(int cardIndex, int chunkIndex, int wordIndex)
+    {
+        var wordOrdinal = GetChunkWordStartIndex(cardIndex, chunkIndex) + wordIndex;
+
+        if (cardIndex != _activeReaderCardIndex)
+        {
+            return null;
+        }
+
+        if (wordOrdinal < _activeReaderWordIndex)
+        {
+            return ReaderWordReadCssClass;
+        }
+
+        return wordOrdinal == _activeReaderWordIndex
+            ? ReaderWordActiveCssClass
+            : null;
     }
 
     private string BuildEdgeSegmentStyle(ReaderCardViewModel card, int index)

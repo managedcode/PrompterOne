@@ -65,7 +65,7 @@ internal static class AppTestData
 
     public static class Camera
     {
-        public const string AttachCameraInvocation = "BrowserMediaInterop.attachCamera";
+        public const string AttachCameraInvocation = BrowserMediaInteropMethodNames.AttachCamera;
         public const string FirstDeviceId = "cam-1";
         public const string FirstSourceId = "scene-cam-a";
         public const string FrontCamera = "Front camera";
@@ -80,8 +80,8 @@ internal static class AppTestData
     public static class Microphone
     {
         public const string PrimaryDeviceId = "mic-1";
-        public const string StartLevelMonitorInvocation = "BrowserMediaInterop.startMicrophoneLevelMonitor";
-        public const string StopLevelMonitorInvocation = "BrowserMediaInterop.stopMicrophoneLevelMonitor";
+        public const string StartLevelMonitorInvocation = BrowserMediaInteropMethodNames.StartMicrophoneLevelMonitor;
+        public const string StopLevelMonitorInvocation = BrowserMediaInteropMethodNames.StopMicrophoneLevelMonitor;
     }
 
     public static class Theme

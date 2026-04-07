@@ -29,52 +29,9 @@
             <div class="set-back-row">
                 <h2 class="set-title" data-testid="@UiTestIds.Settings.Title">@Text(UiTextKey.SettingsTitle)</h2>
             </div>
-            <nav class="set-nav">
-                <button type="button" class="@GetNavItemCssClass(SettingsSection.Cloud)" @onclick="() => ShowSection(SettingsSection.Cloud)" data-testid="@UiTestIds.Settings.NavCloud">
-                    <UiIcon Kind="UiIconKind.Cloud" Size="16" />
-                    @Text(UiTextKey.SettingsNavCloud)
-                </button>
-                <button type="button" class="@GetNavItemCssClass(SettingsSection.Files)" @onclick="() => ShowSection(SettingsSection.Files)" data-testid="@UiTestIds.Settings.NavFiles">
-                    <UiIcon Kind="UiIconKind.Folder" Size="16" />
-                    @Text(UiTextKey.SettingsNavFiles)
-                </button>
-                <button type="button" class="@GetNavItemCssClass(SettingsSection.Cameras)" @onclick="() => ShowSection(SettingsSection.Cameras)" data-testid="@UiTestIds.Settings.NavCameras">
-                    <UiIcon Kind="UiIconKind.Camera" Size="16" />
-                    @Text(UiTextKey.SettingsNavCameras)
-                </button>
-                <button type="button" class="@GetNavItemCssClass(SettingsSection.Mics)" @onclick="() => ShowSection(SettingsSection.Mics)" data-testid="@UiTestIds.Settings.NavMics">
-                    <UiIcon Kind="UiIconKind.Microphone" Size="16" />
-                    @Text(UiTextKey.SettingsNavMicrophones)
-                </button>
-                <button type="button" class="@GetNavItemCssClass(SettingsSection.Streaming)" @onclick="() => ShowSection(SettingsSection.Streaming)" data-testid="@UiTestIds.Settings.NavStreaming">
-                    <UiIcon Kind="UiIconKind.ArrowRight" Size="16" />
-                    @Text(UiTextKey.SettingsNavStreaming)
-                </button>
-                <button type="button" class="@GetNavItemCssClass(SettingsSection.Recording)" @onclick="() => ShowSection(SettingsSection.Recording)" data-testid="@UiTestIds.Settings.NavRecording">
-                    <UiIcon Kind="UiIconKind.RecordTarget" Size="16" />
-                    @Text(UiTextKey.SettingsNavRecording)
-                </button>
-                <button type="button" class="@GetNavItemCssClass(SettingsSection.Ai)" @onclick="() => ShowSection(SettingsSection.Ai)" data-testid="@UiTestIds.Settings.NavAi">
-                    <UiIcon Kind="UiIconKind.Spark" Size="16" />
-                    @Text(UiTextKey.SettingsNavAi)
-                </button>
-                <button type="button" class="@GetNavItemCssClass(SettingsSection.Appearance)" @onclick="() => ShowSection(SettingsSection.Appearance)" data-testid="@UiTestIds.Settings.NavAppearance">
-                    <UiIcon Kind="UiIconKind.Theme" Size="16" />
-                    @Text(UiTextKey.SettingsNavAppearance)
-                </button>
-                <button type="button" class="@GetNavItemCssClass(SettingsSection.Language)" @onclick="() => ShowSection(SettingsSection.Language)" data-testid="@UiTestIds.Settings.NavLanguage">
-                    <UiIcon Kind="UiIconKind.Message" Size="16" />
-                    @Text(UiTextKey.SettingsNavLanguage)
-                </button>
-                <button type="button" class="@GetNavItemCssClass(SettingsSection.Shortcuts)" @onclick="() => ShowSection(SettingsSection.Shortcuts)" data-testid="@UiTestIds.Settings.NavShortcuts">
-                    <UiIcon Kind="UiIconKind.Keyboard" Size="16" />
-                    @Text(UiTextKey.SettingsNavShortcuts)
-                </button>
-                <button type="button" class="@GetNavItemCssClass(SettingsSection.About)" @onclick="() => ShowSection(SettingsSection.About)" data-testid="@UiTestIds.Settings.NavAbout">
-                    <UiIcon Kind="UiIconKind.HelpCircle" Size="16" />
-                    @Text(UiTextKey.SettingsNavAbout)
-                </button>
-            </nav>
+            <SettingsSidebarNavigation Items="@NavigationItems"
+                                       ActiveSection="@_activeSection"
+                                       OnSelect="ShowSection" />
         </div>
 
         <div class="set-main">

@@ -2,6 +2,16 @@ namespace PrompterOne.Shared.Settings.Models;
 
 public static class RecordingPreferenceCatalog
 {
+    public static class LocationLabels
+    {
+        public const string BrowserLocalStore = "Browser-local recording store";
+    }
+
+    public static class NamingPatterns
+    {
+        public const string ScriptNamePlusDate = "Script Name + Date";
+    }
+
     public static class AudioChannels
     {
         public const string Mono = "Mono";

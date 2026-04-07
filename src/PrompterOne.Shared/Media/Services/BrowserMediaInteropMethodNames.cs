@@ -1,8 +1,10 @@
+using PrompterOne.Shared.Contracts;
+
 namespace PrompterOne.Shared.Services;
 
 internal static class BrowserMediaInteropMethodNames
 {
-    private const string NamespacePrefix = "BrowserMediaInterop";
+    private const string NamespacePrefix = AppMediaRuntime.BrowserMedia.InteropNamespace;
 
     public const string AttachCamera = NamespacePrefix + ".attachCamera";
     public const string DetachCamera = NamespacePrefix + ".detachCamera";

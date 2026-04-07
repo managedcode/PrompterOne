@@ -2,6 +2,18 @@ namespace PrompterOne.Shared.Contracts;
 
 public static class AppRuntimeTelemetry
 {
+    public static class Harness
+    {
+        public const string EventsCollection = "events";
+        public const string GlobalName = "__prompterOneTelemetryHarness";
+        public const string InitializationsCollection = "initializations";
+        public const string PageViewsCollection = "pageViews";
+        public const string RuntimeGlobalName = "__prompterOneRuntime";
+        public const string RuntimeHarnessEnabledProperty = "telemetryHarnessEnabled";
+        public const string RuntimeWasmDebugEnabledProperty = "wasmDebugEnabled";
+        public const string VendorLoadsCollection = "vendorLoads";
+    }
+
     public static class Events
     {
         public const string CreateScript = "create_script";

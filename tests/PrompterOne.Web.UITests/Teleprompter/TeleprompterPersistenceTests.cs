@@ -22,12 +22,8 @@ public sealed class TeleprompterPersistenceTests(StandaloneAppFixture fixture)
     private const decimal ReaderFontBaselinePixels = 36m;
     private const int StoredReaderSettingPrecisionDigits = 2;
     private const string PersistedTextAlignmentValue = BrowserTestConstants.TeleprompterFlow.AlignmentJustifyValue;
-    private const string ReaderCardActiveClass = "rd-card-active";
-    private const string ReaderCardNextClass = "rd-card-next";
     private const string StoredReaderSettingsKey = BrowserStorageKeys.SettingsPrefix + BrowserAppSettingsKeys.ReaderSettings;
     private static readonly Regex ReaderFirstBlockIndicator = new(@"^1 / \d+$", RegexOptions.Compiled);
-    private static readonly Regex ReaderCardActiveClassRegex = new(@"\brd-card-active\b", RegexOptions.Compiled);
-    private static readonly Regex ReaderCardNextClassRegex = new(@"\brd-card-next\b", RegexOptions.Compiled);
 
     [Test]
     public Task Teleprompter_PersistsWidthAndFocalSettingsAcrossReload() =>
@@ -98,19 +94,21 @@ public sealed class TeleprompterPersistenceTests(StandaloneAppFixture fixture)
             await page.GetByTestId(UiTestIds.Teleprompter.NextBlock).ClickAsync();
             await Expect(page.Locator($"#{UiDomIds.Teleprompter.BlockIndicator}"))
                 .ToHaveTextAsync(BrowserTestConstants.Regexes.ReaderSecondBlockIndicator);
-            await Expect(secondCard).ToHaveClassAsync(ReaderCardActiveClassRegex);
+            await Expect(secondCard)
+                .ToHaveAttributeAsync(UiDataAttributes.Teleprompter.CardState, UiDataAttributes.Teleprompter.ActiveState);
 
             await page.GetByTestId(UiTestIds.Teleprompter.PreviousBlock).ClickAsync();
             await Expect(page.Locator($"#{UiDomIds.Teleprompter.BlockIndicator}"))
                 .ToHaveTextAsync(ReaderFirstBlockIndicator);
-            await Expect(firstCard).ToHaveClassAsync(ReaderCardActiveClassRegex);
-            await Expect(secondCard).ToHaveClassAsync(
-                ReaderCardNextClassRegex,
+            await Expect(firstCard)
+                .ToHaveAttributeAsync(UiDataAttributes.Teleprompter.CardState, UiDataAttributes.Teleprompter.ActiveState);
+            await Expect(secondCard).ToHaveAttributeAsync(
+                UiDataAttributes.Teleprompter.CardState,
+                UiDataAttributes.Teleprompter.NextState,
                 new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
 
-            var secondCardClasses = await secondCard.GetAttributeAsync("class") ?? string.Empty;
-            await Assert.That(secondCardClasses).Contains(ReaderCardNextClass);
-            await Assert.That(secondCardClasses).DoesNotContain(ReaderCardActiveClass);
+            var secondCardState = await secondCard.GetAttributeAsync(UiDataAttributes.Teleprompter.CardState);
+            await Assert.That(secondCardState).IsEqualTo(UiDataAttributes.Teleprompter.NextState);
         });
 
     private static Task SetRangeValueAsync(Microsoft.Playwright.ILocator locator, string value) =>

@@ -20,18 +20,13 @@ public class WordDisplayEventArgs : EventArgs
     public int CurrentWordIndex { get; set; }
     public int TotalWords { get; set; }
     public string EmotionName { get; set; } = string.Empty;
-    public string EmotionEmoji { get; set; } = string.Empty;
-    public string EmotionColorHex { get; set; } = "#FFFFFF";
-    public string WordColor { get; set; } = string.Empty;
     public IReadOnlyList<string> PhraseWords { get; set; } = Array.Empty<string>();
     public int PhraseEstimatedDurationMs { get; set; }
     public int PhrasePauseAfterMs { get; set; }
     public bool PhraseContainsPauseCue { get; set; }
     public bool IsPause { get; set; }
     public string UpcomingEmotionName { get; set; } = string.Empty;
-    public string UpcomingEmotionEmoji { get; set; } = string.Empty;
-    public string UpcomingEmotionColorHex { get; set; } = "#FFFFFF";
-    public string HeadCueId { get; set; } = HeadCueCatalog.Neutral.Id;
+    public string HeadCueId { get; set; } = HeadCueCatalog.DefaultCueId;
 }
 
 public class PlaybackStateEventArgs : EventArgs
@@ -52,6 +47,4 @@ public class ProgressEventArgs : EventArgs
 public class EmotionChangeEventArgs : EventArgs
 {
     public string EmotionName { get; set; } = string.Empty;
-    public string EmotionEmoji { get; set; } = string.Empty;
-    public string ColorHex { get; set; } = "#FFFFFF";
 }

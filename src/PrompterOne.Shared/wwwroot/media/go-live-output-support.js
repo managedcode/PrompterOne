@@ -1,5 +1,4 @@
 (function () {
-    const supportNamespace = "PrompterOneGoLiveOutputSupport";
     const abortErrorName = "AbortError";
     const audioCodecAac = "AAC";
     const audioCodecMp3 = "MP3";
@@ -28,6 +27,22 @@
     const videoCodecH264 = "H.264 (AVC)";
     const videoCodecH265 = "H.265 (HEVC)";
     const videoCodecVp9 = "VP9";
+    const runtimeGlobalName = "__prompterOneRuntime";
+    const mediaContractProperty = "media";
+    const defaultMediaRuntimeContract = Object.freeze({
+        goLiveOutputSupportNamespace: "PrompterOneGoLiveOutputSupport"
+    });
+
+    function getMediaRuntimeContract() {
+        return window[runtimeGlobalName]?.[mediaContractProperty] ?? defaultMediaRuntimeContract;
+    }
+
+    function getMediaRuntimeString(propertyName) {
+        const value = getMediaRuntimeContract()?.[propertyName];
+        return typeof value === "string" && value.length > 0
+            ? value
+            : defaultMediaRuntimeContract[propertyName];
+    }
 
     function readValue(source, camelCaseName, pascalCaseName, fallbackValue) {
         if (!source || typeof source !== "object") {
@@ -431,7 +446,7 @@
         triggerRecordingDownload(blob, session.recordingFileName || buildRecordingFileName(recordingFileStemFallback, blob.type));
     }
 
-    window[supportNamespace] = {
+    window[getMediaRuntimeString("goLiveOutputSupportNamespace")] = {
         finalizeRecording,
         normalizeRequest,
         prepareRecordingSink,

@@ -1,3 +1,5 @@
+using ManagedCode.Tps;
+using PrompterOne.Core.Models.HeadCues;
 using PrompterOne.Core.Services.Rsvp;
 
 namespace PrompterOne.Core.Tests;
@@ -5,28 +7,28 @@ namespace PrompterOne.Core.Tests;
 public sealed class RsvpEmotionAnalyzerTests
 {
     [Test]
-    public void AnalyzeWord_ReturnsExpectedSemanticEmotion()
+    public void AnalyzeWord_ReturnsExpectedTpsEmotionKeys()
     {
         var analyzer = new RsvpEmotionAnalyzer();
 
-        Assert.Equal("happy", analyzer.AnalyzeWord("amazing"));
-        Assert.Equal("professional", analyzer.AnalyzeWord("performance"));
-        Assert.Equal("peaceful", analyzer.AnalyzeWord("serenity"));
+        Assert.Equal(TpsSpec.EmotionNames.Happy, analyzer.AnalyzeWord("amazing"));
+        Assert.Equal(TpsSpec.EmotionNames.Professional, analyzer.AnalyzeWord("performance"));
+        Assert.Equal(TpsSpec.EmotionNames.Calm, analyzer.AnalyzeWord("serenity"));
     }
 
     [Test]
-    public void UpdateEmotionForWord_TransitionsAndResetsToDefault()
+    public void UpdateEmotionForWord_TransitionsAndResetsToDefaultEmotion()
     {
         var analyzer = new RsvpEmotionAnalyzer();
 
         var changedToExcited = analyzer.UpdateEmotionForWord("awesome");
         Assert.True(changedToExcited);
-        Assert.Equal("Excited", analyzer.CurrentEmotion.Name);
+        Assert.Equal(TpsSpec.EmotionNames.Excited, analyzer.CurrentEmotionKey);
 
         var changedBackToDefault = analyzer.UpdateEmotionForWord("ordinary");
 
         Assert.True(changedBackToDefault);
-        Assert.Equal("Neutral", analyzer.CurrentEmotion.Name);
+        Assert.Equal(TpsSpec.DefaultEmotion, analyzer.CurrentEmotionKey);
     }
 
     [Test]
@@ -34,10 +36,17 @@ public sealed class RsvpEmotionAnalyzerTests
     {
         var analyzer = new RsvpEmotionAnalyzer();
 
-        analyzer.SetEmotion("calm");
+        analyzer.SetEmotion(TpsSpec.EmotionNames.Calm);
         analyzer.SetEmotion("missing-emotion");
 
-        Assert.Equal("Calm", analyzer.CurrentEmotion.Name);
-        Assert.Equal("#4ECDC4", analyzer.CurrentEmotion.ColorHex);
+        Assert.Equal(TpsSpec.EmotionNames.Calm, analyzer.CurrentEmotionKey);
+    }
+
+    [Test]
+    public void HeadCueCatalog_ResolvesEmotionHeadCuesFromTpsSpec()
+    {
+        Assert.Equal(TpsSpec.EmotionHeadCues[TpsSpec.DefaultEmotion], HeadCueCatalog.DefaultCueId);
+        Assert.Equal(TpsSpec.EmotionHeadCues[TpsSpec.EmotionNames.Happy], HeadCueCatalog.ResolveForEmotion(TpsSpec.EmotionNames.Happy));
+        Assert.Equal(TpsSpec.EmotionHeadCues[TpsSpec.DefaultEmotion], HeadCueCatalog.ResolveForEmotion("missing-emotion"));
     }
 }

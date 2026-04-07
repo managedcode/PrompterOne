@@ -59,6 +59,7 @@ public partial class EditorPage
     private IReadOnlyList<EditorLocalRevisionViewModel> _localHistory = [];
     private DateTimeOffset? _lastLocalSaveAt;
     private string _profile = DefaultProfileActor;
+    private bool _preserveSplitFeedbackOnNextLoad;
     private string _screenTitle = ScriptWorkspaceState.UntitledScriptTitle;
     private EditorSelectionViewModel _selection = EditorSelectionViewModel.Empty;
     private IReadOnlyList<EditorOutlineSegmentViewModel> _segments = [];

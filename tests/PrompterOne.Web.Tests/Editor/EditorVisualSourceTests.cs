@@ -38,7 +38,7 @@ public sealed class EditorVisualSourceTests : BunitContext
     }
 
     [Test]
-    public async Task EditorPage_BodyEditsPreserveMetadataInPersistedDocument()
+    public void EditorPage_BodyEditsPreserveMetadataInPersistedDocument()
     {
         Services.GetRequiredService<NavigationManager>()
             .NavigateTo(AppTestData.Routes.EditorDemo);
@@ -53,8 +53,6 @@ public sealed class EditorVisualSourceTests : BunitContext
         cut.FindByTestId(UiTestIds.Editor.Author).Change(AppTestData.Editor.TestSpeaker);
         cut.FindByTestId(UiTestIds.Editor.SourceInput).Input(EditorVisualTestSource.RewrittenBody);
 
-        await Task.Delay(EditorVisualTestSource.PostAutosaveObservationDelay);
-
         cut.WaitForAssertion(() =>
         {
             var visibleSource = cut.FindByTestId(UiTestIds.Editor.SourceInput).GetAttribute("value") ?? string.Empty;
@@ -65,7 +63,7 @@ public sealed class EditorVisualSourceTests : BunitContext
             Assert.Contains(EditorVisualTestSource.AuthorPersistenceLine, persistedText, StringComparison.Ordinal);
             Assert.Contains(EditorVisualTestSource.HighlightedLine, persistedText, StringComparison.Ordinal);
             Assert.Contains(EditorVisualTestSource.CallToActionHeading, persistedText, StringComparison.Ordinal);
-        });
+        }, TimeSpan.FromMilliseconds(EditorVisualTestSource.AutosaveAssertionTimeout));
     }
 
     [Test]
@@ -90,7 +88,7 @@ public sealed class EditorVisualSourceTests : BunitContext
         public const string AuthorPersistenceLine = "author: \"Test Speaker\"";
         public const string HighlightedLine = "[highlight]Stay with us[/highlight]";
         public const string CallToActionHeading = "## [Call to Action|150WPM|motivational]";
-        public const int PostAutosaveObservationDelay = 1_700;
+        public const int AutosaveAssertionTimeout = 5_000;
         public const string RewrittenBody =
             """
             ## [Intro|140WPM|warm]

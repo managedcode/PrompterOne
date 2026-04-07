@@ -35,7 +35,7 @@
                                        checked="@(option.Value == ColorScheme)"
                                        @onchange="@(() => UpdateColorScheme.InvokeAsync(option.Value))" />
                                 <SettingsOptionPreview Kind="@option.PreviewKind" />
-                                <span>@option.Label</span>
+                                <span>@Text(option.LabelKey)</span>
                             </label>
                         }
                     </div>
@@ -140,7 +140,7 @@
                                        checked="@(density.Value == UiDensity)"
                                        @onchange="@(() => UpdateUiDensity.InvokeAsync(density.Value))" />
                                 <SettingsOptionPreview Kind="@density.PreviewKind" />
-                                <span>@density.Label</span>
+                                <span>@Text(density.LabelKey)</span>
                             </label>
                         }
                     </div>
@@ -171,46 +171,11 @@
     private const string TeleprompterCardId = "appearance-teleprompter";
     private const string ThemeCardId = "appearance-theme";
 
-    private static readonly IReadOnlyList<SettingsSelectOption> TeleprompterFontOptions =
-    [
-        new("Inter (Default)", "Inter (Default)"),
-        new("Playfair Display", "Playfair Display"),
-        new("JetBrains Mono", "JetBrains Mono"),
-        new("Georgia", "Georgia"),
-        new("System Serif", "System Serif"),
-    ];
-
-    private static readonly ColorSwatchOption[] AccentOptions =
-    [
-        new("gold", "#C4A060", UiTextKey.TooltipAccentGold, UiColorSwatchTone.Gold),
-        new("blue", "#60A5FA", UiTextKey.TooltipAccentBlue, UiColorSwatchTone.Blue),
-        new("emerald", "#34D399", UiTextKey.TooltipAccentEmerald, UiColorSwatchTone.Emerald),
-        new("pink", "#F472B6", UiTextKey.TooltipAccentPink, UiColorSwatchTone.Pink),
-        new("purple", "#A78BFA", UiTextKey.TooltipAccentPurple, UiColorSwatchTone.Purple),
-        new("orange", "#FB923C", UiTextKey.TooltipAccentOrange, UiColorSwatchTone.Orange)
-    ];
-
-    private ThemeOption[] DensityOptions =>
-    [
-        new(SettingsAppearanceValues.CompactDensity, Text(UiTextKey.SettingsAppearanceDensityCompact), SettingsOptionPreviewKind.DensityCompact),
-        new(SettingsAppearanceValues.DefaultDensity, Text(UiTextKey.SettingsAppearanceDensityDefault), SettingsOptionPreviewKind.DensityDefault),
-        new(SettingsAppearanceValues.SpaciousDensity, Text(UiTextKey.SettingsAppearanceDensitySpacious), SettingsOptionPreviewKind.DensitySpacious)
-    ];
-
-    private static readonly ColorSwatchOption[] TextColorOptions =
-    [
-        new("white", "#FFFFFF", UiTextKey.TooltipTextColorWhite, UiColorSwatchTone.White),
-        new("warm-white", "#F5E6D0", UiTextKey.TooltipTextColorWarmWhite, UiColorSwatchTone.WarmWhite),
-        new("amber", "#FDE68A", UiTextKey.TooltipTextColorAmber, UiColorSwatchTone.Amber),
-        new("mint", "#6EE7B7", UiTextKey.TooltipTextColorMint, UiColorSwatchTone.Mint)
-    ];
-
-    private ThemeOption[] ThemeOptions =>
-    [
-        new(SettingsAppearanceValues.DarkColorScheme, Text(UiTextKey.SettingsAppearanceThemeDark), SettingsOptionPreviewKind.ThemeDark),
-        new(SettingsAppearanceValues.LightColorScheme, Text(UiTextKey.SettingsAppearanceThemeLight), SettingsOptionPreviewKind.ThemeLight),
-        new(SettingsAppearanceValues.SystemColorScheme, Text(UiTextKey.SettingsAppearanceThemeSystem), SettingsOptionPreviewKind.ThemeSystem)
-    ];
+    private static IReadOnlyList<SettingsAppearanceSwatchOption> AccentOptions => SettingsAppearanceCatalog.AccentOptions;
+    private static IReadOnlyList<SettingsAppearanceOption> DensityOptions => SettingsAppearanceCatalog.DensityOptions;
+    private static IReadOnlyList<SettingsSelectOption> TeleprompterFontOptions => SettingsAppearanceCatalog.TeleprompterFontOptions;
+    private static IReadOnlyList<SettingsAppearanceSwatchOption> TextColorOptions => SettingsAppearanceCatalog.TextColorOptions;
+    private static IReadOnlyList<SettingsAppearanceOption> ThemeOptions => SettingsAppearanceCatalog.ThemeOptions;
 
     private string ThemeSubtitle =>
         ColorScheme switch
@@ -249,7 +214,4 @@
     private void OnFontChanged(ChangeEventArgs args) =>
         UpdateTeleprompterFont.InvokeAsync(args.Value?.ToString() ?? string.Empty);
 
-    private sealed record ThemeOption(string Value, string Label, SettingsOptionPreviewKind PreviewKind);
-
-    private sealed record ColorSwatchOption(string Id, string Value, UiTextKey TooltipKey, UiColorSwatchTone Tone);
 }

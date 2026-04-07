@@ -1,0 +1,34 @@
+@namespace PrompterOne.Shared.Components.Settings
+@using Microsoft.Extensions.Localization
+@using PrompterOne.Shared.Components
+@using PrompterOne.Shared.Localization
+@using PrompterOne.Shared.Pages
+@using PrompterOne.Shared.Settings.Models
+@inject IStringLocalizer<SharedResource> Localizer
+
+<nav class="set-nav">
+    @foreach (var item in Items)
+    {
+        <button type="button"
+                class="@BuildItemCssClass(item)"
+                @onclick="@(() => OnSelect.InvokeAsync(item.Section))"
+                data-testid="@item.TestId">
+            <UiIcon Kind="@item.Icon" Size="16" />
+            @Text(item.LabelKey)
+        </button>
+    }
+</nav>
+
+@code {
+    private const string ActiveCssClass = "active";
+    private const string SetNavItemCssClass = "set-nav-item";
+
+    [Parameter, EditorRequired] public IReadOnlyList<SettingsSidebarNavigationItem> Items { get; set; } = [];
+    [Parameter] public SettingsSection ActiveSection { get; set; }
+    [Parameter] public EventCallback<SettingsSection> OnSelect { get; set; }
+
+    private string BuildItemCssClass(SettingsSidebarNavigationItem item) =>
+        item.Section == ActiveSection ? $"{SetNavItemCssClass} {ActiveCssClass}" : SetNavItemCssClass;
+
+    private string Text(UiTextKey key) => Localizer[key.ToString()];
+}

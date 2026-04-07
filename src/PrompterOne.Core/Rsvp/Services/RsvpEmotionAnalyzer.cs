@@ -1,33 +1,17 @@
+using ManagedCode.Tps;
+
 namespace PrompterOne.Core.Services.Rsvp;
 
 /// <summary>
-/// Analyzes words for emotional context and exposes semantic color metadata
-/// without relying on platform-specific UI types.
+/// Analyzes words for emotional context and exposes TPS emotion keys only.
 /// </summary>
-public class RsvpEmotionAnalyzer
+public sealed class RsvpEmotionAnalyzer
 {
-    public record EmotionData(string ColorHex, string Name, string Emoji);
+    private static readonly HashSet<string> SupportedEmotions = new(TpsSpec.Emotions, StringComparer.OrdinalIgnoreCase);
 
-    private readonly Dictionary<string, EmotionData> _emotions = new()
-    {
-        ["happy"] = new("#FFD700", "Happy", "😊"),
-        ["excited"] = new("#FF6B6B", "Excited", "🎉"),
-        ["calm"] = new("#4ECDC4", "Calm", "😌"),
-        ["sad"] = new("#95A5C6", "Sad", "😢"),
-        ["angry"] = new("#E74C3C", "Angry", "😠"),
-        ["fear"] = new("#8E44AD", "Fear", "😨"),
-        ["focused"] = new("#3498DB", "Focused", "🎯"),
-        ["energetic"] = new("#E67E22", "Energetic", "⚡"),
-        ["peaceful"] = new("#27AE60", "Peaceful", "🕊️"),
-        ["melancholy"] = new("#7F8C8D", "Melancholy", "🌧️"),
-        ["professional"] = new("#34495E", "Professional", "💼"),
-        ["joyful"] = new("#F39C12", "Joyful", "🌟"),
-        ["default"] = new("#607D8B", "Neutral", "😐")
-    };
+    private string _currentEmotionKey = TpsSpec.DefaultEmotion;
 
-    private string _currentEmotionKey = "default";
-
-    public EmotionData CurrentEmotion => _emotions[_currentEmotionKey];
+    public string CurrentEmotionKey => _currentEmotionKey;
 
     public string? AnalyzeWord(string word)
     {
@@ -40,47 +24,47 @@ public class RsvpEmotionAnalyzer
 
         if (ContainsAny(upperWord, "HAPPY", "JOY", "SMILE", "WONDERFUL", "BEAUTIFUL", "AMAZING", "FANTASTIC"))
         {
-            return "happy";
+            return TpsSpec.EmotionNames.Happy;
         }
 
         if (ContainsAny(upperWord, "EXCITED", "THRILLED", "INCREDIBLE", "WOW", "AWESOME"))
         {
-            return "excited";
+            return TpsSpec.EmotionNames.Excited;
         }
 
-        if (ContainsAny(upperWord, "CALM", "PEACEFUL", "RELAX", "TRANQUIL", "SERENE", "GENTLE"))
+        if (ContainsAny(upperWord, "CALM", "PEACEFUL", "RELAX", "TRANQUIL", "SERENE", "GENTLE", "SERENITY", "BREATH", "FLOW", "WASH"))
         {
-            return "calm";
+            return TpsSpec.EmotionNames.Calm;
         }
 
         if (ContainsAny(upperWord, "SAD", "MELANCHOLY", "RAIN", "LOST", "MEMORIES", "TEARS"))
         {
-            return "sad";
+            return TpsSpec.EmotionNames.Sad;
         }
 
         if (ContainsAny(upperWord, "FEAR", "DANGER", "ANXIETY", "WORRY", "SCARED", "INTENSE"))
         {
-            return "fear";
+            return TpsSpec.EmotionNames.Concerned;
         }
 
         if (ContainsAny(upperWord, "ANGRY", "FURIOUS", "RAGE", "MAD", "FRUSTRATED"))
         {
-            return "angry";
+            return TpsSpec.EmotionNames.Urgent;
         }
 
         if (ContainsAny(upperWord, "ENERGETIC", "ENERGY", "TRANSFORM", "EXCITING", "URGENT"))
         {
-            return "energetic";
+            return TpsSpec.EmotionNames.Energetic;
         }
 
-        if (ContainsAny(upperWord, "FOCUS", "CONCENTRATE", "ANALYZE", "PROFESSIONAL", "DATA", "STATISTICAL", "PERFORMANCE"))
+        if (ContainsAny(upperWord, "FOCUS", "CONCENTRATE", "ANALYZE"))
         {
-            return "professional";
+            return TpsSpec.EmotionNames.Focused;
         }
 
-        if (ContainsAny(upperWord, "SERENITY", "BREATH", "FLOW", "WASH"))
+        if (ContainsAny(upperWord, "PROFESSIONAL", "DATA", "STATISTICAL", "PERFORMANCE"))
         {
-            return "peaceful";
+            return TpsSpec.EmotionNames.Professional;
         }
 
         return null;
@@ -91,12 +75,12 @@ public class RsvpEmotionAnalyzer
         var nextEmotion = AnalyzeWord(word);
         if (nextEmotion is null)
         {
-            if (_currentEmotionKey == "default")
+            if (_currentEmotionKey == TpsSpec.DefaultEmotion)
             {
                 return false;
             }
 
-            _currentEmotionKey = "default";
+            _currentEmotionKey = TpsSpec.DefaultEmotion;
             return true;
         }
 
@@ -111,7 +95,7 @@ public class RsvpEmotionAnalyzer
 
     public void SetEmotion(string emotionKey)
     {
-        if (_emotions.ContainsKey(emotionKey))
+        if (SupportedEmotions.Contains(emotionKey))
         {
             _currentEmotionKey = emotionKey;
         }
@@ -119,7 +103,7 @@ public class RsvpEmotionAnalyzer
 
     public void ResetToDefault()
     {
-        _currentEmotionKey = "default";
+        _currentEmotionKey = TpsSpec.DefaultEmotion;
     }
 
     private static bool ContainsAny(string text, params string[] keywords)
