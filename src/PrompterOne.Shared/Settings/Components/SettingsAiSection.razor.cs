@@ -10,12 +10,10 @@ namespace PrompterOne.Shared.Components.Settings;
 public partial class SettingsAiSection : ComponentBase
 {
     private const string ActiveCssClass = "active";
-    private const string AnthropicLabel = "Anthropic";
     private const string ClaudeApiCardId = "ai-claude-api";
     private const string DisconnectedStatusClass = "set-dest-idle";
     private const string LocalhostAuthority = "localhost:11434";
     private const string LocalStatusClass = "set-dest-local";
-    private const string OpenAiLabel = "OpenAI";
     private const string OllamaCardId = "ai-ollama";
     private const string OpenAiCardId = "ai-openai";
     private const string SubtitleSeparator = " · ";
@@ -84,11 +82,11 @@ public partial class SettingsAiSection : ComponentBase
     private string BuildStatusLabel(OllamaAiProviderSettings settings) =>
         settings.IsConfigured() ? Text(UiTextKey.CommonSavedLocally) : Text(UiTextKey.CommonNotConfigured);
 
-    private static string BuildClaudeSubtitle(AnthropicAiProviderSettings settings) =>
-        BuildCatalogSubtitle(AnthropicLabel, settings.Model, ClaudeModelOptions);
+    private string BuildClaudeSubtitle(AnthropicAiProviderSettings settings) =>
+        BuildCatalogSubtitle(Text(UiTextKey.SettingsAiClaudeTitle), settings.Model, ClaudeModelOptions);
 
-    private static string BuildOpenAiSubtitle(OpenAiProviderSettings settings) =>
-        BuildCatalogSubtitle(OpenAiLabel, settings.Model, OpenAiModelOptions);
+    private string BuildOpenAiSubtitle(OpenAiProviderSettings settings) =>
+        BuildCatalogSubtitle(Text(UiTextKey.SettingsAiOpenAiTitle), settings.Model, OpenAiModelOptions);
 
     private string BuildOllamaSubtitle(OllamaAiProviderSettings settings)
     {

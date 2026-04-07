@@ -43,8 +43,6 @@ public sealed class EditorLocalHistoryInteractionTests : BunitContext
 
         cut.FindByTestId(UiTestIds.Editor.SourceInput).Input(updatedSource);
 
-        await Task.Delay(EditorLocalHistoryInteractionTestSource.PostAutosaveObservationDelayMs);
-
         cut.WaitForAssertion(() =>
         {
             var persistedDocument = _harness.Repository
@@ -53,12 +51,13 @@ public sealed class EditorLocalHistoryInteractionTests : BunitContext
                 .GetResult();
 
             Assert.Equal(updatedSource, cut.FindByTestId(UiTestIds.Editor.SourceInput).GetAttribute("value"));
+            Assert.Empty(LoadLocalHistoryEntries());
             Assert.DoesNotContain(
                 EditorLocalHistoryInteractionTestSource.LocalOnlyLine,
                 persistedDocument?.Text ?? string.Empty,
                 StringComparison.Ordinal);
             Assert.Contains(UiTestIds.Editor.LocalHistoryEmpty, cut.Markup, StringComparison.Ordinal);
-        });
+        }, EditorLocalHistoryInteractionTestSource.LocalHistoryAssertionTimeout);
     }
 
     [Test]
@@ -85,12 +84,16 @@ public sealed class EditorLocalHistoryInteractionTests : BunitContext
             EditorLocalHistoryInteractionTestSource.SecondRevisionLine);
 
         cut.FindByTestId(UiTestIds.Editor.SourceInput).Input(firstRevisionSource);
-        await Task.Delay(EditorLocalHistoryInteractionTestSource.PostAutosaveObservationDelayMs);
         cut.WaitForAssertion(() =>
-            Assert.Single(LoadLocalHistoryEntries()));
+        {
+            Assert.Single(LoadLocalHistoryEntries());
+            Assert.Contains(
+                EditorLocalHistoryInteractionTestSource.FirstRevisionLine,
+                _harness.Session.State.Text,
+                StringComparison.Ordinal);
+        }, EditorLocalHistoryInteractionTestSource.LocalHistoryAssertionTimeout);
 
         cut.FindByTestId(UiTestIds.Editor.SourceInput).Input(secondRevisionSource);
-        await Task.Delay(EditorLocalHistoryInteractionTestSource.PostAutosaveObservationDelayMs);
 
         cut.WaitForAssertion(() =>
         {
@@ -101,7 +104,7 @@ public sealed class EditorLocalHistoryInteractionTests : BunitContext
                 EditorLocalHistoryInteractionTestSource.SecondRevisionLine,
                 _harness.Session.State.Text,
                 StringComparison.Ordinal);
-        });
+        }, EditorLocalHistoryInteractionTestSource.LocalHistoryAssertionTimeout);
 
         cut.FindByTestId(UiTestIds.Editor.LocalHistoryRestore(1)).Click();
 
@@ -116,7 +119,7 @@ public sealed class EditorLocalHistoryInteractionTests : BunitContext
                 EditorLocalHistoryInteractionTestSource.SecondRevisionLine,
                 _harness.Session.State.Text,
                 StringComparison.Ordinal);
-        });
+        }, EditorLocalHistoryInteractionTestSource.LocalHistoryAssertionTimeout);
     }
 
     private IReadOnlyList<EditorLocalRevisionRecord> LoadLocalHistoryEntries() =>
@@ -127,9 +130,9 @@ public sealed class EditorLocalHistoryInteractionTests : BunitContext
 
     private static class EditorLocalHistoryInteractionTestSource
     {
+        public static readonly TimeSpan LocalHistoryAssertionTimeout = TimeSpan.FromSeconds(5);
         public const string FirstRevisionLine = "The first browser-local revision should survive.";
         public const string LocalOnlyLine = "This line must remain local when autosave is off.";
-        public const int PostAutosaveObservationDelayMs = 1700;
         public const string SecondRevisionLine = "The second browser-local revision should be restorable.";
     }
 }

@@ -4,6 +4,7 @@ using PrompterOne.Core.Abstractions;
 using PrompterOne.Core.Models.CompiledScript;
 using PrompterOne.Core.Models.Documents;
 using PrompterOne.Core.Services;
+using PrompterOne.Core.Services.Editor;
 using PrompterOne.Core.Services.Preview;
 using PrompterOne.Shared.Components.Library;
 using PrompterOne.Shared.Contracts;
@@ -148,15 +149,15 @@ internal static class LibraryCardFactory
     }
 
     private static string ResolveAuthor(IReadOnlyDictionary<string, string> metadata, IStringLocalizer<SharedResource> localizer) =>
-        metadata.TryGetValue("author", out var author) && !string.IsNullOrWhiteSpace(author)
+        metadata.TryGetValue(TpsFrontMatterDocumentService.MetadataKeys.Author, out var author) && !string.IsNullOrWhiteSpace(author)
             ? author
             : Text(localizer, UiTextKey.LibraryDefaultAuthor);
 
     private static string ResolveModeLabel(IReadOnlyDictionary<string, string> metadata, int averageWpm, IStringLocalizer<SharedResource> localizer) =>
-        metadata.TryGetValue("profile", out var profile) && !string.IsNullOrWhiteSpace(profile)
+        metadata.TryGetValue(TpsFrontMatterDocumentService.MetadataKeys.Profile, out var profile) && !string.IsNullOrWhiteSpace(profile)
             ? profile.Trim().Trim('"')
             : averageWpm >= 250
-                ? "RSVP"
+                ? Text(localizer, UiTextKey.CommonRsvp)
                 : Text(localizer, UiTextKey.LibraryDefaultModeActor);
 
     private static string ResolveCoverClass(string? emotionKey) =>

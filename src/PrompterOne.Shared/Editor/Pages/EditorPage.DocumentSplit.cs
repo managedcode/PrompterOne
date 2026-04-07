@@ -18,6 +18,7 @@ public partial class EditorPage
 
     private Task OnSplitRequestedAsync(TpsDocumentSplitMode mode)
     {
+        var sourceDocumentTask = ResolveCurrentScriptDocumentAsync();
         var persistedText = BuildPersistedDocument(_sourceText);
         var splitDocuments = DocumentSplitService.Split(persistedText, mode);
         if (splitDocuments.Count < MinimumSplitDocumentCount)
@@ -36,7 +37,7 @@ public partial class EditorPage
             SplitDraftMessage,
             async () =>
             {
-                var sourceDocument = await ResolveCurrentScriptDocumentAsync();
+                var sourceDocument = await sourceDocumentTask;
                 var baseDocumentName = ResolveBaseDocumentName(sourceDocument);
 
                 foreach (var splitDocument in splitDocuments)

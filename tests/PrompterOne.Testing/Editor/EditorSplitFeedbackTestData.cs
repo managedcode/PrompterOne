@@ -3,7 +3,6 @@ namespace PrompterOne.Testing.Editor;
 public static class EditorSplitFeedbackTestData
 {
     public const int MetadataRailAdditionalCount = 2;
-    public const int PostAutosaveObservationDelayMs = 1_700;
     public const string EpisodeOneCardId = "untitled-script-split-01-episode-1-how-to-think-about-systems";
     public const string EpisodeOneTitle = "Episode 1 - How to Think About Systems";
     public const string EpisodeThreeTitle = "Episode 3 - Event Sourcing and CQRS";

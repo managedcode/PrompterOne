@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using PrompterOne.Core.Models.Media;
 using PrompterOne.Core.Models.Workspace;
+using PrompterOne.Shared.Localization;
 using PrompterOne.Shared.Settings.Components;
 using PrompterOne.Shared.Storage;
 
@@ -148,7 +149,7 @@ public partial class SettingsPage
 
         if (isPrimary)
         {
-            parts.Add("Primary");
+            parts.Add(Text(UiTextKey.SettingsCamerasPrimaryBadge));
         }
 
         return string.Join(" · ", parts);

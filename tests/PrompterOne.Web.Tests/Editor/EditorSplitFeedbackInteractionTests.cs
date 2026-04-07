@@ -11,9 +11,12 @@ namespace PrompterOne.Web.Tests;
 [NotInParallel]
 public sealed class EditorSplitFeedbackInteractionTests : BunitContext
 {
+    private static readonly TimeSpan AutosaveAssertionTimeout = TimeSpan.FromSeconds(5);
+    private readonly AppHarness _harness;
+
     public EditorSplitFeedbackInteractionTests()
     {
-        TestHarnessFactory.Create(this);
+        _harness = TestHarnessFactory.Create(this);
     }
 
     [Test]
@@ -49,7 +52,7 @@ public sealed class EditorSplitFeedbackInteractionTests : BunitContext
             Assert.Equal(
                 EditorSplitFeedbackTestData.SplitActionLabel,
                 cut.FindByTestId(UiTestIds.Editor.SplitResultOpenLibrary).TextContent.Trim());
-        });
+        }, AutosaveAssertionTimeout);
 
         cut.FindByTestId(UiTestIds.Editor.SplitResultOpenLibrary).Click();
 
@@ -60,7 +63,7 @@ public sealed class EditorSplitFeedbackInteractionTests : BunitContext
     }
 
     [Test]
-    public async Task EditorPage_SplitFeedbackStaysVisibleAfterAutosaveRefresh()
+    public void EditorPage_SplitFeedbackStaysVisibleAfterAutosaveRefresh()
     {
         var navigationManager = Services.GetRequiredService<NavigationManager>();
         navigationManager.NavigateTo(AppTestData.Routes.EditorDemo);
@@ -82,14 +85,26 @@ public sealed class EditorSplitFeedbackInteractionTests : BunitContext
                 cut.FindByTestId(UiTestIds.Editor.SplitResultOpenLibrary).TextContent.Trim());
         });
 
-        await Task.Delay(EditorSplitFeedbackTestData.PostAutosaveObservationDelayMs);
+        cut.WaitForAssertion(() =>
+        {
+            var persistedDocument = _harness.Repository
+                .GetAsync(AppTestData.Scripts.DemoId)
+                .GetAwaiter()
+                .GetResult();
+
+            Assert.NotNull(persistedDocument);
+            Assert.Contains(
+                EditorSplitFeedbackTestData.SplitSource,
+                persistedDocument!.Text,
+                StringComparison.Ordinal);
+        }, AutosaveAssertionTimeout);
 
         cut.WaitForAssertion(() =>
         {
             Assert.Equal(
                 EditorSplitFeedbackTestData.SplitActionLabel,
                 cut.FindByTestId(UiTestIds.Editor.SplitResultOpenLibrary).TextContent.Trim());
-        });
+        }, AutosaveAssertionTimeout);
 
         cut.FindByTestId(UiTestIds.Editor.SplitResultOpenLibrary).Click();
 
@@ -120,7 +135,7 @@ public sealed class EditorSplitFeedbackInteractionTests : BunitContext
             Assert.Equal(
                 EditorSplitFeedbackTestData.SplitActionLabel,
                 cut.FindByTestId(UiTestIds.Editor.SplitResultOpenLibrary).TextContent.Trim());
-        });
+        }, AutosaveAssertionTimeout);
 
         cut.FindByTestId(UiTestIds.Editor.SourceInput).Input(EditorSplitFeedbackTestData.EditedSplitSource);
 

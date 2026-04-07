@@ -1,19 +1,16 @@
 using Microsoft.Extensions.Localization;
-using Microsoft.JSInterop;
 using PrompterOne.Shared.Localization;
 
 namespace PrompterOne.Shared.Services.Diagnostics;
 
 public sealed class BrowserConnectivityService(
-    IJSRuntime jsRuntime,
+    BrowserConnectivityInterop connectivityInterop,
     IStringLocalizer<SharedResource> localizer) : IDisposable, IAsyncDisposable
 {
-    private const string EvaluateMethodName = "eval";
-    private const string OnlineExpression = "navigator.onLine";
     private const int OnlineAutoHideDelayMilliseconds = 2400;
     private const int PollIntervalMilliseconds = 1000;
 
-    private readonly IJSRuntime _jsRuntime = jsRuntime;
+    private readonly BrowserConnectivityInterop _connectivityInterop = connectivityInterop;
     private readonly IStringLocalizer<SharedResource> _localizer = localizer;
     private readonly SemaphoreSlim _startGate = new(1, 1);
 
@@ -104,29 +101,26 @@ public sealed class BrowserConnectivityService(
             {
                 break;
             }
-            catch (JSException)
-            {
-                break;
-            }
         }
     }
 
     private async Task ProbeAsync(CancellationToken cancellationToken)
     {
         var previousOnlineState = _lastKnownOnline;
-        var isOnline = await _jsRuntime.InvokeAsync<bool>(
-            EvaluateMethodName,
-            cancellationToken,
-            OnlineExpression);
-
-        if (previousOnlineState == isOnline)
+        var isOnline = await _connectivityInterop.GetOnlineStatusAsync(cancellationToken);
+        if (!isOnline.HasValue)
         {
             return;
         }
 
-        _lastKnownOnline = isOnline;
+        if (previousOnlineState == isOnline.Value)
+        {
+            return;
+        }
 
-        if (!isOnline)
+        _lastKnownOnline = isOnline.Value;
+
+        if (!isOnline.Value)
         {
             CancelPendingHide();
             UpdateState(

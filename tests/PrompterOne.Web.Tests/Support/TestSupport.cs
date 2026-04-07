@@ -156,6 +156,7 @@ internal static class TestHarnessFactory
         context.Services.AddSingleton<GoLiveSessionService>();
         context.Services.AddSingleton(RuntimeTelemetryOptions.Disabled);
         context.Services.AddSingleton<RuntimeTelemetryService>();
+        context.Services.AddSingleton<BrowserConnectivityInterop>();
         context.Services.AddSingleton<BrowserConnectivityService>();
         context.Services.AddSingleton<UiDiagnosticsService>();
         context.Services.AddSingleton<IGoLiveSourceModule, LiveKitSourceModule>();
@@ -209,7 +210,6 @@ internal sealed class TestJsRuntime(TimeSpan? invocationDelay = null) : IJSRunti
     private const string CrossTabDisposeIdentifier = "PrompterOneCrossTabInterop.dispose";
     private const string CrossTabInitializeIdentifier = "PrompterOneCrossTabInterop.initialize";
     private const string CrossTabPublishIdentifier = "PrompterOneCrossTabInterop.publish";
-    private const string EvaluateIdentifier = "eval";
     private const string GoLiveGetSessionStateIdentifier = GoLiveOutputInteropMethodNames.GetSessionState;
     private const string GoLiveStartLiveKitIdentifier = GoLiveOutputInteropMethodNames.StartLiveKitSession;
     private const string GoLiveStartLocalRecordingIdentifier = GoLiveOutputInteropMethodNames.StartLocalRecording;
@@ -224,7 +224,6 @@ internal sealed class TestJsRuntime(TimeSpan? invocationDelay = null) : IJSRunti
     private const string LoadSettingJsonIdentifier = "localStorage.getItem";
     private const string RemoveStorageValueIdentifier = "localStorage.removeItem";
     private const string SaveSettingJsonIdentifier = "localStorage.setItem";
-    private const string NavigatorOnlineExpression = "navigator.onLine";
     private const int ActiveAudioLevelPercent = 64;
     private const int IdleAudioLevelPercent = 0;
     private const long RecordingSizeBytes = 4096;
@@ -327,7 +326,6 @@ internal sealed class TestJsRuntime(TimeSpan? invocationDelay = null) : IJSRunti
             CrossTabDisposeIdentifier => null,
             CrossTabInitializeIdentifier => true,
             CrossTabPublishIdentifier => null,
-            EvaluateIdentifier => Evaluate(args),
             LoadSettingJsonIdentifier => LoadJson(args),
             SaveSettingJsonIdentifier => SaveJson(args),
             RemoveStorageValueIdentifier => Remove(args),
@@ -685,16 +683,6 @@ internal sealed class TestJsRuntime(TimeSpan? invocationDelay = null) : IJSRunti
         yield return key;
     }
 
-    private static object? Evaluate(object?[]? args)
-    {
-        var expression = args?.FirstOrDefault()?.ToString() ?? string.Empty;
-        return expression switch
-        {
-            NavigatorOnlineExpression => true,
-            _ when expression.Contains("navigator.languages", StringComparison.Ordinal) => new[] { "en" },
-            _ => null
-        };
-    }
 }
 
 internal sealed class FakeMediaPermissionService : IMediaPermissionService

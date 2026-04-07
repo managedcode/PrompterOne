@@ -88,6 +88,7 @@ public static class PrompterOneServiceCollectionExtensions
         services.AddScoped<AppShellService>();
         services.AddSingleton(runtimeTelemetryOptions ?? RuntimeTelemetryOptions.Disabled);
         services.AddScoped<RuntimeTelemetryService>();
+        services.AddScoped<BrowserConnectivityInterop>();
         services.AddScoped<BrowserConnectivityService>();
         services.AddScoped<GoLiveSessionService>();
         services.AddScoped<GoLiveOutputInterop>();
