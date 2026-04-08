@@ -114,7 +114,7 @@ Rule format:
 - Browser and component tests must use one selector format only: `data-test`; do not mix in any alternate test-attribute naming variants.
 - Shared test-support libraries that contain no runnable test cases must not reference the TUnit engine package directly; keep them on non-engine TUnit packages so solution-level `dotnet test` does not discover zero-test support DLLs as runnable test apps.
 - Every runnable test project must declare `MaxParallelTestsForPipeline : EnvironmentAwareParallelLimitBase` with `LocalLimit = 15`; do not keep lower per-project local parallel caps unless the user explicitly asks for an exception.
-- Browser-suite runnable test projects must keep `CiLimit = 2` unless the user explicitly approves a different cap; do not inherit a broader default CI worker count after a suite split.
+- Browser-suite CI parallelism is user-tunable. When suite duration becomes a bottleneck and the user asks for higher throughput, prefer splitting work into `4` or `8` parallel GitHub Actions test jobs before reaching for timeout increases; only keep lower `CiLimit` caps when a specific flake requires them.
 - Local regression verification must include solution-level `dotnet test --solution ./PrompterOne.slnx -m:1` so test-project split changes are proven under the real all-tests entrypoint, not only as isolated per-project runs.
 - When the user explicitly asks to validate a test fix in actual GitHub Actions, do not spend more time on local `CI=true` emulation; push the fix and monitor the real CI run instead.
 - Selector-contract remediation requests must be handled repo-wide across all relevant test files (`Web.Tests` and `Web.UITests`), not as partial per-file cleanups.

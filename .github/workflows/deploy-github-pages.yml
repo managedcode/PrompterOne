@@ -24,7 +24,7 @@ env:
 jobs:
   build_supporting_suites:
     name: Restore + Build Supporting Suites
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     permissions:
       contents: read
@@ -47,7 +47,7 @@ jobs:
   test_supporting_suites:
     name: Run Supporting Suites
     needs: build_supporting_suites
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     permissions:
       contents: read
@@ -159,7 +159,7 @@ jobs:
     needs:
       - test_supporting_suites
       - test_browser_suites
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     env:
       APP_PROJECT: src/PrompterOne.Web/PrompterOne.Web.csproj
 
@@ -190,7 +190,7 @@ jobs:
   publish_release_build:
     name: Publish Release Build
     needs: prepare_release
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     env:
       APP_PROJECT: src/PrompterOne.Web/PrompterOne.Web.csproj
       PAGES_ARTIFACT_ROOT: .artifacts/prompterone-pages
@@ -252,7 +252,7 @@ jobs:
     needs:
       - prepare_release
       - publish_release_build
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     env:
       RELEASE_ARCHIVE_NAME: prompterone-pages.zip
       RELEASE_ARTIFACT_NAME: prompterone-release-package
@@ -305,7 +305,7 @@ jobs:
     needs:
       - publish_release_build
       - publish_github_release
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

@@ -21,8 +21,6 @@ jobs:
 
       - name: Set up Node
         uses: actions/setup-node@v6
-        with:
-          node-version: "20"
 
       - name: Sync pinned vendored runtimes
         env:
