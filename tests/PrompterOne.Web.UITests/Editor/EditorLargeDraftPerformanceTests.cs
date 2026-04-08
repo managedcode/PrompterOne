@@ -24,12 +24,13 @@ public sealed class EditorLargeDraftPerformanceTests(StandaloneAppFixture fixtur
                 EditorLargeDraftPerformanceTestData.GetVisibleDraftLength(draft) +
                 EditorLargeDraftPerformanceTestData.FollowupTypingText.Length;
 
+            await EditorFileStorageTestSeeder.SeedAutoSaveDisabledAsync(page);
             await page.GotoAsync(BrowserTestConstants.Routes.Editor);
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
 
             await page.EvaluateAsync(
                 """
-                (args) => {
+                async (args) => {
                     const input = document.querySelector(`[data-test="${args.inputTestId}"]`);
                     const overlay = document.querySelector(`[data-test="${args.overlayTestId}"]`);
                     const harness = window[args.harnessGlobalName];
@@ -56,9 +57,9 @@ public sealed class EditorLargeDraftPerformanceTests(StandaloneAppFixture fixtur
                         });
                     }, { passive: true });
 
-                    harness.setText(args.stageTestId, args.draftText);
+                    await harness.setText(args.stageTestId, args.draftText);
                     harness.focus(args.stageTestId);
-                    harness.setSelection(args.stageTestId, input.value.length, input.value.length, true);
+                    await harness.setSelection(args.stageTestId, input.value.length, input.value.length, true);
 
                     window.__editorLargeDraftProbe = { longTasks, observer, samples };
                 }
@@ -128,6 +129,7 @@ public sealed class EditorLargeDraftPerformanceTests(StandaloneAppFixture fixtur
             var targetSegmentLabel = EditorLargeDraftPerformanceTestData.GetSegmentLabel(targetSegmentNumber);
             var targetSegment = page.GetByTestId(UiTestIds.Editor.SegmentNavigation(targetSegmentNumber - 1));
 
+            await EditorFileStorageTestSeeder.SeedAutoSaveDisabledAsync(page);
             await page.GotoAsync(BrowserTestConstants.Routes.EditorLargeDraft);
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
 
