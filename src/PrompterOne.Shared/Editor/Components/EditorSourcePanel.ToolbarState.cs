@@ -114,6 +114,11 @@ public partial class EditorSourcePanel
             ? "efb-dropdown"
             : $"efb-dropdown {menu.PanelCssClass}";
 
+    private EditorFloatingMenuDescriptor? GetFloatingMenuForAction(EditorToolbarActionDescriptor action) =>
+        OpenFloatingMenu is { } menu && string.Equals(menu.TriggerTestId, action.TestId, StringComparison.Ordinal)
+            ? menu
+            : null;
+
     private bool HasOpenToolbarMenu => !string.IsNullOrWhiteSpace(_openMenuId);
 
     private bool ShouldRenderFloatingBar => CanRenderFloatingToolbar && _floatingBarAnchor.HasSelection && !HasOpenToolbarMenu;

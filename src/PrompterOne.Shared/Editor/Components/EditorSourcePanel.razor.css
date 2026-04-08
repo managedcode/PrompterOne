@@ -136,6 +136,7 @@
 .ed-main ::deep .efb-btn--pause:hover{background:rgba(150,209,194,.12);}
 .ed-main ::deep .efb-btn--speed:hover{background:rgba(131,197,255,.12);}
 .ed-main ::deep .efb-btn--insert:hover{background:rgba(240,197,108,.12);}
+.efb-action-slot{position:relative;display:inline-flex;align-items:center;}
 .efb-sep{width:1px;height:18px;background:var(--gold-07);margin:0 4px;}
 .ed-main ::deep .efb-ai{color:#F4DEA4;font-weight:600;}
 .ed-main ::deep .efb-ai:hover{background:var(--gold-12);}

@@ -135,43 +135,44 @@
                         var group = FloatingActionGroups[groupIndex];
                         @foreach (var action in group)
                         {
-                            <EditorActionButton Action="@action"
-                                                ActionSelected="ExecuteToolbarActionAsync"
-                                                AriaExpanded="@GetActionAriaExpanded(action)"
-                                                Disabled="@GetActionDisabled(action)"
-                                                TooltipCssClass="@GetTooltipCssClass(EditorToolbarTooltipPlacement.FloatingToolbar)"
-                                                TooltipPlacementValue="@GetTooltipPlacementValue(EditorToolbarTooltipPlacement.FloatingToolbar)" />
+                            <div class="efb-action-slot">
+                                <EditorActionButton Action="@action"
+                                                    ActionSelected="ExecuteToolbarActionAsync"
+                                                    AriaExpanded="@GetActionAriaExpanded(action)"
+                                                    Disabled="@GetActionDisabled(action)"
+                                                    TooltipCssClass="@GetTooltipCssClass(EditorToolbarTooltipPlacement.FloatingToolbar)"
+                                                    TooltipPlacementValue="@GetTooltipPlacementValue(EditorToolbarTooltipPlacement.FloatingToolbar)" />
+                                @if (GetFloatingMenuForAction(action) is { } floatingMenu)
+                                {
+                                    <div class="@GetFloatingMenuCss(floatingMenu)"
+                                         data-test="@floatingMenu.PanelTestId">
+                                        @for (var floatingGroupIndex = 0; floatingGroupIndex < floatingMenu.DropdownGroups.Count; floatingGroupIndex++)
+                                        {
+                                            var dropdownGroup = floatingMenu.DropdownGroups[floatingGroupIndex];
+                                            @if (dropdownGroup.HasSeparatorBefore)
+                                            {
+                                                <div class="efb-drop-sep"></div>
+                                            }
+                                            <span class="efb-dropdown-label">@dropdownGroup.Label</span>
+                                            <div class="efb-menu-list">
+                                                @foreach (var dropdownAction in dropdownGroup.Actions)
+                                                {
+                                                    <EditorActionButton Action="@dropdownAction"
+                                                                        ActionSelected="ExecuteToolbarActionAsync"
+                                                                        TooltipCssClass="@GetTooltipCssClass(EditorToolbarTooltipPlacement.FloatingMenu)"
+                                                                        TooltipPlacementValue="@GetTooltipPlacementValue(EditorToolbarTooltipPlacement.FloatingMenu)" />
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
                         }
 
                         @if (groupIndex < FloatingActionGroups.Count - 1)
                         {
                             <span class="efb-sep"></span>
                         }
-                    }
-
-                    @if (OpenFloatingMenu is { } floatingMenu)
-                    {
-                        <div class="@GetFloatingMenuCss(floatingMenu)"
-                             data-test="@floatingMenu.PanelTestId">
-                            @for (var groupIndex = 0; groupIndex < floatingMenu.DropdownGroups.Count; groupIndex++)
-                            {
-                                var dropdownGroup = floatingMenu.DropdownGroups[groupIndex];
-                                @if (dropdownGroup.HasSeparatorBefore)
-                                {
-                                    <div class="efb-drop-sep"></div>
-                                }
-                                <span class="efb-dropdown-label">@dropdownGroup.Label</span>
-                                <div class="efb-menu-list">
-                                    @foreach (var action in dropdownGroup.Actions)
-                                    {
-                                        <EditorActionButton Action="@action"
-                                                            ActionSelected="ExecuteToolbarActionAsync"
-                                                            TooltipCssClass="@GetTooltipCssClass(EditorToolbarTooltipPlacement.FloatingMenu)"
-                                                            TooltipPlacementValue="@GetTooltipPlacementValue(EditorToolbarTooltipPlacement.FloatingMenu)" />
-                                    }
-                                </div>
-                            }
-                        </div>
                     }
                 </div>
             }

@@ -12,9 +12,6 @@
     const defaultAudioGain = 0.08;
     const debugAudioLevelMultiplier = 2800;
     const debugAudioMeterFftSize = 1024;
-    const pointerDownEventName = "pointerdown";
-    const keyDownEventName = "keydown";
-    const touchStartEventName = "touchstart";
     const primaryCameraId = "browser-cam-primary";
     const secondaryCameraId = "browser-cam-secondary";
     const primaryCameraLabel = "Browser Camera A";
@@ -96,11 +93,9 @@
     let captureCapabilities = {
         supportsConcurrentLocalCameraCaptures: true
     };
-    let audioUnlockInstalled = false;
     let lastAudioError = emptyDeviceLabel;
     let lastAudioLevelPercent = 0;
     let lastAudioMode = emptyDeviceLabel;
-    let sharedAudioContext = null;
     let concealDeviceIdentityUntilMediaRequest =
         window.sessionStorage?.getItem(concealIdentitySessionFlag) === "true";
     let hasResolvedMediaRequest = false;
@@ -113,36 +108,6 @@
             value: mediaDevices
         });
     }
-
-    function installAudioUnlockBridge() {
-        if (audioUnlockInstalled) {
-            return;
-        }
-
-        getSharedAudioContext();
-        audioUnlockInstalled = true;
-        const unlockAudioContexts = () => {
-            getSharedAudioContext()?.resume().catch(() => {});
-        };
-
-        [pointerDownEventName, keyDownEventName, touchStartEventName].forEach(eventName => {
-            window.addEventListener(eventName, unlockAudioContexts, { passive: true });
-        });
-    }
-
-    function getSharedAudioContext() {
-        if (!audioContextCtor) {
-            return null;
-        }
-
-        if (!sharedAudioContext || sharedAudioContext.state === "closed") {
-            sharedAudioContext = new audioContextCtor({ latencyHint: "interactive" });
-        }
-
-        return sharedAudioContext;
-    }
-
-    installAudioUnlockBridge();
 
     function cloneJson(value) {
         return JSON.parse(JSON.stringify(value));
@@ -555,7 +520,7 @@
                 lastAudioError,
                 lastAudioLevelPercent,
                 lastAudioMode,
-                sharedAudioContextState: sharedAudioContext?.state ?? emptyDeviceLabel
+                sharedAudioContextState: emptyDeviceLabel
             };
         },
         clearRequestLog() {

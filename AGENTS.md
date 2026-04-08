@@ -266,6 +266,7 @@ Local `AGENTS.md` files may tighten these values, but they must not loosen them 
 - Summarize the change, risks, and verification before marking the task complete.
 - When the user asks to fix GitHub Actions or CI, do not stop at locally green commands: after pushing, watch the relevant GitHub Actions run and continue iterating until the replacement run is green or an explicit external blocker is documented.
 - When the browser suite has already flaked across repeated CI runs, do not keep cycling one-off threshold bumps; prove stability with repeated local browser-suite runs and remove or harden brittle root-cause assertions before calling the fix durable.
+- When a concrete failing test is already identified, fix and rerun that failing test and its immediate interference set first; do not sit on a full-suite wait before addressing the known red signal.
 
 ### Documentation
 
