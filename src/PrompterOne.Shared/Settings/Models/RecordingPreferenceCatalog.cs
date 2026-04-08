@@ -5,6 +5,7 @@ public static class RecordingPreferenceCatalog
     public static class LocationLabels
     {
         public const string BrowserLocalStore = "Browser-local recording store";
+        public const string LocalFile = "Local file";
     }
 
     public static class NamingPatterns

@@ -47,10 +47,6 @@ public partial class EditorSourcePanel
 
     private string StatusDurationValue => string.Concat(ApproximateValuePrefix, Status.Duration);
 
-    private string StatusVersionLabel => L(UiTextKey.CommonVersion);
-
-    private string StatusVersionValue => Status.Version;
-
     private IReadOnlyList<EditorToolbarSectionDescriptor> ToolbarSections => _toolbarSections;
 
     private string L(UiTextKey key) => Localizer[key.ToString()];

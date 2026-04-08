@@ -43,7 +43,6 @@ public static partial class UiTestIds
         public const string FindNext = "editor-find-next";
         public const string FindPrevious = "editor-find-previous";
         public const string FindResult = "editor-find-result";
-        public const string FindToggle = "editor-find-toggle";
         public const string FloatingAi = "editor-floating-ai";
         public const string FloatingBar = "editor-floating-bar";
         public const string FloatingDeliverySarcasm = "editor-float-delivery-sarcasm";
@@ -116,6 +115,9 @@ public static partial class UiTestIds
         public const string SourceScrollHost = "editor-source-scroll-host";
         public const string SourceStage = "editor-source-stage";
         public const string Toolbar = "editor-toolbar";
+        public const string ToolbarScrollNext = "editor-toolbar-scroll-next";
+        public const string ToolbarScrollPrevious = "editor-toolbar-scroll-previous";
+        public const string ToolbarTools = "editor-toolbar-tools";
         public const string SpeedFast = "editor-speed-fast";
         public const string SpeedCustomWpm = "editor-speed-custom-wpm";
         public const string SpeedSlow = "editor-speed-slow";

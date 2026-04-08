@@ -4,11 +4,17 @@
     const getUserMediaMethod = "getUserMedia";
     const videoKind = "videoinput";
     const audioKind = "audioinput";
+    const audioContextCtor = window.AudioContext || window.webkitAudioContext;
     const defaultVideoFrameRate = 24;
     const canvasWidth = 640;
     const canvasHeight = 360;
     const frameIntervalMs = Math.round(1000 / defaultVideoFrameRate);
-    const defaultAudioGain = 0.015;
+    const defaultAudioGain = 0.08;
+    const debugAudioLevelMultiplier = 2800;
+    const debugAudioMeterFftSize = 1024;
+    const pointerDownEventName = "pointerdown";
+    const keyDownEventName = "keydown";
+    const touchStartEventName = "touchstart";
     const primaryCameraId = "browser-cam-primary";
     const secondaryCameraId = "browser-cam-secondary";
     const primaryCameraLabel = "Browser Camera A";
@@ -90,6 +96,11 @@
     let captureCapabilities = {
         supportsConcurrentLocalCameraCaptures: true
     };
+    let audioUnlockInstalled = false;
+    let lastAudioError = emptyDeviceLabel;
+    let lastAudioLevelPercent = 0;
+    let lastAudioMode = emptyDeviceLabel;
+    let sharedAudioContext = null;
     let concealDeviceIdentityUntilMediaRequest =
         window.sessionStorage?.getItem(concealIdentitySessionFlag) === "true";
     let hasResolvedMediaRequest = false;
@@ -102,6 +113,36 @@
             value: mediaDevices
         });
     }
+
+    function installAudioUnlockBridge() {
+        if (audioUnlockInstalled) {
+            return;
+        }
+
+        getSharedAudioContext();
+        audioUnlockInstalled = true;
+        const unlockAudioContexts = () => {
+            getSharedAudioContext()?.resume().catch(() => {});
+        };
+
+        [pointerDownEventName, keyDownEventName, touchStartEventName].forEach(eventName => {
+            window.addEventListener(eventName, unlockAudioContexts, { passive: true });
+        });
+    }
+
+    function getSharedAudioContext() {
+        if (!audioContextCtor) {
+            return null;
+        }
+
+        if (!sharedAudioContext || sharedAudioContext.state === "closed") {
+            sharedAudioContext = new audioContextCtor({ latencyHint: "interactive" });
+        }
+
+        return sharedAudioContext;
+    }
+
+    installAudioUnlockBridge();
 
     function cloneJson(value) {
         return JSON.parse(JSON.stringify(value));
@@ -284,20 +325,53 @@
     }
 
     function createAudioStream(device) {
+        const audioContext = audioContextCtor
+            ? new audioContextCtor({ latencyHint: "interactive" })
+            : null;
+        if (!audioContext) {
+            throw new DOMException("AudioContext is not available.", "NotSupportedError");
+        }
+        lastAudioMode = "audio-context";
+
         const label = resolveDeviceLabel(device);
-        const audioContext = new AudioContext();
         const oscillator = audioContext.createOscillator();
+        const analyserNode = audioContext.createAnalyser();
         const gainNode = audioContext.createGain();
         const destination = audioContext.createMediaStreamDestination();
+        const sinkNode = audioContext.createGain();
         let cleanedUp = false;
+        let probeFrameHandle = 0;
 
         oscillator.type = "sine";
         oscillator.frequency.value = device.tone;
         gainNode.gain.value = defaultAudioGain;
+        sinkNode.gain.value = 0;
         oscillator.connect(gainNode);
-        gainNode.connect(destination);
+        gainNode.connect(analyserNode);
+        analyserNode.connect(destination);
+        analyserNode.connect(sinkNode);
+        sinkNode.connect(audioContext.destination);
+        analyserNode.fftSize = debugAudioMeterFftSize;
         oscillator.start();
         audioContext.resume().catch(() => {});
+
+        const probeSamples = new Uint8Array(debugAudioMeterFftSize);
+        const updateLevel = () => {
+            if (cleanedUp) {
+                return;
+            }
+
+            analyserNode.getByteTimeDomainData(probeSamples);
+            let sum = 0;
+            for (const sample of probeSamples) {
+                const normalizedSample = (sample - 128) / 128;
+                sum += normalizedSample * normalizedSample;
+            }
+
+            lastAudioLevelPercent = Math.max(0, Math.min(100, Math.round(Math.sqrt(sum / probeSamples.length) * debugAudioLevelMultiplier)));
+            probeFrameHandle = window.requestAnimationFrame(updateLevel);
+        };
+        updateLevel();
 
         function cleanup() {
             if (cleanedUp) {
@@ -305,10 +379,16 @@
             }
 
             cleanedUp = true;
+            if (probeFrameHandle) {
+                window.cancelAnimationFrame(probeFrameHandle);
+            }
+
             oscillator.stop();
             oscillator.disconnect();
+            analyserNode.disconnect();
             gainNode.disconnect();
             destination.disconnect();
+            sinkNode.disconnect();
             audioContext.close().catch(() => {});
         }
 
@@ -469,6 +549,14 @@
         },
         restoreDeviceLabels() {
             deviceLabelOverrides.clear();
+        },
+        getAudioDebugState() {
+            return {
+                lastAudioError,
+                lastAudioLevelPercent,
+                lastAudioMode,
+                sharedAudioContextState: sharedAudioContext?.state ?? emptyDeviceLabel
+            };
         },
         clearRequestLog() {
             requestLog.length = 0;

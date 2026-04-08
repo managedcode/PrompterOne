@@ -99,7 +99,7 @@ public static class GoLiveOutputRequestFactory
     {
         return new(
             FileStem: recordingFileStem,
-            PreferFilePicker: true,
+            PreferFilePicker: ShouldPreferFilePicker(recordingPreferences),
             ContainerLabel: recordingPreferences.RecordingContainer,
             VideoCodecLabel: recordingPreferences.RecordingVideoCodec,
             AudioCodecLabel: recordingPreferences.RecordingAudioCodec,
@@ -173,5 +173,13 @@ public static class GoLiveOutputRequestFactory
             RecordingPreferenceCatalog.SampleRates.Khz96 => 96000,
             _ => 48 * SampleRateKhzMultiplier
         };
+    }
+
+    private static bool ShouldPreferFilePicker(SettingsPagePreferences recordingPreferences)
+    {
+        return string.Equals(
+            recordingPreferences.RecordingFolder,
+            RecordingPreferenceCatalog.LocationLabels.LocalFile,
+            StringComparison.Ordinal);
     }
 }

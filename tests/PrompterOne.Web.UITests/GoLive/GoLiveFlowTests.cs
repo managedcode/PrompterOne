@@ -2,6 +2,8 @@ using System.Text.Json;
 using Microsoft.Playwright;
 using PrompterOne.Core.Models.Workspace;
 using PrompterOne.Shared.Contracts;
+using PrompterOne.Shared.Services;
+using PrompterOne.Shared.Settings.Models;
 using static Microsoft.Playwright.Assertions;
 
 namespace PrompterOne.Web.UITests;
@@ -9,6 +11,7 @@ namespace PrompterOne.Web.UITests;
 [ClassDataSource<StandaloneAppFixture>(Shared = SharedType.PerClass)]
 public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
 {
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
     private const int LayoutViewportHeight = 768;
     private const int LayoutViewportWidth = 1366;
     private const double MaxPreviewRailWidth = 360d;
@@ -587,6 +590,22 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
                 BrowserTestConstants.GoLive.VdoNinjaPublishUrl,
                 BrowserTestConstants.GoLive.FirstSourceId
             });
+
+    internal static Task SeedRecordingPreferencesAsync(
+        Microsoft.Playwright.IPage page,
+        SettingsPagePreferences preferences)
+    {
+        var settingsKey = string.Concat(BrowserStorageKeys.SettingsPrefix, SettingsPagePreferences.StorageKey);
+        var settingsJson = JsonSerializer.Serialize(preferences, JsonOptions);
+
+        return page.EvaluateAsync(
+            "(payload) => window.localStorage.setItem(payload.key, payload.value)",
+            new
+            {
+                key = settingsKey,
+                value = settingsJson
+            });
+    }
 
     private static string BuildRemoteSourceSeedScript()
     {

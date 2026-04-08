@@ -19,11 +19,10 @@ public sealed class EditorSourcePanelFindTests : BunitContext
     }
 
     [Test]
-    public void EditorSourcePanel_FindBarOpens_AndReportsMatchCount()
+    public void EditorSourcePanel_FindBarReportsMatchCount()
     {
         var cut = Render<EditorSourcePanelFindHost>();
 
-        cut.FindByTestId(UiTestIds.Editor.FindToggle).Click();
         cut.FindByTestId(UiTestIds.Editor.FindInput).Input(RepeatedQuery);
 
         cut.WaitForAssertion(() =>
@@ -38,7 +37,6 @@ public sealed class EditorSourcePanelFindTests : BunitContext
     {
         var cut = Render<EditorSourcePanelFindHost>();
 
-        cut.FindByTestId(UiTestIds.Editor.FindToggle).Click();
         cut.FindByTestId(UiTestIds.Editor.FindInput).Input(MissingQuery);
 
         cut.WaitForAssertion(() =>

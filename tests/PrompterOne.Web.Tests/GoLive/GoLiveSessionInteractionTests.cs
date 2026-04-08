@@ -298,6 +298,36 @@ public sealed class GoLiveSessionInteractionTests : BunitContext
         Assert.Equal(RecordingVideoBitrateKbps, request.Recording.VideoBitrateKbps);
         Assert.Equal(RecordingAudioBitrateKbps, request.Recording.AudioBitrateKbps);
         Assert.Equal(1, request.Recording.AudioChannelCount);
+        Assert.False(request.Recording.PreferFilePicker);
+    }
+
+    [Test]
+    public void GoLivePage_StartRecording_WithLocalFilePreference_PrefersFilePickerExport()
+    {
+        SeedSceneState(CreateSceneWithTwoAudioInputs());
+        SeedRecordingPreferences(SettingsPagePreferences.Default with
+        {
+            RecordingFolder = RecordingPreferenceCatalog.LocationLabels.LocalFile
+        });
+        SeedStudioSettings(StudioSettings.Default with
+        {
+            Streaming = StudioSettings.Default.Streaming with
+            {
+                Recording = new RecordingProfile(IsEnabled: true)
+            }
+        });
+
+        Services.GetRequiredService<NavigationManager>().NavigateTo(AppTestData.Routes.GoLiveDemo);
+        var cut = Render<GoLivePage>();
+
+        cut.WaitForAssertion(() => Assert.NotNull(cut.FindByTestId(UiTestIds.GoLive.Page)));
+        cut.FindByTestId(UiTestIds.GoLive.StartRecording).Click();
+
+        var invocation = Assert.Single(
+            _harness.JsRuntime.InvocationRecords,
+            record => string.Equals(record.Identifier, StartLocalRecordingInteropMethod, StringComparison.Ordinal));
+        var request = Assert.IsType<GoLiveOutputRuntimeRequest>(invocation.Arguments[1]);
+
         Assert.True(request.Recording.PreferFilePicker);
     }
 

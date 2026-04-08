@@ -610,13 +610,14 @@
   <data name="OnboardingRestartTour" xml:space="preserve"><value>Riapri il tour</value></data>
   <data name="OnboardingReopenTitle" xml:space="preserve"><value>Riapri il tour guidato</value></data>
   <data name="OnboardingReopenBody" xml:space="preserve"><value>Usalo quando vuoi rivedere PrompterOne, TPS, RSVP, Editor, Learn, Teleprompter e Go Live.</value></data>
-  <data name="EditorFindOpen" xml:space="preserve"><value>Trova</value></data>
   <data name="EditorFindPlaceholder" xml:space="preserve"><value>Cerca nello script</value></data>
   <data name="EditorFindPrevious" xml:space="preserve"><value>Precedente</value></data>
   <data name="EditorFindNext" xml:space="preserve"><value>Successivo</value></data>
   <data name="EditorFindClose" xml:space="preserve"><value>Chiudi</value></data>
   <data name="EditorFindNoResults" xml:space="preserve"><value>Nessuna corrispondenza</value></data>
   <data name="EditorFindResultsFormat" xml:space="preserve"><value>{0} / {1}</value></data>
+  <data name="EditorToolbarScrollPrevious" xml:space="preserve"><value>Scorri la barra a sinistra</value></data>
+  <data name="EditorToolbarScrollNext" xml:space="preserve"><value>Scorri la barra a destra</value></data>
   <data name="EditorMetadataSection" xml:space="preserve"><value>Metadati</value></data>
   <data name="EditorMetadataLocalFileSection" xml:space="preserve"><value>File locale</value></data>
   <data name="CommonTools" xml:space="preserve"><value>Strumenti</value></data>

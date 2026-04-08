@@ -1,6 +1,7 @@
 using System.Globalization;
 using Microsoft.AspNetCore.Components;
 using PrompterOne.Shared.Localization;
+using PrompterOne.Shared.Services.Editor;
 
 namespace PrompterOne.Shared.Components.Editor;
 
@@ -9,7 +10,6 @@ public partial class EditorSourcePanel
     private string _findQuery = string.Empty;
     private int _findMatchIndex = -1;
     private IReadOnlyList<EditorFindMatch> _findMatches = [];
-    private bool _showFindBar;
 
     private bool CanNavigateFindMatches => _findMatches.Count > 0;
 
@@ -19,36 +19,19 @@ public partial class EditorSourcePanel
 
     private bool ShouldRenderFindResult => !string.IsNullOrWhiteSpace(_findQuery);
 
-    private Task ToggleFindBarAsync()
+    private Task ClearFindQueryAsync()
     {
-        _showFindBar = !_showFindBar;
-        CloseToolbarPanels();
-
-        if (_showFindBar)
-        {
-            RefreshFindMatchesForCurrentText();
-        }
-        else
-        {
-            ClearFindState();
-        }
-
-        return InvokeAsync(StateHasChanged);
-    }
-
-    private Task CloseFindBarAsync()
-    {
-        _showFindBar = false;
         ClearFindState();
+        _syncFindHighlightsAfterRender = true;
         return InvokeAsync(StateHasChanged);
     }
 
-    private async Task OnFindQueryInputAsync(ChangeEventArgs args)
+    private Task OnFindQueryInputAsync(ChangeEventArgs args)
     {
         _findQuery = args.Value?.ToString() ?? string.Empty;
         RefreshFindMatchesForCurrentText();
-        await FocusActiveFindMatchAsync(focusEditor: false);
-        await InvokeAsync(StateHasChanged);
+        _syncFindHighlightsAfterRender = true;
+        return InvokeAsync(StateHasChanged);
     }
 
     private Task NavigateToPreviousFindMatchAsync() =>
@@ -59,7 +42,7 @@ public partial class EditorSourcePanel
 
     private void RefreshFindMatchesForCurrentText()
     {
-        if (!_showFindBar || string.IsNullOrWhiteSpace(_findQuery))
+        if (string.IsNullOrWhiteSpace(_findQuery))
         {
             _findMatches = [];
             _findMatchIndex = -1;
@@ -98,7 +81,8 @@ public partial class EditorSourcePanel
 
         var nextIndex = (_findMatchIndex + direction + _findMatches.Count) % _findMatches.Count;
         _findMatchIndex = nextIndex;
-        await FocusActiveFindMatchAsync(focusEditor: false);
+        _syncFindHighlightsAfterRender = true;
+        await FocusActiveFindMatchAsync(focusEditor: true);
         await InvokeAsync(StateHasChanged);
     }
 
@@ -110,7 +94,11 @@ public partial class EditorSourcePanel
         }
 
         var activeMatch = _findMatches[_findMatchIndex];
-        await FocusRangeAsync(activeMatch.Start, activeMatch.End, focusEditor: focusEditor);
+        await FocusRangeAsync(
+            activeMatch.Start,
+            activeMatch.End,
+            focusEditor: focusEditor,
+            syncSelectionState: false);
     }
 
     private void ClearFindState()
@@ -118,6 +106,23 @@ public partial class EditorSourcePanel
         _findQuery = string.Empty;
         _findMatches = [];
         _findMatchIndex = -1;
+    }
+
+    private IReadOnlyList<EditorFindMatchInteropRange> BuildFindHighlightRanges()
+    {
+        if (_findMatches.Count == 0)
+        {
+            return [];
+        }
+
+        var ranges = new EditorFindMatchInteropRange[_findMatches.Count];
+        for (var index = 0; index < _findMatches.Count; index++)
+        {
+            var match = _findMatches[index];
+            ranges[index] = new EditorFindMatchInteropRange(match.Start, match.End);
+        }
+
+        return ranges;
     }
 
     private readonly record struct EditorFindMatch(int Start, int Length)

@@ -96,6 +96,11 @@ Rule format:
 - The onboarding flow must include a dedicated TPS explainer step or page, separate from the generic editor step, that tells users what TPS is, why it exists, and how PrompterOne uses it.
 - The dedicated TPS onboarding step must explain TPS in concrete beginner terms: what the format is, why it exists, how PrompterOne uses it across Editor/Learn/Teleprompter/Go Live, and where users can continue with the official TPS site or glossary.
 - Script discovery and authoring surfaces must support real search by script name and script content; Library/script pages and editor flows must not force manual browsing when the user needs to find files or text inside files.
+- Editor find/search interactions must keep keyboard focus inside the find UI while the user types; query input should only update highlighted matches, and only explicit `Next`/`Previous` search navigation may move focus/selection into the Monaco editor surface.
+- Editor status chrome must stay compact and omit the footer version pill unless a task explicitly asks to surface version metadata there.
+- Editor footer status metrics must keep a stable one-row layout while cursor or count values change; line, column, word, and duration updates must not make neighboring status chips jump or reflow.
+- Editor footer status chrome should read like a quiet IDE status strip: one compact row, low emphasis, and no oversized chip or outlined-block treatment for static metrics.
+- Editor top-toolbar search must remain visible in narrow layouts; when width runs out, the other toolbar groups should become explicitly horizontally scrollable/reachable before search is allowed to disappear.
 - Public web hosting is split by role: the standalone PrompterOne app in this repo must publish on `app.prompter.one`, while the marketing landing site for `prompter.one` lives in the separate `PrompterOne-LandingPage` repository.
 - For deploy-only, domain, CI, or static-site hosting tasks, do not spend time on unrelated app/browser test suites unless the user explicitly asks or the runtime behavior itself changes; prefer workflow, build, and publish-config validation only.
 - Repo-wide .NET SDK and test-runner selection belong in the root `global.json`; do not split `global.json` test-runner opt-ins per project or subfolder once the user asks for a global test-platform policy.
@@ -466,6 +471,7 @@ Ask first:
 ### Dislikes
 
 - fallback code paths, compatibility shims, or alternate behavior branches added "just in case"; implement the direct fix and only add a fallback when the user explicitly asks for one
+- any "safety-net" or "just in case" workaround added to mask incorrect behavior; fix the root cause cleanly instead of layering retries, forced refocus, defensive rerenders, or compensating logic
 - backend creep in the standalone runtime
 - `git worktree`, temporary worktrees, throwaway repo copies, or off-branch isolation for normal repo tasks when the active workspace branch is available; do the work in the current repo and current branch unless the user explicitly asks for isolation
 - OBS-coupled runtime architecture or UI; `PrompterOne` must be the streaming system itself, not an OBS companion or Browser Source wrapper

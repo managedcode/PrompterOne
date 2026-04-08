@@ -1,8 +1,11 @@
 (function () {
+    const audioDebugLevelMultiplier = 2800;
+    const audioDebugMeterFftSize = 1024;
     const audioContextCtor = window.AudioContext || window.webkitAudioContext;
     const canvasContextType = "2d";
     const hiddenMediaStyle = "position:fixed;left:-10000px;top:-10000px;width:1px;height:1px;opacity:0;pointer-events:none;";
     const maxAudioDelaySeconds = 5;
+    const mutedGainValue = 0;
     const overlayMinimumOpacity = 0;
     const overlayMaximumOpacity = 1;
     const primaryScale = 1;
@@ -38,6 +41,7 @@
         session.audioContext ??= null;
         session.audioDestination ??= null;
         session.audioMasterGain ??= null;
+        session.audioSinkGain ??= null;
         session.primarySourceAudioBinding ??= null;
     }
 
@@ -52,6 +56,10 @@
 
     function clamp(value, minimum, maximum) {
         return Math.max(minimum, Math.min(maximum, value));
+    }
+
+    function clampLevelPercent(value) {
+        return Math.max(0, Math.min(100, Math.round(value)));
     }
 
     function stopTrackSet(stream) {
@@ -125,13 +133,18 @@
             const context = new audioContextCtor();
             const destination = context.createMediaStreamDestination();
             const masterGain = context.createGain();
+            const sinkGain = context.createGain();
 
             masterGain.gain.value = primaryScale;
+            sinkGain.gain.value = mutedGainValue;
             masterGain.connect(destination);
+            masterGain.connect(sinkGain);
+            sinkGain.connect(context.destination);
 
             session.audioContext = context;
             session.audioDestination = destination;
             session.audioMasterGain = masterGain;
+            session.audioSinkGain = sinkGain;
         }
 
         await session.audioContext.resume().catch(() => {});
@@ -210,17 +223,43 @@
         const sourceNode = session.audioContext.createMediaStreamSource(new MediaStream([track.mediaStreamTrack]));
         const delayNode = session.audioContext.createDelay(maxAudioDelaySeconds);
         const gainNode = session.audioContext.createGain();
-
-        sourceNode.connect(delayNode);
-        delayNode.connect(gainNode);
-
-        session.audioBindings.set(input.deviceId, {
+        const analyserNode = session.audioContext.createAnalyser();
+        const probeSamples = new Uint8Array(audioDebugMeterFftSize);
+        const binding = {
+            analyserNode,
             delayNode,
             gainNode,
+            inputLevelPercent: 0,
             outputConnected: false,
+            probeFrameHandle: 0,
+            probeSamples,
             sourceNode,
             track
-        });
+        };
+
+        sourceNode.connect(analyserNode);
+        analyserNode.connect(delayNode);
+        delayNode.connect(gainNode);
+        analyserNode.fftSize = audioDebugMeterFftSize;
+
+        const updateLevel = () => {
+            if (!session.audioBindings.has(input.deviceId)) {
+                return;
+            }
+
+            analyserNode.getByteTimeDomainData(probeSamples);
+            let sum = 0;
+            for (const sample of probeSamples) {
+                const normalizedSample = (sample - 128) / 128;
+                sum += normalizedSample * normalizedSample;
+            }
+
+            binding.inputLevelPercent = clampLevelPercent(Math.sqrt(sum / probeSamples.length) * audioDebugLevelMultiplier);
+            binding.probeFrameHandle = window.requestAnimationFrame(updateLevel);
+        };
+
+        session.audioBindings.set(input.deviceId, binding);
+        updateLevel();
     }
 
     function disconnectAudioOutput(binding) {
@@ -261,7 +300,12 @@
                 continue;
             }
 
+            if (binding.probeFrameHandle) {
+                window.cancelAnimationFrame(binding.probeFrameHandle);
+            }
+
             disconnectAudioOutput(binding);
+            binding.analyserNode.disconnect();
             binding.sourceNode.disconnect();
             binding.delayNode.disconnect();
             stopTrackHandle(binding.track);
@@ -345,14 +389,23 @@
         };
     }
 
-    function ensureProgramMediaStream(session) {
-        if (session.mediaStream) {
-            return;
+    function hasMatchingProgramTracks(stream, tracks) {
+        const currentTracks = stream?.getTracks?.() ?? [];
+        if (currentTracks.length !== tracks.length) {
+            return false;
         }
 
+        return tracks.every(track => currentTracks.some(currentTrack => currentTrack?.id === track?.id));
+    }
+
+    function ensureProgramMediaStream(session) {
         const canvasTrack = session.canvasStream?.getVideoTracks()?.[0] ?? null;
         const audioTrack = session.audioDestination?.stream?.getAudioTracks()?.[0] ?? null;
         const tracks = [canvasTrack, audioTrack].filter(Boolean);
+        if (hasMatchingProgramTracks(session.mediaStream, tracks)) {
+            return;
+        }
+
         session.mediaStream = new MediaStream(tracks);
     }
 
@@ -499,7 +552,12 @@
         }
 
         for (const binding of session.audioBindings?.values() ?? []) {
+            if (binding.probeFrameHandle) {
+                window.cancelAnimationFrame(binding.probeFrameHandle);
+            }
+
             disconnectAudioOutput(binding);
+            binding.analyserNode.disconnect();
             binding.sourceNode.disconnect();
             binding.delayNode.disconnect();
             stopTrackHandle(binding.track);
@@ -515,6 +573,11 @@
         if (session.audioMasterGain) {
             session.audioMasterGain.disconnect();
             session.audioMasterGain = null;
+        }
+
+        if (session.audioSinkGain) {
+            session.audioSinkGain.disconnect();
+            session.audioSinkGain = null;
         }
 
         if (session.audioContext) {

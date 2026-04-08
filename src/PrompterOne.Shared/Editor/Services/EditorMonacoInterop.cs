@@ -90,6 +90,24 @@ public sealed class EditorMonacoInterop(IJSRuntime jsRuntime) : IDisposable, IAs
         return MapSelection(result);
     }
 
+    public async ValueTask SetFindMatchesAsync(
+        ElementReference host,
+        IReadOnlyList<EditorFindMatchInteropRange> matches,
+        int activeMatchIndex)
+    {
+        var module = await GetModuleAsync();
+        if (module is null)
+        {
+            return;
+        }
+
+        await module.InvokeVoidAsync(
+            EditorMonacoInteropMethodNames.SetFindMatches,
+            host,
+            matches,
+            activeMatchIndex);
+    }
+
     public async ValueTask DisposeEditorAsync(ElementReference host)
     {
         var module = await GetModuleAsync();
@@ -158,3 +176,5 @@ public sealed class EditorMonacoInterop(IJSRuntime jsRuntime) : IDisposable, IAs
         double ToolbarTop,
         double ToolbarLeft);
 }
+
+public sealed record EditorFindMatchInteropRange(int Start, int End);

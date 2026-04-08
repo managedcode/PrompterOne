@@ -83,6 +83,9 @@ public sealed class DiagnosticsUiTests(StandaloneAppFixture fixture)
                 .ToContainTextAsync(
                     BrowserTestConstants.Diagnostics.ConnectivityOfflineTitle,
                     new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
+            await page.GetByTestId(UiTestIds.Diagnostics.ConnectivityDismiss).ClickAsync();
+            await Expect(page.GetByTestId(UiTestIds.Diagnostics.Connectivity))
+                .ToBeHiddenAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
 
             await page.Context.SetOfflineAsync(false);
             await page.EvaluateAsync(BrowserTestConstants.Diagnostics.DispatchOnlineEventScript);
@@ -90,8 +93,6 @@ public sealed class DiagnosticsUiTests(StandaloneAppFixture fixture)
                 .ToContainTextAsync(
                     BrowserTestConstants.Diagnostics.ConnectivityOnlineTitle,
                     new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
-
-            await page.GetByTestId(UiTestIds.Diagnostics.ConnectivityDismiss).ClickAsync();
             await Expect(page.GetByTestId(UiTestIds.Diagnostics.Connectivity))
                 .ToBeHiddenAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
         }

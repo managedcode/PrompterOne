@@ -116,7 +116,7 @@ public partial class EditorSourcePanel
 
     private bool HasOpenToolbarMenu => !string.IsNullOrWhiteSpace(_openMenuId);
 
-    private bool ShouldRenderFloatingBar => CanRenderFloatingToolbar && _floatingBarAnchor.HasSelection && !HasOpenToolbarMenu && !_showFindBar;
+    private bool ShouldRenderFloatingBar => CanRenderFloatingToolbar && _floatingBarAnchor.HasSelection && !HasOpenToolbarMenu;
 
     private bool GetActionDisabled(EditorToolbarActionDescriptor action) =>
         action.ActionType switch

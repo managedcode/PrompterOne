@@ -7,6 +7,12 @@
 .ed-find-nav,.ed-find-close{font:inherit;cursor:pointer;min-height:36px;padding:0 12px;border:1px solid rgba(223,187,124,.14);border-radius:10px;background:rgba(255,255,255,.03);color:var(--text-2);}
 .ed-find-nav:hover,.ed-find-nav:focus-visible,.ed-find-close:hover,.ed-find-close:focus-visible{background:rgba(212,176,112,.08);color:var(--text-1);}
 .ed-find-nav:disabled{cursor:default;opacity:.42;}
+.ed-find-bar--compact{gap:8px;padding:0;border-bottom:none;background:transparent;min-width:0;max-width:100%;}
+.ed-find-bar--compact .ed-find-input-shell{min-width:0;flex:0 1 clamp(148px, 18vw, 220px);padding:0 10px;min-height:32px;border-radius:10px;}
+.ed-find-bar--compact .ed-find-result{min-width:44px;font-size:11px;line-height:1;flex:0 0 auto;}
+.ed-find-bar--compact .ed-find-actions{gap:4px;margin-left:0;flex:0 0 auto;}
+.ed-find-nav--compact{display:inline-flex;align-items:center;justify-content:center;min-width:32px;min-height:32px;padding:0;border-radius:9px;}
+.ed-find-nav--compact svg{flex-shrink:0;}
 
 html[data-theme="light"] .ed-find-bar,
 html.theme-light .ed-find-bar,
@@ -33,4 +39,9 @@ html[data-theme="light"] .ed-find-input,
 html.theme-light .ed-find-input,
 body.theme-light .ed-find-input {
     color: #2C2418;
+}
+
+@media (max-width:932px){
+    .ed-find-bar--compact{gap:6px;}
+    .ed-find-bar--compact .ed-find-input-shell{flex-basis:clamp(136px, 24vw, 188px);}
 }

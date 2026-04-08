@@ -56,6 +56,7 @@ public static class PrompterOneServiceCollectionExtensions
         services.AddScoped<EditorOutlineBuilder>();
         services.AddScoped<EditorInterop>();
         services.AddScoped<EditorMonacoInterop>();
+        services.AddScoped<EditorToolbarInterop>();
         services.AddScoped<AppShellFilePickerInterop>();
         services.AddScoped<EditorDocumentSaveCoordinator>();
         services.AddScoped<EditorLocalRevisionStore>();

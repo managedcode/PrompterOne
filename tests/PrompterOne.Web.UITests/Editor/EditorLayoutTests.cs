@@ -137,39 +137,58 @@ public sealed class EditorLayoutTests(StandaloneAppFixture fixture)
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
 
             var toolbar = page.GetByTestId(UiTestIds.Editor.Toolbar);
+            var toolbarTools = page.GetByTestId(UiTestIds.Editor.ToolbarTools);
+            var findBar = page.GetByTestId(UiTestIds.Editor.FindBar);
             var aiButton = page.GetByTestId(UiTestIds.Editor.Ai);
+            var scrollNext = page.GetByTestId(UiTestIds.Editor.ToolbarScrollNext);
+            var scrollPrevious = page.GetByTestId(UiTestIds.Editor.ToolbarScrollPrevious);
 
             await Expect(toolbar)
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
+            await Expect(toolbarTools)
+                .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
+            await Expect(findBar)
+                .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
             await Expect(aiButton)
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
+            await Expect(scrollNext)
+                .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
+            await Expect(scrollPrevious)
+                .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
 
-            var toolbarState = await toolbar.EvaluateAsync<ToolbarOverflowState>(
+            var initialToolbarState = await ReadToolbarOverflowStateAsync(page);
+
+            await Assert.That(new[] { "auto", "scroll" }.Contains(initialToolbarState.OverflowX, StringComparer.Ordinal)).IsTrue().Because($"Unexpected toolbar overflow-x value: {initialToolbarState.OverflowX}");
+            await Assert.That(initialToolbarState.ScrollWidth - initialToolbarState.ClientWidth)
+                .IsBetween(BrowserTestConstants.EditorFlow.MinimumToolbarScrollAdvancePx, double.MaxValue);
+            await Assert.That(initialToolbarState.FindLeft - initialToolbarState.ToolsLeft)
+                .IsBetween(-BrowserTestConstants.EditorFlow.ToolbarOverflowTolerancePx, double.MaxValue);
+            await Assert.That(initialToolbarState.ToolsRight - initialToolbarState.FindRight)
+                .IsBetween(-BrowserTestConstants.EditorFlow.ToolbarOverflowTolerancePx, double.MaxValue);
+
+            await scrollNext.ClickAsync();
+            await page.WaitForFunctionAsync(
                 """
-                element => ({
-                    clientWidth: element.clientWidth,
-                    scrollWidth: element.scrollWidth,
-                    overflowX: getComputedStyle(element).overflowX
-                })
-                """);
-
-            await Assert.That(new[] { "auto", "scroll" }.Contains(toolbarState.OverflowX, StringComparer.Ordinal)).IsTrue().Because($"Unexpected toolbar overflow-x value: {toolbarState.OverflowX}");
-
-            await toolbar.EvaluateAsync(
-                """
-                element => {
-                    element.scrollLeft = element.scrollWidth;
-                    element.dispatchEvent(new Event('scroll', { bubbles: true }));
+                (args) => {
+                    const toolbar = document.querySelector(`[data-test="${args.toolbarTestId}"]`);
+                    return toolbar instanceof HTMLElement && toolbar.scrollLeft >= args.minimumScrollLeft;
                 }
-                """);
+                """,
+                new
+                {
+                    minimumScrollLeft = initialToolbarState.ScrollLeft + BrowserTestConstants.EditorFlow.MinimumToolbarScrollAdvancePx,
+                    toolbarTestId = UiTestIds.Editor.Toolbar
+                },
+                new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
 
-            var toolbarBounds = await GetRequiredBoundingBoxAsync(toolbar);
-            var aiButtonBounds = await GetRequiredBoundingBoxAsync(aiButton);
-            var aiOverflowRight = (aiButtonBounds.X + aiButtonBounds.Width) - (toolbarBounds.X + toolbarBounds.Width);
-            var aiOverflowLeft = toolbarBounds.X - aiButtonBounds.X;
+            var scrolledToolbarState = await ReadToolbarOverflowStateAsync(page);
 
-            await Assert.That(aiOverflowRight).IsBetween(double.MinValue, BrowserTestConstants.EditorFlow.ToolbarOverflowTolerancePx);
-            await Assert.That(aiOverflowLeft).IsBetween(double.MinValue, BrowserTestConstants.EditorFlow.ToolbarOverflowTolerancePx);
+            await Assert.That(scrolledToolbarState.ScrollLeft - initialToolbarState.ScrollLeft)
+                .IsBetween(BrowserTestConstants.EditorFlow.MinimumToolbarScrollAdvancePx, double.MaxValue);
+            await Assert.That(scrolledToolbarState.FindLeft - scrolledToolbarState.ToolsLeft)
+                .IsBetween(-BrowserTestConstants.EditorFlow.ToolbarOverflowTolerancePx, double.MaxValue);
+            await Assert.That(scrolledToolbarState.ToolsRight - scrolledToolbarState.FindRight)
+                .IsBetween(-BrowserTestConstants.EditorFlow.ToolbarOverflowTolerancePx, double.MaxValue);
         }
         finally
         {
@@ -282,7 +301,50 @@ public sealed class EditorLayoutTests(StandaloneAppFixture fixture)
                 toggleTestId = UiTestIds.Editor.MetadataRailToggle
             });
 
-    private readonly record struct ToolbarOverflowState(double ClientWidth, double ScrollWidth, string OverflowX);
+    private static Task<ToolbarOverflowState> ReadToolbarOverflowStateAsync(IPage page) =>
+        page.EvaluateAsync<ToolbarOverflowState>(
+            """
+            args => {
+                const toolbar = document.querySelector(`[data-test="${args.toolbarTestId}"]`);
+                const tools = document.querySelector(`[data-test="${args.toolbarToolsTestId}"]`);
+                const findBar = document.querySelector(`[data-test="${args.findBarTestId}"]`);
+                if (!(toolbar instanceof HTMLElement) ||
+                    !(tools instanceof HTMLElement) ||
+                    !(findBar instanceof HTMLElement)) {
+                    throw new Error("Toolbar reachability probe targets are unavailable.");
+                }
+
+                const toolsRect = tools.getBoundingClientRect();
+                const findRect = findBar.getBoundingClientRect();
+
+                return {
+                    clientWidth: toolbar.clientWidth,
+                    findLeft: findRect.left,
+                    findRight: findRect.right,
+                    overflowX: getComputedStyle(toolbar).overflowX,
+                    scrollLeft: toolbar.scrollLeft,
+                    scrollWidth: toolbar.scrollWidth,
+                    toolsLeft: toolsRect.left,
+                    toolsRight: toolsRect.right
+                };
+            }
+            """,
+            new
+            {
+                findBarTestId = UiTestIds.Editor.FindBar,
+                toolbarTestId = UiTestIds.Editor.Toolbar,
+                toolbarToolsTestId = UiTestIds.Editor.ToolbarTools
+            });
+
+    private readonly record struct ToolbarOverflowState(
+        double ClientWidth,
+        double FindLeft,
+        double FindRight,
+        string OverflowX,
+        double ScrollLeft,
+        double ScrollWidth,
+        double ToolsLeft,
+        double ToolsRight);
     private readonly record struct EditorScrollState(double HostScrollTop, string HostOverflowY);
     private readonly record struct LayoutBounds(double X, double Y, double Width, double Height);
     private readonly record struct EditorLayoutMetrics(

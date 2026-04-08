@@ -49,27 +49,28 @@ internal static partial class BrowserTestConstants
         public const string ToolbarDropdownAlignmentTopStep = "01-top-voice-menu-left-cluster";
         public const string ToolbarDropdownAlignmentFloatingStep = "02-floating-voice-menu-left-cluster";
         public const string FindSurfaceScenario = "editor-find-surface";
-        public const string FindSurfaceStep = "01-styled-find-bar";
+        public const string FindSurfaceStep = "01-compact-toolbar-find";
         public const string FindFocusScenario = "editor-find-focus";
         public const string FindFocusStep = "02-search-input-keeps-focus";
         public const string StatusBarScenario = "editor-status-bar";
-        public const string StatusBarStep = "03-segmented-status-bar";
+        public const string StatusBarStep = "03-compact-status-strip";
         public const double MinimumDateFieldWidthPx = 150;
         public const double MinimumFindShellBackgroundAlpha = 0.01;
         public const double MaximumFindButtonBackgroundAlpha = 0.2;
         public const double MinimumFindShellBorderRadiusPx = 10;
         public const double MinimumFindButtonBorderRadiusPx = 9;
         public const double MinimumStatusBarBackgroundAlpha = 0.75;
-        public const double MinimumStatusChipBackgroundAlpha = 0.01;
-        public const double MinimumStatusChipBorderRadiusPx = 16;
-        public const int ExpectedStatusChipCount = 7;
+        public const double MaximumStatusItemBackgroundAlpha = 0.02;
+        public const double MaximumStatusItemBorderRadiusPx = 4;
+        public const double MaximumStatusBarHeightPx = 30;
+        public const double MaximumStatusBarHeightDeltaPx = 0.5;
+        public const double MaximumStatusItemTopDeltaPx = 0.5;
         public const string StatusBaseWpmLabel = "Base WPM";
         public const string StatusColumnLabel = "Col";
         public const string StatusDurationLabel = "Duration";
         public const string StatusLineLabel = "Ln";
         public const string StatusProfileLabel = "Profile";
         public const string StatusSegmentsLabel = "Segments";
-        public const string StatusVersionLabel = "Version";
         public const string StatusWordsLabel = "Words";
         public const string NoneValue = "none";
         public const int TooltipEarlyCheckDelayMs = 180;
@@ -90,6 +91,7 @@ internal static partial class BrowserTestConstants
         public const double MaximumEarlyTooltipOpacity = 0.05;
         public const double MinimumVisibleTooltipOpacity = 0.9;
         public const double MaximumTooltipMenuOverlapPx = 0.5;
+        public const double MinimumToolbarScrollAdvancePx = 24;
         public const double ToolbarOverflowTolerancePx = 2;
     }
 

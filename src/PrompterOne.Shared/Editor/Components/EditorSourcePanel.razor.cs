@@ -14,16 +14,17 @@ public partial class EditorSourcePanel : IAsyncDisposable
 {
     private const string FocusSelectionFailureMessage = "Editor selection focus interop failed during source panel update.";
     private const string InitializeSurfaceFailureMessage = "Editor surface interop failed during source panel initialization.";
+    private const string RefreshFindHighlightsFailureMessage = "Editor find highlight interop failed during source panel update.";
     private const string RefreshSelectionFailureMessage = "Editor selection refresh interop failed during source panel update.";
     private const string RedoKeyLower = "y";
     private const string SurfaceSyncFailureMessage = "Editor surface sync interop failed during source panel update.";
+    private const double ToolbarScrollDeltaPx = 320;
     private const string UndoKeyLower = "z";
     private EditorMonacoCallbackBridge? _callbackBridge;
     private DotNetObjectReference<EditorMonacoCallbackBridge>? _callbackBridgeReference;
     private ElementReference _editorHostRef;
-    private EditorFindBar? _findBar;
-    private bool _focusFindInputAfterRender;
     private ElementReference _semanticSnapshotRef;
+    private ElementReference _toolbarRef;
     private ElementReference _textareaRef;
     private bool _hasPendingLocalInputText;
     private bool _hasPendingLocalSelection;
@@ -35,6 +36,7 @@ public partial class EditorSourcePanel : IAsyncDisposable
     private string _lastRenderedText = string.Empty;
     private string _lastTypedText = string.Empty;
     private bool _skipNextRender;
+    private bool _syncFindHighlightsAfterRender;
     private bool _syncOverlayAfterRender = true;
     private bool _syncSurfaceAfterRender = true;
     private bool _surfaceInteropReady;
@@ -78,6 +80,7 @@ public partial class EditorSourcePanel : IAsyncDisposable
     [Parameter] public string Text { get; set; } = string.Empty;
 
     [Inject] private ILogger<EditorSourcePanel> Logger { get; set; } = NullLogger<EditorSourcePanel>.Instance;
+    [Inject] private EditorToolbarInterop ToolbarInterop { get; set; } = default!;
 
     protected override void OnParametersSet()
     {
@@ -107,6 +110,7 @@ public partial class EditorSourcePanel : IAsyncDisposable
         _visibleCanUndo = CanUndo;
         _visibleCanRedo = CanRedo;
         RefreshFindMatchesForCurrentText();
+        _syncFindHighlightsAfterRender |= textChanged && !string.IsNullOrWhiteSpace(_findQuery);
         UpdateFloatingBarAnchor();
     }
 
@@ -138,10 +142,10 @@ public partial class EditorSourcePanel : IAsyncDisposable
             await SafeRenderOverlayAsync();
         }
 
-        if (_focusFindInputAfterRender && _showFindBar && _findBar is not null)
+        if (_surfaceInteropReady && (firstRender || _syncFindHighlightsAfterRender))
         {
-            _focusFindInputAfterRender = false;
-            await _findBar.FocusInputAsync();
+            _syncFindHighlightsAfterRender = false;
+            await SafeSyncFindHighlightsAsync();
         }
     }
 
@@ -161,13 +165,23 @@ public partial class EditorSourcePanel : IAsyncDisposable
         return true;
     }
 
-    public async Task FocusRangeAsync(int start, int end, bool revealSelection = true, bool focusEditor = true)
+    public async Task FocusRangeAsync(
+        int start,
+        int end,
+        bool revealSelection = true,
+        bool focusEditor = true,
+        bool syncSelectionState = true)
     {
         var selection = await RunSelectionInteropAsync(
             () => MonacoInterop.SetSelectionAsync(_editorHostRef, start, end, revealSelection, focusEditor),
             FocusSelectionFailureMessage);
 
         if (selection is null)
+        {
+            return;
+        }
+
+        if (!syncSelectionState)
         {
             return;
         }
@@ -187,6 +201,12 @@ public partial class EditorSourcePanel : IAsyncDisposable
 
     protected Task RequestWrapAsync(string openingToken, string closingToken, string placeholder = "text") =>
         OnCommandRequested.InvokeAsync(new EditorCommandRequest(EditorCommandKind.Wrap, openingToken, closingToken, placeholder));
+
+    private ValueTask ScrollToolbarBackwardAsync() =>
+        ToolbarInterop.ScrollByAsync(_toolbarRef, -ToolbarScrollDeltaPx);
+
+    private ValueTask ScrollToolbarForwardAsync() =>
+        ToolbarInterop.ScrollByAsync(_toolbarRef, ToolbarScrollDeltaPx);
 
     private Task OnSourceKeyDownAsync(KeyboardEventArgs args)
     {
@@ -324,6 +344,13 @@ public partial class EditorSourcePanel : IAsyncDisposable
         _ = await RunInteropAsync(
             () => MonacoInterop.SyncEditorStateAsync(_editorHostRef, Text, Selection),
             SurfaceSyncFailureMessage);
+    }
+
+    private async Task SafeSyncFindHighlightsAsync()
+    {
+        _ = await RunInteropAsync(
+            () => MonacoInterop.SetFindMatchesAsync(_editorHostRef, BuildFindHighlightRanges(), _findMatchIndex),
+            RefreshFindHighlightsFailureMessage);
     }
 
     private object CreateInitializationOptions() => new

@@ -1,11 +1,9 @@
 (() => {
     const audioContextCtor = window.AudioContext || window.webkitAudioContext;
-    const audibleAudioProbeTimeoutMs = 1500;
-    const audibleAudioPollDelayMs = 100;
     const audioSampleWaitMs = 100;
     const blobMimeFallback = "video/webm";
-    const minimumAudibleFrequencyValue = 8;
-    const minimumAudibleWaveDelta = 2;
+    const minimumAudiblePcmSample = 0.0025;
+    const mutedGainValue = 0;
     const minimumVisibleChannelValue = 12;
     const minimumVisiblePixelCount = 16;
     const visibleVideoProbeTimeoutMs = 1500;
@@ -77,45 +75,58 @@
         };
     }
 
-    async function detectAudibleAudio(captureStream) {
-        if (!captureStream?.getAudioTracks?.().length || !audioContextCtor) {
-            return false;
+    function hasDecodedAudio(videoElement) {
+        const audioTracks = videoElement.audioTracks;
+        if (audioTracks && typeof audioTracks.length === "number" && audioTracks.length > 0) {
+            return true;
+        }
+
+        if (typeof videoElement.mozHasAudio === "boolean") {
+            return videoElement.mozHasAudio;
+        }
+
+        return Number(videoElement.webkitAudioDecodedByteCount ?? 0) > 0;
+    }
+
+    function hasAudiblePcmSamples(audioBuffer) {
+        for (let channelIndex = 0; channelIndex < audioBuffer.numberOfChannels; channelIndex++) {
+            const samples = audioBuffer.getChannelData(channelIndex);
+            for (const sample of samples) {
+                if (Math.abs(sample) >= minimumAudiblePcmSample) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    async function analyzeDecodedAudio(savedBlob, videoElement) {
+        if (!audioContextCtor) {
+            return {
+                hasAudibleAudio: false,
+                hasAudioTrack: hasDecodedAudio(videoElement)
+            };
         }
 
         const audioContext = new audioContextCtor({ latencyHint: "interactive" });
-        const sourceNode = audioContext.createMediaStreamSource(captureStream);
-        const analyser = audioContext.createAnalyser();
-        analyser.fftSize = 1024;
-        analyser.smoothingTimeConstant = 0.2;
-        sourceNode.connect(analyser);
 
         try {
-            await audioContext.resume().catch(() => {});
-            const frequencySamples = new Uint8Array(analyser.frequencyBinCount);
-            const waveformSamples = new Uint8Array(analyser.fftSize);
-            const deadline = Date.now() + audibleAudioProbeTimeoutMs;
+            const encodedBytes = await savedBlob.arrayBuffer();
+            const decodedBuffer = await audioContext.decodeAudioData(encodedBytes.slice(0));
 
-            while (Date.now() <= deadline) {
-                await new Promise(resolve => window.setTimeout(resolve, audioSampleWaitMs));
-
-                analyser.getByteFrequencyData(frequencySamples);
-                if (frequencySamples.some(value => value >= minimumAudibleFrequencyValue)) {
-                    return true;
-                }
-
-                analyser.getByteTimeDomainData(waveformSamples);
-                if (waveformSamples.some(value => Math.abs(value - 128) >= minimumAudibleWaveDelta)) {
-                    return true;
-                }
-
-                await new Promise(resolve => window.setTimeout(resolve, audibleAudioPollDelayMs));
-            }
-
-            return false;
+            return {
+                hasAudibleAudio: hasAudiblePcmSamples(decodedBuffer),
+                hasAudioTrack: decodedBuffer.numberOfChannels > 0 && decodedBuffer.length > 0
+            };
+        }
+        catch {
+            return {
+                hasAudibleAudio: false,
+                hasAudioTrack: hasDecodedAudio(videoElement)
+            };
         }
         finally {
-            sourceNode.disconnect();
-            analyser.disconnect();
             await audioContext.close().catch(() => {});
         }
     }
@@ -222,19 +233,13 @@
             await videoElement.play().catch(() => {});
             await new Promise(resolve => window.setTimeout(resolve, audioSampleWaitMs));
 
-            const captureStream = typeof videoElement.captureStream === "function"
-                ? videoElement.captureStream()
-                : null;
-            const hasAudioTrack = Boolean(captureStream?.getAudioTracks?.().length);
-            const hasAudibleAudio = await detectAudibleAudio(captureStream);
+            const audioAnalysis = await analyzeDecodedAudio(savedBlob, videoElement);
             const visibleVideo = await detectVisibleVideoAcrossFrames(videoElement);
-
-            captureStream?.getTracks?.().forEach(track => track.stop());
 
             return {
                 fileName: savedFileName,
-                hasAudibleAudio,
-                hasAudioTrack,
+                hasAudibleAudio: audioAnalysis.hasAudibleAudio,
+                hasAudioTrack: audioAnalysis.hasAudioTrack,
                 hasVisibleVideo: visibleVideo.hasVisibleVideo,
                 height: videoElement.videoHeight,
                 mimeType: savedBlob.type,

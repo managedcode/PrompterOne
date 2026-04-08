@@ -735,9 +735,6 @@
   <data name="EditorStatusWordsFormat" xml:space="preserve">
     <value>~{0} Words</value>
   </data>
-  <data name="EditorStatusVersionFormat" xml:space="preserve">
-    <value>TPS v{0}</value>
-  </data>
   <data name="EditorMetadataSection" xml:space="preserve">
     <value>Metadata</value>
   </data>
@@ -2217,9 +2214,6 @@
   <data name="OnboardingReopenBody" xml:space="preserve">
     <value>Use this when you want to revisit PrompterOne, TPS, RSVP, Editor, Learn, Teleprompter, and Go Live.</value>
   </data>
-  <data name="EditorFindOpen" xml:space="preserve">
-    <value>Find</value>
-  </data>
   <data name="EditorFindPlaceholder" xml:space="preserve">
     <value>Find in script</value>
   </data>
@@ -2237,5 +2231,11 @@
   </data>
   <data name="EditorFindResultsFormat" xml:space="preserve">
     <value>{0} / {1}</value>
+  </data>
+  <data name="EditorToolbarScrollPrevious" xml:space="preserve">
+    <value>Scroll toolbar left</value>
+  </data>
+  <data name="EditorToolbarScrollNext" xml:space="preserve">
+    <value>Scroll toolbar right</value>
   </data>
 </root>

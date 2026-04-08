@@ -3,6 +3,7 @@
     const audioLevelMultiplier = 2800;
     const audioMeterFftSize = 1024;
     const audioMeterSmoothingTime = 0.82;
+    const mutedGainValue = 0;
     const outputSessions = new Map();
     const liveKitAudioSource = "microphone";
     const liveKitAudioTrackName = "prompterone-program-audio";
@@ -90,6 +91,7 @@
                 recordingActive: false,
                 recordingBytes: 0,
                 recordingChunks: [],
+                recordingFlushIntervalId: 0,
                 recordingFileHandle: null,
                 recordingFileName: "",
                 recordingMimeType: "",
@@ -131,6 +133,7 @@
 
         meter.sourceNode.disconnect();
         meter.analyser.disconnect();
+        meter.sinkNode.disconnect();
         meter.track.stop();
         await meter.audioContext.close().catch(() => {});
     }
@@ -152,21 +155,26 @@
         const track = audioTrack.clone();
         const sourceNode = audioContext.createMediaStreamSource(new MediaStream([track]));
         const analyser = audioContext.createAnalyser();
+        const sinkNode = audioContext.createGain();
         analyser.fftSize = audioMeterFftSize;
         analyser.smoothingTimeConstant = audioMeterSmoothingTime;
+        sinkNode.gain.value = mutedGainValue;
         sourceNode.connect(analyser);
+        analyser.connect(sinkNode);
+        sinkNode.connect(audioContext.destination);
 
         const data = new Uint8Array(analyser.frequencyBinCount);
-        const meter = { analyser, audioContext, frameHandle: 0, sourceId: audioTrack.id, sourceNode, track };
+        const meter = { analyser, audioContext, frameHandle: 0, sinkNode, sourceId: audioTrack.id, sourceNode, track };
         const step = () => {
             if (session.programAudioMeter !== meter) {
                 return;
             }
 
-            analyser.getByteFrequencyData(data);
+            analyser.getByteTimeDomainData(data);
             let sum = 0;
-            for (const amplitude of data) {
-                sum += Math.pow(amplitude / 255, 2);
+            for (const sample of data) {
+                const normalizedSample = (sample - 128) / 128;
+                sum += normalizedSample * normalizedSample;
             }
 
             session.programLevelPercent = clampLevelPercent(Math.sqrt(sum / data.length) * audioLevelMultiplier);
@@ -278,11 +286,33 @@
 
     function buildRuntimeState(session) {
         const programState = getComposer().getProgramState(session);
+        const programAudioTrack = session.mediaStream?.getAudioTracks?.()?.[0] ?? null;
+        const programVideoTrack = session.mediaStream?.getVideoTracks?.()?.[0] ?? null;
+        const audioBindings = [...(session.audioBindings?.entries?.() ?? [])].map(([deviceId, binding]) => ({
+            deviceId,
+            inputLevelPercent: binding?.inputLevelPercent ?? 0,
+            outputConnected: binding?.outputConnected ?? false,
+            trackEnabled: binding?.track?.mediaStreamTrack?.enabled ?? false,
+            trackMuted: binding?.track?.mediaStreamTrack?.muted ?? false,
+            trackReadyState: binding?.track?.mediaStreamTrack?.readyState ?? ""
+        }));
         return {
             audioDeviceId: session.audioDeviceId,
             audio: {
                 programLevelPercent: session.programLevelPercent,
                 recordingLevelPercent: session.recordingActive ? session.programLevelPercent : 0
+            },
+            debugMedia: {
+                audioTrackCount: session.mediaStream?.getAudioTracks?.()?.length ?? 0,
+                audioTrackEnabled: programAudioTrack?.enabled ?? false,
+                audioTrackMuted: programAudioTrack?.muted ?? false,
+                audioTrackReadyState: programAudioTrack?.readyState ?? "",
+                audioBindings,
+                audioContextState: session.audioContext?.state ?? "",
+                destinationAudioTrackCount: session.audioDestination?.stream?.getAudioTracks?.()?.length ?? 0,
+                programTrackCount: session.mediaStream?.getTracks?.()?.length ?? 0,
+                videoTrackCount: session.mediaStream?.getVideoTracks?.()?.length ?? 0,
+                videoTrackReadyState: programVideoTrack?.readyState ?? ""
             },
             hasMediaStream: Boolean(session.mediaStream),
             liveKit: {

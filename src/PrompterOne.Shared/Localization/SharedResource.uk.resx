@@ -1011,9 +1011,6 @@
   <data name="OnboardingReopenBody" xml:space="preserve">
     <value>Скористайся цим, коли захочеш знову переглянути PrompterOne, TPS, RSVP, Editor, Learn, Teleprompter і Go Live.</value>
   </data>
-  <data name="EditorFindOpen" xml:space="preserve">
-    <value>Пошук</value>
-  </data>
   <data name="EditorFindPlaceholder" xml:space="preserve">
     <value>Шукати в сценарії</value>
   </data>
@@ -1031,6 +1028,12 @@
   </data>
   <data name="EditorFindResultsFormat" xml:space="preserve">
     <value>{0} / {1}</value>
+  </data>
+  <data name="EditorToolbarScrollPrevious" xml:space="preserve">
+    <value>Прокрутити панель ліворуч</value>
+  </data>
+  <data name="EditorToolbarScrollNext" xml:space="preserve">
+    <value>Прокрутити панель праворуч</value>
   </data>
   <data name="EditorMetadataSection" xml:space="preserve">
     <value>Метадані</value>

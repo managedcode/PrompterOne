@@ -115,6 +115,7 @@ internal static class TestHarnessFactory
         context.Services.AddSingleton<EditorOutlineBuilder>();
         context.Services.AddSingleton<EditorInterop>();
         context.Services.AddSingleton<EditorMonacoInterop>();
+        context.Services.AddSingleton<EditorToolbarInterop>();
         context.Services.AddSingleton<AppShellFilePickerInterop>();
         context.Services.AddSingleton<EditorDocumentSaveCoordinator>();
         context.Services.AddSingleton<EditorLocalRevisionStore>();

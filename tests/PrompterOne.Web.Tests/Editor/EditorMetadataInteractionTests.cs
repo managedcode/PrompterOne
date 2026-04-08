@@ -43,6 +43,8 @@ public sealed class EditorMetadataInteractionTests : BunitContext
             var metadata = _harness.Session.State.CompiledScript?.Metadata;
             var visibleSource = cut.FindByTestId(UiTestIds.Editor.SourceInput).GetAttribute("value") ?? string.Empty;
             var persistedText = _harness.Session.State.Text;
+            var baseWpmStatus = cut.FindByTestId(UiTestIds.Editor.StatusBaseWpm).TextContent;
+            var durationStatus = cut.FindByTestId(UiTestIds.Editor.StatusDuration).TextContent;
 
             Assert.NotNull(metadata);
             Assert.Equal(EditorMetadataTestSource.RetitledScript, metadata!["title"]);
@@ -53,9 +55,8 @@ public sealed class EditorMetadataInteractionTests : BunitContext
             Assert.Equal(AppTestData.Editor.CreatedDate, metadata["created"]);
             Assert.Equal(AppTestData.Editor.Version, metadata["version"]);
             Assert.Equal(EditorMetadataTestSource.RetitledScript, _harness.Session.State.Title);
-            Assert.Contains(EditorMetadataTestSource.WpmSummary, cut.Markup);
-            Assert.Contains(AppTestData.Editor.DisplayDuration, cut.Markup);
-            Assert.Contains(EditorMetadataTestSource.VersionSummary, cut.Markup);
+            Assert.Contains(EditorMetadataTestSource.BaseWpm210, baseWpmStatus, StringComparison.Ordinal);
+            Assert.Contains(AppTestData.Editor.DisplayDuration, durationStatus, StringComparison.Ordinal);
             Assert.DoesNotContain(EditorMetadataTestSource.TitleField, visibleSource, StringComparison.Ordinal);
             Assert.DoesNotContain(EditorMetadataTestSource.AuthorField, visibleSource, StringComparison.Ordinal);
             Assert.DoesNotContain(EditorMetadataTestSource.DurationField, visibleSource, StringComparison.Ordinal);
@@ -159,7 +160,5 @@ public sealed class EditorMetadataInteractionTests : BunitContext
         public const string UntitledTitlePersistenceLine = "title: \"Untitled Script\"";
         public const string VersionField = "version:";
         public const string VersionPersistenceLine = "version: \"2.0\"";
-        public const string VersionSummary = "TPS v2.0";
-        public const string WpmSummary = "210 WPM";
     }
 }

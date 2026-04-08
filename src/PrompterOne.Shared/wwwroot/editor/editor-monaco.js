@@ -5,6 +5,8 @@ const largeDraftDecorationCharacterThreshold = 16000;
 const largeDraftDecorationViewportLinePadding = 24;
 const frontMatterDelimiter = "---";
 const emptyValue = "";
+const findMatchActiveClassName = `${cssClassPrefix}-find-match-active`;
+const findMatchClassName = `${cssClassPrefix}-find-match`;
 const floatingToolbarMinimumTop = 44;
 const floatingToolbarSelectionOffset = 5;
 const hostStates = new WeakMap();
@@ -202,7 +204,11 @@ export async function initializeEditor(host, proxy, semanticSnapshot, dotNetRef,
         existingState.dotNetRef = dotNetRef;
         existingState.options = options;
         existingState.tpsCatalog = createDecorationCatalog(options);
+        existingState.findDecorationCollection ??= existingState.editor.createDecorationsCollection();
+        existingState.findMatches ??= [];
+        existingState.activeFindMatchIndex ??= -1;
         await syncEditorState(host, proxy.value ?? emptyValue, proxy.selectionStart ?? 0, proxy.selectionEnd ?? 0);
+        updateFindDecorations(existingState);
         return true;
     }
 
@@ -215,10 +221,13 @@ export async function initializeEditor(host, proxy, semanticSnapshot, dotNetRef,
     });
 
     const state = {
+        activeFindMatchIndex: -1,
         decorationCollection: editor.createDecorationsCollection(),
         decorationFrameId: 0,
         dotNetRef,
         editor,
+        findDecorationCollection: editor.createDecorationsCollection(),
+        findMatches: [],
         host,
         lastDecorationClasses: [],
         lastMeaningfulScrollPosition: {
@@ -294,6 +303,7 @@ export async function initializeEditor(host, proxy, semanticSnapshot, dotNetRef,
     syncProxyFromEditor(state);
     syncEditorChromeContracts(state);
     scheduleDecorations(state);
+    updateFindDecorations(state);
     ensureHarness(options);
     ensureThemeObserver(monaco, options);
     return true;
@@ -348,6 +358,17 @@ export function setSelection(host, start, end, revealSelection = true, focusEdit
     return createSelectionState(state);
 }
 
+export function setFindMatches(host, matches, activeMatchIndex = -1) {
+    const state = hostStates.get(host);
+    if (!state) {
+        return;
+    }
+
+    state.findMatches = normalizeFindMatches(matches);
+    state.activeFindMatchIndex = Number.isInteger(activeMatchIndex) ? activeMatchIndex : -1;
+    updateFindDecorations(state);
+}
+
 export function disposeEditor(host) {
     const state = hostStates.get(host);
     if (!state) {
@@ -363,6 +384,7 @@ export function disposeEditor(host) {
     state.proxy.removeEventListener("select", state.proxySelectionHandler);
     state.proxy.removeEventListener("keyup", state.proxySelectionHandler);
     state.decorationCollection.clear();
+    state.findDecorationCollection.clear();
     for (const subscription of state.subscriptions) {
         subscription.dispose();
     }
@@ -865,6 +887,64 @@ function buildDecorations(state) {
     }
 
     return decorations;
+}
+
+function normalizeFindMatches(matches) {
+    if (!Array.isArray(matches)) {
+        return [];
+    }
+
+    return matches
+        .map(match => ({
+            end: Number.isFinite(match?.end) ? Number(match.end) : 0,
+            start: Number.isFinite(match?.start) ? Number(match.start) : 0
+        }))
+        .filter(match => match.end > match.start);
+}
+
+function updateFindDecorations(state) {
+    state.findDecorationCollection.set(buildFindMatchDecorations(state));
+}
+
+function buildFindMatchDecorations(state) {
+    const { editor, findMatches, monaco } = state;
+    const model = editor.getModel();
+    if (!model || !Array.isArray(findMatches) || findMatches.length === 0) {
+        return [];
+    }
+
+    const maxOffset = model.getValueLength();
+    const activeMatchIndex = state.activeFindMatchIndex >= 0 && state.activeFindMatchIndex < findMatches.length
+        ? state.activeFindMatchIndex
+        : -1;
+
+    return findMatches
+        .map((match, index) => {
+            const safeStart = Math.max(0, Math.min(match.start, maxOffset));
+            const safeEnd = Math.max(safeStart, Math.min(match.end, maxOffset));
+            if (safeEnd <= safeStart) {
+                return null;
+            }
+
+            const startPosition = model.getPositionAt(safeStart);
+            const endPosition = model.getPositionAt(safeEnd);
+            const inlineClassName = index === activeMatchIndex
+                ? `${findMatchClassName} ${findMatchActiveClassName}`
+                : findMatchClassName;
+
+            return {
+                options: {
+                    inlineClassName,
+                    inlineClassNameAffectsLetterSpacing: false
+                },
+                range: new monaco.Range(
+                    startPosition.lineNumber,
+                    startPosition.column,
+                    endPosition.lineNumber,
+                    endPosition.column)
+            };
+        })
+        .filter(Boolean);
 }
 
 function getDecorationLineRanges(state, model) {

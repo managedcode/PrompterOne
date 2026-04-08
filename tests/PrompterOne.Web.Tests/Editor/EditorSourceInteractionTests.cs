@@ -42,10 +42,12 @@ public sealed class EditorSourceInteractionTests : BunitContext
 
         cut.WaitForAssertion(() =>
         {
+            var segmentsStatus = cut.FindByTestId(UiTestIds.Editor.StatusSegments).TextContent;
+
             Assert.Equal(updatedSource, cut.FindByTestId(UiTestIds.Editor.SourceInput).GetAttribute("value"));
             Assert.Contains("Fresh Opening", cut.Markup);
             Assert.Contains("Renamed Block", cut.Markup);
-            Assert.Contains(EditorSourceInteractionTestSource.SingleSegmentLabel, cut.Markup);
+            Assert.Contains(EditorSourceInteractionTestSource.SingleSegmentCount, segmentsStatus, StringComparison.Ordinal);
         }, TimeSpan.FromMilliseconds(EditorSourceInteractionTestSource.AutosaveAssertionTimeout));
 
         cut.WaitForAssertion(() =>
@@ -365,7 +367,7 @@ public sealed class EditorSourceInteractionTests : BunitContext
         public const string ProfilePersistenceLine = "profile: \"RSVP\"";
         public const string ProfileRsvp = "RSVP";
         public const string RedoKey = "y";
-        public const string SingleSegmentLabel = "1 Segments";
+        public const string SingleSegmentCount = "1";
         public const string TestSpeakerPersistenceLine = "author: \"Test Speaker\"";
         public const string TitlePersistenceLine = "title: \"Product Launch\"";
         public const string UndoKey = "z";

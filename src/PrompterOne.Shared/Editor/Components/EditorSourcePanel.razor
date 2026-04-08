@@ -8,7 +8,9 @@
 @inject EditorMonacoInterop MonacoInterop
 
 <div class="ed-main" data-test="@UiTestIds.Editor.MainPanel">
-    <div class="ed-toolbar" data-test="@UiTestIds.Editor.Toolbar">
+    <div class="ed-toolbar"
+         @ref="_toolbarRef"
+         data-test="@UiTestIds.Editor.Toolbar">
         @for (var sectionIndex = 0; sectionIndex < ToolbarSections.Count; sectionIndex++)
         {
             var toolbarSection = ToolbarSections[sectionIndex];
@@ -57,33 +59,41 @@
             }
         }
 
-        <div class="ed-toolbar-tools">
+        <div class="ed-toolbar-tail-spacer" aria-hidden="true"></div>
+
+        <div class="ed-toolbar-tools" data-test="@UiTestIds.Editor.ToolbarTools">
             <button type="button"
-                    class="ed-find-toggle"
-                    @onclick="ToggleFindBarAsync"
-                    aria-expanded="@(_showFindBar ? "true" : "false")"
-                    data-test="@UiTestIds.Editor.FindToggle">
-                <UiIcon Kind="UiIconKind.Search" Size="14" />
-                <span>@L(UiTextKey.EditorFindOpen)</span>
+                    class="ed-toolbar-scroll"
+                    aria-label="@L(UiTextKey.EditorToolbarScrollPrevious)"
+                    @onclick="() => ScrollToolbarBackwardAsync()"
+                    data-test="@UiTestIds.Editor.ToolbarScrollPrevious">
+                <UiIcon Kind="UiIconKind.ChevronLeft" Size="14" StrokeWidth="2.5m" />
             </button>
+
+            <button type="button"
+                    class="ed-toolbar-scroll"
+                    aria-label="@L(UiTextKey.EditorToolbarScrollNext)"
+                    @onclick="() => ScrollToolbarForwardAsync()"
+                    data-test="@UiTestIds.Editor.ToolbarScrollNext">
+                <UiIcon Kind="UiIconKind.ChevronRight" Size="14" StrokeWidth="2.5m" />
+            </button>
+
+            <EditorFindBar CanNavigate="@CanNavigateFindMatches"
+                           CloseLabel="@L(UiTextKey.EditorFindClose)"
+                           Compact="true"
+                           NextLabel="@L(UiTextKey.EditorFindNext)"
+                           OnClose="ClearFindQueryAsync"
+                           OnInput="OnFindQueryInputAsync"
+                           OnNext="NavigateToNextFindMatchAsync"
+                           OnPrevious="NavigateToPreviousFindMatchAsync"
+                           Placeholder="@L(UiTextKey.EditorFindPlaceholder)"
+                           PreviousLabel="@L(UiTextKey.EditorFindPrevious)"
+                           Query="@_findQuery"
+                           ResultLabel="@FindResultLabel"
+                           ShowCloseAction="false"
+                           ShowResult="@ShouldRenderFindResult" />
         </div>
     </div>
-
-    @if (_showFindBar)
-    {
-        <EditorFindBar CanNavigate="@CanNavigateFindMatches"
-                       CloseLabel="@L(UiTextKey.EditorFindClose)"
-                       NextLabel="@L(UiTextKey.EditorFindNext)"
-                       OnClose="CloseFindBarAsync"
-                       OnInput="OnFindQueryInputAsync"
-                       OnNext="NavigateToNextFindMatchAsync"
-                       OnPrevious="NavigateToPreviousFindMatchAsync"
-                       Placeholder="@L(UiTextKey.EditorFindPlaceholder)"
-                       PreviousLabel="@L(UiTextKey.EditorFindPrevious)"
-                       Query="@_findQuery"
-                       ResultLabel="@FindResultLabel"
-                       ShowResult="@ShouldRenderFindResult" />
-    }
 
     <div class="ed-content ed-source-shell"
          data-test="@UiTestIds.Editor.SourceScrollHost">
@@ -185,8 +195,6 @@
                      ProfileValue="@Status.Profile"
                      SegmentsLabel="@StatusSegmentsLabel"
                      SegmentsValue="@StatusSegmentsValue"
-                     VersionLabel="@StatusVersionLabel"
-                     VersionValue="@StatusVersionValue"
                      WordCountLabel="@StatusWordCountLabel"
                      WordCountValue="@StatusWordCountValue" />
 </div>

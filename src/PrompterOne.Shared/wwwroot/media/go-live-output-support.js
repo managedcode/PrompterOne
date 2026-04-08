@@ -22,6 +22,7 @@
         "video/webm"
     ];
     const recordingTimesliceMs = 1000;
+    const recordingFlushIntervalMs = 400;
     const savePickerDescription = "PrompterOne recording";
     const videoCodecAv1 = "AV1";
     const videoCodecH264 = "H.264 (AVC)";
@@ -129,7 +130,7 @@
             audioSampleRate: normalizeNumber(readValue(rawRecording, "audioSampleRate", "AudioSampleRate", 48000), 48000),
             containerLabel: normalizeString(readValue(rawRecording, "containerLabel", "ContainerLabel", mimeTypeWebm), mimeTypeWebm),
             fileStem: normalizeString(readValue(rawRecording, "fileStem", "FileStem", recordingFileStemFallback), recordingFileStemFallback),
-            preferFilePicker: normalizeBoolean(readValue(rawRecording, "preferFilePicker", "PreferFilePicker", true), true),
+            preferFilePicker: normalizeBoolean(readValue(rawRecording, "preferFilePicker", "PreferFilePicker", false), false),
             videoBitrateKbps: normalizeNumber(readValue(rawRecording, "videoBitrateKbps", "VideoBitrateKbps", 8000), 8000),
             videoCodecLabel: normalizeString(readValue(rawRecording, "videoCodecLabel", "VideoCodecLabel", videoCodecVp9), videoCodecVp9)
         };
@@ -373,10 +374,21 @@
         return session.recordingWritePromise;
     }
 
+    function clearRecordingFlushInterval(session) {
+        if (!session.recordingFlushIntervalId) {
+            return;
+        }
+
+        window.clearInterval(session.recordingFlushIntervalId);
+        session.recordingFlushIntervalId = 0;
+    }
+
     async function startRecordingSegment(session) {
         if (!session.mediaStream) {
             throw new Error("Recording requires an active program stream.");
         }
+
+        clearRecordingFlushInterval(session);
 
         const recorder = new MediaRecorder(session.mediaStream, {
             audioBitsPerSecond: session.requestSnapshot.recording.audioBitrateKbps * 1000,
@@ -400,6 +412,18 @@
 
         session.mediaRecorder = recorder;
         recorder.start(recordingTimesliceMs);
+        session.recordingFlushIntervalId = window.setInterval(() => {
+            if (recorder.state !== "recording") {
+                clearRecordingFlushInterval(session);
+                return;
+            }
+
+            try {
+                recorder.requestData();
+            }
+            catch {
+            }
+        }, recordingFlushIntervalMs);
     }
 
     async function stopRecordingSegment(session) {
@@ -407,6 +431,8 @@
         if (!recorder) {
             return;
         }
+
+        clearRecordingFlushInterval(session);
 
         if (recorder.state === "inactive") {
             session.mediaRecorder = null;
@@ -425,6 +451,11 @@
 
             recorder.addEventListener("stop", handleStop, { once: true });
             recorder.addEventListener("error", handleError, { once: true });
+            try {
+                recorder.requestData();
+            }
+            catch {
+            }
             recorder.stop();
         });
 

@@ -996,9 +996,6 @@
   <data name="OnboardingReopenBody" xml:space="preserve">
     <value>Utilise-la quand tu veux revoir PrompterOne, TPS, RSVP, Editor, Learn, Teleprompter et Go Live.</value>
   </data>
-  <data name="EditorFindOpen" xml:space="preserve">
-    <value>Rechercher</value>
-  </data>
   <data name="EditorFindPlaceholder" xml:space="preserve">
     <value>Rechercher dans le script</value>
   </data>
@@ -1016,6 +1013,12 @@
   </data>
   <data name="EditorFindResultsFormat" xml:space="preserve">
     <value>{0} / {1}</value>
+  </data>
+  <data name="EditorToolbarScrollPrevious" xml:space="preserve">
+    <value>Faire défiler la barre à gauche</value>
+  </data>
+  <data name="EditorToolbarScrollNext" xml:space="preserve">
+    <value>Faire défiler la barre à droite</value>
   </data>
   <data name="EditorMetadataSection" xml:space="preserve">
     <value>Métadonnées</value>
