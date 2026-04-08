@@ -541,15 +541,9 @@ function ensureHarness(options) {
             });
             return createHarnessState(state, options);
         },
-        setText: (testId, text) => {
+        setText: async (testId, text) => {
             const state = getRequiredHarnessState(testId);
-            const model = state.editor.getModel();
-            const nextText = text ?? emptyValue;
-            if (model) {
-                replaceModelTextPreservingViewport(state, nextText);
-            }
-
-            return createHarnessState(state, options);
+            return await applyTextForHarnessAsync(state, text ?? emptyValue, options);
         },
         tokenizeLine: (testId, lineNumber) => {
             const state = getRequiredHarnessState(testId);
@@ -743,7 +737,7 @@ function onEditorContentChanged(state) {
     renderSemanticSnapshot(state, state.editor.getValue());
     scheduleDecorations(state);
     if (!state.suppressTextNotification) {
-        void state.dotNetRef.invokeMethodAsync(state.options.textChangedCallbackName, state.editor.getValue());
+        void notifyTextChangedAsync(state);
     }
 }
 
@@ -767,6 +761,16 @@ async function notifySelectionChangedAsync(state, dismissMenus) {
     }
 }
 
+async function notifyTextChangedAsync(state) {
+    if (state.suppressTextNotification) {
+        return;
+    }
+
+    await state.dotNetRef.invokeMethodAsync(
+        state.options.textChangedCallbackName,
+        state.editor.getValue());
+}
+
 function waitForAnimationFrames(frameCount = 1) {
     return new Promise(resolve => {
         const pump = remaining => {
@@ -780,6 +784,24 @@ function waitForAnimationFrames(frameCount = 1) {
 
         pump(frameCount);
     });
+}
+
+function textMatchesState(state, expectedText) {
+    const currentText = state.editor.getValue();
+    return currentText === expectedText && state.proxy.value === expectedText;
+}
+
+async function waitForTextState(state, expectedText) {
+    const attempts = 12;
+    for (let attempt = 0; attempt < attempts; attempt++) {
+        if (textMatchesState(state, expectedText)) {
+            return createHarnessState(state, state.options);
+        }
+
+        await waitForAnimationFrames(2);
+    }
+
+    return createHarnessState(state, state.options);
 }
 
 function selectionMatchesOffsets(state, start, end) {
@@ -801,6 +823,20 @@ async function waitForSelectionState(state, start, end) {
     }
 
     return createSelectionState(state);
+}
+
+async function applyTextForHarnessAsync(state, nextText, options) {
+    const model = state.editor.getModel();
+    if (!model) {
+        return createHarnessState(state, options);
+    }
+
+    state.suppressTextNotification = true;
+    replaceModelTextPreservingViewport(state, nextText);
+    state.suppressTextNotification = false;
+
+    await notifyTextChangedAsync(state);
+    return await waitForTextState(state, nextText);
 }
 
 function notifyHistoryRequested(state, command) {
