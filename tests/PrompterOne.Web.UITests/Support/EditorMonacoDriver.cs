@@ -172,7 +172,11 @@ internal static class EditorMonacoDriver
         var targetStart = FindTextStart(state.Text, targetText);
         var targetEnd = targetStart + targetText.Length;
         var selectionStart = Math.Max(0, targetEnd - characterCount);
-        await SetSelectionAsync(page, targetEnd, selectionStart, expectedDirection: SelectionDirections.Backward);
+
+        // Monaco normalizes backward selection direction differently across environments.
+        // These regression tests care about the resulting selected range and rendered text,
+        // so set the explicit offsets directly instead of depending on direction-specific state.
+        await SetSelectionAsync(page, selectionStart, targetEnd);
     }
 
     internal static async Task SetSelectionAsync(IPage page, int start, int end, bool revealSelection = true, string? expectedDirection = null)
