@@ -56,7 +56,7 @@ public partial class TeleprompterPage
         string Role,
         int Order,
         string CssClass,
-        string Style,
+        string BaseTransform,
         string TestId)
     {
         public static ReaderCameraLayerViewModel Placeholder { get; } = new(
@@ -66,7 +66,7 @@ public partial class TeleprompterPage
             Role: "primary",
             Order: 0,
             CssClass: "rd-camera",
-            Style: string.Empty,
+            BaseTransform: string.Empty,
             TestId: UiTestIds.Teleprompter.CameraBackground);
     }
 }

@@ -114,6 +114,7 @@ Rule format:
 - Every runnable test project must declare `MaxParallelTestsForPipeline : EnvironmentAwareParallelLimitBase` with `LocalLimit = 15`; do not keep lower per-project local parallel caps unless the user explicitly asks for an exception.
 - Browser-suite runnable test projects must keep `CiLimit = 2` unless the user explicitly approves a different cap; do not inherit a broader default CI worker count after a suite split.
 - Local regression verification must include solution-level `dotnet test --solution ./PrompterOne.slnx -m:1` so test-project split changes are proven under the real all-tests entrypoint, not only as isolated per-project runs.
+- When the user explicitly asks to validate a test fix in actual GitHub Actions, do not spend more time on local `CI=true` emulation; push the fix and monitor the real CI run instead.
 - Selector-contract remediation requests must be handled repo-wide across all relevant test files (`Web.Tests` and `Web.UITests`), not as partial per-file cleanups.
 - Repo-wide quality audits and agent-generated review handoff artifacts must be written as root-level task files so other coding agents can pick them up quickly; do not bury those temporary audit results under `docs/` unless the task is explicitly about durable product documentation.
 - Repo-wide cleanup and review passes must explicitly inventory forbidden implementation string literals, `MarkupString` or raw-HTML UI composition, duplicated JS/CSS patterns, architecture-boundary drift, and `foreach`-driven test scenarios that should become isolated TUnit cases.
@@ -402,6 +403,7 @@ Repo-specific design rules:
 - Teleprompter back navigation MUST stay as visible and readable as the rest of the page controls; a dim or low-contrast back button on the reader screen is a regression.
 - Teleprompter MUST expose both horizontal and vertical mirror toggles on the reader screen so tablet or reflected-glass setups can flip the output without leaving the route or editing CSS manually.
 - Teleprompter MUST expose an in-reader orientation toggle, matching the phone control pattern, so operators can switch the text flow direction directly on the reader screen without leaving playback.
+- Teleprompter reader background video MUST stay transform-synced with the reader surface: horizontal mirror, vertical mirror, and portrait rotation changes applied to the text lane must apply to the camera/video background as well so the composition stays coherent.
 - Teleprompter MUST expose a direct in-reader text-size control so operators can enlarge or reduce the live reading text on the teleprompter surface without leaving playback or relying on settings-only defaults.
 - Teleprompter desktop chrome MUST expose a real browser fullscreen toggle when the browser supports it; simulating fullscreen with layout-only expansion is not enough.
 - Teleprompter desktop progress MUST show segmented read progress by block, similar to Learn progress semantics, so operators can see overall completion and block boundaries at a glance.

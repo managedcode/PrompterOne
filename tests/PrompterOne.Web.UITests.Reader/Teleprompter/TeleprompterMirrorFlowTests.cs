@@ -17,7 +17,7 @@ public sealed class TeleprompterMirrorFlowTests(StandaloneAppFixture fixture) : 
         double MirrorRight);
 
     [Test]
-    public Task TeleprompterScreen_ExposesVisibleBackButtonAndMirrorControls() =>
+    public Task TeleprompterScreen_SyncsMirrorAndOrientationTransformsAcrossTextAndCameraBackground() =>
         RunPageAsync(async page =>
         {
             await page.GotoAsync(BrowserTestConstants.Routes.TeleprompterDemo);
@@ -29,12 +29,16 @@ public sealed class TeleprompterMirrorFlowTests(StandaloneAppFixture fixture) : 
             var backButton = page.GetByTestId(UiTestIds.Teleprompter.Back);
             var mirrorHorizontal = page.GetByTestId(UiTestIds.Teleprompter.MirrorHorizontalToggle);
             var mirrorVertical = page.GetByTestId(UiTestIds.Teleprompter.MirrorVerticalToggle);
+            var orientationToggle = page.GetByTestId(UiTestIds.Teleprompter.OrientationToggle);
             var clusterWrap = page.GetByTestId(UiTestIds.Teleprompter.ClusterWrap);
+            var cameraBackground = page.GetByTestId(UiTestIds.Teleprompter.CameraBackground);
 
             await Expect(backButton).ToBeVisibleAsync();
             await Expect(page.GetByTestId(UiTestIds.Teleprompter.MirrorControls)).ToBeVisibleAsync();
             await Expect(mirrorHorizontal).ToBeVisibleAsync();
             await Expect(mirrorVertical).ToBeVisibleAsync();
+            await Expect(orientationToggle).ToBeVisibleAsync();
+            await TeleprompterCameraDriver.EnsureEnabledAsync(page);
 
             var backButtonColor = await GetComputedStyleValueAsync(backButton, BrowserTestConstants.TeleprompterFlow.ColorProperty);
             var mirrorButtonColor = await GetComputedStyleValueAsync(mirrorHorizontal, BrowserTestConstants.TeleprompterFlow.ColorProperty);
@@ -50,6 +54,9 @@ public sealed class TeleprompterMirrorFlowTests(StandaloneAppFixture fixture) : 
             await Expect(clusterWrap).ToHaveAttributeAsync(
                 BrowserTestConstants.TeleprompterFlow.StyleAttribute,
                 new Regex(Regex.Escape(BrowserTestConstants.TeleprompterFlow.MirrorHorizontalTransform), RegexOptions.Compiled));
+            await Expect(cameraBackground).ToHaveAttributeAsync(
+                BrowserTestConstants.TeleprompterFlow.StyleAttribute,
+                new Regex(Regex.Escape(BrowserTestConstants.TeleprompterFlow.MirrorHorizontalTransform), RegexOptions.Compiled));
 
             await mirrorVertical.ClickAsync();
             await Expect(mirrorVertical).ToHaveAttributeAsync(
@@ -58,6 +65,20 @@ public sealed class TeleprompterMirrorFlowTests(StandaloneAppFixture fixture) : 
             await Expect(clusterWrap).ToHaveAttributeAsync(
                 BrowserTestConstants.TeleprompterFlow.StyleAttribute,
                 new Regex(Regex.Escape(BrowserTestConstants.TeleprompterFlow.MirrorVerticalTransform), RegexOptions.Compiled));
+            await Expect(cameraBackground).ToHaveAttributeAsync(
+                BrowserTestConstants.TeleprompterFlow.StyleAttribute,
+                new Regex(Regex.Escape(BrowserTestConstants.TeleprompterFlow.MirrorVerticalTransform), RegexOptions.Compiled));
+
+            await orientationToggle.ClickAsync();
+            await Expect(clusterWrap).ToHaveAttributeAsync(
+                BrowserTestConstants.TeleprompterFlow.ReaderOrientationAttribute,
+                BrowserTestConstants.TeleprompterFlow.OrientationPortraitValue);
+            await Expect(clusterWrap).ToHaveAttributeAsync(
+                BrowserTestConstants.TeleprompterFlow.StyleAttribute,
+                new Regex(Regex.Escape(BrowserTestConstants.TeleprompterFlow.OrientationPortraitTransform), RegexOptions.Compiled));
+            await Expect(cameraBackground).ToHaveAttributeAsync(
+                BrowserTestConstants.TeleprompterFlow.StyleAttribute,
+                new Regex(Regex.Escape(BrowserTestConstants.TeleprompterFlow.OrientationPortraitTransform), RegexOptions.Compiled));
 
             await UiScenarioArtifacts.CapturePageAsync(
                 page,

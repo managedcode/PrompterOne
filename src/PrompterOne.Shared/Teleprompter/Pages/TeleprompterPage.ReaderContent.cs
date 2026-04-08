@@ -510,13 +510,8 @@ public partial class TeleprompterPage
         return $"rgba({red}, {green}, {blue}, {opacity.ToString("0.##", CultureInfo.InvariantCulture)})";
     }
 
-    private static string BuildPrimaryCameraStyle(MediaSourceTransform transform)
-    {
-        var transformValue = BuildCameraTransform(transform, includeTranslate: false);
-        return string.IsNullOrWhiteSpace(transformValue)
-            ? string.Empty
-            : $"transform:{transformValue};";
-    }
+    private static string BuildPrimaryCameraTransform(MediaSourceTransform transform) =>
+        BuildCameraTransform(transform, includeTranslate: false);
 
     private static bool HasSentenceEndingPunctuation(string text) =>
         text.IndexOfAny(['.', '!', '?']) >= 0;

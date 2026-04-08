@@ -278,6 +278,7 @@ internal static partial class BrowserTestConstants
         public const double MaximumMutedPlayButtonBackgroundAlpha = 0.1;
         public const int MinimumBalancedTextLineCount = 2;
         public const string ReaderOrientationAttribute = "data-reader-orientation";
+        public const string OrientationPortraitTransform = "rotate(90deg)";
         public const string MirrorHorizontalTransform = "scaleX(-1)";
         public const string MirrorVerticalTransform = "scaleY(-1)";
         public const string OpeningBlock = "Opening Block";

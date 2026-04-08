@@ -218,7 +218,7 @@ public partial class TeleprompterPage : IAsyncDisposable
                 Role: "primary",
                 Order: 0,
                 CssClass: "rd-camera",
-                Style: BuildPrimaryCameraStyle(concealedTransform),
+                BaseTransform: BuildPrimaryCameraTransform(concealedTransform),
                 TestId: UiTestIds.Teleprompter.CameraBackground);
             _isReaderCameraActive = false;
             _activateReaderCameraAfterRender = false;
@@ -245,7 +245,7 @@ public partial class TeleprompterPage : IAsyncDisposable
                 Role: "primary",
                 Order: 0,
                 CssClass: "rd-camera",
-                Style: BuildPrimaryCameraStyle(transform),
+                BaseTransform: BuildPrimaryCameraTransform(transform),
                 TestId: UiTestIds.Teleprompter.CameraBackground);
             _isReaderCameraActive = autoStart;
             _activateReaderCameraAfterRender = _isReaderCameraActive;
@@ -261,7 +261,7 @@ public partial class TeleprompterPage : IAsyncDisposable
                 Role: "primary",
                 Order: 0,
                 CssClass: "rd-camera",
-                Style: BuildPrimaryCameraStyle(primarySceneCamera.Transform),
+                BaseTransform: BuildPrimaryCameraTransform(primarySceneCamera.Transform),
                 TestId: UiTestIds.Teleprompter.CameraBackground);
             _isReaderCameraActive = autoStart;
             _activateReaderCameraAfterRender = _isReaderCameraActive;
@@ -280,7 +280,7 @@ public partial class TeleprompterPage : IAsyncDisposable
             Role: "primary",
             Order: 0,
             CssClass: "rd-camera",
-            Style: BuildPrimaryCameraStyle(defaultTransform),
+            BaseTransform: BuildPrimaryCameraTransform(defaultTransform),
             TestId: UiTestIds.Teleprompter.CameraBackground);
         _isReaderCameraActive = autoStart && !string.IsNullOrWhiteSpace(defaultCamera?.DeviceId);
         _activateReaderCameraAfterRender = _isReaderCameraActive;

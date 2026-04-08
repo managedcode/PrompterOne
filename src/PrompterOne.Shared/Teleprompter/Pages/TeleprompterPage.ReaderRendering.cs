@@ -90,6 +90,26 @@ public partial class TeleprompterPage
     private string BuildCameraCssClass() =>
         BuildClassList(_cameraLayer.CssClass, _isReaderCameraActive ? ActiveCssClass : null);
 
+    private string BuildCameraStyle()
+    {
+        var transforms = new List<string>();
+        var readerTransform = BuildReaderTransform();
+
+        if (!string.IsNullOrWhiteSpace(readerTransform))
+        {
+            transforms.Add(readerTransform);
+        }
+
+        if (!string.IsNullOrWhiteSpace(_cameraLayer.BaseTransform))
+        {
+            transforms.Add(_cameraLayer.BaseTransform);
+        }
+
+        return transforms.Count == 0
+            ? string.Empty
+            : $"transform-origin:{ReaderMirrorTransformOrigin};transform:{string.Join(' ', transforms)};";
+    }
+
     private string BuildReaderBackButtonCssClass() =>
         BuildClassList(ReaderBackButtonCssClass, _isReaderPlaying ? ReaderReadingActiveCssClass : null);
 

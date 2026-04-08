@@ -76,6 +76,7 @@ public sealed class TeleprompterPersistenceTests : BunitContext
                 $"top:{PersistedFocalPointPercent}%;",
                 cut.FindByTestId(UiTestIds.Teleprompter.FocalGuide).GetAttribute("style"));
             var clusterWrapStyle = cut.FindByTestId(UiTestIds.Teleprompter.ClusterWrap).GetAttribute("style") ?? string.Empty;
+            var cameraStyle = cut.FindByTestId(UiTestIds.Teleprompter.CameraBackground).GetAttribute("style") ?? string.Empty;
             Assert.Equal(
                 PortraitOrientationValue,
                 cut.FindByTestId(UiTestIds.Teleprompter.ClusterWrap).GetAttribute("data-reader-orientation"));
@@ -85,6 +86,9 @@ public sealed class TeleprompterPersistenceTests : BunitContext
             Assert.Contains(PortraitOrientationTransform, clusterWrapStyle, StringComparison.Ordinal);
             Assert.Contains(HorizontalMirrorTransform, clusterWrapStyle, StringComparison.Ordinal);
             Assert.Contains(VerticalMirrorTransform, clusterWrapStyle, StringComparison.Ordinal);
+            Assert.Contains(PortraitOrientationTransform, cameraStyle, StringComparison.Ordinal);
+            Assert.Contains(HorizontalMirrorTransform, cameraStyle, StringComparison.Ordinal);
+            Assert.Contains(VerticalMirrorTransform, cameraStyle, StringComparison.Ordinal);
         });
     }
 
@@ -124,6 +128,7 @@ public sealed class TeleprompterPersistenceTests : BunitContext
             Assert.Equal(BuildWordsPerMinuteLabel(expectedUpdatedSpeedWpm), cut.FindByTestId(UiTestIds.Teleprompter.SpeedValue).TextContent.Trim());
             Assert.Equal($"top:{UpdatedFocalPointPercent}%;", cut.FindByTestId(UiTestIds.Teleprompter.FocalGuide).GetAttribute("style"));
             var clusterWrapStyle = cut.FindByTestId(UiTestIds.Teleprompter.ClusterWrap).GetAttribute("style") ?? string.Empty;
+            var cameraStyle = cut.FindByTestId(UiTestIds.Teleprompter.CameraBackground).GetAttribute("style") ?? string.Empty;
             Assert.Equal(
                 PortraitOrientationValue,
                 cut.FindByTestId(UiTestIds.Teleprompter.ClusterWrap).GetAttribute("data-reader-orientation"));
@@ -133,6 +138,9 @@ public sealed class TeleprompterPersistenceTests : BunitContext
             Assert.Contains(PortraitOrientationTransform, clusterWrapStyle, StringComparison.Ordinal);
             Assert.Contains(HorizontalMirrorTransform, clusterWrapStyle, StringComparison.Ordinal);
             Assert.Contains(VerticalMirrorTransform, clusterWrapStyle, StringComparison.Ordinal);
+            Assert.Contains(PortraitOrientationTransform, cameraStyle, StringComparison.Ordinal);
+            Assert.Contains(HorizontalMirrorTransform, cameraStyle, StringComparison.Ordinal);
+            Assert.Contains(VerticalMirrorTransform, cameraStyle, StringComparison.Ordinal);
 
             Assert.Equal(UpdatedFontScale, savedSettings.FontScale, 2);
             Assert.Equal(UpdatedTextWidthRatio, savedSettings.TextWidth, 4);
