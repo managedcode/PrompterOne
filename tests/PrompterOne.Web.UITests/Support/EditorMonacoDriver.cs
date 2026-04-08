@@ -172,7 +172,22 @@ internal static class EditorMonacoDriver
         var targetStart = FindTextStart(state.Text, targetText);
         var targetEnd = targetStart + targetText.Length;
         var selectionStart = Math.Max(0, targetEnd - characterCount);
-        await SetSelectionAsync(page, targetEnd, selectionStart, expectedDirection: SelectionDirections.Backward);
+        await SetSelectionAsync(page, targetEnd, targetEnd);
+        await page.Keyboard.DownAsync(BrowserTestConstants.Keyboard.Shift);
+
+        try
+        {
+            for (var characterIndex = 0; characterIndex < characterCount; characterIndex++)
+            {
+                await page.Keyboard.PressAsync(BrowserTestConstants.Keyboard.ArrowLeft);
+            }
+        }
+        finally
+        {
+            await page.Keyboard.UpAsync(BrowserTestConstants.Keyboard.Shift);
+        }
+
+        await WaitForSelectionAsync(page, selectionStart, targetEnd, SelectionDirections.Backward);
     }
 
     internal static async Task SetSelectionAsync(IPage page, int start, int end, bool revealSelection = true, string? expectedDirection = null)
@@ -242,6 +257,37 @@ internal static class EditorMonacoDriver
                 testId = UiTestIds.Editor.SourceStage
             },
             new() { Timeout = timeoutMs });
+    }
+
+    internal static async Task WaitForSelectionAsync(IPage page, int start, int end, string? expectedDirection = null)
+    {
+        await page.WaitForFunctionAsync(
+            """
+            (args) => {
+                const harness = window[args.harnessGlobalName];
+                const state = harness?.getState(args.testId);
+                const selection = state?.selection;
+                if (!selection) {
+                    return false;
+                }
+
+                const normalizedStart = Math.min(selection.start, selection.end);
+                const normalizedEnd = Math.max(selection.start, selection.end);
+                const directionMatches = !args.expectedDirection || selection.direction === args.expectedDirection;
+                return normalizedStart === args.expectedStart &&
+                    normalizedEnd === args.expectedEnd &&
+                    directionMatches;
+            }
+            """,
+            new
+            {
+                expectedDirection,
+                expectedEnd = Math.Max(start, end),
+                expectedStart = Math.Min(start, end),
+                harnessGlobalName = EditorMonacoRuntimeContract.BrowserHarnessGlobalName,
+                testId = UiTestIds.Editor.SourceStage
+            },
+            new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
     }
 
     internal static async Task SetTextAsync(IPage page, string text)
