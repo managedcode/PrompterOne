@@ -1,5 +1,6 @@
 using Microsoft.Playwright;
 using PrompterOne.Shared.Contracts;
+using PrompterOne.Shared.Services;
 using static Microsoft.Playwright.Assertions;
 
 namespace PrompterOne.Web.UITests;
@@ -7,6 +8,9 @@ namespace PrompterOne.Web.UITests;
 [ClassDataSource<StandaloneAppFixture>(Shared = SharedType.PerClass)]
 public sealed class DynamicHostPortTests(StandaloneAppFixture fixture)
 {
+    private const string FixtureStorageProbeKey = "fixture-shared-context-probe";
+    private const string FixtureStorageProbeValue = "shared-context-visible";
+    private const string ReadLocalStorageScript = "(key) => window.localStorage.getItem(key) ?? ''";
     private const int RepeatedBootstrapPageCount = 10;
     private readonly StandaloneAppFixture _fixture = fixture;
 
@@ -57,6 +61,58 @@ public sealed class DynamicHostPortTests(StandaloneAppFixture fixture)
             {
                 await page.Context.CloseAsync();
             }
+        }
+    }
+
+    [Test]
+    public async Task NewPageAsync_DefaultPath_ReusesSharedBrowserStorage()
+    {
+        var primaryPage = await _fixture.NewPageAsync();
+        var secondaryPage = await _fixture.NewPageAsync();
+
+        try
+        {
+            await primaryPage.GotoAsync(UiTestHostConstants.BlankPagePath);
+            await primaryPage.EvaluateAsync(
+                BrowserTestConstants.Localization.SetLocalStorageScript,
+                new[] { FixtureStorageProbeKey, FixtureStorageProbeValue });
+
+            await secondaryPage.GotoAsync(UiTestHostConstants.BlankPagePath);
+            var storedValue = await secondaryPage.EvaluateAsync<string>(ReadLocalStorageScript, FixtureStorageProbeKey);
+            var seededLibrary = await secondaryPage.EvaluateAsync<string>(ReadLocalStorageScript, BrowserStorageKeys.DocumentLibrary);
+
+            await Assert.That(storedValue).IsEqualTo(FixtureStorageProbeValue);
+            await Assert.That(string.IsNullOrWhiteSpace(seededLibrary)).IsFalse();
+        }
+        finally
+        {
+            await primaryPage.Context.CloseAsync();
+        }
+    }
+
+    [Test]
+    public async Task NewPageAsync_AdditionalContext_KeepsBrowserStorageIsolated()
+    {
+        var sharedPage = await _fixture.NewPageAsync();
+        var isolatedPage = await _fixture.NewPageAsync(additionalContext: true);
+
+        try
+        {
+            await sharedPage.GotoAsync(UiTestHostConstants.BlankPagePath);
+            await sharedPage.EvaluateAsync(
+                BrowserTestConstants.Localization.SetLocalStorageScript,
+                new[] { FixtureStorageProbeKey, FixtureStorageProbeValue });
+
+            var storedValue = await isolatedPage.EvaluateAsync<string>(ReadLocalStorageScript, FixtureStorageProbeKey);
+            var seededLibrary = await isolatedPage.EvaluateAsync<string>(ReadLocalStorageScript, BrowserStorageKeys.DocumentLibrary);
+
+            await Assert.That(storedValue).IsEqualTo(string.Empty);
+            await Assert.That(string.IsNullOrWhiteSpace(seededLibrary)).IsFalse();
+        }
+        finally
+        {
+            await sharedPage.Context.CloseAsync();
+            await isolatedPage.Context.CloseAsync();
         }
     }
 }

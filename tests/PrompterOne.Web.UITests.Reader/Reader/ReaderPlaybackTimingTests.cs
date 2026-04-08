@@ -235,7 +235,11 @@ public sealed class ReaderPlaybackTimingTests(StandaloneAppFixture fixture)
         await InstallWordRecorderAsync(page, UiTestIds.Learn.Word);
         await page.GetByTestId(UiTestIds.Learn.PlayToggle).ClickAsync();
 
-        return await WaitForRecordedSamplesAsync(page, expectedSampleCount);
+        var samples = await WaitForRecordedSamplesAsync(page, expectedSampleCount);
+        await Expect(page.GetByTestId(UiTestIds.Learn.PlayToggle))
+            .ToHaveAttributeAsync("aria-pressed", bool.FalseString.ToLowerInvariant());
+
+        return samples;
     }
 
     private static Task SeedLearnSpeedAsync(IPage page, int targetWpm) =>

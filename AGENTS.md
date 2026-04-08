@@ -115,7 +115,7 @@ Rule format:
 - Shared test-support libraries that contain no runnable test cases must not reference the TUnit engine package directly; keep them on non-engine TUnit packages so solution-level `dotnet test` does not discover zero-test support DLLs as runnable test apps.
 - Every runnable test project must declare `MaxParallelTestsForPipeline : EnvironmentAwareParallelLimitBase` with `LocalLimit = 15`; do not keep lower per-project local parallel caps unless the user explicitly asks for an exception.
 - Browser-suite CI parallelism is user-tunable. When suite duration becomes a bottleneck and the user asks for higher throughput, prefer splitting work into `4` or `8` parallel GitHub Actions test jobs before reaching for timeout increases; only keep lower `CiLimit` caps when a specific flake requires them.
-- Local regression verification must include solution-level `dotnet test --solution ./PrompterOne.slnx -m:1` so test-project split changes are proven under the real all-tests entrypoint, not only as isolated per-project runs.
+- Local regression verification must include solution-level `dotnet test --solution ./PrompterOne.slnx --max-parallel-test-modules 1` so test-project split changes are proven under the real all-tests entrypoint, not only as isolated per-project runs.
 - When the user explicitly asks to validate a test fix in actual GitHub Actions, do not spend more time on local `CI=true` emulation; push the fix and monitor the real CI run instead.
 - Selector-contract remediation requests must be handled repo-wide across all relevant test files (`Web.Tests` and `Web.UITests`), not as partial per-file cleanups.
 - Repo-wide quality audits and agent-generated review handoff artifacts must be written as root-level task files so other coding agents can pick them up quickly; do not bury those temporary audit results under `docs/` unless the task is explicitly about durable product documentation.
@@ -129,7 +129,7 @@ Rule format:
 ### Commands
 
 - `build`: `dotnet build ./PrompterOne.slnx -warnaserror`
-- `test`: `dotnet test --solution ./PrompterOne.slnx -m:1`
+- `test`: `dotnet test --solution ./PrompterOne.slnx --max-parallel-test-modules 1`
 - `format`: `dotnet format ./PrompterOne.slnx`
 - `coverage`: `dotnet test --project ./tests/PrompterOne.Core.Tests/PrompterOne.Core.Tests.csproj -- --coverage --coverage-output-format cobertura && dotnet test --project ./tests/PrompterOne.Web.Tests/PrompterOne.Web.Tests.csproj -- --coverage --coverage-output-format cobertura && dotnet test --project ./tests/PrompterOne.Web.UITests.Shell/PrompterOne.Web.UITests.Shell.csproj -- --coverage --coverage-output-format cobertura && dotnet test --project ./tests/PrompterOne.Web.UITests.Studio/PrompterOne.Web.UITests.Studio.csproj -- --coverage --coverage-output-format cobertura && dotnet test --project ./tests/PrompterOne.Web.UITests.Editor/PrompterOne.Web.UITests.Editor.csproj -- --coverage --coverage-output-format cobertura && dotnet test --project ./tests/PrompterOne.Web.UITests.Reader/PrompterOne.Web.UITests.Reader.csproj -- --coverage --coverage-output-format cobertura`
 
@@ -146,7 +146,7 @@ Useful focused commands:
 - app run: `cd ./src/PrompterOne.Web && dotnet run`
 - core tests: `dotnet test --project ./tests/PrompterOne.Core.Tests/PrompterOne.Core.Tests.csproj`
 - component tests: `dotnet test --project ./tests/PrompterOne.Web.Tests/PrompterOne.Web.Tests.csproj`
-- all tests: `dotnet test --solution ./PrompterOne.slnx -m:1`
+- all tests: `dotnet test --solution ./PrompterOne.slnx --max-parallel-test-modules 1`
 - ui tests: `dotnet test --project ./tests/PrompterOne.Web.UITests.Shell/PrompterOne.Web.UITests.Shell.csproj && dotnet test --project ./tests/PrompterOne.Web.UITests.Studio/PrompterOne.Web.UITests.Studio.csproj && dotnet test --project ./tests/PrompterOne.Web.UITests.Editor/PrompterOne.Web.UITests.Editor.csproj && dotnet test --project ./tests/PrompterOne.Web.UITests.Reader/PrompterOne.Web.UITests.Reader.csproj`
 - ui shell tests: `dotnet test --project ./tests/PrompterOne.Web.UITests.Shell/PrompterOne.Web.UITests.Shell.csproj`
 - ui studio tests: `dotnet test --project ./tests/PrompterOne.Web.UITests.Studio/PrompterOne.Web.UITests.Studio.csproj`

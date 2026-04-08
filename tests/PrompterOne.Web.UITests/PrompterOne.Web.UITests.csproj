@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <IsTestProject>false</IsTestProject>
     <IsPackable>false</IsPackable>
     <TUnitImplicitUsings>false</TUnitImplicitUsings>
     <TUnitAssertionsImplicitUsings>false</TUnitAssertionsImplicitUsings>
@@ -10,7 +11,6 @@
     <PackageReference Include="Microsoft.Playwright" />
     <PackageReference Include="TUnit.Assertions" />
     <PackageReference Include="TUnit.Core" />
-    <PackageReference Include="TUnit.Playwright" />
   </ItemGroup>
 
   <ItemGroup>

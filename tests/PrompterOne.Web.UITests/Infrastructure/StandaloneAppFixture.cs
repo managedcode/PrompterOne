@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Net;
+using System.Runtime.CompilerServices;
 using Microsoft.Playwright;
 
 namespace PrompterOne.Web.UITests;
@@ -10,6 +11,7 @@ public sealed partial class StandaloneAppFixture : IAsyncInitializer, IAsyncDisp
     private const int ServerStartupTimeoutSeconds = 60;
     private const int ServerProbeDelayMilliseconds = 500;
     private readonly ConcurrentDictionary<IBrowserContext, byte> _contexts = [];
+    private readonly ConcurrentDictionary<string, IBrowserContext> _sharedContexts = new(StringComparer.Ordinal);
     private SharedRuntimeHandle? _runtimeHandle;
 
     public string BaseAddress => _runtimeHandle?.BaseAddress ?? throw new InvalidOperationException("UI test runtime is not initialized.");
@@ -25,6 +27,7 @@ public sealed partial class StandaloneAppFixture : IAsyncInitializer, IAsyncDisp
     public async ValueTask DisposeAsync()
     {
         await DisposeTrackedContextsAsync();
+        _sharedContexts.Clear();
 
         if (_runtimeHandle is not null)
         {
@@ -36,42 +39,106 @@ public sealed partial class StandaloneAppFixture : IAsyncInitializer, IAsyncDisp
     public async Task ResetRuntimeAsync()
     {
         await DisposeTrackedContextsAsync();
+        _sharedContexts.Clear();
 
         _runtimeHandle = null;
         await SharedRuntime.ResetAsync();
     }
 
-    public async Task<IPage> NewPageAsync()
+    public Task<IPage> NewPageAsync(
+        bool additionalContext = false,
+        [CallerMemberName] string contextKey = "")
     {
-        var context = await NewContextAsync();
+        return additionalContext
+            ? CreateAdditionalPageAsync()
+            : CreateSharedPageAsync(contextKey);
+    }
+
+    public async Task<IReadOnlyList<IPage>> NewSharedPagesAsync(
+        int pageCount,
+        [CallerMemberName] string contextKey = "")
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(pageCount, MinimumPageCount);
+
+        var pages = new List<IPage>(pageCount);
+
+        for (var pageIndex = 0; pageIndex < pageCount; pageIndex++)
+        {
+            pages.Add(await NewPageAsync(contextKey: contextKey));
+        }
+
+        return pages;
+    }
+
+    private async Task<IPage> CreateAdditionalPageAsync()
+    {
+        var context = await CreateTrackedContextAsync();
         var page = await context.NewPageAsync();
         PreparePage(page);
         await PrimeIsolatedBrowserStorageAsync(page);
         return page;
     }
 
-    public async Task<IReadOnlyList<IPage>> NewSharedPagesAsync(int pageCount)
+    private async Task<IPage> CreateSharedPageAsync(string contextKey)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(pageCount, MinimumPageCount);
-
-        var context = await NewContextAsync();
-        var pages = new List<IPage>(pageCount);
-
-        for (var pageIndex = 0; pageIndex < pageCount; pageIndex++)
+        while (true)
         {
-            var page = await context.NewPageAsync();
-            PreparePage(page);
-            pages.Add(page);
-        }
+            var (context, isNewSharedContext) = await GetOrCreateSharedContextAsync(contextKey);
 
-        await PrimeIsolatedBrowserStorageAsync(pages[0]);
-        return pages;
+            try
+            {
+                var page = await context.NewPageAsync();
+                PreparePage(page);
+
+                await page.GotoAsync($"{BaseAddress}{UiTestHostConstants.BlankPagePath}");
+
+                if (isNewSharedContext)
+                {
+                    await page.EvaluateAsync(
+                        UiTestHostConstants.ResetBrowserStorageScript,
+                        UiTestHostConstants.BrowserStorageDatabaseName);
+                    await page.EvaluateAsync(BrowserTestLibrarySeedData.CreateInitializationScript());
+                }
+
+                return page;
+            }
+            catch (PlaywrightException exception) when (IsBrowserClosedException(exception))
+            {
+                RemoveSharedContext(context);
+            }
+        }
     }
 
-    private async Task<IBrowserContext> NewContextAsync()
+    private async Task<(IBrowserContext Context, bool IsNew)> GetOrCreateSharedContextAsync(string contextKey)
+    {
+        if (_sharedContexts.TryGetValue(contextKey, out var existingContext))
+        {
+            EnsureContextTracked(existingContext);
+            return (existingContext, false);
+        }
+
+        var newContext = await CreateTrackedContextAsync();
+
+        if (_sharedContexts.TryAdd(contextKey, newContext))
+        {
+            return (newContext, true);
+        }
+
+        try
+        {
+            await newContext.DisposeAsync();
+        }
+        catch
+        {
+        }
+
+        return (_sharedContexts[contextKey], false);
+    }
+
+    private async Task<IBrowserContext> CreateTrackedContextAsync()
     {
         var runtime = await EnsureRuntimeHandleAsync();
-        var context = await CreateContextAsync(runtime.Browser);
+        var context = await CreateBrowserContextAsync(runtime.Browser);
         await context.AddInitScriptAsync(BrowserTestLibrarySeedData.CreateInitializationScript());
         await context.AddInitScriptAsync(UiTestHostConstants.RuntimeTelemetryHarnessInitializationScript);
         await context.GrantPermissionsAsync(UiTestHostConstants.GrantedPermissions, new BrowserContextGrantPermissionsOptions
@@ -79,7 +146,7 @@ public sealed partial class StandaloneAppFixture : IAsyncInitializer, IAsyncDisp
             Origin = runtime.BaseAddress
         });
         await ConfigureMediaHarnessAsync(context);
-        TrackContextLifecycle(context);
+        EnsureContextTracked(context);
         return context;
     }
 
@@ -102,10 +169,29 @@ public sealed partial class StandaloneAppFixture : IAsyncInitializer, IAsyncDisp
         }
     }
 
-    private void TrackContextLifecycle(IBrowserContext context)
+    private void EnsureContextTracked(IBrowserContext context)
     {
-        _contexts.TryAdd(context, 0);
-        context.Close += (_, _) => _contexts.TryRemove(context, out _);
+        if (!_contexts.TryAdd(context, 0))
+        {
+            return;
+        }
+
+        context.Close += (_, _) =>
+        {
+            _contexts.TryRemove(context, out _);
+            RemoveSharedContext(context);
+        };
+    }
+
+    private void RemoveSharedContext(IBrowserContext context)
+    {
+        foreach (var entry in _sharedContexts)
+        {
+            if (ReferenceEquals(entry.Value, context))
+            {
+                _sharedContexts.TryRemove(entry.Key, out _);
+            }
+        }
     }
 
     private async Task<SharedRuntimeHandle> EnsureRuntimeHandleAsync()
@@ -120,7 +206,7 @@ public sealed partial class StandaloneAppFixture : IAsyncInitializer, IAsyncDisp
         return _runtimeHandle;
     }
 
-    private async Task<IBrowserContext> CreateContextAsync(IBrowser browser)
+    private async Task<IBrowserContext> CreateBrowserContextAsync(IBrowser browser)
     {
         try
         {

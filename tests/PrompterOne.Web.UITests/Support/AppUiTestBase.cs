@@ -20,7 +20,7 @@ public abstract class AppUiTestBase(StandaloneAppFixture fixture)
         Func<IPage, Task<T>> scenario,
         [CallerMemberName] string testName = "")
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true, contextKey: testName);
 
         try
         {
