@@ -172,22 +172,7 @@ internal static class EditorMonacoDriver
         var targetStart = FindTextStart(state.Text, targetText);
         var targetEnd = targetStart + targetText.Length;
         var selectionStart = Math.Max(0, targetEnd - characterCount);
-        await SetSelectionAsync(page, targetEnd, targetEnd);
-        await page.Keyboard.DownAsync(BrowserTestConstants.Keyboard.Shift);
-
-        try
-        {
-            for (var characterIndex = 0; characterIndex < characterCount; characterIndex++)
-            {
-                await page.Keyboard.PressAsync(BrowserTestConstants.Keyboard.ArrowLeft);
-            }
-        }
-        finally
-        {
-            await page.Keyboard.UpAsync(BrowserTestConstants.Keyboard.Shift);
-        }
-
-        await WaitForSelectionAsync(page, selectionStart, targetEnd, SelectionDirections.Backward);
+        await SetSelectionAsync(page, targetEnd, selectionStart, expectedDirection: SelectionDirections.Backward);
     }
 
     internal static async Task SetSelectionAsync(IPage page, int start, int end, bool revealSelection = true, string? expectedDirection = null)
