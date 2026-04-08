@@ -4,15 +4,12 @@ namespace PrompterOne.Shared.Pages;
 
 public partial class EditorPage
 {
-    private async Task PersistDraftAsync(
-        string text,
-        string? documentNameOverride = null,
-        CancellationToken cancellationToken = default)
+    private async Task PersistDraftAsync(string text, string? documentNameOverride = null)
     {
         CancelDraftAnalysis();
         CancelAutosave();
         var revision = PrepareDraftPersistence(text, documentNameOverride);
-        await PersistPreparedDraftAsync(revision, cancellationToken);
+        await PersistPreparedDraftAsync(revision, CancellationToken.None);
     }
 
     private long PrepareDraftPersistence(string text, string? documentNameOverride = null)
@@ -23,15 +20,19 @@ public partial class EditorPage
         return checked(++_draftRevision);
     }
 
-    private void PersistDraftInBackground(
-        string text,
-        string? documentNameOverride = null,
-        CancellationToken cancellationToken = default)
+    private void PersistDraftInBackground(string text, string? documentNameOverride = null)
     {
         CancelDraftAnalysis();
         CancelAutosave();
         var revision = PrepareDraftPersistence(text, documentNameOverride);
-        _ = InvokeAsync(() => PersistPreparedDraftAsync(revision, cancellationToken));
+        _ = InvokeAsync(() => PersistPreparedDraftAsync(revision, CancellationToken.None));
+    }
+
+    private async Task PersistAutosaveAsync(string text, CancellationToken cancellationToken)
+    {
+        CancelDraftAnalysis();
+        var revision = PrepareDraftPersistence(text);
+        await PersistPreparedDraftAsync(revision, cancellationToken);
     }
 
     private Task PersistPreparedDraftAsync(long revision, CancellationToken cancellationToken) =>
@@ -141,7 +142,7 @@ public partial class EditorPage
             await InvokeAsync(() =>
             {
                 _skipNextRenderFromTyping = false;
-                return PersistDraftAsync(_sourceText, cancellationToken: cancellationToken);
+                return PersistAutosaveAsync(_sourceText, cancellationToken);
             });
         }
         catch (OperationCanceledException)
