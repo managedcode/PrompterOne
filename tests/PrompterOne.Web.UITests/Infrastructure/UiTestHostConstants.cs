@@ -25,6 +25,11 @@ internal static class UiTestHostConstants
             "{{BrowserTestConstants.Telemetry.VendorLoadsCollection}}": []
         };
         """;
+    public static string RuntimeTelemetryAllowVendorLoadsScript =>
+        $$"""
+        window["{{BrowserTestConstants.Telemetry.RuntimeGlobal}}"] = window["{{BrowserTestConstants.Telemetry.RuntimeGlobal}}"] || {};
+        window["{{BrowserTestConstants.Telemetry.RuntimeGlobal}}"]["{{BrowserTestConstants.Telemetry.RuntimeAllowVendorLoadsProperty}}"] = true;
+        """;
     public static readonly string[] GrantedPermissions = ["camera", "microphone"];
     public const string ResetBrowserStorageScript =
         """

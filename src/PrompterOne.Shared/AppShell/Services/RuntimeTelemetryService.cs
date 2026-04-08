@@ -36,6 +36,7 @@ public sealed class RuntimeTelemetryService(IJSRuntime jsRuntime, RuntimeTelemet
                     harnessGlobalName = AppRuntimeTelemetry.Harness.GlobalName,
                     initializationsCollection = AppRuntimeTelemetry.Harness.InitializationsCollection,
                     pageViewsCollection = AppRuntimeTelemetry.Harness.PageViewsCollection,
+                    runtimeAllowVendorLoadsProperty = AppRuntimeTelemetry.Harness.RuntimeAllowVendorLoadsProperty,
                     runtimeGlobalName = AppRuntimeTelemetry.Harness.RuntimeGlobalName,
                     runtimeHarnessEnabledProperty = AppRuntimeTelemetry.Harness.RuntimeHarnessEnabledProperty,
                     runtimeWasmDebugEnabledProperty = AppRuntimeTelemetry.Harness.RuntimeWasmDebugEnabledProperty,

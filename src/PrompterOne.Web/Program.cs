@@ -23,15 +23,16 @@ var runtimeTelemetryHostEnabled =
 var runtimeTelemetryOptions = new RuntimeTelemetryOptions(
     builder.Configuration[RuntimeTelemetryOptions.GoogleAnalyticsMeasurementIdPath] ?? string.Empty,
     builder.Configuration[RuntimeTelemetryOptions.ClarityProjectIdPath] ?? string.Empty,
-    HostEnabled: runtimeTelemetryHostEnabled,
-    SentryConfigured: RuntimeSentryBootstrapper.IsConfigured);
+    builder.Configuration[RuntimeTelemetryOptions.SentryDsnPath] ?? string.Empty,
+    HostEnabled: runtimeTelemetryHostEnabled);
 
 builder.Services.AddLocalization();
 builder.Services.AddSingleton<IFormFactor, FormFactor>();
 builder.Services.AddSingleton<IAppVersionProvider>(_ => AppVersionProviderFactory.CreateFromAssembly(typeof(Program).Assembly));
 builder.Services.AddPrompterOneShared(runtimeTelemetryOptions);
+RuntimeSentryBootstrapper.Configure(builder, runtimeTelemetryOptions);
 
 var host = builder.Build();
-using var sentry = RuntimeSentryBootstrapper.Initialize(host.Services, runtimeTelemetryHostEnabled);
+RuntimeSentryBootstrapper.DisableForWasmDebug(host.Services);
 await host.Services.GetRequiredService<AppCulturePreferenceService>().InitializeAsync();
 await host.RunAsync();

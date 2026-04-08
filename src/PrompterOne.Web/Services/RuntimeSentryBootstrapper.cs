@@ -1,50 +1,58 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using PrompterOne.Shared.Services;
 using PrompterOne.Shared.Settings.Services;
 
 namespace PrompterOne.Web.Services;
 
 internal static class RuntimeSentryBootstrapper
 {
-    private const string Dsn =
-        "https://cc172c8c1921c7a979dfbb12ca80379f@o4511168317030400.ingest.de.sentry.io/4511168321749072";
     private const char QueryPairSeparator = '&';
     private const char QueryPrefix = '?';
     private const char QueryValueSeparator = '=';
     private const string WasmDebugEnabledValue = "1";
     private const string WasmDebugQueryKey = "wasm-debug";
 
-    public static bool IsConfigured => !string.IsNullOrWhiteSpace(Dsn);
-
-    public static IDisposable? Initialize(IServiceProvider services, bool hostEnabled)
+    public static void Configure(WebAssemblyHostBuilder builder, RuntimeTelemetryOptions telemetryOptions)
     {
-        if (!hostEnabled || !IsConfigured)
+        ArgumentNullException.ThrowIfNull(builder);
+        ArgumentNullException.ThrowIfNull(telemetryOptions);
+
+        if (!ShouldEnable(builder.HostEnvironment, telemetryOptions))
         {
-            return null;
+            return;
         }
 
-        var hostEnvironment = services.GetRequiredService<IWebAssemblyHostEnvironment>();
-        if (hostEnvironment.IsDevelopment())
+        var release = AppVersionProviderFactory
+            .CreateFromAssembly(typeof(RuntimeSentryBootstrapper).Assembly)
+            .Current
+            .Version;
+
+        builder.UseSentry(options =>
         {
-            return null;
-        }
+            options.Dsn = telemetryOptions.SentryDsn;
+            options.Debug = false;
+            options.AutoSessionTracking = true;
+            options.Environment = builder.HostEnvironment.Environment;
+            options.Release = release;
+        });
+    }
+
+    public static void DisableForWasmDebug(IServiceProvider services)
+    {
+        ArgumentNullException.ThrowIfNull(services);
 
         var navigationManager = services.GetRequiredService<NavigationManager>();
         if (IsWasmDebugEnabled(navigationManager.Uri))
         {
-            return null;
+            SentrySdk.Close();
         }
-
-        var appVersionProvider = services.GetRequiredService<IAppVersionProvider>();
-        return SentrySdk.Init(options =>
-        {
-            options.Dsn = Dsn;
-            options.Debug = false;
-            options.AutoSessionTracking = true;
-            options.Environment = hostEnvironment.Environment;
-            options.Release = appVersionProvider.Current.Version;
-        });
     }
+
+    private static bool ShouldEnable(IWebAssemblyHostEnvironment hostEnvironment, RuntimeTelemetryOptions telemetryOptions) =>
+        telemetryOptions.HostEnabled
+        && telemetryOptions.SentryConfigured
+        && !hostEnvironment.IsDevelopment();
 
     private static bool IsWasmDebugEnabled(string uri) =>
         string.Equals(ResolveQueryValue(uri, WasmDebugQueryKey), WasmDebugEnabledValue, StringComparison.Ordinal);

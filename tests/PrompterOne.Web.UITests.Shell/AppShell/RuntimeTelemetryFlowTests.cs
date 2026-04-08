@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using PrompterOne.Shared.Contracts;
@@ -36,6 +37,15 @@ public sealed class RuntimeTelemetryFlowTests(StandaloneAppFixture fixture)
             vendorLoads: window["{{BrowserTestConstants.Telemetry.HarnessGlobal}}"]?.["{{BrowserTestConstants.Telemetry.VendorLoadsCollection}}"] ?? []
         })
         """;
+    private const string ClarityVendorScriptBody =
+        """
+        window.clarity = window.clarity || function () {
+            window.clarity.q = window.clarity.q || [];
+            window.clarity.q.push(arguments);
+        };
+        """;
+    private const string GoogleAnalyticsVendorScriptBody = "window.dataLayer = window.dataLayer || [];";
+    private const string JavaScriptContentType = "text/javascript";
 
     [Test]
     public async Task RuntimeTelemetry_TracksPageViewsAndShellActions_InProductionMode()
@@ -60,11 +70,18 @@ public sealed class RuntimeTelemetryFlowTests(StandaloneAppFixture fixture)
 
             var createScriptSnapshot = await ReadSnapshotAsync(page);
 
-            await Assert.That(createScriptSnapshot.Initializations).Contains(entry => entry.RuntimeEnabled && entry.HostEnabled && !entry.DebugEnabled && entry.SentryConfigured && entry.SentryRuntimeEnabled);
+            await Assert.That(createScriptSnapshot.Initializations).Contains(entry =>
+                entry.ClarityConfigured
+                && !entry.DebugEnabled
+                && entry.GoogleAnalyticsConfigured
+                && entry.HostEnabled
+                && entry.RuntimeEnabled
+                && entry.SentryConfigured
+                && entry.SentryRuntimeEnabled);
             await Assert.That(createScriptSnapshot.PageViews).Contains(entry => string.Equals(entry.ScreenName, AppRuntimeTelemetry.Pages.Library, StringComparison.Ordinal));
             await Assert.That(createScriptSnapshot.PageViews).Contains(entry => string.Equals(entry.ScreenName, AppRuntimeTelemetry.Pages.Editor, StringComparison.Ordinal));
             await Assert.That(createScriptSnapshot.Events).Contains(entry => string.Equals(entry.EventName, AppRuntimeTelemetry.Events.CreateScript, StringComparison.Ordinal));
-            await AssertBlockedVendorLoads(createScriptSnapshot);
+            await AssertHarnessBlockedVendorLoads(createScriptSnapshot);
 
             await page.GotoAsync(BrowserTestConstants.Routes.EditorQuantum);
             await Expect(page.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync();
@@ -85,7 +102,7 @@ public sealed class RuntimeTelemetryFlowTests(StandaloneAppFixture fixture)
             await Assert.That(learnSnapshot.PageViews).Contains(entry => string.Equals(entry.ScreenName, AppRuntimeTelemetry.Pages.Editor, StringComparison.Ordinal));
             await Assert.That(learnSnapshot.PageViews).Contains(entry => string.Equals(entry.ScreenName, AppRuntimeTelemetry.Pages.Learn, StringComparison.Ordinal));
             await Assert.That(learnSnapshot.Events).Contains(entry => string.Equals(entry.EventName, AppRuntimeTelemetry.Events.OpenLearn, StringComparison.Ordinal));
-            await AssertBlockedVendorLoads(learnSnapshot);
+            await AssertHarnessBlockedVendorLoads(learnSnapshot);
 
             await page.GotoAsync(BrowserTestConstants.Routes.EditorQuantum);
             await Expect(page.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync();
@@ -106,7 +123,7 @@ public sealed class RuntimeTelemetryFlowTests(StandaloneAppFixture fixture)
             await Assert.That(readSnapshot.PageViews).Contains(entry => string.Equals(entry.ScreenName, AppRuntimeTelemetry.Pages.Editor, StringComparison.Ordinal));
             await Assert.That(readSnapshot.PageViews).Contains(entry => string.Equals(entry.ScreenName, AppRuntimeTelemetry.Pages.Teleprompter, StringComparison.Ordinal));
             await Assert.That(readSnapshot.Events).Contains(entry => string.Equals(entry.EventName, AppRuntimeTelemetry.Events.OpenRead, StringComparison.Ordinal));
-            await AssertBlockedVendorLoads(readSnapshot);
+            await AssertHarnessBlockedVendorLoads(readSnapshot);
 
             await page.GotoAsync(BrowserTestConstants.Routes.Library);
             await Expect(page.GetByTestId(UiTestIds.Library.Page)).ToBeVisibleAsync();
@@ -127,7 +144,81 @@ public sealed class RuntimeTelemetryFlowTests(StandaloneAppFixture fixture)
             await Assert.That(goLiveSnapshot.PageViews).Contains(entry => string.Equals(entry.ScreenName, AppRuntimeTelemetry.Pages.Library, StringComparison.Ordinal));
             await Assert.That(goLiveSnapshot.PageViews).Contains(entry => string.Equals(entry.ScreenName, AppRuntimeTelemetry.Pages.GoLive, StringComparison.Ordinal));
             await Assert.That(goLiveSnapshot.Events).Contains(entry => string.Equals(entry.EventName, AppRuntimeTelemetry.Events.OpenGoLive, StringComparison.Ordinal));
-            await AssertBlockedVendorLoads(goLiveSnapshot);
+            await AssertHarnessBlockedVendorLoads(goLiveSnapshot);
+        }
+        finally
+        {
+            await page.Context.CloseAsync();
+        }
+    }
+
+    [Test]
+    public async Task RuntimeTelemetry_RequestsRealVendorScripts_WhenHarnessAllowsVendorLoads()
+    {
+        var page = await _fixture.NewPageAsync();
+        var googleAnalyticsRequests = new ConcurrentQueue<string>();
+        var clarityRequests = new ConcurrentQueue<string>();
+
+        try
+        {
+            await page.Context.RouteAsync(
+                BrowserTestConstants.Telemetry.GoogleAnalyticsScriptRequestPattern,
+                async route =>
+                {
+                    googleAnalyticsRequests.Enqueue(route.Request.Url);
+                    await route.FulfillAsync(new()
+                    {
+                        Body = GoogleAnalyticsVendorScriptBody,
+                        ContentType = JavaScriptContentType,
+                        Status = 200
+                    });
+                });
+
+            await page.Context.RouteAsync(
+                BrowserTestConstants.Telemetry.ClarityScriptRequestPattern,
+                async route =>
+                {
+                    clarityRequests.Enqueue(route.Request.Url);
+                    await route.FulfillAsync(new()
+                    {
+                        Body = ClarityVendorScriptBody,
+                        ContentType = JavaScriptContentType,
+                        Status = 200
+                    });
+                });
+
+            await page.AddInitScriptAsync(UiTestHostConstants.RuntimeTelemetryAllowVendorLoadsScript);
+
+            await page.GotoAsync(BrowserTestConstants.Routes.Library);
+            await Expect(page.GetByTestId(UiTestIds.Library.Page)).ToBeVisibleAsync();
+            await WaitForTelemetryCollectionsAsync(
+                page,
+                BrowserTestConstants.Telemetry.MinimumInitializationCount,
+                BrowserTestConstants.Telemetry.MinimumPageViewCount,
+                0,
+                BrowserTestConstants.Telemetry.ExpectedVendorLoadCount);
+
+            var snapshot = await ReadSnapshotAsync(page);
+
+            await Assert.That(snapshot.Initializations).Contains(entry =>
+                entry.ClarityConfigured
+                && !entry.DebugEnabled
+                && entry.GoogleAnalyticsConfigured
+                && entry.HostEnabled
+                && entry.RuntimeEnabled
+                && entry.SentryConfigured
+                && entry.SentryRuntimeEnabled);
+            await Assert.That(snapshot.PageViews).Contains(entry => string.Equals(entry.ScreenName, AppRuntimeTelemetry.Pages.Library, StringComparison.Ordinal));
+            await Assert.That(snapshot.VendorLoads).Contains(entry =>
+                !entry.Blocked
+                && string.Equals(entry.Provider, BrowserTestConstants.Telemetry.GoogleAnalyticsProvider, StringComparison.Ordinal)
+                && entry.Url.StartsWith(BrowserTestConstants.Telemetry.GoogleAnalyticsScriptUrlPrefix, StringComparison.Ordinal));
+            await Assert.That(snapshot.VendorLoads).Contains(entry =>
+                !entry.Blocked
+                && string.Equals(entry.Provider, BrowserTestConstants.Telemetry.ClarityProvider, StringComparison.Ordinal)
+                && entry.Url.StartsWith(BrowserTestConstants.Telemetry.ClarityScriptUrlPrefix, StringComparison.Ordinal));
+            await Assert.That(googleAnalyticsRequests.ToArray()).Contains(url => url.StartsWith(BrowserTestConstants.Telemetry.GoogleAnalyticsScriptUrlPrefix, StringComparison.Ordinal));
+            await Assert.That(clarityRequests.ToArray()).Contains(url => url.StartsWith(BrowserTestConstants.Telemetry.ClarityScriptUrlPrefix, StringComparison.Ordinal));
         }
         finally
         {
@@ -160,7 +251,7 @@ public sealed class RuntimeTelemetryFlowTests(StandaloneAppFixture fixture)
             ?? new TelemetryHarnessSnapshot();
     }
 
-    private static async Task AssertBlockedVendorLoads(TelemetryHarnessSnapshot snapshot)
+    private static async Task AssertHarnessBlockedVendorLoads(TelemetryHarnessSnapshot snapshot)
     {
         await Assert.That(snapshot.VendorLoads).Contains(entry => string.Equals(entry.Provider, BrowserTestConstants.Telemetry.GoogleAnalyticsProvider, StringComparison.Ordinal) && entry.Blocked);
         await Assert.That(snapshot.VendorLoads).Contains(entry => string.Equals(entry.Provider, BrowserTestConstants.Telemetry.ClarityProvider, StringComparison.Ordinal) && entry.Blocked);

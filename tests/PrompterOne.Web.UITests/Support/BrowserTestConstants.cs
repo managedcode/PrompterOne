@@ -959,16 +959,21 @@ internal static partial class BrowserTestConstants
     public static class Telemetry
     {
         public const string ClarityProvider = "clarity";
+        public const string ClarityScriptRequestPattern = "https://www.clarity.ms/tag/**";
+        public const string ClarityScriptUrlPrefix = "https://www.clarity.ms/tag/";
         public const int ExpectedActionEventCount = 1;
         public const int ExpectedActionPageViewCount = 2;
         public const int ExpectedVendorLoadCount = 2;
         public const string EventsCollection = AppRuntimeTelemetry.Harness.EventsCollection;
+        public const string GoogleAnalyticsScriptRequestPattern = "https://www.googletagmanager.com/gtag/js**";
+        public const string GoogleAnalyticsScriptUrlPrefix = "https://www.googletagmanager.com/gtag/js?id=";
         public const string GoogleAnalyticsProvider = "google-analytics";
         public const string HarnessGlobal = AppRuntimeTelemetry.Harness.GlobalName;
         public const string InitializationsCollection = AppRuntimeTelemetry.Harness.InitializationsCollection;
         public const int MinimumInitializationCount = 1;
         public const int MinimumPageViewCount = 1;
         public const string PageViewsCollection = AppRuntimeTelemetry.Harness.PageViewsCollection;
+        public const string RuntimeAllowVendorLoadsProperty = AppRuntimeTelemetry.Harness.RuntimeAllowVendorLoadsProperty;
         public const string RuntimeGlobal = AppRuntimeTelemetry.Harness.RuntimeGlobalName;
         public const string RuntimeHarnessEnabledProperty = AppRuntimeTelemetry.Harness.RuntimeHarnessEnabledProperty;
         public const int TelemetryWaitTimeoutMs = 5_000;

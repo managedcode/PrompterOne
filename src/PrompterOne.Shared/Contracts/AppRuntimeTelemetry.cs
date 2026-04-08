@@ -8,6 +8,7 @@ public static class AppRuntimeTelemetry
         public const string GlobalName = "__prompterOneTelemetryHarness";
         public const string InitializationsCollection = "initializations";
         public const string PageViewsCollection = "pageViews";
+        public const string RuntimeAllowVendorLoadsProperty = "telemetryAllowVendorLoads";
         public const string RuntimeGlobalName = "__prompterOneRuntime";
         public const string RuntimeHarnessEnabledProperty = "telemetryHarnessEnabled";
         public const string RuntimeWasmDebugEnabledProperty = "wasmDebugEnabled";

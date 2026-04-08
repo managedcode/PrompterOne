@@ -107,6 +107,8 @@ Rule format:
 - Do not add or raise CI timeout settings as a fix for browser-suite instability or slow runs; fix the underlying failure path cleanly instead of masking it with workflow or step timeouts.
 - For TUnit reporting in GitHub Actions, prefer TUnit's built-in HTML report and the documented `actions/github-script` runtime exposure step over repo-local custom summary scripts or ad-hoc log parsers.
 - Public web hosting is split by role: the standalone PrompterOne app in this repo must publish on `app.prompter.one`, while the marketing landing site for `prompter.one` lives in the separate `PrompterOne-LandingPage` repository.
+- Runtime telemetry providers such as Google Analytics, Clarity, and Sentry must not be described as connected or working unless the real production path is verified with actual outbound delivery or loaded vendor SDKs; local harness snapshots, init flags, or stubbed globals are not sufficient proof.
+- Runtime telemetry readiness must be proven against Release-built app artifacts in CI; do not sign off GA, Clarity, or Sentry from Debug-only local runs when the shipped Release pipeline has not validated that path.
 - For deploy-only, domain, CI, or static-site hosting tasks, do not spend time on unrelated app/browser test suites unless the user explicitly asks or the runtime behavior itself changes; prefer workflow, build, and publish-config validation only.
 - Repo-wide .NET SDK and test-runner selection belong in the root `global.json`; do not split `global.json` test-runner opt-ins per project or subfolder once the user asks for a global test-platform policy.
 - Browser and component tests must use one selector format only: `data-test`; do not mix in any alternate test-attribute naming variants.
