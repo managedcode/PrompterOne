@@ -13,12 +13,14 @@
 ## Boundaries
 
 - This base project owns shared Playwright/browser-host infrastructure and reusable helper code; it must not accumulate routed feature test cases.
+- This base project is a shared browser-harness library, not a runnable suite; do not reference the runnable TUnit engine package directly here.
 - The runnable browser suites must still work with `dotnet test` only. Do not require env vars, custom ports, or manual app startup.
 - The fixture self-hosts the built WASM assets on a dynamically assigned local loopback origin for Playwright.
 - Each fixture startup MUST request a fresh OS-assigned loopback port. Never hardcode or reuse a fixed browser-test port across runs.
 - The fixture also injects a deterministic synthetic media harness before page scripts run, so browser tests can verify camera and microphone flows without real hardware.
 - Keep one authoritative implementation of browser-host constants, asset-path resolution, drivers, seeders, and artifact capture in this base project; do not duplicate them across suite projects.
 - The browser suites resolve origin at runtime and use one `dotnet test` process at a time locally; lower the CI worker cap only when repeated full-suite runs prove resource contention.
+- The runnable browser suites keep a lower CI worker cap than local runs; preserve the safe `CiLimit = 2` split-suite baseline unless the user explicitly asks for a new experiment.
 - Do not keep separate concurrent `dotnet build` or `dotnet test` processes alive against the same test assets.
 - Prefer `PrompterOne.Shared.Contracts.AppRoutes`, `UiTestIds`, and other named constants over inline route or selector strings.
 - Use one dedicated test-attribute format only: `data-test`.

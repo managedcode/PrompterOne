@@ -8,7 +8,8 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Playwright" />
-    <PackageReference Include="TUnit" />
+    <PackageReference Include="TUnit.Assertions" />
+    <PackageReference Include="TUnit.Core" />
     <PackageReference Include="TUnit.Playwright" />
   </ItemGroup>
 

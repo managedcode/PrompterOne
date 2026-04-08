@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Shouldly" />
-    <PackageReference Include="TUnit" />
+    <PackageReference Include="TUnit.Core" />
   </ItemGroup>
 
 </Project>

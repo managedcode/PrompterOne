@@ -6,5 +6,4 @@ namespace PrompterOne.Web.UITests.Shell;
 
 public sealed class MaxParallelTestsForPipeline : EnvironmentAwareParallelLimitBase
 {
-    protected override int LocalLimit { get; } = 15;
 }

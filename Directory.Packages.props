@@ -22,6 +22,8 @@
     <PackageVersion Include="Sentry" Version="6.3.0" />
     <PackageVersion Include="Shouldly" Version="4.3.0" />
     <PackageVersion Include="TUnit" Version="1.28.7" />
+    <PackageVersion Include="TUnit.Assertions" Version="1.28.7" />
+    <PackageVersion Include="TUnit.Core" Version="1.28.7" />
     <PackageVersion Include="TUnit.Playwright" Version="1.28.7" />
   </ItemGroup>
 </Project>

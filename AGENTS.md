@@ -110,7 +110,10 @@ Rule format:
 - For deploy-only, domain, CI, or static-site hosting tasks, do not spend time on unrelated app/browser test suites unless the user explicitly asks or the runtime behavior itself changes; prefer workflow, build, and publish-config validation only.
 - Repo-wide .NET SDK and test-runner selection belong in the root `global.json`; do not split `global.json` test-runner opt-ins per project or subfolder once the user asks for a global test-platform policy.
 - Browser and component tests must use one selector format only: `data-test`; do not mix in any alternate test-attribute naming variants.
+- Shared test-support libraries that contain no runnable test cases must not reference the TUnit engine package directly; keep them on non-engine TUnit packages so solution-level `dotnet test` does not discover zero-test support DLLs as runnable test apps.
 - Every runnable test project must declare `MaxParallelTestsForPipeline : EnvironmentAwareParallelLimitBase` with `LocalLimit = 15`; do not keep lower per-project local parallel caps unless the user explicitly asks for an exception.
+- Browser-suite runnable test projects must keep `CiLimit = 2` unless the user explicitly approves a different cap; do not inherit a broader default CI worker count after a suite split.
+- Local regression verification must include solution-level `dotnet test --solution ./PrompterOne.slnx -m:1` so test-project split changes are proven under the real all-tests entrypoint, not only as isolated per-project runs.
 - Selector-contract remediation requests must be handled repo-wide across all relevant test files (`Web.Tests` and `Web.UITests`), not as partial per-file cleanups.
 - Repo-wide quality audits and agent-generated review handoff artifacts must be written as root-level task files so other coding agents can pick them up quickly; do not bury those temporary audit results under `docs/` unless the task is explicitly about durable product documentation.
 - Repo-wide cleanup and review passes must explicitly inventory forbidden implementation string literals, `MarkupString` or raw-HTML UI composition, duplicated JS/CSS patterns, architecture-boundary drift, and `foreach`-driven test scenarios that should become isolated TUnit cases.
@@ -123,7 +126,7 @@ Rule format:
 ### Commands
 
 - `build`: `dotnet build ./PrompterOne.slnx -warnaserror`
-- `test`: `dotnet test --project ./tests/PrompterOne.Core.Tests/PrompterOne.Core.Tests.csproj && dotnet test --project ./tests/PrompterOne.Web.Tests/PrompterOne.Web.Tests.csproj && dotnet test --project ./tests/PrompterOne.Web.UITests.Shell/PrompterOne.Web.UITests.Shell.csproj && dotnet test --project ./tests/PrompterOne.Web.UITests.Studio/PrompterOne.Web.UITests.Studio.csproj && dotnet test --project ./tests/PrompterOne.Web.UITests.Editor/PrompterOne.Web.UITests.Editor.csproj && dotnet test --project ./tests/PrompterOne.Web.UITests.Reader/PrompterOne.Web.UITests.Reader.csproj`
+- `test`: `dotnet test --solution ./PrompterOne.slnx -m:1`
 - `format`: `dotnet format ./PrompterOne.slnx`
 - `coverage`: `dotnet test --project ./tests/PrompterOne.Core.Tests/PrompterOne.Core.Tests.csproj -- --coverage --coverage-output-format cobertura && dotnet test --project ./tests/PrompterOne.Web.Tests/PrompterOne.Web.Tests.csproj -- --coverage --coverage-output-format cobertura && dotnet test --project ./tests/PrompterOne.Web.UITests.Shell/PrompterOne.Web.UITests.Shell.csproj -- --coverage --coverage-output-format cobertura && dotnet test --project ./tests/PrompterOne.Web.UITests.Studio/PrompterOne.Web.UITests.Studio.csproj -- --coverage --coverage-output-format cobertura && dotnet test --project ./tests/PrompterOne.Web.UITests.Editor/PrompterOne.Web.UITests.Editor.csproj -- --coverage --coverage-output-format cobertura && dotnet test --project ./tests/PrompterOne.Web.UITests.Reader/PrompterOne.Web.UITests.Reader.csproj -- --coverage --coverage-output-format cobertura`
 
@@ -140,6 +143,7 @@ Useful focused commands:
 - app run: `cd ./src/PrompterOne.Web && dotnet run`
 - core tests: `dotnet test --project ./tests/PrompterOne.Core.Tests/PrompterOne.Core.Tests.csproj`
 - component tests: `dotnet test --project ./tests/PrompterOne.Web.Tests/PrompterOne.Web.Tests.csproj`
+- all tests: `dotnet test --solution ./PrompterOne.slnx -m:1`
 - ui tests: `dotnet test --project ./tests/PrompterOne.Web.UITests.Shell/PrompterOne.Web.UITests.Shell.csproj && dotnet test --project ./tests/PrompterOne.Web.UITests.Studio/PrompterOne.Web.UITests.Studio.csproj && dotnet test --project ./tests/PrompterOne.Web.UITests.Editor/PrompterOne.Web.UITests.Editor.csproj && dotnet test --project ./tests/PrompterOne.Web.UITests.Reader/PrompterOne.Web.UITests.Reader.csproj`
 - ui shell tests: `dotnet test --project ./tests/PrompterOne.Web.UITests.Shell/PrompterOne.Web.UITests.Shell.csproj`
 - ui studio tests: `dotnet test --project ./tests/PrompterOne.Web.UITests.Studio/PrompterOne.Web.UITests.Studio.csproj`
@@ -153,7 +157,7 @@ Browser test execution rules:
 - Use one `dotnet test` process at a time for a browser suite project when running locally.
 - The browser suite family self-hosts the built WASM assets on a dynamically assigned loopback HTTP origin.
 - Each browser-suite host startup MUST request a fresh OS-assigned loopback port via `http://127.0.0.1:0`. Never pin or reuse a fixed browser-test port across runs.
-- Inside a single browser-suite process, the suite may run up to `15` parallel TUnit workers locally; when repeated full-suite CI runs prove resource contention, lower the CI worker cap instead of weakening browser assertions.
+- Inside a single browser-suite process, the suite may run up to `15` parallel TUnit workers locally and up to `2` in CI; do not raise the CI cap as part of split-suite plumbing unless the user explicitly asks for that experiment.
 - Do not run any `PrompterOne.Web.UITests*` project in parallel with another `dotnet build` or `dotnet test` command on the same local machine context.
 - In GitHub Actions, run the browser suite family in dedicated macOS jobs or matrix entries and keep supporting suites in separate jobs so CI can parallelize work without Linux x64 browser-runner contention stretching release validation.
 - GitHub Actions pipelines must expose explicit staged jobs with readable names such as restore, build, supporting tests, browser tests, release publish, and deploy; vague single-job `validate` graphs are not acceptable when the user needs to see pipeline phases clearly in the Actions UI.

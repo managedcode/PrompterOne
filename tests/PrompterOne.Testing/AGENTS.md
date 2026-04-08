@@ -15,6 +15,7 @@
 - Keep only reusable test infrastructure here; do not move feature-specific test cases or app behavior assertions into this project.
 - Shared helpers must stay test-only and must not leak into production projects.
 - Prefer stable low-level helpers that reduce duplication across multiple test projects.
+- This shared support project must not reference the runnable TUnit engine package directly; keep it on non-engine TUnit packages so solution-level `dotnet test` does not try to execute it as a zero-test app.
 
 ## Project-Local Commands
 
