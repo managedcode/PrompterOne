@@ -118,6 +118,7 @@ public sealed class StudioWorkflowScenarioTests(StandaloneAppFixture fixture)
     {
         await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
         await Expect(page.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync();
+        await EditorMonacoDriver.WaitUntilReadyAsync(page);
         await UiScenarioArtifacts.CapturePageAsync(page, BrowserTestConstants.StudioWorkflow.Name, BrowserTestConstants.StudioWorkflow.EditorInitialStep);
     }
 
@@ -160,6 +161,7 @@ public sealed class StudioWorkflowScenarioTests(StandaloneAppFixture fixture)
         await page.GetByTestId(UiTestIds.Header.LibraryNewScript).ClickAsync();
         await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(AppRoutes.Editor));
         await Expect(page.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync();
+        await EditorMonacoDriver.WaitUntilReadyAsync(page);
         await Expect(page.GetByTestId(UiTestIds.Editor.SourceInput)).ToHaveValueAsync(string.Empty);
         await UiScenarioArtifacts.CapturePageAsync(page, BrowserTestConstants.NewScriptWorkflow.Name, BrowserTestConstants.NewScriptWorkflow.EditorEmptyStep);
     }
