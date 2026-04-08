@@ -104,6 +104,8 @@ Rule format:
 - Editor top-toolbar search must remain visible in narrow layouts; when width runs out, the other toolbar groups should become explicitly horizontally scrollable/reachable before search is allowed to disappear.
 - Do not push branches or `main` without an explicit user command for that push; local commits are allowed, but network publish actions require clear approval in the current conversation.
 - When a CI test job fails, times out, or is cancelled, the workflow summary must still state which tests failed or that the run ended before per-test failure data was available; do not leave browser-suite failures represented only by generic job annotations.
+- Do not add or raise CI timeout settings as a fix for browser-suite instability or slow runs; fix the underlying failure path cleanly instead of masking it with workflow or step timeouts.
+- For TUnit reporting in GitHub Actions, prefer TUnit's built-in HTML report and the documented `actions/github-script` runtime exposure step over repo-local custom summary scripts or ad-hoc log parsers.
 - Public web hosting is split by role: the standalone PrompterOne app in this repo must publish on `app.prompter.one`, while the marketing landing site for `prompter.one` lives in the separate `PrompterOne-LandingPage` repository.
 - For deploy-only, domain, CI, or static-site hosting tasks, do not spend time on unrelated app/browser test suites unless the user explicitly asks or the runtime behavior itself changes; prefer workflow, build, and publish-config validation only.
 - Repo-wide .NET SDK and test-runner selection belong in the root `global.json`; do not split `global.json` test-runner opt-ins per project or subfolder once the user asks for a global test-platform policy.

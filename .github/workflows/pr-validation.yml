@@ -54,6 +54,13 @@ jobs:
         with:
           global-json-file: global.json
 
+      - name: Expose GitHub Actions Runtime
+        uses: actions/github-script@v7
+        with:
+          script: |
+            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN']);
+            core.exportVariable('ACTIONS_RESULTS_URL', process.env['ACTIONS_RESULTS_URL']);
+
       - name: Test supporting suites
         run: |
           dotnet test --project "$CORE_TEST_PROJECT"
@@ -83,10 +90,6 @@ jobs:
     needs: build_browser_suite
     runs-on: macos-latest
 
-    env:
-      BROWSER_TEST_LOG_DIR: output/test-results/browser-suite
-      BROWSER_TEST_LOG_PATH: output/test-results/browser-suite/browser-suite.log
-
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -95,6 +98,13 @@ jobs:
         uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
+
+      - name: Expose GitHub Actions Runtime
+        uses: actions/github-script@v7
+        with:
+          script: |
+            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN']);
+            core.exportVariable('ACTIONS_RESULTS_URL', process.env['ACTIONS_RESULTS_URL']);
 
       - name: Restore solution
         run: dotnet restore "$SOLUTION_FILE"
@@ -106,31 +116,7 @@ jobs:
         run: node "$PLAYWRIGHT_CLI" install chromium
 
       - name: Test browser suite
-        id: browser_tests
-        shell: bash
-        run: |
-          set -o pipefail
-          mkdir -p "$BROWSER_TEST_LOG_DIR"
-          dotnet test --project "$UI_TEST_PROJECT" --verbosity normal 2>&1 | tee "$BROWSER_TEST_LOG_PATH"
-
-      - name: Summarize browser suite
-        if: always()
-        shell: bash
-        env:
-          BROWSER_TEST_OUTCOME: ${{ steps.browser_tests.outcome }}
-        run: |
-          bash ./scripts/ci/write-browser-suite-summary.sh \
-            "$BROWSER_TEST_LOG_PATH" \
-            "$BROWSER_TEST_OUTCOME" \
-            "Run Browser Suite" >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Upload browser test logs
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: browser-test-logs-pr-validation
-          path: ${{ env.BROWSER_TEST_LOG_DIR }}
-          if-no-files-found: ignore
+        run: dotnet test --project "$UI_TEST_PROJECT" --verbosity normal
 
       - name: Upload Playwright artifacts
         if: always()
