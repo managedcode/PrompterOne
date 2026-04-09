@@ -186,6 +186,9 @@
   <data name="SettingsNavLanguage" xml:space="preserve">
     <value>Langue</value>
   </data>
+  <data name="SettingsNavFeedback" xml:space="preserve">
+    <value>Retour</value>
+  </data>
   <data name="SettingsNavAbout" xml:space="preserve">
     <value>À propos</value>
   </data>
@@ -1070,6 +1073,9 @@
   </data>
   <data name="SettingsAboutFeedbackCardAction" xml:space="preserve">
     <value>Envoyer un retour</value>
+  </data>
+  <data name="SettingsFeedbackUnavailableNote" xml:space="preserve">
+    <value>L’envoi de retour n’est pas disponible dans cette version, car la télémétrie d’exécution est désactivée.</value>
   </data>
   <data name="FeedbackDialogGeneralTitle" xml:space="preserve">
     <value>Envoyer un retour</value>

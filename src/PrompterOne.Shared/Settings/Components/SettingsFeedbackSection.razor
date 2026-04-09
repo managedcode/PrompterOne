@@ -1,0 +1,57 @@
+@namespace PrompterOne.Shared.Components.Settings
+@using Microsoft.Extensions.Localization
+@using PrompterOne.Shared.Components
+@using PrompterOne.Shared.Contracts
+@using PrompterOne.Shared.Localization
+@using PrompterOne.Shared.Services
+@inject IStringLocalizer<SharedResource> Localizer
+@inject SentryUserFeedbackService UserFeedback
+
+<section class="set-section set-panel"
+         id="set-feedback"
+         style="@DisplayStyle"
+         data-test="@UiTestIds.Settings.FeedbackPanel">
+    <h3 class="set-section-title">@Text(UiTextKey.SettingsNavFeedback)</h3>
+    <p class="set-section-desc">@FeedbackCardSubtitle</p>
+
+    <div class="set-device-list">
+        <SettingsExpandableCard Title="@FeedbackCardTitle"
+                                Subtitle="@FeedbackCardSubtitle"
+                                IconTone="UiIconSurfaceTone.Pink"
+                                TestId="@UiTestIds.Settings.FeedbackCard"
+                                IsOpen="@IsCardOpen(FeedbackCardId)"
+                                OnToggle="@(() => ToggleCard.InvokeAsync(FeedbackCardId))">
+            <UiIcon Kind="UiIconKind.Message" Size="17" />
+            <p class="set-card-copy">@FeedbackCardCopy</p>
+            @if (UserFeedback.IsEnabled)
+            {
+                <button type="button"
+                        class="btn-ghost set-card-cta"
+                        @onclick="OpenFeedback"
+                        data-test="@UiTestIds.Settings.FeedbackOpen">@FeedbackCardAction</button>
+            }
+            else
+            {
+                <p class="set-card-copy">@FeedbackUnavailableNote</p>
+            }
+        </SettingsExpandableCard>
+    </div>
+</section>
+
+@code {
+    private const string FeedbackCardId = "feedback";
+
+    [Parameter] public string DisplayStyle { get; set; } = string.Empty;
+    [Parameter] public Func<string, bool> IsCardOpen { get; set; } = static _ => false;
+    [Parameter] public EventCallback<string> ToggleCard { get; set; }
+
+    private string FeedbackCardAction => Text(UiTextKey.SettingsAboutFeedbackCardAction);
+    private string FeedbackCardCopy => Text(UiTextKey.SettingsAboutFeedbackCardCopy);
+    private string FeedbackCardSubtitle => Text(UiTextKey.SettingsAboutFeedbackCardSubtitle);
+    private string FeedbackCardTitle => Text(UiTextKey.SettingsAboutFeedbackCardTitle);
+    private string FeedbackUnavailableNote => Text(UiTextKey.SettingsFeedbackUnavailableNote);
+
+    private void OpenFeedback() => UserFeedback.OpenGeneralPrompt();
+
+    private string Text(UiTextKey key) => Localizer[key.ToString()];
+}

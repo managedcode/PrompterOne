@@ -195,6 +195,9 @@
   <data name="SettingsNavShortcuts" xml:space="preserve">
     <value>Shortcuts</value>
   </data>
+  <data name="SettingsNavFeedback" xml:space="preserve">
+    <value>Feedback</value>
+  </data>
   <data name="SettingsNavAbout" xml:space="preserve">
     <value>About</value>
   </data>
@@ -2267,6 +2270,9 @@
   </data>
   <data name="SettingsAboutFeedbackCardAction" xml:space="preserve">
     <value>Share feedback</value>
+  </data>
+  <data name="SettingsFeedbackUnavailableNote" xml:space="preserve">
+    <value>Feedback sending is unavailable in this build because runtime telemetry is turned off.</value>
   </data>
   <data name="FeedbackDialogGeneralTitle" xml:space="preserve">
     <value>Share feedback</value>

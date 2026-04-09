@@ -195,6 +195,9 @@
   <data name="SettingsNavShortcuts" xml:space="preserve">
     <value>Скорочення</value>
   </data>
+  <data name="SettingsNavFeedback" xml:space="preserve">
+    <value>Відгук</value>
+  </data>
   <data name="SettingsNavAbout" xml:space="preserve">
     <value>Про застосунок</value>
   </data>
@@ -1085,6 +1088,9 @@
   </data>
   <data name="SettingsAboutFeedbackCardAction" xml:space="preserve">
     <value>Надіслати відгук</value>
+  </data>
+  <data name="SettingsFeedbackUnavailableNote" xml:space="preserve">
+    <value>Надсилання відгуку недоступне в цій збірці, бо телеметрію виконання вимкнено.</value>
   </data>
   <data name="FeedbackDialogGeneralTitle" xml:space="preserve">
     <value>Надіслати відгук</value>

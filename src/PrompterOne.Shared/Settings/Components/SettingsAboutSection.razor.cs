@@ -3,7 +3,6 @@ using Microsoft.Extensions.Localization;
 using PrompterOne.Shared.Contracts;
 using PrompterOne.Shared.Localization;
 using PrompterOne.Shared.Services;
-using PrompterOne.Shared.Settings.Services;
 
 namespace PrompterOne.Shared.Components.Settings;
 
@@ -11,7 +10,6 @@ public partial class SettingsAboutSection
 {
     private const string AppCardId = "about-app";
     private const string CompanyCardId = "about-company";
-    private const string FeedbackCardId = "about-feedback";
     private const string OpenSourceCardId = "about-open-source";
     private const string ResourcesCardId = "about-resources";
     private const string OnboardingCardId = "about-onboarding";
@@ -60,7 +58,6 @@ public partial class SettingsAboutSection
 
     [Inject] private IAppVersionProvider AppVersionProvider { get; set; } = null!;
     [Inject] private IStringLocalizer<SharedResource> Localizer { get; set; } = null!;
-    [Inject] private SentryUserFeedbackService UserFeedback { get; set; } = null!;
 
     [Parameter] public string DisplayStyle { get; set; } = string.Empty;
     [Parameter] public Func<string, bool> IsCardOpen { get; set; } = static _ => false;
@@ -104,10 +101,6 @@ public partial class SettingsAboutSection
             AboutLinks.ProductWebsiteUrl)
     ];
     private string FooterText => Text(FooterTextKey);
-    private string FeedbackCardAction => Text(UiTextKey.SettingsAboutFeedbackCardAction);
-    private string FeedbackCardCopy => Text(UiTextKey.SettingsAboutFeedbackCardCopy);
-    private string FeedbackCardSubtitle => Text(UiTextKey.SettingsAboutFeedbackCardSubtitle);
-    private string FeedbackCardTitle => Text(UiTextKey.SettingsAboutFeedbackCardTitle);
     private string LicensedStatusLabel => Text(LicensedStatusLabelKey);
     private string OnboardingCardAction => Text(OnboardingCardActionKey);
     private string OnboardingCardCopy => Text(OnboardingCardBodyKey);
@@ -153,15 +146,12 @@ public partial class SettingsAboutSection
     ];
     private string ResourcesCardSubtitle => Text(ResourcesCardSubtitleKey);
     private string ResourcesCardTitle => Text(ResourcesCardTitleKey);
-    private bool ShowFeedbackCard => UserFeedback.IsEnabled;
     private string SoftwareUpdatesLabel => Text(SoftwareUpdatesLabelKey);
     private string UpToDateLabel => Text(UpToDateLabelKey);
 
     private string Text(string key) => Localizer[key];
 
     private string Text(UiTextKey key) => Localizer[key.ToString()];
-
-    private void OpenFeedback() => UserFeedback.OpenGeneralPrompt();
 
     private sealed record AboutItem(string Name, string Description, string License);
 

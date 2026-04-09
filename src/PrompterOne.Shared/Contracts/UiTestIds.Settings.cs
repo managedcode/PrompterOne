@@ -11,8 +11,6 @@ public static partial class UiTestIds
         public const string AboutCompanyCard = "settings-about-company-card";
         public const string AboutCompanyGitHub = "settings-about-company-github";
         public const string AboutCompanyWebsite = "settings-about-company-website";
-        public const string AboutFeedbackCard = "settings-about-feedback-card";
-        public const string AboutFeedbackOpen = "settings-about-feedback-open";
         public const string AboutPanel = "settings-about-panel";
         public const string AboutOnboardingCard = "settings-about-onboarding-card";
         public const string AboutOnboardingRestart = "settings-about-onboarding-restart";
@@ -26,6 +24,9 @@ public static partial class UiTestIds
         public const string AppearancePanel = "settings-appearance-panel";
         public const string AiPanel = "settings-ai-panel";
         public const string AboutAppIconSurface = "settings-about-app-icon-surface";
+        public const string FeedbackCard = "settings-feedback-card";
+        public const string FeedbackOpen = "settings-feedback-open";
+        public const string FeedbackPanel = "settings-feedback-panel";
         public const string LanguagePanel = "settings-language-panel";
         public const string LanguageSelect = "settings-language-select";
         public const string CameraFrameRate = "settings-camera-frame-rate";
@@ -60,6 +61,7 @@ public static partial class UiTestIds
         public const string NavLanguage = "settings-nav-language";
         public const string NavCameras = "settings-nav-cameras";
         public const string NavCloud = "settings-nav-cloud";
+        public const string NavFeedback = "settings-nav-feedback";
         public const string NavFiles = "settings-nav-files";
         public const string NavMics = "settings-nav-mics";
         public const string NavRecording = "settings-nav-recording";

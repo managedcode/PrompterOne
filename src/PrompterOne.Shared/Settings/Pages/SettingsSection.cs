@@ -12,5 +12,6 @@ public enum SettingsSection
     Appearance,
     Language,
     Shortcuts,
+    Feedback,
     About
 }

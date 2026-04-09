@@ -186,6 +186,9 @@
   <data name="SettingsNavLanguage" xml:space="preserve">
     <value>Idioma</value>
   </data>
+  <data name="SettingsNavFeedback" xml:space="preserve">
+    <value>Feedback</value>
+  </data>
   <data name="SettingsNavAbout" xml:space="preserve">
     <value>Sobre</value>
   </data>
@@ -848,6 +851,9 @@
   </data>
   <data name="SettingsAboutFeedbackCardAction" xml:space="preserve">
     <value>Enviar feedback</value>
+  </data>
+  <data name="SettingsFeedbackUnavailableNote" xml:space="preserve">
+    <value>O envio de feedback não está disponível nesta compilação porque a telemetria de runtime está desativada.</value>
   </data>
   <data name="FeedbackDialogGeneralTitle" xml:space="preserve">
     <value>Enviar feedback</value>

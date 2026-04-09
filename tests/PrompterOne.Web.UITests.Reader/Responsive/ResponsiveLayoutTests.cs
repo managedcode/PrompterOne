@@ -101,7 +101,7 @@ public sealed class ResponsiveLayoutTests(StandaloneAppFixture fixture) : AppUiT
             UiTestIds.Settings.Title,
             UiTestIds.Settings.NavCloud,
             UiTestIds.Settings.NavStreaming,
-            UiTestIds.Settings.NavAbout,
+            UiTestIds.Settings.NavFeedback,
             UiTestIds.Settings.CloudPanel));
 
     [Test]

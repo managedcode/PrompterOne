@@ -24,20 +24,21 @@ public sealed class SentryUserFeedbackTests : BunitContext
     }
 
     [Test]
-    public void SettingsAboutSection_ShareFeedbackButton_OpensFeedbackDialog()
+    public void SettingsFeedbackSection_ShareFeedbackButton_OpensFeedbackDialog()
     {
         var cut = Render<SettingsPage>();
         var dialogHost = Render<SentryUserFeedbackDialogHost>();
 
-        cut.FindByTestId(UiTestIds.Settings.NavAbout).Click();
+        cut.FindByTestId(UiTestIds.Settings.NavFeedback).Click();
 
         cut.WaitForAssertion(() =>
         {
-            Assert.NotNull(cut.FindByTestId(UiTestIds.Settings.AboutFeedbackCard));
-            Assert.NotNull(cut.FindByTestId(UiTestIds.Settings.AboutFeedbackOpen));
+            Assert.NotNull(cut.FindByTestId(UiTestIds.Settings.FeedbackPanel));
+            Assert.NotNull(cut.FindByTestId(UiTestIds.Settings.FeedbackCard));
+            Assert.NotNull(cut.FindByTestId(UiTestIds.Settings.FeedbackOpen));
         });
 
-        cut.FindByTestId(UiTestIds.Settings.AboutFeedbackOpen).Click();
+        cut.FindByTestId(UiTestIds.Settings.FeedbackOpen).Click();
 
         dialogHost.WaitForAssertion(() =>
         {

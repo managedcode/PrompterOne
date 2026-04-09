@@ -445,6 +445,24 @@ public sealed class SettingsInteractionTests : BunitContext
     }
 
     [Test]
+    public void FeedbackSection_IsVisibleInNavigation_EvenWhenRuntimeFeedbackIsDisabled()
+    {
+        var cut = Render<SettingsPage>();
+
+        cut.WaitForAssertion(() => Assert.Contains(UiTestIds.Settings.NavFeedback, cut.Markup, StringComparison.Ordinal));
+
+        cut.FindByTestId(UiTestIds.Settings.NavFeedback).Click();
+
+        cut.WaitForAssertion(() =>
+        {
+            Assert.NotNull(cut.FindByTestId(UiTestIds.Settings.FeedbackPanel));
+            Assert.NotNull(cut.FindByTestId(UiTestIds.Settings.FeedbackCard));
+            Assert.Contains(Text(UiTextKey.SettingsFeedbackUnavailableNote), cut.Markup, StringComparison.Ordinal);
+            Assert.DoesNotContain(UiTestIds.Settings.FeedbackOpen, cut.Markup, StringComparison.Ordinal);
+        });
+    }
+
+    [Test]
     public void AboutSection_UsesTypedIconSurfaceClasses_InsteadOfInlineCardIconStyles()
     {
         var cut = Render<SettingsPage>();

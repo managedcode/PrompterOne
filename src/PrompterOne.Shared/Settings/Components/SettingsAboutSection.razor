@@ -23,23 +23,6 @@
                     data-test="@UiTestIds.Settings.AboutOnboardingRestart">@OnboardingCardAction</button>
         </SettingsExpandableCard>
 
-        @if (ShowFeedbackCard)
-        {
-            <SettingsExpandableCard Title="@FeedbackCardTitle"
-                                    Subtitle="@FeedbackCardSubtitle"
-                                    IconTone="UiIconSurfaceTone.Pink"
-                                    TestId="@UiTestIds.Settings.AboutFeedbackCard"
-                                    IsOpen="@IsCardOpen(FeedbackCardId)"
-                                    OnToggle="@(() => ToggleCard.InvokeAsync(FeedbackCardId))">
-                <UiIcon Kind="UiIconKind.Message" Size="17" />
-                <p class="set-card-copy">@FeedbackCardCopy</p>
-                <button type="button"
-                        class="btn-ghost set-card-cta"
-                        @onclick="OpenFeedback"
-                        data-test="@UiTestIds.Settings.AboutFeedbackOpen">@FeedbackCardAction</button>
-            </SettingsExpandableCard>
-        }
-
         <SettingsExpandableCard Title="@AppCardTitle"
                                 Subtitle="@AppCardSubtitle"
                                 SubtitleTestId="@UiTestIds.Settings.AboutVersion"
