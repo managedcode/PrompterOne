@@ -3,7 +3,12 @@
   <ItemGroup>
     <PackageReference Include="ManagedCode.MarkItDown" />
     <PackageReference Include="ManagedCode.MimeTypes" />
+    <PackageReference Include="Microsoft.Agents.AI" />
+    <PackageReference Include="Microsoft.Agents.AI.Anthropic" />
+    <PackageReference Include="Microsoft.Agents.AI.AzureAI" />
+    <PackageReference Include="Microsoft.Agents.AI.OpenAI" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="OllamaSharp" />
   </ItemGroup>
 
   <ItemGroup>

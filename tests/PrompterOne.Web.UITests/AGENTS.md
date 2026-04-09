@@ -20,7 +20,7 @@
 - The fixture also injects a deterministic synthetic media harness before page scripts run, so browser tests can verify camera and microphone flows without real hardware.
 - Keep one authoritative implementation of browser-host constants, asset-path resolution, drivers, seeders, and artifact capture in this base project; do not duplicate them across suite projects.
 - The browser suites resolve origin at runtime and use one `dotnet test` process at a time locally; lower the CI worker cap only when repeated full-suite runs prove resource contention.
-- The runnable browser suites keep a lower CI worker cap than local runs; preserve the safe `CiLimit = 2` split-suite baseline unless the user explicitly asks for a new experiment.
+- The runnable browser suites keep a lower CI worker cap than local runs, but when the user asks for throughput the in-suite CI worker cap should stay in the `6-9` range unless repeated full-suite runs prove a concrete blocker.
 - Do not keep separate concurrent `dotnet build` or `dotnet test` processes alive against the same test assets.
 - Prefer `PrompterOne.Shared.Contracts.AppRoutes`, `UiTestIds`, and other named constants over inline route or selector strings.
 - Use one dedicated test-attribute format only: `data-test`.
