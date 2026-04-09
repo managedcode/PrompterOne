@@ -16,7 +16,7 @@ public sealed class EditorLayoutTests(StandaloneAppFixture fixture)
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
+            await EditorRouteDriver.OpenReadyAsync(page, BrowserTestConstants.Routes.EditorDemo);
 
             var mainPanel = page.GetByTestId(UiTestIds.Editor.MainPanel);
             var metadataRail = page.GetByTestId(UiTestIds.Editor.MetadataRail);
@@ -48,20 +48,17 @@ public sealed class EditorLayoutTests(StandaloneAppFixture fixture)
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.Editor);
+            var scrollProbeText = string.Join(
+                '\n',
+                Enumerable.Range(1, BrowserTestConstants.Editor.ScrollProbeLineCount)
+                    .Select(index => $"Scroll probe line {index}"));
+            await EditorIsolatedDraftDriver.CreateDraftAsync(page, scrollProbeText);
 
             var sourceScrollHost = page.GetByTestId(UiTestIds.Editor.SourceScrollHost);
 
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
             await Expect(sourceScrollHost)
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
-
-            await EditorMonacoDriver.SetTextAsync(
-                page,
-                string.Join(
-                    '\n',
-                    Enumerable.Range(1, BrowserTestConstants.Editor.ScrollProbeLineCount)
-                        .Select(index => $"Scroll probe line {index}")));
 
             await EditorMonacoDriver.SetCaretAtEndAsync(page);
             await EditorMonacoDriver.CenterSelectionLineAsync(page);
@@ -106,7 +103,7 @@ public sealed class EditorLayoutTests(StandaloneAppFixture fixture)
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
+            await EditorRouteDriver.OpenReadyAsync(page, BrowserTestConstants.Routes.EditorDemo);
 
             var createdInput = page.GetByTestId(UiTestIds.Editor.Created);
             var createdIcon = page.GetByTestId(UiTestIds.Editor.CreatedIcon);
@@ -139,7 +136,7 @@ public sealed class EditorLayoutTests(StandaloneAppFixture fixture)
             await page.SetViewportSizeAsync(
                 BrowserTestConstants.ResponsiveLayout.IphoneMediumHeight,
                 BrowserTestConstants.ResponsiveLayout.IphoneMediumWidth);
-            await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
+            await EditorRouteDriver.OpenReadyAsync(page, BrowserTestConstants.Routes.EditorDemo);
             await Expect(page.GetByTestId(UiTestIds.Editor.Page))
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
@@ -213,7 +210,7 @@ public sealed class EditorLayoutTests(StandaloneAppFixture fixture)
         {
             UiScenarioArtifacts.ResetScenario(BrowserTestConstants.EditorFlow.LayoutScenario);
 
-            await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
+            await EditorRouteDriver.OpenReadyAsync(page, BrowserTestConstants.Routes.EditorDemo);
 
             var layout = page.GetByTestId(UiTestIds.Editor.Layout);
             var mainPanel = page.GetByTestId(UiTestIds.Editor.MainPanel);

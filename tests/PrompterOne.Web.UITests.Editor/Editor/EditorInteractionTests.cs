@@ -18,7 +18,7 @@ public sealed partial class EditorInteractionTests(StandaloneAppFixture fixture)
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
+            await EditorIsolatedDraftDriver.CreateSeededDraftAsync(page, BrowserTestConstants.Scripts.DemoId);
             await Expect(page.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync();
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
             await EditorMonacoDriver.SetSelectionByTextAsync(page, BrowserTestConstants.Editor.Welcome);
@@ -43,7 +43,7 @@ public sealed partial class EditorInteractionTests(StandaloneAppFixture fixture)
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
+            await EditorIsolatedDraftDriver.CreateSeededDraftAsync(page, BrowserTestConstants.Scripts.DemoId);
             var sourceInput = EditorMonacoDriver.SourceInput(page);
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
 
@@ -83,7 +83,7 @@ public sealed partial class EditorInteractionTests(StandaloneAppFixture fixture)
         try
         {
             await AiProviderTestSeeder.SeedConfiguredOpenAiAsync(page);
-            await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
+            await EditorIsolatedDraftDriver.CreateSeededDraftAsync(page, BrowserTestConstants.Scripts.DemoId);
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
             await EditorMonacoDriver.SetSelectionByTextAsync(page, BrowserTestConstants.Editor.Welcome);
 
@@ -113,7 +113,7 @@ public sealed partial class EditorInteractionTests(StandaloneAppFixture fixture)
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
+            await EditorIsolatedDraftDriver.CreateSeededDraftAsync(page, BrowserTestConstants.Scripts.DemoId);
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
             await EditorMonacoDriver.SetSelectionByTextAsync(page, BrowserTestConstants.Editor.TransformativeMoment);
 
@@ -140,7 +140,7 @@ public sealed partial class EditorInteractionTests(StandaloneAppFixture fixture)
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
+            await EditorIsolatedDraftDriver.CreateSeededDraftAsync(page, BrowserTestConstants.Scripts.DemoId);
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
             await EditorMonacoDriver.SetSelectionByTextAsync(page, BrowserTestConstants.Editor.TransformativeMoment);
 
@@ -166,7 +166,7 @@ public sealed partial class EditorInteractionTests(StandaloneAppFixture fixture)
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
+            await EditorIsolatedDraftDriver.CreateSeededDraftAsync(page, BrowserTestConstants.Scripts.DemoId);
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
             await EditorMonacoDriver.SetSelectionByTextAsync(page, BrowserTestConstants.Editor.OurCompany);
 
@@ -191,7 +191,7 @@ public sealed partial class EditorInteractionTests(StandaloneAppFixture fixture)
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
+            await EditorIsolatedDraftDriver.CreateSeededDraftAsync(page, BrowserTestConstants.Scripts.DemoId);
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
             await EditorMonacoDriver.SetSelectionByTextAsync(page, BrowserTestConstants.Editor.TransformativeMoment);
 
@@ -216,7 +216,7 @@ public sealed partial class EditorInteractionTests(StandaloneAppFixture fixture)
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
+            await EditorIsolatedDraftDriver.CreateSeededDraftAsync(page, BrowserTestConstants.Scripts.DemoId);
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
             await EditorMonacoDriver.SetSelectionByTextAsync(page, BrowserTestConstants.Editor.TransformativeMoment);
 
@@ -254,7 +254,7 @@ public sealed partial class EditorInteractionTests(StandaloneAppFixture fixture)
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.EditorQuantum);
+            await EditorIsolatedDraftDriver.CreateSeededDraftAsync(page, BrowserTestConstants.Scripts.QuantumId);
             await Expect(page.GetByTestId(UiTestIds.Editor.ActiveSegmentName)).ToHaveCountAsync(0);
             await Expect(page.GetByTestId(UiTestIds.Editor.ActiveBlockName)).ToHaveCountAsync(0);
             await Expect(page.GetByTestId(UiTestIds.Editor.SegmentNavigation(0))).ToContainTextAsync("Introduction");
@@ -273,7 +273,7 @@ public sealed partial class EditorInteractionTests(StandaloneAppFixture fixture)
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
+            await EditorIsolatedDraftDriver.CreateSeededDraftAsync(page, BrowserTestConstants.Scripts.DemoId);
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
 
             var visibleSource = await EditorMonacoDriver.SourceInput(page).InputValueAsync();
@@ -295,7 +295,7 @@ public sealed partial class EditorInteractionTests(StandaloneAppFixture fixture)
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
+            await EditorIsolatedDraftDriver.CreateSeededDraftAsync(page, BrowserTestConstants.Scripts.DemoId);
             await Expect(page.GetByTestId(UiTestIds.Editor.Duration)).ToBeVisibleAsync();
 
             await page.GetByTestId(UiTestIds.Editor.Duration).EvaluateAsync(
@@ -331,7 +331,7 @@ public sealed partial class EditorInteractionTests(StandaloneAppFixture fixture)
         try
         {
             await AiProviderTestSeeder.SeedConfiguredOpenAiAsync(page);
-            await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
+            await EditorIsolatedDraftDriver.CreateSeededDraftAsync(page, BrowserTestConstants.Scripts.DemoId);
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
             await EditorMonacoDriver.SetSelectionByTextAsync(page, BrowserTestConstants.Editor.Welcome);
 
@@ -377,13 +377,13 @@ public sealed partial class EditorInteractionTests(StandaloneAppFixture fixture)
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.Editor);
+            await EditorIsolatedDraftDriver.CreateDraftAsync(page, BrowserTestConstants.Editor.Welcome);
             var sourceInput = EditorMonacoDriver.SourceInput(page);
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
             await Expect(page.GetByTestId(UiTestIds.Editor.InsertSegment)).ToBeVisibleAsync();
             await Expect(page.GetByTestId(UiTestIds.Editor.InsertBlock)).ToBeVisibleAsync();
 
-            await EditorMonacoDriver.ClickAsync(page);
+            await EditorMonacoDriver.SetCaretAtEndAsync(page);
             await page.GetByTestId(UiTestIds.Editor.InsertSegment).ClickAsync();
             await Expect(sourceInput).ToHaveValueAsync(new Regex(Regex.Escape(BrowserTestConstants.Editor.StructureSegmentToken)));
 
@@ -403,7 +403,7 @@ public sealed partial class EditorInteractionTests(StandaloneAppFixture fixture)
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
+            await EditorIsolatedDraftDriver.CreateSeededDraftAsync(page, BrowserTestConstants.Scripts.DemoId);
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
             await EditorMonacoDriver.SetSelectionByTextAsync(page, BrowserTestConstants.Editor.Welcome);
 
@@ -453,7 +453,7 @@ public sealed partial class EditorInteractionTests(StandaloneAppFixture fixture)
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
+            await EditorIsolatedDraftDriver.CreateSeededDraftAsync(page, BrowserTestConstants.Scripts.DemoId);
             var sourceInput = EditorMonacoDriver.SourceInput(page);
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
             await EditorMonacoDriver.SetSelectionByTextAsync(page, BrowserTestConstants.Editor.Welcome);

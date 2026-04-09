@@ -168,7 +168,7 @@ public sealed class EditorToolbarCoverageTests(StandaloneAppFixture fixture)
 
     private static async Task OpenEditorAsync(IPage page)
     {
-        await EditorRouteDriver.OpenReadyAsync(page, BrowserTestConstants.Routes.EditorDemo, "editor-toolbar-coverage-open");
+        await EditorIsolatedDraftDriver.CreateSeededDraftAsync(page, BrowserTestConstants.Scripts.DemoId);
     }
 
     private static Task PrepareScenarioAsync(IPage page, EditorCommandScenario scenario) =>

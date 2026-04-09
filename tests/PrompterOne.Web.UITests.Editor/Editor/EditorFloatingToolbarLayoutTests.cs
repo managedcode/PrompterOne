@@ -148,7 +148,7 @@ public sealed class EditorFloatingToolbarLayoutTests(StandaloneAppFixture fixtur
 
     private static async Task GotoEditorAndWaitForSourceAsync(IPage page)
     {
-        await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
+        await EditorRouteDriver.OpenReadyAsync(page, BrowserTestConstants.Routes.EditorDemo);
 
         var editorPage = page.GetByTestId(UiTestIds.Editor.Page);
         await Expect(editorPage).ToBeVisibleAsync(new()

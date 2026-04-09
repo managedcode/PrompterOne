@@ -116,9 +116,10 @@ public sealed class StudioWorkflowScenarioTests(StandaloneAppFixture fixture)
 
     private static async Task OpenDemoScriptInEditorAsync(IPage page)
     {
-        await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
-        await Expect(page.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync();
-        await EditorMonacoDriver.WaitUntilReadyAsync(page);
+        await EditorRouteDriver.OpenReadyAsync(
+            page,
+            BrowserTestConstants.Routes.EditorDemo,
+            $"{BrowserTestConstants.StudioWorkflow.Name}-editor-demo");
         await UiScenarioArtifacts.CapturePageAsync(page, BrowserTestConstants.StudioWorkflow.Name, BrowserTestConstants.StudioWorkflow.EditorInitialStep);
     }
 

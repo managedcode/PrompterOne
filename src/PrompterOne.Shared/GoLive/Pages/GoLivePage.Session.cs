@@ -85,8 +85,9 @@ public partial class GoLivePage
 
     private void SyncGoLiveSessionState()
     {
+        var routeScopedScriptId = ScriptRouteSessionLoader.ResolveRequestedScriptId(ScriptId, Navigation.Uri);
         GoLiveSession.EnsureSession(
-            SessionService.State.ScriptId,
+            routeScopedScriptId,
             _sessionTitle,
             _sessionSubtitle,
             PrimaryMicrophoneLabel,

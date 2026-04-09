@@ -1,6 +1,8 @@
 using System.Globalization;
 using System.Text;
+using Microsoft.Playwright;
 using PrompterOne.Shared.Contracts;
+using PrompterOne.Shared.Services.Editor;
 using static Microsoft.Playwright.Assertions;
 
 namespace PrompterOne.Web.UITests;
@@ -18,12 +20,8 @@ public sealed class EditorAiScrollStabilityTests(StandaloneAppFixture fixture)
         try
         {
             await AiProviderTestSeeder.SeedConfiguredOpenAiAsync(page);
-            await page.GotoAsync(BrowserTestConstants.Routes.Editor);
-            await Expect(page.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync();
-            await EditorMonacoDriver.WaitUntilReadyAsync(page);
-
             var sourceText = BuildAiScrollJumpText();
-            await EditorMonacoDriver.SetTextAsync(page, sourceText);
+            await EditorIsolatedDraftDriver.CreateDraftAsync(page, sourceText);
             await EditorMonacoDriver.ClickAsync(page);
 
             var targetRange = ResolveAiScrollJumpTargetRange(sourceText);
@@ -42,7 +40,7 @@ public sealed class EditorAiScrollStabilityTests(StandaloneAppFixture fixture)
 
             await Expect(page.GetByTestId(UiTestIds.Editor.Ai)).ToBeEnabledAsync();
             await page.GetByTestId(UiTestIds.Editor.Ai).ClickAsync();
-            await page.WaitForTimeoutAsync(BrowserTestConstants.Editor.AiScrollJumpSettleDelayMs);
+            await WaitForAiMutationAndStableScrollAsync(page, before.ScrollTop);
 
             var after = await EditorMonacoDriver.GetStateAsync(page);
             var value = await EditorMonacoDriver.SourceInput(page).InputValueAsync();
@@ -100,6 +98,38 @@ public sealed class EditorAiScrollStabilityTests(StandaloneAppFixture fixture)
             targetStart,
             targetStart + BrowserTestConstants.Editor.TransformativeMoment.Length);
     }
+
+    private static Task WaitForAiMutationAndStableScrollAsync(IPage page, double baselineScrollTop) =>
+        page.WaitForFunctionAsync(
+            """
+            (args) => {
+                const sourceInput = document.querySelector(`[data-test="${args.sourceInputTestId}"]`);
+                const harness = window[args.harnessGlobalName];
+                const state = harness?.getState(args.stageTestId);
+                const hasValue =
+                    sourceInput instanceof HTMLInputElement ||
+                    sourceInput instanceof HTMLTextAreaElement;
+                if (!hasValue || !state) {
+                    return false;
+                }
+
+                const sourceValue = sourceInput.value ?? "";
+                const scrollTop = typeof state.scrollTop === "number" ? state.scrollTop : 0;
+
+                return sourceValue.includes(args.expectedText) &&
+                    Math.abs(scrollTop - args.baselineScrollTop) <= args.maxAllowedDelta;
+            }
+            """,
+            new
+            {
+                baselineScrollTop,
+                expectedText = BrowserTestConstants.Editor.SimplifiedMoment,
+                harnessGlobalName = EditorMonacoRuntimeContract.BrowserHarnessGlobalName,
+                maxAllowedDelta = BrowserTestConstants.Editor.AiScrollJumpMaximumAllowedDeltaPx,
+                sourceInputTestId = UiTestIds.Editor.SourceInput,
+                stageTestId = UiTestIds.Editor.SourceStage
+            },
+            new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
 
     private readonly record struct AiScrollJumpRange(int Start, int End);
 }

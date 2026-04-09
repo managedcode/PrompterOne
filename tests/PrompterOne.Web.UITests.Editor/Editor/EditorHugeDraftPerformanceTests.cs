@@ -23,7 +23,7 @@ public sealed class EditorHugeDraftPerformanceTests(StandaloneAppFixture fixture
                 EditorLargeDraftPerformanceTestData.GetVisibleDraftLength(hugeDraft) +
                 EditorLargeDraftPerformanceTestData.FollowupTypingText.Length;
 
-            await page.GotoAsync(BrowserTestConstants.Routes.EditorHugeDraft);
+            await EditorRouteDriver.OpenReadyAsync(page, BrowserTestConstants.Routes.EditorHugeDraft);
             var editorReady = false;
             var deadline = DateTimeOffset.UtcNow.AddMilliseconds(EditorLargeDraftPerformanceTestData.HugeDraftReadyTimeoutMs);
             while (DateTimeOffset.UtcNow < deadline)

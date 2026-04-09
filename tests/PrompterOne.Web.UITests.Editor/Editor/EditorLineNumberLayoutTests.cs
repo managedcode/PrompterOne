@@ -18,7 +18,7 @@ public sealed class EditorLineNumberLayoutTests(StandaloneAppFixture fixture)
         {
             UiScenarioArtifacts.ResetScenario(BrowserTestConstants.EditorFlow.LineNumbersScenario);
 
-            await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
+            await EditorRouteDriver.OpenReadyAsync(page, BrowserTestConstants.Routes.EditorDemo);
             await Expect(page.GetByTestId(UiTestIds.Editor.Page))
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
             await EditorMonacoDriver.WaitUntilReadyAsync(page);

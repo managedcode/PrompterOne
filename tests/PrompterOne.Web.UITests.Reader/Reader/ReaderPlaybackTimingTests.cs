@@ -224,9 +224,8 @@ public sealed class ReaderPlaybackTimingTests(StandaloneAppFixture fixture)
         int expectedSampleCount)
     {
         await SeedLearnSpeedAsync(page, targetWpm);
-        await page.GotoAsync(route);
-        await Expect(page.GetByTestId(UiTestIds.Learn.Page))
-            .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
+        await page.GotoAsync(UiTestHostConstants.BlankPagePath, new() { WaitUntil = WaitUntilState.NetworkIdle });
+        await ReaderRouteDriver.OpenLearnAsync(page, route);
         await Expect(page.GetByTestId(UiTestIds.Learn.Word)).ToBeVisibleAsync();
         await Assert.That(await ReadNormalizedLearnWordAsync(page)).IsEqualTo(BrowserTestConstants.ReaderTiming.FirstWord);
         await Expect(page.GetByTestId(UiTestIds.Learn.SpeedValue))

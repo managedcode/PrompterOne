@@ -22,7 +22,7 @@ public sealed class EditorStatusBarFlowTests(StandaloneAppFixture fixture) : App
         {
             UiScenarioArtifacts.ResetScenario(BrowserTestConstants.EditorFlow.StatusBarScenario);
 
-            await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
+            await EditorRouteDriver.OpenReadyAsync(page, BrowserTestConstants.Routes.EditorDemo);
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
 
             var statusBar = page.GetByTestId(UiTestIds.Editor.StatusBar);

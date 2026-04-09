@@ -19,7 +19,6 @@ public sealed partial class StandaloneAppFixture
 
     private static async Task InitializeContextAsync(IBrowserContext context, string baseAddress)
     {
-        await context.AddInitScriptAsync(BrowserTestLibrarySeedData.CreateInitializationScript());
         await context.AddInitScriptAsync(UiTestHostConstants.RuntimeTelemetryHarnessInitializationScript);
         await context.GrantPermissionsAsync(UiTestHostConstants.GrantedPermissions, new BrowserContextGrantPermissionsOptions
         {
@@ -81,26 +80,6 @@ public sealed partial class StandaloneAppFixture
         }
     }
 
-    private static async Task WarmUpReturnedPageIfNeededAsync(IPage page)
-    {
-        if (!TestEnvironment.IsCiEnvironment)
-        {
-            return;
-        }
-
-        var browserErrors = BrowserErrorCollector.Attach(page);
-
-        try
-        {
-            await WarmUpRouteAsync(page, BrowserTestConstants.Routes.Library, UiTestIds.Library.Page);
-            await browserErrors.AssertNoCriticalUiErrorsAsync();
-        }
-        catch (Exception exception)
-        {
-            throw BuildContextWarmupFailure(exception, browserErrors.Describe());
-        }
-    }
-
     private static async Task WarmUpRuntimeAsync(IBrowser browser, string baseAddress)
     {
         var context = await CreateBrowserContextAsync(browser, baseAddress);
@@ -134,6 +113,7 @@ public sealed partial class StandaloneAppFixture
     private static async Task WarmUpRouteAsync(IPage page, string route, string pageTestId)
     {
         await page.GotoAsync(route);
+        await BrowserRouteDriver.WaitForRouteAsync(page, route);
         await Expect(page.GetByTestId(pageTestId))
             .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.RuntimeWarmupVisibleTimeoutMs });
     }

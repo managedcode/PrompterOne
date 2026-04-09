@@ -111,17 +111,20 @@ public sealed class GoLiveShellSessionFlowTests(StandaloneAppFixture fixture)
         {
             await GoLiveFlowTests.SeedGoLiveSceneForReuseAsync(primaryPage);
             await GoLiveTestSeedHelper.SeedBrowserLocalRecordingPreferencesAsync(primaryPage);
-            await primaryPage.GotoAsync(BrowserTestConstants.Routes.GoLive);
-            await Expect(primaryPage.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
+            await StudioRouteDriver.OpenGoLiveRouteAsync(primaryPage, BrowserTestConstants.Routes.GoLive);
+            await Assert.That(new Uri(primaryPage.Url).PathAndQuery).IsEqualTo(BrowserTestConstants.Routes.GoLive);
 
             await primaryPage.GetByTestId(UiTestIds.GoLive.StartRecording).ClickAsync();
             await primaryPage.WaitForFunctionAsync(
                 BrowserTestConstants.GoLive.RecordingRuntimeActiveScript,
                 BrowserTestConstants.GoLive.RuntimeSessionId,
                 new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
+            await Assert.That(new Uri(primaryPage.Url).PathAndQuery).IsEqualTo(BrowserTestConstants.Routes.GoLive);
 
-            await secondaryPage.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
-            await Expect(secondaryPage.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync();
+            await EditorRouteDriver.OpenReadyAsync(
+                secondaryPage,
+                BrowserTestConstants.Routes.EditorDemo,
+                "go-live-generic-active-session-secondary-editor");
             await Expect(secondaryPage.GetByTestId(UiTestIds.Header.LiveWidget)).ToBeVisibleAsync();
 
             await secondaryPage.GetByTestId(UiTestIds.Header.LiveWidget).ClickAsync();
@@ -150,13 +153,11 @@ public sealed class GoLiveShellSessionFlowTests(StandaloneAppFixture fixture)
             await GoLiveFlowTests.SeedGoLiveSceneForReuseAsync(primaryPage);
             await GoLiveTestSeedHelper.SeedBrowserLocalRecordingPreferencesAsync(primaryPage);
 
-            await secondaryPage.GotoAsync(BrowserTestConstants.Routes.Settings);
-            await Expect(secondaryPage.GetByTestId(UiTestIds.Settings.Page)).ToBeVisibleAsync();
+            await StudioRouteDriver.OpenSettingsAsync(secondaryPage);
             await Expect(secondaryPage.GetByTestId(UiTestIds.Header.GoLive))
                 .ToHaveAttributeAsync("data-live-state", BrowserTestConstants.GoLive.IdleStateValue);
 
-            await primaryPage.GotoAsync(BrowserTestConstants.Routes.GoLiveDemo);
-            await Expect(primaryPage.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
+            await StudioRouteDriver.OpenGoLiveAsync(primaryPage);
 
             await primaryPage.GetByTestId(UiTestIds.GoLive.StartRecording).ClickAsync();
             await primaryPage.WaitForFunctionAsync(

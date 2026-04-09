@@ -13,7 +13,7 @@ public sealed class EditorSelectionRenderRegressionTests(StandaloneAppFixture fi
         RunPageAsync(async page =>
         {
             await EditorFileStorageTestSeeder.SeedAutoSaveDisabledAsync(page);
-            await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
+            await EditorRouteDriver.OpenReadyAsync(page, BrowserTestConstants.Routes.EditorDemo);
             await Expect(page.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync();
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
 
@@ -29,7 +29,7 @@ public sealed class EditorSelectionRenderRegressionTests(StandaloneAppFixture fi
         RunPageAsync(async page =>
         {
             await EditorFileStorageTestSeeder.SeedAutoSaveDisabledAsync(page);
-            await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
+            await EditorRouteDriver.OpenReadyAsync(page, BrowserTestConstants.Routes.EditorDemo);
             await Expect(page.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync();
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
 
@@ -50,7 +50,7 @@ public sealed class EditorSelectionRenderRegressionTests(StandaloneAppFixture fi
         RunPageAsync(async page =>
         {
             await EditorFileStorageTestSeeder.SeedAutoSaveDisabledAsync(page);
-            await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
+            await EditorRouteDriver.OpenReadyAsync(page, BrowserTestConstants.Routes.EditorDemo);
             await Expect(page.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync();
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
 

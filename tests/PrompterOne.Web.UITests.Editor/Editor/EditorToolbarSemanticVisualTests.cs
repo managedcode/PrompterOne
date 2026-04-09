@@ -20,7 +20,7 @@ public sealed class EditorToolbarSemanticVisualTests(StandaloneAppFixture fixtur
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
+            await EditorRouteDriver.OpenReadyAsync(page, BrowserTestConstants.Routes.EditorDemo);
             await Expect(page.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync(new()
             {
                 Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs
@@ -129,7 +129,7 @@ public sealed class EditorToolbarSemanticVisualTests(StandaloneAppFixture fixtur
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
+            await EditorRouteDriver.OpenReadyAsync(page, BrowserTestConstants.Routes.EditorDemo);
             await Expect(page.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync(new()
             {
                 Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs
@@ -213,7 +213,7 @@ public sealed class EditorToolbarSemanticVisualTests(StandaloneAppFixture fixtur
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
+            await EditorRouteDriver.OpenReadyAsync(page, BrowserTestConstants.Routes.EditorDemo);
             await Expect(page.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync(new()
             {
                 Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs
@@ -269,7 +269,7 @@ public sealed class EditorToolbarSemanticVisualTests(StandaloneAppFixture fixtur
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
+            await EditorRouteDriver.OpenReadyAsync(page, BrowserTestConstants.Routes.EditorDemo);
             await Expect(page.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync(new()
             {
                 Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs

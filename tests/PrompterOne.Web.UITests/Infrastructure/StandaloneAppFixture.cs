@@ -82,7 +82,6 @@ public sealed partial class StandaloneAppFixture : IAsyncInitializer, IAsyncDisp
             {
                 await WarmUpContextWithSacrificialPageAsync(context);
                 var page = await CreatePrimedPageAsync(context);
-                await WarmUpReturnedPageIfNeededAsync(page);
                 return page;
             }
             catch (PlaywrightException exception) when (attempt < ContextBootstrapAttemptCount && IsBrowserClosedException(exception))
@@ -106,7 +105,7 @@ public sealed partial class StandaloneAppFixture : IAsyncInitializer, IAsyncDisp
             {
                 if (isNewSharedContext)
                 {
-                    await WarmUpContextWithSacrificialPageAsync(context, warmAllRuntimeRoutes: true);
+                    await WarmUpContextWithSacrificialPageAsync(context);
                     return await CreatePrimedPageAsync(context);
                 }
 

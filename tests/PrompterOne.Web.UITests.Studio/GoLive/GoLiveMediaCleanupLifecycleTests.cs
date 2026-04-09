@@ -62,8 +62,10 @@ public sealed class GoLiveMediaCleanupLifecycleTests(StandaloneAppFixture fixtur
 
         try
         {
-            await StudioRouteDriver.OpenGoLiveAsync(page);
-            await Expect(page.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
+            // Keep the page off the Go Live route so route-owned preview captures do not
+            // populate the synthetic request log before this lifecycle assertion begins.
+            await StudioRouteDriver.OpenSettingsAsync(page);
+            await Expect(page.GetByTestId(UiTestIds.Settings.Page)).ToBeVisibleAsync();
 
             await page.EvaluateAsync(InstallCleanupSpiesScript);
             await page.EvaluateAsync(BrowserTestConstants.Media.ClearRequestLogScript);

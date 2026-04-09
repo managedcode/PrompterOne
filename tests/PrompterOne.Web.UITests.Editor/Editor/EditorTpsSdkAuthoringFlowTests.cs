@@ -19,11 +19,11 @@ public sealed class EditorTpsSdkAuthoringFlowTests(StandaloneAppFixture fixture)
     [Test]
     public async Task EditorScreen_InsertMenuAddsArchetypeAwareSegmentHeader()
     {
-        var page = await OpenEditorAsync();
+        var page = await fixture.NewPageAsync(additionalContext: true);
 
         try
         {
-            await EditorMonacoDriver.SetTextAsync(page, MinimalDocument);
+            await EditorIsolatedDraftDriver.CreateDraftAsync(page, MinimalDocument);
             await EditorMonacoDriver.SetCaretAtEndAsync(page);
             await page.GetByTestId(UiTestIds.Editor.InsertTrigger).ClickAsync();
             await page.GetByTestId(UiTestIds.Editor.InsertSegmentArchetypeMenu).ClickAsync();
@@ -41,11 +41,11 @@ public sealed class EditorTpsSdkAuthoringFlowTests(StandaloneAppFixture fixture)
     [Test]
     public async Task EditorScreen_InsertMenuAddsArchetypeAwareBlockHeader()
     {
-        var page = await OpenEditorAsync();
+        var page = await fixture.NewPageAsync(additionalContext: true);
 
         try
         {
-            await EditorMonacoDriver.SetTextAsync(page, MinimalDocument);
+            await EditorIsolatedDraftDriver.CreateDraftAsync(page, MinimalDocument);
             await EditorMonacoDriver.SetCaretAtEndAsync(page);
             await page.GetByTestId(UiTestIds.Editor.InsertTrigger).ClickAsync();
             await page.GetByTestId(UiTestIds.Editor.InsertBlockArchetypeMenu).ClickAsync();
@@ -63,11 +63,11 @@ public sealed class EditorTpsSdkAuthoringFlowTests(StandaloneAppFixture fixture)
     [Test]
     public async Task EditorScreen_FloatingVoiceMenuAppliesEnergyTag()
     {
-        var page = await OpenEditorAsync();
+        var page = await fixture.NewPageAsync(additionalContext: true);
 
         try
         {
-            await EditorMonacoDriver.SetTextAsync(page, SelectionDocument);
+            await EditorIsolatedDraftDriver.CreateDraftAsync(page, SelectionDocument);
             await EditorMonacoDriver.SetSelectionByTextAsync(page, SelectionToken);
             await Expect(page.GetByTestId(UiTestIds.Editor.FloatingBar))
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.FastVisibleTimeoutMs });
@@ -87,11 +87,11 @@ public sealed class EditorTpsSdkAuthoringFlowTests(StandaloneAppFixture fixture)
     [Test]
     public async Task EditorScreen_FloatingVoiceMenuAppliesLegatoTag()
     {
-        var page = await OpenEditorAsync();
+        var page = await fixture.NewPageAsync(additionalContext: true);
 
         try
         {
-            await EditorMonacoDriver.SetTextAsync(page, SelectionDocument);
+            await EditorIsolatedDraftDriver.CreateDraftAsync(page, SelectionDocument);
             await EditorMonacoDriver.SetSelectionByTextAsync(page, SelectionToken);
             await Expect(page.GetByTestId(UiTestIds.Editor.FloatingBar))
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.FastVisibleTimeoutMs });
@@ -111,11 +111,11 @@ public sealed class EditorTpsSdkAuthoringFlowTests(StandaloneAppFixture fixture)
     [Test]
     public async Task EditorScreen_FloatingInsertMenuAddsArchetypeAwareSegmentHeader()
     {
-        var page = await OpenEditorAsync();
+        var page = await fixture.NewPageAsync(additionalContext: true);
 
         try
         {
-            await EditorMonacoDriver.SetTextAsync(page, SelectionDocument);
+            await EditorIsolatedDraftDriver.CreateDraftAsync(page, SelectionDocument);
             await EditorMonacoDriver.SetSelectionByTextAsync(page, SelectionToken);
             await Expect(page.GetByTestId(UiTestIds.Editor.FloatingBar))
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.FastVisibleTimeoutMs });
@@ -130,12 +130,5 @@ public sealed class EditorTpsSdkAuthoringFlowTests(StandaloneAppFixture fixture)
         {
             await page.Context.CloseAsync();
         }
-    }
-
-    private async Task<Microsoft.Playwright.IPage> OpenEditorAsync()
-    {
-        var page = await fixture.NewPageAsync(additionalContext: true);
-        await EditorRouteDriver.OpenReadyAsync(page, BrowserTestConstants.Routes.EditorDemo, "editor-tps-sdk-open");
-        return page;
     }
 }

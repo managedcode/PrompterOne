@@ -454,8 +454,7 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
             await SeedGoLiveSceneForReuseAsync(page);
             await SeedGoLivePrimaryMicrophoneAsync(page);
             await SeedDualTransportStudioSettingsAsync(page);
-            await page.GotoAsync(BrowserTestConstants.Routes.GoLiveDemo);
-            await Expect(page.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
+            await StudioRouteDriver.OpenGoLiveAsync(page);
             await page.EvaluateAsync(BrowserTestConstants.GoLive.InstallLiveKitHarnessScript);
             await page.EvaluateAsync(BrowserTestConstants.GoLive.InstallVdoNinjaHarnessScript);
 
@@ -514,8 +513,7 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
         try
         {
             await SeedGoLiveSceneForReuseAsync(page);
-            await page.GotoAsync(BrowserTestConstants.Routes.GoLiveDemo);
-            await Expect(page.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
+            await StudioRouteDriver.OpenGoLiveAsync(page);
             await Expect(page.GetByTestId(UiTestIds.GoLive.SceneControls)).ToBeVisibleAsync();
             await Expect(page.GetByTestId(UiTestIds.GoLive.ProviderCard(GoLiveTargetCatalog.TargetIds.Recording))).ToHaveCountAsync(0);
 
@@ -541,12 +539,6 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
 
     internal static async Task SeedGoLiveSceneForReuseAsync(Microsoft.Playwright.IPage page)
     {
-        await BrowserRouteDriver.OpenPageAsync(
-            page,
-            BrowserTestConstants.Routes.Library,
-            UiTestIds.Library.Page,
-            "go-live-seed-scene-for-reuse");
-
         await page.EvaluateAsync(
             BrowserTestConstants.GoLive.SeedSceneScript,
             new object[]

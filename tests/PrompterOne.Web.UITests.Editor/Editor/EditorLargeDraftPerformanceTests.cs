@@ -25,7 +25,7 @@ public sealed class EditorLargeDraftPerformanceTests(StandaloneAppFixture fixtur
                 EditorLargeDraftPerformanceTestData.FollowupTypingText.Length;
 
             await EditorFileStorageTestSeeder.SeedAutoSaveDisabledAsync(page);
-            await page.GotoAsync(BrowserTestConstants.Routes.Editor);
+            await EditorRouteDriver.OpenReadyAsync(page, BrowserTestConstants.Routes.Editor);
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
 
             await page.EvaluateAsync(
@@ -130,7 +130,7 @@ public sealed class EditorLargeDraftPerformanceTests(StandaloneAppFixture fixtur
             var targetSegment = page.GetByTestId(UiTestIds.Editor.SegmentNavigation(targetSegmentNumber - 1));
 
             await EditorFileStorageTestSeeder.SeedAutoSaveDisabledAsync(page);
-            await page.GotoAsync(BrowserTestConstants.Routes.EditorLargeDraft);
+            await EditorRouteDriver.OpenReadyAsync(page, BrowserTestConstants.Routes.EditorLargeDraft);
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
 
             await Expect(targetSegment).ToContainTextAsync(targetSegmentLabel);

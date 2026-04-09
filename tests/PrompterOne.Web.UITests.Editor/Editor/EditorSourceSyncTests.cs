@@ -15,7 +15,7 @@ public sealed class EditorSourceSyncTests(StandaloneAppFixture fixture)
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.EditorQuantum);
+            await EditorIsolatedDraftDriver.CreateSeededDraftAsync(page, BrowserTestConstants.Scripts.QuantumId);
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
             await EditorMonacoDriver.ReplaceTextAsync(
                 page,

@@ -36,7 +36,7 @@ public sealed class EditorFileSaveFlowTests(StandaloneAppFixture fixture)
         try
         {
             await page.AddInitScriptAsync(scriptPath: GetEditorFileSaveHarnessScriptPath());
-            await page.GotoAsync(BrowserTestConstants.Routes.EditorQuantum);
+            await EditorRouteDriver.OpenReadyAsync(page, BrowserTestConstants.Routes.EditorQuantum);
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
             await EditorMonacoDriver.SetTextAsync(page, EditedScript);
 
@@ -68,7 +68,7 @@ public sealed class EditorFileSaveFlowTests(StandaloneAppFixture fixture)
         try
         {
             await page.AddInitScriptAsync(scriptPath: GetEditorFileSaveHarnessScriptPath());
-            await page.GotoAsync(BrowserTestConstants.Routes.EditorQuantum);
+            await EditorRouteDriver.OpenReadyAsync(page, BrowserTestConstants.Routes.EditorQuantum);
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
             await page.EvaluateAsync(HarnessResetScript);
             await page.EvaluateAsync(HarnessDisableSavePickerScript);

@@ -1,6 +1,3 @@
-using PrompterOne.Shared.Contracts;
-using static Microsoft.Playwright.Assertions;
-
 namespace PrompterOne.Web.UITests;
 
 [System.Obsolete]
@@ -54,11 +51,7 @@ public sealed class EditorMonacoAssistanceFlowTests(StandaloneAppFixture fixture
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
-            await Expect(page.GetByTestId(UiTestIds.Editor.Page))
-                .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
-            await EditorMonacoDriver.WaitUntilReadyAsync(page);
-            await EditorMonacoDriver.SetTextAsync(page, AssistanceDocument);
+            await EditorIsolatedDraftDriver.CreateDraftAsync(page, AssistanceDocument);
 
             var titleTokens = await EditorMonacoDriver.TokenizeLineAsync(page, TitleLineNumber);
             var segmentTokens = await EditorMonacoDriver.TokenizeLineAsync(page, SegmentLineNumber);
@@ -98,11 +91,7 @@ public sealed class EditorMonacoAssistanceFlowTests(StandaloneAppFixture fixture
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
-            await Expect(page.GetByTestId(UiTestIds.Editor.Page))
-                .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
-            await EditorMonacoDriver.WaitUntilReadyAsync(page);
-            await EditorMonacoDriver.SetTextAsync(page, "[");
+            await EditorIsolatedDraftDriver.CreateDraftAsync(page, "[", waitForPersistedRoute: false);
 
             var completions = await EditorMonacoDriver.GetCompletionsAsync(page, CompletionInvokeLineNumber, CompletionInvokeColumn);
 
@@ -122,11 +111,7 @@ public sealed class EditorMonacoAssistanceFlowTests(StandaloneAppFixture fixture
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
-            await Expect(page.GetByTestId(UiTestIds.Editor.Page))
-                .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
-            await EditorMonacoDriver.WaitUntilReadyAsync(page);
-            await EditorMonacoDriver.SetTextAsync(page, AssistanceDocument);
+            await EditorIsolatedDraftDriver.CreateDraftAsync(page, AssistanceDocument);
 
             var breathHover = await EditorMonacoDriver.GetHoverAsync(page, InlineLineNumber, FindColumn(InlineLine, "[breath]"));
             var speakerHover = await EditorMonacoDriver.GetHoverAsync(page, SegmentLineNumber, FindColumn(SegmentLine, "Speaker:Alex"));

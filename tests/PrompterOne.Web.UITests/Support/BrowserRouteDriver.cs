@@ -24,6 +24,7 @@ internal static class BrowserRouteDriver
         for (var attempt = 1; attempt <= RouteBootstrapAttemptCount; attempt++)
         {
             await page.GotoAsync(route, new() { WaitUntil = WaitUntilState.NetworkIdle });
+            await WaitForRouteAsync(page, route);
             if (await IsPageVisibleAsync(page, pageTestId, BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs))
             {
                 return;

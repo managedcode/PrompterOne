@@ -43,11 +43,11 @@ internal static class UiTestHostConstants
             }
 
             if ('indexedDB' in window) {
-                await new Promise(resolve => {
+                await new Promise((resolve, reject) => {
                     const request = window.indexedDB.deleteDatabase(databaseName);
                     request.onsuccess = () => resolve();
-                    request.onerror = () => resolve();
-                    request.onblocked = () => resolve();
+                    request.onerror = () => reject(new Error(`Failed to delete IndexedDB database '${databaseName}'.`));
+                    request.onblocked = () => reject(new Error(`IndexedDB database '${databaseName}' deletion was blocked by an open connection.`));
                 });
             }
         }

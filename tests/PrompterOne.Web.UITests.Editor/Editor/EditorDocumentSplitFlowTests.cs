@@ -12,12 +12,9 @@ public sealed class EditorDocumentSplitFlowTests(StandaloneAppFixture fixture) :
         RunPageAsync(async page =>
         {
             UiScenarioArtifacts.ResetScenario(BrowserTestConstants.EditorFlow.SplitFeedbackScenario);
-            await page.GotoAsync(BrowserTestConstants.Routes.Editor);
-            await Expect(page.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync();
-            await EditorMonacoDriver.WaitUntilReadyAsync(page);
+            await EditorIsolatedDraftDriver.CreateDraftAsync(page, EditorSplitFeedbackTestData.SplitSource);
             await page.GetByTestId(UiTestIds.Editor.ToolsTab).ClickAsync();
             await Expect(page.GetByTestId(UiTestIds.Editor.ToolsPanel)).ToBeVisibleAsync();
-            await EditorMonacoDriver.SetTextAsync(page, EditorSplitFeedbackTestData.SplitSource);
             await Expect(page.GetByTestId(UiTestIds.Editor.SplitSegment)).ToHaveTextAsync(EditorSplitFeedbackTestData.SplitSegmentActionLabel);
 
             var splitActionLivesInToolsPanel = await page.EvaluateAsync<bool>(
@@ -70,12 +67,9 @@ public sealed class EditorDocumentSplitFlowTests(StandaloneAppFixture fixture) :
         RunPageAsync(async page =>
         {
             UiScenarioArtifacts.ResetScenario(BrowserTestConstants.EditorFlow.SplitFeedbackScenario);
-            await page.GotoAsync(BrowserTestConstants.Routes.Editor);
-            await Expect(page.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync();
-            await EditorMonacoDriver.WaitUntilReadyAsync(page);
+            await EditorIsolatedDraftDriver.CreateDraftAsync(page, EditorSplitFeedbackTestData.SplitBySpeakerSource);
             await page.GetByTestId(UiTestIds.Editor.ToolsTab).ClickAsync();
             await Expect(page.GetByTestId(UiTestIds.Editor.ToolsPanel)).ToBeVisibleAsync();
-            await EditorMonacoDriver.SetTextAsync(page, EditorSplitFeedbackTestData.SplitBySpeakerSource);
             await Expect(page.GetByTestId(UiTestIds.Editor.SplitSpeaker)).ToHaveTextAsync(EditorSplitFeedbackTestData.SplitSpeakerActionLabel);
 
             await page.GetByTestId(UiTestIds.Editor.SplitSpeaker).ClickAsync();

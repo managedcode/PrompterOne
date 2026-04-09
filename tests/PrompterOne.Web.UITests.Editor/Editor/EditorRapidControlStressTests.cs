@@ -17,7 +17,7 @@ public sealed class EditorRapidControlStressTests(StandaloneAppFixture fixture)
             UiScenarioArtifacts.ResetScenario(RapidControlsScenario);
             var errors = BrowserErrorCollector.Attach(page);
 
-            await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
+            await EditorRouteDriver.OpenReadyAsync(page, BrowserTestConstants.Routes.EditorDemo);
             await Expect(page.GetByTestId(UiTestIds.Editor.Page))
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
             await EditorMonacoDriver.WaitUntilReadyAsync(page);

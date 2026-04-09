@@ -19,7 +19,13 @@ internal static class StudioRouteDriver
     internal static Task OpenGoLiveAsync(
         IPage page,
         [CallerMemberName] string scenarioName = "") =>
-        OpenAsync(page, BrowserTestConstants.Routes.GoLiveDemo, UiTestIds.GoLive.Page, scenarioName);
+        OpenGoLiveRouteAsync(page, BrowserTestConstants.Routes.GoLiveDemo, scenarioName);
+
+    internal static Task OpenGoLiveRouteAsync(
+        IPage page,
+        string route,
+        [CallerMemberName] string scenarioName = "") =>
+        OpenAsync(page, route, UiTestIds.GoLive.Page, scenarioName);
 
     internal static Task OpenTeleprompterAsync(
         IPage page,

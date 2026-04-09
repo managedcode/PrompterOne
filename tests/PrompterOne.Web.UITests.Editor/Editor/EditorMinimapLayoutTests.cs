@@ -16,7 +16,7 @@ public sealed class EditorMinimapLayoutTests(StandaloneAppFixture fixture)
             _fixture,
             async page =>
             {
-                await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
+                await EditorRouteDriver.OpenReadyAsync(page, BrowserTestConstants.Routes.EditorDemo);
                 await EditorMonacoDriver.WaitUntilReadyAsync(page);
 
                 var stage = page.GetByTestId(UiTestIds.Editor.SourceStage);

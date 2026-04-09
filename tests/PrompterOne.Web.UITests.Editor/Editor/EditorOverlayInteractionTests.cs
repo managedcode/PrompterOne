@@ -15,7 +15,7 @@ public sealed class EditorOverlayInteractionTests(StandaloneAppFixture fixture)
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
+            await EditorRouteDriver.OpenReadyAsync(page, BrowserTestConstants.Routes.EditorDemo);
 
             var floatingBar = page.GetByTestId(UiTestIds.Editor.FloatingBar);
             var colorMenu = page.GetByTestId(UiTestIds.Editor.MenuColor);

@@ -336,7 +336,7 @@ public sealed class EditorMonacoAssistanceRegressionTests(StandaloneAppFixture f
     private async Task<Microsoft.Playwright.IPage> OpenEditorAsync()
     {
         var page = await fixture.NewPageAsync(additionalContext: true);
-        await EditorRouteDriver.OpenReadyAsync(page, BrowserTestConstants.Routes.EditorDemo, "editor-monaco-regression-open");
+        await EditorIsolatedDraftDriver.CreateDraftAsync(page, "# Monaco Assistance");
         return page;
     }
 

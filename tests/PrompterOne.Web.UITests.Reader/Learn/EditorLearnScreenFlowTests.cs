@@ -11,9 +11,10 @@ public sealed class EditorLearnScreenFlowTests(StandaloneAppFixture fixture) : A
         RunPageAsync(async page =>
         {
             await AiProviderTestSeeder.SeedConfiguredOpenAiAsync(page);
-            await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
-            await Expect(page.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
-            await EditorMonacoDriver.WaitUntilReadyAsync(page);
+            await EditorRouteDriver.OpenReadyAsync(
+                page,
+                BrowserTestConstants.Routes.EditorDemo,
+                "editor-learn-screen-flow-editor-demo");
             await Expect(page.GetByTestId(UiTestIds.Editor.SourceHighlight)).ToContainTextAsync(BrowserTestConstants.Editor.BodyHeading);
             await Expect(page.GetByTestId(UiTestIds.Editor.SourceHighlight)).ToContainTextAsync("Opening Block");
             await Expect(page.GetByTestId(UiTestIds.Editor.SourceHighlight)).ToContainTextAsync("Purpose Block");

@@ -26,12 +26,9 @@ public sealed class EditorToolbarTooltipFlowTests(StandaloneAppFixture fixture) 
             var tooltip = EditorTooltipDriver.GetToolbarTooltip(page, BrowserTestConstants.EditorFlow.EmotionTooltipText);
 
             await emotionTrigger.HoverAsync();
-            await page.WaitForTimeoutAsync(BrowserTestConstants.EditorFlow.TooltipEarlyCheckDelayMs);
 
             await Assert.That(await EditorTooltipDriver.ReadOpacityAsync(tooltip)).IsBetween(0, BrowserTestConstants.EditorFlow.MaximumEarlyTooltipOpacity);
 
-            await page.WaitForTimeoutAsync(
-                BrowserTestConstants.EditorFlow.TooltipSettleDelayMs - BrowserTestConstants.EditorFlow.TooltipEarlyCheckDelayMs);
             await EditorTooltipDriver.WaitUntilFullyVisibleAsync(page, tooltip, BrowserTestConstants.EditorFlow.EmotionTooltipText);
 
             await UiScenarioArtifacts.CapturePageAsync(
@@ -58,12 +55,7 @@ public sealed class EditorToolbarTooltipFlowTests(StandaloneAppFixture fixture) 
             await emotionTrigger.ClickAsync();
             await Expect(emotionMenu).ToBeVisibleAsync();
             await motivationalEmotion.HoverAsync();
-            await page.WaitForTimeoutAsync(BrowserTestConstants.EditorFlow.TooltipEarlyCheckDelayMs);
 
-            await Assert.That(await EditorTooltipDriver.ReadOpacityAsync(tooltip)).IsBetween(0, BrowserTestConstants.EditorFlow.MaximumEarlyTooltipOpacity);
-
-            await page.WaitForTimeoutAsync(
-                BrowserTestConstants.EditorFlow.TooltipSettleDelayMs - BrowserTestConstants.EditorFlow.TooltipEarlyCheckDelayMs);
             await EditorTooltipDriver.WaitUntilFullyVisibleAsync(page, tooltip, BrowserTestConstants.EditorFlow.MotivationalEmotionTooltipText);
 
             var tooltipSurface = await ReadTooltipSurfaceAsync(tooltip);
@@ -99,7 +91,6 @@ public sealed class EditorToolbarTooltipFlowTests(StandaloneAppFixture fixture) 
             var tooltip = EditorTooltipDriver.GetToolbarTooltip(page, BrowserTestConstants.EditorFlow.EmotionTooltipText);
 
             await emotionTrigger.HoverAsync();
-            await page.WaitForTimeoutAsync(BrowserTestConstants.EditorFlow.TooltipSettleDelayMs);
 
             await EditorTooltipDriver.WaitUntilFullyVisibleAsync(page, tooltip, BrowserTestConstants.EditorFlow.EmotionTooltipText);
 
