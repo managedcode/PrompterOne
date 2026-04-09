@@ -22,7 +22,7 @@ public partial class EditorPage
     {
         var computedDuration = FormatDuration(state.EstimatedDuration);
         ApplyResolvedMetadata(
-            _frontMatterService.ResolveTitle(state.Text, state.Title),
+            state.Title,
             GetMetadata(metadata, TpsFrontMatterDocumentService.MetadataKeys.Author, DefaultAuthor),
             TryGetInt(metadata, TpsFrontMatterDocumentService.MetadataKeys.BaseWpm, state.ScriptData?.TargetWpm ?? 140),
             NormalizeProfile(GetMetadata(metadata, TpsFrontMatterDocumentService.MetadataKeys.Profile, _baseWpm >= 250 ? DefaultProfileRsvp : DefaultProfileActor)),

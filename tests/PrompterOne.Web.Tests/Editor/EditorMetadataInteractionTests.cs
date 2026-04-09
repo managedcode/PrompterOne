@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PrompterOne.Core.Models.Workspace;
 using PrompterOne.Shared.Contracts;
 using PrompterOne.Shared.Pages;
+using PrompterOne.Shared.Services;
 using PrompterOne.Shared.Tests;
 
 namespace PrompterOne.Web.Tests;
@@ -140,6 +141,32 @@ public sealed class EditorMetadataInteractionTests : BunitContext
         });
     }
 
+    [Test]
+    public async Task EditorPage_LoadUsesSessionTitle_WhenPersistedFrontMatterTitleDiffers()
+    {
+        var document = await _harness.Repository.SaveAsync(
+            EditorMetadataTestSource.ImportedFileStemTitle,
+            EditorMetadataTestSource.ConflictingImportedDocument,
+            EditorMetadataTestSource.ImportedDocumentName);
+
+        Services.GetRequiredService<NavigationManager>()
+            .NavigateTo(AppRoutes.EditorWithId(document.Id));
+        var cut = Render<EditorPage>();
+
+        cut.WaitForAssertion(() =>
+        {
+            var visibleSource = cut.FindByTestId(UiTestIds.Editor.SourceInput).GetAttribute("value") ?? string.Empty;
+            var shellState = Services.GetRequiredService<AppShellService>().State;
+
+            Assert.Equal(
+                EditorMetadataTestSource.ImportedFileStemTitle,
+                cut.FindByTestId(UiTestIds.Editor.Title).GetAttribute("value"));
+            Assert.Equal(EditorMetadataTestSource.ImportedFileStemTitle, shellState.Title);
+            Assert.Contains(EditorMetadataTestSource.ImportedHeading, visibleSource, StringComparison.Ordinal);
+            Assert.DoesNotContain(EditorMetadataTestSource.TitleField, visibleSource, StringComparison.Ordinal);
+        });
+    }
+
     private static class EditorMetadataTestSource
     {
         public const string AuthorField = "author:";
@@ -154,11 +181,24 @@ public sealed class EditorMetadataInteractionTests : BunitContext
         public const string ProfileRsvp = "RSVP";
         public const string RetitledScript = "Renamed Product Launch";
         public const string RightChevronDirection = "right";
+        public const string ImportedDocumentName = "Imported Design Review From File Name With A Long Header Title That Should Clamp Cleanly In Editor.tps.md";
+        public const string ImportedFileStemTitle = "Imported Design Review From File Name With A Long Header Title That Should Clamp Cleanly In Editor";
+        public const string ImportedHeading = "Converted heading should stay inside the editor body instead of becoming the shell title";
         public const string TitleField = "title:";
         public const string TitlePersistenceLine = "title: \"Renamed Product Launch\"";
         public const string TrueText = "true";
         public const string UntitledTitlePersistenceLine = "title: \"Untitled Script\"";
         public const string VersionField = "version:";
         public const string VersionPersistenceLine = "version: \"2.0\"";
+        public const string ConflictingImportedDocument =
+            """
+            ---
+            title: "Converted heading should stay inside the editor body instead of becoming the shell title"
+            ---
+
+            # Converted heading should stay inside the editor body instead of becoming the shell title
+
+            MarkItDown should convert this DOCX paragraph into Markdown for the editor.
+            """;
     }
 }
