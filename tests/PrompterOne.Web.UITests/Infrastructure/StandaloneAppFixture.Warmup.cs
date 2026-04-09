@@ -81,6 +81,26 @@ public sealed partial class StandaloneAppFixture
         }
     }
 
+    private static async Task WarmUpReturnedPageIfNeededAsync(IPage page)
+    {
+        if (!TestEnvironment.IsCiEnvironment)
+        {
+            return;
+        }
+
+        var browserErrors = BrowserErrorCollector.Attach(page);
+
+        try
+        {
+            await WarmUpRouteAsync(page, BrowserTestConstants.Routes.Library, UiTestIds.Library.Page);
+            await browserErrors.AssertNoCriticalUiErrorsAsync();
+        }
+        catch (Exception exception)
+        {
+            throw BuildContextWarmupFailure(exception, browserErrors.Describe());
+        }
+    }
+
     private static async Task WarmUpRuntimeAsync(IBrowser browser, string baseAddress)
     {
         var context = await CreateBrowserContextAsync(browser, baseAddress);
