@@ -50,7 +50,10 @@ public sealed partial class StandaloneAppFixture
         await page.EvaluateAsync(BrowserTestLibrarySeedData.CreateInitializationScript());
     }
 
-    private static async Task WarmUpContextPageIfNeededAsync(IPage page, string baseAddress)
+    private static async Task WarmUpContextPageIfNeededAsync(
+        IPage page,
+        string baseAddress,
+        bool warmAllRuntimeRoutes = false)
     {
         if (!TestEnvironment.IsCiEnvironment)
         {
@@ -58,10 +61,17 @@ public sealed partial class StandaloneAppFixture
         }
 
         var browserErrors = BrowserErrorCollector.Attach(page);
+        var warmupRoutes = warmAllRuntimeRoutes
+            ? RuntimeWarmupRoutes
+            : [RuntimeWarmupRoutes[0]];
 
         try
         {
-            await WarmUpRouteAsync(page, BrowserTestConstants.Routes.Library, UiTestIds.Library.Page);
+            foreach (var (route, pageTestId) in warmupRoutes)
+            {
+                await WarmUpRouteAsync(page, route, pageTestId);
+            }
+
             await PrimeIsolatedBrowserStorageAsync(page, baseAddress);
             await browserErrors.AssertNoCriticalUiErrorsAsync();
         }

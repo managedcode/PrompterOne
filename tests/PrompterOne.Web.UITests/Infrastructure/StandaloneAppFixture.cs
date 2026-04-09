@@ -8,6 +8,7 @@ namespace PrompterOne.Web.UITests;
 public sealed partial class StandaloneAppFixture : IAsyncInitializer, IAsyncDisposable
 {
     private const int MinimumPageCount = 1;
+    private const int ContextBootstrapAttemptCount = 3;
     private const int ServerStartupTimeoutSeconds = 60;
     private const int ServerProbeDelayMilliseconds = 500;
     private readonly ConcurrentDictionary<IBrowserContext, byte> _contexts = [];
@@ -72,7 +73,7 @@ public sealed partial class StandaloneAppFixture : IAsyncInitializer, IAsyncDisp
 
     private async Task<IPage> CreateAdditionalPageAsync()
     {
-        while (true)
+        for (var attempt = 1; ; attempt++)
         {
             var context = await CreateTrackedContextAsync();
 
@@ -84,7 +85,11 @@ public sealed partial class StandaloneAppFixture : IAsyncInitializer, IAsyncDisp
                 await WarmUpContextPageIfNeededAsync(page, BaseAddress);
                 return page;
             }
-            catch (PlaywrightException exception) when (IsBrowserClosedException(exception))
+            catch (PlaywrightException exception) when (attempt < ContextBootstrapAttemptCount && IsBrowserClosedException(exception))
+            {
+                await DisposeContextAsync(context);
+            }
+            catch (InvalidOperationException exception) when (attempt < ContextBootstrapAttemptCount && IsContextWarmupFailure(exception))
             {
                 await DisposeContextAsync(context);
             }
@@ -93,7 +98,7 @@ public sealed partial class StandaloneAppFixture : IAsyncInitializer, IAsyncDisp
 
     private async Task<IPage> CreateSharedPageAsync(string contextKey)
     {
-        while (true)
+        for (var attempt = 1; ; attempt++)
         {
             var (context, isNewSharedContext) = await GetOrCreateSharedContextAsync(contextKey);
 
@@ -105,7 +110,7 @@ public sealed partial class StandaloneAppFixture : IAsyncInitializer, IAsyncDisp
                 if (isNewSharedContext)
                 {
                     await PrimeIsolatedBrowserStorageAsync(page);
-                    await WarmUpContextPageIfNeededAsync(page, BaseAddress);
+                    await WarmUpContextPageIfNeededAsync(page, BaseAddress, warmAllRuntimeRoutes: true);
                 }
                 else
                 {
@@ -114,7 +119,11 @@ public sealed partial class StandaloneAppFixture : IAsyncInitializer, IAsyncDisp
 
                 return page;
             }
-            catch (PlaywrightException exception) when (IsBrowserClosedException(exception))
+            catch (PlaywrightException exception) when (attempt < ContextBootstrapAttemptCount && IsBrowserClosedException(exception))
+            {
+                RemoveSharedContext(context);
+            }
+            catch (InvalidOperationException exception) when (attempt < ContextBootstrapAttemptCount && IsContextWarmupFailure(exception))
             {
                 RemoveSharedContext(context);
             }
@@ -228,6 +237,9 @@ public sealed partial class StandaloneAppFixture : IAsyncInitializer, IAsyncDisp
     private static bool IsBrowserClosedException(PlaywrightException exception) =>
         exception.Message.Contains("Target page, context or browser has been closed", StringComparison.Ordinal)
         || exception.Message.Contains("Process exited", StringComparison.Ordinal);
+
+    private static bool IsContextWarmupFailure(InvalidOperationException exception) =>
+        exception.Message.StartsWith("Browser context warmup failed.", StringComparison.Ordinal);
 
     private Task PrimeIsolatedBrowserStorageAsync(IPage page) =>
         PrimeIsolatedBrowserStorageAsync(page, BaseAddress);
