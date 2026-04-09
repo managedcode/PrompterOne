@@ -41,6 +41,9 @@ jobs:
       - name: Restore solution
         run: dotnet restore "$SOLUTION_FILE"
 
+      - name: Restore WebAssembly workload
+        run: dotnet workload restore
+
       - name: Build solution
         run: dotnet build "$SOLUTION_FILE" -warnaserror
 
@@ -92,6 +95,9 @@ jobs:
       - name: Restore solution
         run: dotnet restore "$SOLUTION_FILE"
 
+      - name: Restore WebAssembly workload
+        run: dotnet workload restore
+
       - name: Build solution
         run: dotnet build "$SOLUTION_FILE" -warnaserror
 
@@ -138,6 +144,9 @@ jobs:
       - name: Restore solution
         run: dotnet restore "$SOLUTION_FILE"
 
+      - name: Restore WebAssembly workload
+        run: dotnet workload restore
+
       - name: Build solution
         run: dotnet build "$SOLUTION_FILE" -warnaserror
 
@@ -179,6 +188,9 @@ jobs:
         with:
           global-json-file: global.json
 
+      - name: Restore WebAssembly workload
+        run: dotnet workload restore
+
       - name: Resolve release version
         id: release_version
         run: |
@@ -212,6 +224,9 @@ jobs:
         uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
+
+      - name: Restore WebAssembly workload
+        run: dotnet workload restore
 
       - name: Publish standalone WASM app
         run: >

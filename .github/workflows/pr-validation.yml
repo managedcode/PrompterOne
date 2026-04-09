@@ -36,6 +36,9 @@ jobs:
       - name: Restore solution
         run: dotnet restore "$SOLUTION_FILE"
 
+      - name: Restore WebAssembly workload
+        run: dotnet workload restore
+
       - name: Build solution
         run: dotnet build "$SOLUTION_FILE" -warnaserror
 
@@ -81,6 +84,9 @@ jobs:
       - name: Restore solution
         run: dotnet restore "$SOLUTION_FILE"
 
+      - name: Restore WebAssembly workload
+        run: dotnet workload restore
+
       - name: Build solution
         run: dotnet build "$SOLUTION_FILE" -warnaserror
 
@@ -123,6 +129,9 @@ jobs:
 
       - name: Restore solution
         run: dotnet restore "$SOLUTION_FILE"
+
+      - name: Restore WebAssembly workload
+        run: dotnet workload restore
 
       - name: Build solution
         run: dotnet build "$SOLUTION_FILE" -warnaserror
