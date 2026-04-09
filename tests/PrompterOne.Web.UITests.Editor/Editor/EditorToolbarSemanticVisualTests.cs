@@ -7,7 +7,7 @@ namespace PrompterOne.Web.UITests;
 [System.Obsolete]
 
 [ClassDataSource<StandaloneAppFixture>(Shared = SharedType.PerClass)]
-[NotInParallel(UiTestParallelization.EditorAuthoringConstraintKey)]
+[NotInParallel(nameof(EditorToolbarSemanticVisualTests))]
 public sealed class EditorToolbarSemanticVisualTests(StandaloneAppFixture fixture)
 {
     private readonly StandaloneAppFixture _fixture = fixture;

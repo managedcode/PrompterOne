@@ -6,7 +6,7 @@ using static Microsoft.Playwright.Assertions;
 namespace PrompterOne.Web.UITests;
 
 [ClassDataSource<StandaloneAppFixture>(Shared = SharedType.PerClass)]
-[NotInParallel(UiTestParallelization.EditorAuthoringConstraintKey)]
+[NotInParallel(nameof(EditorAiScrollStabilityTests))]
 public sealed class EditorAiScrollStabilityTests(StandaloneAppFixture fixture)
 {
     private readonly StandaloneAppFixture _fixture = fixture;

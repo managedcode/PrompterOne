@@ -7,7 +7,7 @@ namespace PrompterOne.Web.UITests;
 [System.Obsolete]
 
 [ClassDataSource<StandaloneAppFixture>(Shared = SharedType.PerClass)]
-[NotInParallel(UiTestParallelization.EditorAuthoringConstraintKey)]
+[NotInParallel(nameof(EditorFloatingToolbarLayoutTests))]
 public sealed class EditorFloatingToolbarLayoutTests(StandaloneAppFixture fixture)
 {
     private readonly record struct LayoutBounds(double Y, double Height);

@@ -8,7 +8,7 @@ namespace PrompterOne.Web.UITests;
 [System.Obsolete]
 
 [ClassDataSource<StandaloneAppFixture>(Shared = SharedType.PerClass)]
-[NotInParallel(UiTestParallelization.EditorAuthoringConstraintKey)]
+[NotInParallel(nameof(EditorToolbarTooltipFlowTests))]
 public sealed class EditorToolbarTooltipFlowTests(StandaloneAppFixture fixture) : AppUiTestBase(fixture)
 {
     private const string WrappedTooltipSelectionFragment = "[motivational]script[/motivational]";

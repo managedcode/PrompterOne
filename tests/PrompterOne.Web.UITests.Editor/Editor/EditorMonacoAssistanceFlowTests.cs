@@ -6,7 +6,7 @@ namespace PrompterOne.Web.UITests;
 [System.Obsolete]
 
 [ClassDataSource<StandaloneAppFixture>(Shared = SharedType.PerClass)]
-[NotInParallel(UiTestParallelization.EditorAuthoringConstraintKey)]
+[NotInParallel(nameof(EditorMonacoAssistanceFlowTests))]
 public sealed class EditorMonacoAssistanceFlowTests(StandaloneAppFixture fixture)
 {
     private const int TitleLineNumber = 1;
