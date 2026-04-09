@@ -289,7 +289,7 @@ internal static partial class BrowserTestConstants
         public const double MetadataRailDockGapPx = 10;
         public const double MetadataRailDockTolerancePx = 2;
         public const string GutterFirstLineNumberText = "1";
-        public const string OverlayRenderedLengthDataAttribute = "renderedLength";
+        public const string HiddenOverflowValue = "hidden";
         public const int ScrollProbeLineCount = 120;
         public const int MaxSourceScrollHostTopPx = 0;
         public const int CiMaxTypingLongTaskCount = 10;

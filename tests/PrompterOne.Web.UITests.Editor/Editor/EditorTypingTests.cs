@@ -202,6 +202,11 @@ public sealed class EditorTypingTests(StandaloneAppFixture fixture)
 
                     const samples = [];
                     const longTasks = [];
+                    const errors = [];
+                    const pendingSamples = [];
+                    let eventCount = 0;
+                    let lastExpectedLength = -1;
+                    let pendingSampleCount = 0;
                     const observer = new PerformanceObserver(list => {
                         for (const entry of list.getEntries()) {
                             longTasks.push(entry.duration);
@@ -209,21 +214,67 @@ public sealed class EditorTypingTests(StandaloneAppFixture fixture)
                     });
                     observer.observe({ type: "longtask" });
 
-                    input.addEventListener(args.proxyChangedEventName, () => {
-                        const started = performance.now();
-                        requestAnimationFrame(() => {
+                    const readRenderedLength = () =>
+                        Number.parseInt(overlay.dataset.renderedLength ?? '-1', 10);
+
+                    const completeVisibleSamples = renderedLength => {
+                        while (pendingSamples.length > 0 && renderedLength >= pendingSamples[0].expectedLength) {
+                            const pendingSample = pendingSamples.shift();
                             const state = harness?.getState(args.stageTestId);
                             samples.push({
-                                latency: performance.now() - started,
+                                latency: performance.now() - pendingSample.started,
                                 decorationClassCount: state?.decorationClasses?.length ?? 0,
                                 inputVisible: getComputedStyle(input).color !== args.transparentInputColor,
-                                ready: state?.ready === true
+                                ready: state?.ready === true,
+                                renderedLength
                             });
+                        }
+
+                        pendingSampleCount = pendingSamples.length;
+                    };
+
+                    const overlayObserver = new MutationObserver(() => {
+                        try {
+                            completeVisibleSamples(readRenderedLength());
+                        }
+                        catch (error) {
+                            errors.push(String(error?.stack ?? error));
+                        }
+                    });
+                    overlayObserver.observe(overlay, {
+                        attributes: true,
+                        childList: true,
+                        characterData: true,
+                        subtree: true
+                    });
+
+                    input.addEventListener(args.proxyChangedEventName, event => {
+                        eventCount += 1;
+                        const expectedLength = Number.isFinite(event?.detail?.textLength)
+                            ? event.detail.textLength
+                            : input.value.length;
+                        lastExpectedLength = expectedLength;
+                        pendingSamples.push({
+                            expectedLength,
+                            started: performance.now()
                         });
+                        pendingSampleCount = pendingSamples.length;
+
+                        try {
+                            completeVisibleSamples(readRenderedLength());
+                        }
+                        catch (error) {
+                            errors.push(String(error?.stack ?? error));
+                        }
                     }, { passive: true });
 
                     window.__editorTypingProbe = {
+                        errors,
+                        eventCount: () => eventCount,
+                        lastExpectedLength: () => lastExpectedLength,
                         observer,
+                        overlayObserver,
+                        pendingSampleCount: () => pendingSampleCount,
                         samples,
                         longTasks,
                         input,
@@ -265,6 +316,7 @@ public sealed class EditorTypingTests(StandaloneAppFixture fixture)
                         : -1;
 
                     probe.observer.disconnect();
+                    probe.overlayObserver?.disconnect?.();
                     return {
                         sampleCount: probe.samples.length,
                         maxLatency: latencies.length ? latencies[latencies.length - 1] : -1,
@@ -274,9 +326,19 @@ public sealed class EditorTypingTests(StandaloneAppFixture fixture)
                         maxDecorationClassCount: probe.samples.length
                             ? Math.max(...probe.samples.map(sample => sample.decorationClassCount))
                             : 0,
+                        eventCount: typeof probe.eventCount === 'function'
+                            ? probe.eventCount()
+                            : -1,
+                        lastExpectedLength: typeof probe.lastExpectedLength === 'function'
+                            ? probe.lastExpectedLength()
+                            : -1,
                         readyDuringTyping: probe.samples.every(sample => sample.ready === true),
                         sawVisibleInput: probe.samples.some(sample => sample.inputVisible),
                         finalInputColor: getComputedStyle(probe.input).color,
+                        errors: probe.errors ?? [],
+                        pendingSampleCount: typeof probe.pendingSampleCount === 'function'
+                            ? probe.pendingSampleCount()
+                            : -1,
                         finalRenderedLength: Number.parseInt(
                             probe.overlay.dataset.renderedLength ?? '-1',
                             10)
@@ -284,13 +346,15 @@ public sealed class EditorTypingTests(StandaloneAppFixture fixture)
                 }
                 """);
 
-            await Assert.That(probeResult.SampleCount > 0).IsTrue();
+            await Assert.That(probeResult.EventCount > 0).IsTrue().Because($"Expected Monaco proxy change events during typing, but observed none. Pending samples: {probeResult.PendingSampleCount}, final rendered length: {probeResult.FinalRenderedLength}, last expected length: {probeResult.LastExpectedLength}.");
+            await Assert.That(probeResult.SampleCount > 0).IsTrue().Because($"Expected the typing probe to capture visible overlay latency samples, but observed none after {probeResult.EventCount} proxy change event(s). Pending samples: {probeResult.PendingSampleCount}, final rendered length: {probeResult.FinalRenderedLength}, last expected length: {probeResult.LastExpectedLength}, errors: {string.Join(" || ", probeResult.Errors)}.");
             await Assert.That(probeResult.SawVisibleInput).IsFalse();
             await Assert.That(probeResult.P95Latency).IsBetween(0, BrowserTestConstants.Editor.MaxVisibleRenderP95LatencyMs);
             await Assert.That(probeResult.MaxLatency).IsBetween(0, BrowserTestConstants.Editor.MaxVisibleRenderSpikeLatencyMs);
             await Assert.That(probeResult.LongTaskCount <= BrowserTestConstants.Editor.AllowedTypingLongTaskCount).IsTrue().Because($"Expected Monaco typing to avoid browser long tasks, but observed {probeResult.LongTaskCount} long task(s) with max duration {probeResult.MaxLongTaskDuration:0.##}ms against the current budget of {BrowserTestConstants.Editor.AllowedTypingLongTaskCount}.");
             await Assert.That(probeResult.FinalInputColor).IsEqualTo(BrowserTestConstants.Editor.TransparentInputColor);
             await Assert.That(probeResult.ReadyDuringTyping).IsTrue();
+            await Assert.That(probeResult.PendingSampleCount).IsEqualTo(0);
             await Assert.That(probeResult.FinalRenderedLength >= BrowserTestConstants.Editor.TypingResponsivenessProbeText.Length).IsTrue().Because($"Expected the Monaco overlay to render the full probe text during typing, but the rendered length was {probeResult.FinalRenderedLength}.");
         }
         finally
@@ -308,7 +372,13 @@ public sealed class EditorTypingTests(StandaloneAppFixture fixture)
     {
         public string FinalInputColor { get; set; } = string.Empty;
 
+        public int EventCount { get; set; }
+
         public int FinalRenderedLength { get; set; }
+
+        public string[] Errors { get; set; } = [];
+
+        public int LastExpectedLength { get; set; }
 
         public int LongTaskCount { get; set; }
 
@@ -319,6 +389,8 @@ public sealed class EditorTypingTests(StandaloneAppFixture fixture)
         public double MaxLongTaskDuration { get; set; }
 
         public double P95Latency { get; set; }
+
+        public int PendingSampleCount { get; set; }
 
         public bool ReadyDuringTyping { get; set; }
 

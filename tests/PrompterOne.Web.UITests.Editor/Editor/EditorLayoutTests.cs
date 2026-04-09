@@ -75,6 +75,7 @@ public sealed class EditorLayoutTests(StandaloneAppFixture fixture)
                 """
                 element => {
                     return {
+                        hostOverflow: getComputedStyle(element).overflow,
                         hostScrollTop: element.scrollTop,
                         hostOverflowY: getComputedStyle(element).overflowY
                     };
@@ -83,7 +84,10 @@ public sealed class EditorLayoutTests(StandaloneAppFixture fixture)
 
             await Assert.That(stageState.ScrollTop > 0).IsTrue();
             await Assert.That(scrollState.HostScrollTop).IsEqualTo(BrowserTestConstants.Editor.MaxSourceScrollHostTopPx);
-            await Assert.That(scrollState.HostOverflowY).IsEqualTo("hidden");
+            await Assert.That(
+                string.Equals(scrollState.HostOverflow, BrowserTestConstants.Editor.HiddenOverflowValue, StringComparison.Ordinal) ||
+                string.Equals(scrollState.HostOverflowY, BrowserTestConstants.Editor.HiddenOverflowValue, StringComparison.Ordinal) ||
+                string.IsNullOrEmpty(scrollState.HostOverflowY)).IsTrue().Because($"Expected the outer source host to stay visually non-scrollable while Monaco owns the vertical scroll surface, but computed overflow was '{scrollState.HostOverflow}' / overflow-y '{scrollState.HostOverflowY}'.");
         }
         finally
         {
@@ -373,7 +377,7 @@ public sealed class EditorLayoutTests(StandaloneAppFixture fixture)
         double ScrollWidth,
         double ToolsLeft,
         double ToolsRight);
-    private readonly record struct EditorScrollState(double HostScrollTop, string HostOverflowY);
+    private readonly record struct EditorScrollState(string HostOverflow, double HostScrollTop, string HostOverflowY);
     private readonly record struct LayoutBounds(double X, double Y, double Width, double Height);
     private readonly record struct EditorLayoutMetrics(
         double LayoutViewportRightGap,

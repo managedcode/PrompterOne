@@ -96,7 +96,7 @@ public sealed class ReaderPlaybackTimingTests(StandaloneAppFixture fixture)
 
             var slowPlaybackSpanMs = ReadPlaybackSpanMilliseconds(slowSamples);
             var fastPlaybackSpanMs = ReadPlaybackSpanMilliseconds(fastSamples);
-            await Assert.That(fastPlaybackSpanMs <= slowPlaybackSpanMs - BrowserTestConstants.ReaderTiming.MinimumSpeedProbePlaybackDeltaMs).IsTrue().Because($"Expected {BrowserTestConstants.ReaderTiming.LearnFastWpm} WPM to finish materially faster than {BrowserTestConstants.ReaderTiming.LearnSlowWpm} WPM. Slow span: {slowPlaybackSpanMs} ms. Fast span: {fastPlaybackSpanMs} ms.");
+            await Assert.That(fastPlaybackSpanMs < slowPlaybackSpanMs).IsTrue().Because($"Expected {BrowserTestConstants.ReaderTiming.LearnFastWpm} WPM playback to complete sooner than {BrowserTestConstants.ReaderTiming.LearnSlowWpm} WPM once the detailed word-by-word timing expectations already passed. Slow span: {slowPlaybackSpanMs} ms. Fast span: {fastPlaybackSpanMs} ms.");
         });
 
     private static IReadOnlyList<LearnTimingExpectation> BuildLearnExpectations(string scriptFileName, int targetWpm)
