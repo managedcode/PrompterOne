@@ -13,7 +13,7 @@ public sealed class LearnKeyboardShortcutFlowTests(StandaloneAppFixture fixture)
         {
             UiScenarioArtifacts.ResetScenario(BrowserTestConstants.Learn.ShortcutScenarioName);
 
-            await page.GotoAsync(BrowserTestConstants.Routes.LearnDemo);
+            await ReaderRouteDriver.OpenLearnAsync(page, BrowserTestConstants.Routes.LearnDemo);
             await Expect(page.GetByTestId(UiTestIds.Learn.Page))
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
 

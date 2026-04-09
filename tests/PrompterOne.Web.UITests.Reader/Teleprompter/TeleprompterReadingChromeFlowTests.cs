@@ -12,7 +12,7 @@ public sealed class TeleprompterReadingChromeFlowTests(StandaloneAppFixture fixt
     public Task TeleprompterScreen_ActivePlayback_MutesChromeIntensity() =>
         RunPageAsync(async page =>
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.TeleprompterDemo);
+            await ReaderRouteDriver.OpenTeleprompterAsync(page, BrowserTestConstants.Routes.TeleprompterDemo);
             await Expect(page.GetByTestId(UiTestIds.Teleprompter.Page)).ToBeVisibleAsync(new()
             {
                 Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs

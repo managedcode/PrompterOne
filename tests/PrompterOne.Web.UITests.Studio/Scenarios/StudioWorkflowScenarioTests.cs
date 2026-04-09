@@ -87,7 +87,7 @@ public sealed class StudioWorkflowScenarioTests(StandaloneAppFixture fixture)
 
     private static async Task CreateRoadshowsFolderAsync(IPage page)
     {
-        await page.GotoAsync(BrowserTestConstants.Routes.Library);
+        await StudioRouteDriver.OpenLibraryAsync(page);
         await Expect(page.GetByTestId(UiTestIds.Library.Page)).ToBeVisibleAsync();
         await page.GetByTestId(UiTestIds.Library.FolderCreateStart).ClickAsync();
         await Expect(page.GetByTestId(UiTestIds.Library.NewFolderOverlay)).ToBeVisibleAsync();
@@ -141,7 +141,7 @@ public sealed class StudioWorkflowScenarioTests(StandaloneAppFixture fixture)
 
     private static async Task OpenQuantumLearnFromLibraryAsync(IPage page)
     {
-        await page.GotoAsync(BrowserTestConstants.Routes.Library);
+        await StudioRouteDriver.OpenLibraryAsync(page);
         await Expect(page.GetByTestId(UiTestIds.Library.Page)).ToBeVisibleAsync();
         await page.GetByTestId(UiTestIds.Library.CardLearn(BrowserTestConstants.Scripts.QuantumId)).ClickAsync();
         await BrowserRouteDriver.WaitForRouteAsync(page, BrowserTestConstants.Routes.LearnQuantum);
@@ -151,7 +151,7 @@ public sealed class StudioWorkflowScenarioTests(StandaloneAppFixture fixture)
 
     private static async Task OpenLibraryForNewScriptAsync(IPage page)
     {
-        await page.GotoAsync(BrowserTestConstants.Routes.Library);
+        await StudioRouteDriver.OpenLibraryAsync(page);
         await Expect(page.GetByTestId(UiTestIds.Library.Page)).ToBeVisibleAsync();
         await UiScenarioArtifacts.CapturePageAsync(page, BrowserTestConstants.NewScriptWorkflow.Name, BrowserTestConstants.NewScriptWorkflow.LibraryInitialStep);
     }
@@ -209,7 +209,7 @@ public sealed class StudioWorkflowScenarioTests(StandaloneAppFixture fixture)
 
     private static async Task ConfigureMediaSettingsAsync(IPage page)
     {
-        await page.GotoAsync(BrowserTestConstants.Routes.Settings);
+        await StudioRouteDriver.OpenSettingsAsync(page);
         await Expect(page.GetByTestId(UiTestIds.Settings.Page)).ToBeVisibleAsync();
         await page.GetByTestId(UiTestIds.Settings.NavCameras).ClickAsync();
         var camerasPanel = page.GetByTestId(UiTestIds.Settings.CamerasPanel);

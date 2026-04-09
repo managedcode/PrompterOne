@@ -21,7 +21,7 @@ public sealed class TeleprompterChromeFlowTests(StandaloneAppFixture fixture)
     public Task TeleprompterScreen_ExposesOrientationToggle_AndSwitchesReaderOrientation() =>
         RunPageAsync(async page =>
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.TeleprompterDemo);
+            await ReaderRouteDriver.OpenTeleprompterAsync(page, BrowserTestConstants.Routes.TeleprompterDemo);
             await Expect(page.GetByTestId(UiTestIds.Teleprompter.Page)).ToBeVisibleAsync(new()
             {
                 Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs
@@ -46,7 +46,7 @@ public sealed class TeleprompterChromeFlowTests(StandaloneAppFixture fixture)
     public Task TeleprompterScreen_FullscreenToggle_UsesBrowserFullscreenMode() =>
         RunPageAsync(async page =>
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.TeleprompterDemo);
+            await ReaderRouteDriver.OpenTeleprompterAsync(page, BrowserTestConstants.Routes.TeleprompterDemo);
             await Expect(page.GetByTestId(UiTestIds.Teleprompter.Page)).ToBeVisibleAsync(new()
             {
                 Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs
@@ -75,7 +75,7 @@ public sealed class TeleprompterChromeFlowTests(StandaloneAppFixture fixture)
     public Task TeleprompterScreen_RendersSegmentedProgress_ByBlock() =>
         RunPageAsync(async page =>
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.TeleprompterDemo);
+            await ReaderRouteDriver.OpenTeleprompterAsync(page, BrowserTestConstants.Routes.TeleprompterDemo);
             await Expect(page.GetByTestId(UiTestIds.Teleprompter.Page)).ToBeVisibleAsync(new()
             {
                 Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs
@@ -113,7 +113,7 @@ public sealed class TeleprompterChromeFlowTests(StandaloneAppFixture fixture)
     public Task TeleprompterScreen_DesktopProgressShell_KeepsSegmentsInsideItsBorder() =>
         RunPageAsync(async page =>
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.TeleprompterDemo);
+            await ReaderRouteDriver.OpenTeleprompterAsync(page, BrowserTestConstants.Routes.TeleprompterDemo);
             await Expect(page.GetByTestId(UiTestIds.Teleprompter.Page)).ToBeVisibleAsync(new()
             {
                 Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs

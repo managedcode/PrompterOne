@@ -93,7 +93,7 @@ public sealed class LearnPlaybackStateTests(StandaloneAppFixture fixture) : AppU
         });
     private static async Task NavigateToLearnDemoAsync(IPage page)
     {
-        await page.GotoAsync(BrowserTestConstants.Routes.LearnDemo);
+        await ReaderRouteDriver.OpenLearnAsync(page, BrowserTestConstants.Routes.LearnDemo);
         await Expect(page.GetByTestId(UiTestIds.Learn.Page))
             .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
     }

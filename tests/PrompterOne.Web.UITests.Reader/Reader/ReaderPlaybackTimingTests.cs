@@ -36,7 +36,7 @@ public sealed class ReaderPlaybackTimingTests(StandaloneAppFixture fixture)
     public Task TeleprompterTimingProbe_PlaybackSequenceMatchesRenderedWordTimingMetadata() =>
         RunPageAsync(async page =>
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.TeleprompterReaderTiming);
+            await ReaderRouteDriver.OpenTeleprompterAsync(page, BrowserTestConstants.Routes.TeleprompterReaderTiming);
             await Expect(page.GetByTestId(UiTestIds.Teleprompter.Page))
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
 

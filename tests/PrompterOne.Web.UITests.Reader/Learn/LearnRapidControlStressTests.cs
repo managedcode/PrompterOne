@@ -17,7 +17,7 @@ public sealed class LearnRapidControlStressTests(StandaloneAppFixture fixture)
             UiScenarioArtifacts.ResetScenario(RapidControlsScenario);
             var errors = BrowserErrorCollector.Attach(page);
 
-            await page.GotoAsync(BrowserTestConstants.Routes.LearnDemo);
+            await ReaderRouteDriver.OpenLearnAsync(page, BrowserTestConstants.Routes.LearnDemo);
             await Expect(page.GetByTestId(UiTestIds.Learn.Page))
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
 

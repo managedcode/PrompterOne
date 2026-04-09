@@ -25,7 +25,7 @@ public sealed class TeleprompterFidelityTests(StandaloneAppFixture fixture)
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.TeleprompterLeadership);
+            await ReaderRouteDriver.OpenTeleprompterAsync(page, BrowserTestConstants.Routes.TeleprompterLeadership);
             await Expect(page.GetByTestId(UiTestIds.Teleprompter.Page))
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
 
@@ -59,7 +59,7 @@ public sealed class TeleprompterFidelityTests(StandaloneAppFixture fixture)
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.TeleprompterDemo);
+            await ReaderRouteDriver.OpenTeleprompterAsync(page, BrowserTestConstants.Routes.TeleprompterDemo);
             await Expect(page.GetByTestId(UiTestIds.Teleprompter.Page))
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
 
@@ -101,7 +101,7 @@ public sealed class TeleprompterFidelityTests(StandaloneAppFixture fixture)
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.TeleprompterDemo);
+            await ReaderRouteDriver.OpenTeleprompterAsync(page, BrowserTestConstants.Routes.TeleprompterDemo);
             await Expect(page.GetByTestId(UiTestIds.Teleprompter.Page))
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
 
@@ -125,7 +125,7 @@ public sealed class TeleprompterFidelityTests(StandaloneAppFixture fixture)
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.TeleprompterDemo);
+            await ReaderRouteDriver.OpenTeleprompterAsync(page, BrowserTestConstants.Routes.TeleprompterDemo);
             await Expect(page.GetByTestId(UiTestIds.Teleprompter.Page))
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
 
@@ -148,7 +148,7 @@ public sealed class TeleprompterFidelityTests(StandaloneAppFixture fixture)
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.TeleprompterDemo);
+            await ReaderRouteDriver.OpenTeleprompterAsync(page, BrowserTestConstants.Routes.TeleprompterDemo);
             await Expect(page.GetByTestId(UiTestIds.Teleprompter.Page))
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
 
@@ -184,7 +184,7 @@ public sealed class TeleprompterFidelityTests(StandaloneAppFixture fixture)
             await page.SetViewportSizeAsync(
                 BrowserTestConstants.TeleprompterFlow.SecurityIncidentViewportWidth,
                 BrowserTestConstants.TeleprompterFlow.SecurityIncidentViewportHeight);
-            await page.GotoAsync(BrowserTestConstants.Routes.TeleprompterSecurityIncident);
+            await ReaderRouteDriver.OpenTeleprompterAsync(page, BrowserTestConstants.Routes.TeleprompterSecurityIncident);
             await Expect(page.GetByTestId(UiTestIds.Teleprompter.Page))
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
 

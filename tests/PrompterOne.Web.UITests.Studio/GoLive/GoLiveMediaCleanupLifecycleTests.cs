@@ -62,7 +62,7 @@ public sealed class GoLiveMediaCleanupLifecycleTests(StandaloneAppFixture fixtur
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.GoLiveDemo);
+            await StudioRouteDriver.OpenGoLiveAsync(page);
             await Expect(page.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
 
             await page.EvaluateAsync(InstallCleanupSpiesScript);
@@ -197,7 +197,7 @@ public sealed class GoLiveMediaCleanupLifecycleTests(StandaloneAppFixture fixtur
         try
         {
             await GoLiveFlowTests.SeedGoLiveSceneForReuseAsync(page);
-            await page.GotoAsync(BrowserTestConstants.Routes.GoLiveDemo);
+            await StudioRouteDriver.OpenGoLiveAsync(page);
             await Expect(page.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
             await page.WaitForFunctionAsync(
                 BrowserTestConstants.Media.ElementUsesVideoDeviceScript,

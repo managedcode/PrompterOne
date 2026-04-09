@@ -20,7 +20,7 @@ public sealed class TeleprompterReadingChromeIntensityTests(StandaloneAppFixture
             await page.SetViewportSizeAsync(
                 BrowserTestConstants.TeleprompterFlow.SecurityIncidentViewportWidth,
                 BrowserTestConstants.TeleprompterFlow.SecurityIncidentViewportHeight);
-            await page.GotoAsync(BrowserTestConstants.Routes.TeleprompterSecurityIncident);
+            await ReaderRouteDriver.OpenTeleprompterAsync(page, BrowserTestConstants.Routes.TeleprompterSecurityIncident);
             await Expect(page.GetByTestId(UiTestIds.Teleprompter.Page)).ToBeVisibleAsync(new()
             {
                 Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs

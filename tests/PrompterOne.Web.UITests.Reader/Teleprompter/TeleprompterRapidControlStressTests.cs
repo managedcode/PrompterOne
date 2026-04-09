@@ -17,7 +17,7 @@ public sealed class TeleprompterRapidControlStressTests(StandaloneAppFixture fix
             UiScenarioArtifacts.ResetScenario(RapidControlsScenario);
             var errors = BrowserErrorCollector.Attach(page);
 
-            await page.GotoAsync(BrowserTestConstants.Routes.TeleprompterLeadership);
+            await ReaderRouteDriver.OpenTeleprompterAsync(page, BrowserTestConstants.Routes.TeleprompterLeadership);
             await Expect(page.GetByTestId(UiTestIds.Teleprompter.Page))
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
 

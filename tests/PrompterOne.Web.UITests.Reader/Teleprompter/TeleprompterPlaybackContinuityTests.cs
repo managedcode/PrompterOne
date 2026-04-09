@@ -105,7 +105,7 @@ public sealed class TeleprompterPlaybackContinuityTests(StandaloneAppFixture fix
 
     private static async Task OpenLeadershipTeleprompterAsync(IPage page)
     {
-        await page.GotoAsync(BrowserTestConstants.Routes.TeleprompterLeadership);
+        await ReaderRouteDriver.OpenTeleprompterAsync(page, BrowserTestConstants.Routes.TeleprompterLeadership);
         await Expect(page.GetByTestId(UiTestIds.Teleprompter.Page))
             .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
     }

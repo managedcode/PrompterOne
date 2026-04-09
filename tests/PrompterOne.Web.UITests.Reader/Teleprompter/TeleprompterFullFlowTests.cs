@@ -23,7 +23,7 @@ public sealed class TeleprompterFullFlowTests(StandaloneAppFixture fixture)
         try
         {
             UiScenarioArtifacts.ResetScenario(BrowserTestConstants.TeleprompterFullFlow.Name);
-            await page.GotoAsync(BrowserTestConstants.Routes.TeleprompterDemo);
+            await ReaderRouteDriver.OpenTeleprompterAsync(page, BrowserTestConstants.Routes.TeleprompterDemo);
             await Expect(page.GetByTestId(UiTestIds.Teleprompter.Page))
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
 
@@ -66,7 +66,7 @@ public sealed class TeleprompterFullFlowTests(StandaloneAppFixture fixture)
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.TeleprompterSpeedOffsets);
+            await ReaderRouteDriver.OpenTeleprompterAsync(page, BrowserTestConstants.Routes.TeleprompterSpeedOffsets);
             await Expect(page.GetByTestId(UiTestIds.Teleprompter.Page))
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
 

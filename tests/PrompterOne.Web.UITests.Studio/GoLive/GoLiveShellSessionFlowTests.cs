@@ -26,7 +26,7 @@ public sealed class GoLiveShellSessionFlowTests(StandaloneAppFixture fixture)
             await page.SetViewportSizeAsync(compactViewport.Width, compactViewport.Height);
             await GoLiveFlowTests.SeedGoLiveSceneForReuseAsync(page);
             await GoLiveFlowTests.SeedGoLiveOperationalSettingsAsync(page);
-            await page.GotoAsync(BrowserTestConstants.Routes.GoLiveDemo);
+            await StudioRouteDriver.OpenGoLiveAsync(page);
             await page.EvaluateAsync(BrowserTestConstants.GoLive.InstallVdoNinjaHarnessScript);
             await page.GetByTestId(UiTestIds.GoLive.SourceCameraSelect(BrowserTestConstants.GoLive.SecondSourceId)).ClickAsync();
             await page.GetByTestId(UiTestIds.GoLive.StartStream).ClickAsync();
@@ -80,7 +80,7 @@ public sealed class GoLiveShellSessionFlowTests(StandaloneAppFixture fixture)
         {
             await GoLiveFlowTests.SeedGoLiveSceneForReuseAsync(page);
             await GoLiveTestSeedHelper.SeedBrowserLocalRecordingPreferencesAsync(page);
-            await page.GotoAsync(BrowserTestConstants.Routes.GoLiveDemo);
+            await StudioRouteDriver.OpenGoLiveAsync(page);
             await page.GetByTestId(UiTestIds.GoLive.StartRecording).ClickAsync();
 
             await page.WaitForFunctionAsync(
@@ -201,7 +201,7 @@ public sealed class GoLiveShellSessionFlowTests(StandaloneAppFixture fixture)
         {
             await GoLiveFlowTests.SeedGoLiveSceneForReuseAsync(page);
             await GoLiveTestSeedHelper.SeedBrowserLocalRecordingPreferencesAsync(page);
-            await page.GotoAsync(BrowserTestConstants.Routes.GoLiveDemo);
+            await StudioRouteDriver.OpenGoLiveAsync(page);
             await Expect(page.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
 
             await page.GetByTestId(UiTestIds.GoLive.SourceCameraSelect(BrowserTestConstants.GoLive.SecondSourceId)).ClickAsync();
@@ -275,7 +275,7 @@ public sealed class GoLiveShellSessionFlowTests(StandaloneAppFixture fixture)
                     HasSeenOnboarding = true,
                     RecordingFolder = RecordingPreferenceCatalog.LocationLabels.LocalFile
                 });
-            await page.GotoAsync(BrowserTestConstants.Routes.GoLiveDemo);
+            await StudioRouteDriver.OpenGoLiveAsync(page);
             await Expect(page.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
 
             await page.GetByTestId(UiTestIds.GoLive.SourceCameraSelect(BrowserTestConstants.GoLive.SecondSourceId)).ClickAsync();
@@ -334,7 +334,7 @@ public sealed class GoLiveShellSessionFlowTests(StandaloneAppFixture fixture)
             await GoLiveFlowTests.SeedGoLiveSceneForReuseAsync(page);
             await GoLiveFlowTests.SeedGoLivePrimaryMicrophoneAsync(page);
             await GoLiveTestSeedHelper.SeedBrowserLocalRecordingPreferencesAsync(page);
-            await page.GotoAsync(BrowserTestConstants.Routes.GoLiveDemo);
+            await StudioRouteDriver.OpenGoLiveAsync(page);
             await Expect(page.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
 
             await page.GetByTestId(UiTestIds.GoLive.AudioTab).ClickAsync();

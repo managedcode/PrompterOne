@@ -88,7 +88,7 @@ public sealed class TeleprompterAlignmentTooltipFlowTests(StandaloneAppFixture f
 
     private static async Task OpenTeleprompterAsync(IPage page)
     {
-        await page.GotoAsync(BrowserTestConstants.Routes.TeleprompterDemo);
+        await ReaderRouteDriver.OpenTeleprompterAsync(page, BrowserTestConstants.Routes.TeleprompterDemo);
         await Expect(page.GetByTestId(UiTestIds.Teleprompter.Page))
             .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
     }

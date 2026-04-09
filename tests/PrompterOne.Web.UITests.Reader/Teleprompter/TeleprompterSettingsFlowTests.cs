@@ -32,7 +32,7 @@ public sealed class TeleprompterSettingsFlowTests(StandaloneAppFixture fixture) 
             var cameraDeviceId = await ResolveCameraDeviceIdAsync(page);
             await SeedStoredTeleprompterSceneAsync(page, cameraDeviceId);
 
-            await page.GotoAsync(BrowserTestConstants.Routes.TeleprompterDemo);
+            await ReaderRouteDriver.OpenTeleprompterAsync(page, BrowserTestConstants.Routes.TeleprompterDemo);
             await Expect(page.GetByTestId(UiTestIds.Teleprompter.Page)).ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
             await Expect(page.GetByTestId(UiTestIds.Teleprompter.CameraBackground)).ToHaveCountAsync(1);
             await Expect(page.GetByTestId(UiTestIds.Teleprompter.CameraBackground)).ToHaveAttributeAsync("data-camera-role", "primary");
@@ -42,7 +42,7 @@ public sealed class TeleprompterSettingsFlowTests(StandaloneAppFixture fixture) 
 
     private static async Task VerifyTeleprompterControlsAsync(Microsoft.Playwright.IPage page)
     {
-        await page.GotoAsync(BrowserTestConstants.Routes.TeleprompterDemo);
+        await ReaderRouteDriver.OpenTeleprompterAsync(page, BrowserTestConstants.Routes.TeleprompterDemo);
         await Expect(page.GetByTestId(UiTestIds.Teleprompter.Page)).ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
         await Expect(page.GetByTestId(UiTestIds.Teleprompter.EdgeSection)).ToContainTextAsync(BrowserTestConstants.TeleprompterFlow.OpeningBlock);
         await Expect(page.GetByTestId(UiTestIds.Teleprompter.CardText(0))).ToContainTextAsync(BrowserTestConstants.TeleprompterFlow.OpeningLine);
@@ -102,7 +102,7 @@ public sealed class TeleprompterSettingsFlowTests(StandaloneAppFixture fixture) 
 
     private static async Task<bool> VerifySettingsControlsAsync(Microsoft.Playwright.IPage page)
     {
-        await page.GotoAsync(BrowserTestConstants.Routes.Settings);
+        await ReaderRouteDriver.OpenSettingsAsync(page);
         await page.GetByTestId(UiTestIds.Settings.NavCloud).ClickAsync();
         await Expect(page.GetByTestId(UiTestIds.Settings.CloudPanel)).ToBeVisibleAsync();
         await page.GetByTestId(UiTestIds.Settings.NavFiles).ClickAsync();
@@ -292,7 +292,7 @@ public sealed class TeleprompterSettingsFlowTests(StandaloneAppFixture fixture) 
 
     private static async Task VerifyTeleprompterCameraAutostartAsync(Microsoft.Playwright.IPage page, bool readerCameraWasOn)
     {
-        await page.GotoAsync(BrowserTestConstants.Routes.TeleprompterDemo);
+        await ReaderRouteDriver.OpenTeleprompterAsync(page, BrowserTestConstants.Routes.TeleprompterDemo);
         await Expect(page.GetByTestId(UiTestIds.Teleprompter.CameraBackground)).ToHaveAttributeAsync(
             "data-camera-autostart",
             readerCameraWasOn ? new Regex("false") : new Regex("true"));

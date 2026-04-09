@@ -20,7 +20,7 @@ public sealed class TeleprompterMirrorFlowTests(StandaloneAppFixture fixture) : 
     public Task TeleprompterScreen_SyncsMirrorAndOrientationTransformsAcrossTextAndCameraBackground() =>
         RunPageAsync(async page =>
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.TeleprompterDemo);
+            await ReaderRouteDriver.OpenTeleprompterAsync(page, BrowserTestConstants.Routes.TeleprompterDemo);
             await Expect(page.GetByTestId(UiTestIds.Teleprompter.Page)).ToBeVisibleAsync(new()
             {
                 Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs
@@ -92,7 +92,7 @@ public sealed class TeleprompterMirrorFlowTests(StandaloneAppFixture fixture) : 
         {
             UiScenarioArtifacts.ResetScenario(BrowserTestConstants.TeleprompterFlow.LeftRailScenarioName);
 
-            await page.GotoAsync(BrowserTestConstants.Routes.TeleprompterDemo);
+            await ReaderRouteDriver.OpenTeleprompterAsync(page, BrowserTestConstants.Routes.TeleprompterDemo);
             await Expect(page.GetByTestId(UiTestIds.Teleprompter.Page)).ToBeVisibleAsync(new()
             {
                 Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs

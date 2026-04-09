@@ -23,7 +23,7 @@ public sealed class LearnFidelityTests(StandaloneAppFixture fixture)
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.LearnQuantum);
+            await ReaderRouteDriver.OpenLearnAsync(page, BrowserTestConstants.Routes.LearnQuantum);
             await Expect(page.GetByTestId(UiTestIds.Learn.Page))
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
             await Expect(page.GetByTestId(UiTestIds.Learn.WordOrp)).ToBeVisibleAsync();
@@ -52,7 +52,7 @@ public sealed class LearnFidelityTests(StandaloneAppFixture fixture)
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.LearnSecurityIncident);
+            await ReaderRouteDriver.OpenLearnAsync(page, BrowserTestConstants.Routes.LearnSecurityIncident);
             await Expect(page.GetByTestId(UiTestIds.Learn.Page))
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
 
@@ -91,7 +91,7 @@ public sealed class LearnFidelityTests(StandaloneAppFixture fixture)
             await page.SetViewportSizeAsync(
                 BrowserTestConstants.Learn.DemoViewportWidth,
                 BrowserTestConstants.Learn.DemoViewportHeight);
-            await page.GotoAsync(BrowserTestConstants.Routes.LearnDemo);
+            await ReaderRouteDriver.OpenLearnAsync(page, BrowserTestConstants.Routes.LearnDemo);
             await Expect(page.GetByTestId(UiTestIds.Learn.Page))
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
             await WaitForLearnLayoutReadyAsync(page);
@@ -134,7 +134,7 @@ public sealed class LearnFidelityTests(StandaloneAppFixture fixture)
             await page.SetViewportSizeAsync(
                 BrowserTestConstants.Learn.OverlapViewportWidth,
                 BrowserTestConstants.Learn.OverlapViewportHeight);
-            await page.GotoAsync(BrowserTestConstants.Routes.LearnLeadership);
+            await ReaderRouteDriver.OpenLearnAsync(page, BrowserTestConstants.Routes.LearnLeadership);
             await Expect(page.GetByTestId(UiTestIds.Learn.Page))
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
             await WaitForLearnLayoutReadyAsync(page);
@@ -162,7 +162,7 @@ public sealed class LearnFidelityTests(StandaloneAppFixture fixture)
             await page.SetViewportSizeAsync(
                 BrowserTestConstants.Learn.SecurityIncidentViewportWidth,
                 BrowserTestConstants.Learn.SecurityIncidentViewportHeight);
-            await page.GotoAsync(BrowserTestConstants.Routes.LearnSecurityIncident);
+            await ReaderRouteDriver.OpenLearnAsync(page, BrowserTestConstants.Routes.LearnSecurityIncident);
             await Expect(page.GetByTestId(UiTestIds.Learn.Page))
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
             await WaitForLearnLayoutReadyAsync(page);
@@ -193,7 +193,7 @@ public sealed class LearnFidelityTests(StandaloneAppFixture fixture)
             await page.SetViewportSizeAsync(
                 BrowserTestConstants.Learn.QuantumViewportWidth,
                 BrowserTestConstants.Learn.QuantumViewportHeight);
-            await page.GotoAsync(BrowserTestConstants.Routes.LearnQuantum);
+            await ReaderRouteDriver.OpenLearnAsync(page, BrowserTestConstants.Routes.LearnQuantum);
             await Expect(page.GetByTestId(UiTestIds.Learn.Page))
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
             await WaitForLearnLayoutReadyAsync(page);
@@ -224,7 +224,7 @@ public sealed class LearnFidelityTests(StandaloneAppFixture fixture)
             await page.SetViewportSizeAsync(
                 BrowserTestConstants.Learn.LeadershipViewportWidth,
                 BrowserTestConstants.Learn.LeadershipViewportHeight);
-            await page.GotoAsync(BrowserTestConstants.Routes.LearnLeadership);
+            await ReaderRouteDriver.OpenLearnAsync(page, BrowserTestConstants.Routes.LearnLeadership);
             await Expect(page.GetByTestId(UiTestIds.Learn.Page))
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
             await WaitForLearnLayoutReadyAsync(page);
@@ -258,7 +258,7 @@ public sealed class LearnFidelityTests(StandaloneAppFixture fixture)
             await page.SetViewportSizeAsync(
                 BrowserTestConstants.Learn.LeadershipViewportWidth,
                 BrowserTestConstants.Learn.LeadershipViewportHeight);
-            await page.GotoAsync(BrowserTestConstants.Routes.LearnLeadership);
+            await ReaderRouteDriver.OpenLearnAsync(page, BrowserTestConstants.Routes.LearnLeadership);
             await Expect(page.GetByTestId(UiTestIds.Learn.Page))
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
             await WaitForLearnLayoutReadyAsync(page);
@@ -300,7 +300,7 @@ public sealed class LearnFidelityTests(StandaloneAppFixture fixture)
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.LearnDemo);
+            await ReaderRouteDriver.OpenLearnAsync(page, BrowserTestConstants.Routes.LearnDemo);
             await Expect(page.GetByTestId(UiTestIds.Learn.Page))
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
             await WaitForLearnLayoutReadyAsync(page);
@@ -327,7 +327,7 @@ public sealed class LearnFidelityTests(StandaloneAppFixture fixture)
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.LearnDemo);
+            await ReaderRouteDriver.OpenLearnAsync(page, BrowserTestConstants.Routes.LearnDemo);
             await Expect(page.GetByTestId(UiTestIds.Learn.Page))
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
             await WaitForLearnLayoutReadyAsync(page);
@@ -500,7 +500,7 @@ public sealed class LearnFidelityTests(StandaloneAppFixture fixture)
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.LearnReaderTiming);
+            await ReaderRouteDriver.OpenLearnAsync(page, BrowserTestConstants.Routes.LearnReaderTiming);
             await Expect(page.GetByTestId(UiTestIds.Learn.Page))
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
 

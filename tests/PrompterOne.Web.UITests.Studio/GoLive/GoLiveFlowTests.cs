@@ -38,7 +38,7 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
             await page.SetViewportSizeAsync(LayoutViewportWidth, LayoutViewportHeight);
             await SeedGoLiveSceneForReuseAsync(page);
             await SeedGoLiveOperationalSettingsAsync(page);
-            await page.GotoAsync(BrowserTestConstants.Routes.GoLiveDemo);
+            await StudioRouteDriver.OpenGoLiveAsync(page);
             await Expect(page.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
             await Expect(page.GetByTestId(UiTestIds.GoLive.ProgramCard)).ToBeVisibleAsync();
             await Expect(page.GetByTestId(UiTestIds.GoLive.SourcesCard)).ToBeVisibleAsync();
@@ -75,7 +75,7 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
         try
         {
             await SeedGoLiveSceneForReuseAsync(page);
-            await page.GotoAsync(BrowserTestConstants.Routes.GoLiveDemo);
+            await StudioRouteDriver.OpenGoLiveAsync(page);
             await Expect(page.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
 
             var sourceButton = page.GetByTestId(UiTestIds.GoLive.SourceCameraAction(BrowserTestConstants.Media.PrimaryCameraId));
@@ -103,7 +103,7 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
         try
         {
             await SeedGoLiveSceneForReuseAsync(page);
-            await page.GotoAsync(BrowserTestConstants.Routes.Settings);
+            await StudioRouteDriver.OpenSettingsAsync(page);
             await Expect(page.GetByTestId(UiTestIds.Settings.Page)).ToBeVisibleAsync();
 
             await page.GetByTestId(UiTestIds.Header.GoLive).ClickAsync();
@@ -128,7 +128,7 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
         try
         {
             await SeedGoLiveSceneForReuseAsync(page);
-            await page.GotoAsync(BrowserTestConstants.Routes.GoLiveDemo);
+            await StudioRouteDriver.OpenGoLiveAsync(page);
             await Expect(page.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
 
             var previewCard = page.GetByTestId(UiTestIds.GoLive.PreviewCard);
@@ -161,7 +161,7 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
         try
         {
             await SeedGoLiveSceneForReuseAsync(page);
-            await page.GotoAsync(BrowserTestConstants.Routes.GoLiveDemo);
+            await StudioRouteDriver.OpenGoLiveAsync(page);
             await Expect(page.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
             await Expect(page.GetByTestId(UiTestIds.GoLive.PreviewRail)).ToBeVisibleAsync();
 
@@ -183,7 +183,7 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
         try
         {
             await SeedGoLiveSceneForReuseAsync(page);
-            await page.GotoAsync(BrowserTestConstants.Routes.GoLiveDemo);
+            await StudioRouteDriver.OpenGoLiveAsync(page);
             await Expect(page.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
 
             var sessionBar = page.GetByTestId(UiTestIds.GoLive.SessionBar);
@@ -251,7 +251,7 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
                 BrowserTestConstants.GoLive.SeedEmptySceneScript,
                 BrowserTestConstants.GoLive.SceneStorageKey);
 
-            await page.GotoAsync(BrowserTestConstants.Routes.GoLiveDemo);
+            await StudioRouteDriver.OpenGoLiveAsync(page);
             await Expect(page.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
             await Expect(page.GetByTestId(UiTestIds.GoLive.ProgramCard)).ToBeVisibleAsync();
             await Expect(page.GetByTestId(UiTestIds.GoLive.PreviewCard)).ToBeVisibleAsync();
@@ -297,7 +297,7 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
         try
         {
             await SeedGoLiveSceneForReuseAsync(page);
-            await page.GotoAsync(BrowserTestConstants.Routes.GoLiveDemo);
+            await StudioRouteDriver.OpenGoLiveAsync(page);
             await Expect(page.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
 
             await page.WaitForFunctionAsync(
@@ -357,7 +357,7 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
         {
             await page.AddInitScriptAsync(BrowserTestConstants.Media.DisableConcurrentLocalCameraCaptureScript);
             await SeedGoLiveSceneForReuseAsync(page);
-            await page.GotoAsync(BrowserTestConstants.Routes.GoLiveDemo);
+            await StudioRouteDriver.OpenGoLiveAsync(page);
             await Expect(page.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
             await Expect(page.GetByTestId(UiTestIds.GoLive.SingleLocalPreviewHint)).ToBeVisibleAsync();
 
@@ -402,7 +402,7 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
             await SeedGoLiveSceneForReuseAsync(page);
             await SeedGoLivePrimaryMicrophoneAsync(page);
             await SeedGoLiveOperationalSettingsAsync(page);
-            await page.GotoAsync(BrowserTestConstants.Routes.GoLiveDemo);
+            await StudioRouteDriver.OpenGoLiveAsync(page);
             await Expect(page.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
 
             await page.EvaluateAsync(BrowserTestConstants.GoLive.InstallVdoNinjaHarnessScript);
@@ -722,7 +722,7 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.Settings);
+            await StudioRouteDriver.OpenSettingsAsync(page);
             await Expect(page.GetByTestId(UiTestIds.Settings.Page)).ToBeVisibleAsync();
 
             await page.GetByTestId(UiTestIds.Settings.CameraRoutingCta).ClickAsync();

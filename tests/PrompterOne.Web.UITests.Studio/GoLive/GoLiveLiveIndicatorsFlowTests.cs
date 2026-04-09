@@ -18,7 +18,7 @@ public sealed class GoLiveLiveIndicatorsFlowTests(StandaloneAppFixture fixture)
         try
         {
             await GoLiveFlowTests.SeedGoLiveSceneForReuseAsync(page);
-            await page.GotoAsync(BrowserTestConstants.Routes.GoLiveDemo);
+            await StudioRouteDriver.OpenGoLiveAsync(page);
             await Expect(page.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
             await Expect(page.GetByTestId(UiTestIds.GoLive.ScreenTitle)).ToHaveTextAsync(BrowserTestConstants.GoLive.ScreenTitle);
             await Expect(page.GetByTestId(UiTestIds.GoLive.ScreenTitle))
@@ -50,7 +50,7 @@ public sealed class GoLiveLiveIndicatorsFlowTests(StandaloneAppFixture fixture)
         try
         {
             await GoLiveFlowTests.SeedGoLiveSceneForReuseAsync(page);
-            await page.GotoAsync(BrowserTestConstants.Routes.GoLiveDemo);
+            await StudioRouteDriver.OpenGoLiveAsync(page);
             await Expect(page.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
 
             await page.GetByTestId(UiTestIds.GoLive.StartRecording).ClickAsync();

@@ -13,7 +13,7 @@ public sealed class TeleprompterKeyboardShortcutFlowTests(StandaloneAppFixture f
         {
             UiScenarioArtifacts.ResetScenario(BrowserTestConstants.Teleprompter.ShortcutScenarioName);
 
-            await page.GotoAsync(BrowserTestConstants.Routes.TeleprompterDemo);
+            await ReaderRouteDriver.OpenTeleprompterAsync(page, BrowserTestConstants.Routes.TeleprompterDemo);
             await Expect(page.GetByTestId(UiTestIds.Teleprompter.Page))
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
 

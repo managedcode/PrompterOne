@@ -13,7 +13,7 @@ public sealed class TeleprompterTextBalanceFlowTests(StandaloneAppFixture fixtur
     public Task TeleprompterScreen_DefaultLeftAlignment_KeepsTextMassNearStageCenter() =>
         RunPageAsync(async page =>
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.TeleprompterDemo);
+            await ReaderRouteDriver.OpenTeleprompterAsync(page, BrowserTestConstants.Routes.TeleprompterDemo);
             await Expect(page.GetByTestId(UiTestIds.Teleprompter.Page)).ToBeVisibleAsync(new()
             {
                 Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs

@@ -15,7 +15,7 @@ public sealed class GoLiveKeyboardShortcutFlowTests(StandaloneAppFixture fixture
 
             await GoLiveFlowTests.SeedGoLiveSceneForReuseAsync(page);
             await GoLiveFlowTests.SeedGoLiveOperationalSettingsAsync(page);
-            await page.GotoAsync(BrowserTestConstants.Routes.GoLiveDemo);
+            await StudioRouteDriver.OpenGoLiveAsync(page);
             await Expect(page.GetByTestId(UiTestIds.GoLive.Page))
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
 

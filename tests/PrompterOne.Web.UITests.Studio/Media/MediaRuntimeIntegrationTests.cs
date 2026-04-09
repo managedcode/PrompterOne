@@ -15,7 +15,7 @@ public sealed class MediaRuntimeIntegrationTests(StandaloneAppFixture fixture)
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.Settings);
+            await StudioRouteDriver.OpenSettingsAsync(page);
             await Expect(page.GetByTestId(UiTestIds.Settings.Page)).ToBeVisibleAsync();
             await page.GetByTestId(UiTestIds.Settings.NavCameras).ClickAsync();
             var camerasPanel = page.GetByTestId(UiTestIds.Settings.CamerasPanel);
@@ -95,7 +95,7 @@ public sealed class MediaRuntimeIntegrationTests(StandaloneAppFixture fixture)
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.TeleprompterDemo);
+            await StudioRouteDriver.OpenTeleprompterAsync(page);
             await Expect(page.GetByTestId(UiTestIds.Teleprompter.Page)).ToBeVisibleAsync();
 
             await TeleprompterCameraDriver.EnsureDisabledAsync(page);
@@ -133,7 +133,7 @@ public sealed class MediaRuntimeIntegrationTests(StandaloneAppFixture fixture)
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.Settings);
+            await StudioRouteDriver.OpenSettingsAsync(page);
             await Expect(page.GetByTestId(UiTestIds.Settings.Page)).ToBeVisibleAsync();
             await page.GetByTestId(UiTestIds.Settings.NavCameras).ClickAsync();
             var camerasPanel = page.GetByTestId(UiTestIds.Settings.CamerasPanel);
@@ -172,7 +172,7 @@ public sealed class MediaRuntimeIntegrationTests(StandaloneAppFixture fixture)
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.TeleprompterDemo);
+            await StudioRouteDriver.OpenTeleprompterAsync(page);
             await Expect(page.GetByTestId(UiTestIds.Teleprompter.Page)).ToBeVisibleAsync();
 
             await TeleprompterCameraDriver.EnsureDisabledAsync(page);
@@ -207,7 +207,7 @@ public sealed class MediaRuntimeIntegrationTests(StandaloneAppFixture fixture)
         try
         {
             await page.EvaluateAsync(BrowserTestConstants.Media.ConcealDeviceIdentityUntilRequestScript);
-            await page.GotoAsync(BrowserTestConstants.Routes.TeleprompterDemo);
+            await StudioRouteDriver.OpenTeleprompterAsync(page);
             await Expect(page.GetByTestId(UiTestIds.Teleprompter.Page)).ToBeVisibleAsync();
             await Expect(page.GetByTestId(UiTestIds.Teleprompter.CameraBackground)).ToHaveAttributeAsync("data-camera-device-id", string.Empty);
 
@@ -240,7 +240,7 @@ public sealed class MediaRuntimeIntegrationTests(StandaloneAppFixture fixture)
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.Settings);
+            await StudioRouteDriver.OpenSettingsAsync(page);
             await Expect(page.GetByTestId(UiTestIds.Settings.Page)).ToBeVisibleAsync();
             await page.EvaluateAsync(BrowserTestConstants.Media.ClearDeviceLabelsScript);
 
@@ -297,7 +297,7 @@ public sealed class MediaRuntimeIntegrationTests(StandaloneAppFixture fixture)
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.Settings);
+            await StudioRouteDriver.OpenSettingsAsync(page);
             await Expect(page.GetByTestId(UiTestIds.Settings.Page)).ToBeVisibleAsync();
             await page.GetByTestId(UiTestIds.Settings.NavCameras).ClickAsync();
             var camerasPanel = page.GetByTestId(UiTestIds.Settings.CamerasPanel);

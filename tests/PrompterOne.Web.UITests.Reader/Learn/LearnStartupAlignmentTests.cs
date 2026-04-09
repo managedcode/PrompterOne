@@ -28,7 +28,7 @@ public sealed class LearnStartupAlignmentTests(StandaloneAppFixture fixture)
             await page.SetViewportSizeAsync(
                 BrowserTestConstants.Learn.DemoViewportWidth,
                 BrowserTestConstants.Learn.DemoViewportHeight);
-            await page.GotoAsync(BrowserTestConstants.Routes.LearnDemo);
+            await ReaderRouteDriver.OpenLearnAsync(page, BrowserTestConstants.Routes.LearnDemo);
             await Expect(page.GetByTestId(UiTestIds.Learn.Page))
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
             await page.WaitForFunctionAsync(
