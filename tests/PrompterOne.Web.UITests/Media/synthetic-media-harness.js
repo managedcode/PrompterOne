@@ -86,9 +86,11 @@
             tone: 220
         })
     ]);
+    const activeTrackRegistry = new Map();
     const deviceLabelOverrides = new Map();
     const requestLog = [];
     const remoteSourcesByConnection = new Map();
+    let activeTrackId = 0;
     let requestId = 0;
     let captureCapabilities = {
         supportsConcurrentLocalCameraCaptures: true
@@ -220,6 +222,19 @@
         });
     }
 
+    function registerActiveTrack(track, metadata) {
+        const registryId = ++activeTrackId;
+        activeTrackRegistry.set(registryId, {
+            deviceId: metadata?.videoDeviceId ?? metadata?.audioDeviceId ?? null,
+            isSynthetic: metadata?.isSynthetic === true,
+            kind: track?.kind ?? emptyDeviceLabel
+        });
+
+        return () => {
+            activeTrackRegistry.delete(registryId);
+        };
+    }
+
     function createVideoStream(device) {
         const label = resolveDeviceLabel(device);
         const canvas = document.createElement("canvas");
@@ -273,6 +288,7 @@
         attachMetadata(stream, trackMetadata);
         stream.getTracks().forEach(track => {
             const originalStop = track.stop.bind(track);
+            const unregisterActiveTrack = registerActiveTrack(track, trackMetadata);
             let stopped = false;
             attachMetadata(track, trackMetadata);
             track.stop = () => {
@@ -281,6 +297,7 @@
                 }
 
                 stopped = true;
+                unregisterActiveTrack();
                 cleanup();
                 originalStop();
             };
@@ -370,6 +387,7 @@
         attachMetadata(stream, trackMetadata);
         stream.getTracks().forEach(track => {
             const originalStop = track.stop.bind(track);
+            const unregisterActiveTrack = registerActiveTrack(track, trackMetadata);
             let stopped = false;
             attachMetadata(track, trackMetadata);
             track.stop = () => {
@@ -378,6 +396,7 @@
                 }
 
                 stopped = true;
+                unregisterActiveTrack();
                 cleanup();
                 originalStop();
             };
@@ -553,6 +572,29 @@
         },
         getCaptureCapabilities() {
             return cloneJson(captureCapabilities);
+        },
+        getActiveTrackCount(filters) {
+            const requestedKind = typeof filters?.kind === "string" ? filters.kind : null;
+            const requestedDeviceId = typeof filters?.deviceId === "string" ? filters.deviceId : null;
+
+            let count = 0;
+            activeTrackRegistry.forEach(track => {
+                if (track.isSynthetic !== true) {
+                    return;
+                }
+
+                if (requestedKind && track.kind !== requestedKind) {
+                    return;
+                }
+
+                if (requestedDeviceId && track.deviceId !== requestedDeviceId) {
+                    return;
+                }
+
+                count += 1;
+            });
+
+            return count;
         },
         setRemoteSources(connectionId, sources) {
             const existing = remoteSourcesByConnection.get(connectionId) ?? [];

@@ -9,6 +9,7 @@ public static class UiDomIds
 
     public static class AppShell
     {
+        public const string EditorImportScriptInput = "app-shell-editor-import-script-input";
         public const string LibraryOpenScriptInput = "app-shell-library-open-script-input";
         public const string OnboardingEyebrow = "app-shell-onboarding-eyebrow";
         public const string OnboardingTitle = "app-shell-onboarding-title";

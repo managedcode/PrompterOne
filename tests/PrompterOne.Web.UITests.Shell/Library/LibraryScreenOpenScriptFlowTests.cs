@@ -45,8 +45,8 @@ public sealed class LibraryScreenOpenScriptFlowTests(StandaloneAppFixture fixtur
         Second imported draft.
         """;
 
-    private const string UnsupportedImportDetail = "Choose a .tps, .tps.md, .md.tps, .md, or .txt file.";
-    private const string UnsupportedImportFileName = "unsupported-script.docx";
+    private const string UnsupportedImportDetail = "Choose a supported script or document file such as .tps, .md, .txt, .pdf, or .docx.";
+    private const string UnsupportedImportFileName = "unsupported-script.exe";
     private const string UnsupportedImportMessage = "Unable to import this script.";
     private const string UnsupportedImportText = "This should be rejected by the import descriptor.";
 

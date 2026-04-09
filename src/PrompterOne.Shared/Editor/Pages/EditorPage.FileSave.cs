@@ -23,7 +23,7 @@ public partial class EditorPage
                     BuildPersistedDocument(_sourceText),
                     ScriptDocumentFileTypes.TextMimeType,
                     ScriptDocumentFileTypes.SavePickerDescription,
-                    ScriptDocumentFileTypes.SupportedFileNameSuffixes);
+                    ScriptDocumentFileTypes.SaveSupportedFileNameSuffixes);
             },
             clearRecoverableOnSuccess: string.IsNullOrWhiteSpace(SessionService.State.ErrorMessage));
     }
@@ -31,7 +31,7 @@ public partial class EditorPage
     private string ResolveExportDocumentName()
     {
         var normalizedDocumentName = ScriptDocumentFileTypes.NormalizeFileName(SessionService.State.DocumentName);
-        var supportedSuffix = ScriptDocumentFileTypes.ResolveSupportedSuffix(normalizedDocumentName) ?? ScriptDocumentFileTypes.DefaultExtension;
+        var supportedSuffix = ScriptDocumentFileTypes.ResolveSaveSupportedSuffix(normalizedDocumentName) ?? ScriptDocumentFileTypes.DefaultExtension;
 
         if (!string.IsNullOrWhiteSpace(normalizedDocumentName)
             && !string.Equals(

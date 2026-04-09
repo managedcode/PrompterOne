@@ -1,7 +1,11 @@
 <Project>
   <PropertyGroup>
     <PrompterOneTargetFramework>net10.0</PrompterOneTargetFramework>
-    <PrompterOneVersionMajorMinor>0.2</PrompterOneVersionMajorMinor>
+
+
+    <PrompterOneVersionMajorMinor>0.3</PrompterOneVersionMajorMinor>
+
+
     <PrompterOneBuildNumber Condition="'$(PrompterOneBuildNumber)' == '' and '$(GITHUB_RUN_NUMBER)' != ''">$(GITHUB_RUN_NUMBER)</PrompterOneBuildNumber>
     <PrompterOneBuildNumber Condition="'$(PrompterOneBuildNumber)' == ''">0</PrompterOneBuildNumber>
     <PrompterOneVersionPrefix>$(PrompterOneVersionMajorMinor).$(PrompterOneBuildNumber)</PrompterOneVersionPrefix>
@@ -19,5 +23,13 @@
     <AssemblyVersion Condition="'$(AssemblyVersion)' == ''">$(PrompterOneAssemblyVersion)</AssemblyVersion>
     <FileVersion Condition="'$(FileVersion)' == ''">$(PrompterOneFileVersion)</FileVersion>
     <InformationalVersion Condition="'$(InformationalVersion)' == ''">$(Version)</InformationalVersion>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(IsTestProject)' == 'true'">
+    <Compile Include="$(MSBuildThisFileDirectory)tests/Shared/TestProgressHooks.cs" Link="TestProgressHooks.cs" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(IsTestProject)' == 'true' and '$(TestingPlatformCommandLineArguments)' == ''">
+    <TestingPlatformCommandLineArguments>--output detailed --no-ansi</TestingPlatformCommandLineArguments>
   </PropertyGroup>
 </Project>

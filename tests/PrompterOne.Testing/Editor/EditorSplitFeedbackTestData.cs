@@ -8,13 +8,18 @@ public static class EditorSplitFeedbackTestData
     public const string EpisodeThreeTitle = "Episode 3 - Event Sourcing and CQRS";
     public const string EpisodeTwoCardId = "untitled-script-split-02-episode-2-how-systems-talk-to-each-other";
     public const string EpisodeTwoTitle = "Episode 2 - How Systems Talk to Each Other";
+    public const string JordanCardId = "untitled-script-split-02-jordan";
+    public const string JordanTitle = "Jordan";
     public const string SplitActionLabel = "Open in Library";
     public const string SplitFeedbackBadge = "From ##";
     public const string SplitFeedbackDestination = "New scripts were saved to the library.";
     public const string SplitFeedbackDraftNote = "The current draft stayed open.";
+    public const string SplitSpeakerActionLabel = "New scripts by speaker";
+    public const string SplitSpeakerBadge = "By speaker";
     public const string SplitFeedbackSummary = "2 new scripts created.";
     public const string SplitFeedbackTitle = "Split complete";
     public const string SplitSegmentActionLabel = "New scripts from ## headings";
+    public const string SpeakerAlexCardId = "untitled-script-split-01-alex";
     public const string SplitSource =
         """
         ## [Episode 1 - How to Think About Systems|140WPM|Professional]
@@ -22,6 +27,22 @@ public static class EditorSplitFeedbackTestData
 
         ## [Episode 2 - How Systems Talk to Each Other|140WPM|Professional]
         APIs, events, and retries matter. //
+        """;
+
+    public const string SplitBySpeakerSource =
+        """
+        ## [Opening|Speaker:Alex|140WPM|warm]
+        Alex intro line. //
+
+        ### [Question|Speaker:Jordan|130WPM|focused]
+        Jordan asks the question. //
+
+        ### [Answer|135WPM|professional]
+        Alex answers with inherited speaker context. //
+
+        ## [Wrap Up|150WPM|motivational]
+        ### [Signoff|Speaker:Jordan|150WPM|focused]
+        Jordan closes the interview. //
         """;
 
     public const string EditedSplitSource =
@@ -40,5 +61,11 @@ public static class EditorSplitFeedbackTestData
         EpisodeOneTitle,
         EpisodeTwoTitle,
         EpisodeThreeTitle
+    ];
+
+    public static IReadOnlyList<string> SpeakerCreatedTitles { get; } =
+    [
+        "Alex",
+        JordanTitle
     ];
 }

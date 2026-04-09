@@ -127,6 +127,79 @@ public sealed class MediaRuntimeIntegrationTests(StandaloneAppFixture fixture)
     }
 
     [Test]
+    public async Task SettingsCameraPreview_LeavingCameraSection_ReleasesSyntheticBackgroundVideoStream()
+    {
+        var page = await _fixture.NewPageAsync();
+
+        try
+        {
+            await page.GotoAsync(BrowserTestConstants.Routes.Settings);
+            await Expect(page.GetByTestId(UiTestIds.Settings.Page)).ToBeVisibleAsync();
+            await page.GetByTestId(UiTestIds.Settings.NavCameras).ClickAsync();
+            var camerasPanel = page.GetByTestId(UiTestIds.Settings.CamerasPanel);
+            await Expect(camerasPanel).ToBeVisibleAsync();
+            var requestMediaButton = camerasPanel.GetByTestId(UiTestIds.Settings.RequestMedia);
+            await requestMediaButton.ScrollIntoViewIfNeededAsync();
+            await requestMediaButton.ClickAsync();
+
+            await page.WaitForFunctionAsync(
+                BrowserTestConstants.Media.ElementUsesVideoDeviceScript,
+                new object[]
+                {
+                    UiTestIds.Settings.CameraPreviewVideo,
+                    BrowserTestConstants.Media.PrimaryCameraId
+                },
+                new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
+
+            await page.GetByTestId(UiTestIds.Settings.NavAi).ClickAsync();
+            await Expect(page.GetByTestId(UiTestIds.Settings.AiPanel)).ToBeVisibleAsync();
+
+            await page.WaitForFunctionAsync(
+                BrowserTestConstants.Media.HasNoActiveVideoTrackForDeviceScript,
+                BrowserTestConstants.Media.PrimaryCameraId,
+                new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
+        }
+        finally
+        {
+            await page.Context.CloseAsync();
+        }
+    }
+
+    [Test]
+    public async Task TeleprompterCameraToggle_DisablingBackgroundVideo_ReleasesSyntheticBackgroundVideoStream()
+    {
+        var page = await _fixture.NewPageAsync();
+
+        try
+        {
+            await page.GotoAsync(BrowserTestConstants.Routes.TeleprompterDemo);
+            await Expect(page.GetByTestId(UiTestIds.Teleprompter.Page)).ToBeVisibleAsync();
+
+            await TeleprompterCameraDriver.EnsureDisabledAsync(page);
+            await TeleprompterCameraDriver.EnsureEnabledAsync(page);
+            await page.WaitForFunctionAsync(
+                BrowserTestConstants.Media.ElementUsesVideoDeviceScript,
+                new object[]
+                {
+                    UiTestIds.Teleprompter.CameraBackground,
+                    BrowserTestConstants.Media.PrimaryCameraId
+                },
+                new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
+
+            await TeleprompterCameraDriver.EnsureDisabledAsync(page);
+
+            await page.WaitForFunctionAsync(
+                BrowserTestConstants.Media.HasNoActiveVideoTrackForDeviceScript,
+                BrowserTestConstants.Media.PrimaryCameraId,
+                new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
+        }
+        finally
+        {
+            await page.Context.CloseAsync();
+        }
+    }
+
+    [Test]
     public async Task TeleprompterCameraToggle_RequestsAccessWhenDeviceIdentityIsUnavailableOnFirstLoad()
     {
         var page = await _fixture.NewPageAsync();
@@ -275,4 +348,5 @@ public sealed class MediaRuntimeIntegrationTests(StandaloneAppFixture fixture)
             await page.Context.CloseAsync();
         }
     }
+
 }

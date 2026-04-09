@@ -1,5 +1,6 @@
 @namespace PrompterOne.Shared.Components.Diagnostics
 @inherits PrompterOne.Shared.Components.Diagnostics.LoggingErrorBoundaryBase
+@using PrompterOne.Shared.AppShell.Components
 @using PrompterOne.Shared.Localization
 @inject IStringLocalizer<SharedResource> Localizer
 
@@ -20,5 +21,6 @@ else
                 <button class="diag-fatal-btn diag-fatal-btn-primary" type="button" @onclick="HandleReturnHome" data-test="@UiTestIds.Diagnostics.Home">@Localizer[UiTextKey.DiagnosticsLibrary.ToString()]</button>
             </div>
         </div>
+        <SentryUserFeedbackDialogHost />
     </section>
 }

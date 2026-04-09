@@ -1,0 +1,260 @@
+.feedback-dialog-shell {
+    position: fixed;
+    inset: 0;
+    z-index: 180;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background: linear-gradient(180deg, rgba(6, 8, 16, .76), rgba(6, 8, 16, .88));
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+}
+
+.feedback-dialog-card {
+    width: min(680px, 100%);
+    max-height: min(760px, calc(100svh - 48px));
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: 26px;
+    border: 1px solid var(--gold-16);
+    border-radius: 28px;
+    background: linear-gradient(180deg, rgba(14, 17, 30, .96), rgba(9, 12, 22, .98));
+    box-shadow: 0 28px 80px rgba(0, 0, 0, .34), inset 0 1px 0 rgba(255, 255, 255, .04);
+    color: var(--text-1);
+}
+
+.feedback-dialog-card--fatal {
+    border-color: rgba(255, 138, 138, .28);
+    box-shadow: 0 30px 84px rgba(22, 6, 8, .42), inset 0 1px 0 rgba(255, 255, 255, .04);
+}
+
+.feedback-dialog-header,
+.feedback-dialog-form,
+.feedback-dialog-copy {
+    display: flex;
+    flex-direction: column;
+}
+
+.feedback-dialog-header,
+.feedback-dialog-form {
+    gap: 16px;
+}
+
+.feedback-dialog-title-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.feedback-dialog-icon {
+    width: 48px;
+    height: 48px;
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 16px;
+    border: 1px solid var(--gold-16);
+    background: linear-gradient(135deg, var(--gold-12), var(--gold-05));
+    color: var(--gold-light);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04);
+}
+
+.feedback-dialog-card--fatal .feedback-dialog-icon {
+    border-color: rgba(255, 138, 138, .24);
+    background: linear-gradient(135deg, rgba(255, 138, 138, .16), rgba(196, 160, 96, .08));
+    color: #FFB8B8;
+}
+
+.feedback-dialog-copy {
+    gap: 8px;
+    min-width: 0;
+}
+
+.feedback-dialog-copy h2 {
+    margin: 0;
+    color: var(--text-1);
+    font-size: clamp(26px, 4vw, 34px);
+    line-height: 1.08;
+    letter-spacing: -.04em;
+}
+
+.feedback-dialog-copy p {
+    margin: 0;
+    color: var(--text-2);
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.feedback-dialog-context {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 14px 16px;
+    border: 1px solid rgba(255, 138, 138, .14);
+    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(67, 24, 30, .26), rgba(17, 18, 30, .42));
+}
+
+.feedback-dialog-context-label {
+    color: #FFB8B8;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+
+.feedback-dialog-context-value {
+    color: var(--text-1);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.feedback-dialog-context-detail {
+    color: var(--text-3);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.55;
+    word-break: break-word;
+}
+
+.feedback-dialog-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.feedback-dialog-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.feedback-dialog-field span {
+    color: var(--text-2);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .02em;
+}
+
+.feedback-dialog-input,
+.feedback-dialog-textarea {
+    width: 100%;
+    border: 1px solid var(--gold-12);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, .04);
+    color: var(--text-1);
+    font: inherit;
+    transition: border-color .16s ease, background-color .16s ease, box-shadow .16s ease;
+}
+
+.feedback-dialog-input {
+    min-height: 44px;
+    padding: 0 14px;
+}
+
+.feedback-dialog-textarea {
+    min-height: 170px;
+    padding: 14px;
+    resize: vertical;
+    line-height: 1.55;
+}
+
+.feedback-dialog-input::placeholder,
+.feedback-dialog-textarea::placeholder {
+    color: var(--text-4);
+}
+
+.feedback-dialog-input:focus,
+.feedback-dialog-textarea:focus {
+    outline: none;
+    border-color: var(--gold-30);
+    background: rgba(255, 255, 255, .06);
+    box-shadow: 0 0 0 1px var(--gold-20), 0 0 0 8px var(--gold-04);
+}
+
+.feedback-dialog-error {
+    margin: 0;
+    color: #FFB8B8;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.feedback-dialog-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.feedback-dialog-button,
+.feedback-dialog-submit {
+    min-height: 44px;
+    padding: 0 18px;
+    border-radius: 14px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.feedback-dialog-submit {
+    border: 1px solid var(--gold-20);
+    background: linear-gradient(135deg, var(--gold-16), var(--gold-07));
+    color: var(--gold-light);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04);
+    transition: transform .16s ease, border-color .16s ease, background .16s ease;
+}
+
+.feedback-dialog-submit:hover:not(:disabled) {
+    transform: translateY(-1px);
+    border-color: var(--gold-30);
+    background: linear-gradient(135deg, var(--gold-20), var(--gold-10));
+}
+
+.feedback-dialog-button:disabled,
+.feedback-dialog-submit:disabled {
+    cursor: wait;
+    opacity: .72;
+}
+
+@media (max-width: 720px) {
+    .feedback-dialog-shell {
+        padding: 16px;
+    }
+
+    .feedback-dialog-card {
+        padding: 22px;
+        border-radius: 24px;
+    }
+
+    .feedback-dialog-fields {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 560px) {
+    .feedback-dialog-card {
+        padding: 20px;
+    }
+
+    .feedback-dialog-title-row {
+        gap: 14px;
+    }
+
+    .feedback-dialog-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+    }
+
+    .feedback-dialog-actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .feedback-dialog-button,
+    .feedback-dialog-submit {
+        width: 100%;
+    }
+}

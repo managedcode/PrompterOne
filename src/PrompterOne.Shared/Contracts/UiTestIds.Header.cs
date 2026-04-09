@@ -7,6 +7,15 @@ public static partial class UiTestIds
         public const string Back = "header-back";
         public const string Brand = "header-brand";
         public const string Center = "header-center";
+        public const string EditorImportScript = "header-editor-import-script";
+        public const string EditorImportScriptButton = "header-editor-import-script-button";
+        public const string EditorImportScriptIcon = "header-editor-import-script-icon";
+        public const string EditorImportScriptInput = "header-editor-import-script-input";
+        public const string ImportProgress = "header-import-progress";
+        public const string ImportProgressFile = "header-import-progress-file";
+        public const string ImportProgressFill = "header-import-progress-fill";
+        public const string ImportProgressLabel = "header-import-progress-label";
+        public const string ImportProgressStep = "header-import-progress-step";
         public const string EditorLearn = "header-editor-learn";
         public const string EditorRead = "header-editor-read";
         public const string EditorSaveFile = "header-editor-save-file";

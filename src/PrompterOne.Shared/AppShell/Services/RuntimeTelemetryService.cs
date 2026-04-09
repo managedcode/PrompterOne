@@ -3,10 +3,14 @@ using PrompterOne.Shared.Contracts;
 
 namespace PrompterOne.Shared.Services;
 
-public sealed class RuntimeTelemetryService(IJSRuntime jsRuntime, RuntimeTelemetryOptions options) : IDisposable, IAsyncDisposable
+public sealed class RuntimeTelemetryService(
+    IJSRuntime jsRuntime,
+    RuntimeTelemetryOptions options,
+    ISentryRuntimeClient sentryClient) : IDisposable, IAsyncDisposable
 {
     private readonly IJSRuntime _jsRuntime = jsRuntime;
     private readonly RuntimeTelemetryOptions _options = options;
+    private readonly ISentryRuntimeClient _sentryClient = sentryClient;
     private bool _initializationAttempted;
     private Task<IJSObjectReference?>? _moduleTask;
 
@@ -79,6 +83,27 @@ public sealed class RuntimeTelemetryService(IJSRuntime jsRuntime, RuntimeTelemet
         return TrackEventAsync(AppRuntimeTelemetry.Events.PageView, payload, RuntimeTelemetryInteropMethodNames.TrackPageView);
     }
 
+    public async Task<SentryId> TrackExceptionAsync(Exception exception, string operation, bool isFatal)
+    {
+        ArgumentNullException.ThrowIfNull(exception);
+        ArgumentException.ThrowIfNullOrWhiteSpace(operation);
+
+        var payload = new Dictionary<string, object?>
+        {
+            [AppRuntimeTelemetry.Parameters.ExceptionMessage] = exception.Message,
+            [AppRuntimeTelemetry.Parameters.ExceptionType] = exception.GetType().Name,
+            [AppRuntimeTelemetry.Parameters.IsFatal] = isFatal,
+            [AppRuntimeTelemetry.Parameters.Operation] = operation
+        };
+
+        var sentryEventId = CaptureSentryException(exception, payload, isFatal);
+        await TrackJsTelemetryAsync(
+            RuntimeTelemetryInteropMethodNames.TrackEvent,
+            AppRuntimeTelemetry.Events.Exception,
+            payload);
+        return sentryEventId;
+    }
+
     public async ValueTask DisposeAsync()
     {
         if (_moduleTask is null)
@@ -104,6 +129,86 @@ public sealed class RuntimeTelemetryService(IJSRuntime jsRuntime, RuntimeTelemet
         string eventName,
         IReadOnlyDictionary<string, object?> payload,
         string methodName)
+    {
+        CaptureSentryTelemetry(eventName, payload, methodName);
+        await TrackJsTelemetryAsync(methodName, eventName, payload);
+    }
+
+    private void CaptureSentryTelemetry(
+        string eventName,
+        IReadOnlyDictionary<string, object?> payload,
+        string methodName)
+    {
+        if (!_options.HostEnabled || !_options.SentryConfigured)
+        {
+            return;
+        }
+
+        var telemetryKind = string.Equals(
+            methodName,
+            RuntimeTelemetryInteropMethodNames.TrackPageView,
+            StringComparison.Ordinal)
+            ? AppRuntimeTelemetry.Events.PageView
+            : RuntimeTelemetryInteropMethodNames.TrackEvent;
+
+        _sentryClient.CaptureMessage(
+            eventName,
+            scope =>
+            {
+                scope.SetTag("runtime.telemetry.kind", telemetryKind);
+                scope.SetTag("runtime.telemetry.method", methodName);
+
+                foreach (var entry in payload)
+                {
+                    scope.SetExtra(entry.Key, entry.Value ?? string.Empty);
+
+                    if (entry.Value is string tagValue && !string.IsNullOrWhiteSpace(tagValue))
+                    {
+                        scope.SetTag($"runtime.telemetry.{entry.Key}", tagValue);
+                    }
+                }
+            },
+            SentryLevel.Info);
+    }
+
+    private SentryId CaptureSentryException(
+        Exception exception,
+        IReadOnlyDictionary<string, object?> payload,
+        bool isFatal)
+    {
+        if (!_options.HostEnabled || !_options.SentryConfigured)
+        {
+            return SentryId.Empty;
+        }
+
+        return _sentryClient.CaptureException(
+            exception,
+            scope =>
+            {
+                scope.SetTag("runtime.telemetry.is_fatal", isFatal.ToString().ToLowerInvariant());
+                scope.SetTag("runtime.telemetry.kind", AppRuntimeTelemetry.Events.Exception);
+
+                ApplyScopePayload(scope, payload);
+            });
+    }
+
+    private static void ApplyScopePayload(Scope scope, IReadOnlyDictionary<string, object?> payload)
+    {
+        foreach (var entry in payload)
+        {
+            scope.SetExtra(entry.Key, entry.Value ?? string.Empty);
+
+            if (entry.Value is string tagValue && !string.IsNullOrWhiteSpace(tagValue))
+            {
+                scope.SetTag($"runtime.telemetry.{entry.Key}", tagValue);
+            }
+        }
+    }
+
+    private async Task TrackJsTelemetryAsync(
+        string methodName,
+        string eventName,
+        IReadOnlyDictionary<string, object?> payload)
     {
         await InitializeAsync();
 

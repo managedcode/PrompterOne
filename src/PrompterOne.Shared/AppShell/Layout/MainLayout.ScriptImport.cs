@@ -1,9 +1,9 @@
-using System.Text;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using PrompterOne.Core.Abstractions;
 using PrompterOne.Core.Services.Editor;
 using PrompterOne.Shared.Contracts;
+using PrompterOne.Shared.Localization;
 using PrompterOne.Shared.Services;
 using PrompterOne.Shared.Services.Diagnostics;
 
@@ -11,23 +11,43 @@ namespace PrompterOne.Shared.Layout;
 
 public partial class MainLayout
 {
-    private const string OpenScriptMessage = "Unable to import this script.";
-    private const string OpenScriptOperation = "Library open script";
-    private const string OpenScriptUnsupportedDetail = "Choose a .tps, .tps.md, .md.tps, .md, or .txt file.";
-    private const long OpenScriptMaximumFileSizeBytes = 5 * 1024 * 1024;
-    protected internal const string SupportedOpenScriptAcceptValue = ScriptDocumentFileTypes.AcceptValue;
+    private const int ImportProgressStepCount = 3;
+    private const string ImportScriptMessage = "Unable to import this script.";
+    private const string ImportScriptOperation = "Shell import script";
+    private const string ImportScriptUnsupportedDetail = "Choose a supported script or document file such as .tps, .md, .txt, .pdf, or .docx.";
+    private const long ImportScriptMaximumFileSizeBytes = 5 * 1024 * 1024;
+    protected internal static string SupportedImportAcceptValue => ScriptDocumentFileTypes.PickerAcceptValue;
 
-    private int _openScriptPickerVersion;
+    private int _importScriptPickerVersion;
+    private ImportProgressState? _importProgressState;
+
+    private bool IsImportInProgress => _importProgressState is not null;
+
+    private string ImportProgressFileName => _importProgressState?.FileName ?? string.Empty;
+
+    private string ImportProgressLabel => _importProgressState is null
+        ? string.Empty
+        : Text(_importProgressState.PhaseKey);
+
+    private string ImportProgressStepLabel => _importProgressState is null
+        ? string.Empty
+        : $"{_importProgressState.StepIndex}/{_importProgressState.TotalSteps}";
+
+    private string ImportProgressWidth => _importProgressState is null
+        ? "0%"
+        : $"{Math.Clamp((int)Math.Round(_importProgressState.StepIndex * 100d / _importProgressState.TotalSteps), 0, 100)}%";
 
     [Inject] private AppShellFilePickerInterop FilePickerInterop { get; set; } = null!;
     [Inject] private IScriptRepository ScriptRepository { get; set; } = null!;
-    [Inject] private ScriptImportDescriptorService ScriptImportDescriptorService { get; set; } = null!;
+    [Inject] private ScriptDocumentImportService ScriptDocumentImportService { get; set; } = null!;
     [Inject] private UiDiagnosticsService Diagnostics { get; set; } = null!;
 
-    private Task HandleOpenScriptTriggerAsync() =>
-        FilePickerInterop.OpenAsync(UiDomIds.AppShell.LibraryOpenScriptInput);
+    private Task HandleImportScriptTriggerAsync() =>
+        IsImportInProgress
+            ? Task.CompletedTask
+            : FilePickerInterop.OpenAsync(ImportActionInputDomId);
 
-    private async Task HandleOpenScriptAsync(InputFileChangeEventArgs args)
+    private async Task HandleImportScriptAsync(InputFileChangeEventArgs args)
     {
         try
         {
@@ -37,20 +57,23 @@ public partial class MainLayout
             }
 
             var file = args.File;
-            if (!ScriptImportDescriptorService.CanImport(file.Name))
+            if (!ScriptDocumentImportService.CanImport(file.Name))
             {
-                Diagnostics.ReportRecoverable(OpenScriptOperation, OpenScriptMessage, OpenScriptUnsupportedDetail);
+                Diagnostics.ReportRecoverable(ImportScriptOperation, ImportScriptMessage, ImportScriptUnsupportedDetail);
                 return;
             }
 
+            await SetImportProgressAsync(file.Name, UiTextKey.HeaderImportReading, 1);
             await Diagnostics.RunAsync(
-                OpenScriptOperation,
-                OpenScriptMessage,
+                ImportScriptOperation,
+                ImportScriptMessage,
                 async () =>
                 {
                     await Bootstrapper.EnsureReadyAsync();
-                    var importedText = await ReadImportedTextAsync(file);
-                    var descriptor = ScriptImportDescriptorService.Build(file.Name, importedText);
+                    await SetImportProgressAsync(file.Name, UiTextKey.HeaderImportPreparingScript, 2);
+                    await using var stream = file.OpenReadStream(ImportScriptMaximumFileSizeBytes);
+                    var descriptor = await ScriptDocumentImportService.ImportAsync(stream, file.Name, file.ContentType);
+                    await SetImportProgressAsync(file.Name, UiTextKey.HeaderImportOpeningEditor, 3);
                     var document = await ScriptRepository.SaveAsync(
                         descriptor.Title,
                         descriptor.Text,
@@ -62,20 +85,43 @@ public partial class MainLayout
         }
         finally
         {
-            ResetOpenScriptPicker();
+            await ClearImportProgressAsync();
+            ResetImportScriptPicker();
         }
     }
 
-    private static async Task<string> ReadImportedTextAsync(IBrowserFile file)
+    private async Task ClearImportProgressAsync()
     {
-        await using var stream = file.OpenReadStream(OpenScriptMaximumFileSizeBytes);
-        using var reader = new StreamReader(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true);
-        return await reader.ReadToEndAsync();
+        if (_importProgressState is null)
+        {
+            return;
+        }
+
+        _importProgressState = null;
+        await InvokeAsync(StateHasChanged);
     }
 
-    private void ResetOpenScriptPicker()
+    private async Task SetImportProgressAsync(string? fileName, UiTextKey phaseKey, int stepIndex)
     {
-        _openScriptPickerVersion = checked(_openScriptPickerVersion + 1);
+        _importProgressState = new ImportProgressState(
+            FileName: ScriptDocumentFileTypes.NormalizeFileName(fileName),
+            PhaseKey: phaseKey,
+            StepIndex: Math.Clamp(stepIndex, 1, ImportProgressStepCount),
+            TotalSteps: ImportProgressStepCount);
+
+        await InvokeAsync(StateHasChanged);
+        await Task.Yield();
+    }
+
+    private void ResetImportScriptPicker()
+    {
+        _importScriptPickerVersion = checked(_importScriptPickerVersion + 1);
         _ = InvokeAsync(StateHasChanged);
     }
+
+    private sealed record ImportProgressState(
+        string FileName,
+        UiTextKey PhaseKey,
+        int StepIndex,
+        int TotalSteps);
 }

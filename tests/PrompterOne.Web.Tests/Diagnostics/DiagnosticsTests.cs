@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Bunit;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
@@ -8,6 +9,7 @@ using PrompterOne.Core.Localization;
 using PrompterOne.Shared.Components.Diagnostics;
 using PrompterOne.Shared.Contracts;
 using PrompterOne.Shared.Localization;
+using PrompterOne.Shared.Services;
 using PrompterOne.Shared.Services.Diagnostics;
 using PrompterOne.Shared.Tests;
 
@@ -16,6 +18,14 @@ namespace PrompterOne.Web.Tests;
 [NotInParallel]
 public sealed class DiagnosticsTests : BunitContext
 {
+    private const string ExceptionEventName = "exception";
+    private const string ExceptionIsFatalParameter = "is_fatal";
+    private const string ExceptionMessageParameter = "exception_message";
+    private const string ExceptionOperationParameter = "operation";
+    private const string ExceptionTypeParameter = "exception_type";
+    private const string RuntimeTelemetryInitializeIdentifier = "initializeRuntimeTelemetry";
+    private const string RuntimeTelemetryTrackEventIdentifier = "trackRuntimeTelemetryEvent";
+
     [Test]
     public async Task UiDiagnosticsService_LogsRecoverableFailureAndStoresBannerEntry()
     {
@@ -108,8 +118,79 @@ public sealed class DiagnosticsTests : BunitContext
                 entry.Message.Contains("Unhandled UI exception reached the global error boundary.", StringComparison.Ordinal));
     }
 
+    [Test]
+    public async Task UiDiagnosticsService_TracksRecoverableExceptions_ThroughRuntimeTelemetry()
+    {
+        using var cultureScope = new CultureScope(AppCultureCatalog.EnglishCultureName);
+        var harness = TestHarnessFactory.Create(
+            this,
+            runtimeTelemetryOptions: CreateTelemetryOptions());
+        var diagnostics = Services.GetRequiredService<UiDiagnosticsService>();
+
+        var completed = await diagnostics.RunAsync(
+            "Library load",
+            "Unable to load the library right now.",
+            () => Task.FromException(new InvalidOperationException("Forced diagnostics failure.")));
+
+        Assert.False(completed);
+
+        var payload = WaitForTelemetryEventPayload(harness.JsRuntime, ExceptionEventName);
+
+        Assert.Equal("Library load", payload.GetProperty(ExceptionOperationParameter).GetString());
+        Assert.Equal("Forced diagnostics failure.", payload.GetProperty(ExceptionMessageParameter).GetString());
+        Assert.Equal(nameof(InvalidOperationException), payload.GetProperty(ExceptionTypeParameter).GetString());
+        Assert.False(payload.GetProperty(ExceptionIsFatalParameter).GetBoolean());
+        Assert.Contains(
+            harness.JsRuntime.InvocationRecords,
+            record => string.Equals(record.Identifier, RuntimeTelemetryInitializeIdentifier, StringComparison.Ordinal));
+    }
+
+    [Test]
+    public void LoggingErrorBoundary_TracksFatalExceptions_ThroughRuntimeTelemetry()
+    {
+        using var cultureScope = new CultureScope(AppCultureCatalog.EnglishCultureName);
+        var harness = TestHarnessFactory.Create(
+            this,
+            runtimeTelemetryOptions: CreateTelemetryOptions());
+
+        var cut = Render<LoggingErrorBoundary>(parameters => parameters
+            .AddChildContent<ThrowingDiagnosticsComponent>());
+
+        cut.WaitForAssertion(() =>
+        {
+            var payload = WaitForTelemetryEventPayload(harness.JsRuntime, ExceptionEventName);
+            var diagnostics = Services.GetRequiredService<UiDiagnosticsService>();
+
+            Assert.NotNull(diagnostics.Current);
+            Assert.True(payload.GetProperty(ExceptionIsFatalParameter).GetBoolean());
+            Assert.Equal(diagnostics.Current!.Operation, payload.GetProperty(ExceptionOperationParameter).GetString());
+            Assert.Equal("Forced boundary failure.", payload.GetProperty(ExceptionMessageParameter).GetString());
+            Assert.Equal(nameof(InvalidOperationException), payload.GetProperty(ExceptionTypeParameter).GetString());
+        });
+    }
+
     private string Text(UiTextKey key) =>
         Services.GetRequiredService<IStringLocalizer<SharedResource>>()[key.ToString()];
+
+    private static JsonElement WaitForTelemetryEventPayload(TestJsRuntime jsRuntime, string eventName)
+    {
+        var invocation = jsRuntime.InvocationRecords.LastOrDefault(record =>
+            string.Equals(record.Identifier, RuntimeTelemetryTrackEventIdentifier, StringComparison.Ordinal)
+            && record.Arguments.Count >= 2
+            && string.Equals(record.Arguments[0]?.ToString(), eventName, StringComparison.Ordinal));
+
+        Assert.NotNull(invocation);
+
+        using var document = JsonDocument.Parse(JsonSerializer.Serialize(invocation.Arguments[1]));
+        return document.RootElement.Clone();
+    }
+
+    private static RuntimeTelemetryOptions CreateTelemetryOptions() =>
+        new(
+            GoogleAnalyticsMeasurementId: "G-test-measurement",
+            ClarityProjectId: "clarity-test-project",
+            SentryDsn: "https://public@example.ingest.sentry.io/1",
+            HostEnabled: true);
 
     private sealed class ThrowingDiagnosticsComponent : ComponentBase
     {

@@ -26,6 +26,12 @@
                     @onclick="() => SplitRequested.InvokeAsync(TpsDocumentSplitMode.SegmentHeading)">
                 @Text(UiTextKey.EditorSplitSegment)
             </button>
+            <button type="button"
+                    class="ed-meta-action"
+                    data-test="@UiTestIds.Editor.SplitSpeaker"
+                    @onclick="() => SplitRequested.InvokeAsync(TpsDocumentSplitMode.Speaker)">
+                @Text(UiTextKey.EditorSplitSpeaker)
+            </button>
         </div>
 
         @if (SplitFeedback is not null)

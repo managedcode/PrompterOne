@@ -20,9 +20,9 @@ public sealed class MainLayoutActionTests : BunitContext
     private const string EnglishGoLiveLabel = "Go Live";
     private const string EnglishImportLabel = "Import";
     private const string IntroSubtitle = "Intro";
-    private const string SupportedImportAcceptValue = ScriptDocumentFileTypes.AcceptValue;
     private const string UkrainianExportLabel = "Експорт";
     private const string UkrainianImportLabel = "Імпорт";
+    private static readonly string SupportedImportAcceptValue = ScriptDocumentFileTypes.PickerAcceptValue;
 
     [Test]
     [Arguments(AppRoutes.Learn, AppTestData.Scripts.QuantumId)]
@@ -242,8 +242,15 @@ public sealed class MainLayoutActionTests : BunitContext
 
         cut.WaitForAssertion(() =>
         {
+            var importAction = cut.FindByTestId(UiTestIds.Header.EditorImportScript);
+            var importInput = cut.FindByTestId(UiTestIds.Header.EditorImportScriptInput);
             var exportAction = cut.FindByTestId(UiTestIds.Header.EditorSaveFile);
 
+            Assert.NotNull(importAction);
+            Assert.Contains(EnglishImportLabel, importAction.TextContent, StringComparison.Ordinal);
+            Assert.Equal(UiDomIds.AppShell.EditorImportScriptInput, importInput.GetAttribute("id"));
+            Assert.Equal(SupportedImportAcceptValue, importInput.GetAttribute("accept"));
+            Assert.Equal(EnglishImportLabel, importInput.GetAttribute("aria-label"));
             Assert.NotNull(exportAction);
             Assert.Contains(EnglishExportLabel, exportAction.TextContent, StringComparison.Ordinal);
             Assert.NotNull(cut.FindByTestId(UiTestIds.Header.EditorLearn));
@@ -337,8 +344,10 @@ public sealed class MainLayoutActionTests : BunitContext
 
         cut.WaitForAssertion(() =>
         {
+            var importAction = cut.FindByTestId(UiTestIds.Header.EditorImportScript);
             var exportAction = cut.FindByTestId(UiTestIds.Header.EditorSaveFile);
 
+            Assert.Contains(UkrainianImportLabel, importAction.TextContent, StringComparison.Ordinal);
             Assert.Contains(UkrainianExportLabel, exportAction.TextContent, StringComparison.Ordinal);
         });
     }

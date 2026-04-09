@@ -10,7 +10,7 @@ public sealed class ScriptImportDescriptorService
     private readonly TpsFrontMatterDocumentService _frontMatterService = new();
 
     public bool CanImport(string? fileName) =>
-        ScriptDocumentFileTypes.ResolveSupportedSuffix(fileName) is not null;
+        ScriptDocumentFileTypes.CanDropIntoEditor(fileName);
 
     public ScriptImportDescriptor Build(string? fileName, string? text)
     {
@@ -27,7 +27,7 @@ public sealed class ScriptImportDescriptorService
     private static string NormalizeSupportedFileName(string? fileName)
     {
         var normalizedFileName = ScriptDocumentFileTypes.NormalizeFileName(fileName);
-        if (ScriptDocumentFileTypes.ResolveSupportedSuffix(normalizedFileName) is null)
+        if (ScriptDocumentFileTypes.ResolveSaveSupportedSuffix(normalizedFileName) is null)
         {
             throw new ArgumentException(UnsupportedFileNameMessage, nameof(fileName));
         }
@@ -37,7 +37,7 @@ public sealed class ScriptImportDescriptorService
 
     private static string ResolveFallbackTitle(string fileName)
     {
-        var suffix = ScriptDocumentFileTypes.ResolveSupportedSuffix(fileName);
+        var suffix = ScriptDocumentFileTypes.ResolveSaveSupportedSuffix(fileName);
         if (suffix is null)
         {
             return ScriptWorkspaceState.UntitledScriptTitle;

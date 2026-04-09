@@ -44,6 +44,7 @@ public static class PrompterOneServiceCollectionExtensions
         services.AddScoped<TpsExporter>();
         services.AddScoped<TpsFrontMatterDocumentService>();
         services.AddScoped<TpsDocumentSplitService>();
+        services.AddScoped<ScriptDocumentImportService>();
         services.AddScoped<ScriptImportDescriptorService>();
         services.AddScoped<EditorDroppedScriptMergeService>();
         services.AddScoped<TpsTextEditor>();
@@ -89,7 +90,9 @@ public static class PrompterOneServiceCollectionExtensions
         services.AddScoped<AppBootstrapper>();
         services.AddScoped<AppShellService>();
         services.AddSingleton(runtimeTelemetryOptions ?? RuntimeTelemetryOptions.Disabled);
+        services.AddSingleton<ISentryRuntimeClient, SentryRuntimeClient>();
         services.AddScoped<RuntimeTelemetryService>();
+        services.AddScoped<SentryUserFeedbackService>();
         services.AddScoped<BrowserConnectivityInterop>();
         services.AddScoped<BrowserConnectivityService>();
         services.AddScoped<GoLiveSessionService>();

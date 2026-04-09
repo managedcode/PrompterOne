@@ -107,7 +107,6 @@
                 return element ?? targets;
             },
             stop() {
-                mediaStreamTrack.stop();
                 attachedElements.forEach(target => {
                     if (target?.srcObject === mediaStream) {
                         target.srcObject = null;
@@ -298,6 +297,27 @@
         return element instanceof HTMLVideoElement ? element : null;
     }
 
+    function releaseLocalTrack(track) {
+        if (!track) {
+            return;
+        }
+
+        try {
+            track.detach?.();
+        } catch {
+        }
+
+        try {
+            track.stop?.();
+        } catch {
+        }
+
+        try {
+            track.mediaStreamTrack?.stop?.();
+        } catch {
+        }
+    }
+
     function normalizeDevice(device, kind) {
         const deviceId = typeof device?.deviceId === "string"
             ? device.deviceId
@@ -405,11 +425,7 @@
         }
 
         cameraCaptureMap.delete(captureKey);
-
-        try {
-            capture.track.stop();
-        } catch {
-        }
+        releaseLocalTrack(capture.track);
     }
 
     function removeAttachedRemoteElements(captureKey) {
@@ -517,11 +533,7 @@
         }
 
         await monitor.analyserHandle.cleanup().catch(() => {});
-
-        try {
-            monitor.track.stop();
-        } catch {
-        }
+        releaseLocalTrack(monitor.track);
 
         await notifyMonitorLevel(monitor, 0);
     }
@@ -537,12 +549,7 @@
             });
         } catch {
         } finally {
-            tracks.forEach(track => {
-                try {
-                    track.stop();
-                } catch {
-                }
-            });
+            tracks.forEach(releaseLocalTrack);
         }
     }
 
@@ -677,10 +684,7 @@
                 }
 
                 if (track) {
-                    try {
-                        track.stop();
-                    } catch {
-                    }
+                    releaseLocalTrack(track);
                 }
 
                 await notifyMonitorLevel({ observer }, 0);

@@ -31,11 +31,16 @@ internal static class RuntimeSentryBootstrapper
         builder.UseSentry(options =>
         {
             options.Dsn = telemetryOptions.SentryDsn;
-            options.Debug = false;
             options.AutoSessionTracking = true;
             options.Environment = builder.HostEnvironment.Environment;
             options.Release = release;
+            options.SendDefaultPii = true;
+#if DEBUG
+            options.Debug = true;
+#endif
         });
+
+        builder.Logging.AddSentry(options => options.InitializeSdk = false);
     }
 
     public static void DisableForWasmDebug(IServiceProvider services)
@@ -45,6 +50,7 @@ internal static class RuntimeSentryBootstrapper
         var navigationManager = services.GetRequiredService<NavigationManager>();
         if (IsWasmDebugEnabled(navigationManager.Uri))
         {
+
             SentrySdk.Close();
         }
     }

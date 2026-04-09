@@ -11,6 +11,8 @@ public static partial class UiTestIds
         public const string AboutCompanyCard = "settings-about-company-card";
         public const string AboutCompanyGitHub = "settings-about-company-github";
         public const string AboutCompanyWebsite = "settings-about-company-website";
+        public const string AboutFeedbackCard = "settings-about-feedback-card";
+        public const string AboutFeedbackOpen = "settings-about-feedback-open";
         public const string AboutPanel = "settings-about-panel";
         public const string AboutOnboardingCard = "settings-about-onboarding-card";
         public const string AboutOnboardingRestart = "settings-about-onboarding-restart";

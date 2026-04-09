@@ -57,6 +57,9 @@ public partial class MainLayout : LayoutComponentBase, IDisposable
         ? Text(UiTextKey.LibraryAllScripts)
         : ShellState.BreadcrumbLabel;
 
+    private bool ShowImportAction =>
+        ShellState.Screen is AppShellScreen.Library or AppShellScreen.Editor;
+
     private bool ShowLearnAction => ShellState.Screen == AppShellScreen.Editor;
 
     private bool ShowSaveFileAction => ShellState.Screen == AppShellScreen.Editor;
@@ -134,6 +137,26 @@ public partial class MainLayout : LayoutComponentBase, IDisposable
             ? AppRoutes.GoLive
             : AppRoutes.GoLiveWithId(GoLiveSessionState.ScriptId)
         : Shell.GetGoLiveRoute();
+
+    private string ImportActionButtonTestId => IsLibraryScreen
+        ? UiTestIds.Header.LibraryOpenScriptButton
+        : UiTestIds.Header.EditorImportScriptButton;
+
+    private string ImportActionIconTestId => IsLibraryScreen
+        ? UiTestIds.Header.LibraryOpenScriptIcon
+        : UiTestIds.Header.EditorImportScriptIcon;
+
+    private string ImportActionInputDomId => IsLibraryScreen
+        ? UiDomIds.AppShell.LibraryOpenScriptInput
+        : UiDomIds.AppShell.EditorImportScriptInput;
+
+    private string ImportActionInputTestId => IsLibraryScreen
+        ? UiTestIds.Header.LibraryOpenScriptInput
+        : UiTestIds.Header.EditorImportScriptInput;
+
+    private string ImportActionSurfaceTestId => IsLibraryScreen
+        ? UiTestIds.Header.LibraryOpenScript
+        : UiTestIds.Header.EditorImportScript;
 
     private string BuildAppHeaderCssClass() =>
         BuildClassList(

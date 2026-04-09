@@ -374,7 +374,7 @@ public partial class EditorSourcePanel : IAsyncDisposable
         selectionChangedCallbackName = EditorMonacoInteropMethodNames.NotifySelectionChanged,
         sourceGutterTestId = UiTestIds.Editor.SourceGutter,
         sourceMinimapTestId = UiTestIds.Editor.SourceMinimap,
-        supportedFileNameSuffixes = ScriptDocumentFileTypes.SupportedFileNameSuffixes,
+        supportedFileNameSuffixes = ScriptDocumentFileTypes.EditorDropSupportedFileNameSuffixes,
         tpsCatalog = EditorTpsCatalog.Current,
         textChangedCallbackName = EditorMonacoInteropMethodNames.NotifyTextChanged
     };

@@ -75,6 +75,15 @@
   <data name="HeaderNewScript" xml:space="preserve">
     <value>Novo roteiro</value>
   </data>
+  <data name="HeaderImportReading" xml:space="preserve">
+    <value>Lendo arquivo</value>
+  </data>
+  <data name="HeaderImportPreparingScript" xml:space="preserve">
+    <value>Preparando roteiro</value>
+  </data>
+  <data name="HeaderImportOpeningEditor" xml:space="preserve">
+    <value>Abrindo editor</value>
+  </data>
   <data name="HeaderLearn" xml:space="preserve">
     <value>Estudar</value>
   </data>
@@ -818,5 +827,68 @@
   </data>
   <data name="EditorSplitSegment" xml:space="preserve">
     <value>Novos roteiros a partir de títulos ##</value>
+  </data>
+  <data name="EditorSplitSpeaker" xml:space="preserve">
+    <value>Novos roteiros por locutor</value>
+  </data>
+  <data name="EditorSplitNeedSpeakerTags" xml:space="preserve">
+    <value>Adicione Speaker:Name aos cabeçalhos ## ou ### antes de dividir este rascunho.</value>
+  </data>
+  <data name="EditorSplitSpeakerBadge" xml:space="preserve">
+    <value>Por locutor</value>
+  </data>
+  <data name="SettingsAboutFeedbackCardTitle" xml:space="preserve">
+    <value>Feedback</value>
+  </data>
+  <data name="SettingsAboutFeedbackCardSubtitle" xml:space="preserve">
+    <value>Envie observações diretamente para a equipe do PrompterOne</value>
+  </data>
+  <data name="SettingsAboutFeedbackCardCopy" xml:space="preserve">
+    <value>Abra um formulário privado de feedback com tecnologia Sentry para bugs, atritos ou ideias.</value>
+  </data>
+  <data name="SettingsAboutFeedbackCardAction" xml:space="preserve">
+    <value>Enviar feedback</value>
+  </data>
+  <data name="FeedbackDialogGeneralTitle" xml:space="preserve">
+    <value>Enviar feedback</value>
+  </data>
+  <data name="FeedbackDialogGeneralBody" xml:space="preserve">
+    <value>Conte o que está funcionando, o que está quebrado ou o que deixaria o PrompterOne melhor.</value>
+  </data>
+  <data name="FeedbackDialogFatalTitle" xml:space="preserve">
+    <value>Conte o que aconteceu</value>
+  </data>
+  <data name="FeedbackDialogFatalBody" xml:space="preserve">
+    <value>O PrompterOne encontrou um erro inesperado. Descreva o que você estava fazendo e vamos vincular sua nota à falha capturada.</value>
+  </data>
+  <data name="FeedbackDialogContextLabel" xml:space="preserve">
+    <value>Contexto capturado</value>
+  </data>
+  <data name="FeedbackDialogNameLabel" xml:space="preserve">
+    <value>Nome</value>
+  </data>
+  <data name="FeedbackDialogEmailLabel" xml:space="preserve">
+    <value>E-mail</value>
+  </data>
+  <data name="FeedbackDialogMessageLabel" xml:space="preserve">
+    <value>O que aconteceu?</value>
+  </data>
+  <data name="FeedbackDialogMessagePlaceholder" xml:space="preserve">
+    <value>O que você estava tentando fazer? O que esperava ver no lugar?</value>
+  </data>
+  <data name="FeedbackDialogCancel" xml:space="preserve">
+    <value>Cancelar</value>
+  </data>
+  <data name="FeedbackDialogSubmit" xml:space="preserve">
+    <value>Enviar feedback</value>
+  </data>
+  <data name="FeedbackDialogSubmitting" xml:space="preserve">
+    <value>Enviando...</value>
+  </data>
+  <data name="FeedbackDialogError" xml:space="preserve">
+    <value>Não foi possível enviar seu feedback agora. Tente novamente em instantes.</value>
+  </data>
+  <data name="FeedbackDialogMessageRequired" xml:space="preserve">
+    <value>Adicione uma breve descrição antes de enviar o feedback.</value>
   </data>
 </root>

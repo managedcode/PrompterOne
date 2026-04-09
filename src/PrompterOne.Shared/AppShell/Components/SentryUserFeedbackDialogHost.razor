@@ -1,0 +1,88 @@
+@namespace PrompterOne.Shared.AppShell.Components
+@inherits PrompterOne.Shared.AppShell.Components.SentryUserFeedbackDialogHostBase
+@using PrompterOne.Shared.Components
+
+@if (Prompt is not null)
+{
+    <section class="feedback-dialog-shell"
+             role="dialog"
+             aria-modal="true"
+             aria-labelledby="@DialogTitleId"
+             data-state="@DialogState"
+             data-test="@UiTestIds.Feedback.Dialog"
+             @onclick="HandleCancel">
+        <div class="@DialogCardClass" @onclick:stopPropagation="true">
+            <div class="feedback-dialog-header">
+                <div class="feedback-dialog-title-row">
+                    <div class="feedback-dialog-icon">
+                        <UiIcon Kind="UiIconKind.Message" Size="20" />
+                    </div>
+                    <div class="feedback-dialog-copy">
+                        <h2 id="@DialogTitleId">@DialogTitle</h2>
+                        <p>@DialogBody</p>
+                    </div>
+                </div>
+
+                @if (ShowContext)
+                {
+                    <div class="feedback-dialog-context" data-test="@UiTestIds.Feedback.Context">
+                        <span class="feedback-dialog-context-label">@Text(UiTextKey.FeedbackDialogContextLabel)</span>
+                        <span class="feedback-dialog-context-value">@Prompt.Operation</span>
+                        <span class="feedback-dialog-context-detail">@Prompt.Detail</span>
+                    </div>
+                }
+            </div>
+
+            <form class="feedback-dialog-form" @onsubmit="HandleSubmitAsync" @onsubmit:preventDefault="true">
+                <div class="feedback-dialog-fields">
+                    <label class="feedback-dialog-field">
+                        <span>@Text(UiTextKey.FeedbackDialogNameLabel)</span>
+                        <input class="feedback-dialog-input"
+                               type="text"
+                               autocomplete="name"
+                               data-test="@UiTestIds.Feedback.Name"
+                               @bind="_name"
+                               @bind:event="oninput" />
+                    </label>
+
+                    <label class="feedback-dialog-field">
+                        <span>@Text(UiTextKey.FeedbackDialogEmailLabel)</span>
+                        <input class="feedback-dialog-input"
+                               type="email"
+                               autocomplete="email"
+                               data-test="@UiTestIds.Feedback.Email"
+                               @bind="_email"
+                               @bind:event="oninput" />
+                    </label>
+                </div>
+
+                <label class="feedback-dialog-field">
+                    <span>@Text(UiTextKey.FeedbackDialogMessageLabel)</span>
+                    <textarea class="feedback-dialog-textarea"
+                              rows="7"
+                              placeholder="@Text(UiTextKey.FeedbackDialogMessagePlaceholder)"
+                              data-test="@UiTestIds.Feedback.Message"
+                              @bind="_message"
+                              @bind:event="oninput"></textarea>
+                </label>
+
+                @if (!string.IsNullOrWhiteSpace(_errorMessage))
+                {
+                    <p class="feedback-dialog-error" data-test="@UiTestIds.Feedback.Error">@_errorMessage</p>
+                }
+
+                <div class="feedback-dialog-actions">
+                    <button class="btn-ghost feedback-dialog-button"
+                            type="button"
+                            disabled="@_isSubmitting"
+                            data-test="@UiTestIds.Feedback.Cancel"
+                            @onclick="HandleCancel">@Text(UiTextKey.FeedbackDialogCancel)</button>
+                    <button class="feedback-dialog-submit"
+                            type="submit"
+                            disabled="@_isSubmitting"
+                            data-test="@UiTestIds.Feedback.Submit">@SubmitText</button>
+                </div>
+            </form>
+        </div>
+    </section>
+}

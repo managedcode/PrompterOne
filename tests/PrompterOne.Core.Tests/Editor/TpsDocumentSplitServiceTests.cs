@@ -101,6 +101,70 @@ public sealed class TpsDocumentSplitServiceTests
     }
 
     [Test]
+    public void Split_BySpeaker_CreatesOneChildPerSpeakerAndKeepsOnlyThatSpeakerContent()
+    {
+        var source =
+            """
+            ---
+            title: "Interview Day"
+            profile: "Actor"
+            duration: "12:00"
+            author: "Konstantin Semenenko"
+            ---
+
+            ## [Opening|Speaker:Alex|140WPM|warm]
+            Alex intro line. //
+
+            ### [Question|Speaker:Jordan|130WPM|focused]
+            Jordan asks the question. //
+
+            ### [Answer|135WPM|professional]
+            Alex answers with inherited speaker context. //
+
+            ## [Wrap Up|150WPM|motivational]
+            ### [Signoff|Speaker:Jordan|150WPM|focused]
+            Jordan closes the interview. //
+            """;
+
+        var result = _service.Split(source, TpsDocumentSplitMode.Speaker);
+
+        Assert.Collection(
+            result,
+            alex =>
+            {
+                Assert.Equal(1, alex.Sequence);
+                Assert.Equal("Alex", alex.Title);
+                var document = _frontMatter.Parse(alex.Text);
+                Assert.Equal("Alex", document.Metadata[TpsFrontMatterDocumentService.MetadataKeys.Title]);
+                Assert.Equal("Actor", document.Metadata[TpsFrontMatterDocumentService.MetadataKeys.Profile]);
+                Assert.Equal("Konstantin Semenenko", document.Metadata[TpsFrontMatterDocumentService.MetadataKeys.Author]);
+                Assert.DoesNotContain(TpsFrontMatterDocumentService.MetadataKeys.Duration, document.Metadata.Keys, StringComparer.OrdinalIgnoreCase);
+                Assert.Contains("## [Opening|Speaker:Alex|140WPM|warm]", document.Body, StringComparison.Ordinal);
+                Assert.Contains("Alex intro line. //", document.Body, StringComparison.Ordinal);
+                Assert.Contains("### [Answer|135WPM|professional]", document.Body, StringComparison.Ordinal);
+                Assert.Contains("Alex answers with inherited speaker context. //", document.Body, StringComparison.Ordinal);
+                Assert.DoesNotContain("Jordan asks the question. //", document.Body, StringComparison.Ordinal);
+                Assert.DoesNotContain("Jordan closes the interview. //", document.Body, StringComparison.Ordinal);
+            },
+            jordan =>
+            {
+                Assert.Equal(2, jordan.Sequence);
+                Assert.Equal("Jordan", jordan.Title);
+                var document = _frontMatter.Parse(jordan.Text);
+                Assert.Equal("Jordan", document.Metadata[TpsFrontMatterDocumentService.MetadataKeys.Title]);
+                Assert.Contains("## [Opening|140WPM|warm]", document.Body, StringComparison.Ordinal);
+                Assert.DoesNotContain("## [Opening|Speaker:Alex|140WPM|warm]", document.Body, StringComparison.Ordinal);
+                Assert.Contains("### [Question|Speaker:Jordan|130WPM|focused]", document.Body, StringComparison.Ordinal);
+                Assert.Contains("Jordan asks the question. //", document.Body, StringComparison.Ordinal);
+                Assert.Contains("## [Wrap Up|150WPM|motivational]", document.Body, StringComparison.Ordinal);
+                Assert.Contains("### [Signoff|Speaker:Jordan|150WPM|focused]", document.Body, StringComparison.Ordinal);
+                Assert.Contains("Jordan closes the interview. //", document.Body, StringComparison.Ordinal);
+                Assert.DoesNotContain("Alex intro line. //", document.Body, StringComparison.Ordinal);
+                Assert.DoesNotContain("Alex answers with inherited speaker context. //", document.Body, StringComparison.Ordinal);
+            });
+    }
+
+    [Test]
     public void Split_ReturnsEmptyWhenBodyDoesNotContainRequestedHeadingLevel()
     {
         var source =

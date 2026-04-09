@@ -34,7 +34,8 @@ internal static class TestHarnessFactory
         IReadOnlyList<MediaDeviceInfo>? devices = null,
         Action<ILoggingBuilder>? configureLogging = null,
         TimeSpan? jsInvocationDelay = null,
-        bool seedLibraryData = true)
+        bool seedLibraryData = true,
+        RuntimeTelemetryOptions? runtimeTelemetryOptions = null)
     {
         var jsRuntime = new TestJsRuntime(jsInvocationDelay);
         var repository = new InMemoryScriptRepository();
@@ -51,6 +52,7 @@ internal static class TestHarnessFactory
         var frontMatter = new TpsFrontMatterDocumentService();
         var documentSplitService = new TpsDocumentSplitService();
         var scriptImportDescriptorService = new ScriptImportDescriptorService();
+        var scriptDocumentImportService = new ScriptDocumentImportService(scriptImportDescriptorService);
         var droppedScriptMergeService = new EditorDroppedScriptMergeService();
         var textEditor = new TpsTextEditor();
         var structureEditor = new TpsStructureEditor();
@@ -69,6 +71,7 @@ internal static class TestHarnessFactory
         var crossTabMessageBus = new CrossTabMessageBus(
             jsRuntime,
             loggerFactory.CreateLogger<CrossTabMessageBus>());
+        var sentryClient = new FakeSentryRuntimeClient();
         var settingsStore = new BrowserSettingsStore(
             jsRuntime,
             crossTabMessageBus,
@@ -106,6 +109,7 @@ internal static class TestHarnessFactory
         context.Services.AddSingleton(compiler);
         context.Services.AddSingleton(frontMatter);
         context.Services.AddSingleton(documentSplitService);
+        context.Services.AddSingleton(scriptDocumentImportService);
         context.Services.AddSingleton(scriptImportDescriptorService);
         context.Services.AddSingleton(droppedScriptMergeService);
         context.Services.AddSingleton(textEditor);
@@ -154,8 +158,10 @@ internal static class TestHarnessFactory
         context.Services.AddSingleton<GoLiveRemoteSourceRuntimeService>();
         context.Services.AddSingleton(bootstrapper);
         context.Services.AddSingleton<GoLiveSessionService>();
-        context.Services.AddSingleton(RuntimeTelemetryOptions.Disabled);
+        context.Services.AddSingleton(runtimeTelemetryOptions ?? RuntimeTelemetryOptions.Disabled);
+        context.Services.AddSingleton<ISentryRuntimeClient>(sentryClient);
         context.Services.AddSingleton<RuntimeTelemetryService>();
+        context.Services.AddSingleton<SentryUserFeedbackService>();
         context.Services.AddSingleton<BrowserConnectivityInterop>();
         context.Services.AddSingleton<BrowserConnectivityService>();
         context.Services.AddSingleton<UiDiagnosticsService>();
@@ -178,6 +184,7 @@ internal static class TestHarnessFactory
             permissionService,
             deviceService,
             crossTabMessageBus,
+            sentryClient,
             loggerFactory);
     }
 
@@ -198,6 +205,7 @@ internal sealed record AppHarness(
     FakeMediaPermissionService PermissionService,
     FakeMediaDeviceService DeviceService,
     CrossTabMessageBus CrossTabMessageBus,
+    FakeSentryRuntimeClient SentryClient,
     ILoggerFactory LoggerFactory);
 
 internal sealed record JsInvocationRecord(
@@ -206,6 +214,7 @@ internal sealed record JsInvocationRecord(
 
 internal sealed class TestJsRuntime(TimeSpan? invocationDelay = null) : IJSRuntime
 {
+    private const string JSImportIdentifier = "import";
     private const string BrowserCultureGetLanguagesIdentifier = BrowserCultureInteropMethodNames.GetBrowserLanguages;
     private const string BrowserCultureSetDocumentLanguageIdentifier = BrowserCultureInteropMethodNames.SetDocumentLanguage;
     private const string BrowserMediaGetCaptureCapabilitiesIdentifier = BrowserMediaInteropMethodNames.GetCaptureCapabilities;
@@ -225,6 +234,7 @@ internal sealed class TestJsRuntime(TimeSpan? invocationDelay = null) : IJSRunti
     private const string GoLiveUpdateSessionDevicesIdentifier = GoLiveOutputInteropMethodNames.UpdateSessionDevices;
     private const string LoadSettingJsonIdentifier = "localStorage.getItem";
     private const string RemoveStorageValueIdentifier = "localStorage.removeItem";
+    private const string RuntimeTelemetryModulePath = "./_content/PrompterOne.Shared/app/runtime-telemetry.js";
     private const string SaveSettingJsonIdentifier = "localStorage.setItem";
     private const int ActiveAudioLevelPercent = 64;
     private const int IdleAudioLevelPercent = 0;
@@ -322,6 +332,7 @@ internal sealed class TestJsRuntime(TimeSpan? invocationDelay = null) : IJSRunti
 
         var result = identifier switch
         {
+            JSImportIdentifier => ImportModule(args),
             BrowserCultureGetLanguagesIdentifier => BrowserLanguages.ToArray(),
             BrowserCultureSetDocumentLanguageIdentifier => SetDocumentLanguage(args),
             BrowserMediaGetCaptureCapabilitiesIdentifier => CaptureCapabilities,
@@ -351,6 +362,14 @@ internal sealed class TestJsRuntime(TimeSpan? invocationDelay = null) : IJSRunti
     {
         DocumentLanguage = args?.FirstOrDefault()?.ToString() ?? AppCultureCatalog.DefaultCultureName;
         return null;
+    }
+
+    private object? ImportModule(object?[]? args)
+    {
+        var modulePath = args?.FirstOrDefault()?.ToString() ?? string.Empty;
+        return string.Equals(modulePath, RuntimeTelemetryModulePath, StringComparison.Ordinal)
+            ? new TestJsModule(this)
+            : null;
     }
 
     private bool TryHandleGoLiveOutputInvocation<TValue>(string identifier, object?[]? args, out TValue result)
@@ -685,6 +704,22 @@ internal sealed class TestJsRuntime(TimeSpan? invocationDelay = null) : IJSRunti
         yield return key;
     }
 
+    private sealed class TestJsModule(TestJsRuntime owner) : IJSObjectReference
+    {
+        private readonly TestJsRuntime _owner = owner;
+
+        public ValueTask DisposeAsync() => ValueTask.CompletedTask;
+
+        public ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args) =>
+            InvokeAsync<TValue>(identifier, CancellationToken.None, args);
+
+        public ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
+        {
+            _owner.Invocations.Add(identifier);
+            _owner.InvocationRecords.Add(new JsInvocationRecord(identifier, args?.ToArray() ?? []));
+            return ValueTask.FromResult(default(TValue)!);
+        }
+    }
 }
 
 internal sealed class FakeMediaPermissionService : IMediaPermissionService

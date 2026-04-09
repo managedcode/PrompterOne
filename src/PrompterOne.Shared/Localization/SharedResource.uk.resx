@@ -78,6 +78,15 @@
   <data name="HeaderOpenScript" xml:space="preserve">
     <value>Імпорт</value>
   </data>
+  <data name="HeaderImportReading" xml:space="preserve">
+    <value>Читаємо файл</value>
+  </data>
+  <data name="HeaderImportPreparingScript" xml:space="preserve">
+    <value>Готуємо сценарій</value>
+  </data>
+  <data name="HeaderImportOpeningEditor" xml:space="preserve">
+    <value>Відкриваємо редактор</value>
+  </data>
   <data name="HeaderSaveFile" xml:space="preserve">
     <value>Експорт</value>
   </data>
@@ -1055,5 +1064,68 @@
   </data>
   <data name="EditorSplitSegment" xml:space="preserve">
     <value>Нові скрипти з заголовків ##</value>
+  </data>
+  <data name="EditorSplitSpeaker" xml:space="preserve">
+    <value>Нові сценарії за спікером</value>
+  </data>
+  <data name="EditorSplitNeedSpeakerTags" xml:space="preserve">
+    <value>Додайте Speaker:Name у заголовки ## або ### перед тим, як розбивати цю чернетку.</value>
+  </data>
+  <data name="EditorSplitSpeakerBadge" xml:space="preserve">
+    <value>За спікером</value>
+  </data>
+  <data name="SettingsAboutFeedbackCardTitle" xml:space="preserve">
+    <value>Відгук</value>
+  </data>
+  <data name="SettingsAboutFeedbackCardSubtitle" xml:space="preserve">
+    <value>Надсилайте нотатки прямо команді PrompterOne</value>
+  </data>
+  <data name="SettingsAboutFeedbackCardCopy" xml:space="preserve">
+    <value>Відкрийте приватну форму відгуку на базі Sentry для багів, незручностей або ідей.</value>
+  </data>
+  <data name="SettingsAboutFeedbackCardAction" xml:space="preserve">
+    <value>Надіслати відгук</value>
+  </data>
+  <data name="FeedbackDialogGeneralTitle" xml:space="preserve">
+    <value>Надіслати відгук</value>
+  </data>
+  <data name="FeedbackDialogGeneralBody" xml:space="preserve">
+    <value>Розкажіть, що працює добре, що зламалося або що зробило б PrompterOne кращим.</value>
+  </data>
+  <data name="FeedbackDialogFatalTitle" xml:space="preserve">
+    <value>Розкажіть, що сталося</value>
+  </data>
+  <data name="FeedbackDialogFatalBody" xml:space="preserve">
+    <value>У PrompterOne сталася неочікувана помилка. Опишіть, що ви робили, і ми прив’яжемо вашу нотатку до зафіксованого збою.</value>
+  </data>
+  <data name="FeedbackDialogContextLabel" xml:space="preserve">
+    <value>Зафіксований контекст</value>
+  </data>
+  <data name="FeedbackDialogNameLabel" xml:space="preserve">
+    <value>Ім’я</value>
+  </data>
+  <data name="FeedbackDialogEmailLabel" xml:space="preserve">
+    <value>Електронна пошта</value>
+  </data>
+  <data name="FeedbackDialogMessageLabel" xml:space="preserve">
+    <value>Що сталося?</value>
+  </data>
+  <data name="FeedbackDialogMessagePlaceholder" xml:space="preserve">
+    <value>Що ви намагалися зробити? Що очікували побачити натомість?</value>
+  </data>
+  <data name="FeedbackDialogCancel" xml:space="preserve">
+    <value>Скасувати</value>
+  </data>
+  <data name="FeedbackDialogSubmit" xml:space="preserve">
+    <value>Надіслати відгук</value>
+  </data>
+  <data name="FeedbackDialogSubmitting" xml:space="preserve">
+    <value>Надсилання...</value>
+  </data>
+  <data name="FeedbackDialogError" xml:space="preserve">
+    <value>Зараз не вдалося надіслати відгук. Спробуйте ще раз за мить.</value>
+  </data>
+  <data name="FeedbackDialogMessageRequired" xml:space="preserve">
+    <value>Додайте короткий опис перед надсиланням відгуку.</value>
   </data>
 </root>

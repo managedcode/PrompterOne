@@ -5,6 +5,8 @@
   <ItemGroup>
     <PackageVersion Include="Azure.Identity" Version="1.20.0" />
     <PackageVersion Include="bunit" Version="2.7.2" />
+    <PackageVersion Include="ManagedCode.MarkItDown" Version="10.0.7" />
+    <PackageVersion Include="ManagedCode.MimeTypes" Version="10.0.1" />
     <PackageVersion Include="ManagedCode.Storage.Browser" Version="10.0.5" />
     <PackageVersion Include="ManagedCode.Storage.CloudKit" Version="10.0.5" />
     <PackageVersion Include="ManagedCode.Storage.Dropbox" Version="10.0.5" />

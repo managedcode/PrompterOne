@@ -9,6 +9,17 @@
                       HeaderSubtitle="@HeaderSubtitle"
                       HeaderSubtitleDomId="@(ShellState.Screen == AppShellScreen.Teleprompter ? UiDomIds.Teleprompter.HeaderSegment : null)"
                       HeaderTitle="@HeaderTitle"
+                      ImportActionButtonTestId="@ImportActionButtonTestId"
+                      ImportActionIconTestId="@ImportActionIconTestId"
+                      ImportActionInputId="@ImportActionInputDomId"
+                      ImportActionInputTestId="@ImportActionInputTestId"
+                      ImportActionLabel="@Text(UiTextKey.HeaderOpenScript)"
+                      ImportProgressFileName="@ImportProgressFileName"
+                      ImportProgressLabel="@ImportProgressLabel"
+                      ImportProgressStepLabel="@ImportProgressStepLabel"
+                      ImportProgressWidth="@ImportProgressWidth"
+                      ImportActionSurfaceTestId="@ImportActionSurfaceTestId"
+                      IsImportInProgress="@IsImportInProgress"
                       IsLibraryRootBreadcrumb="@IsLibraryRootBreadcrumb"
                       IsLibraryScreen="@IsLibraryScreen"
                       IsReaderMuted="@IsTeleprompterPlaybackChromeMuted"
@@ -22,16 +33,15 @@
                       OnBackClick="HandleBackClickAsync"
                       OnCreateScriptClick="HandleCreateScriptClickAsync"
                       OnHomeClick="HandleHomeClickAsync"
+                      OnImport="HandleImportScriptAsync"
+                      OnImportTrigger="HandleImportScriptTriggerAsync"
                       OnLibrarySearchInput="HandleLibrarySearchInputAsync"
                       OnOpenGoLive="HandleOpenGoLiveClickAsync"
                       OnOpenLearnClick="HandleOpenLearnClickAsync"
                       OnOpenOnboarding="HandleOpenOnboardingAsync"
                       OnOpenReadClick="HandleOpenReadClickAsync"
-                      OnOpenScript="HandleOpenScriptAsync"
-                      OnOpenScriptTrigger="HandleOpenScriptTriggerAsync"
                       OnSaveFileClick="HandleSaveFileClickAsync"
-                      OpenScriptLabel="@Text(UiTextKey.HeaderOpenScript)"
-                      OpenScriptPickerVersion="@_openScriptPickerVersion"
+                      ImportPickerVersion="@_importScriptPickerVersion"
                       ReadLabel="@Text(UiTextKey.HeaderRead)"
                       RestartTourLabel="@Text(UiTextKey.OnboardingRestartTour)"
                       SaveFileLabel="@Text(UiTextKey.HeaderSaveFile)"
@@ -39,12 +49,13 @@
                       SearchText="@ShellState.SearchText"
                       ShowBackButton="@ShowBackButton"
                       ShowHeaderSubtitle="@ShowHeaderSubtitle"
+                      ShowImportAction="@ShowImportAction"
                       ShowLearnAction="@ShowLearnAction"
                       ShowLearnWpmBadge="@ShowLearnWpmBadge"
                       ShowLibraryActions="@ShowLibraryActions"
                       ShowReadAction="@ShowReadAction"
                       ShowSaveFileAction="@ShowSaveFileAction"
-                      SupportedOpenScriptAcceptValue="@SupportedOpenScriptAcceptValue"
+                      SupportedImportAcceptValue="@SupportedImportAcceptValue"
                       WpmLabel="@ShellState.WpmLabel" />
 }
 
@@ -62,6 +73,8 @@
                           OnDismissRequested="HandleOnboardingDismissAsync"
                           OnStepSelected="HandleOnboardingStepSelectedAsync" />
 }
+
+<SentryUserFeedbackDialogHost />
 
 @if (ShowGoLiveWidget)
 {

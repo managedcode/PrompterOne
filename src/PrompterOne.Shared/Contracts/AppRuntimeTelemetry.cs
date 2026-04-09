@@ -18,6 +18,7 @@ public static class AppRuntimeTelemetry
     public static class Events
     {
         public const string CreateScript = "create_script";
+        public const string Exception = "exception";
         public const string OpenGoLive = "open_go_live";
         public const string OpenLearn = "open_learn";
         public const string OpenRead = "open_read";
@@ -36,6 +37,10 @@ public static class AppRuntimeTelemetry
 
     public static class Parameters
     {
+        public const string ExceptionMessage = "exception_message";
+        public const string ExceptionType = "exception_type";
+        public const string IsFatal = "is_fatal";
+        public const string Operation = "operation";
         public const string PagePath = "page_path";
         public const string PageTitle = "page_title";
         public const string ScreenName = "screen_name";

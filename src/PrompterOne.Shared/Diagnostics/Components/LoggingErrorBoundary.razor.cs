@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
+using PrompterOne.Shared.Services;
 using PrompterOne.Shared.Services.Diagnostics;
 
 namespace PrompterOne.Shared.Components.Diagnostics;
@@ -12,6 +13,7 @@ public class LoggingErrorBoundaryBase : ErrorBoundary
     [Inject] private UiDiagnosticsService Diagnostics { get; set; } = null!;
     [Inject] private NavigationManager Navigation { get; set; } = null!;
     [Inject] private ILogger<LoggingErrorBoundaryBase> Logger { get; set; } = null!;
+    [Inject] private SentryUserFeedbackService Feedback { get; set; } = null!;
 
     protected UiDiagnosticEntry? CurrentDiagnostic => Diagnostics.Current;
 
@@ -24,12 +26,14 @@ public class LoggingErrorBoundaryBase : ErrorBoundary
 
     protected void HandleRecover()
     {
+        Feedback.Close();
         Diagnostics.Clear();
         Recover();
     }
 
     protected void HandleReturnHome()
     {
+        Feedback.Close();
         Diagnostics.Clear();
         Recover();
         Navigation.NavigateTo("/library", replace: true);

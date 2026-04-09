@@ -123,9 +123,13 @@ public partial class EditorPage
     }
 
     private string ResolveSplitRequirementDetail(TpsDocumentSplitMode mode) =>
-        mode == TpsDocumentSplitMode.TopLevelHeading
-            ? Text(UiTextKey.EditorSplitNeedTopLevelHeadings)
-            : Text(UiTextKey.EditorSplitNeedSegmentHeadings);
+        mode switch
+        {
+            TpsDocumentSplitMode.TopLevelHeading => Text(UiTextKey.EditorSplitNeedTopLevelHeadings),
+            TpsDocumentSplitMode.SegmentHeading => Text(UiTextKey.EditorSplitNeedSegmentHeadings),
+            TpsDocumentSplitMode.Speaker => Text(UiTextKey.EditorSplitNeedSpeakerTags),
+            _ => Text(UiTextKey.EditorSplitNeedSegmentHeadings)
+        };
 
     private string BuildSplitDestinationNote(StoredScriptDocument? sourceDocument)
     {
@@ -145,7 +149,9 @@ public partial class EditorPage
     }
 
     private string BuildSplitHeadingBadge(TpsDocumentSplitMode mode) =>
-        Format(UiTextKey.EditorSplitHeadingBadgeFormat, ResolveHeadingLabel(mode));
+        mode == TpsDocumentSplitMode.Speaker
+            ? Text(UiTextKey.EditorSplitSpeakerBadge)
+            : Format(UiTextKey.EditorSplitHeadingBadgeFormat, ResolveHeadingLabel(mode));
 
     private string BuildSplitSummary(int count) =>
         Format(UiTextKey.EditorSplitSummaryFormat, count);

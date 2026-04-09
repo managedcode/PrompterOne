@@ -15,6 +15,7 @@
     <PackageReference Include="ManagedCode.Storage.VirtualFileSystem" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" />
     <PackageReference Include="Microsoft.Extensions.Localization" />
+    <PackageReference Include="Sentry" />
   </ItemGroup>
 
   <ItemGroup>

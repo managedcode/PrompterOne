@@ -132,6 +132,7 @@ public static partial class UiTestIds
         public const string StatusWords = "editor-status-words";
         public const string SplitSegment = "editor-split-segment";
         public const string SplitHint = "editor-split-hint";
+        public const string SplitSpeaker = "editor-split-speaker";
         public const string SplitStatus = "editor-split-status";
         public const string SplitTopLevel = "editor-split-top-level";
         public const string SplitResultBadge = "editor-split-result-badge";

@@ -54,6 +54,29 @@ sequenceDiagram
     Page-->>Sidebar: Refreshed tree labels + active state
 ```
 
+## Document Import Flow
+
+```mermaid
+flowchart LR
+    Action["Header Import action"]
+    Progress["MainLayout phased import status"]
+    ImportService["ScriptDocumentImportService"]
+    Descriptor["ScriptImportDescriptorService"]
+    MarkItDown["ManagedCode.MarkItDown"]
+    Repo["IScriptRepository"]
+    Session["ScriptSessionService"]
+    Editor["/editor"]
+
+    Action --> Progress
+    Progress --> ImportService
+    ImportService -->|.tps / .tps.md / .md.tps / .md / .txt| Descriptor
+    ImportService -->|.docx / .pdf / .html / other supported docs| MarkItDown
+    MarkItDown --> Descriptor
+    Descriptor --> Repo
+    Repo --> Session
+    Session --> Editor
+```
+
 ## Current Behavior
 
 - floating selection toolbar supports formatting actions and stays anchored to the selection
@@ -82,18 +105,17 @@ sequenceDiagram
 - the authoring surface exposes a single vertical scroll container so the editor body does not fight a nested shell scrollbar
 - the floating selection toolbar emotion affordance opens a real TPS emotion picker instead of applying a single hardcoded wrap
 - the top toolbar shows direct TPS structure insert actions for `##` segments and `###` blocks, with the same actions still available from the insert dropdown
+- the shared header import action is available from both Library and Editor, accepts richer document formats such as `.docx`, `.pdf`, `.html`, and `.markdown`, and saves the converted result back into the browser-local script repository before navigating to `/editor`
+- `ScriptDocumentImportService` keeps native TPS/plain-text imports on the direct front-matter-aware path, but routes richer formats through `ManagedCode.MarkItDown` so the editor receives Markdown instead of opaque binary content
+- the header import flow shows phased in-app progress (`Reading file`, `Preparing script`, `Opening editor`) so local conversion never looks like a frozen shell
+- PDF imports are text-extraction only; the flow intentionally does not attempt OCR for scanned pages or embedded images
+- editor drag/drop stays limited to native TPS/plain-text files, while binary document imports come through the explicit header picker so the browser stream and conversion path stay predictable
 - native textarea clicks own caret placement; the stage shell no longer steals click-to-caret behavior
 - `EditorSourcePanel` owns its editor-only CSS and browser support script, so the shell keeps loading support assets but the active editor surface no longer depends on global stylesheet or shell-script rules
 
 ## Verification
 
-- `dotnet test ./tests/PrompterOne.Core.Tests/PrompterOne.Core.Tests.csproj`
-- `dotnet test ./tests/PrompterOne.Web.Tests/PrompterOne.Web.Tests.csproj`
-- `dotnet test ./tests/PrompterOne.Web.UITests/PrompterOne.Web.UITests.csproj`
-- `dotnet test ./tests/PrompterOne.Web.Tests/PrompterOne.Web.Tests.csproj --filter "FullyQualifiedName~EditorLocalRevisionStoreTests|FullyQualifiedName~EditorLocalHistoryInteractionTests|FullyQualifiedName~SettingsInteractionTests"`
-- `dotnet test ./tests/PrompterOne.Web.UITests/PrompterOne.Web.UITests.csproj --filter "FullyQualifiedName~EditorLocalHistoryFlowTests|FullyQualifiedName~EditorLayoutTests"`
-- `dotnet test ./tests/PrompterOne.Web.UITests/PrompterOne.Web.UITests.csproj --filter "FullyQualifiedName~EditorTypingTests"`
-- `dotnet test ./tests/PrompterOne.Web.UITests/PrompterOne.Web.UITests.csproj --filter "FullyQualifiedName~EditorTypingTests|FullyQualifiedName~EditorSourceSyncTests|FullyQualifiedName~EditorInteractionTests"`
-- `dotnet test ./tests/PrompterOne.Web.Tests/PrompterOne.Web.Tests.csproj --filter "FullyQualifiedName~Editor"`
-- `dotnet test ./tests/PrompterOne.Web.UITests/PrompterOne.Web.UITests.csproj --filter "FullyQualifiedName~Editor"`
+- `dotnet test --project ./tests/PrompterOne.Core.Tests/PrompterOne.Core.Tests.csproj`
+- `dotnet test --project ./tests/PrompterOne.Web.Tests/PrompterOne.Web.Tests.csproj`
+- `dotnet test --project ./tests/PrompterOne.Web.UITests.Editor/PrompterOne.Web.UITests.Editor.csproj`
 - `dotnet build ./PrompterOne.slnx -warnaserror`

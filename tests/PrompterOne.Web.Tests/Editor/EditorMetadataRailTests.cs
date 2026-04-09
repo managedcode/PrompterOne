@@ -11,6 +11,7 @@ public sealed class EditorMetadataRailTests : BunitContext
 {
     private const string SplitHint = "Create separate scripts from headings in the current draft.";
     private const string SplitSection = "Split Into New Scripts";
+    private const string SplitSpeakerLabel = "New scripts by speaker";
     private const string SplitTopLevelLabel = "New scripts from # headings";
 
     public EditorMetadataRailTests()
@@ -42,14 +43,16 @@ public sealed class EditorMetadataRailTests : BunitContext
         Assert.Equal(SplitHint, cut.FindByTestId(UiTestIds.Editor.SplitHint).TextContent.Trim());
         Assert.Equal(SplitTopLevelLabel, cut.FindByTestId(UiTestIds.Editor.SplitTopLevel).TextContent.Trim());
         Assert.Equal(EditorSplitFeedbackTestData.SplitSegmentActionLabel, cut.FindByTestId(UiTestIds.Editor.SplitSegment).TextContent.Trim());
+        Assert.Equal(SplitSpeakerLabel, cut.FindByTestId(UiTestIds.Editor.SplitSpeaker).TextContent.Trim());
         Assert.Contains(SplitSection, cut.Markup, StringComparison.Ordinal);
 
         cut.FindByTestId(UiTestIds.Editor.SplitTopLevel).Click();
         cut.FindByTestId(UiTestIds.Editor.SplitSegment).Click();
+        cut.FindByTestId(UiTestIds.Editor.SplitSpeaker).Click();
         cut.FindByTestId(UiTestIds.Editor.SplitResultOpenLibrary).Click();
 
         Assert.Equal(
-            [TpsDocumentSplitMode.TopLevelHeading, TpsDocumentSplitMode.SegmentHeading],
+            [TpsDocumentSplitMode.TopLevelHeading, TpsDocumentSplitMode.SegmentHeading, TpsDocumentSplitMode.Speaker],
             requestedModes);
         Assert.Equal(1, openLibraryRequests);
         Assert.Equal(EditorSplitFeedbackTestData.SplitFeedbackTitle, cut.FindByTestId(UiTestIds.Editor.SplitResultTitle).TextContent.Trim());

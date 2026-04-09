@@ -6,15 +6,20 @@ namespace PrompterOne.Shared.Services.Diagnostics;
 
 public sealed class UiDiagnosticsService(
     ILogger<UiDiagnosticsService> logger,
-    IStringLocalizer<SharedResource> localizer)
+    IStringLocalizer<SharedResource> localizer,
+    RuntimeTelemetryService? runtimeTelemetry = null,
+    SentryUserFeedbackService? userFeedback = null)
 {
     private const string FailureLogTemplate = "UI operation {Operation} failed.";
     private const string StartLogTemplate = "Starting UI operation {Operation}.";
     private const string SuccessLogTemplate = "Completed UI operation {Operation}.";
     private const string FatalLogTemplate = "Unhandled UI exception in {Operation}.";
+    private const string TelemetryFailureLogTemplate = "Failed to track runtime telemetry for UI exception in {Operation}.";
 
     private readonly ILogger<UiDiagnosticsService> _logger = logger;
     private readonly IStringLocalizer<SharedResource> _localizer = localizer;
+    private readonly RuntimeTelemetryService? _runtimeTelemetry = runtimeTelemetry;
+    private readonly SentryUserFeedbackService? _userFeedback = userFeedback;
 
     public UiDiagnosticEntry? Current { get; private set; }
 
@@ -59,6 +64,8 @@ public sealed class UiDiagnosticsService(
             _logger.LogError(exception, FailureLogTemplate, operation);
         }
 
+        TrackException(operation, exception, isFatal: false);
+
         SetCurrent(
             new UiDiagnosticEntry(
                 Title: Text(UiTextKey.DiagnosticsRecoverableTitle),
@@ -85,6 +92,8 @@ public sealed class UiDiagnosticsService(
     public void ReportFatal(string operation, Exception exception)
     {
         _logger.LogCritical(exception, FatalLogTemplate, operation);
+        _userFeedback?.OpenFatalPrompt(operation, exception.Message);
+        TrackException(operation, exception, isFatal: true);
         SetCurrent(
             new UiDiagnosticEntry(
                 Title: Text(UiTextKey.DiagnosticsFatalTitle),
@@ -130,6 +139,32 @@ public sealed class UiDiagnosticsService(
 
         Current = next;
         Changed?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void TrackException(string operation, Exception exception, bool isFatal)
+    {
+        if (_runtimeTelemetry is null)
+        {
+            return;
+        }
+
+        _ = TrackExceptionSafeAsync(operation, exception, isFatal);
+    }
+
+    private async Task TrackExceptionSafeAsync(string operation, Exception exception, bool isFatal)
+    {
+        try
+        {
+            var eventId = await _runtimeTelemetry!.TrackExceptionAsync(exception, operation, isFatal);
+            if (isFatal)
+            {
+                _userFeedback?.UpdateFatalPromptAssociation(operation, exception.Message, eventId);
+            }
+        }
+        catch (Exception telemetryException)
+        {
+            _logger.LogWarning(telemetryException, TelemetryFailureLogTemplate, operation);
+        }
     }
 
     private string Text(UiTextKey key) => _localizer[key.ToString()];

@@ -4,6 +4,71 @@
     flex: 0 0 auto;
 }
 
+.app-header-import-progress {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 10;
+    display: grid;
+    gap: 6px;
+    min-width: 220px;
+    max-width: min(320px, calc(100vw - 24px));
+    padding: 10px 12px;
+    border: 1px solid rgba(214, 166, 91, .24);
+    border-radius: 14px;
+    background:
+        linear-gradient(180deg, rgba(31, 26, 20, .98), rgba(17, 14, 11, .98));
+    box-shadow:
+        0 14px 36px rgba(0, 0, 0, .36),
+        0 0 0 1px rgba(255, 255, 255, .04);
+}
+
+.app-header-import-progress-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.app-header-import-progress-label {
+    color: rgba(248, 241, 226, .96);
+    font-size: .78rem;
+    font-weight: 600;
+    letter-spacing: .01em;
+}
+
+.app-header-import-progress-step {
+    color: rgba(214, 166, 91, .88);
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .08em;
+}
+
+.app-header-import-progress-file {
+    overflow: hidden;
+    color: rgba(248, 241, 226, .72);
+    font-size: .72rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.app-header-import-progress-track {
+    display: block;
+    width: 100%;
+    height: 4px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(248, 241, 226, .10);
+}
+
+.app-header-import-progress-fill {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, rgba(214, 166, 91, .72), rgba(248, 241, 226, .94));
+    transition: width 180ms ease;
+}
+
 .app-header--reader-muted .app-header-subtitle {
     color: rgba(232, 213, 176, .20);
 }
@@ -24,6 +89,15 @@
 
 .btn-open-script {
     cursor: pointer;
+}
+
+.btn-open-script[disabled] {
+    cursor: progress;
+    opacity: .78;
+}
+
+.btn-open-script[aria-busy="true"] span:first-child {
+    animation: header-import-pulse 1.15s ease-in-out infinite;
 }
 
 .app-header-file-action ::deep .app-header-file-input {
@@ -48,7 +122,25 @@
     box-shadow: 0 0 0 2px rgba(214, 166, 91, .16);
 }
 
+@keyframes header-import-pulse {
+    0%,
+    100% {
+        opacity: .72;
+        transform: scale(.96);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
 @media (max-width: 960px) {
+    .app-header-import-progress {
+        left: 0;
+        right: auto;
+    }
+
     .app-header-library .app-header-right {
         gap: 6px;
     }
@@ -119,6 +211,10 @@
 }
 
 @media (max-width: 560px) {
+    .app-header-import-progress {
+        min-width: min(220px, calc(100vw - 24px));
+    }
+
     .app-header-library .app-header-right {
         gap: 4px;
     }

@@ -86,26 +86,63 @@
                     data-test="@UiTestIds.Header.Onboarding">
                 <UiIcon Kind="UiIconKind.HelpCircle" Size="15" />
             </button>
+        }
+
+        @if (ShowImportAction)
+        {
             <div class="app-header-file-action"
-                 data-test="@UiTestIds.Header.LibraryOpenScript">
+                 data-busy="@(IsImportInProgress ? EnabledStateValue : DisabledStateValue)"
+                 data-test="@ImportActionSurfaceTestId">
                 <button type="button"
                         class="btn-ghost btn-open-script"
-                        data-test="@UiTestIds.Header.LibraryOpenScriptButton"
+                        data-test="@ImportActionButtonTestId"
                         aria-haspopup="dialog"
-                        @onclick="HandleOpenScriptTriggerAsync">
-                    <span data-test="@UiTestIds.Header.LibraryOpenScriptIcon">
+                        aria-busy="@(IsImportInProgress ? EnabledStateValue : DisabledStateValue)"
+                        disabled="@IsImportInProgress"
+                        @onclick="HandleImportTriggerAsync">
+                    <span data-test="@ImportActionIconTestId">
                         <UiIcon Kind="UiIconKind.DocumentImport" Size="16" />
                     </span>
-                    <span class="app-header-action-label">@OpenScriptLabel</span>
+                    <span class="app-header-action-label">@ImportActionLabel</span>
                 </button>
-                <InputFile @key="OpenScriptPickerVersion"
-                           id="@UiDomIds.AppShell.LibraryOpenScriptInput"
+                <InputFile @key="ImportPickerVersion"
+                           id="@ImportActionInputId"
                            class="app-header-file-input"
-                           aria-label="@OpenScriptLabel"
-                           accept="@SupportedOpenScriptAcceptValue"
-                           OnChange="HandleOpenScriptAsync"
-                           data-test="@UiTestIds.Header.LibraryOpenScriptInput" />
+                           aria-label="@ImportActionLabel"
+                           accept="@SupportedImportAcceptValue"
+                           OnChange="HandleImportAsync"
+                           data-test="@ImportActionInputTestId" />
+
+                @if (IsImportInProgress)
+                {
+                    <div class="app-header-import-progress"
+                         role="status"
+                         aria-live="polite"
+                         aria-atomic="true"
+                         data-test="@UiTestIds.Header.ImportProgress">
+                        <div class="app-header-import-progress-row">
+                            <span class="app-header-import-progress-label"
+                                  data-test="@UiTestIds.Header.ImportProgressLabel">@ImportProgressLabel</span>
+                            <span class="app-header-import-progress-step"
+                                  data-test="@UiTestIds.Header.ImportProgressStep">@ImportProgressStepLabel</span>
+                        </div>
+
+                        <span class="app-header-import-progress-file"
+                              title="@ImportProgressFileName"
+                              data-test="@UiTestIds.Header.ImportProgressFile">@ImportProgressFileName</span>
+
+                        <span class="app-header-import-progress-track" aria-hidden="true">
+                            <span class="app-header-import-progress-fill"
+                                  style="@($"width: {ImportProgressWidth};")"
+                                  data-test="@UiTestIds.Header.ImportProgressFill"></span>
+                        </span>
+                    </div>
+                }
             </div>
+        }
+
+        @if (ShowLibraryActions)
+        {
             <button type="button"
                     class="btn-create"
                     @onclick="HandleCreateScriptClickAsync"
@@ -171,13 +208,25 @@
     [Parameter] public bool ShowHeaderSubtitle { get; set; }
     [Parameter] public bool ShowLearnAction { get; set; }
     [Parameter] public bool ShowLearnWpmBadge { get; set; }
+    [Parameter] public bool ShowImportAction { get; set; }
+    [Parameter] public bool IsImportInProgress { get; set; }
     [Parameter] public bool ShowLibraryActions { get; set; }
     [Parameter] public bool ShowReadAction { get; set; }
     [Parameter] public bool ShowSaveFileAction { get; set; }
-    [Parameter] public int OpenScriptPickerVersion { get; set; }
+    [Parameter] public int ImportPickerVersion { get; set; }
     [Parameter] public string? HeaderSubtitleDomId { get; set; }
     [Parameter, EditorRequired] public string HeaderSubtitle { get; set; } = string.Empty;
     [Parameter, EditorRequired] public string HeaderTitle { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string ImportActionButtonTestId { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string ImportActionIconTestId { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string ImportActionInputId { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string ImportActionInputTestId { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string ImportActionLabel { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string ImportProgressFileName { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string ImportProgressLabel { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string ImportProgressStepLabel { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string ImportProgressWidth { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string ImportActionSurfaceTestId { get; set; } = string.Empty;
     [Parameter, EditorRequired] public string LearnLabel { get; set; } = string.Empty;
     [Parameter, EditorRequired] public string LibraryAllScriptsLabel { get; set; } = string.Empty;
     [Parameter, EditorRequired] public string LibraryBreadcrumbCurrentLabel { get; set; } = string.Empty;
@@ -185,31 +234,34 @@
     [Parameter, EditorRequired] public string GoLiveState { get; set; } = string.Empty;
     [Parameter, EditorRequired] public string GoLiveStatus { get; set; } = string.Empty;
     [Parameter, EditorRequired] public string NewScriptLabel { get; set; } = string.Empty;
-    [Parameter, EditorRequired] public string OpenScriptLabel { get; set; } = string.Empty;
     [Parameter, EditorRequired] public string ReadLabel { get; set; } = string.Empty;
     [Parameter, EditorRequired] public string RestartTourLabel { get; set; } = string.Empty;
     [Parameter, EditorRequired] public string SaveFileLabel { get; set; } = string.Empty;
     [Parameter, EditorRequired] public string SearchPlaceholder { get; set; } = string.Empty;
     [Parameter, EditorRequired] public string SearchText { get; set; } = string.Empty;
-    [Parameter, EditorRequired] public string SupportedOpenScriptAcceptValue { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string SupportedImportAcceptValue { get; set; } = string.Empty;
     [Parameter, EditorRequired] public string WpmLabel { get; set; } = string.Empty;
     [Parameter] public EventCallback OnBackClick { get; set; }
     [Parameter] public EventCallback OnCreateScriptClick { get; set; }
     [Parameter] public EventCallback OnHomeClick { get; set; }
+    [Parameter] public EventCallback OnImportTrigger { get; set; }
     [Parameter] public EventCallback OnOpenGoLive { get; set; }
     [Parameter] public EventCallback OnOpenLearnClick { get; set; }
     [Parameter] public EventCallback OnOpenOnboarding { get; set; }
     [Parameter] public EventCallback OnOpenReadClick { get; set; }
-    [Parameter] public EventCallback OnOpenScriptTrigger { get; set; }
     [Parameter] public EventCallback OnSaveFileClick { get; set; }
+    [Parameter] public EventCallback<InputFileChangeEventArgs> OnImport { get; set; }
     [Parameter] public EventCallback<ChangeEventArgs> OnLibrarySearchInput { get; set; }
-    [Parameter] public EventCallback<InputFileChangeEventArgs> OnOpenScript { get; set; }
 
     private Task HandleBackClickAsync() => OnBackClick.InvokeAsync();
 
     private Task HandleCreateScriptClickAsync() => OnCreateScriptClick.InvokeAsync();
 
     private Task HandleHomeClickAsync() => OnHomeClick.InvokeAsync();
+
+    private Task HandleImportAsync(InputFileChangeEventArgs args) => OnImport.InvokeAsync(args);
+
+    private Task HandleImportTriggerAsync() => OnImportTrigger.InvokeAsync();
 
     private Task HandleLibrarySearchInputAsync(ChangeEventArgs args) => OnLibrarySearchInput.InvokeAsync(args);
 
@@ -218,10 +270,6 @@
     private Task HandleOpenOnboardingAsync() => OnOpenOnboarding.InvokeAsync();
 
     private Task HandleOpenReadClickAsync() => OnOpenReadClick.InvokeAsync();
-
-    private Task HandleOpenScriptAsync(InputFileChangeEventArgs args) => OnOpenScript.InvokeAsync(args);
-
-    private Task HandleOpenScriptTriggerAsync() => OnOpenScriptTrigger.InvokeAsync();
 
     private Task HandleSaveFileClickAsync() => OnSaveFileClick.InvokeAsync();
 }
