@@ -501,11 +501,13 @@ Ask first:
 - any "safety-net" or "just in case" workaround added to mask incorrect behavior; fix the root cause cleanly instead of layering retries, forced refocus, defensive rerenders, or compensating logic
 - backend creep in the standalone runtime
 - `git worktree`, temporary worktrees, throwaway repo copies, or off-branch isolation for normal repo tasks when the active workspace branch is available; do the work in the current repo and current branch unless the user explicitly asks for isolation
+- `git stash`, temporary index juggling, or other workspace-hiding tricks for routine local verification; run checks in the active workspace unless the user explicitly asks for isolation
 - OBS-coupled runtime architecture or UI; `PrompterOne` must be the streaming system itself, not an OBS companion or Browser Source wrapper
 - hardcoded fallback reader/test fixtures such as inline `Ready` chunks, fake word models, or synthetic UI state embedded directly in tests when the same behavior can be exercised through shared script fixtures, builders, or production-owned constants
 - agent-started local servers taking shared user ports or using ports outside the reserved `5050-5070` agent range
 - brittle selectors without dedicated test attributes
 - progress updates that imply a fix is done before there is concrete implementation and verification evidence; keep status factual and let the user verify final behavior personally
+- slow repo-wide serialized test runs as the default for small UI fixes when targeted component/browser suites already cover the changed slice; prefer the fastest relevant proof first and only escalate to the slow full solution path when the user explicitly asks for it
 - long-running local import or conversion flows that leave the shell looking frozen; file import must expose a visible in-app busy/progress state and a clear completion or failure transition
 - prematurely interrupting or stopping sub-agents during a requested parallel review/audit pass; when the user asks for multiple agents or external reviewers, let them finish and wait for their results unless the user explicitly redirects the workflow
 - automated test or coverage runs for UI-behavior fixes before the user has manually checked the change locally; wait for the user's confirmation before resuming automation

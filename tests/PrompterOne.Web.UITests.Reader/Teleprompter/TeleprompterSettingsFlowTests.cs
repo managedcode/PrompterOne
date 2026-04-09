@@ -196,6 +196,18 @@ public sealed class TeleprompterSettingsFlowTests(StandaloneAppFixture fixture) 
             BrowserTestConstants.SettingsFlow.HtmlThemeAttribute,
             BrowserTestConstants.SettingsFlow.LightTheme);
 
+        await page.GetByTestId(UiTestIds.Settings.NavFeedback).ClickAsync();
+        await Expect(page.GetByTestId(UiTestIds.Settings.FeedbackPanel)).ToBeVisibleAsync();
+        var feedbackCard = page.GetByTestId(UiTestIds.Settings.FeedbackCard);
+        await feedbackCard.ClickAsync();
+        await Expect(feedbackCard).ToHaveAttributeAsync(
+            BrowserTestConstants.State.ExpandedAttribute,
+            BrowserTestConstants.State.OpenValue);
+        await page.GetByTestId(UiTestIds.Settings.FeedbackOpen).ClickAsync();
+        await Expect(page.GetByTestId(UiTestIds.Feedback.Dialog)).ToBeVisibleAsync();
+        await page.GetByTestId(UiTestIds.Feedback.Cancel).ClickAsync();
+        await Expect(page.GetByTestId(UiTestIds.Feedback.Dialog)).ToBeHiddenAsync();
+
         await page.GetByTestId(UiTestIds.Settings.NavAbout).ClickAsync();
         await Expect(page.GetByTestId(UiTestIds.Settings.AboutPanel)).ToBeVisibleAsync();
         await Expect(page.GetByTestId(UiTestIds.Settings.AboutAppCard)).ToBeVisibleAsync();

@@ -214,14 +214,30 @@ public sealed class GoLiveMediaCleanupLifecycleTests(StandaloneAppFixture fixtur
             await page.GetByTestId(UiTestIds.GoLive.Back).ClickAsync();
             await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(BrowserTestConstants.Routes.Library));
             await Expect(page.GetByTestId(UiTestIds.Library.Page)).ToBeVisibleAsync();
-            await page.WaitForFunctionAsync(
-                BrowserTestConstants.Media.HasNoActiveVideoTracksScript,
-                null,
-                new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
+            await AssertNoActiveVideoTracksAsync(page);
         }
         finally
         {
             await page.Context.CloseAsync();
         }
+    }
+
+    private static async Task AssertNoActiveVideoTracksAsync(Microsoft.Playwright.IPage page)
+    {
+        var deadline = DateTimeOffset.UtcNow.AddMilliseconds(BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs);
+
+        while (DateTimeOffset.UtcNow < deadline)
+        {
+            var remainingTracks = await page.EvaluateAsync<JsonElement>(BrowserTestConstants.Media.GetActiveVideoTracksScript);
+            if (remainingTracks.ValueKind is JsonValueKind.Array && remainingTracks.GetArrayLength() == 0)
+            {
+                return;
+            }
+
+            await page.WaitForTimeoutAsync(BrowserTestConstants.Timing.DiagnosticPollDelayMs);
+        }
+
+        var leakedTracks = await page.EvaluateAsync<JsonElement>(BrowserTestConstants.Media.GetActiveVideoTracksScript);
+        Assert.Fail($"Expected no active synthetic video tracks after leaving Go Live, but found: {leakedTracks}");
     }
 }

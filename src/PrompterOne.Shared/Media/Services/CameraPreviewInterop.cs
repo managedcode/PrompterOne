@@ -21,4 +21,10 @@ public sealed class CameraPreviewInterop(IJSRuntime jsRuntime)
             BrowserMediaInteropMethodNames.DetachCamera,
             elementId).AsTask();
     }
+
+    public Task DetachAllCamerasAsync()
+    {
+        return _jsRuntime.InvokeVoidAsync(
+            BrowserMediaInteropMethodNames.DetachAllCameras).AsTask();
+    }
 }

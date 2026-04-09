@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Localization;
 using PrompterOne.Shared.Contracts;
 using PrompterOne.Shared.Localization;
-using PrompterOne.Shared.Services;
 using PrompterOne.Shared.Settings.Services;
 
 namespace PrompterOne.Shared.Components.Settings;

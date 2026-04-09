@@ -596,6 +596,33 @@
 
             return count;
         },
+        getActiveTracks(filters) {
+            const requestedKind = typeof filters?.kind === "string" ? filters.kind : null;
+            const requestedDeviceId = typeof filters?.deviceId === "string" ? filters.deviceId : null;
+            const tracks = [];
+
+            activeTrackRegistry.forEach(track => {
+                if (track.isSynthetic !== true) {
+                    return;
+                }
+
+                if (requestedKind && track.kind !== requestedKind) {
+                    return;
+                }
+
+                if (requestedDeviceId && track.deviceId !== requestedDeviceId) {
+                    return;
+                }
+
+                tracks.push({
+                    deviceId: track.deviceId,
+                    kind: track.kind,
+                    isSynthetic: track.isSynthetic
+                });
+            });
+
+            return cloneJson(tracks);
+        },
         setRemoteSources(connectionId, sources) {
             const existing = remoteSourcesByConnection.get(connectionId) ?? [];
             disposeRemoteSources(existing);

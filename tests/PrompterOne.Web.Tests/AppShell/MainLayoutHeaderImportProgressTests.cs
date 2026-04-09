@@ -42,8 +42,7 @@ public sealed class MainLayoutHeaderImportProgressTests : BunitContext
     [Test]
     public void MainLayoutHeader_LongEditorTitle_RendersTooltipAndClampClass()
     {
-        var cut = RenderHeader(parameters => parameters
-            .Add(component => component.HeaderTitle, LongHeaderTitle));
+        var cut = RenderHeader(headerTitle: LongHeaderTitle);
 
         var title = cut.FindByTestId(UiTestIds.Header.Title);
 
@@ -53,13 +52,14 @@ public sealed class MainLayoutHeaderImportProgressTests : BunitContext
     }
 
     private IRenderedComponent<MainLayoutHeader> RenderHeader(
-        Action<ComponentParameterCollectionBuilder<MainLayoutHeader>>? configure = null)
+        Action<ComponentParameterCollectionBuilder<MainLayoutHeader>>? configure = null,
+        string headerTitle = "Editor")
     {
         return Render<MainLayoutHeader>(parameters =>
         {
             parameters.Add(component => component.CssClass, "app-header");
             parameters.Add(component => component.HeaderSubtitle, string.Empty);
-            parameters.Add(component => component.HeaderTitle, "Editor");
+            parameters.Add(component => component.HeaderTitle, headerTitle);
             parameters.Add(component => component.ImportActionButtonTestId, UiTestIds.Header.EditorImportScriptButton);
             parameters.Add(component => component.ImportActionIconTestId, UiTestIds.Header.EditorImportScriptIcon);
             parameters.Add(component => component.ImportActionInputId, UiDomIds.AppShell.EditorImportScriptInput);

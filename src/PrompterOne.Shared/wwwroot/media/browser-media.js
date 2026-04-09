@@ -390,6 +390,12 @@
         }
     }
 
+    async function releaseAllCameraTracks() {
+        for (const elementId of Array.from(cameraTrackMap.keys())) {
+            await releaseCameraTrack(elementId);
+        }
+    }
+
     async function acquireCameraCapture(deviceId) {
         const captureKey = getCaptureKey(deviceId);
         let capture = cameraCaptureMap.get(captureKey);
@@ -624,6 +630,10 @@
 
         async detachCamera(elementId) {
             await releaseCameraTrack(elementId);
+        },
+
+        async detachAllCameras() {
+            await releaseAllCameraTracks();
         },
 
         async releaseSharedCameraTrack(captureKey) {

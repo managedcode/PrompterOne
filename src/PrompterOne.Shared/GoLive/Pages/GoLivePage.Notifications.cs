@@ -1,9 +1,15 @@
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Routing;
+using PrompterOne.Shared.Contracts;
+
 namespace PrompterOne.Shared.Pages;
 
 public partial class GoLivePage
 {
+    private static readonly string GoLiveRoutePrefix = AppRoutes.GoLive.TrimStart('/');
     private static readonly TimeSpan SessionRefreshInterval = TimeSpan.FromMilliseconds(200);
 
+    private IDisposable? _locationChangingRegistration;
     private CancellationTokenSource? _sessionRefreshCancellation;
     private PeriodicTimer? _sessionRefreshTimer;
     private bool _disposed;
@@ -13,6 +19,7 @@ public partial class GoLivePage
         GoLiveSession.StateChanged += HandleGoLiveSessionChanged;
         GoLiveOutputRuntime.StateChanged += HandleGoLiveOutputRuntimeChanged;
         GoLiveRemoteSourceRuntime.StateChanged += HandleGoLiveRemoteSourceRuntimeChanged;
+        _locationChangingRegistration = Navigation.RegisterLocationChangingHandler(HandleLocationChangingAsync);
         UpdateSessionRefreshLoop();
     }
 
@@ -119,11 +126,29 @@ public partial class GoLivePage
         _sessionRefreshTimer = null;
     }
 
+    private ValueTask HandleLocationChangingAsync(LocationChangingContext context)
+    {
+        if (_disposed || IsGoLiveTarget(context.TargetLocation))
+        {
+            return ValueTask.CompletedTask;
+        }
+
+        return new ValueTask(ReleaseCameraSurfacesAsync());
+    }
+
+    private bool IsGoLiveTarget(string targetLocation)
+    {
+        var relativePath = Navigation.ToBaseRelativePath(targetLocation);
+        return relativePath.StartsWith(GoLiveRoutePrefix, StringComparison.OrdinalIgnoreCase);
+    }
+
     private void DisposeCore()
     {
         GoLiveSession.StateChanged -= HandleGoLiveSessionChanged;
         GoLiveOutputRuntime.StateChanged -= HandleGoLiveOutputRuntimeChanged;
         GoLiveRemoteSourceRuntime.StateChanged -= HandleGoLiveRemoteSourceRuntimeChanged;
+        _locationChangingRegistration?.Dispose();
+        _locationChangingRegistration = null;
         StopSessionRefreshLoop();
         DisposePrimaryMicrophoneObserver();
         _interactionGate.Dispose();

@@ -7,6 +7,7 @@ internal static class BrowserMediaInteropMethodNames
     private const string NamespacePrefix = AppMediaRuntime.BrowserMedia.InteropNamespace;
 
     public const string AttachCamera = NamespacePrefix + ".attachCamera";
+    public const string DetachAllCameras = NamespacePrefix + ".detachAllCameras";
     public const string DetachCamera = NamespacePrefix + ".detachCamera";
     public const string GetCaptureCapabilities = NamespacePrefix + ".getCaptureCapabilities";
     public const string ListDevices = NamespacePrefix + ".listDevices";
