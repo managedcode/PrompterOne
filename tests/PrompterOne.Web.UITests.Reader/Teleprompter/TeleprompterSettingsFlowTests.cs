@@ -24,7 +24,11 @@ public sealed class TeleprompterSettingsFlowTests(StandaloneAppFixture fixture) 
     public Task Teleprompter_UsesStoredPrimaryCameraAsBackgroundLayer() =>
         RunPageAsync(async page =>
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.Library);
+            await BrowserRouteDriver.OpenPageAsync(
+                page,
+                BrowserTestConstants.Routes.Library,
+                UiTestIds.Library.Page,
+                nameof(Teleprompter_UsesStoredPrimaryCameraAsBackgroundLayer));
             var cameraDeviceId = await ResolveCameraDeviceIdAsync(page);
             await SeedStoredTeleprompterSceneAsync(page, cameraDeviceId);
 

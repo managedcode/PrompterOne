@@ -27,9 +27,11 @@ public sealed class DynamicHostPortTests(StandaloneAppFixture fixture)
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.Library);
-            await Expect(page.GetByTestId(UiTestIds.Library.Page))
-                .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
+            await BrowserRouteDriver.OpenPageAsync(
+                page,
+                BrowserTestConstants.Routes.Library,
+                UiTestIds.Library.Page,
+                nameof(NewPageAsync_UsesDynamicLoopbackBaseAddress));
         }
         finally
         {
@@ -49,9 +51,11 @@ public sealed class DynamicHostPortTests(StandaloneAppFixture fixture)
                 var page = await _fixture.NewPageAsync(additionalContext: true);
                 pages.Add(page);
 
-                await page.GotoAsync(BrowserTestConstants.Routes.Library);
-                await Expect(page.GetByTestId(UiTestIds.Library.Page))
-                    .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
+                await BrowserRouteDriver.OpenPageAsync(
+                    page,
+                    BrowserTestConstants.Routes.Library,
+                    UiTestIds.Library.Page,
+                    nameof(NewPageAsync_RepeatedBootstrap_DoesNotTripShellDiagnostics));
                 await Expect(page.GetByTestId(UiTestIds.Diagnostics.Bootstrap)).ToBeHiddenAsync();
             }
         }

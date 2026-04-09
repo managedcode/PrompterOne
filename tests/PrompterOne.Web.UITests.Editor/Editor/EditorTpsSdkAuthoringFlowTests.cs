@@ -136,10 +136,7 @@ public sealed class EditorTpsSdkAuthoringFlowTests(StandaloneAppFixture fixture)
     private async Task<Microsoft.Playwright.IPage> OpenEditorAsync()
     {
         var page = await fixture.NewPageAsync(additionalContext: true);
-        await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
-        await Expect(page.GetByTestId(UiTestIds.Editor.Page))
-            .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
-        await EditorMonacoDriver.WaitUntilReadyAsync(page);
+        await EditorRouteDriver.OpenReadyAsync(page, BrowserTestConstants.Routes.EditorDemo, "editor-tps-sdk-open");
         return page;
     }
 }

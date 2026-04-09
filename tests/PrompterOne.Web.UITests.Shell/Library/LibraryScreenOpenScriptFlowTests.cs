@@ -57,8 +57,11 @@ public sealed class LibraryScreenOpenScriptFlowTests(StandaloneAppFixture fixtur
 
             try
             {
-                await page.GotoAsync(BrowserTestConstants.Routes.Library);
-                await Expect(page.GetByTestId(UiTestIds.Library.Page)).ToBeVisibleAsync();
+                await BrowserRouteDriver.OpenPageAsync(
+                    page,
+                    BrowserTestConstants.Routes.Library,
+                    UiTestIds.Library.Page,
+                    nameof(LibraryScreen_OpenScriptImportsBodyOnlyTextFile_UsingFileNameAsTitle));
 
                 await page.GetByTestId(UiTestIds.Header.LibraryOpenScriptInput)
                     .SetInputFilesAsync(importPath);
@@ -81,8 +84,11 @@ public sealed class LibraryScreenOpenScriptFlowTests(StandaloneAppFixture fixtur
 
             try
             {
-                await page.GotoAsync(BrowserTestConstants.Routes.Library);
-                await Expect(page.GetByTestId(UiTestIds.Library.Page)).ToBeVisibleAsync();
+                await BrowserRouteDriver.OpenPageAsync(
+                    page,
+                    BrowserTestConstants.Routes.Library,
+                    UiTestIds.Library.Page,
+                    nameof(LibraryScreen_OpenScriptRejectsUnsupportedFileExtension_AndKeepsUserOnLibrary));
 
                 await page.GetByTestId(UiTestIds.Header.LibraryOpenScriptInput)
                     .SetInputFilesAsync(importPath);
@@ -109,8 +115,11 @@ public sealed class LibraryScreenOpenScriptFlowTests(StandaloneAppFixture fixtur
 
             try
             {
-                await page.GotoAsync(BrowserTestConstants.Routes.Library);
-                await Expect(page.GetByTestId(UiTestIds.Library.Page)).ToBeVisibleAsync();
+                await BrowserRouteDriver.OpenPageAsync(
+                    page,
+                    BrowserTestConstants.Routes.Library,
+                    UiTestIds.Library.Page,
+                    nameof(LibraryScreen_OpenScriptCanImportASecondFile_AfterPickerResets));
 
                 await page.GetByTestId(UiTestIds.Header.LibraryOpenScriptInput)
                     .SetInputFilesAsync(firstImportPath);
@@ -119,8 +128,11 @@ public sealed class LibraryScreenOpenScriptFlowTests(StandaloneAppFixture fixtur
                 await Expect(page.GetByTestId(UiTestIds.Header.Title)).ToHaveTextAsync(FirstImportTitle);
                 await Expect(page.GetByTestId(UiTestIds.Editor.SourceInput)).ToHaveValueAsync(FirstImportDocument);
 
-                await page.GotoAsync(BrowserTestConstants.Routes.Library);
-                await Expect(page.GetByTestId(UiTestIds.Library.Page)).ToBeVisibleAsync();
+                await BrowserRouteDriver.OpenPageAsync(
+                    page,
+                    BrowserTestConstants.Routes.Library,
+                    UiTestIds.Library.Page,
+                    nameof(LibraryScreen_OpenScriptCanImportASecondFile_AfterPickerResets));
 
                 await page.GetByTestId(UiTestIds.Header.LibraryOpenScriptInput)
                     .SetInputFilesAsync(secondImportPath);

@@ -8,10 +8,7 @@ internal static class EditorIsolatedDraftDriver
 {
     internal static async Task OpenBlankDraftAsync(IPage page)
     {
-        await page.GotoAsync(BrowserTestConstants.Routes.Editor);
-        await Expect(page.GetByTestId(UiTestIds.Editor.Page))
-            .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
-        await EditorMonacoDriver.WaitUntilReadyAsync(page);
+        await EditorRouteDriver.OpenReadyAsync(page, BrowserTestConstants.Routes.Editor, "editor-open-blank-draft");
     }
 
     internal static async Task CreateDraftAsync(

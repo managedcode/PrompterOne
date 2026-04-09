@@ -127,10 +127,7 @@ public sealed class EditorToolbarTooltipFlowTests(StandaloneAppFixture fixture) 
 
     private static async Task OpenEditorAsync(IPage page)
     {
-        await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
-        await Expect(page.GetByTestId(UiTestIds.Editor.Page))
-            .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
-        await EditorMonacoDriver.WaitUntilReadyAsync(page);
+        await EditorRouteDriver.OpenReadyAsync(page, BrowserTestConstants.Routes.EditorDemo, "editor-toolbar-tooltip-open");
     }
 
     private static async Task<ElementBounds> ReadBoundsAsync(ILocator locator) =>

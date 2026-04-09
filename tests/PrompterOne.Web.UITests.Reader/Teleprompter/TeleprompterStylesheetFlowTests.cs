@@ -25,9 +25,11 @@ public sealed class TeleprompterStylesheetFlowTests(StandaloneAppFixture fixture
     public Task TeleprompterStylesheet_IsRegisteredBeforeTeleprompterRouteEntry() =>
         RunPageAsync(async page =>
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.Library);
-            await Expect(page.GetByTestId(UiTestIds.Library.Page))
-                .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
+            await BrowserRouteDriver.OpenPageAsync(
+                page,
+                BrowserTestConstants.Routes.Library,
+                UiTestIds.Library.Page,
+                nameof(TeleprompterStylesheet_IsRegisteredBeforeTeleprompterRouteEntry));
 
             var hasTeleprompterStylesheet = await page.EvaluateAsync<bool>(
                 HasTeleprompterStylesheetScript,

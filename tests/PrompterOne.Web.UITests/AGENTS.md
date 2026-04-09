@@ -44,4 +44,5 @@
 - Do not introduce or keep CSS-class selector dependencies in shared browser helpers.
 - Production media permissions still depend on the stable launch-settings origin, but this synthetic browser harness must use the fixture-resolved dynamic loopback origin. Do not hardcode ports or require manual startup steps.
 - Flaky browser tests are failures; fix the cause instead of weakening the assertion.
+- Keep screenshot diagnostics first-class in the harness: normal scenario failures and early fixture/bootstrap failures should both leave Playwright screenshot artifacts whenever a page handle is still available.
 - Do not duplicate route strings, test ids, or storage keys across tests; centralize them.

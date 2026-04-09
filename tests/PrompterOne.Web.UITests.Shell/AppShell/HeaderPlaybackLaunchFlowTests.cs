@@ -17,8 +17,11 @@ public sealed class HeaderPlaybackLaunchFlowTests(StandaloneAppFixture fixture)
                 BrowserTestConstants.ResponsiveLayout.IphoneMediumWidth,
                 BrowserTestConstants.ResponsiveLayout.IphoneMediumHeight);
 
-            await page.GotoAsync(BrowserTestConstants.Routes.Library);
-            await Expect(page.GetByTestId(UiTestIds.Library.Page)).ToBeVisibleAsync();
+            await BrowserRouteDriver.OpenPageAsync(
+                page,
+                BrowserTestConstants.Routes.Library,
+                UiTestIds.Library.Page,
+                nameof(LibraryCardPlaybackActions_OpenScopedReaderRoutes_AndHeaderBackReturnsToEditor));
 
             await page.GetByTestId(UiTestIds.Library.CardLearn(BrowserTestConstants.Scripts.QuantumId)).ClickAsync();
             await BrowserRouteDriver.WaitForRouteAsync(page, BrowserTestConstants.Routes.LearnQuantum);

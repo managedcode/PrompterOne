@@ -14,10 +14,11 @@ internal static class ResponsiveLayoutAssertions
         params string[] controlTestIds)
     {
         await page.SetViewportSizeAsync(viewport.Width, viewport.Height);
-        await page.GotoAsync(route);
-
-        await Expect(page.GetByTestId(pageTestId))
-            .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
+        await BrowserRouteDriver.OpenPageAsync(
+            page,
+            route,
+            pageTestId,
+            $"{routeName}-{viewport.Name}");
 
         await UiScenarioArtifacts.CapturePageAsync(
             page,

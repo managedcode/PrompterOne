@@ -242,8 +242,11 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
 
         try
         {
-            await page.GotoAsync(BrowserTestConstants.Routes.Library);
-            await Expect(page.GetByTestId(UiTestIds.Library.Page)).ToBeVisibleAsync();
+            await BrowserRouteDriver.OpenPageAsync(
+                page,
+                BrowserTestConstants.Routes.Library,
+                UiTestIds.Library.Page,
+                nameof(GoLivePage_WithEmptyScene_AutoSeedsDefaultDevicesAndShowsStudioShell));
             await page.EvaluateAsync(
                 BrowserTestConstants.GoLive.SeedEmptySceneScript,
                 BrowserTestConstants.GoLive.SceneStorageKey);
@@ -538,9 +541,11 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
 
     internal static async Task SeedGoLiveSceneForReuseAsync(Microsoft.Playwright.IPage page)
     {
-        await page.GotoAsync(BrowserTestConstants.Routes.Library);
-        await Expect(page.GetByTestId(UiTestIds.Library.Page))
-            .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
+        await BrowserRouteDriver.OpenPageAsync(
+            page,
+            BrowserTestConstants.Routes.Library,
+            UiTestIds.Library.Page,
+            "go-live-seed-scene-for-reuse");
 
         await page.EvaluateAsync(
             BrowserTestConstants.GoLive.SeedSceneScript,

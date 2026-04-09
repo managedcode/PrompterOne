@@ -1,6 +1,4 @@
 using ManagedCode.Tps;
-using PrompterOne.Shared.Contracts;
-using static Microsoft.Playwright.Assertions;
 
 namespace PrompterOne.Web.UITests;
 
@@ -339,10 +337,7 @@ public sealed class EditorMonacoAssistanceRegressionTests(StandaloneAppFixture f
     private async Task<Microsoft.Playwright.IPage> OpenEditorAsync()
     {
         var page = await fixture.NewPageAsync(additionalContext: true);
-        await page.GotoAsync(BrowserTestConstants.Routes.EditorDemo);
-        await Expect(page.GetByTestId(UiTestIds.Editor.Page))
-            .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
-        await EditorMonacoDriver.WaitUntilReadyAsync(page);
+        await EditorRouteDriver.OpenReadyAsync(page, BrowserTestConstants.Routes.EditorDemo, "editor-monaco-regression-open");
         return page;
     }
 

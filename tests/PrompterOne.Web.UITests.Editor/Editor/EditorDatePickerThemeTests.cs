@@ -30,9 +30,7 @@ public sealed class EditorDatePickerThemeTests(StandaloneAppFixture fixture) : A
 
     private static async Task<DatePickerMetrics> OpenEditorAndReadDatePickerMetricsAsync(IPage page, string screenshotStep)
     {
-        await page.GotoAsync(
-            BrowserTestConstants.Routes.EditorDemo,
-            new() { WaitUntil = WaitUntilState.DOMContentLoaded });
+        await EditorRouteDriver.OpenReadyAsync(page, BrowserTestConstants.Routes.EditorDemo, "editor-date-picker-open");
 
         var createdInput = page.GetByTestId(UiTestIds.Editor.Created);
         await Expect(createdInput).ToBeVisibleAsync(
