@@ -12,6 +12,7 @@ public sealed class MainLayoutHeaderImportProgressTests : BunitContext
     private const string ProgressStepLabel = "2/3";
     private const string ProgressWidth = "66%";
     private const string SupportedImportAcceptValue = ".txt,.md,.docx";
+    private const string LongHeaderTitle = "Imported file title from a very long file name that should clamp inside the shared editor header without pushing shell actions away";
 
     [Test]
     public void MainLayoutHeader_ImportProgress_RendersVisibleStatusAndDisablesTrigger()
@@ -36,6 +37,19 @@ public sealed class MainLayoutHeaderImportProgressTests : BunitContext
             "width: 66%;",
             cut.FindByTestId(UiTestIds.Header.ImportProgressFill).GetAttribute("style"),
             StringComparison.Ordinal);
+    }
+
+    [Test]
+    public void MainLayoutHeader_LongEditorTitle_RendersTooltipAndClampClass()
+    {
+        var cut = RenderHeader(parameters => parameters
+            .Add(component => component.HeaderTitle, LongHeaderTitle));
+
+        var title = cut.FindByTestId(UiTestIds.Header.Title);
+
+        Assert.Contains("app-header-title", title.ClassList);
+        Assert.Equal(LongHeaderTitle, title.GetAttribute("title"));
+        Assert.Equal(LongHeaderTitle, title.TextContent.Trim());
     }
 
     private IRenderedComponent<MainLayoutHeader> RenderHeader(

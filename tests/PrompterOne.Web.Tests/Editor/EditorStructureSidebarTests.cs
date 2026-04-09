@@ -11,6 +11,8 @@ public sealed class EditorStructureSidebarTests : BunitContext
     private const string WarmEmotion = "Warm";
     private const string EpisodeTitle = "Episode 1";
     private const string BlockTitle = "Opening";
+    private const string LongSegmentTitle = "Imported section title that should stay clamped inside the structure rail instead of stretching the whole sidebar";
+    private const string LongBlockTitle = "Imported block title that should ellipsize inside the structure tree row";
 
     public EditorStructureSidebarTests()
     {
@@ -38,11 +40,30 @@ public sealed class EditorStructureSidebarTests : BunitContext
             navigationTargets);
     }
 
-    private static IReadOnlyList<EditorOutlineSegmentViewModel> BuildSegments() =>
+    [Test]
+    public void EditorStructureSidebar_LongNames_RenderClampFriendlyNameElements()
+    {
+        var cut = Render<EditorStructureSidebar>(parameters => parameters
+            .Add(component => component.ActiveSegmentIndex, 0)
+            .Add(component => component.ActiveBlockIndex, 0)
+            .Add(component => component.Segments, BuildSegments(LongSegmentTitle, LongBlockTitle)));
+
+        var segmentName = cut.Find(".ed-tree-seg__name");
+        var blockName = cut.Find(".ed-tree-block__name");
+
+        Assert.Equal(LongSegmentTitle, segmentName.TextContent.Trim());
+        Assert.Equal(LongSegmentTitle, segmentName.GetAttribute("title"));
+        Assert.Equal(LongBlockTitle, blockName.TextContent.Trim());
+        Assert.Equal(LongBlockTitle, blockName.GetAttribute("title"));
+    }
+
+    private static IReadOnlyList<EditorOutlineSegmentViewModel> BuildSegments(
+        string segmentTitle = EpisodeTitle,
+        string blockTitle = BlockTitle) =>
     [
         new(
             Index: 0,
-            Name: EpisodeTitle,
+            Name: segmentTitle,
             EmotionKey: "focused",
             EmotionLabel: WarmEmotion,
             AccentColor: FocusedAccentColor,
@@ -54,7 +75,7 @@ public sealed class EditorStructureSidebarTests : BunitContext
             [
                 new EditorOutlineBlockViewModel(
                     Index: 0,
-                    Name: BlockTitle,
+                    Name: blockTitle,
                     EmotionLabel: WarmEmotion,
                     TargetWpm: 140,
                     StartIndex: 0,

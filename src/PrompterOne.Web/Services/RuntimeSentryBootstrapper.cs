@@ -18,7 +18,7 @@ internal static class RuntimeSentryBootstrapper
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentNullException.ThrowIfNull(telemetryOptions);
 
-        if (!ShouldEnable(builder.HostEnvironment, telemetryOptions))
+        if (!ShouldEnable(telemetryOptions))
         {
             return;
         }
@@ -55,10 +55,9 @@ internal static class RuntimeSentryBootstrapper
         }
     }
 
-    private static bool ShouldEnable(IWebAssemblyHostEnvironment hostEnvironment, RuntimeTelemetryOptions telemetryOptions) =>
+    private static bool ShouldEnable(RuntimeTelemetryOptions telemetryOptions) =>
         telemetryOptions.HostEnabled
-        && telemetryOptions.SentryConfigured
-        && !hostEnvironment.IsDevelopment();
+        && telemetryOptions.SentryConfigured;
 
     private static bool IsWasmDebugEnabled(string uri) =>
         string.Equals(ResolveQueryValue(uri, WasmDebugQueryKey), WasmDebugEnabledValue, StringComparison.Ordinal);

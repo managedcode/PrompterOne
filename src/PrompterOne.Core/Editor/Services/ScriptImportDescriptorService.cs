@@ -1,5 +1,4 @@
 using PrompterOne.Core.Models.Editor;
-using PrompterOne.Core.Models.Workspace;
 
 namespace PrompterOne.Core.Services.Editor;
 

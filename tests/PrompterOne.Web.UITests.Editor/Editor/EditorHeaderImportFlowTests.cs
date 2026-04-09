@@ -8,17 +8,18 @@ namespace PrompterOne.Web.UITests;
 [ClassDataSource<StandaloneAppFixture>(Shared = SharedType.PerClass)]
 public sealed class EditorHeaderImportFlowTests(StandaloneAppFixture fixture) : AppUiTestBase(fixture)
 {
-    private const string ImportedDocxFileName = "Imported Design Review.docx";
-    private const string ImportedTitle = "Imported Design Review";
+    private const string ImportedDocxFileName = "Imported Design Review From File Name With A Long Header Title That Should Clamp Cleanly In Editor.docx";
+    private const string ImportedTitle = "Imported Design Review From File Name With A Long Header Title That Should Clamp Cleanly In Editor";
+    private const string ImportedHeading = "Converted heading should stay inside the editor body instead of becoming the shell title";
     private const string ImportedParagraph = "MarkItDown should convert this DOCX paragraph into Markdown for the editor.";
     private const string ImportedStepName = "01-editor-docx-import";
     private const string ScenarioName = "editor-header-import-flow";
 
     [Test]
-    public Task EditorHeader_ImportDocx_OpensConvertedDocumentInEditor() =>
+    public Task EditorHeader_ImportDocx_UsesFileStemTitleAndClampFriendlyChrome() =>
         RunPageAsync(async page =>
         {
-            var importPath = await CreateDocxAsync(ImportedDocxFileName, ImportedTitle, ImportedParagraph);
+            var importPath = await CreateDocxAsync(ImportedDocxFileName, ImportedParagraph);
 
             try
             {
@@ -28,11 +29,29 @@ public sealed class EditorHeaderImportFlowTests(StandaloneAppFixture fixture) : 
                 await page.GetByTestId(UiTestIds.Header.EditorImportScriptInput)
                     .SetInputFilesAsync(importPath);
 
-                await Expect(page.GetByTestId(UiTestIds.Header.Title)).ToHaveTextAsync(ImportedTitle);
+                var headerTitle = page.GetByTestId(UiTestIds.Header.Title);
+                await Expect(headerTitle).ToHaveTextAsync(ImportedTitle);
+                await Expect(headerTitle).ToHaveAttributeAsync("title", ImportedTitle);
 
                 var sourceText = await EditorMonacoDriver.SourceInput(page).InputValueAsync();
-                await Assert.That(sourceText).Contains(ImportedTitle);
+                await Assert.That(sourceText).Contains(ImportedHeading);
                 await Assert.That(sourceText).Contains(ImportedParagraph);
+
+                var headerTextOverflow = await headerTitle.EvaluateAsync<string>(
+                    "element => getComputedStyle(element).textOverflow");
+                var headerOverflow = await headerTitle.EvaluateAsync<string>(
+                    "element => getComputedStyle(element).overflow");
+                await Assert.That(headerTextOverflow).IsEqualTo("ellipsis");
+                await Assert.That(headerOverflow).IsEqualTo("hidden");
+
+                var firstSegment = page.GetByTestId(UiTestIds.Editor.SegmentNavigation(0));
+                await Expect(firstSegment).ToBeVisibleAsync();
+                var segmentName = page.Locator(
+                    $"""[{BrowserTestConstants.Html.DataTestAttribute}="{UiTestIds.Editor.SegmentNavigation(0)}"] .ed-tree-seg__name""");
+                await Expect(segmentName).ToBeVisibleAsync();
+                var segmentTextOverflow = await segmentName.EvaluateAsync<string>(
+                    "element => getComputedStyle(element).textOverflow");
+                await Assert.That(segmentTextOverflow).IsEqualTo("ellipsis");
                 await UiScenarioArtifacts.CapturePageAsync(page, ScenarioName, ImportedStepName);
             }
             finally
@@ -41,7 +60,7 @@ public sealed class EditorHeaderImportFlowTests(StandaloneAppFixture fixture) : 
             }
         });
 
-    private static async Task<string> CreateDocxAsync(string fileName, string title, string paragraph)
+    private static async Task<string> CreateDocxAsync(string fileName, string paragraph)
     {
         var directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(directory);
@@ -81,7 +100,7 @@ public sealed class EditorHeaderImportFlowTests(StandaloneAppFixture fixture) : 
                <w:body>
                  <w:p>
                    <w:r>
-                     <w:t>{EscapeXml(title)}</w:t>
+                     <w:t>{EscapeXml(ImportedHeading)}</w:t>
                    </w:r>
                  </w:p>
                  <w:p>

@@ -9,9 +9,22 @@ namespace PrompterOne.Core.Tests;
 public sealed class ScriptDocumentImportServiceTests
 {
     private const string DocxContentType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-    private const string ImportedDocxFileName = "Imported Design Review.docx";
-    private const string ImportedHeading = "Imported Design Review";
+    private const string ImportedDocxFileName = "Imported Design Review From File Name.docx";
+    private const string ImportedDocxTitle = "Imported Design Review From File Name";
+    private const string ImportedHeading = "Converted heading should stay in the editor body";
     private const string ImportedParagraph = "MarkItDown should convert this DOCX paragraph into Markdown for the editor.";
+    private const string FrontMatterMarkdownFileName = "Quarterly Town Hall.md";
+    private const string FrontMatterMarkdownTitle = "Quarterly Town Hall";
+    private const string FrontMatterMarkdownText =
+        """
+        ---
+        title: "Front matter title should not win"
+        ---
+
+        ## [Opening|140WPM|Professional]
+        ### [First block|140WPM|Warm]
+        Imported markdown should keep the file stem as the editor title.
+        """;
     private const string NativeScriptFileName = "camera-check.tps";
     private const string NativeScriptText =
         """
@@ -81,15 +94,28 @@ public sealed class ScriptDocumentImportServiceTests
     }
 
     [Test]
-    public async Task ImportAsync_DocxConvertsToMarkdown_AndCanonicalizesDocumentName()
+    public async Task ImportAsync_MarkdownImport_UsesFileStemTitle_EvenWhenFrontMatterDefinesAnotherTitle()
+    {
+        var service = new ScriptDocumentImportService(new ScriptImportDescriptorService());
+        await using var stream = new MemoryStream(Encoding.UTF8.GetBytes(FrontMatterMarkdownText));
+
+        var descriptor = await service.ImportAsync(stream, FrontMatterMarkdownFileName, "text/markdown");
+
+        Assert.Equal(FrontMatterMarkdownTitle, descriptor.Title);
+        Assert.Equal("Quarterly Town Hall.tps.md", descriptor.DocumentName);
+        Assert.Equal(FrontMatterMarkdownText, descriptor.Text);
+    }
+
+    [Test]
+    public async Task ImportAsync_DocxConvertsToMarkdown_AndUsesFileStemTitle()
     {
         var service = new ScriptDocumentImportService(new ScriptImportDescriptorService());
         await using var stream = CreateDocxStream();
 
         var descriptor = await service.ImportAsync(stream, ImportedDocxFileName, DocxContentType);
 
-        Assert.Equal(ImportedHeading, descriptor.Title);
-        Assert.Equal("Imported Design Review.tps.md", descriptor.DocumentName);
+        Assert.Equal(ImportedDocxTitle, descriptor.Title);
+        Assert.Equal("Imported Design Review From File Name.tps.md", descriptor.DocumentName);
         Assert.Contains(ImportedHeading, descriptor.Text, StringComparison.Ordinal);
         Assert.Contains(ImportedParagraph, descriptor.Text, StringComparison.Ordinal);
     }
