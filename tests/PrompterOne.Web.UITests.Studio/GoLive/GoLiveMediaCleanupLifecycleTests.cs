@@ -210,6 +210,10 @@ public sealed class GoLiveMediaCleanupLifecycleTests(StandaloneAppFixture fixtur
 
             var activeVideoTrackCount = await page.EvaluateAsync<int>(BrowserTestConstants.Media.GetActiveVideoTrackCountScript);
             await Assert.That(activeVideoTrackCount).IsGreaterThan(0);
+            var activePrimaryCameraTrackCount = await page.EvaluateAsync<int>(
+                BrowserTestConstants.Media.GetActiveVideoTrackCountForDeviceScript,
+                BrowserTestConstants.Media.PrimaryCameraId);
+            await Assert.That(activePrimaryCameraTrackCount).IsEqualTo(BrowserTestConstants.Media.ExpectedVideoTrackCount);
 
             await page.GetByTestId(UiTestIds.GoLive.Back).ClickAsync();
             await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(BrowserTestConstants.Routes.Library));

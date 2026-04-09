@@ -6,6 +6,7 @@
     const defaultDeviceId = "default";
     const microphoneMonitorLevelMultiplier = 2800;
     const monitorMap = new Map();
+    const pendingCameraCaptureMap = new Map();
     const remoteCaptureMap = new Map();
     const remoteStreamMap = new Map();
     const appleVendorFragment = "Apple";
@@ -396,17 +397,43 @@
         }
     }
 
+    function createCameraCapture(deviceId) {
+        const liveKitClient = getLiveKitClient();
+        return liveKitClient.createLocalVideoTrack(getTrackCaptureOptions(deviceId)).then(track => ({
+            refCount: 0,
+            track
+        }));
+    }
+
+    async function getOrCreateCameraCapture(captureKey, deviceId) {
+        const existingCapture = cameraCaptureMap.get(captureKey);
+        if (existingCapture) {
+            return existingCapture;
+        }
+
+        let pendingCapture = pendingCameraCaptureMap.get(captureKey);
+        if (!pendingCapture) {
+            pendingCapture = createCameraCapture(deviceId);
+            pendingCameraCaptureMap.set(captureKey, pendingCapture);
+        }
+
+        try {
+            const resolvedCapture = await pendingCapture;
+            if (!cameraCaptureMap.has(captureKey)) {
+                cameraCaptureMap.set(captureKey, resolvedCapture);
+            }
+
+            return cameraCaptureMap.get(captureKey);
+        } finally {
+            if (pendingCameraCaptureMap.get(captureKey) === pendingCapture) {
+                pendingCameraCaptureMap.delete(captureKey);
+            }
+        }
+    }
+
     async function acquireCameraCapture(deviceId) {
         const captureKey = getCaptureKey(deviceId);
-        let capture = cameraCaptureMap.get(captureKey);
-        if (!capture) {
-            const liveKitClient = getLiveKitClient();
-            capture = {
-                refCount: 0,
-                track: await liveKitClient.createLocalVideoTrack(getTrackCaptureOptions(deviceId))
-            };
-            cameraCaptureMap.set(captureKey, capture);
-        }
+        const capture = await getOrCreateCameraCapture(captureKey, deviceId);
 
         capture.refCount += 1;
         const stream = new MediaStream([capture.track.mediaStreamTrack]);

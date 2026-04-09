@@ -58,6 +58,8 @@ internal static partial class BrowserTestConstants
             $$"""testId => { const element = document.querySelector(`[data-test="${testId}"]`); return window["{{HarnessGlobal}}"].getElementState(element?.id ?? ""); }""";
         public static string GetActiveVideoTrackCountScript =>
             $$"""() => window["{{HarnessGlobal}}"].getActiveTrackCount({ kind: "video" })""";
+        public static string GetActiveVideoTrackCountForDeviceScript =>
+            $$"""deviceId => window["{{HarnessGlobal}}"].getActiveTrackCount({ kind: "video", deviceId })""";
         public static string GetActiveVideoTracksScript =>
             $$"""() => window["{{HarnessGlobal}}"].getActiveTracks({ kind: "video" })""";
         public static string HasNoActiveVideoTracksScript =>

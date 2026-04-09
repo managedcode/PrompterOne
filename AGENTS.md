@@ -506,6 +506,7 @@ Ask first:
 - hardcoded fallback reader/test fixtures such as inline `Ready` chunks, fake word models, or synthetic UI state embedded directly in tests when the same behavior can be exercised through shared script fixtures, builders, or production-owned constants
 - agent-started local servers taking shared user ports or using ports outside the reserved `5050-5070` agent range
 - brittle selectors without dedicated test attributes
+- any assumption that local Playwright or MCP browser automation must use Chrome; prefer `msedge` when a browser flag is needed because the user's local workflow is Edge-first
 - progress updates that imply a fix is done before there is concrete implementation and verification evidence; keep status factual and let the user verify final behavior personally
 - slow repo-wide serialized test runs as the default for small UI fixes when targeted component/browser suites already cover the changed slice; prefer the fastest relevant proof first and only escalate to the slow full solution path when the user explicitly asks for it
 - long-running local import or conversion flows that leave the shell looking frozen; file import must expose a visible in-app busy/progress state and a clear completion or failure transition
