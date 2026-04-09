@@ -123,19 +123,21 @@ Rule format:
 - Repo-wide audits should use multiple independent reviewers with distinct focuses when the tooling is available, including external CLI reviewers such as Claude and Copilot plus internal agents, and all review outputs should be captured in root-level task files before remediation starts.
 - Legacy, dead, duplicate, or speculative code paths should be deleted aggressively instead of being preserved behind compatibility instincts; if code has no clear runtime owner or authoritative contract, remove it rather than keep it as “just in case” ballast.
 - For repo-wide remediation passes, keep an explicit root-level accounting of fixed versus remaining feedback items, finish the code fixes first, and only then run and stabilize the test suites; do not bounce back into verification mid-remediation unless the user explicitly asks.
+- For task-scoped work, edit, stage, and commit only the files directly required for the requested change; do not widen the change set into unrelated user-owned or parallel worktree edits, do not touch changes owned by another agent, and if a blocker comes from that parallel work, wait briefly and re-check instead of patching around their in-flight fix.
 
 ## Rules to Follow (Mandatory)
 
 ### Commands
 
 - `build`: `dotnet build ./PrompterOne.slnx -warnaserror`
-- `test`: `dotnet test --solution ./PrompterOne.slnx --max-parallel-test-modules 1`
+- `test`: `dotnet test @./tests/dotnet-test-progress.rsp --solution ./PrompterOne.slnx --max-parallel-test-modules 1`
 - `format`: `dotnet format ./PrompterOne.slnx`
-- `coverage`: `dotnet test --project ./tests/PrompterOne.Core.Tests/PrompterOne.Core.Tests.csproj -- --coverage --coverage-output-format cobertura && dotnet test --project ./tests/PrompterOne.Web.Tests/PrompterOne.Web.Tests.csproj -- --coverage --coverage-output-format cobertura && dotnet test --project ./tests/PrompterOne.Web.UITests.Shell/PrompterOne.Web.UITests.Shell.csproj -- --coverage --coverage-output-format cobertura && dotnet test --project ./tests/PrompterOne.Web.UITests.Studio/PrompterOne.Web.UITests.Studio.csproj -- --coverage --coverage-output-format cobertura && dotnet test --project ./tests/PrompterOne.Web.UITests.Editor/PrompterOne.Web.UITests.Editor.csproj -- --coverage --coverage-output-format cobertura && dotnet test --project ./tests/PrompterOne.Web.UITests.Reader/PrompterOne.Web.UITests.Reader.csproj -- --coverage --coverage-output-format cobertura`
+- `coverage`: `dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Core.Tests/PrompterOne.Core.Tests.csproj --coverage --coverage-output-format cobertura && dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.Tests/PrompterOne.Web.Tests.csproj --coverage --coverage-output-format cobertura && dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.UITests.Shell/PrompterOne.Web.UITests.Shell.csproj --coverage --coverage-output-format cobertura && dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.UITests.Studio/PrompterOne.Web.UITests.Studio.csproj --coverage --coverage-output-format cobertura && dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.UITests.Editor/PrompterOne.Web.UITests.Editor.csproj --coverage --coverage-output-format cobertura && dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.UITests.Reader/PrompterOne.Web.UITests.Reader.csproj --coverage --coverage-output-format cobertura`
 
 For this `.NET` repo:
 
 - all automated test projects run on `TUnit` and native `Microsoft.Testing.Platform`
+- use `@./tests/dotnet-test-progress.rsp` on repo test commands so `dotnet test` emits detailed, non-ANSI per-test progress logs consistently in terminal and CI text logs
 - `format` is direct `dotnet format`, not `--verify-no-changes` and not a wrapper
 - coverage uses TUnit's native `--coverage` support
 - `LangVersion` is not pinned; use the SDK default unless the repo intentionally changes it later
@@ -144,14 +146,14 @@ For this `.NET` repo:
 Useful focused commands:
 
 - app run: `cd ./src/PrompterOne.Web && dotnet run`
-- core tests: `dotnet test --project ./tests/PrompterOne.Core.Tests/PrompterOne.Core.Tests.csproj`
-- component tests: `dotnet test --project ./tests/PrompterOne.Web.Tests/PrompterOne.Web.Tests.csproj`
-- all tests: `dotnet test --solution ./PrompterOne.slnx --max-parallel-test-modules 1`
-- ui tests: `dotnet test --project ./tests/PrompterOne.Web.UITests.Shell/PrompterOne.Web.UITests.Shell.csproj && dotnet test --project ./tests/PrompterOne.Web.UITests.Studio/PrompterOne.Web.UITests.Studio.csproj && dotnet test --project ./tests/PrompterOne.Web.UITests.Editor/PrompterOne.Web.UITests.Editor.csproj && dotnet test --project ./tests/PrompterOne.Web.UITests.Reader/PrompterOne.Web.UITests.Reader.csproj`
-- ui shell tests: `dotnet test --project ./tests/PrompterOne.Web.UITests.Shell/PrompterOne.Web.UITests.Shell.csproj`
-- ui studio tests: `dotnet test --project ./tests/PrompterOne.Web.UITests.Studio/PrompterOne.Web.UITests.Studio.csproj`
-- ui editor tests: `dotnet test --project ./tests/PrompterOne.Web.UITests.Editor/PrompterOne.Web.UITests.Editor.csproj`
-- ui reader tests: `dotnet test --project ./tests/PrompterOne.Web.UITests.Reader/PrompterOne.Web.UITests.Reader.csproj`
+- core tests: `dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Core.Tests/PrompterOne.Core.Tests.csproj`
+- component tests: `dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.Tests/PrompterOne.Web.Tests.csproj`
+- all tests: `dotnet test @./tests/dotnet-test-progress.rsp --solution ./PrompterOne.slnx --max-parallel-test-modules 1`
+- ui tests: `dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.UITests.Shell/PrompterOne.Web.UITests.Shell.csproj && dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.UITests.Studio/PrompterOne.Web.UITests.Studio.csproj && dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.UITests.Editor/PrompterOne.Web.UITests.Editor.csproj && dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.UITests.Reader/PrompterOne.Web.UITests.Reader.csproj`
+- ui shell tests: `dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.UITests.Shell/PrompterOne.Web.UITests.Shell.csproj`
+- ui studio tests: `dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.UITests.Studio/PrompterOne.Web.UITests.Studio.csproj`
+- ui editor tests: `dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.UITests.Editor/PrompterOne.Web.UITests.Editor.csproj`
+- ui reader tests: `dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.UITests.Reader/PrompterOne.Web.UITests.Reader.csproj`
 - playwright browser install: `node ./tests/PrompterOne.Web.UITests/bin/Debug/net10.0/.playwright/package/cli.js install chromium`
 - Build the relevant project immediately before starting a local dev server so `dotnet run` cannot serve stale WASM assets or binaries.
 

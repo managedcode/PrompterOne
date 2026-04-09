@@ -30,7 +30,7 @@
 
 ## Project-Local Commands
 
-- `dotnet test --project ./tests/PrompterOne.Web.Tests/PrompterOne.Web.Tests.csproj`
+- `dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.Tests/PrompterOne.Web.Tests.csproj`
 
 ## Applicable Skills
 

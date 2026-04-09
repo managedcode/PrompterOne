@@ -21,7 +21,7 @@
 ## Project-Local Commands
 
 - `node ./tests/PrompterOne.Web.UITests/bin/Debug/net10.0/.playwright/package/cli.js install chromium`
-- `dotnet test --project ./tests/PrompterOne.Web.UITests.Reader/PrompterOne.Web.UITests.Reader.csproj`
+- `dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.UITests.Reader/PrompterOne.Web.UITests.Reader.csproj`
 
 ## Applicable Skills
 

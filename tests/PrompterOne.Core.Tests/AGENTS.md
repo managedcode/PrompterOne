@@ -24,7 +24,7 @@
 
 ## Project-Local Commands
 
-- `dotnet test --project ./tests/PrompterOne.Core.Tests/PrompterOne.Core.Tests.csproj`
+- `dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Core.Tests/PrompterOne.Core.Tests.csproj`
 
 ## Applicable Skills
 
