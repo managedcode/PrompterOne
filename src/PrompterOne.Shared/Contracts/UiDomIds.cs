@@ -57,6 +57,8 @@ public static class UiDomIds
         public const string PreviewStage = "go-live-preview-stage";
         public const string PreviewEmpty = "go-live-preview-empty";
         public const string PreviewVideo = "go-live-preview-video";
+
+        public static string SourceVideo(string sourceId) => $"go-live-source-video-{sourceId}";
     }
 
     public static class Learn

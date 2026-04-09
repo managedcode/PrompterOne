@@ -56,6 +56,10 @@ internal static partial class BrowserTestConstants
         public static string GetRequestLogScript => $$"""() => window["{{HarnessGlobal}}"].getRequestLog()""";
         public static string GetElementStateScript =>
             $$"""testId => { const element = document.querySelector(`[data-test="${testId}"]`); return window["{{HarnessGlobal}}"].getElementState(element?.id ?? ""); }""";
+        public static string GetActiveVideoTrackCountScript =>
+            $$"""() => window["{{HarnessGlobal}}"].getActiveTrackCount({ kind: "video" })""";
+        public static string HasNoActiveVideoTracksScript =>
+            $$"""() => window["{{HarnessGlobal}}"].getActiveTrackCount({ kind: "video" }) === 0""";
         public static string HasNoActiveVideoTrackForDeviceScript =>
             $$"""deviceId => window["{{HarnessGlobal}}"].getActiveTrackCount({ kind: "video", deviceId }) === 0""";
         public static string RestoreDeviceIdentityScript => $$"""() => window["{{HarnessGlobal}}"].restoreDeviceIdentity()""";

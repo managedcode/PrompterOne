@@ -17,6 +17,7 @@ public partial class GoLivePage : ComponentBase, IDisposable, IAsyncDisposable
 
     [Inject] private AppBootstrapper Bootstrapper { get; set; } = null!;
     [Inject] private AppShellService Shell { get; set; } = null!;
+    [Inject] private CameraPreviewInterop CameraPreviewInterop { get; set; } = null!;
     [Inject] private GoLiveSessionService GoLiveSession { get; set; } = null!;
     [Inject] private GoLiveOutputRuntimeService GoLiveOutputRuntime { get; set; } = null!;
     [Inject] private GoLiveRemoteSourceRuntimeService GoLiveRemoteSourceRuntime { get; set; } = null!;

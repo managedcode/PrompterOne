@@ -47,6 +47,7 @@
                         <GoLiveCameraSurface Camera="@surfaceCamera"
                                              ContainerClass="gl-cam-thumb"
                                              VideoClass="gl-source-feed"
+                                             VideoDomId="@UiDomIds.GoLive.SourceVideo(source.SourceId)"
                                              VideoTestId="@UiTestIds.GoLive.SourceVideo(source.SourceId)">
                             <OverlayContent>
                                 @if (surfaceCamera is not null)

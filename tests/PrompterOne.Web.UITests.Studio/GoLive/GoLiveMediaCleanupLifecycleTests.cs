@@ -188,4 +188,40 @@ public sealed class GoLiveMediaCleanupLifecycleTests(StandaloneAppFixture fixtur
             await page.Context.CloseAsync();
         }
     }
+
+    [Test]
+    public async Task GoLivePage_LeavingIdleRoute_ReleasesSyntheticCameraCaptures()
+    {
+        var page = await _fixture.NewPageAsync();
+
+        try
+        {
+            await GoLiveFlowTests.SeedGoLiveSceneForReuseAsync(page);
+            await page.GotoAsync(BrowserTestConstants.Routes.GoLiveDemo);
+            await Expect(page.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
+            await page.WaitForFunctionAsync(
+                BrowserTestConstants.Media.ElementUsesVideoDeviceScript,
+                new object[]
+                {
+                    UiTestIds.GoLive.ProgramVideo,
+                    BrowserTestConstants.Media.PrimaryCameraId
+                },
+                new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
+
+            var activeVideoTrackCount = await page.EvaluateAsync<int>(BrowserTestConstants.Media.GetActiveVideoTrackCountScript);
+            await Assert.That(activeVideoTrackCount).IsGreaterThan(0);
+
+            await page.GetByTestId(UiTestIds.GoLive.Back).ClickAsync();
+            await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(BrowserTestConstants.Routes.Library));
+            await Expect(page.GetByTestId(UiTestIds.Library.Page)).ToBeVisibleAsync();
+            await page.WaitForFunctionAsync(
+                BrowserTestConstants.Media.HasNoActiveVideoTracksScript,
+                null,
+                new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
+        }
+        finally
+        {
+            await page.Context.CloseAsync();
+        }
+    }
 }

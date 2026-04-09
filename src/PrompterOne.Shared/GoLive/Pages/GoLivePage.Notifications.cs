@@ -24,6 +24,7 @@ public partial class GoLivePage
         }
 
         _disposed = true;
+        _ = ReleaseCameraSurfacesAsync();
         _ = StopPrimaryMicrophoneMonitorAsync();
         _ = GoLiveRemoteSourceRuntime.StopAsync();
         DisposeCore();
@@ -38,6 +39,7 @@ public partial class GoLivePage
         }
 
         _disposed = true;
+        await ReleaseCameraSurfacesAsync();
         await StopPrimaryMicrophoneMonitorAsync();
         await GoLiveRemoteSourceRuntime.StopAsync();
         DisposeCore();
