@@ -72,11 +72,23 @@ public sealed partial class StandaloneAppFixture : IAsyncInitializer, IAsyncDisp
 
     private async Task<IPage> CreateAdditionalPageAsync()
     {
-        var context = await CreateTrackedContextAsync();
-        var page = await context.NewPageAsync();
-        PreparePage(page);
-        await PrimeIsolatedBrowserStorageAsync(page);
-        return page;
+        while (true)
+        {
+            var context = await CreateTrackedContextAsync();
+
+            try
+            {
+                var page = await context.NewPageAsync();
+                PreparePage(page);
+                await PrimeIsolatedBrowserStorageAsync(page);
+                await WarmUpContextPageIfNeededAsync(page, BaseAddress);
+                return page;
+            }
+            catch (PlaywrightException exception) when (IsBrowserClosedException(exception))
+            {
+                await DisposeContextAsync(context);
+            }
+        }
     }
 
     private async Task<IPage> CreateSharedPageAsync(string contextKey)
@@ -90,14 +102,14 @@ public sealed partial class StandaloneAppFixture : IAsyncInitializer, IAsyncDisp
                 var page = await context.NewPageAsync();
                 PreparePage(page);
 
-                await page.GotoAsync($"{BaseAddress}{UiTestHostConstants.BlankPagePath}");
-
                 if (isNewSharedContext)
                 {
-                    await page.EvaluateAsync(
-                        UiTestHostConstants.ResetBrowserStorageScript,
-                        UiTestHostConstants.BrowserStorageDatabaseName);
-                    await page.EvaluateAsync(BrowserTestLibrarySeedData.CreateInitializationScript());
+                    await PrimeIsolatedBrowserStorageAsync(page);
+                    await WarmUpContextPageIfNeededAsync(page, BaseAddress);
+                }
+                else
+                {
+                    await page.GotoAsync($"{BaseAddress}{UiTestHostConstants.BlankPagePath}");
                 }
 
                 return page;

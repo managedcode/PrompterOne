@@ -1,5 +1,6 @@
 using Microsoft.Playwright;
 using PrompterOne.Shared.Contracts;
+using PrompterOne.Testing;
 using static Microsoft.Playwright.Assertions;
 
 namespace PrompterOne.Web.UITests;
@@ -49,6 +50,27 @@ public sealed partial class StandaloneAppFixture
         await page.EvaluateAsync(BrowserTestLibrarySeedData.CreateInitializationScript());
     }
 
+    private static async Task WarmUpContextPageIfNeededAsync(IPage page, string baseAddress)
+    {
+        if (!TestEnvironment.IsCiEnvironment)
+        {
+            return;
+        }
+
+        var browserErrors = BrowserErrorCollector.Attach(page);
+
+        try
+        {
+            await WarmUpRouteAsync(page, BrowserTestConstants.Routes.Library, UiTestIds.Library.Page);
+            await PrimeIsolatedBrowserStorageAsync(page, baseAddress);
+            await browserErrors.AssertNoCriticalUiErrorsAsync();
+        }
+        catch (Exception exception)
+        {
+            throw BuildContextWarmupFailure(exception, browserErrors.Describe());
+        }
+    }
+
     private static async Task WarmUpRuntimeAsync(IBrowser browser, string baseAddress)
     {
         var context = await CreateBrowserContextAsync(browser, baseAddress);
@@ -89,6 +111,14 @@ public sealed partial class StandaloneAppFixture
     private static InvalidOperationException BuildWarmupFailure(Exception exception, string browserDiagnostics) =>
         new(
             "Shared UI test runtime warmup failed." + Environment.NewLine +
+            "Captured browser errors:" + Environment.NewLine +
+            browserDiagnostics + Environment.NewLine +
+            exception,
+            exception);
+
+    private static InvalidOperationException BuildContextWarmupFailure(Exception exception, string browserDiagnostics) =>
+        new(
+            "Browser context warmup failed." + Environment.NewLine +
             "Captured browser errors:" + Environment.NewLine +
             browserDiagnostics + Environment.NewLine +
             exception,
