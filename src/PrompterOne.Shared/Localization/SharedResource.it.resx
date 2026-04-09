@@ -84,6 +84,33 @@
   <data name="HeaderImportOpeningEditor" xml:space="preserve">
     <value>Apertura dell'editor</value>
   </data>
+  <data name="ImportScriptMessage" xml:space="preserve">
+    <value>Impossibile importare questo script.</value>
+  </data>
+  <data name="ImportScriptUnsupportedDetail" xml:space="preserve">
+    <value>Scegli un file di script o documento supportato, come .tps, .md, .txt, .pdf o .docx.</value>
+  </data>
+  <data name="EditorDropUnsupportedDetail" xml:space="preserve">
+    <value>Trascina nell'editor un file .tps, .tps.md, .md.tps, .md o .txt.</value>
+  </data>
+  <data name="EditorLoadMessage" xml:space="preserve">
+    <value>Impossibile caricare l'editor in questo momento.</value>
+  </data>
+  <data name="EditorPersistDraftMessage" xml:space="preserve">
+    <value>Impossibile salvare la bozza corrente.</value>
+  </data>
+  <data name="EditorSaveFileMessage" xml:space="preserve">
+    <value>Impossibile salvare questo script sul disco.</value>
+  </data>
+  <data name="EditorSplitDraftMessage" xml:space="preserve">
+    <value>Impossibile dividere la bozza corrente in questo momento.</value>
+  </data>
+  <data name="EditorSplitNoMatchesMessage" xml:space="preserve">
+    <value>Aggiungi più titoli di sezione prima di dividere questa bozza.</value>
+  </data>
+  <data name="EditorSyntaxMessage" xml:space="preserve">
+    <value>La bozza TPS contiene un problema di sintassi. Correggilo e continua a scrivere.</value>
+  </data>
   <data name="HeaderLearn" xml:space="preserve">
     <value>Studia</value>
   </data>

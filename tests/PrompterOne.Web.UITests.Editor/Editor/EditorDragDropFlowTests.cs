@@ -1,4 +1,5 @@
 using PrompterOne.Shared.Contracts;
+using PrompterOne.Shared.Localization;
 using static Microsoft.Playwright.Assertions;
 
 namespace PrompterOne.Web.UITests;
@@ -7,8 +8,6 @@ namespace PrompterOne.Web.UITests;
 public sealed class EditorDragDropFlowTests(StandaloneAppFixture fixture) : AppUiTestBase(fixture)
 {
     private const string DocumentSeparator = "\n\n";
-    private const string DropImportMessage = "Unable to import this script.";
-    private const string DropUnsupportedDetail = "Drop a .tps, .tps.md, .md.tps, .md, or .txt file onto the editor.";
     private const string ReplaceFileName = "Dropped System Design.tps.md";
     private const string ReplaceTitle = "Dropped System Design";
     private const string ReplaceVisibleBody =
@@ -116,8 +115,8 @@ public sealed class EditorDragDropFlowTests(StandaloneAppFixture fixture) : AppU
                 new EditorMonacoDriver.DroppedFileDescriptor(UnsupportedFileName, UnsupportedFileText));
 
             await Expect(page.GetByTestId(UiTestIds.Diagnostics.Banner)).ToBeVisibleAsync();
-            await Expect(page.GetByTestId(UiTestIds.Diagnostics.Banner)).ToContainTextAsync(DropImportMessage);
-            await Expect(page.GetByTestId(UiTestIds.Diagnostics.Banner)).ToContainTextAsync(DropUnsupportedDetail);
+            await Expect(page.GetByTestId(UiTestIds.Diagnostics.Banner)).ToContainTextAsync(SharedUiText.Text(UiTextKey.ImportScriptMessage));
+            await Expect(page.GetByTestId(UiTestIds.Diagnostics.Banner)).ToContainTextAsync(SharedUiText.Text(UiTextKey.EditorDropUnsupportedDetail));
             await Expect(sourceInput).ToHaveValueAsync(initialText);
         });
 

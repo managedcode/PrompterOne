@@ -1,5 +1,6 @@
 using PrompterOne.Core.Models.Workspace;
 using PrompterOne.Core.Services.Editor;
+using PrompterOne.Shared.Localization;
 using PrompterOne.Shared.Services;
 
 namespace PrompterOne.Shared.Pages;
@@ -14,7 +15,7 @@ public partial class EditorPage
 
         await Diagnostics.RunAsync(
             SaveFileOperation,
-            SaveFileMessage,
+            Text(UiTextKey.EditorSaveFileMessage),
             async () =>
             {
                 await PersistDraftStateCoreAsync(persistDocument: true, cancellationToken, revision);

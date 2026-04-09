@@ -1,5 +1,6 @@
 using PrompterOne.Core.Models.Editor;
 using PrompterOne.Core.Services.Editor;
+using PrompterOne.Shared.Localization;
 
 namespace PrompterOne.Shared.Pages;
 
@@ -11,7 +12,10 @@ public partial class EditorPage
         {
             if (request.RejectedFileNames.Count > 0)
             {
-                Diagnostics.ReportRecoverable(DropScriptOperation, DropScriptMessage, DropScriptUnsupportedDetail);
+                Diagnostics.ReportRecoverable(
+                    DropScriptOperation,
+                    Text(UiTextKey.ImportScriptMessage),
+                    Text(UiTextKey.EditorDropUnsupportedDetail));
             }
 
             return Task.CompletedTask;
@@ -20,7 +24,7 @@ public partial class EditorPage
         Diagnostics.ClearRecoverable(DropScriptOperation);
         return Diagnostics.RunAsync(
             DropScriptOperation,
-            DropScriptMessage,
+            Text(UiTextKey.ImportScriptMessage),
             () => ImportDroppedFilesAsync(request));
     }
 
@@ -36,7 +40,10 @@ public partial class EditorPage
 
         if (importedBodies.Length == 0)
         {
-            Diagnostics.ReportRecoverable(DropScriptOperation, DropScriptMessage, DropScriptUnsupportedDetail);
+            Diagnostics.ReportRecoverable(
+                DropScriptOperation,
+                Text(UiTextKey.ImportScriptMessage),
+                Text(UiTextKey.EditorDropUnsupportedDetail));
             return;
         }
 

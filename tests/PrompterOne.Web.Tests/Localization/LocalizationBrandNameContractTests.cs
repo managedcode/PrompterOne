@@ -19,6 +19,19 @@ public sealed class LocalizationBrandNameContractTests
         "СуфлерOne"
     ];
 
+    private static readonly string[] RequiredEditorLocalizationKeys =
+    [
+        "ImportScriptMessage",
+        "ImportScriptUnsupportedDetail",
+        "EditorDropUnsupportedDetail",
+        "EditorLoadMessage",
+        "EditorPersistDraftMessage",
+        "EditorSaveFileMessage",
+        "EditorSplitDraftMessage",
+        "EditorSplitNoMatchesMessage",
+        "EditorSyntaxMessage"
+    ];
+
     private static readonly IReadOnlyDictionary<string, string> DefaultResourceValues = LoadResourceValues(
         Path.Combine(LocalizationDirectory, DefaultResourceFileName));
 
@@ -42,6 +55,10 @@ public sealed class LocalizationBrandNameContractTests
                     .Select(resourceKey => (resourcePath, resourceKey));
             });
 
+    public static IEnumerable<(string ResourcePath, string ResourceKey)> RequiredEditorLocalizationCases =>
+        ResourcePaths.SelectMany(
+            resourcePath => RequiredEditorLocalizationKeys.Select(resourceKey => (resourcePath, resourceKey)));
+
     [Test]
     [MethodDataSource(nameof(ForbiddenVariantCases))]
     public void SharedResources_DoNotContainLocalizedBrandVariants(string resourcePath, string forbiddenVariant)
@@ -62,6 +79,16 @@ public sealed class LocalizationBrandNameContractTests
             BrandToken,
             resourceValue,
             StringComparison.Ordinal);
+    }
+
+    [Test]
+    [MethodDataSource(nameof(RequiredEditorLocalizationCases))]
+    public void SharedResources_ContainEditorDiagnosticsCopy_ForEveryLocale(string resourcePath, string resourceKey)
+    {
+        var resourceValues = LoadResourceValues(resourcePath);
+
+        Assert.True(resourceValues.TryGetValue(resourceKey, out var resourceValue));
+        Assert.False(string.IsNullOrWhiteSpace(resourceValue));
     }
 
     private static IReadOnlyDictionary<string, string> LoadResourceValues(string resourcePath)

@@ -84,6 +84,33 @@
   <data name="HeaderImportOpeningEditor" xml:space="preserve">
     <value>Abriendo editor</value>
   </data>
+  <data name="ImportScriptMessage" xml:space="preserve">
+    <value>No se pudo importar este guion.</value>
+  </data>
+  <data name="ImportScriptUnsupportedDetail" xml:space="preserve">
+    <value>Elige un archivo de guion o documento compatible, como .tps, .md, .txt, .pdf o .docx.</value>
+  </data>
+  <data name="EditorDropUnsupportedDetail" xml:space="preserve">
+    <value>Arrastra al editor un archivo .tps, .tps.md, .md.tps, .md o .txt.</value>
+  </data>
+  <data name="EditorLoadMessage" xml:space="preserve">
+    <value>No se pudo cargar el editor en este momento.</value>
+  </data>
+  <data name="EditorPersistDraftMessage" xml:space="preserve">
+    <value>No se pudo guardar el borrador actual.</value>
+  </data>
+  <data name="EditorSaveFileMessage" xml:space="preserve">
+    <value>No se pudo guardar este guion en el disco.</value>
+  </data>
+  <data name="EditorSplitDraftMessage" xml:space="preserve">
+    <value>No se pudo dividir el borrador actual en este momento.</value>
+  </data>
+  <data name="EditorSplitNoMatchesMessage" xml:space="preserve">
+    <value>Agrega más encabezados de sección antes de dividir este borrador.</value>
+  </data>
+  <data name="EditorSyntaxMessage" xml:space="preserve">
+    <value>El borrador TPS tiene un problema de sintaxis. Corrígelo y sigue escribiendo.</value>
+  </data>
   <data name="HeaderLearn" xml:space="preserve">
     <value>Estudiar</value>
   </data>

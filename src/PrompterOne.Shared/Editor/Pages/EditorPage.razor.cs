@@ -16,19 +16,11 @@ namespace PrompterOne.Shared.Pages;
 public partial class EditorPage
 {
     private const string LoadEditorOperation = "Editor load";
-    private const string LoadEditorMessage = "Unable to load the editor right now.";
     private const string PersistDraftOperation = "Editor save draft";
-    private const string PersistDraftMessage = "Unable to save the current draft.";
-    private const string DropScriptMessage = "Unable to import this script.";
     private const string DropScriptOperation = "Editor drop script";
-    private const string DropScriptUnsupportedDetail = "Drop a .tps, .tps.md, .md.tps, .md, or .txt file onto the editor.";
-    private const string SaveFileMessage = "Unable to save this script to disk.";
     private const string SaveFileOperation = "Editor save file";
-    private const string SplitDraftMessage = "Unable to split the current draft right now.";
-    private const string SplitDraftNoMatchesMessage = "Add more section headings before splitting this draft.";
     private const string SplitDraftOperation = "Editor split draft";
     private const string EditorSyntaxOperation = "Editor syntax";
-    private const string EditorSyntaxMessage = "The TPS draft has a syntax issue. Fix it and keep writing.";
     private const int DraftAnalysisDelayMilliseconds = 1_000;
     private const int AutosaveDelayMilliseconds = 1_500;
     private const int LargeDraftAnalysisDelayMilliseconds = 3_000;

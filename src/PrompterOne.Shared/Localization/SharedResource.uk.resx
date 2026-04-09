@@ -87,6 +87,33 @@
   <data name="HeaderImportOpeningEditor" xml:space="preserve">
     <value>Відкриваємо редактор</value>
   </data>
+  <data name="ImportScriptMessage" xml:space="preserve">
+    <value>Не вдалося імпортувати цей сценарій.</value>
+  </data>
+  <data name="ImportScriptUnsupportedDetail" xml:space="preserve">
+    <value>Виберіть підтримуваний файл сценарію або документа, наприклад .tps, .md, .txt, .pdf або .docx.</value>
+  </data>
+  <data name="EditorDropUnsupportedDetail" xml:space="preserve">
+    <value>Перетягніть у редактор файл .tps, .tps.md, .md.tps, .md або .txt.</value>
+  </data>
+  <data name="EditorLoadMessage" xml:space="preserve">
+    <value>Зараз не вдалося відкрити редактор.</value>
+  </data>
+  <data name="EditorPersistDraftMessage" xml:space="preserve">
+    <value>Не вдалося зберегти поточну чернетку.</value>
+  </data>
+  <data name="EditorSaveFileMessage" xml:space="preserve">
+    <value>Не вдалося зберегти цей сценарій на диск.</value>
+  </data>
+  <data name="EditorSplitDraftMessage" xml:space="preserve">
+    <value>Зараз не вдалося розділити поточну чернетку.</value>
+  </data>
+  <data name="EditorSplitNoMatchesMessage" xml:space="preserve">
+    <value>Додайте більше заголовків секцій, перш ніж розділяти цю чернетку.</value>
+  </data>
+  <data name="EditorSyntaxMessage" xml:space="preserve">
+    <value>У чернетці TPS є синтаксична помилка. Виправте її й продовжуйте писати.</value>
+  </data>
   <data name="HeaderSaveFile" xml:space="preserve">
     <value>Експорт</value>
   </data>

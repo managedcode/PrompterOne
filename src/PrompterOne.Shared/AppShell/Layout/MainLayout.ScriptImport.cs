@@ -12,9 +12,7 @@ namespace PrompterOne.Shared.Layout;
 public partial class MainLayout
 {
     private const int ImportProgressStepCount = 3;
-    private const string ImportScriptMessage = "Unable to import this script.";
     private const string ImportScriptOperation = "Shell import script";
-    private const string ImportScriptUnsupportedDetail = "Choose a supported script or document file such as .tps, .md, .txt, .pdf, or .docx.";
     private const long ImportScriptMaximumFileSizeBytes = 5 * 1024 * 1024;
     protected internal static string SupportedImportAcceptValue => ScriptDocumentFileTypes.PickerAcceptValue;
 
@@ -59,14 +57,17 @@ public partial class MainLayout
             var file = args.File;
             if (!ScriptDocumentImportService.CanImport(file.Name))
             {
-                Diagnostics.ReportRecoverable(ImportScriptOperation, ImportScriptMessage, ImportScriptUnsupportedDetail);
+                Diagnostics.ReportRecoverable(
+                    ImportScriptOperation,
+                    Text(UiTextKey.ImportScriptMessage),
+                    Text(UiTextKey.ImportScriptUnsupportedDetail));
                 return;
             }
 
             await SetImportProgressAsync(file.Name, UiTextKey.HeaderImportReading, 1);
             await Diagnostics.RunAsync(
                 ImportScriptOperation,
-                ImportScriptMessage,
+                Text(UiTextKey.ImportScriptMessage),
                 async () =>
                 {
                     await Bootstrapper.EnsureReadyAsync();

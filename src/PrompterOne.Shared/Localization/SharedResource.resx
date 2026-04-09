@@ -87,6 +87,33 @@
   <data name="HeaderImportOpeningEditor" xml:space="preserve">
     <value>Opening editor</value>
   </data>
+  <data name="ImportScriptMessage" xml:space="preserve">
+    <value>Unable to import this script.</value>
+  </data>
+  <data name="ImportScriptUnsupportedDetail" xml:space="preserve">
+    <value>Choose a supported script or document file such as .tps, .md, .txt, .pdf, or .docx.</value>
+  </data>
+  <data name="EditorDropUnsupportedDetail" xml:space="preserve">
+    <value>Drop a .tps, .tps.md, .md.tps, .md, or .txt file onto the editor.</value>
+  </data>
+  <data name="EditorLoadMessage" xml:space="preserve">
+    <value>Unable to load the editor right now.</value>
+  </data>
+  <data name="EditorPersistDraftMessage" xml:space="preserve">
+    <value>Unable to save the current draft.</value>
+  </data>
+  <data name="EditorSaveFileMessage" xml:space="preserve">
+    <value>Unable to save this script to disk.</value>
+  </data>
+  <data name="EditorSplitDraftMessage" xml:space="preserve">
+    <value>Unable to split the current draft right now.</value>
+  </data>
+  <data name="EditorSplitNoMatchesMessage" xml:space="preserve">
+    <value>Add more section headings before splitting this draft.</value>
+  </data>
+  <data name="EditorSyntaxMessage" xml:space="preserve">
+    <value>The TPS draft has a syntax issue. Fix it and keep writing.</value>
+  </data>
   <data name="HeaderSaveFile" xml:space="preserve">
     <value>Export</value>
   </data>

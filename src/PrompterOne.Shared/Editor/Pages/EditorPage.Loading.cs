@@ -1,6 +1,7 @@
 using System.Globalization;
 using PrompterOne.Core.Models.Workspace;
 using PrompterOne.Shared.Components.Editor;
+using PrompterOne.Shared.Localization;
 using PrompterOne.Shared.Services;
 
 namespace PrompterOne.Shared.Pages;
@@ -24,7 +25,7 @@ public partial class EditorPage
         _loadState = false;
         await Diagnostics.RunAsync(
             LoadEditorOperation,
-            LoadEditorMessage,
+            Text(UiTextKey.EditorLoadMessage),
             async () =>
             {
                 await Bootstrapper.EnsureReadyAsync();
@@ -154,7 +155,7 @@ public partial class EditorPage
             return;
         }
 
-        Diagnostics.ReportRecoverable(EditorSyntaxOperation, EditorSyntaxMessage, _errorMessage);
+        Diagnostics.ReportRecoverable(EditorSyntaxOperation, Text(UiTextKey.EditorSyntaxMessage), _errorMessage);
     }
 
     private void ResetHistoryIfNeeded(bool resetHistory)

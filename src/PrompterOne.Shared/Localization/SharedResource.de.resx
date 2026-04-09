@@ -84,6 +84,33 @@
   <data name="HeaderImportOpeningEditor" xml:space="preserve">
     <value>Editor wird geöffnet</value>
   </data>
+  <data name="ImportScriptMessage" xml:space="preserve">
+    <value>Dieses Skript konnte nicht importiert werden.</value>
+  </data>
+  <data name="ImportScriptUnsupportedDetail" xml:space="preserve">
+    <value>Wählen Sie eine unterstützte Skript- oder Dokumentdatei wie .tps, .md, .txt, .pdf oder .docx.</value>
+  </data>
+  <data name="EditorDropUnsupportedDetail" xml:space="preserve">
+    <value>Ziehen Sie eine Datei vom Typ .tps, .tps.md, .md.tps, .md oder .txt in den Editor.</value>
+  </data>
+  <data name="EditorLoadMessage" xml:space="preserve">
+    <value>Der Editor konnte gerade nicht geladen werden.</value>
+  </data>
+  <data name="EditorPersistDraftMessage" xml:space="preserve">
+    <value>Der aktuelle Entwurf konnte nicht gespeichert werden.</value>
+  </data>
+  <data name="EditorSaveFileMessage" xml:space="preserve">
+    <value>Dieses Skript konnte nicht auf dem Datenträger gespeichert werden.</value>
+  </data>
+  <data name="EditorSplitDraftMessage" xml:space="preserve">
+    <value>Der aktuelle Entwurf konnte gerade nicht aufgeteilt werden.</value>
+  </data>
+  <data name="EditorSplitNoMatchesMessage" xml:space="preserve">
+    <value>Fügen Sie mehr Abschnittsüberschriften hinzu, bevor Sie diesen Entwurf aufteilen.</value>
+  </data>
+  <data name="EditorSyntaxMessage" xml:space="preserve">
+    <value>Der TPS-Entwurf enthält ein Syntaxproblem. Beheben Sie es und schreiben Sie weiter.</value>
+  </data>
   <data name="HeaderLearn" xml:space="preserve">
     <value>Lernen</value>
   </data>

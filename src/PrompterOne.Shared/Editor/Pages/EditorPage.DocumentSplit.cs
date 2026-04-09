@@ -25,7 +25,7 @@ public partial class EditorPage
         {
             Diagnostics.ReportRecoverable(
                 SplitDraftOperation,
-                SplitDraftNoMatchesMessage,
+                Text(UiTextKey.EditorSplitNoMatchesMessage),
                 ResolveSplitRequirementDetail(mode));
             _splitFeedback = null;
             StateHasChanged();
@@ -34,7 +34,7 @@ public partial class EditorPage
 
         return Diagnostics.RunAsync(
             SplitDraftOperation,
-            SplitDraftMessage,
+            Text(UiTextKey.EditorSplitDraftMessage),
             async () =>
             {
                 CancelAutosave();

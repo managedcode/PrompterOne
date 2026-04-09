@@ -84,6 +84,33 @@
   <data name="HeaderImportOpeningEditor" xml:space="preserve">
     <value>Ouverture de l'éditeur</value>
   </data>
+  <data name="ImportScriptMessage" xml:space="preserve">
+    <value>Impossible d'importer ce script.</value>
+  </data>
+  <data name="ImportScriptUnsupportedDetail" xml:space="preserve">
+    <value>Choisissez un fichier de script ou de document pris en charge, comme .tps, .md, .txt, .pdf ou .docx.</value>
+  </data>
+  <data name="EditorDropUnsupportedDetail" xml:space="preserve">
+    <value>Déposez dans l'éditeur un fichier .tps, .tps.md, .md.tps, .md ou .txt.</value>
+  </data>
+  <data name="EditorLoadMessage" xml:space="preserve">
+    <value>Impossible de charger l'éditeur pour le moment.</value>
+  </data>
+  <data name="EditorPersistDraftMessage" xml:space="preserve">
+    <value>Impossible d'enregistrer le brouillon actuel.</value>
+  </data>
+  <data name="EditorSaveFileMessage" xml:space="preserve">
+    <value>Impossible d'enregistrer ce script sur le disque.</value>
+  </data>
+  <data name="EditorSplitDraftMessage" xml:space="preserve">
+    <value>Impossible de fractionner le brouillon actuel pour le moment.</value>
+  </data>
+  <data name="EditorSplitNoMatchesMessage" xml:space="preserve">
+    <value>Ajoutez davantage de titres de section avant de fractionner ce brouillon.</value>
+  </data>
+  <data name="EditorSyntaxMessage" xml:space="preserve">
+    <value>Le brouillon TPS contient une erreur de syntaxe. Corrigez-la et continuez à écrire.</value>
+  </data>
   <data name="HeaderLearn" xml:space="preserve">
     <value>Apprendre</value>
   </data>

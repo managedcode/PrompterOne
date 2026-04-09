@@ -1,4 +1,5 @@
 using PrompterOne.Shared.Contracts;
+using PrompterOne.Shared.Localization;
 using static Microsoft.Playwright.Assertions;
 
 namespace PrompterOne.Web.UITests;
@@ -45,9 +46,7 @@ public sealed class LibraryScreenOpenScriptFlowTests(StandaloneAppFixture fixtur
         Second imported draft.
         """;
 
-    private const string UnsupportedImportDetail = "Choose a supported script or document file such as .tps, .md, .txt, .pdf, or .docx.";
     private const string UnsupportedImportFileName = "unsupported-script.exe";
-    private const string UnsupportedImportMessage = "Unable to import this script.";
     private const string UnsupportedImportText = "This should be rejected by the import descriptor.";
 
     [Test]
@@ -90,8 +89,8 @@ public sealed class LibraryScreenOpenScriptFlowTests(StandaloneAppFixture fixtur
 
                 await Expect(page.GetByTestId(UiTestIds.Library.Page)).ToBeVisibleAsync();
                 await Expect(page.GetByTestId(UiTestIds.Diagnostics.Banner)).ToBeVisibleAsync();
-                await Expect(page.GetByTestId(UiTestIds.Diagnostics.Banner)).ToContainTextAsync(UnsupportedImportMessage);
-                await Expect(page.GetByTestId(UiTestIds.Diagnostics.Banner)).ToContainTextAsync(UnsupportedImportDetail);
+                await Expect(page.GetByTestId(UiTestIds.Diagnostics.Banner)).ToContainTextAsync(SharedUiText.Text(UiTextKey.ImportScriptMessage));
+                await Expect(page.GetByTestId(UiTestIds.Diagnostics.Banner)).ToContainTextAsync(SharedUiText.Text(UiTextKey.ImportScriptUnsupportedDetail));
 
                 await Assert.That(new Uri(page.Url).AbsolutePath).IsEqualTo(BrowserTestConstants.Routes.Library);
             }

@@ -1,4 +1,5 @@
 using PrompterOne.Core.Services.Workspace;
+using PrompterOne.Shared.Localization;
 
 namespace PrompterOne.Shared.Pages;
 
@@ -36,7 +37,12 @@ public partial class EditorPage
     }
 
     private Task PersistPreparedDraftAsync(long revision, CancellationToken cancellationToken) =>
-        TryPersistDraftStateAsync(PersistDraftOperation, PersistDraftMessage, persistDocument: true, cancellationToken, revision);
+        TryPersistDraftStateAsync(
+            PersistDraftOperation,
+            Text(UiTextKey.EditorPersistDraftMessage),
+            persistDocument: true,
+            cancellationToken,
+            revision);
 
     private Task<bool> TryPersistDraftStateAsync(
         string operation,
