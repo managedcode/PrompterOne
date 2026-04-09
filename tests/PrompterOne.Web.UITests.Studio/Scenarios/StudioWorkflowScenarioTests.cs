@@ -13,7 +13,7 @@ public sealed class StudioWorkflowScenarioTests(StandaloneAppFixture fixture)
     [Test]
     public async Task StudioWorkflow_LibraryToEditorAuthoring_CapturesArtifacts()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -32,7 +32,7 @@ public sealed class StudioWorkflowScenarioTests(StandaloneAppFixture fixture)
     [Test]
     public async Task StudioWorkflow_LearnAndTeleprompterReader_CapturesArtifacts()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -52,7 +52,7 @@ public sealed class StudioWorkflowScenarioTests(StandaloneAppFixture fixture)
     [Test]
     public async Task StudioWorkflow_NewScriptStartsEmpty_CapturesArtifacts()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -69,7 +69,7 @@ public sealed class StudioWorkflowScenarioTests(StandaloneAppFixture fixture)
     [Test]
     public async Task StudioWorkflow_SettingsAndGoLiveStudio_CapturesArtifacts()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -144,7 +144,7 @@ public sealed class StudioWorkflowScenarioTests(StandaloneAppFixture fixture)
         await page.GotoAsync(BrowserTestConstants.Routes.Library);
         await Expect(page.GetByTestId(UiTestIds.Library.Page)).ToBeVisibleAsync();
         await page.GetByTestId(UiTestIds.Library.CardLearn(BrowserTestConstants.Scripts.QuantumId)).ClickAsync();
-        await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(BrowserTestConstants.Routes.LearnQuantum));
+        await BrowserRouteDriver.WaitForRouteAsync(page, BrowserTestConstants.Routes.LearnQuantum);
         await Expect(page.GetByTestId(UiTestIds.Learn.Page)).ToBeVisibleAsync();
         await UiScenarioArtifacts.CapturePageAsync(page, BrowserTestConstants.ReaderWorkflow.Name, BrowserTestConstants.ReaderWorkflow.LearnInitialStep);
     }
@@ -159,7 +159,7 @@ public sealed class StudioWorkflowScenarioTests(StandaloneAppFixture fixture)
     private static async Task OpenEmptyEditorDraftAsync(IPage page)
     {
         await page.GetByTestId(UiTestIds.Header.LibraryNewScript).ClickAsync();
-        await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(AppRoutes.Editor));
+        await BrowserRouteDriver.WaitForRouteAsync(page, AppRoutes.Editor);
         await Expect(page.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync();
         await EditorMonacoDriver.WaitUntilReadyAsync(page);
         await Expect(page.GetByTestId(UiTestIds.Editor.SourceInput)).ToHaveValueAsync(string.Empty);
@@ -181,14 +181,14 @@ public sealed class StudioWorkflowScenarioTests(StandaloneAppFixture fixture)
     private static async Task ReturnHomeAsync(IPage page)
     {
         await page.GetByTestId(UiTestIds.Header.Home).ClickAsync();
-        await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(AppRoutes.Library));
+        await BrowserRouteDriver.WaitForRouteAsync(page, AppRoutes.Library);
         await Expect(page.GetByTestId(UiTestIds.Library.Page)).ToBeVisibleAsync();
     }
 
     private static async Task OpenQuantumTeleprompterFromLibraryAsync(IPage page)
     {
         await page.GetByTestId(UiTestIds.Library.CardRead(BrowserTestConstants.Scripts.QuantumId)).ClickAsync();
-        await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(BrowserTestConstants.Routes.TeleprompterQuantum));
+        await BrowserRouteDriver.WaitForRouteAsync(page, BrowserTestConstants.Routes.TeleprompterQuantum);
         await Expect(page.GetByTestId(UiTestIds.Teleprompter.Page)).ToBeVisibleAsync();
         await UiScenarioArtifacts.CapturePageAsync(page, BrowserTestConstants.ReaderWorkflow.Name, BrowserTestConstants.ReaderWorkflow.TeleprompterInitialStep);
     }
@@ -246,7 +246,7 @@ public sealed class StudioWorkflowScenarioTests(StandaloneAppFixture fixture)
     private static async Task OpenGoLiveFromSettingsAsync(IPage page)
     {
         await page.GetByTestId(UiTestIds.Settings.CameraRoutingCta).ClickAsync();
-        await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(AppRoutes.GoLive));
+        await BrowserRouteDriver.WaitForRouteAsync(page, AppRoutes.GoLive);
         await Expect(page.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
         await UiScenarioArtifacts.CapturePageAsync(page, BrowserTestConstants.LiveWorkflow.Name, BrowserTestConstants.LiveWorkflow.GoLiveInitialStep);
     }

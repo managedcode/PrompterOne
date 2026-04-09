@@ -57,7 +57,7 @@ public sealed class EditorDocumentSplitFlowTests(StandaloneAppFixture fixture) :
             await Assert.That(new Uri(page.Url).AbsolutePath).IsEqualTo(AppRoutes.Editor);
 
             await page.GetByTestId(UiTestIds.Editor.SplitResultOpenLibrary).ClickAsync();
-            await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(AppRoutes.Library));
+            await BrowserRouteDriver.WaitForRouteAsync(page, AppRoutes.Library);
             await Expect(page.GetByTestId(UiTestIds.Library.Page)).ToBeVisibleAsync();
             await page.GetByTestId(UiTestIds.Library.FolderAll).ClickAsync();
 
@@ -100,7 +100,7 @@ public sealed class EditorDocumentSplitFlowTests(StandaloneAppFixture fixture) :
             await Assert.That(new Uri(page.Url).AbsolutePath).IsEqualTo(AppRoutes.Editor);
 
             await page.GetByTestId(UiTestIds.Editor.SplitResultOpenLibrary).ClickAsync();
-            await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(AppRoutes.Library));
+            await BrowserRouteDriver.WaitForRouteAsync(page, AppRoutes.Library);
             await Expect(page.GetByTestId(UiTestIds.Library.Page)).ToBeVisibleAsync();
             await page.GetByTestId(UiTestIds.Library.FolderAll).ClickAsync();
 

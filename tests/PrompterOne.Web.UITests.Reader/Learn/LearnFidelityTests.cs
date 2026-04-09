@@ -19,7 +19,7 @@ public sealed class LearnFidelityTests(StandaloneAppFixture fixture)
     [Test]
     public async Task LearnScreen_KeepsOrpLetterCenteredOnReferenceGuide()
     {
-        var page = await fixture.NewPageAsync();
+        var page = await fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -48,7 +48,7 @@ public sealed class LearnFidelityTests(StandaloneAppFixture fixture)
     [Test]
     public async Task LearnScreen_UsesPhraseTimelineForSecurityIncidentScript()
     {
-        var page = await fixture.NewPageAsync();
+        var page = await fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -84,7 +84,7 @@ public sealed class LearnFidelityTests(StandaloneAppFixture fixture)
     [Test]
     public async Task LearnScreen_DemoContextRails_ShowTwoWordsPerSideWithoutRightRailClipping()
     {
-        var page = await fixture.NewPageAsync();
+        var page = await fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -127,7 +127,7 @@ public sealed class LearnFidelityTests(StandaloneAppFixture fixture)
     [Test]
     public async Task LearnScreen_KeepsContextRailsSeparatedFromFocusWordOnLeadershipScript()
     {
-        var page = await fixture.NewPageAsync();
+        var page = await fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -155,7 +155,7 @@ public sealed class LearnFidelityTests(StandaloneAppFixture fixture)
     [Test]
     public async Task LearnScreen_KeepsSecurityIncidentContextWordsCloseToFocusedWord()
     {
-        var page = await fixture.NewPageAsync();
+        var page = await fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -186,7 +186,7 @@ public sealed class LearnFidelityTests(StandaloneAppFixture fixture)
     [Test]
     public async Task LearnScreen_KeepsQuantumContextWordsCloseToFocusedWord()
     {
-        var page = await fixture.NewPageAsync();
+        var page = await fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -217,7 +217,7 @@ public sealed class LearnFidelityTests(StandaloneAppFixture fixture)
     [Test]
     public async Task LearnScreen_LeadershipPreviewState_ShowsCurrentSentenceContextAndCloserContext()
     {
-        var page = await fixture.NewPageAsync();
+        var page = await fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -251,7 +251,7 @@ public sealed class LearnFidelityTests(StandaloneAppFixture fixture)
     [Test]
     public async Task LearnScreen_LeadershipUncertainState_StaysSentenceLocalAndDropsPunctuation()
     {
-        var page = await fixture.NewPageAsync();
+        var page = await fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -296,7 +296,7 @@ public sealed class LearnFidelityTests(StandaloneAppFixture fixture)
     [Test]
     public async Task LearnScreen_LongFocusWord_FitsWithoutClipping()
     {
-        var page = await fixture.NewPageAsync();
+        var page = await fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -323,7 +323,7 @@ public sealed class LearnFidelityTests(StandaloneAppFixture fixture)
     [Test]
     public async Task LearnScreen_FocusWord_UsesPackedHorizontalStackAroundOrp()
     {
-        var page = await fixture.NewPageAsync();
+        var page = await fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -496,7 +496,7 @@ public sealed class LearnFidelityTests(StandaloneAppFixture fixture)
 
     private async Task<int> MeasureLearnPlaybackDurationAsync(Func<Microsoft.Playwright.IPage, Task> configurePageAsync)
     {
-        var page = await fixture.NewPageAsync();
+        var page = await fixture.NewPageAsync(additionalContext: true);
 
         try
         {

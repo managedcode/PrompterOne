@@ -12,7 +12,7 @@ public sealed class LocalizationFlowTests(StandaloneAppFixture fixture)
     [Test]
     public async Task LibraryScreen_UsesBrowserGermanCulture_ForLocalizedChrome()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -31,7 +31,7 @@ public sealed class LocalizationFlowTests(StandaloneAppFixture fixture)
     [Test]
     public async Task SettingsLanguageSelection_PersistsFrenchCulture_AfterReload()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -64,7 +64,7 @@ public sealed class LocalizationFlowTests(StandaloneAppFixture fixture)
     [Test]
     public async Task LibraryScreen_FallsBackToEnglish_WhenBrowserCultureIsRussian()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {

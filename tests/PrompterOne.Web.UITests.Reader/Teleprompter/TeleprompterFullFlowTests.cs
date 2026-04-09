@@ -18,7 +18,7 @@ public sealed class TeleprompterFullFlowTests(StandaloneAppFixture fixture)
     [Test]
     public async Task TeleprompterProductLaunch_FullTpsScenario_CapturesArtifactsAndKeepsAlignment()
     {
-        var page = await fixture.NewPageAsync();
+        var page = await fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -62,7 +62,7 @@ public sealed class TeleprompterFullFlowTests(StandaloneAppFixture fixture)
     [Test]
     public async Task TeleprompterSpeedOffsets_UsesCustomFrontMatterSpeedOffsetsAndNormalResetSpacing()
     {
-        var page = await fixture.NewPageAsync();
+        var page = await fixture.NewPageAsync(additionalContext: true);
 
         try
         {

@@ -35,7 +35,7 @@ public sealed class EditorLearnScreenFlowTests(StandaloneAppFixture fixture) : A
 
             await Expect(page.GetByTestId(UiTestIds.Header.EditorLearn)).ToBeVisibleAsync();
             await page.GetByTestId(UiTestIds.Header.EditorLearn).ClickAsync();
-            await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(BrowserTestConstants.Routes.LearnDemo));
+            await BrowserRouteDriver.WaitForRouteAsync(page, BrowserTestConstants.Routes.LearnDemo);
             await Expect(page.GetByTestId(UiTestIds.Learn.Page)).ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
 
             await page.GotoAsync(BrowserTestConstants.Routes.LearnDemo);

@@ -88,17 +88,17 @@ public sealed class LibraryScreenFlowTests(StandaloneAppFixture fixture) : AppUi
             await page.GetByTestId(UiTestIds.Library.CardDuplicate(BrowserTestConstants.Scripts.LeadershipId)).ClickAsync();
 
             await page.GetByTestId(UiTestIds.Library.OpenSettings).ClickAsync();
-            await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(BrowserTestConstants.Routes.Settings));
+            await BrowserRouteDriver.WaitForRouteAsync(page, BrowserTestConstants.Routes.Settings);
             await Expect(page.GetByTestId(UiTestIds.Settings.Page)).ToBeVisibleAsync();
 
             await page.GotoAsync(BrowserTestConstants.Routes.Library);
             await page.GetByTestId(UiTestIds.Header.LibraryNewScript).ClickAsync();
-            await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(AppRoutes.Editor));
+            await BrowserRouteDriver.WaitForRouteAsync(page, AppRoutes.Editor);
             await Expect(page.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync();
 
             await page.GotoAsync(BrowserTestConstants.Routes.Library);
             await page.GetByTestId(UiTestIds.Library.CreateScript).ClickAsync();
-            await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(AppRoutes.Editor));
+            await BrowserRouteDriver.WaitForRouteAsync(page, AppRoutes.Editor);
             await Expect(page.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync();
         });
 
@@ -110,7 +110,7 @@ public sealed class LibraryScreenFlowTests(StandaloneAppFixture fixture) : AppUi
             await Expect(page.GetByTestId(UiTestIds.Library.Page)).ToBeVisibleAsync();
 
             await page.GetByTestId(UiTestIds.Header.LibraryNewScript).ClickAsync();
-            await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(AppRoutes.Editor));
+            await BrowserRouteDriver.WaitForRouteAsync(page, AppRoutes.Editor);
             await Expect(page.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync();
             await Expect(page.GetByTestId(UiTestIds.Editor.SourceInput)).ToHaveValueAsync(string.Empty);
 
@@ -118,7 +118,7 @@ public sealed class LibraryScreenFlowTests(StandaloneAppFixture fixture) : AppUi
             await Expect(page.GetByTestId(UiTestIds.Library.Page)).ToBeVisibleAsync();
 
             await page.GetByTestId(UiTestIds.Library.CreateScript).ClickAsync();
-            await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(AppRoutes.Editor));
+            await BrowserRouteDriver.WaitForRouteAsync(page, AppRoutes.Editor);
             await Expect(page.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync();
             await Expect(page.GetByTestId(UiTestIds.Editor.SourceInput)).ToHaveValueAsync(string.Empty);
         });

@@ -20,7 +20,7 @@ public sealed class LearnStartupAlignmentTests(StandaloneAppFixture fixture)
     [Test]
     public async Task LearnScreen_DemoStartup_HidesFocusRowUntilOrpLayoutIsReady()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {

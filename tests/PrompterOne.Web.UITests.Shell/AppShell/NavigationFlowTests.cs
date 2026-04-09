@@ -15,7 +15,7 @@ public sealed class NavigationFlowTests(StandaloneAppFixture fixture)
     [Test]
     public async Task ShellHeader_OpensGoLive_FromLibraryAndSettings()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -23,14 +23,14 @@ public sealed class NavigationFlowTests(StandaloneAppFixture fixture)
             await Expect(page.GetByTestId(UiTestIds.Library.Page)).ToBeVisibleAsync();
 
             await page.GetByTestId(UiTestIds.Header.GoLive).ClickAsync();
-            await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(AppRoutes.GoLive));
+            await BrowserRouteDriver.WaitForRouteAsync(page, AppRoutes.GoLive);
             await Expect(page.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
 
             await page.GotoAsync(BrowserTestConstants.Routes.Settings);
             await Expect(page.GetByTestId(UiTestIds.Settings.Page)).ToBeVisibleAsync();
 
             await page.GetByTestId(UiTestIds.Header.GoLive).ClickAsync();
-            await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(AppRoutes.GoLive));
+            await BrowserRouteDriver.WaitForRouteAsync(page, AppRoutes.GoLive);
             await Expect(page.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
         }
         finally
@@ -43,7 +43,7 @@ public sealed class NavigationFlowTests(StandaloneAppFixture fixture)
     public async Task ScreenNavigation_UsesSpaRoutingWithoutReloadingBrowserContext()
     {
         const string nonce = "spa-nav-stable";
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -54,7 +54,7 @@ public sealed class NavigationFlowTests(StandaloneAppFixture fixture)
             await page.EvaluateAsync("value => window.__prompterSpaNonce = value", nonce);
 
             await page.GetByTestId(UiTestIds.Header.EditorLearn).ClickAsync();
-            await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(BrowserTestConstants.Routes.LearnQuantum));
+            await BrowserRouteDriver.WaitForRouteAsync(page, BrowserTestConstants.Routes.LearnQuantum);
             await Expect(page.GetByTestId(UiTestIds.Learn.Page)).ToBeVisibleAsync();
             await Assert.That(await page.EvaluateAsync<string>("() => window.__prompterSpaNonce")).IsEqualTo(nonce);
 
@@ -63,12 +63,12 @@ public sealed class NavigationFlowTests(StandaloneAppFixture fixture)
             await page.EvaluateAsync("value => window.__prompterSpaNonce = value", nonce);
 
             await page.GetByTestId(UiTestIds.Header.EditorRead).ClickAsync();
-            await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(BrowserTestConstants.Routes.TeleprompterQuantum));
+            await BrowserRouteDriver.WaitForRouteAsync(page, BrowserTestConstants.Routes.TeleprompterQuantum);
             await Expect(page.GetByTestId(UiTestIds.Teleprompter.Page)).ToBeVisibleAsync();
             await Assert.That(await page.EvaluateAsync<string>("() => window.__prompterSpaNonce")).IsEqualTo(nonce);
 
             await page.GetByTestId(UiTestIds.Teleprompter.Back).ClickAsync();
-            await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(BrowserTestConstants.Routes.EditorQuantum));
+            await BrowserRouteDriver.WaitForRouteAsync(page, BrowserTestConstants.Routes.EditorQuantum);
             await Expect(page.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync();
             await Assert.That(await page.EvaluateAsync<string>("() => window.__prompterSpaNonce")).IsEqualTo(nonce);
         }
@@ -81,7 +81,7 @@ public sealed class NavigationFlowTests(StandaloneAppFixture fixture)
     [Test]
     public async Task ShellHeader_UsesConsistentNeutralGoLiveChrome_OnLibraryAndSettings()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {

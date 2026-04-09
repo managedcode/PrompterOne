@@ -15,7 +15,7 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
     {
         UiScenarioArtifacts.ResetScenario(CueScenario);
 
-        var page = await fixture.NewPageAsync();
+        var page = await fixture.NewPageAsync(additionalContext: true);
 
         try
         {

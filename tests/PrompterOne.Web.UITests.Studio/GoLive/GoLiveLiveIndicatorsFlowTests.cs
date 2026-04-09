@@ -13,7 +13,7 @@ public sealed class GoLiveLiveIndicatorsFlowTests(StandaloneAppFixture fixture)
     [Test]
     public async Task GoLivePage_IdleSession_DoesNotShowOnAirBadgeOrLivePreviewDot()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -45,7 +45,7 @@ public sealed class GoLiveLiveIndicatorsFlowTests(StandaloneAppFixture fixture)
     [Test]
     public async Task GoLivePage_RecordingSession_ShowsOnAirBadgeAndLivePreviewDot()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {

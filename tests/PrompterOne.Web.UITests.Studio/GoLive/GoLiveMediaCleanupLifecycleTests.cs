@@ -58,7 +58,7 @@ public sealed class GoLiveMediaCleanupLifecycleTests(StandaloneAppFixture fixtur
     [Test]
     public async Task GoLivePage_StopAndRestart_ReleaseSharedCameraCapturesAndStopMicTracks()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -192,7 +192,7 @@ public sealed class GoLiveMediaCleanupLifecycleTests(StandaloneAppFixture fixtur
     [Test]
     public async Task GoLivePage_LeavingIdleRoute_ReleasesSyntheticCameraCaptures()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -216,7 +216,7 @@ public sealed class GoLiveMediaCleanupLifecycleTests(StandaloneAppFixture fixtur
             await Assert.That(activePrimaryCameraTrackCount).IsEqualTo(BrowserTestConstants.Media.ExpectedVideoTrackCount);
 
             await page.GetByTestId(UiTestIds.GoLive.Back).ClickAsync();
-            await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(BrowserTestConstants.Routes.Library));
+            await BrowserRouteDriver.WaitForRouteAsync(page, BrowserTestConstants.Routes.Library);
             await Expect(page.GetByTestId(UiTestIds.Library.Page)).ToBeVisibleAsync();
             await AssertNoActiveVideoTracksAsync(page);
         }

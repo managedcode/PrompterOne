@@ -15,7 +15,7 @@ public sealed class GoLiveShellSessionFlowTests(StandaloneAppFixture fixture)
     [Test]
     public async Task GoLivePage_StartStream_LeavesPersistentWidgetAndReturnsToActiveSession()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
         var compactViewport = new ResponsiveViewport(
             BrowserTestConstants.AppShellFlow.LiveWidgetViewportName,
             BrowserTestConstants.ResponsiveLayout.IphoneMediumWidth,
@@ -37,7 +37,7 @@ public sealed class GoLiveShellSessionFlowTests(StandaloneAppFixture fixture)
             await Expect(page.GetByTestId(UiTestIds.GoLive.ActiveSourceLabel)).ToContainTextAsync(BrowserTestConstants.GoLive.SideCameraLabel);
 
             await page.GetByTestId(UiTestIds.GoLive.Back).ClickAsync();
-            await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(BrowserTestConstants.Routes.Library));
+            await BrowserRouteDriver.WaitForRouteAsync(page, BrowserTestConstants.Routes.Library);
             await Expect(page.GetByTestId(UiTestIds.Library.Page)).ToBeVisibleAsync();
             await Expect(page.GetByTestId(UiTestIds.Header.LiveWidget)).ToContainTextAsync(BrowserTestConstants.GoLive.SideCameraLabel);
             await Expect(page.GetByTestId(UiTestIds.Header.LiveWidgetDetail)).ToContainTextAsync(BrowserTestConstants.Media.PrimaryMicrophoneLabel);
@@ -61,7 +61,7 @@ public sealed class GoLiveShellSessionFlowTests(StandaloneAppFixture fixture)
             await CaptureScreenshotAsync(page, BrowserTestConstants.GoLive.WidgetReturnScreenshotPath);
             await page.GetByTestId(UiTestIds.Header.LiveWidget).ClickAsync();
 
-            await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(BrowserTestConstants.Routes.GoLiveDemo));
+            await BrowserRouteDriver.WaitForRouteAsync(page, BrowserTestConstants.Routes.GoLiveDemo);
             await Expect(page.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
             await Expect(page.GetByTestId(UiTestIds.GoLive.ActiveSourceLabel)).ToContainTextAsync(BrowserTestConstants.GoLive.SideCameraLabel);
         }
@@ -74,7 +74,7 @@ public sealed class GoLiveShellSessionFlowTests(StandaloneAppFixture fixture)
     [Test]
     public async Task GoLivePage_StartRecording_MarksHeaderIndicatorAsRecordingOutsideStudioRoute()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -90,7 +90,7 @@ public sealed class GoLiveShellSessionFlowTests(StandaloneAppFixture fixture)
 
             await Expect(page.GetByTestId(UiTestIds.Header.GoLive)).ToHaveCountAsync(0);
             await page.GetByTestId(UiTestIds.GoLive.OpenSettings).ClickAsync();
-            await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(BrowserTestConstants.Routes.Settings));
+            await BrowserRouteDriver.WaitForRouteAsync(page, BrowserTestConstants.Routes.Settings);
             await Expect(page.GetByTestId(UiTestIds.Header.GoLive))
                 .ToHaveAttributeAsync("data-live-state", BrowserTestConstants.GoLive.RecordingStateValue);
         }
@@ -126,7 +126,7 @@ public sealed class GoLiveShellSessionFlowTests(StandaloneAppFixture fixture)
 
             await secondaryPage.GetByTestId(UiTestIds.Header.LiveWidget).ClickAsync();
 
-            await secondaryPage.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(BrowserTestConstants.Routes.GoLive));
+            await BrowserRouteDriver.WaitForRouteAsync(secondaryPage, BrowserTestConstants.Routes.GoLive);
             await Expect(secondaryPage.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
             await Assert.That(new Uri(secondaryPage.Url).PathAndQuery).IsEqualTo(BrowserTestConstants.Routes.GoLive);
         }
@@ -195,7 +195,7 @@ public sealed class GoLiveShellSessionFlowTests(StandaloneAppFixture fixture)
     [Test]
     public async Task GoLivePage_StartRecording_UsesSelectedProgramSourceAndShowsRecordingMetadata()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -261,7 +261,7 @@ public sealed class GoLiveShellSessionFlowTests(StandaloneAppFixture fixture)
     [Test]
     public async Task GoLivePage_StartRecording_FilePickerSave_ProducesDecodableProgramVideoAndAudio()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -327,7 +327,7 @@ public sealed class GoLiveShellSessionFlowTests(StandaloneAppFixture fixture)
     [Test]
     public async Task GoLivePage_AudioTab_ShowsLiveMicrophoneProgramAndRecordingLevels()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {

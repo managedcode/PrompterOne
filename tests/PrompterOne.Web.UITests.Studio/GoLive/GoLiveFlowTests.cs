@@ -31,7 +31,7 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
     [Test]
     public async Task GoLivePage_PersistsTransportAndDistributionTargetsWithoutRenderingLocalOutputCards()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -70,7 +70,7 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
     [Test]
     public async Task GoLivePage_TogglesSceneCameraMembershipAndRoutesTopLeftHomeControlToLibrary()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -86,7 +86,7 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
             await Expect(sourceButton).ToContainTextAsync(RemoveActionLabel);
 
             await page.GetByTestId(UiTestIds.GoLive.Back).ClickAsync();
-            await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(BrowserTestConstants.Routes.Library));
+            await BrowserRouteDriver.WaitForRouteAsync(page, BrowserTestConstants.Routes.Library);
             await Expect(page.GetByTestId(UiTestIds.Library.Page)).ToBeVisibleAsync();
         }
         finally
@@ -98,7 +98,7 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
     [Test]
     public async Task GoLivePage_BackControl_ReturnsToPreviousInAppScreen_WhenEnteredFromSettings()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -107,11 +107,11 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
             await Expect(page.GetByTestId(UiTestIds.Settings.Page)).ToBeVisibleAsync();
 
             await page.GetByTestId(UiTestIds.Header.GoLive).ClickAsync();
-            await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(AppRoutes.GoLive));
+            await BrowserRouteDriver.WaitForRouteAsync(page, AppRoutes.GoLive);
             await Expect(page.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
 
             await page.GetByTestId(UiTestIds.GoLive.Back).ClickAsync();
-            await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(BrowserTestConstants.Routes.Settings));
+            await BrowserRouteDriver.WaitForRouteAsync(page, BrowserTestConstants.Routes.Settings);
             await Expect(page.GetByTestId(UiTestIds.Settings.Page)).ToBeVisibleAsync();
         }
         finally
@@ -123,7 +123,7 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
     [Test]
     public async Task GoLivePage_ShowsLiveCameraPreviewForProgramFeed()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -156,7 +156,7 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
     [Test]
     public async Task GoLivePage_HidesPreviewRailWhenRightPanelIsCollapsed()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -178,7 +178,7 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
     public async Task GoLivePage_UsesNewDesignStudioGridAndTopbarLayout()
     {
         UiScenarioArtifacts.ResetScenario(GoLiveLayoutParityScenario);
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -238,7 +238,7 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
     public async Task GoLivePage_WithEmptyScene_AutoSeedsDefaultDevicesAndShowsStudioShell()
     {
         UiScenarioArtifacts.ResetScenario(BrowserTestConstants.GoLive.AutoSeedScenario);
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -289,7 +289,7 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
     public async Task GoLivePage_SelectsSecondaryCameraAndTakesItToAir()
     {
         UiScenarioArtifacts.ResetScenario(BrowserTestConstants.GoLive.CameraSwitchScenario);
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -348,7 +348,7 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
     [Test]
     public async Task GoLivePage_OnSingleLocalCameraBrowsers_ShowsHintAndMovesLivePreviewToTheSelectedCamera()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -392,7 +392,7 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
     [Test]
     public async Task GoLivePage_StartStream_WithVdoNinjaArmed_PublishesProgramVideoAndAudio()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -443,7 +443,7 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
     [Test]
     public async Task GoLivePage_RemoteGuestSources_AppearAndDriveConcurrentLiveKitAndVdoOutputs()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -506,7 +506,7 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
     [Test]
     public async Task GoLivePage_SwitchesStudioTabsAndCreatesRemoteRoom()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -713,7 +713,7 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
     [Test]
     public async Task SettingsPage_LinksIntoGoLiveRoutingAndGoLiveLinksBackToSettings()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -721,11 +721,11 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
             await Expect(page.GetByTestId(UiTestIds.Settings.Page)).ToBeVisibleAsync();
 
             await page.GetByTestId(UiTestIds.Settings.CameraRoutingCta).ClickAsync();
-            await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(AppRoutes.GoLive));
+            await BrowserRouteDriver.WaitForRouteAsync(page, AppRoutes.GoLive);
             await Expect(page.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
 
             await page.GetByTestId(UiTestIds.GoLive.OpenSettings).ClickAsync();
-            await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(BrowserTestConstants.Routes.Settings));
+            await BrowserRouteDriver.WaitForRouteAsync(page, BrowserTestConstants.Routes.Settings);
             await Expect(page.GetByTestId(UiTestIds.Settings.Page)).ToBeVisibleAsync();
         }
         finally

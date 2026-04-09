@@ -60,7 +60,7 @@ public sealed class OnboardingFlowTests(StandaloneAppFixture fixture) : AppUiTes
                 BrowserTestConstants.Routes.Pattern(BrowserTestConstants.Routes.GoLiveQuantum));
 
             await page.GetByTestId(UiTestIds.Onboarding.Next).ClickAsync();
-            await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(BrowserTestConstants.Routes.Library));
+            await BrowserRouteDriver.WaitForRouteAsync(page, BrowserTestConstants.Routes.Library);
             await Expect(page.GetByTestId(UiTestIds.Onboarding.Surface)).ToBeHiddenAsync();
 
             await page.ReloadAsync();
@@ -78,7 +78,7 @@ public sealed class OnboardingFlowTests(StandaloneAppFixture fixture) : AppUiTes
             await Expect(page.GetByTestId(UiTestIds.Onboarding.Surface)).ToBeVisibleAsync();
 
             await page.GetByTestId(UiTestIds.Onboarding.Dismiss).ClickAsync();
-            await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(BrowserTestConstants.Routes.Library));
+            await BrowserRouteDriver.WaitForRouteAsync(page, BrowserTestConstants.Routes.Library);
             await Expect(page.GetByTestId(UiTestIds.Onboarding.Surface)).ToBeHiddenAsync();
 
             await page.ReloadAsync();
@@ -95,14 +95,14 @@ public sealed class OnboardingFlowTests(StandaloneAppFixture fixture) : AppUiTes
             await page.GetByTestId(UiTestIds.Settings.NavAbout).ClickAsync();
 
             await page.GetByTestId(UiTestIds.Settings.AboutOnboardingRestart).ClickAsync();
-            await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(BrowserTestConstants.Routes.LibraryWithOnboarding));
+            await BrowserRouteDriver.WaitForRouteAsync(page, BrowserTestConstants.Routes.LibraryWithOnboarding);
 
             await Expect(page.GetByTestId(UiTestIds.Onboarding.Surface)).ToBeVisibleAsync();
             await Expect(page.GetByTestId(UiTestIds.Onboarding.Title))
                 .ToHaveTextAsync(BrowserTestConstants.AppShellFlow.OnboardingEnglishWelcomeTitle);
 
             await page.GetByTestId(UiTestIds.Onboarding.Dismiss).ClickAsync();
-            await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(BrowserTestConstants.Routes.Library));
+            await BrowserRouteDriver.WaitForRouteAsync(page, BrowserTestConstants.Routes.Library);
             await Expect(page.GetByTestId(UiTestIds.Onboarding.Surface)).ToBeHiddenAsync();
         });
 

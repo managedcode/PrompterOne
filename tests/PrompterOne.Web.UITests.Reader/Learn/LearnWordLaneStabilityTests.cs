@@ -17,7 +17,7 @@ public sealed class LearnWordLaneStabilityTests(StandaloneAppFixture fixture)
     [Test]
     public async Task LearnScreen_QuantumWordLengthChanges_KeepTheOrpAnchorAndVisibleContextGapsStable()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {

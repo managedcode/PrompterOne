@@ -48,7 +48,7 @@ public sealed class InvalidScriptRouteFlowTests(StandaloneAppFixture fixture)
                 .ToHaveTextAsync(BrowserTestConstants.Scripts.UntitledTitle);
 
             await page.GetByTestId(UiTestIds.Header.Back).ClickAsync();
-            await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(AppRoutes.Editor));
+            await BrowserRouteDriver.WaitForRouteAsync(page, AppRoutes.Editor);
             await Expect(page.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync();
             await Expect(page.GetByTestId(UiTestIds.Editor.SourceInput)).ToHaveValueAsync(string.Empty);
             await Assert.That(new Uri(page.Url).AbsolutePath).IsEqualTo(AppRoutes.Editor);

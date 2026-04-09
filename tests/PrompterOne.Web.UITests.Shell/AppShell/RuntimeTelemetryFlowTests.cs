@@ -14,10 +14,6 @@ public sealed class RuntimeTelemetryFlowTests(StandaloneAppFixture fixture)
     {
         PropertyNameCaseInsensitive = true
     };
-    private const string WaitForTelemetryInitializationScript =
-        $$"""
-        () => (window["{{BrowserTestConstants.Telemetry.HarnessGlobal}}"]?.["{{BrowserTestConstants.Telemetry.InitializationsCollection}}"]?.length ?? 0) >= 1
-        """;
     private const string WaitForTelemetryCollectionsScript =
         $$"""
         ([minimumInitializations, minimumPageViews, minimumEvents, minimumVendorLoads]) => {
@@ -50,7 +46,7 @@ public sealed class RuntimeTelemetryFlowTests(StandaloneAppFixture fixture)
     [Test]
     public async Task RuntimeTelemetry_RequestsRealVendorScripts_WhenHarnessAllowsVendorLoads()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
         var googleAnalyticsRequests = new ConcurrentQueue<string>();
         var clarityRequests = new ConcurrentQueue<string>();
 
@@ -121,12 +117,6 @@ public sealed class RuntimeTelemetryFlowTests(StandaloneAppFixture fixture)
         }
     }
 
-    private static Task WaitForTelemetryInitializationAsync(Microsoft.Playwright.IPage page) =>
-        page.WaitForFunctionAsync(
-            WaitForTelemetryInitializationScript,
-            null,
-            new() { Timeout = BrowserTestConstants.Telemetry.TelemetryWaitTimeoutMs });
-
     private static Task WaitForTelemetryCollectionsAsync(
         Microsoft.Playwright.IPage page,
         int initializationCount,
@@ -144,12 +134,6 @@ public sealed class RuntimeTelemetryFlowTests(StandaloneAppFixture fixture)
 
         return JsonSerializer.Deserialize<TelemetryHarnessSnapshot>(json, SnapshotJsonOptions)
             ?? new TelemetryHarnessSnapshot();
-    }
-
-    private static async Task AssertHarnessBlockedVendorLoads(TelemetryHarnessSnapshot snapshot)
-    {
-        await Assert.That(snapshot.VendorLoads).Contains(entry => string.Equals(entry.Provider, BrowserTestConstants.Telemetry.GoogleAnalyticsProvider, StringComparison.Ordinal) && entry.Blocked);
-        await Assert.That(snapshot.VendorLoads).Contains(entry => string.Equals(entry.Provider, BrowserTestConstants.Telemetry.ClarityProvider, StringComparison.Ordinal) && entry.Blocked);
     }
 
     public sealed class TelemetryHarnessSnapshot

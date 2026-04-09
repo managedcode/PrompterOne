@@ -23,7 +23,7 @@ public sealed class DynamicHostPortTests(StandaloneAppFixture fixture)
         await Assert.That(baseAddress.IsLoopback).IsTrue();
         await Assert.That(baseAddress.Port).IsBetween(UiTestHostConstants.MinimumDynamicPort, UiTestHostConstants.MaximumTcpPort);
 
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -46,7 +46,7 @@ public sealed class DynamicHostPortTests(StandaloneAppFixture fixture)
         {
             for (var pageIndex = 0; pageIndex < RepeatedBootstrapPageCount; pageIndex++)
             {
-                var page = await _fixture.NewPageAsync();
+                var page = await _fixture.NewPageAsync(additionalContext: true);
                 pages.Add(page);
 
                 await page.GotoAsync(BrowserTestConstants.Routes.Library);

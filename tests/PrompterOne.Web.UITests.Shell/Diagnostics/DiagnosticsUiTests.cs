@@ -11,7 +11,7 @@ public sealed class DiagnosticsUiTests(StandaloneAppFixture fixture)
     [Test]
     public async Task LibraryScreen_ShowsDiagnosticsBannerWhenFolderCreateFails()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -67,7 +67,7 @@ public sealed class DiagnosticsUiTests(StandaloneAppFixture fixture)
     [Test]
     public async Task AppShell_ShowsConnectivityOverlayForOfflineAndOnlineStates()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {

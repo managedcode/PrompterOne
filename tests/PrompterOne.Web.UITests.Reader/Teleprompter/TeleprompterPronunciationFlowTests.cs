@@ -15,7 +15,7 @@ public sealed class TeleprompterPronunciationFlowTests(StandaloneAppFixture fixt
     {
         UiScenarioArtifacts.ResetScenario(ScenarioName);
 
-        var page = await fixture.NewPageAsync();
+        var page = await fixture.NewPageAsync(additionalContext: true);
 
         try
         {

@@ -11,7 +11,7 @@ public sealed class MediaRuntimeIntegrationTests(StandaloneAppFixture fixture)
     [Test]
     public async Task SettingsScreen_RequestsSyntheticAudioAndVideoPermissions()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -91,7 +91,7 @@ public sealed class MediaRuntimeIntegrationTests(StandaloneAppFixture fixture)
     [Test]
     public async Task TeleprompterCameraToggle_AttachesSyntheticBackgroundVideoStream()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -129,7 +129,7 @@ public sealed class MediaRuntimeIntegrationTests(StandaloneAppFixture fixture)
     [Test]
     public async Task SettingsCameraPreview_LeavingCameraSection_ReleasesSyntheticBackgroundVideoStream()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -168,7 +168,7 @@ public sealed class MediaRuntimeIntegrationTests(StandaloneAppFixture fixture)
     [Test]
     public async Task TeleprompterCameraToggle_DisablingBackgroundVideo_ReleasesSyntheticBackgroundVideoStream()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -202,7 +202,7 @@ public sealed class MediaRuntimeIntegrationTests(StandaloneAppFixture fixture)
     [Test]
     public async Task TeleprompterCameraToggle_RequestsAccessWhenDeviceIdentityIsUnavailableOnFirstLoad()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -236,7 +236,7 @@ public sealed class MediaRuntimeIntegrationTests(StandaloneAppFixture fixture)
     [Test]
     public async Task SettingsScreen_BlankBrowserDeviceLabels_DoNotRenderFabricatedFallbackNames()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -293,7 +293,7 @@ public sealed class MediaRuntimeIntegrationTests(StandaloneAppFixture fixture)
     [Test]
     public async Task GoLivePreview_SwitchesBetweenSyntheticSceneCameras()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -310,7 +310,7 @@ public sealed class MediaRuntimeIntegrationTests(StandaloneAppFixture fixture)
             await page.GetByTestId(UiTestIds.Settings.CameraDeviceAction(BrowserTestConstants.Media.SecondaryCameraId)).ClickAsync();
 
             await page.GetByTestId(UiTestIds.Settings.CameraRoutingCta).ClickAsync();
-            await page.WaitForURLAsync(BrowserTestConstants.Routes.Pattern(AppRoutes.GoLive));
+            await BrowserRouteDriver.WaitForRouteAsync(page, AppRoutes.GoLive);
             await Expect(page.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
 
             await page.WaitForFunctionAsync(

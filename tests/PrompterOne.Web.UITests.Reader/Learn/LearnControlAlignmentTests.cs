@@ -14,7 +14,7 @@ public sealed class LearnControlAlignmentTests(StandaloneAppFixture fixture)
     [Test]
     public async Task LearnScreen_QuantumControls_StayCenteredAndSymmetric()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {

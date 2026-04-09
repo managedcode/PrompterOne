@@ -11,7 +11,7 @@ public sealed class LibraryFolderOverlayFlowTests(StandaloneAppFixture fixture)
     [Test]
     public async Task FolderOverlay_IsTranslucent_AndCreationAcceptsTypedInput()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {

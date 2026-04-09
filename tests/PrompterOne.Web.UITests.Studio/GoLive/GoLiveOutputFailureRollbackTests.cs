@@ -16,7 +16,7 @@ public sealed class GoLiveOutputFailureRollbackTests(StandaloneAppFixture fixtur
     [Test]
     public async Task GoLivePage_StartStream_VdoNinjaPublishFailure_RollsBackProgramSession()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -52,7 +52,7 @@ public sealed class GoLiveOutputFailureRollbackTests(StandaloneAppFixture fixtur
     [Test]
     public async Task GoLivePage_StartStream_LiveKitConnectFailure_RollsBackProgramSession()
     {
-        var page = await _fixture.NewPageAsync();
+        var page = await _fixture.NewPageAsync(additionalContext: true);
 
         try
         {

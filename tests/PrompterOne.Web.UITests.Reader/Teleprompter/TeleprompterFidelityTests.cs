@@ -21,7 +21,7 @@ public sealed class TeleprompterFidelityTests(StandaloneAppFixture fixture)
     [Test]
     public async Task TeleprompterLeadership_RepositionsReadingLineWhenFocalPointChanges()
     {
-        var page = await fixture.NewPageAsync();
+        var page = await fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -55,7 +55,7 @@ public sealed class TeleprompterFidelityTests(StandaloneAppFixture fixture)
     [Test]
     public async Task TeleprompterScreen_UsesSingleFullBleedBackgroundCameraLayer()
     {
-        var page = await fixture.NewPageAsync();
+        var page = await fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -97,7 +97,7 @@ public sealed class TeleprompterFidelityTests(StandaloneAppFixture fixture)
     [Test]
     public async Task TeleprompterDemo_KeepsParagraphStableWhenFirstWordsAdvance()
     {
-        var page = await fixture.NewPageAsync();
+        var page = await fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -121,7 +121,7 @@ public sealed class TeleprompterFidelityTests(StandaloneAppFixture fixture)
     [Test]
     public async Task TeleprompterDemo_KeepsParagraphStableWhenFontSizeChanges()
     {
-        var page = await fixture.NewPageAsync();
+        var page = await fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -144,7 +144,7 @@ public sealed class TeleprompterFidelityTests(StandaloneAppFixture fixture)
     [Test]
     public async Task TeleprompterDemo_ActivatesNextWordDirectlyOnFocalGuideWithoutVisibleSettling()
     {
-        var page = await fixture.NewPageAsync();
+        var page = await fixture.NewPageAsync(additionalContext: true);
 
         try
         {
@@ -177,7 +177,7 @@ public sealed class TeleprompterFidelityTests(StandaloneAppFixture fixture)
     [Test]
     public async Task TeleprompterSecurityIncident_UsesMaximumWidthAndContinuousEmphasisWithoutStandaloneCommaWords()
     {
-        var page = await fixture.NewPageAsync();
+        var page = await fixture.NewPageAsync(additionalContext: true);
 
         try
         {
