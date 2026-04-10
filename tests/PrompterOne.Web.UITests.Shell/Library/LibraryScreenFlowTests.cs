@@ -83,12 +83,12 @@ public sealed class LibraryScreenFlowTests(StandaloneAppFixture fixture) : AppUi
                 .ToHaveTextAsync(BrowserTestConstants.Folders.TedTalksName);
 
             await Expect(page.GetByTestId(BrowserTestConstants.Elements.LeadershipCard)).ToContainTextAsync(BrowserTestConstants.Scripts.LeadershipTitle);
-            var leadershipMenuDropdown = page.GetByTestId(UiTestIds.Library.CardMenuDropdown(BrowserTestConstants.Scripts.LeadershipId));
             var leadershipMenuTrigger = page.GetByTestId(UiTestIds.Library.CardMenu(BrowserTestConstants.Scripts.LeadershipId));
-            var leadershipDuplicateAction = leadershipMenuDropdown.GetByTestId(
+            var leadershipMenuDropdown = page.GetByTestId(UiTestIds.Library.CardMenuDropdown(BrowserTestConstants.Scripts.LeadershipId));
+            var leadershipDuplicateAction = page.GetByTestId(
                 UiTestIds.Library.CardDuplicate(BrowserTestConstants.Scripts.LeadershipId));
             await Expect(leadershipMenuDropdown).ToBeHiddenAsync();
-            await UiInteractionDriver.ClickAndWaitForVisibleAsync(leadershipMenuTrigger, leadershipMenuDropdown);
+            await UiInteractionDriver.ClickAndWaitForVisibleAsync(leadershipMenuTrigger, leadershipDuplicateAction);
             await UiInteractionDriver.ClickAndContinueAsync(leadershipDuplicateAction);
 
             await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Library.OpenSettings));

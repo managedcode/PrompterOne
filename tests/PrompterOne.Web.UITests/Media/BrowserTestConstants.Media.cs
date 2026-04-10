@@ -21,6 +21,7 @@ internal static partial class BrowserTestConstants
         public const int ExpectedVideoTrackCount = 1;
         public const int ExpectedAudioTrackCount = 1;
         public const int LiveLevelThreshold = 5;
+        public const int MinimumVisibleChannelValue = 12;
         public const int MinimumVisiblePixelCount = 16;
         public static string RuntimeContractInitializationScript => $$"""
             window["{{AppMediaRuntime.Runtime.GlobalName}}"] = window["{{AppMediaRuntime.Runtime.GlobalName}}"] || {};
@@ -75,6 +76,8 @@ internal static partial class BrowserTestConstants
             "([testId, minimumLevel]) => Number(document.querySelector(`[data-test=\"${testId}\"]`)?.dataset.liveLevel ?? '0') >= minimumLevel";
         public static string ElementUsesVideoDeviceScript =>
             $$"""([testId, deviceId]) => { const element = document.querySelector(`[data-test="${testId}"]`); const state = window["{{HarnessGlobal}}"].getElementState(element?.id ?? ""); return Boolean(state?.hasStream && state.metadata?.videoDeviceId === deviceId); }""";
+        public static string ElementHasVisibleVideoScript =>
+            $$"""([testId, minimumVisiblePixelCount]) => { const element = document.querySelector(`[data-test="${testId}"]`); if (!(element instanceof HTMLVideoElement) || element.readyState < 2) { return false; } const width = Math.max(1, element.videoWidth); const height = Math.max(1, element.videoHeight); const canvas = document.createElement("canvas"); canvas.width = width; canvas.height = height; const context = canvas.getContext("2d"); if (!context) { return false; } context.drawImage(element, 0, 0, width, height); const pixels = context.getImageData(0, 0, width, height).data; let nonBlackPixelCount = 0; for (let index = 0; index < pixels.length; index += 4) { if (pixels[index] >= {{MinimumVisibleChannelValue}} || pixels[index + 1] >= {{MinimumVisibleChannelValue}} || pixels[index + 2] >= {{MinimumVisibleChannelValue}}) { nonBlackPixelCount += 1; if (nonBlackPixelCount >= minimumVisiblePixelCount) { return true; } } } return false; }""";
         public static string HasAudioOnlyRequestScript =>
             $$"""([audioId]) => window["{{HarnessGlobal}}"].getRequestLog().some(request => request.hasVideo === false && request.hasAudio === true && request.resolvedAudioDeviceId === audioId)""";
         public static string HasAudioVideoRequestScript =>

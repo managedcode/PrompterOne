@@ -209,6 +209,23 @@ public sealed class GoLiveShellSessionFlowTests(StandaloneAppFixture fixture)
 
             await UiInteractionDriver.ClickAndContinueAsync(
                 page.GetByTestId(UiTestIds.GoLive.SourceCameraSelect(BrowserTestConstants.GoLive.SecondSourceId)));
+
+            var programVideo = page.GetByTestId(UiTestIds.GoLive.ProgramVideo);
+            var programVideoHandle = await programVideo.ElementHandleAsync();
+            await Assert.That(programVideoHandle).IsNotNull();
+            await page.WaitForFunctionAsync(
+                BrowserTestConstants.Media.ElementUsesVideoDeviceScript,
+                new object[] { UiTestIds.GoLive.ProgramVideo, BrowserTestConstants.Media.SecondaryCameraId },
+                new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
+            await page.WaitForFunctionAsync(
+                BrowserTestConstants.GoLive.PreviewReadyScript,
+                programVideoHandle,
+                new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
+            await page.WaitForFunctionAsync(
+                BrowserTestConstants.Media.ElementHasVisibleVideoScript,
+                new object[] { UiTestIds.GoLive.ProgramVideo, BrowserTestConstants.Media.MinimumVisiblePixelCount },
+                new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
+
             await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.GoLive.StartRecording));
 
             await page.WaitForFunctionAsync(

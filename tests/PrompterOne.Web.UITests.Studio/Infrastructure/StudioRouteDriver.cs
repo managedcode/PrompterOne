@@ -61,20 +61,18 @@ internal static class StudioRouteDriver
 
     internal static async Task NavigateBackToLibraryAsync(IPage page)
     {
-        await UiInteractionDriver.ClickAndContinueAsync(
-            page.GetByTestId(UiTestIds.GoLive.Back),
-            noWaitAfter: true);
-        await WaitForGoLiveExitAsync(page);
-        await WaitForLibraryReadyAsync(page);
+        await NavigateBackAsync(
+            page,
+            BrowserTestConstants.Routes.Library,
+            WaitForLibraryReadyAsync);
     }
 
     internal static async Task NavigateBackToSettingsAsync(IPage page)
     {
-        await UiInteractionDriver.ClickAndContinueAsync(
-            page.GetByTestId(UiTestIds.GoLive.Back),
-            noWaitAfter: true);
-        await WaitForGoLiveExitAsync(page);
-        await WaitForSettingsReadyAsync(page);
+        await NavigateBackAsync(
+            page,
+            BrowserTestConstants.Routes.Settings,
+            WaitForSettingsReadyAsync);
     }
 
     internal static async Task NavigateToSettingsFromGoLiveAsync(IPage page)
@@ -128,8 +126,29 @@ internal static class StudioRouteDriver
     {
         await BrowserRouteDriver.WaitForRouteAsync(page, route);
         await Expect(page.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
+        await Expect(page.GetByTestId(UiTestIds.GoLive.Back)).ToBeVisibleAsync();
         await Expect(page.GetByTestId(UiTestIds.GoLive.ProgramCard)).ToBeVisibleAsync();
         await Expect(page.GetByTestId(UiTestIds.GoLive.SourcesCard)).ToBeVisibleAsync();
+    }
+
+    private static async Task NavigateBackAsync(
+        IPage page,
+        string expectedBackRoute,
+        Func<IPage, Task> waitForTargetAsync)
+    {
+        var backControl = page.GetByTestId(UiTestIds.GoLive.Back);
+
+        await Expect(backControl).ToBeVisibleAsync();
+        await Expect(backControl).ToHaveAttributeAsync("href", expectedBackRoute);
+        await backControl.ScrollIntoViewIfNeededAsync();
+        await backControl.ClickAsync(new()
+        {
+            Force = true,
+            Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs
+        });
+
+        await WaitForGoLiveExitAsync(page);
+        await waitForTargetAsync(page);
     }
 
     private static Task WaitForGoLiveExitAsync(IPage page)

@@ -205,7 +205,7 @@ Tracked failing tests from the current baseline:
   - detect when `BrowserRouteDriver` is opening the first routed page from the primed blank test page
   - give only that first routed bootstrap the longer runtime-warmup visibility budget and skip the CI blank bounce for that specific path
   - keep the shorter route-visible contract for already-booted routed pages so normal suite latency does not drift upward
-- [ ] `Release Pipeline` run `24221639706` fails remotely in all four browser suites after commit `7983efe`
+- [x] `Release Pipeline` run `24221639706` fails remotely in all four browser suites after commit `7983efe`
   Symptom:
   - `Shell` fails `11` tests, mostly while opening `/library`, plus two invalid learn/teleprompter missing-script flows and two onboarding route-changing clicks
   - `Studio` fails `6` tests, split between first-route `/library` boot, `go-live-back` hangs, and `StartRecording` click paths that stall on scheduled navigation waits
@@ -223,6 +223,10 @@ Tracked failing tests from the current baseline:
   - introduce a shared `NoWaitAfter` click helper for SPA route/state-changing controls and use it in the failing Shell, Studio, and Editor flows
   - retry page screenshot capture in the shared artifact helper
   - stop awaiting camera detach inside `GoLivePage` location-changing so route leaves are not blocked by cleanup
+  Result:
+  - local follow-up validation is fully green after hardening SPA route-changing clicks, library/settings route reload helpers, go-live back navigation, selected-program-source visibility checks, and the brittle teleprompter reverse-transition assertion
+  - targeted suite reruns passed with `Shell 51/51`, `Studio 38/38`, `Reader 168/168`, and `Editor 284/284`
+  - the required post-format solution verification passed with `1162/1162`
 - [x] `StandaloneAppFixture` shared-context creation still exposed accidental cross-test coupling
   Symptom:
   - the browser harness still defaulted `NewPageAsync()` to the shared-storage path, so any missing `additionalContext: true` quietly joined a shared browser context and became order-dependent under CI parallelism
@@ -291,22 +295,14 @@ Tracked failing tests from the current baseline:
 
 ## Latest Validation Snapshot
 
-- [x] Follow-up local verification after the `BrowserRouteDriver` route-open change
+- [x] Follow-up remediation for remote run `24221639706`
   Result:
-  - `dotnet format ./PrompterOne.slnx` passed
-  - `dotnet build ./PrompterOne.slnx -warnaserror` passed
-  - `dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.UITests.Studio/PrompterOne.Web.UITests.Studio.csproj` passed with `38/38`
-- [ ] Follow-up remediation for remote run `24221639706`
-  Pending focused validation:
-  - `dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.UITests.Shell/PrompterOne.Web.UITests.Shell.csproj`
-  - `dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.UITests.Studio/PrompterOne.Web.UITests.Studio.csproj`
-  - `dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.UITests.Reader/PrompterOne.Web.UITests.Reader.csproj`
-  - `dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.UITests.Editor/PrompterOne.Web.UITests.Editor.csproj`
-  - `dotnet test @./tests/dotnet-test-progress.rsp --solution ./PrompterOne.slnx --max-parallel-test-modules 1` passed with `1162/1162` green in `7m 50.591s`
-- [x] Follow-up local verification after the first-route primed-blank bootstrap change
-  Result:
-  - `dotnet format ./PrompterOne.slnx` passed
   - `dotnet build ./PrompterOne.slnx -warnaserror` passed
   - `dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.UITests.Shell/PrompterOne.Web.UITests.Shell.csproj` passed with `51/51`
   - `dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.UITests.Studio/PrompterOne.Web.UITests.Studio.csproj` passed with `38/38`
-  - `dotnet test @./tests/dotnet-test-progress.rsp --solution ./PrompterOne.slnx --max-parallel-test-modules 1` passed with `1162/1162` green in `7m 47.310s`
+  - `dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.UITests.Reader/PrompterOne.Web.UITests.Reader.csproj` passed with `168/168`
+  - `dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.UITests.Editor/PrompterOne.Web.UITests.Editor.csproj` passed with `284/284`
+  - `dotnet test @./tests/dotnet-test-progress.rsp --solution ./PrompterOne.slnx --max-parallel-test-modules 1` passed with `1162/1162` green in `7m 40.830s`
+  - `dotnet format ./PrompterOne.slnx` passed
+  - post-format `dotnet build ./PrompterOne.slnx -warnaserror` passed
+  - post-format `dotnet test @./tests/dotnet-test-progress.rsp --solution ./PrompterOne.slnx --max-parallel-test-modules 1` passed with `1162/1162` green in `7m 38.648s`

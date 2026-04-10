@@ -43,9 +43,12 @@ public sealed class SettingsCloudStorageFlowTests(StandaloneAppFixture fixture) 
                 BrowserTestConstants.SettingsFlow.CloudStorageScenario,
                 BrowserTestConstants.SettingsFlow.CloudStorageConfiguredStep);
 
-            await page.ReloadAsync(new() { WaitUntil = WaitUntilState.Load });
-            await Expect(page.GetByTestId(UiTestIds.Settings.Page)).ToBeVisibleAsync(
-                new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
+            await BrowserRouteDriver.ReloadPageAsync(
+                page,
+                BrowserTestConstants.Routes.Settings,
+                UiTestIds.Settings.Page,
+                $"{nameof(SettingsCloudStorage_PersistsDropboxDraftAcrossReload)}-{UiTestIds.Settings.Page}");
+            await ShellRouteDriver.WaitForSettingsReadyAsync(page);
             await Expect(page.GetByTestId(UiTestIds.Settings.CloudDefaultProvider))
                 .ToHaveAttributeAsync(BrowserTestConstants.Html.ValueAttribute, CloudStorageProviderIds.Dropbox);
             await Expect(page.GetByTestId(UiTestIds.Settings.CloudProviderSubtitle(CloudStorageProviderIds.Dropbox)))

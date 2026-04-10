@@ -18,18 +18,14 @@ internal static class UiInteractionDriver
                 await WaitUntilInteractableAsync(locator);
                 if (noWaitAfter)
                 {
-                    await locator.ClickAsync(new()
-                    {
-                        Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs
-                    });
+                    await locator.EvaluateAsync("element => element.click()");
+                    return;
                 }
-                else
+
+                await locator.ClickAsync(new()
                 {
-                    await locator.ClickAsync(new()
-                    {
-                        Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs
-                    });
-                }
+                    Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs
+                });
                 return;
             }
             catch (TimeoutException exception) when (attempt < BrowserTestConstants.Timing.InteractionRetryCount)
