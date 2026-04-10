@@ -28,65 +28,68 @@
                 </svg>
             </button>
         </TooltipAnchor>
-        <div class="dcard-dropdown"
-             data-test="@UiTestIds.Library.CardMenuDropdown(Card.Id)"
-             @onclick:stopPropagation="true">
-            <button type="button"
-                    @onclick:stopPropagation="true"
-                    @onclick="HandleOpenScriptAsync">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                </svg>
-                @Text(UiTextKey.CommonRename)
-            </button>
-            <button type="button"
-                    @onclick:stopPropagation="true"
-                    @onclick="HandleDuplicateScriptAsync"
-                    data-test="@UiTestIds.Library.CardDuplicate(Card.Id)">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="9" y="9" width="13" height="13" rx="2" />
-                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                </svg>
-                @Text(UiTextKey.CommonDuplicate)
-            </button>
-            <div class="dcard-dropdown-group">
-                <div class="dcard-dropdown-label">@Text(UiTextKey.CommonMoveToEllipsis)</div>
+        @if (IsMenuOpen)
+        {
+            <div class="dcard-dropdown"
+                 data-test="@UiTestIds.Library.CardMenuDropdown(Card.Id)"
+                 @onclick:stopPropagation="true">
                 <button type="button"
-                        data-test="@UiTestIds.Library.Move(Card.Id, LibrarySelectionKeys.None)"
                         @onclick:stopPropagation="true"
-                        @onclick="() => HandleMoveScriptAsync(null)">
+                        @onclick="HandleOpenScriptAsync">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="6" y1="6" x2="18" y2="18" />
-                        <line x1="6" y1="18" x2="18" y2="6" />
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                     </svg>
-                    @Text(UiTextKey.CommonNoFolder)
+                    @Text(UiTextKey.CommonRename)
                 </button>
-                @foreach (var folder in FolderOptions)
-                {
+                <button type="button"
+                        @onclick:stopPropagation="true"
+                        @onclick="HandleDuplicateScriptAsync"
+                        data-test="@UiTestIds.Library.CardDuplicate(Card.Id)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="9" y="9" width="13" height="13" rx="2" />
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                    </svg>
+                    @Text(UiTextKey.CommonDuplicate)
+                </button>
+                <div class="dcard-dropdown-group">
+                    <div class="dcard-dropdown-label">@Text(UiTextKey.CommonMoveToEllipsis)</div>
                     <button type="button"
-                            data-test="@UiTestIds.Library.Move(Card.Id, folder.Id)"
+                            data-test="@UiTestIds.Library.Move(Card.Id, LibrarySelectionKeys.None)"
                             @onclick:stopPropagation="true"
-                            @onclick="() => HandleMoveScriptAsync(folder.Id)">
+                            @onclick="() => HandleMoveScriptAsync(null)">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                            <line x1="6" y1="6" x2="18" y2="18" />
+                            <line x1="6" y1="18" x2="18" y2="6" />
                         </svg>
-                        @folder.Label
+                        @Text(UiTextKey.CommonNoFolder)
                     </button>
-                }
+                    @foreach (var folder in FolderOptions)
+                    {
+                        <button type="button"
+                                data-test="@UiTestIds.Library.Move(Card.Id, folder.Id)"
+                                @onclick:stopPropagation="true"
+                                @onclick="() => HandleMoveScriptAsync(folder.Id)">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                            </svg>
+                            @folder.Label
+                        </button>
+                    }
+                </div>
+                <div class="dcard-dropdown-sep"></div>
+                <button type="button"
+                        class="dcard-dropdown-danger"
+                        @onclick:stopPropagation="true"
+                        @onclick="HandleDeleteScriptAsync">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3,6 5,6 21,6" />
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                    </svg>
+                    @Text(UiTextKey.CommonDelete)
+                </button>
             </div>
-            <div class="dcard-dropdown-sep"></div>
-            <button type="button"
-                    class="dcard-dropdown-danger"
-                    @onclick:stopPropagation="true"
-                    @onclick="HandleDeleteScriptAsync">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="3,6 5,6 21,6" />
-                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                </svg>
-                @Text(UiTextKey.CommonDelete)
-            </button>
-        </div>
+        }
     </div>
     <div class="dcard-inner" data-test="@UiTestIds.Library.CardSurface(Card.Id)">
         <div class="dcard-cover @Card.CoverClass">

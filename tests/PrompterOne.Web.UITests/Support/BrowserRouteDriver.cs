@@ -8,6 +8,7 @@ internal static class BrowserRouteDriver
 {
     private const int RouteBootstrapAttemptCount = 2;
     private const string RouteFailurePrefix = "route-open";
+    private const string RouteReloadFailurePrefix = "route-reload";
     private const WaitUntilState RouteNavigationReadyState = WaitUntilState.Load;
 
     internal static async Task OpenPageAsync(
@@ -80,6 +81,39 @@ internal static class BrowserRouteDriver
         await TryCaptureFailurePageAsync(page, failureLabel ?? $"{RouteFailurePrefix}-{pageTestId}");
         await Expect(page.GetByTestId(pageTestId)).ToBeVisibleAsync(
             new() { Timeout = routeVisibleTimeoutMs });
+    }
+
+    internal static async Task ReloadPageAsync(
+        IPage page,
+        string route,
+        string pageTestId,
+        string? failureLabel = null)
+    {
+        for (var attempt = 1; attempt <= RouteBootstrapAttemptCount; attempt++)
+        {
+            try
+            {
+                await page.ReloadAsync(new() { WaitUntil = RouteNavigationReadyState });
+                await WaitForRouteAsync(page, route);
+                if (await IsPageVisibleAsync(page, pageTestId, BrowserTestConstants.Timing.RuntimeWarmupVisibleTimeoutMs))
+                {
+                    return;
+                }
+            }
+            catch (TimeoutException) when (attempt < RouteBootstrapAttemptCount)
+            {
+            }
+            catch (PlaywrightException exception) when (
+                attempt < RouteBootstrapAttemptCount &&
+                IsRetryableRouteOpenFailure(exception))
+            {
+            }
+        }
+
+        await TryCaptureFailurePageAsync(page, failureLabel ?? $"{RouteReloadFailurePrefix}-{pageTestId}");
+        await WaitForRouteAsync(page, route);
+        await Expect(page.GetByTestId(pageTestId)).ToBeVisibleAsync(
+            new() { Timeout = BrowserTestConstants.Timing.RuntimeWarmupVisibleTimeoutMs });
     }
 
     internal static Task WaitForRouteAsync(IPage page, string route)

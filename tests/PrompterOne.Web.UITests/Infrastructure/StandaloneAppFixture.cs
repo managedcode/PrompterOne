@@ -48,25 +48,33 @@ public sealed partial class StandaloneAppFixture : IAsyncInitializer, IAsyncDisp
     }
 
     public Task<IPage> NewPageAsync(
-        bool additionalContext = false,
+        bool additionalContext = true,
         [CallerMemberName] string contextKey = "")
     {
         return additionalContext
             ? CreateAdditionalPageAsync()
-            : CreateSharedPageAsync(contextKey);
+            : NewSharedPageAsync(contextKey);
+    }
+
+    public Task<IPage> NewSharedPageAsync(
+        string contextKey)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(contextKey);
+        return CreateSharedPageAsync(contextKey);
     }
 
     public async Task<IReadOnlyList<IPage>> NewSharedPagesAsync(
         int pageCount,
-        [CallerMemberName] string contextKey = "")
+        string contextKey)
     {
         ArgumentOutOfRangeException.ThrowIfLessThan(pageCount, MinimumPageCount);
+        ArgumentException.ThrowIfNullOrWhiteSpace(contextKey);
 
         var pages = new List<IPage>(pageCount);
 
         for (var pageIndex = 0; pageIndex < pageCount; pageIndex++)
         {
-            pages.Add(await NewPageAsync(contextKey: contextKey));
+            pages.Add(await NewSharedPageAsync(contextKey));
         }
 
         return pages;
@@ -107,9 +115,15 @@ public sealed partial class StandaloneAppFixture : IAsyncInitializer, IAsyncDisp
                 {
                     return await CreateBlankPageAsync(existingContext);
                 }
-                catch (PlaywrightException exception) when (attempt < ContextBootstrapAttemptCount && IsBrowserClosedException(exception))
+                catch when (attempt < ContextBootstrapAttemptCount)
                 {
-                    RemoveSharedContext(existingContext);
+                    await EvictSharedContextAsync(existingContext);
+                    continue;
+                }
+                catch
+                {
+                    await EvictSharedContextAsync(existingContext);
+                    throw;
                 }
             }
 
@@ -188,6 +202,12 @@ public sealed partial class StandaloneAppFixture : IAsyncInitializer, IAsyncDisp
                 _sharedContexts.TryRemove(entry.Key, out _);
             }
         }
+    }
+
+    private async Task EvictSharedContextAsync(IBrowserContext context)
+    {
+        RemoveSharedContext(context);
+        await DisposeContextAsync(context);
     }
 
     private async Task<SharedRuntimeHandle> EnsureRuntimeHandleAsync()

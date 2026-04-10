@@ -406,8 +406,8 @@
             }
 
             await getSupport().stopRecordingSegment(session);
-            session.recordingActive = false;
             await getSupport().finalizeRecording(session);
+            session.recordingActive = false;
 
             session.recordingChunks = [];
             session.recordingFileHandle = null;

@@ -71,8 +71,8 @@ public sealed class DynamicHostPortTests(StandaloneAppFixture fixture)
     [Test]
     public async Task NewPageAsync_DefaultPath_ReusesSharedBrowserStorage()
     {
-        var primaryPage = await _fixture.NewPageAsync();
-        var secondaryPage = await _fixture.NewPageAsync();
+        var primaryPage = await _fixture.NewSharedPageAsync(nameof(NewPageAsync_DefaultPath_ReusesSharedBrowserStorage));
+        var secondaryPage = await _fixture.NewSharedPageAsync(nameof(NewPageAsync_DefaultPath_ReusesSharedBrowserStorage));
 
         try
         {
@@ -95,7 +95,7 @@ public sealed class DynamicHostPortTests(StandaloneAppFixture fixture)
     [Test]
     public async Task NewPageAsync_AdditionalContext_KeepsBrowserStorageIsolated()
     {
-        var sharedPage = await _fixture.NewPageAsync();
+        var sharedPage = await _fixture.NewSharedPageAsync(nameof(NewPageAsync_AdditionalContext_KeepsBrowserStorageIsolated));
         var isolatedPage = await _fixture.NewPageAsync(additionalContext: true);
 
         try

@@ -53,7 +53,11 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
                 BrowserTestConstants.GoLive.StoredStudioSettingsKey,
                 new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
 
-            await page.ReloadAsync(new() { WaitUntil = Microsoft.Playwright.WaitUntilState.Load });
+            await BrowserRouteDriver.ReloadPageAsync(
+                page,
+                BrowserTestConstants.Routes.GoLiveDemo,
+                UiTestIds.GoLive.Page,
+                "go-live-destination-persistence-reload");
 
             await Expect(page.GetByTestId(UiTestIds.GoLive.VdoToggle))
                 .ToHaveAttributeAsync(BrowserTestConstants.State.EnabledAttribute, BrowserTestConstants.State.EnabledValue);

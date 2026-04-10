@@ -14,7 +14,9 @@ public sealed class SettingsCrossTabSyncTests(StandaloneAppFixture fixture)
     {
         UiScenarioArtifacts.ResetScenario(BrowserTestConstants.SettingsFlow.CrossTabThemeScenario);
 
-        var pages = await _fixture.NewSharedPagesAsync(BrowserTestConstants.SettingsFlow.SharedContextPageCount);
+        var pages = await _fixture.NewSharedPagesAsync(
+            BrowserTestConstants.SettingsFlow.SharedContextPageCount,
+            nameof(SettingsAppearance_PropagatesThemeChangesAcrossTabsInSharedContext));
         var primaryPage = pages[0];
         var secondaryPage = pages[1];
 

@@ -93,8 +93,11 @@ public sealed class OnboardingFlowTests(StandaloneAppFixture fixture) : AppUiTes
 
             await ShellRouteDriver.OpenSettingsAsync(page);
             await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Settings.NavAbout));
+            await Expect(page.GetByTestId(UiTestIds.Settings.AboutPanel)).ToBeVisibleAsync();
 
-            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Settings.AboutOnboardingRestart));
+            await UiInteractionDriver.ClickAndContinueAsync(
+                page.GetByTestId(UiTestIds.Settings.AboutOnboardingRestart),
+                noWaitAfter: true);
             await BrowserRouteDriver.WaitForRouteAsync(page, BrowserTestConstants.Routes.LibraryWithOnboarding);
 
             await Expect(page.GetByTestId(UiTestIds.Onboarding.Surface)).ToBeVisibleAsync();

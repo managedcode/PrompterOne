@@ -179,6 +179,7 @@ Browser test execution rules:
 - GitHub Actions pipelines must expose explicit staged jobs with readable names such as restore, build, supporting tests, browser tests, release publish, and deploy; vague single-job `validate` graphs are not acceptable when the user needs to see pipeline phases clearly in the Actions UI.
 - When monitoring long-running GitHub Actions jobs from the terminal, poll with coarse waits of roughly `3-5` minutes between checks; frequent short-interval polling is noise and does not help on multi-minute browser suites.
 - Browser acceptance tests must stay on the production-shaped runtime path; do not add or keep `?wasm-debug=1` or similar debug-query scenarios in automated acceptance coverage unless the user explicitly asks for that path.
+- Browser acceptance tests must be isolation-safe under in-suite parallelism: each scenario must create and own its own script, storage, and browser context state instead of mutating shared documents, shared pages, or leftover browser storage from another test.
 - Do not add Python or ad-hoc runner scripts to bootstrap browser verification. The repo test commands must self-host the app and execute the flows end to end on their own.
 - Browser UI scenarios are the primary acceptance gate for this repo. Component and core tests are supporting layers, not the release bar.
 - Major user flows MUST be covered by long Playwright scenarios that execute real browser interactions end to end.

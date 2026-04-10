@@ -102,7 +102,9 @@ public sealed class GoLiveShellSessionFlowTests(StandaloneAppFixture fixture)
     [Test]
     public async Task GoLivePage_GenericActiveSession_WidgetReturnsToPlainGoLiveRoute_WithoutInjectingEditorScriptId()
     {
-        var pages = await _fixture.NewSharedPagesAsync(BrowserTestConstants.GoLive.SharedContextPageCount);
+        var pages = await _fixture.NewSharedPagesAsync(
+            BrowserTestConstants.GoLive.SharedContextPageCount,
+            nameof(GoLivePage_GenericActiveSession_WidgetReturnsToPlainGoLiveRoute_WithoutInjectingEditorScriptId));
         var primaryPage = pages[0];
         var secondaryPage = pages[1];
 
@@ -142,7 +144,9 @@ public sealed class GoLiveShellSessionFlowTests(StandaloneAppFixture fixture)
     {
         UiScenarioArtifacts.ResetScenario(BrowserTestConstants.GoLive.CrossTabIndicatorScenario);
 
-        var pages = await _fixture.NewSharedPagesAsync(BrowserTestConstants.GoLive.SharedContextPageCount);
+        var pages = await _fixture.NewSharedPagesAsync(
+            BrowserTestConstants.GoLive.SharedContextPageCount,
+            nameof(GoLivePage_RecordingState_PropagatesAcrossSharedTabsAndReturnsToIdleAfterStop));
         var primaryPage = pages[0];
         var secondaryPage = pages[1];
 
