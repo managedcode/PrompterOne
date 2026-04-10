@@ -117,6 +117,7 @@
         <SettingsExpandableCard Title="@ResourcesCardTitle"
                                 Subtitle="@ResourcesCardSubtitle"
                                 IconTone="UiIconSurfaceTone.Sky"
+                                TestId="@UiTestIds.Settings.AboutResourcesCard"
                                 IsOpen="@IsCardOpen(ResourcesCardId)"
                                 OnToggle="@(() => ToggleCard.InvokeAsync(ResourcesCardId))">
             <UiIcon Kind="UiIconKind.HelpCircle" Size="17" />

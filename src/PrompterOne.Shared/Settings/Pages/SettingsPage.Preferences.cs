@@ -13,18 +13,7 @@ public partial class SettingsPage
     private const string OnCssClass = "on";
     private const string SetToggleCssClass = "set-toggle";
 
-    private readonly HashSet<string> _openCards = new(StringComparer.Ordinal)
-    {
-        "cloud-onedrive",
-        "files-scripts",
-        "recording-general",
-        "ai-claude-api",
-        "appearance-theme",
-        "language-preferences",
-        "about-onboarding",
-        "about-app",
-        "about-team"
-    };
+    private readonly HashSet<string> _openCards = new(StringComparer.Ordinal);
 
     private SettingsPagePreferences _pagePreferences = SettingsPagePreferences.Default;
 

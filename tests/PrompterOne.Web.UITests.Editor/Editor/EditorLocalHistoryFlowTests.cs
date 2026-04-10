@@ -82,6 +82,7 @@ public sealed class EditorLocalHistoryFlowTests(StandaloneAppFixture fixture)
             await ShellRouteDriver.OpenSettingsAsync(page, "editor-local-history-settings-disable");
             await page.GetByTestId(UiTestIds.Settings.NavFiles).ClickAsync();
             await Expect(page.GetByTestId(UiTestIds.Settings.FilesPanel)).ToBeVisibleAsync();
+            await SettingsCardDriver.EnsureExpandedAsync(page, UiTestIds.Settings.FilesScriptsCard);
             await page.GetByTestId(UiTestIds.Settings.FileAutoSave).ClickAsync();
             await Expect(page.GetByTestId(UiTestIds.Settings.FileAutoSave))
                 .ToHaveAttributeAsync(BrowserTestConstants.State.EnabledAttribute, BrowserTestConstants.State.DisabledValue);
@@ -110,6 +111,7 @@ public sealed class EditorLocalHistoryFlowTests(StandaloneAppFixture fixture)
 
             await ShellRouteDriver.OpenSettingsAsync(page, "editor-local-history-settings-enable");
             await page.GetByTestId(UiTestIds.Settings.NavFiles).ClickAsync();
+            await SettingsCardDriver.EnsureExpandedAsync(page, UiTestIds.Settings.FilesScriptsCard);
             await page.GetByTestId(UiTestIds.Settings.FileAutoSave).ClickAsync();
             await Expect(page.GetByTestId(UiTestIds.Settings.FileAutoSave))
                 .ToHaveAttributeAsync(BrowserTestConstants.State.EnabledAttribute, BrowserTestConstants.State.EnabledValue);

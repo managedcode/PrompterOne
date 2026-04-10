@@ -18,7 +18,7 @@ namespace PrompterOne.Web.Tests;
 
 public sealed class SettingsInteractionTests : BunitContext
 {
-    private const string ExpandedStateOpenValue = "open";
+    private const string ExpandedStateClosedValue = "closed";
     private const string FakeEngineerName = "Anna Petrenko";
     private const string FakeFounderName = "Mykola Kovalenko";
     private const string FakeInfrastructureName = "Dmytro Shevchenko";
@@ -122,7 +122,7 @@ public sealed class SettingsInteractionTests : BunitContext
     }
 
     [Test]
-    public void CloudSection_LoadsPrimaryProviderCard_AsOpen()
+    public void CloudSection_LoadsPrimaryProviderCard_CollapsedByDefault()
     {
         var preferences = CloudStoragePreferences.CreateDefault();
         preferences.PrimaryProviderId = CloudStorageProviderIds.Dropbox;
@@ -133,7 +133,7 @@ public sealed class SettingsInteractionTests : BunitContext
         cut.WaitForAssertion(() =>
         {
             var dropboxCard = cut.FindByTestId(UiTestIds.Settings.CloudProviderCard(CloudStorageProviderIds.Dropbox));
-            Assert.Equal(ExpandedStateOpenValue, dropboxCard.GetAttribute("data-expanded"));
+            Assert.Equal(ExpandedStateClosedValue, dropboxCard.GetAttribute("data-expanded"));
         });
     }
 
@@ -313,6 +313,38 @@ public sealed class SettingsInteractionTests : BunitContext
             Assert.Equal(
                 $"Self-hosted · {OllamaConfiguredAuthority} · {OllamaConfiguredModel}",
                 cut.FindByTestId(UiTestIds.Settings.AiProviderSubtitle(SettingsAiProviderIds.Ollama)).TextContent.Trim());
+        });
+    }
+
+    [Test]
+    public void AiSection_LoadsProviderCardsCollapsedByDefault()
+    {
+        _harness.JsRuntime.SavedValues[AiProviderSettings.StorageKey] = new AiProviderSettings
+        {
+            ClaudeApi = new AnthropicAiProviderSettings
+            {
+                ApiKey = "sk-ant-configured",
+                Model = string.Empty,
+                Models =
+                [
+                    AiProviderModelSettings.Create(
+                        ClaudeConfiguredModel,
+                        AiProviderModelTypes.Text,
+                        AiProviderModelCatalogDefaults.AnthropicContextSize)
+                ]
+            }
+        };
+
+        var cut = Render<SettingsPage>();
+
+        cut.WaitForAssertion(() => Assert.Contains(UiTestIds.Settings.AiPanel, cut.Markup, StringComparison.Ordinal));
+
+        cut.FindByTestId(UiTestIds.Settings.NavAi).Click();
+
+        cut.WaitForAssertion(() =>
+        {
+            var claudeCard = cut.FindByTestId(UiTestIds.Settings.AiProvider(SettingsAiProviderIds.ClaudeApi));
+            Assert.Equal(ExpandedStateClosedValue, claudeCard.GetAttribute("data-expanded"));
         });
     }
 

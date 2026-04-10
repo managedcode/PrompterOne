@@ -107,12 +107,14 @@ public sealed class TeleprompterSettingsFlowTests(StandaloneAppFixture fixture) 
         await Expect(page.GetByTestId(UiTestIds.Settings.CloudPanel)).ToBeVisibleAsync();
         await page.GetByTestId(UiTestIds.Settings.NavFiles).ClickAsync();
         await Expect(page.GetByTestId(UiTestIds.Settings.FilesPanel)).ToBeVisibleAsync();
+        await SettingsCardDriver.EnsureExpandedAsync(page, UiTestIds.Settings.FilesScriptsCard);
         await page.GetByTestId(UiTestIds.Settings.FileAutoSave).ClickAsync();
         await Expect(page.GetByTestId(UiTestIds.Settings.FileAutoSave)).ToHaveAttributeAsync(
             BrowserTestConstants.State.EnabledAttribute,
             BrowserTestConstants.State.DisabledValue);
         await page.GetByTestId(UiTestIds.Settings.NavRecording).ClickAsync();
         await Expect(page.GetByTestId(UiTestIds.Settings.RecordingPanel)).ToBeVisibleAsync();
+        await SettingsCardDriver.EnsureExpandedAsync(page, UiTestIds.Settings.RecordingGeneralCard);
         await Expect(page.GetByTestId(UiTestIds.Settings.RecordingAutoRecord)).ToBeVisibleAsync();
 
         var readerCameraWasOn = await VerifyCameraSettingsAsync(page);
@@ -195,6 +197,7 @@ public sealed class TeleprompterSettingsFlowTests(StandaloneAppFixture fixture) 
 
         await page.GetByTestId(UiTestIds.Settings.NavAppearance).ClickAsync();
         await Expect(page.GetByTestId(UiTestIds.Settings.AppearancePanel)).ToBeVisibleAsync();
+        await SettingsCardDriver.EnsureExpandedAsync(page, UiTestIds.Settings.AppearanceThemeCard);
         await page.GetByTestId(UiTestIds.Settings.ThemeOption(BrowserTestConstants.SettingsFlow.LightTheme)).ClickAsync();
         await Expect(page.Locator("html")).ToHaveAttributeAsync(
             BrowserTestConstants.SettingsFlow.HtmlThemeAttribute,
@@ -214,6 +217,9 @@ public sealed class TeleprompterSettingsFlowTests(StandaloneAppFixture fixture) 
 
         await page.GetByTestId(UiTestIds.Settings.NavAbout).ClickAsync();
         await Expect(page.GetByTestId(UiTestIds.Settings.AboutPanel)).ToBeVisibleAsync();
+        await SettingsCardDriver.EnsureExpandedAsync(page, UiTestIds.Settings.AboutAppCard);
+        await SettingsCardDriver.EnsureExpandedAsync(page, UiTestIds.Settings.AboutCompanyCard);
+        await SettingsCardDriver.EnsureExpandedAsync(page, UiTestIds.Settings.AboutResourcesCard);
         await Expect(page.GetByTestId(UiTestIds.Settings.AboutAppCard)).ToBeVisibleAsync();
         await Expect(page.GetByTestId(UiTestIds.Settings.AboutCompanyCard)).ToBeVisibleAsync();
         await Expect(page.GetByTestId(UiTestIds.Settings.AboutVersion)).ToHaveTextAsync(BrowserTestConstants.Regexes.SettingsAboutVersion);

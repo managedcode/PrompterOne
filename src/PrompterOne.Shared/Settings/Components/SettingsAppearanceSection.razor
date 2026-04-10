@@ -18,6 +18,7 @@
         <SettingsExpandableCard Title="@Text(UiTextKey.SettingsAppearanceThemeTitle)"
                                 Subtitle="@ThemeSubtitle"
                                 IconTone="UiIconSurfaceTone.Gold"
+                                TestId="@UiTestIds.Settings.AppearanceThemeCard"
                                 IsOpen="@IsCardOpen(ThemeCardId)"
                                 OnToggle="@(() => ToggleCard.InvokeAsync(ThemeCardId))">
             <UiIcon Kind="UiIconKind.Theme" Size="17" />
@@ -63,6 +64,7 @@
         <SettingsExpandableCard Title="@Text(UiTextKey.SettingsAppearanceTeleprompterTitle)"
                                 Subtitle="@Text(UiTextKey.SettingsAppearanceTeleprompterSubtitle)"
                                 IconTone="UiIconSurfaceTone.Sky"
+                                TestId="@UiTestIds.Settings.AppearanceTeleprompterCard"
                                 IsOpen="@IsCardOpen(TeleprompterCardId)"
                                 OnToggle="@(() => ToggleCard.InvokeAsync(TeleprompterCardId))">
             <UiIcon Kind="UiIconKind.TextLines" Size="17" />
@@ -125,6 +127,7 @@
         <SettingsExpandableCard Title="@Text(UiTextKey.SettingsAppearanceInterfaceTitle)"
                                 Subtitle="@Text(UiTextKey.SettingsAppearanceInterfaceSubtitle)"
                                 IconTone="UiIconSurfaceTone.Violet"
+                                TestId="@UiTestIds.Settings.AppearanceInterfaceCard"
                                 IsOpen="@IsCardOpen(InterfaceCardId)"
                                 OnToggle="@(() => ToggleCard.InvokeAsync(InterfaceCardId))">
             <UiIcon Kind="UiIconKind.LayoutPanel" Size="17" />

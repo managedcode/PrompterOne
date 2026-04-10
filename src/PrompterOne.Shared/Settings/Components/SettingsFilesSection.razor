@@ -17,6 +17,7 @@
         <SettingsExpandableCard Title="@Text(UiTextKey.CommonScripts)"
                                 Subtitle="@_viewState.Scripts.Subtitle"
                                 IconTone="UiIconSurfaceTone.Gold"
+                                TestId="@UiTestIds.Settings.FilesScriptsCard"
                                 IsOpen="@IsCardOpen(ScriptsCardId)"
                                 OnToggle="@(() => ToggleCard.InvokeAsync(ScriptsCardId))">
             <UiIcon Kind="UiIconKind.DocumentLines" Size="17" />
@@ -56,6 +57,7 @@
         <SettingsExpandableCard Title="@Text(UiTextKey.CommonRecordings)"
                                 Subtitle="@_viewState.Recordings.Subtitle"
                                 IconTone="UiIconSurfaceTone.Red"
+                                TestId="@UiTestIds.Settings.FilesRecordingsCard"
                                 IsOpen="@IsCardOpen(RecordingsCardId)"
                                 OnToggle="@(() => ToggleCard.InvokeAsync(RecordingsCardId))">
             <UiIcon Kind="UiIconKind.RecordTarget" Size="17" />
@@ -81,6 +83,7 @@
         <SettingsExpandableCard Title="@Text(UiTextKey.CommonExports)"
                                 Subtitle="@_viewState.Exports.Subtitle"
                                 IconTone="UiIconSurfaceTone.Indigo"
+                                TestId="@UiTestIds.Settings.FilesExportsCard"
                                 IsOpen="@IsCardOpen(ExportsCardId)"
                                 OnToggle="@(() => ToggleCard.InvokeAsync(ExportsCardId))">
             <UiIcon Kind="UiIconKind.ExportArrow" Size="17" />

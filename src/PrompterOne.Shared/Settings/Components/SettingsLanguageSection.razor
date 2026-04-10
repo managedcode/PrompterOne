@@ -18,6 +18,7 @@
         <SettingsExpandableCard Title="@Text(UiTextKey.SettingsAppearanceLanguageLabel)"
                                 Subtitle="@SelectedLanguageLabel"
                                 IconTone="UiIconSurfaceTone.Gold"
+                                TestId="@UiTestIds.Settings.LanguagePreferencesCard"
                                 IsOpen="@IsCardOpen(LanguageCardId)"
                                 OnToggle="@(() => ToggleCard.InvokeAsync(LanguageCardId))">
             <UiIcon Kind="UiIconKind.Message" Size="17" />

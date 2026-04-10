@@ -64,7 +64,6 @@ public partial class SettingsCloudSection : ComponentBase
         }
 
         await LoadStateAsync();
-        await EnsureProviderCardOpenAsync(_preferences.PrimaryProviderId);
         await InvokeAsync(StateHasChanged);
     }
 

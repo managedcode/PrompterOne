@@ -54,6 +54,8 @@
 - Editor gutter line numbers must read as editor chrome, not as part of the script content; their color and emphasis must stay clearly separated from source text.
 - Editor wrap/format commands must not partially capture TPS tag syntax or create accidental nested wrappers by spanning across existing tag boundaries; if the selection touches tag markup, normalize or reject it instead of producing broken mixed-tag output.
 - File-creating editor actions such as document split must show explicit in-app feedback about what was created and where to find it; silent success states behind generic buttons are not user-friendly enough.
+- Settings panels and provider cards in `PrompterOne.Shared` must render collapsed by default on first open; do not auto-expand AI, cloud, appearance, about, or similar settings cards unless the user explicitly opens them or a task-specific interaction requires it after load.
+- Desktop settings layout in `PrompterOne.Shared` must use the available main content width instead of constraining routed sections to a narrow centered column with a mid-screen scrollbar; settings forms should expand across the settings workspace unless a specific sub-surface documents a narrower contract.
 
 ## Project-Local Commands
 

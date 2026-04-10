@@ -61,6 +61,7 @@ public sealed class EditorDatePickerThemeTests(StandaloneAppFixture fixture) : A
         await ShellRouteDriver.OpenSettingsAsync(page, "editor-date-picker-settings");
         await page.GetByTestId(UiTestIds.Settings.NavAppearance).ClickAsync();
         await Expect(page.GetByTestId(UiTestIds.Settings.AppearancePanel)).ToBeVisibleAsync();
+        await SettingsCardDriver.EnsureExpandedAsync(page, UiTestIds.Settings.AppearanceThemeCard);
         await page.GetByTestId(UiTestIds.Settings.ThemeOption(theme)).ClickAsync();
         await Expect(page.Locator("html")).ToHaveAttributeAsync(
             BrowserTestConstants.SettingsFlow.HtmlThemeAttribute,

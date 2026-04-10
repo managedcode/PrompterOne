@@ -26,6 +26,7 @@ public sealed class EditorThemeFlowTests(StandaloneAppFixture fixture) : AppUiTe
 
                 await page.GetByTestId(UiTestIds.Settings.NavAppearance).ClickAsync();
                 await Expect(page.GetByTestId(UiTestIds.Settings.AppearancePanel)).ToBeVisibleAsync();
+                await SettingsCardDriver.EnsureExpandedAsync(page, UiTestIds.Settings.AppearanceThemeCard);
                 await page.GetByTestId(UiTestIds.Settings.ThemeOption(BrowserTestConstants.SettingsFlow.LightTheme)).ClickAsync();
                 await Expect(page.Locator("html")).ToHaveAttributeAsync(
                     BrowserTestConstants.SettingsFlow.HtmlThemeAttribute,

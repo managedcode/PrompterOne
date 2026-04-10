@@ -16,6 +16,7 @@
         <SettingsExpandableCard Title="@Text(UiTextKey.SettingsRecordingGeneralTitle)"
                                 Subtitle="@Text(UiTextKey.SettingsRecordingGeneralSubtitle)"
                                 IconTone="UiIconSurfaceTone.Gold"
+                                TestId="@UiTestIds.Settings.RecordingGeneralCard"
                                 IsOpen="@IsCardOpen(GeneralCardId)"
                                 OnToggle="@(() => ToggleCard.InvokeAsync(GeneralCardId))">
             <UiIcon Kind="UiIconKind.Folder" Size="17" />
@@ -57,6 +58,7 @@
         <SettingsExpandableCard Title="@Text(UiTextKey.CommonVideo)"
                                 Subtitle="@Format(UiTextKey.SettingsRecordingVideoSubtitleFormat, RecordingVideoCodec, RecordingVideoResolution, RecordingVideoFrameRate, RecordingVideoBitrateKbps)"
                                 IconTone="UiIconSurfaceTone.Sky"
+                                TestId="@UiTestIds.Settings.RecordingVideoCard"
                                 IsOpen="@IsCardOpen(VideoCardId)"
                                 OnToggle="@(() => ToggleCard.InvokeAsync(VideoCardId))">
             <UiIcon Kind="UiIconKind.Camera" Size="17" />
@@ -101,6 +103,7 @@
         <SettingsExpandableCard Title="@Text(UiTextKey.CommonAudio)"
                                 Subtitle="@Format(UiTextKey.SettingsRecordingAudioSubtitleFormat, RecordingAudioCodec, RecordingAudioSampleRate, RecordingAudioBitrateKbps, RecordingAudioChannels)"
                                 IconTone="UiIconSurfaceTone.Emerald"
+                                TestId="@UiTestIds.Settings.RecordingAudioCard"
                                 IsOpen="@IsCardOpen(AudioCardId)"
                                 OnToggle="@(() => ToggleCard.InvokeAsync(AudioCardId))">
             <UiIcon Kind="UiIconKind.AudioNotes" Size="17" />

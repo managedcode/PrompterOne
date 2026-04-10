@@ -116,6 +116,7 @@ public sealed class OnboardingFlowTests(StandaloneAppFixture fixture) : AppUiTes
             await ShellRouteDriver.OpenSettingsAsync(page);
             await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Settings.NavAbout));
             await Expect(page.GetByTestId(UiTestIds.Settings.AboutPanel)).ToBeVisibleAsync();
+            await SettingsCardDriver.EnsureExpandedAsync(page, UiTestIds.Settings.AboutOnboardingCard);
 
             await UiInteractionDriver.ClickAndContinueAsync(
                 page.GetByTestId(UiTestIds.Settings.AboutOnboardingRestart),

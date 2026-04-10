@@ -55,5 +55,6 @@ public sealed class SettingsCrossTabSyncTests(StandaloneAppFixture fixture)
         await page.GetByTestId(UiTestIds.Settings.NavAppearance).ClickAsync();
         await Expect(page.GetByTestId(UiTestIds.Settings.AppearancePanel)).ToBeVisibleAsync(
             new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
+        await SettingsCardDriver.EnsureExpandedAsync(page, UiTestIds.Settings.AppearanceThemeCard);
     }
 }

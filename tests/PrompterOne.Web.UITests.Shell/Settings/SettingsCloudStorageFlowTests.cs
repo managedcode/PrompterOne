@@ -25,6 +25,9 @@ public sealed class SettingsCloudStorageFlowTests(StandaloneAppFixture fixture) 
                 page,
                 UiTestIds.Settings.CloudDefaultProvider,
                 CloudStorageProviderIds.Dropbox);
+            await SettingsCardDriver.EnsureExpandedAsync(
+                page,
+                UiTestIds.Settings.CloudProviderCard(CloudStorageProviderIds.Dropbox));
             await Expect(page.GetByTestId(UiTestIds.Settings.CloudAutoSyncOnSave))
                 .ToHaveAttributeAsync(
                     BrowserTestConstants.State.EnabledAttribute,
@@ -51,6 +54,9 @@ public sealed class SettingsCloudStorageFlowTests(StandaloneAppFixture fixture) 
             await ShellRouteDriver.WaitForSettingsReadyAsync(page);
             await Expect(page.GetByTestId(UiTestIds.Settings.CloudDefaultProvider))
                 .ToHaveAttributeAsync(BrowserTestConstants.Html.ValueAttribute, CloudStorageProviderIds.Dropbox);
+            await SettingsCardDriver.EnsureExpandedAsync(
+                page,
+                UiTestIds.Settings.CloudProviderCard(CloudStorageProviderIds.Dropbox));
             await Expect(page.GetByTestId(UiTestIds.Settings.CloudProviderSubtitle(CloudStorageProviderIds.Dropbox)))
                 .ToHaveTextAsync(BrowserTestConstants.SettingsFlow.DropboxLabel);
             await Expect(page.GetByTestId(UiTestIds.Settings.CloudAutoSyncOnSave))
@@ -74,6 +80,7 @@ public sealed class SettingsCloudStorageFlowTests(StandaloneAppFixture fixture) 
 
             await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Settings.NavAppearance));
             await Expect(page.GetByTestId(UiTestIds.Settings.AppearancePanel)).ToBeVisibleAsync();
+            await SettingsCardDriver.EnsureExpandedAsync(page, UiTestIds.Settings.AppearanceThemeCard);
             await UiInteractionDriver.ClickAndContinueAsync(
                 page.GetByTestId(UiTestIds.Settings.ThemeOption(BrowserTestConstants.SettingsFlow.LightTheme)));
             await Expect(page.Locator("html")).ToHaveAttributeAsync(
@@ -93,6 +100,7 @@ public sealed class SettingsCloudStorageFlowTests(StandaloneAppFixture fixture) 
             var oneDriveSubtitle = page.GetByTestId(UiTestIds.Settings.CloudProviderSubtitle(CloudStorageProviderIds.OneDrive));
 
             await Expect(oneDriveCard).ToBeVisibleAsync();
+            await SettingsCardDriver.EnsureExpandedAsync(oneDriveCard);
             await Expect(defaultProvider).ToBeVisibleAsync();
             await Expect(accountLabelField).ToBeVisibleAsync();
             await Expect(oneDriveSubtitle).ToBeVisibleAsync();

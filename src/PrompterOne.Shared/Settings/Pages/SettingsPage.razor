@@ -24,8 +24,8 @@
 @inject IScriptSessionService SessionService
 
 <div id="screen-settings" class="screen active" data-test="@UiTestIds.Settings.Page">
-    <div class="set-layout">
-        <div class="set-sidebar">
+    <div class="set-layout" data-test="@UiTestIds.Settings.Layout">
+        <div class="set-sidebar" data-test="@UiTestIds.Settings.Sidebar">
             <div class="set-back-row">
                 <h2 class="set-title" data-test="@UiTestIds.Settings.Title">@Text(UiTextKey.SettingsTitle)</h2>
             </div>
@@ -34,7 +34,7 @@
                                        OnSelect="ShowSection" />
         </div>
 
-        <div class="set-main">
+        <div class="set-main" data-test="@UiTestIds.Settings.Main">
             <SettingsCloudSection DisplayStyle="@GetSectionDisplayStyle(SettingsSection.Cloud)"
                                   IsCardOpen="IsCardOpen"
                                   SettingsImported="ReloadPreferencesAsync"

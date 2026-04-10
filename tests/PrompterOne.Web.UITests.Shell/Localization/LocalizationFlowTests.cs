@@ -37,6 +37,7 @@ public sealed class LocalizationFlowTests(StandaloneAppFixture fixture)
         {
             await ShellRouteDriver.OpenSettingsAsync(page);
             await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Settings.NavLanguage));
+            await SettingsCardDriver.EnsureExpandedAsync(page, UiTestIds.Settings.LanguagePreferencesCard);
             await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Settings.LanguageSelect));
             await UiInteractionDriver.ClickAndContinueAsync(
                 page.GetByTestId(UiTestIds.Settings.SelectOption(

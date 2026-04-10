@@ -128,6 +128,8 @@ internal static partial class BrowserTestConstants
     {
         public const string CrossTabThemeScenario = "settings-cross-tab-theme-sync";
         public const string CrossTabThemeSyncedStep = "01-light-theme-synced";
+        public const string DesktopLayoutScenario = "settings-desktop-layout";
+        public const string DesktopLayoutStep = "01-full-width-main-panel";
         public const string DarkTheme = "dark";
         public const int SharedContextPageCount = 2;
         public const string HtmlThemeAttribute = "data-theme";
@@ -147,6 +149,8 @@ internal static partial class BrowserTestConstants
         public const double NavItemLayoutTolerancePx = 0.5;
         public const double MinimumLightSurfaceChannel = 220;
         public const double MinimumLightFieldChannel = 230;
+        public const double MinimumDesktopPanelToMainWidthRatio = 0.82;
+        public const double MaximumDesktopPanelSideGapPx = 64;
         public const double MaximumReadableTextChannel = 140;
         public const double MaximumReadableSecondaryTextChannel = 160;
         public const string MicLevelInputScript =
