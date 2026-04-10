@@ -25,15 +25,10 @@ public sealed class EditorLightThemeSurfaceTests(StandaloneAppFixture fixture) :
             UiScenarioArtifacts.ResetScenario(ScenarioName);
 
             await SwitchThemeAsync(page);
-            await page.GotoAsync(
-                BrowserTestConstants.Routes.EditorDemo,
-                new() { WaitUntil = WaitUntilState.DOMContentLoaded });
-            await Expect(page.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync(
-                new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
+            await EditorRouteDriver.OpenReadyAsync(page, BrowserTestConstants.Routes.EditorDemo, "editor-light-theme-editor");
             await Expect(page.Locator("html")).ToHaveAttributeAsync(
                 BrowserTestConstants.SettingsFlow.HtmlThemeAttribute,
                 BrowserTestConstants.SettingsFlow.LightTheme);
-            await EditorMonacoDriver.WaitUntilReadyAsync(page);
 
             var toolbar = page.GetByTestId(UiTestIds.Editor.Toolbar);
             var metadata = page.GetByTestId(UiTestIds.Editor.MetadataRail);
@@ -68,11 +63,7 @@ public sealed class EditorLightThemeSurfaceTests(StandaloneAppFixture fixture) :
 
     private static async Task SwitchThemeAsync(IPage page)
     {
-        await page.GotoAsync(
-            BrowserTestConstants.Routes.Settings,
-            new() { WaitUntil = WaitUntilState.DOMContentLoaded });
-        await Expect(page.GetByTestId(UiTestIds.Settings.Page)).ToBeVisibleAsync(
-            new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
+        await ShellRouteDriver.OpenSettingsAsync(page, "editor-light-theme-settings");
         await page.GetByTestId(UiTestIds.Settings.NavAppearance).ClickAsync();
         await Expect(page.GetByTestId(UiTestIds.Settings.AppearancePanel)).ToBeVisibleAsync();
         await page.GetByTestId(UiTestIds.Settings.ThemeOption(BrowserTestConstants.SettingsFlow.LightTheme)).ClickAsync();

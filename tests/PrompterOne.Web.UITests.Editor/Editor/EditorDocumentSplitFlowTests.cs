@@ -53,7 +53,9 @@ public sealed class EditorDocumentSplitFlowTests(StandaloneAppFixture fixture) :
             await Expect(EditorMonacoDriver.SourceInput(page)).ToHaveValueAsync(EditorSplitFeedbackTestData.SplitSource);
             await Assert.That(new Uri(page.Url).AbsolutePath).IsEqualTo(AppRoutes.Editor);
 
-            await page.GetByTestId(UiTestIds.Editor.SplitResultOpenLibrary).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(
+                page.GetByTestId(UiTestIds.Editor.SplitResultOpenLibrary),
+                noWaitAfter: true);
             await ShellRouteDriver.WaitForLibraryReadyAsync(page);
             await page.GetByTestId(UiTestIds.Library.FolderAll).ClickAsync();
 
@@ -92,7 +94,9 @@ public sealed class EditorDocumentSplitFlowTests(StandaloneAppFixture fixture) :
             await Expect(EditorMonacoDriver.SourceInput(page)).ToHaveValueAsync(EditorSplitFeedbackTestData.SplitBySpeakerSource);
             await Assert.That(new Uri(page.Url).AbsolutePath).IsEqualTo(AppRoutes.Editor);
 
-            await page.GetByTestId(UiTestIds.Editor.SplitResultOpenLibrary).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(
+                page.GetByTestId(UiTestIds.Editor.SplitResultOpenLibrary),
+                noWaitAfter: true);
             await ShellRouteDriver.WaitForLibraryReadyAsync(page);
             await page.GetByTestId(UiTestIds.Library.FolderAll).ClickAsync();
 

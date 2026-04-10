@@ -51,6 +51,9 @@ public sealed class ReaderPlaybackTimingTests(StandaloneAppFixture fixture)
             await Assert.That(samples.Select(sample => sample.Word).ToArray()).IsEquivalentTo(BrowserTestConstants.ReaderTiming.ExpectedWords, CollectionOrdering.Matching);
             await Assert.That(samples.Select(sample => sample.EffectiveWpm).ToArray()).IsEquivalentTo(TeleprompterEffectiveWpmSequence, CollectionOrdering.Matching);
 
+            var timingTolerance = BrowserTestConstants.ReaderTiming.TeleprompterTimingToleranceMs
+                                  + BrowserTestConstants.ReaderTiming.CapturePollIntervalMs;
+
             for (var sampleIndex = 1; sampleIndex < samples.Length; sampleIndex++)
             {
                 var previousSample = samples[sampleIndex - 1];
@@ -58,7 +61,8 @@ public sealed class ReaderPlaybackTimingTests(StandaloneAppFixture fixture)
                 var observedDelay = currentSample.AtMs - previousSample.AtMs;
                 var expectedDelay = previousSample.DurationMs + previousSample.PauseMs;
 
-                await Assert.That(observedDelay).IsBetween(expectedDelay - BrowserTestConstants.ReaderTiming.TeleprompterTimingToleranceMs, expectedDelay + BrowserTestConstants.ReaderTiming.TeleprompterTimingToleranceMs);
+                await Assert.That(observedDelay)
+                    .IsBetween(expectedDelay - timingTolerance, expectedDelay + timingTolerance);
             }
         });
 

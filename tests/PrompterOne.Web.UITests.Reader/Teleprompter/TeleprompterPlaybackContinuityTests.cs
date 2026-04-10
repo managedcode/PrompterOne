@@ -78,19 +78,19 @@ public sealed class TeleprompterPlaybackContinuityTests(StandaloneAppFixture fix
             await page.GetByTestId(UiTestIds.Teleprompter.NextBlock).ClickAsync();
             await Expect(page.GetByTestId(UiTestIds.Teleprompter.BlockIndicator))
                 .ToHaveTextAsync(BrowserTestConstants.Regexes.ReaderSecondBlockIndicator);
-            await page.WaitForTimeoutAsync(BrowserTestConstants.Timing.ReaderTransitionSettleDelayMs);
 
             var outgoingCard = page.GetByTestId(UiTestIds.Teleprompter.Card(1));
             var returningCard = page.GetByTestId(UiTestIds.Teleprompter.Card(0));
             await Expect(outgoingCard).ToBeVisibleAsync();
-
-            var samples = new List<ReaderTransitionSample>
-            {
-                await CaptureReaderTransitionSampleAsync(outgoingCard, returningCard)
-            };
+            await Expect(outgoingCard)
+                .ToHaveAttributeAsync(UiDataAttributes.Teleprompter.CardState, UiDataAttributes.Teleprompter.ActiveState);
+            await Expect(returningCard)
+                .ToHaveAttributeAsync(UiDataAttributes.Teleprompter.CardState, UiDataAttributes.Teleprompter.PreviousState);
+            await WaitForStableCardPositionAsync(returningCard);
 
             await page.GetByTestId(UiTestIds.Teleprompter.PreviousBlock).ClickAsync();
 
+            var samples = new List<ReaderTransitionSample>();
             for (var sampleIndex = 0; sampleIndex < BrowserTestConstants.Teleprompter.TransitionProbeSampleCount; sampleIndex++)
             {
                 await page.WaitForTimeoutAsync(BrowserTestConstants.Teleprompter.TransitionProbeIntervalMs);
@@ -101,6 +101,8 @@ public sealed class TeleprompterPlaybackContinuityTests(StandaloneAppFixture fix
             // so its fixed-index DOM position can jump between layout states on slower CI runners.
             // The user-visible contract is that the previous block returns from above and becomes active again.
             await AssertMovesDownWithoutReversal(samples.Select(sample => sample.IncomingTop).ToArray(), "Returning previous block");
+            await Expect(returningCard)
+                .ToHaveAttributeAsync(UiDataAttributes.Teleprompter.CardState, UiDataAttributes.Teleprompter.ActiveState);
             await Expect(page.GetByTestId(UiTestIds.Teleprompter.BlockIndicator))
                 .ToHaveTextAsync(BrowserTestConstants.Regexes.ReaderFirstBlockIndicator);
         });
@@ -151,6 +153,23 @@ public sealed class TeleprompterPlaybackContinuityTests(StandaloneAppFixture fix
     private static Task<double> GetElementTopAsync(ILocator locator) =>
         locator.EvaluateAsync<double>("element => element.getBoundingClientRect().top");
 
+    private static async Task WaitForStableCardPositionAsync(ILocator locator)
+    {
+        var previousTop = await GetElementTopAsync(locator);
+
+        for (var attempt = 0; attempt < BrowserTestConstants.Teleprompter.TransitionProbeSampleCount; attempt++)
+        {
+            await Task.Delay(BrowserTestConstants.Teleprompter.TransitionProbeIntervalMs);
+            var currentTop = await GetElementTopAsync(locator);
+            if (Math.Abs(currentTop - previousTop) <= BrowserTestConstants.Teleprompter.TransitionReversalTolerancePx)
+            {
+                return;
+            }
+
+            previousTop = currentTop;
+        }
+    }
+
     private static async Task AssertMovesUpWithoutReversal(IReadOnlyList<double> positions, string label)
     {
         await Assert.That(positions).IsNotEmpty();
@@ -169,11 +188,20 @@ public sealed class TeleprompterPlaybackContinuityTests(StandaloneAppFixture fix
     {
         await Assert.That(positions).IsNotEmpty();
 
-        var maximumPosition = positions.Max();
-        var totalTravel = maximumPosition - positions[0];
+        var minimumIndex = 0;
+        for (var index = 1; index < positions.Count; index++)
+        {
+            if (positions[index] < positions[minimumIndex])
+            {
+                minimumIndex = index;
+            }
+        }
+
+        var finalPosition = positions[^1];
+        var totalTravel = finalPosition - positions[minimumIndex];
         await Assert.That(totalTravel >= BrowserTestConstants.Teleprompter.TransitionMinimumTravelPx).IsTrue().Because($"{label} did not travel downward enough. Samples: {FormatPositions(positions)}");
 
-        for (var index = 1; index < positions.Count; index++)
+        for (var index = minimumIndex + 1; index < positions.Count; index++)
         {
             await Assert.That(positions[index] >= positions[index - 1] - BrowserTestConstants.Teleprompter.TransitionReversalTolerancePx).IsTrue().Because($"{label} moved back up. Samples: {FormatPositions(positions)}");
         }

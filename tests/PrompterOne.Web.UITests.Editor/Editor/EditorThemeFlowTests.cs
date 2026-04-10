@@ -22,11 +22,7 @@ public sealed class EditorThemeFlowTests(StandaloneAppFixture fixture) : AppUiTe
 
             try
             {
-                await page.GotoAsync(
-                    BrowserTestConstants.Routes.Settings,
-                    new() { WaitUntil = WaitUntilState.DOMContentLoaded });
-                await Expect(page.GetByTestId(UiTestIds.Settings.Page)).ToBeVisibleAsync(
-                    new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
+                await ShellRouteDriver.OpenSettingsAsync(page, "editor-theme-settings");
 
                 await page.GetByTestId(UiTestIds.Settings.NavAppearance).ClickAsync();
                 await Expect(page.GetByTestId(UiTestIds.Settings.AppearancePanel)).ToBeVisibleAsync();
@@ -35,12 +31,7 @@ public sealed class EditorThemeFlowTests(StandaloneAppFixture fixture) : AppUiTe
                     BrowserTestConstants.SettingsFlow.HtmlThemeAttribute,
                     BrowserTestConstants.SettingsFlow.LightTheme);
 
-                await page.GotoAsync(
-                    BrowserTestConstants.Routes.EditorDemo,
-                    new() { WaitUntil = WaitUntilState.DOMContentLoaded });
-                await Expect(page.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync(
-                    new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
-                await EditorMonacoDriver.WaitUntilReadyAsync(page);
+                await EditorRouteDriver.OpenReadyAsync(page, BrowserTestConstants.Routes.EditorDemo, "editor-theme-editor");
                 await Expect(page.Locator("html")).ToHaveAttributeAsync(
                     BrowserTestConstants.SettingsFlow.HtmlThemeAttribute,
                     BrowserTestConstants.SettingsFlow.LightTheme);

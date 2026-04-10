@@ -58,11 +58,7 @@ public sealed class EditorDatePickerThemeTests(StandaloneAppFixture fixture) : A
 
     private static async Task SwitchThemeAsync(IPage page, string theme)
     {
-        await page.GotoAsync(
-            BrowserTestConstants.Routes.Settings,
-            new() { WaitUntil = WaitUntilState.DOMContentLoaded });
-        await Expect(page.GetByTestId(UiTestIds.Settings.Page)).ToBeVisibleAsync(
-            new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
+        await ShellRouteDriver.OpenSettingsAsync(page, "editor-date-picker-settings");
         await page.GetByTestId(UiTestIds.Settings.NavAppearance).ClickAsync();
         await Expect(page.GetByTestId(UiTestIds.Settings.AppearancePanel)).ToBeVisibleAsync();
         await page.GetByTestId(UiTestIds.Settings.ThemeOption(theme)).ClickAsync();

@@ -105,7 +105,7 @@ internal static class EditorIsolatedDraftDriver
         }
 
         await titleInput.FillAsync(title);
-        await page.GetByTestId(UiTestIds.Editor.Author).ClickAsync();
+        await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Editor.Author));
         await Expect(titleInput).ToHaveValueAsync(title);
         await Expect(page.GetByTestId(UiTestIds.Header.Title)).ToHaveTextAsync(title);
     }

@@ -140,12 +140,7 @@ internal static class StudioRouteDriver
 
         await Expect(backControl).ToBeVisibleAsync();
         await Expect(backControl).ToHaveAttributeAsync("href", expectedBackRoute);
-        await backControl.ScrollIntoViewIfNeededAsync();
-        await backControl.ClickAsync(new()
-        {
-            Force = true,
-            Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs
-        });
+        await UiInteractionDriver.ClickAndContinueAsync(backControl, noWaitAfter: true);
 
         await WaitForGoLiveExitAsync(page);
         await waitForTargetAsync(page);

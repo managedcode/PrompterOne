@@ -238,6 +238,19 @@ Tracked failing tests from the current baseline:
   - switch `StandaloneAppFixture.NewPageAsync()` to isolated-by-default
   - add explicit `NewSharedPageAsync(...)` / explicit-key `NewSharedPagesAsync(...)` APIs for the few real shared-tab scenarios
   - evict and dispose shared contexts on any blank-page bootstrap failure before retrying
+- [x] `Release Pipeline` run `24233338921` fails remotely in `Reader`, `Editor`, and `Studio` after commit `6ec9d87`
+  Symptom:
+  - `Studio` route-heavy flows regress at `go-live-back` and related return paths even though first-route boot is already green
+  - `Reader` still flakes in timing-sensitive playback assertions and the reverse previous-block transition despite the broad route bootstrap fixes
+  - `Editor` still has route-changing action flows that pass locally in focused runs but fail under the full remote/browser load when they rely on raw navigation opens or brittle blur clicks
+  Root cause:
+  - some SPA route-changing controls still used raw Playwright clicks that waited for scheduled navigation instead of following the shared no-wait interaction contract
+  - the remaining reader timing assertion budget did not account for the sample-poll granularity, and one reverse-transition test still mixed a poisoned pre-click baseline into its motion proof
+  - a few editor scenarios still bypassed the shared route drivers or depended on a raw click outside the metadata rail to commit field changes
+  Fix path:
+  - move the remaining SPA route-changing interactions onto the shared `ClickAndContinueAsync(..., noWaitAfter: true)` path
+  - harden reader timing and reverse-transition assertions against poll jitter while keeping the user-visible behavior contract intact
+  - route editor open/theme/split/title flows through the shared route helpers and interaction driver so local and CI follow the same readiness path
 
 ## Ordered Plan
 
@@ -306,3 +319,11 @@ Tracked failing tests from the current baseline:
   - `dotnet format ./PrompterOne.slnx` passed
   - post-format `dotnet build ./PrompterOne.slnx -warnaserror` passed
   - post-format `dotnet test @./tests/dotnet-test-progress.rsp --solution ./PrompterOne.slnx --max-parallel-test-modules 1` passed with `1162/1162` green in `7m 38.648s`
+- [x] Follow-up remediation for remote run `24233338921`
+  Result:
+  - `dotnet format ./PrompterOne.slnx` passed
+  - `dotnet build ./PrompterOne.slnx -warnaserror` passed
+  - `dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.UITests.Editor/PrompterOne.Web.UITests.Editor.csproj` passed with `284/284`
+  - `dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.UITests.Reader/PrompterOne.Web.UITests.Reader.csproj` passed with `168/168`
+  - `dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.UITests.Studio/PrompterOne.Web.UITests.Studio.csproj` passed with `38/38`
+  - `dotnet test @./tests/dotnet-test-progress.rsp --solution ./PrompterOne.slnx --max-parallel-test-modules 1` passed with `1162/1162` green in `7m 44.199s`

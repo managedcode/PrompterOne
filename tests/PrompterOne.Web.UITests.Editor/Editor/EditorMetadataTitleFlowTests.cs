@@ -24,7 +24,7 @@ public sealed class EditorMetadataTitleFlowTests(StandaloneAppFixture fixture)
 
             await Expect(titleInput).ToHaveValueAsync(BrowserTestConstants.Scripts.ProductLaunchTitle);
             await titleInput.FillAsync(BrowserTestConstants.Editor.RetitledScript);
-            await authorInput.ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(authorInput);
 
             await Expect(page.GetByTestId(UiTestIds.Header.Title))
                 .ToHaveTextAsync(BrowserTestConstants.Editor.RetitledScript);
