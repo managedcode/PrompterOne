@@ -27,6 +27,7 @@
 - CSS-class selectors, style-driven selectors, and DOM-shape selectors are forbidden in browser assertions; add or reuse a dedicated `data-test` hook instead.
 - Browser-test JavaScript snippets must receive dedicated `data-test` ids from C# constants and resolve nodes from those contracts, never from raw style/class selectors.
 - Magic numbers in waits, delays, seeded values, and timeouts must be named constants.
+- For in-app SPA route transitions that already perform an explicit route-ready wait after the click, prefer `UiInteractionDriver.ClickAndContinueAsync(..., noWaitAfter: true)` over Playwright's default click auto-wait so CI does not hang on client-side-only transitions that never trigger a full navigation event.
 
 ## Project-Local Commands
 

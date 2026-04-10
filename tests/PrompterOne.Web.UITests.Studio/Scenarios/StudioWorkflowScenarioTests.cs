@@ -144,9 +144,10 @@ public sealed class StudioWorkflowScenarioTests(StandaloneAppFixture fixture)
     {
         await StudioRouteDriver.OpenLibraryAsync(page);
         await Expect(page.GetByTestId(UiTestIds.Library.Page)).ToBeVisibleAsync();
-        await page.GetByTestId(UiTestIds.Library.CardLearn(BrowserTestConstants.Scripts.QuantumId)).ClickAsync();
-        await BrowserRouteDriver.WaitForRouteAsync(page, BrowserTestConstants.Routes.LearnQuantum);
-        await Expect(page.GetByTestId(UiTestIds.Learn.Page)).ToBeVisibleAsync();
+        await UiInteractionDriver.ClickAndContinueAsync(
+            page.GetByTestId(UiTestIds.Library.CardLearn(BrowserTestConstants.Scripts.QuantumId)),
+            noWaitAfter: true);
+        await PlaybackRouteDriver.WaitForLearnReadyAsync(page, BrowserTestConstants.Routes.LearnQuantum);
         await UiScenarioArtifacts.CapturePageAsync(page, BrowserTestConstants.ReaderWorkflow.Name, BrowserTestConstants.ReaderWorkflow.LearnInitialStep);
     }
 
@@ -159,9 +160,10 @@ public sealed class StudioWorkflowScenarioTests(StandaloneAppFixture fixture)
 
     private static async Task OpenEmptyEditorDraftAsync(IPage page)
     {
-        await page.GetByTestId(UiTestIds.Header.LibraryNewScript).ClickAsync();
+        await UiInteractionDriver.ClickAndContinueAsync(
+            page.GetByTestId(UiTestIds.Header.LibraryNewScript),
+            noWaitAfter: true);
         await BrowserRouteDriver.WaitForRouteAsync(page, AppRoutes.Editor);
-        await Expect(page.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync();
         await EditorMonacoDriver.WaitUntilReadyAsync(page);
         await Expect(page.GetByTestId(UiTestIds.Editor.SourceInput)).ToHaveValueAsync(string.Empty);
         await UiScenarioArtifacts.CapturePageAsync(page, BrowserTestConstants.NewScriptWorkflow.Name, BrowserTestConstants.NewScriptWorkflow.EditorEmptyStep);
@@ -181,16 +183,18 @@ public sealed class StudioWorkflowScenarioTests(StandaloneAppFixture fixture)
 
     private static async Task ReturnHomeAsync(IPage page)
     {
-        await page.GetByTestId(UiTestIds.Header.Home).ClickAsync();
-        await BrowserRouteDriver.WaitForRouteAsync(page, AppRoutes.Library);
-        await Expect(page.GetByTestId(UiTestIds.Library.Page)).ToBeVisibleAsync();
+        await UiInteractionDriver.ClickAndContinueAsync(
+            page.GetByTestId(UiTestIds.Header.Home),
+            noWaitAfter: true);
+        await ShellRouteDriver.WaitForLibraryReadyAsync(page, AppRoutes.Library);
     }
 
     private static async Task OpenQuantumTeleprompterFromLibraryAsync(IPage page)
     {
-        await page.GetByTestId(UiTestIds.Library.CardRead(BrowserTestConstants.Scripts.QuantumId)).ClickAsync();
-        await BrowserRouteDriver.WaitForRouteAsync(page, BrowserTestConstants.Routes.TeleprompterQuantum);
-        await Expect(page.GetByTestId(UiTestIds.Teleprompter.Page)).ToBeVisibleAsync();
+        await UiInteractionDriver.ClickAndContinueAsync(
+            page.GetByTestId(UiTestIds.Library.CardRead(BrowserTestConstants.Scripts.QuantumId)),
+            noWaitAfter: true);
+        await PlaybackRouteDriver.WaitForTeleprompterReadyAsync(page, BrowserTestConstants.Routes.TeleprompterQuantum);
         await UiScenarioArtifacts.CapturePageAsync(page, BrowserTestConstants.ReaderWorkflow.Name, BrowserTestConstants.ReaderWorkflow.TeleprompterInitialStep);
     }
 

@@ -35,9 +35,10 @@ public sealed class EditorLearnScreenFlowTests(StandaloneAppFixture fixture) : A
             await Expect(page.GetByTestId(UiTestIds.Editor.SourceHighlight)).ToContainTextAsync("Benefits Block");
 
             await Expect(page.GetByTestId(UiTestIds.Header.EditorLearn)).ToBeVisibleAsync();
-            await page.GetByTestId(UiTestIds.Header.EditorLearn).ClickAsync();
-            await BrowserRouteDriver.WaitForRouteAsync(page, BrowserTestConstants.Routes.LearnDemo);
-            await Expect(page.GetByTestId(UiTestIds.Learn.Page)).ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
+            await UiInteractionDriver.ClickAndContinueAsync(
+                page.GetByTestId(UiTestIds.Header.EditorLearn),
+                noWaitAfter: true);
+            await PlaybackRouteDriver.WaitForLearnReadyAsync(page, BrowserTestConstants.Routes.LearnDemo);
 
             await ReaderRouteDriver.OpenLearnAsync(page, BrowserTestConstants.Routes.LearnDemo);
             await Expect(page.GetByTestId(UiTestIds.Learn.Page)).ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });

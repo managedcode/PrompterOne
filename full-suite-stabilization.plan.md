@@ -251,6 +251,18 @@ Tracked failing tests from the current baseline:
   - move the remaining SPA route-changing interactions onto the shared `ClickAndContinueAsync(..., noWaitAfter: true)` path
   - harden reader timing and reverse-transition assertions against poll jitter while keeping the user-visible behavior contract intact
   - route editor open/theme/split/title flows through the shared route helpers and interaction driver so local and CI follow the same readiness path
+- [x] `Release Pipeline` run `24234983323` fails remotely in `Shell` and `Editor` after commit `ee5f0fb`
+  Symptom:
+  - `Shell` still times out in a small route-transition cluster where the UI remains on `library-page` after import/playback actions instead of completing the intended move into `editor`, `learn`, or `reader`
+  - `Editor` still flakes in local-history flows, with one test timing out after opening `/settings` and another timing out after a raw page reload while the editor is already visibly present
+  Root cause:
+  - several remaining SPA route-changing clicks were still using default Playwright navigation waiting instead of the shared no-wait click contract plus explicit route-ready waits, so CI could stall on scheduled client-side transitions
+  - some return-to-editor paths only waited for `editor-page` instead of full Monaco readiness
+  - `EditorLocalHistoryFlowTests` still bypassed the shared route helpers with raw `GotoAsync("/settings")` and raw `ReloadAsync()`, which made the tests diverge from the rest of the browser harness under slower remote startup
+  Fix path:
+  - move the remaining route-changing shell, reader, and studio clicks onto `UiInteractionDriver.ClickAndContinueAsync(..., noWaitAfter: true)` where the test already owns the post-click readiness contract
+  - upgrade learn/teleprompter/editor return waits to the shared ready helpers so route completion is measured by the real interactive surface, not just the shell frame
+  - route editor local-history settings/reload operations through `ShellRouteDriver.OpenSettingsAsync(...)` and `BrowserRouteDriver.ReloadPageAsync(...)` so local and CI share the same readiness path
 
 ## Ordered Plan
 
@@ -289,6 +301,7 @@ Tracked failing tests from the current baseline:
   - `dotnet build ./PrompterOne.slnx -warnaserror` passed
   - `dotnet test @./tests/dotnet-test-progress.rsp --solution ./PrompterOne.slnx --max-parallel-test-modules 1` passed with `1162/1162` green in `7m 42.943s`
   - post-format verification repeated successfully with `dotnet build ./PrompterOne.slnx -warnaserror` and `dotnet test @./tests/dotnet-test-progress.rsp --solution ./PrompterOne.slnx --max-parallel-test-modules 1`, ending at `1162/1162` green in `7m 35.996s`
+  - latest post-remediation verification repeated successfully with `dotnet format ./PrompterOne.slnx`, `dotnet build ./PrompterOne.slnx -warnaserror`, and `dotnet test @./tests/dotnet-test-progress.rsp --solution ./PrompterOne.slnx --max-parallel-test-modules 1`, ending at `1162/1162` green in `7m 47.418s`
 
 - [ ] Step 5. Publish directly to `main`.
   Actions:
@@ -327,3 +340,9 @@ Tracked failing tests from the current baseline:
   - `dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.UITests.Reader/PrompterOne.Web.UITests.Reader.csproj` passed with `168/168`
   - `dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.UITests.Studio/PrompterOne.Web.UITests.Studio.csproj` passed with `38/38`
   - `dotnet test @./tests/dotnet-test-progress.rsp --solution ./PrompterOne.slnx --max-parallel-test-modules 1` passed with `1162/1162` green in `7m 44.199s`
+- [x] Follow-up remediation for remote run `24234983323`
+  Result:
+  - `dotnet format ./PrompterOne.slnx` passed
+  - `dotnet build ./PrompterOne.slnx -warnaserror` passed
+  - `dotnet test @./tests/dotnet-test-progress.rsp --solution ./PrompterOne.slnx --max-parallel-test-modules 1` passed with `1162/1162` green in `7m 47.418s`
+  - `Shell`, `Reader`, `Studio`, and `Editor` all completed green inside that solution-level validation run

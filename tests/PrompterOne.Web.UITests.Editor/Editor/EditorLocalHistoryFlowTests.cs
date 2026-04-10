@@ -1,3 +1,4 @@
+using Microsoft.Playwright;
 using PrompterOne.Shared.Contracts;
 using static Microsoft.Playwright.Assertions;
 
@@ -37,7 +38,11 @@ public sealed class EditorLocalHistoryFlowTests(StandaloneAppFixture fixture)
                 BrowserTestConstants.EditorFlow.LocalHistoryScenario,
                 BrowserTestConstants.EditorFlow.LocalHistorySavedStep);
 
-            await page.ReloadAsync();
+            await BrowserRouteDriver.ReloadPageAsync(
+                page,
+                CurrentRoute(page),
+                UiTestIds.Editor.Page,
+                "editor-local-history-reload-saved");
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
             await page.GetByTestId(UiTestIds.Editor.ToolsTab).ClickAsync();
             await Expect(sourceInput).ToHaveValueAsync(secondRevisionText);
@@ -50,7 +55,11 @@ public sealed class EditorLocalHistoryFlowTests(StandaloneAppFixture fixture)
                 BrowserTestConstants.EditorFlow.LocalHistoryScenario,
                 BrowserTestConstants.EditorFlow.LocalHistoryRestoredStep);
 
-            await page.ReloadAsync();
+            await BrowserRouteDriver.ReloadPageAsync(
+                page,
+                CurrentRoute(page),
+                UiTestIds.Editor.Page,
+                "editor-local-history-reload-restored");
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
             await page.GetByTestId(UiTestIds.Editor.ToolsTab).ClickAsync();
             await Expect(sourceInput).ToHaveValueAsync(firstRevisionText);
@@ -70,7 +79,7 @@ public sealed class EditorLocalHistoryFlowTests(StandaloneAppFixture fixture)
             var sourceInput = EditorMonacoDriver.SourceInput(page);
             var originalText = await sourceInput.InputValueAsync();
 
-            await page.GotoAsync(BrowserTestConstants.Routes.Settings);
+            await ShellRouteDriver.OpenSettingsAsync(page, "editor-local-history-settings-disable");
             await page.GetByTestId(UiTestIds.Settings.NavFiles).ClickAsync();
             await Expect(page.GetByTestId(UiTestIds.Settings.FilesPanel)).ToBeVisibleAsync();
             await page.GetByTestId(UiTestIds.Settings.FileAutoSave).ClickAsync();
@@ -91,11 +100,15 @@ public sealed class EditorLocalHistoryFlowTests(StandaloneAppFixture fixture)
                 BrowserTestConstants.EditorFlow.LocalHistoryAutosaveScenario,
                 BrowserTestConstants.EditorFlow.LocalHistoryAutosaveDisabledStep);
 
-            await page.ReloadAsync();
+            await BrowserRouteDriver.ReloadPageAsync(
+                page,
+                CurrentRoute(page),
+                UiTestIds.Editor.Page,
+                "editor-local-history-reload-autosave-disabled");
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
             await Expect(sourceInput).ToHaveValueAsync(originalText);
 
-            await page.GotoAsync(BrowserTestConstants.Routes.Settings);
+            await ShellRouteDriver.OpenSettingsAsync(page, "editor-local-history-settings-enable");
             await page.GetByTestId(UiTestIds.Settings.NavFiles).ClickAsync();
             await page.GetByTestId(UiTestIds.Settings.FileAutoSave).ClickAsync();
             await Expect(page.GetByTestId(UiTestIds.Settings.FileAutoSave))
@@ -119,8 +132,15 @@ public sealed class EditorLocalHistoryFlowTests(StandaloneAppFixture fixture)
                 BrowserTestConstants.EditorFlow.LocalHistoryAutosaveScenario,
                 BrowserTestConstants.EditorFlow.LocalHistoryAutosaveEnabledStep);
 
-            await page.ReloadAsync();
+            await BrowserRouteDriver.ReloadPageAsync(
+                page,
+                CurrentRoute(page),
+                UiTestIds.Editor.Page,
+                "editor-local-history-reload-autosave-enabled");
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
             await Expect(sourceInput).ToHaveValueAsync(resavedText);
         });
+
+    private static string CurrentRoute(IPage page) =>
+        new Uri(page.Url).PathAndQuery;
 }

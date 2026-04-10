@@ -21,13 +21,17 @@ public sealed class NavigationFlowTests(StandaloneAppFixture fixture)
         {
             await ShellRouteDriver.OpenLibraryAsync(page);
 
-            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Header.GoLive));
+            await UiInteractionDriver.ClickAndContinueAsync(
+                page.GetByTestId(UiTestIds.Header.GoLive),
+                noWaitAfter: true);
             await BrowserRouteDriver.WaitForRouteAsync(page, AppRoutes.GoLive);
             await Expect(page.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
 
             await ShellRouteDriver.OpenSettingsAsync(page);
 
-            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Header.GoLive));
+            await UiInteractionDriver.ClickAndContinueAsync(
+                page.GetByTestId(UiTestIds.Header.GoLive),
+                noWaitAfter: true);
             await BrowserRouteDriver.WaitForRouteAsync(page, AppRoutes.GoLive);
             await Expect(page.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
         }
@@ -52,9 +56,10 @@ public sealed class NavigationFlowTests(StandaloneAppFixture fixture)
 
             await page.EvaluateAsync("value => window.__prompterSpaNonce = value", nonce);
 
-            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Header.EditorLearn));
-            await BrowserRouteDriver.WaitForRouteAsync(page, BrowserTestConstants.Routes.LearnQuantum);
-            await Expect(page.GetByTestId(UiTestIds.Learn.Page)).ToBeVisibleAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(
+                page.GetByTestId(UiTestIds.Header.EditorLearn),
+                noWaitAfter: true);
+            await PlaybackRouteDriver.WaitForLearnReadyAsync(page, BrowserTestConstants.Routes.LearnQuantum);
             await Assert.That(await page.EvaluateAsync<string>("() => window.__prompterSpaNonce")).IsEqualTo(nonce);
 
             await EditorRouteDriver.OpenReadyAsync(
@@ -63,14 +68,17 @@ public sealed class NavigationFlowTests(StandaloneAppFixture fixture)
                 $"{nameof(ScreenNavigation_UsesSpaRoutingWithoutReloadingBrowserContext)}-return");
             await page.EvaluateAsync("value => window.__prompterSpaNonce = value", nonce);
 
-            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Header.EditorRead));
-            await BrowserRouteDriver.WaitForRouteAsync(page, BrowserTestConstants.Routes.TeleprompterQuantum);
-            await Expect(page.GetByTestId(UiTestIds.Teleprompter.Page)).ToBeVisibleAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(
+                page.GetByTestId(UiTestIds.Header.EditorRead),
+                noWaitAfter: true);
+            await PlaybackRouteDriver.WaitForTeleprompterReadyAsync(page, BrowserTestConstants.Routes.TeleprompterQuantum);
             await Assert.That(await page.EvaluateAsync<string>("() => window.__prompterSpaNonce")).IsEqualTo(nonce);
 
-            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Teleprompter.Back));
+            await UiInteractionDriver.ClickAndContinueAsync(
+                page.GetByTestId(UiTestIds.Teleprompter.Back),
+                noWaitAfter: true);
             await BrowserRouteDriver.WaitForRouteAsync(page, BrowserTestConstants.Routes.EditorQuantum);
-            await Expect(page.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync();
+            await EditorMonacoDriver.WaitUntilReadyAsync(page);
             await Assert.That(await page.EvaluateAsync<string>("() => window.__prompterSpaNonce")).IsEqualTo(nonce);
         }
         finally

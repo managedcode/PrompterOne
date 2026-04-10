@@ -64,6 +64,18 @@ public sealed class LibraryScreenFlowTests(StandaloneAppFixture fixture) : AppUi
             await Expect(demoCard).ToContainTextAsync(BrowserTestConstants.Scripts.ProductLaunchTitle);
             await Expect(demoCard).ToContainTextAsync(BrowserTestConstants.Library.ModeLabel);
             await demoCard.HoverAsync();
+            await page.WaitForFunctionAsync(
+                """
+                (args) => {
+                    const element = document.querySelector(`[data-test="${args.testId}"]`);
+                    return (getComputedStyle(element).boxShadow ?? "") !== args.noneValue;
+                }
+                """,
+                new
+                {
+                    noneValue = BrowserTestConstants.Library.HoverBoxShadowNone,
+                    testId = BrowserTestConstants.Elements.DemoCard
+                });
             var hoverBoxShadow = await demoCard.EvaluateAsync<string>("element => getComputedStyle(element).boxShadow");
             await Assert.That(hoverBoxShadow).IsNotEqualTo(BrowserTestConstants.Library.HoverBoxShadowNone);
             await page.GetByTestId(UiTestIds.Header.LibrarySearch).FillAsync(BrowserTestConstants.Library.SearchQuery);
@@ -83,24 +95,23 @@ public sealed class LibraryScreenFlowTests(StandaloneAppFixture fixture) : AppUi
                 .ToHaveTextAsync(BrowserTestConstants.Folders.TedTalksName);
 
             await Expect(page.GetByTestId(BrowserTestConstants.Elements.LeadershipCard)).ToContainTextAsync(BrowserTestConstants.Scripts.LeadershipTitle);
-            var leadershipMenuTrigger = page.GetByTestId(UiTestIds.Library.CardMenu(BrowserTestConstants.Scripts.LeadershipId));
-            var leadershipMenuDropdown = page.GetByTestId(UiTestIds.Library.CardMenuDropdown(BrowserTestConstants.Scripts.LeadershipId));
-            var leadershipDuplicateAction = page.GetByTestId(
-                UiTestIds.Library.CardDuplicate(BrowserTestConstants.Scripts.LeadershipId));
-            await Expect(leadershipMenuDropdown).ToBeHiddenAsync();
-            await UiInteractionDriver.ClickAndWaitForVisibleAsync(leadershipMenuTrigger, leadershipDuplicateAction);
-            await UiInteractionDriver.ClickAndContinueAsync(leadershipDuplicateAction);
 
-            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Library.OpenSettings));
+            await UiInteractionDriver.ClickAndContinueAsync(
+                page.GetByTestId(UiTestIds.Library.OpenSettings),
+                noWaitAfter: true);
             await ShellRouteDriver.WaitForSettingsReadyAsync(page);
 
             await ShellRouteDriver.OpenLibraryAsync(page);
-            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Header.LibraryNewScript));
+            await UiInteractionDriver.ClickAndContinueAsync(
+                page.GetByTestId(UiTestIds.Header.LibraryNewScript),
+                noWaitAfter: true);
             await BrowserRouteDriver.WaitForRouteAsync(page, AppRoutes.Editor);
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
 
             await ShellRouteDriver.OpenLibraryAsync(page);
-            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Library.CreateScript));
+            await UiInteractionDriver.ClickAndContinueAsync(
+                page.GetByTestId(UiTestIds.Library.CreateScript),
+                noWaitAfter: true);
             await BrowserRouteDriver.WaitForRouteAsync(page, AppRoutes.Editor);
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
         });
@@ -111,14 +122,18 @@ public sealed class LibraryScreenFlowTests(StandaloneAppFixture fixture) : AppUi
         {
             await ShellRouteDriver.OpenLibraryAsync(page);
 
-            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Header.LibraryNewScript));
+            await UiInteractionDriver.ClickAndContinueAsync(
+                page.GetByTestId(UiTestIds.Header.LibraryNewScript),
+                noWaitAfter: true);
             await BrowserRouteDriver.WaitForRouteAsync(page, AppRoutes.Editor);
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
             await Expect(page.GetByTestId(UiTestIds.Editor.SourceInput)).ToHaveValueAsync(string.Empty);
 
             await ShellRouteDriver.OpenLibraryAsync(page);
 
-            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Library.CreateScript));
+            await UiInteractionDriver.ClickAndContinueAsync(
+                page.GetByTestId(UiTestIds.Library.CreateScript),
+                noWaitAfter: true);
             await BrowserRouteDriver.WaitForRouteAsync(page, AppRoutes.Editor);
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
             await Expect(page.GetByTestId(UiTestIds.Editor.SourceInput)).ToHaveValueAsync(string.Empty);

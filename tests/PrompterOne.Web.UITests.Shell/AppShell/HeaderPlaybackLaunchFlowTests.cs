@@ -20,9 +20,9 @@ public sealed class HeaderPlaybackLaunchFlowTests(StandaloneAppFixture fixture)
             await ShellRouteDriver.OpenLibraryAsync(page);
 
             await UiInteractionDriver.ClickAndContinueAsync(
-                page.GetByTestId(UiTestIds.Library.CardLearn(BrowserTestConstants.Scripts.QuantumId)));
-            await BrowserRouteDriver.WaitForRouteAsync(page, BrowserTestConstants.Routes.LearnQuantum);
-            await Expect(page.GetByTestId(UiTestIds.Learn.Page)).ToBeVisibleAsync();
+                page.GetByTestId(UiTestIds.Library.CardLearn(BrowserTestConstants.Scripts.QuantumId)),
+                noWaitAfter: true);
+            await PlaybackRouteDriver.WaitForLearnReadyAsync(page, BrowserTestConstants.Routes.LearnQuantum);
             await Expect(page.GetByTestId(UiTestIds.Header.Title))
                 .ToHaveTextAsync(BrowserTestConstants.Scripts.QuantumTitle);
             await UiScenarioArtifacts.CapturePageAsync(
@@ -30,9 +30,11 @@ public sealed class HeaderPlaybackLaunchFlowTests(StandaloneAppFixture fixture)
                 BrowserTestConstants.AppShellFlow.PlaybackLaunchScenario,
                 BrowserTestConstants.AppShellFlow.LearnLaunchStep);
 
-            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Header.Back));
+            await UiInteractionDriver.ClickAndContinueAsync(
+                page.GetByTestId(UiTestIds.Header.Back),
+                noWaitAfter: true);
             await BrowserRouteDriver.WaitForRouteAsync(page, BrowserTestConstants.Routes.EditorQuantum);
-            await Expect(page.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync();
+            await EditorMonacoDriver.WaitUntilReadyAsync(page);
             await Expect(page.GetByTestId(UiTestIds.Header.Title))
                 .ToHaveTextAsync(BrowserTestConstants.Scripts.QuantumTitle);
             await UiScenarioArtifacts.CapturePageAsync(
@@ -40,13 +42,15 @@ public sealed class HeaderPlaybackLaunchFlowTests(StandaloneAppFixture fixture)
                 BrowserTestConstants.AppShellFlow.PlaybackLaunchScenario,
                 BrowserTestConstants.AppShellFlow.LearnBackStep);
 
-            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Header.Home));
+            await UiInteractionDriver.ClickAndContinueAsync(
+                page.GetByTestId(UiTestIds.Header.Home),
+                noWaitAfter: true);
             await ShellRouteDriver.WaitForLibraryReadyAsync(page, AppRoutes.Library);
 
             await UiInteractionDriver.ClickAndContinueAsync(
-                page.GetByTestId(UiTestIds.Library.CardRead(BrowserTestConstants.Scripts.QuantumId)));
-            await BrowserRouteDriver.WaitForRouteAsync(page, BrowserTestConstants.Routes.TeleprompterQuantum);
-            await Expect(page.GetByTestId(UiTestIds.Teleprompter.Page)).ToBeVisibleAsync();
+                page.GetByTestId(UiTestIds.Library.CardRead(BrowserTestConstants.Scripts.QuantumId)),
+                noWaitAfter: true);
+            await PlaybackRouteDriver.WaitForTeleprompterReadyAsync(page, BrowserTestConstants.Routes.TeleprompterQuantum);
             await Expect(page.GetByTestId(UiTestIds.Header.Title))
                 .ToHaveTextAsync(BrowserTestConstants.Scripts.QuantumTitle);
             await UiScenarioArtifacts.CapturePageAsync(
@@ -54,9 +58,11 @@ public sealed class HeaderPlaybackLaunchFlowTests(StandaloneAppFixture fixture)
                 BrowserTestConstants.AppShellFlow.PlaybackLaunchScenario,
                 BrowserTestConstants.AppShellFlow.TeleprompterLaunchStep);
 
-            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Header.Back));
+            await UiInteractionDriver.ClickAndContinueAsync(
+                page.GetByTestId(UiTestIds.Header.Back),
+                noWaitAfter: true);
             await BrowserRouteDriver.WaitForRouteAsync(page, BrowserTestConstants.Routes.EditorQuantum);
-            await Expect(page.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync();
+            await EditorMonacoDriver.WaitUntilReadyAsync(page);
             await Expect(page.GetByTestId(UiTestIds.Header.Title))
                 .ToHaveTextAsync(BrowserTestConstants.Scripts.QuantumTitle);
             await UiScenarioArtifacts.CapturePageAsync(
@@ -77,7 +83,9 @@ public sealed class HeaderPlaybackLaunchFlowTests(StandaloneAppFixture fixture)
 
             await ShellRouteDriver.OpenGoLiveRouteAsync(page, BrowserTestConstants.Routes.GoLiveDemo);
 
-            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.GoLive.OpenSettings));
+            await UiInteractionDriver.ClickAndContinueAsync(
+                page.GetByTestId(UiTestIds.GoLive.OpenSettings),
+                noWaitAfter: true);
             await BrowserRouteDriver.WaitForRouteAsync(page, BrowserTestConstants.Routes.Settings);
             await Expect(page.GetByTestId(UiTestIds.Settings.Page)).ToBeVisibleAsync();
             await Expect(page.GetByTestId(UiTestIds.Header.Title))
@@ -87,7 +95,9 @@ public sealed class HeaderPlaybackLaunchFlowTests(StandaloneAppFixture fixture)
                 BrowserTestConstants.AppShellFlow.SettingsOriginScenario,
                 BrowserTestConstants.AppShellFlow.SettingsLaunchStep);
 
-            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Header.Back));
+            await UiInteractionDriver.ClickAndContinueAsync(
+                page.GetByTestId(UiTestIds.Header.Back),
+                noWaitAfter: true);
             await ShellRouteDriver.WaitForGoLiveReadyAsync(page, BrowserTestConstants.Routes.GoLiveDemo);
             await UiScenarioArtifacts.CapturePageAsync(
                 page,
