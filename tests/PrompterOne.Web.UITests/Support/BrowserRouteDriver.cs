@@ -17,6 +17,11 @@ internal static class BrowserRouteDriver
         string pageTestId,
         string? failureLabel = null)
     {
+        var bootstrappingFromPrimedBlankPage = IsCurrentRoute(page, UiTestHostConstants.BlankPagePath);
+        var routeVisibleTimeoutMs = bootstrappingFromPrimedBlankPage
+            ? BrowserTestConstants.Timing.RuntimeWarmupVisibleTimeoutMs
+            : BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs;
+
         if (await IsCurrentRouteReadyAsync(page, route, pageTestId))
         {
             return;
@@ -28,12 +33,12 @@ internal static class BrowserRouteDriver
             // NetworkIdle is too strict for pages that keep long-lived browser activity alive on CI.
             await page.GotoAsync(route, new() { WaitUntil = RouteNavigationReadyState });
             await WaitForRouteAsync(page, route);
-            if (await IsPageVisibleAsync(page, pageTestId, BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs))
+            if (await IsPageVisibleAsync(page, pageTestId, routeVisibleTimeoutMs))
             {
                 return;
             }
 
-            if (attempt < RouteBootstrapAttemptCount && TestEnvironment.IsCiEnvironment)
+            if (attempt < RouteBootstrapAttemptCount && TestEnvironment.IsCiEnvironment && !bootstrappingFromPrimedBlankPage)
             {
                 await page.GotoAsync(UiTestHostConstants.BlankPagePath, new() { WaitUntil = RouteNavigationReadyState });
             }
@@ -41,7 +46,7 @@ internal static class BrowserRouteDriver
 
         await TryCaptureFailurePageAsync(page, failureLabel ?? $"{RouteFailurePrefix}-{pageTestId}");
         await Expect(page.GetByTestId(pageTestId)).ToBeVisibleAsync(
-            new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
+            new() { Timeout = routeVisibleTimeoutMs });
     }
 
     internal static Task WaitForRouteAsync(IPage page, string route)

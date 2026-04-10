@@ -185,6 +185,18 @@ Tracked failing tests from the current baseline:
   Fix path:
   - switch shared route open and blank-page bounce navigation in `BrowserRouteDriver` from `NetworkIdle` to `Load`
   - continue treating route readiness as an explicit contract enforced by URL and `data-test` sentinels rather than by global network quiescence
+- [x] `Release Pipeline` run `24221016454` still fails remotely in `Shell`, `Studio`, and `Reader` after commit `5db317c`
+  Symptom:
+  - `Shell`, `Studio`, and `Reader` now fail inside `BrowserRouteDriver.IsPageVisibleAsync(...)` while waiting for first routed sentinels such as `library-page`, `settings-page`, and `teleprompter-page`
+  - remote Playwright screenshots show the routed UI fully rendered by the time failure artifacts are captured, which means the page is starting successfully but missing the existing readiness budget
+  Root cause:
+  - the remaining problem is the first routed boot from a freshly primed `/_test/blank` page in a brand-new isolated browser context
+  - CI macOS runners can need materially longer than the standard `15s` visible timeout for that first WebAssembly route to finish rendering even though later in-context route transitions are fast
+  - the CI-only blank bounce retry was not helping this case because it can interrupt or restart the very first route bootstrap instead of letting the initial boot finish
+  Fix path:
+  - detect when `BrowserRouteDriver` is opening the first routed page from the primed blank test page
+  - give only that first routed bootstrap the longer runtime-warmup visibility budget and skip the CI blank bounce for that specific path
+  - keep the shorter route-visible contract for already-booted routed pages so normal suite latency does not drift upward
 
 ## Ordered Plan
 
@@ -247,3 +259,10 @@ Tracked failing tests from the current baseline:
   - `dotnet build ./PrompterOne.slnx -warnaserror` passed
   - `dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.UITests.Studio/PrompterOne.Web.UITests.Studio.csproj` passed with `38/38`
   - `dotnet test @./tests/dotnet-test-progress.rsp --solution ./PrompterOne.slnx --max-parallel-test-modules 1` passed with `1162/1162` green in `7m 50.591s`
+- [x] Follow-up local verification after the first-route primed-blank bootstrap change
+  Result:
+  - `dotnet format ./PrompterOne.slnx` passed
+  - `dotnet build ./PrompterOne.slnx -warnaserror` passed
+  - `dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.UITests.Shell/PrompterOne.Web.UITests.Shell.csproj` passed with `51/51`
+  - `dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.UITests.Studio/PrompterOne.Web.UITests.Studio.csproj` passed with `38/38`
+  - `dotnet test @./tests/dotnet-test-progress.rsp --solution ./PrompterOne.slnx --max-parallel-test-modules 1` passed with `1162/1162` green in `7m 47.310s`
