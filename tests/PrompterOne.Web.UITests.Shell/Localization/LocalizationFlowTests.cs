@@ -36,9 +36,12 @@ public sealed class LocalizationFlowTests(StandaloneAppFixture fixture)
         try
         {
             await ShellRouteDriver.OpenSettingsAsync(page);
-            await page.GetByTestId(UiTestIds.Settings.NavLanguage).ClickAsync();
-            await page.GetByTestId(UiTestIds.Settings.LanguageSelect).ClickAsync();
-            await page.GetByTestId(UiTestIds.Settings.SelectOption(UiTestIds.Settings.LanguageSelect, BrowserTestConstants.Localization.FrenchCultureName)).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Settings.NavLanguage));
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Settings.LanguageSelect));
+            await UiInteractionDriver.ClickAndContinueAsync(
+                page.GetByTestId(UiTestIds.Settings.SelectOption(
+                    UiTestIds.Settings.LanguageSelect,
+                    BrowserTestConstants.Localization.FrenchCultureName)));
             await page.WaitForLoadStateAsync(LoadState.DOMContentLoaded);
 
             await Expect(page.GetByTestId(UiTestIds.Settings.LanguageSelect))
@@ -51,7 +54,7 @@ public sealed class LocalizationFlowTests(StandaloneAppFixture fixture)
             await Expect(page.GetByTestId(UiTestIds.Library.SectionFoldersTitle))
                 .ToHaveTextAsync(BrowserTestConstants.Localization.FrenchFoldersLabel);
 
-            await page.GetByTestId(UiTestIds.Library.FolderCreateStart).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Library.FolderCreateStart));
             await Expect(page.GetByTestId(UiTestIds.Library.NewFolderTitle))
                 .ToHaveTextAsync(BrowserTestConstants.Localization.FrenchCreateFolderTitle);
         }

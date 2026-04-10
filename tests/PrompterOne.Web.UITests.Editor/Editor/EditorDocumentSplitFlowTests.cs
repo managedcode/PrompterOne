@@ -53,9 +53,8 @@ public sealed class EditorDocumentSplitFlowTests(StandaloneAppFixture fixture) :
             await Expect(EditorMonacoDriver.SourceInput(page)).ToHaveValueAsync(EditorSplitFeedbackTestData.SplitSource);
             await Assert.That(new Uri(page.Url).AbsolutePath).IsEqualTo(AppRoutes.Editor);
 
-            await page.GetByTestId(UiTestIds.Editor.SplitResultOpenLibrary).ClickAsync();
-            await BrowserRouteDriver.WaitForRouteAsync(page, AppRoutes.Library);
-            await Expect(page.GetByTestId(UiTestIds.Library.Page)).ToBeVisibleAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Editor.SplitResultOpenLibrary));
+            await ShellRouteDriver.WaitForLibraryReadyAsync(page);
             await page.GetByTestId(UiTestIds.Library.FolderAll).ClickAsync();
 
             await Expect(page.GetByTestId(UiTestIds.Library.Card(EditorSplitFeedbackTestData.EpisodeOneCardId))).ToContainTextAsync(EditorSplitFeedbackTestData.EpisodeOneTitle);
@@ -93,9 +92,8 @@ public sealed class EditorDocumentSplitFlowTests(StandaloneAppFixture fixture) :
             await Expect(EditorMonacoDriver.SourceInput(page)).ToHaveValueAsync(EditorSplitFeedbackTestData.SplitBySpeakerSource);
             await Assert.That(new Uri(page.Url).AbsolutePath).IsEqualTo(AppRoutes.Editor);
 
-            await page.GetByTestId(UiTestIds.Editor.SplitResultOpenLibrary).ClickAsync();
-            await BrowserRouteDriver.WaitForRouteAsync(page, AppRoutes.Library);
-            await Expect(page.GetByTestId(UiTestIds.Library.Page)).ToBeVisibleAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Editor.SplitResultOpenLibrary));
+            await ShellRouteDriver.WaitForLibraryReadyAsync(page);
             await page.GetByTestId(UiTestIds.Library.FolderAll).ClickAsync();
 
             await Expect(page.GetByTestId(UiTestIds.Library.Card(EditorSplitFeedbackTestData.SpeakerAlexCardId))).ToContainTextAsync(EditorSplitFeedbackTestData.SpeakerCreatedTitles[0]);

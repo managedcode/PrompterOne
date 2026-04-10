@@ -19,7 +19,10 @@ public sealed class GoLiveKeyboardShortcutFlowTests(StandaloneAppFixture fixture
             await Expect(page.GetByTestId(UiTestIds.GoLive.Page))
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
 
-            await page.GetByTestId(UiTestIds.GoLive.SourceCameraSelect(BrowserTestConstants.GoLive.SecondSourceId)).ClickAsync();
+            await StudioRouteDriver.SelectGoLiveSourceAsync(
+                page,
+                BrowserTestConstants.GoLive.SecondSourceId,
+                BrowserTestConstants.GoLive.SideCameraLabel);
             await page.GetByTestId(UiTestIds.GoLive.Page).FocusAsync();
 
             await page.Keyboard.PressAsync(BrowserTestConstants.Keyboard.Digit2);

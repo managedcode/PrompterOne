@@ -46,3 +46,5 @@
 - Flaky browser tests are failures; fix the cause instead of weakening the assertion.
 - Keep screenshot diagnostics first-class in the harness: normal scenario failures and early fixture/bootstrap failures should both leave Playwright screenshot artifacts whenever a page handle is still available.
 - Do not duplicate route strings, test ids, or storage keys across tests; centralize them.
+- Shared browser contexts may exist only for scenarios that explicitly validate cross-tab behavior, and they must not be published for reuse until storage reset and page priming have completed successfully; on bootstrap failure, evict and dispose the context immediately.
+- Every mutating browser scenario must provision or import its own writable script or workspace state for that test run; parallel workers must not edit, autosave, or assert against the same writable document instance.

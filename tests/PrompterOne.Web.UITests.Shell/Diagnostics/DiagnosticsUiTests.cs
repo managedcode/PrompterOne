@@ -87,6 +87,8 @@ public sealed class DiagnosticsUiTests(StandaloneAppFixture fixture)
             await page.Context.SetOfflineAsync(false);
             await page.EvaluateAsync(BrowserTestConstants.Diagnostics.DispatchOnlineEventScript);
             await Expect(page.GetByTestId(UiTestIds.Diagnostics.Connectivity))
+                .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
+            await Expect(page.GetByTestId(UiTestIds.Diagnostics.Connectivity))
                 .ToContainTextAsync(
                     BrowserTestConstants.Diagnostics.ConnectivityOnlineTitle,
                     new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });

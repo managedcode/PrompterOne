@@ -33,12 +33,12 @@ internal static class EditorMonacoDriver
 
         await Expect(page.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync(new()
         {
-            Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs
+            Timeout = BrowserTestConstants.Timing.EditorReadyTimeoutMs
         });
 
         await Expect(SourceStage(page)).ToBeVisibleAsync(new()
         {
-            Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs
+            Timeout = BrowserTestConstants.Timing.EditorReadyTimeoutMs
         });
 
         try
@@ -56,12 +56,12 @@ internal static class EditorMonacoDriver
                     readyValue = "true",
                     testId = UiTestIds.Editor.SourceStage
                 },
-                new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
+                new() { Timeout = BrowserTestConstants.Timing.EditorReadyTimeoutMs });
         }
         catch (Exception exception)
         {
             throw new InvalidOperationException(
-                $"Monaco editor did not become ready within {BrowserTestConstants.Timing.DefaultVisibleTimeoutMs}ms.{Environment.NewLine}" +
+                $"Monaco editor did not become ready within {BrowserTestConstants.Timing.EditorReadyTimeoutMs}ms.{Environment.NewLine}" +
                 $"Captured browser diagnostics:{Environment.NewLine}{browserErrors.Describe()}{Environment.NewLine}{exception}");
         }
     }
@@ -281,7 +281,7 @@ internal static class EditorMonacoDriver
                 harnessGlobalName = EditorMonacoRuntimeContract.BrowserHarnessGlobalName,
                 testId = UiTestIds.Editor.SourceStage
             },
-            new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
+            new() { Timeout = BrowserTestConstants.Timing.EditorMutationTimeoutMs });
     }
 
     internal static async Task SetTextAsync(IPage page, string text)
@@ -289,7 +289,7 @@ internal static class EditorMonacoDriver
         _ = await InvokeHarnessAsync<EditorMonacoState>(page, "setText", new { text });
         await Expect(SourceInput(page)).ToHaveValueAsync(text, new()
         {
-            Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs
+            Timeout = BrowserTestConstants.Timing.EditorMutationTimeoutMs
         });
 
         await page.WaitForFunctionAsync(
@@ -304,7 +304,7 @@ internal static class EditorMonacoDriver
                 expectedLength = text.Length,
                 overlayTestId = UiTestIds.Editor.SourceHighlight
             },
-            new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
+            new() { Timeout = BrowserTestConstants.Timing.EditorMutationTimeoutMs });
     }
 
     internal static Task DropFilesAsync(IPage page, params DroppedFileDescriptor[] files) =>

@@ -52,13 +52,13 @@ public sealed class LibraryScreenFlowTests(StandaloneAppFixture fixture) : AppUi
             await Expect(page.GetByTestId(UiTestIds.Library.FolderChips)).ToHaveCountAsync(0);
 
             var presentationsFolder = page.GetByTestId(BrowserTestConstants.Elements.PresentationsFolder);
-            await presentationsFolder.ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(presentationsFolder);
             await Expect(page.GetByTestId(UiTestIds.Header.LibraryBreadcrumbCurrent))
                 .ToHaveTextAsync(BrowserTestConstants.Folders.PresentationsName);
             UiScenarioArtifacts.ResetScenario(StartupScenarioName);
             await UiScenarioArtifacts.CapturePageAsync(page, StartupScenarioName, StartupScenarioStep);
 
-            await page.GetByTestId(UiTestIds.Library.FolderAll).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Library.FolderAll));
 
             var demoCard = page.GetByTestId(BrowserTestConstants.Elements.DemoCard);
             await Expect(demoCard).ToContainTextAsync(BrowserTestConstants.Scripts.ProductLaunchTitle);
@@ -70,12 +70,12 @@ public sealed class LibraryScreenFlowTests(StandaloneAppFixture fixture) : AppUi
             await Expect(page.GetByTestId(BrowserTestConstants.Elements.QuantumCard)).ToContainTextAsync(BrowserTestConstants.Scripts.QuantumTitle);
             await Expect(demoCard).ToBeHiddenAsync();
             await page.GetByTestId(UiTestIds.Header.LibrarySearch).FillAsync(string.Empty);
-            await page.GetByTestId(UiTestIds.Library.SortDate).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Library.SortDate));
             await Expect(page.GetByTestId(UiTestIds.Library.SortDate)).ToHaveAttributeAsync(
                 BrowserTestConstants.State.ActiveAttribute,
                 BrowserTestConstants.State.ActiveValue);
             var tedTalksFolder = page.GetByTestId(BrowserTestConstants.Elements.TedTalksFolder);
-            await tedTalksFolder.ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(tedTalksFolder);
             await Expect(tedTalksFolder).ToHaveAttributeAsync(
                 BrowserTestConstants.State.ActiveAttribute,
                 BrowserTestConstants.State.ActiveValue);
@@ -83,19 +83,21 @@ public sealed class LibraryScreenFlowTests(StandaloneAppFixture fixture) : AppUi
                 .ToHaveTextAsync(BrowserTestConstants.Folders.TedTalksName);
 
             await Expect(page.GetByTestId(BrowserTestConstants.Elements.LeadershipCard)).ToContainTextAsync(BrowserTestConstants.Scripts.LeadershipTitle);
-            await page.GetByTestId(UiTestIds.Library.CardMenu(BrowserTestConstants.Scripts.LeadershipId)).ClickAsync();
-            await page.GetByTestId(UiTestIds.Library.CardDuplicate(BrowserTestConstants.Scripts.LeadershipId)).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(
+                page.GetByTestId(UiTestIds.Library.CardMenu(BrowserTestConstants.Scripts.LeadershipId)));
+            await UiInteractionDriver.ClickAndContinueAsync(
+                page.GetByTestId(UiTestIds.Library.CardDuplicate(BrowserTestConstants.Scripts.LeadershipId)));
 
-            await page.GetByTestId(UiTestIds.Library.OpenSettings).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Library.OpenSettings));
             await ShellRouteDriver.WaitForSettingsReadyAsync(page);
 
             await ShellRouteDriver.OpenLibraryAsync(page);
-            await page.GetByTestId(UiTestIds.Header.LibraryNewScript).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Header.LibraryNewScript));
             await BrowserRouteDriver.WaitForRouteAsync(page, AppRoutes.Editor);
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
 
             await ShellRouteDriver.OpenLibraryAsync(page);
-            await page.GetByTestId(UiTestIds.Library.CreateScript).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Library.CreateScript));
             await BrowserRouteDriver.WaitForRouteAsync(page, AppRoutes.Editor);
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
         });
@@ -106,14 +108,14 @@ public sealed class LibraryScreenFlowTests(StandaloneAppFixture fixture) : AppUi
         {
             await ShellRouteDriver.OpenLibraryAsync(page);
 
-            await page.GetByTestId(UiTestIds.Header.LibraryNewScript).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Header.LibraryNewScript));
             await BrowserRouteDriver.WaitForRouteAsync(page, AppRoutes.Editor);
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
             await Expect(page.GetByTestId(UiTestIds.Editor.SourceInput)).ToHaveValueAsync(string.Empty);
 
             await ShellRouteDriver.OpenLibraryAsync(page);
 
-            await page.GetByTestId(UiTestIds.Library.CreateScript).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Library.CreateScript));
             await BrowserRouteDriver.WaitForRouteAsync(page, AppRoutes.Editor);
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
             await Expect(page.GetByTestId(UiTestIds.Editor.SourceInput)).ToHaveValueAsync(string.Empty);
@@ -159,17 +161,20 @@ public sealed class LibraryScreenFlowTests(StandaloneAppFixture fixture) : AppUi
             await Expect(demoDropdown).ToBeHiddenAsync();
             await Expect(leadershipDropdown).ToBeHiddenAsync();
 
-            await page.GetByTestId(UiTestIds.Library.CardMenu(BrowserTestConstants.Scripts.DemoId)).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(
+                page.GetByTestId(UiTestIds.Library.CardMenu(BrowserTestConstants.Scripts.DemoId)));
             await Expect(demoDropdown).ToBeVisibleAsync();
-            await page.GetByTestId(UiTestIds.Library.SortLabel).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Library.SortLabel));
             await Expect(demoDropdown).ToBeHiddenAsync();
 
-            await page.GetByTestId(UiTestIds.Library.CardMenu(BrowserTestConstants.Scripts.DemoId)).ClickAsync();
-            await page.GetByTestId(UiTestIds.Library.CardMenu(BrowserTestConstants.Scripts.LeadershipId)).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(
+                page.GetByTestId(UiTestIds.Library.CardMenu(BrowserTestConstants.Scripts.DemoId)));
+            await UiInteractionDriver.ClickAndContinueAsync(
+                page.GetByTestId(UiTestIds.Library.CardMenu(BrowserTestConstants.Scripts.LeadershipId)));
             await Expect(leadershipDropdown).ToBeVisibleAsync();
             await Expect(demoDropdown).ToBeHiddenAsync();
 
-            await page.GetByTestId(BrowserTestConstants.Elements.QuantumCard).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(BrowserTestConstants.Elements.QuantumCard));
             await Expect(leadershipDropdown).ToBeHiddenAsync();
             await Assert.That(new Uri(page.Url).AbsolutePath).IsEqualTo(BrowserTestConstants.Routes.Library);
         });
@@ -192,7 +197,7 @@ public sealed class LibraryScreenFlowTests(StandaloneAppFixture fixture) : AppUi
             await Expect(tedTalksFolder).ToBeVisibleAsync();
             await Expect(presentationsFolder).ToBeVisibleAsync();
 
-            await tedTalksFolder.ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(tedTalksFolder);
 
             await Expect(tedTalksFolder).ToHaveAttributeAsync(
                 BrowserTestConstants.State.ActiveAttribute,
@@ -201,7 +206,7 @@ public sealed class LibraryScreenFlowTests(StandaloneAppFixture fixture) : AppUi
             await Expect(page.GetByTestId(BrowserTestConstants.Elements.DemoCard)).ToBeHiddenAsync();
             await Expect(page.GetByTestId(UiTestIds.Header.LibraryBreadcrumbCurrent)).ToHaveTextAsync(BrowserTestConstants.Folders.TedTalksName);
 
-            await page.GetByTestId(UiTestIds.Library.FolderAll).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Library.FolderAll));
 
             await Expect(page.GetByTestId(UiTestIds.Library.FolderAll)).ToHaveAttributeAsync(
                 BrowserTestConstants.State.ActiveAttribute,
@@ -216,7 +221,7 @@ public sealed class LibraryScreenFlowTests(StandaloneAppFixture fixture) : AppUi
         {
             await ShellRouteDriver.OpenLibraryAsync(page);
 
-            await page.GetByTestId(UiTestIds.Library.FolderAll).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Library.FolderAll));
 
             await Expect(page.GetByTestId(UiTestIds.Header.LibraryBreadcrumbCurrent))
                 .ToHaveTextAsync(BrowserTestConstants.Folders.AllScriptsName);
@@ -234,17 +239,17 @@ public sealed class LibraryScreenFlowTests(StandaloneAppFixture fixture) : AppUi
         RunPageAsync(async page =>
         {
             await ShellRouteDriver.OpenLibraryAsync(page);
-            await page.GetByTestId(UiTestIds.Library.FolderCreateTile).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Library.FolderCreateTile));
             await Expect(page.GetByTestId(UiTestIds.Library.NewFolderOverlay)).ToBeVisibleAsync();
             await Expect(page.GetByTestId(UiTestIds.Library.NewFolderCard)).ToBeVisibleAsync();
-            await page.GetByTestId(UiTestIds.Library.NewFolderCancel).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Library.NewFolderCancel));
             await Expect(page.GetByTestId(UiTestIds.Library.NewFolderOverlay)).ToBeHiddenAsync();
 
-            await page.GetByTestId(UiTestIds.Library.FolderCreateStart).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Library.FolderCreateStart));
             await Expect(page.GetByTestId(UiTestIds.Library.NewFolderOverlay)).ToBeVisibleAsync();
             await page.GetByTestId(UiTestIds.Library.NewFolderName).FillAsync(BrowserTestConstants.Folders.RoadshowsName);
             await page.GetByTestId(UiTestIds.Library.NewFolderParent).SelectOptionAsync(new[] { BrowserTestConstants.Folders.PresentationsId });
-            await page.GetByTestId(UiTestIds.Library.NewFolderSubmit).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Library.NewFolderSubmit));
             await Expect(page.GetByTestId(UiTestIds.Library.NewFolderOverlay)).ToBeHiddenAsync(new()
             {
                 Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs
@@ -252,10 +257,12 @@ public sealed class LibraryScreenFlowTests(StandaloneAppFixture fixture) : AppUi
             await Expect(page.GetByTestId(BrowserTestConstants.Elements.RoadshowsFolder)).ToBeVisibleAsync();
             await Expect(page.GetByTestId(UiTestIds.Header.LibraryBreadcrumbCurrent)).ToHaveTextAsync(BrowserTestConstants.Folders.RoadshowsName);
 
-            await page.GetByTestId(UiTestIds.Library.FolderAll).ClickAsync();
-            await page.GetByTestId(UiTestIds.Library.CardMenu(BrowserTestConstants.Scripts.DemoId)).ClickAsync();
-            await page.GetByTestId(UiTestIds.Library.Move(BrowserTestConstants.Scripts.DemoId, BrowserTestConstants.Folders.RoadshowsId)).ClickAsync();
-            await page.GetByTestId(BrowserTestConstants.Elements.RoadshowsFolder).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Library.FolderAll));
+            await UiInteractionDriver.ClickAndContinueAsync(
+                page.GetByTestId(UiTestIds.Library.CardMenu(BrowserTestConstants.Scripts.DemoId)));
+            await UiInteractionDriver.ClickAndContinueAsync(
+                page.GetByTestId(UiTestIds.Library.Move(BrowserTestConstants.Scripts.DemoId, BrowserTestConstants.Folders.RoadshowsId)));
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(BrowserTestConstants.Elements.RoadshowsFolder));
 
             await Expect(page.GetByTestId(BrowserTestConstants.Elements.DemoCard)).ToContainTextAsync(BrowserTestConstants.Scripts.ProductLaunchTitle);
             await Expect(page.GetByTestId(BrowserTestConstants.Elements.SecurityIncidentCard)).ToBeHiddenAsync();
@@ -287,7 +294,7 @@ public sealed class LibraryScreenFlowTests(StandaloneAppFixture fixture) : AppUi
             await Expect(page.GetByTestId(UiTestIds.Header.LibraryBreadcrumbCurrent)).ToBeHiddenAsync();
             await Assert.That(demoCardMenuOpacity >= BrowserTestConstants.LibraryFlow.MinimumTouchMenuOpacity).IsTrue();
 
-            await demoCardMenu.ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(demoCardMenu);
             await Expect(page.GetByTestId(UiTestIds.Library.CardMenuDropdown(BrowserTestConstants.Scripts.DemoId)))
                 .ToBeVisibleAsync();
         });

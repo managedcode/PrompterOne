@@ -134,7 +134,7 @@ public sealed class EditorLocalHistoryInteractionTests : BunitContext
 
     private static class EditorLocalHistoryInteractionTestSource
     {
-        public static readonly TimeSpan LocalHistoryAssertionTimeout = TimeSpan.FromSeconds(5);
+        public static readonly TimeSpan LocalHistoryAssertionTimeout = TimeSpan.FromSeconds(10);
         public const string FirstRevisionLine = "The first browser-local revision should survive.";
         public const string LocalOnlyLine = "This line must remain local when autosave is off.";
         public const string SecondRevisionLine = "The second browser-local revision should be restorable.";

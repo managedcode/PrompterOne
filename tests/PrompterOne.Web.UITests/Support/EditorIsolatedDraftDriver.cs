@@ -9,6 +9,19 @@ internal static class EditorIsolatedDraftDriver
     internal static async Task OpenBlankDraftAsync(IPage page)
     {
         await EditorRouteDriver.OpenReadyAsync(page, BrowserTestConstants.Routes.Editor, "editor-open-blank-draft");
+        var sourceInput = EditorMonacoDriver.SourceInput(page);
+        var currentText = await sourceInput.InputValueAsync();
+
+        if (string.IsNullOrEmpty(currentText))
+        {
+            return;
+        }
+
+        await EditorMonacoDriver.SetTextAsync(page, string.Empty);
+        await Expect(sourceInput).ToHaveValueAsync(string.Empty, new()
+        {
+            Timeout = BrowserTestConstants.Timing.EditorMutationTimeoutMs
+        });
     }
 
     internal static async Task CreateDraftAsync(
@@ -25,7 +38,10 @@ internal static class EditorIsolatedDraftDriver
             await Expect(page.GetByTestId(UiTestIds.Editor.Page))
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
             await EditorMonacoDriver.WaitUntilReadyAsync(page);
-            await Expect(EditorMonacoDriver.SourceInput(page)).ToHaveValueAsync(visibleText);
+            await Expect(EditorMonacoDriver.SourceInput(page)).ToHaveValueAsync(visibleText, new()
+            {
+                Timeout = BrowserTestConstants.Timing.EditorMutationTimeoutMs
+            });
         }
 
         if (!string.IsNullOrWhiteSpace(title))
@@ -62,7 +78,7 @@ internal static class EditorIsolatedDraftDriver
         await Expect(page.GetByTestId(UiTestIds.Header.Title)).ToHaveTextAsync(title);
     }
 
-    private static Task WaitForAssignedScriptRouteAsync(IPage page) =>
+    internal static Task WaitForAssignedScriptRouteAsync(IPage page) =>
         page.WaitForFunctionAsync(
             """
             (args) => {

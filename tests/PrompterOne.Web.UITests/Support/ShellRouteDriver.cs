@@ -66,6 +66,7 @@ internal static class ShellRouteDriver
         await BrowserRouteDriver.WaitForRouteAsync(page, route);
         await Expect(page.GetByTestId(UiTestIds.Library.Page)).ToBeVisibleAsync();
         await Expect(page.GetByTestId(UiTestIds.Library.SortLabel)).ToBeVisibleAsync();
+        await Expect(page.GetByTestId(UiTestIds.Library.FolderAll)).ToBeVisibleAsync();
     }
 
     internal static Task WaitForSettingsReadyAsync(IPage page) =>

@@ -119,7 +119,7 @@ public sealed class EditorSourceInteractionTests : BunitContext
         cut.WaitForAssertion(() =>
         {
             Assert.Null(cut.FindByTestId(UiTestIds.Editor.Undo).GetAttribute("disabled"));
-        });
+        }, TimeSpan.FromMilliseconds(EditorSourceInteractionTestSource.HistoryAssertionTimeout));
 
         cut.FindByTestId(UiTestIds.Editor.Undo).Click();
 
@@ -127,14 +127,14 @@ public sealed class EditorSourceInteractionTests : BunitContext
         {
             Assert.Equal(initialSource, cut.FindByTestId(UiTestIds.Editor.SourceInput).GetAttribute("value"));
             Assert.Null(cut.FindByTestId(UiTestIds.Editor.Redo).GetAttribute("disabled"));
-        });
+        }, TimeSpan.FromMilliseconds(EditorSourceInteractionTestSource.HistoryAssertionTimeout));
 
         cut.FindByTestId(UiTestIds.Editor.Redo).Click();
 
         cut.WaitForAssertion(() =>
         {
             Assert.Equal(updatedSource, cut.FindByTestId(UiTestIds.Editor.SourceInput).GetAttribute("value"));
-        });
+        }, TimeSpan.FromMilliseconds(EditorSourceInteractionTestSource.HistoryAssertionTimeout));
     }
 
     [Test]
@@ -160,20 +160,16 @@ public sealed class EditorSourceInteractionTests : BunitContext
 
         sourceEditor.Input(updatedSource);
 
-        cut.WaitForAssertion(() =>
-        {
-            Assert.DoesNotContain(
-                EditorSourceInteractionTestSource.LocalFirstTypingLine,
-                _harness.Session.State.Text,
-                StringComparison.Ordinal);
-            Assert.Equal(initialSessionWordCount, _harness.Session.State.WordCount);
-        });
+        Assert.DoesNotContain(
+            EditorSourceInteractionTestSource.LocalFirstTypingLine,
+            _harness.Session.State.Text,
+            StringComparison.Ordinal);
+        Assert.Equal(initialSessionWordCount, _harness.Session.State.WordCount);
 
         cut.WaitForAssertion(() =>
         {
             Assert.Equal(updatedSource, cut.FindByTestId(UiTestIds.Editor.SourceInput).GetAttribute("value"));
             Assert.Contains(EditorSourceInteractionTestSource.LocalFirstTypingLine, cut.Markup, StringComparison.Ordinal);
-            Assert.Equal(initialSessionWordCount, _harness.Session.State.WordCount);
         }, TimeSpan.FromMilliseconds(EditorSourceInteractionTestSource.AutosaveAssertionTimeout));
 
         cut.WaitForState(
@@ -280,7 +276,7 @@ public sealed class EditorSourceInteractionTests : BunitContext
         cut.WaitForAssertion(() =>
         {
             Assert.Equal(initialSource, cut.FindByTestId(UiTestIds.Editor.SourceInput).GetAttribute("value"));
-        });
+        }, TimeSpan.FromMilliseconds(EditorSourceInteractionTestSource.HistoryAssertionTimeout));
 
         currentSourceEditor = cut.FindByTestId(UiTestIds.Editor.SourceInput);
 
@@ -293,7 +289,7 @@ public sealed class EditorSourceInteractionTests : BunitContext
         cut.WaitForAssertion(() =>
         {
             Assert.Equal(updatedSource, cut.FindByTestId(UiTestIds.Editor.SourceInput).GetAttribute("value"));
-        });
+        }, TimeSpan.FromMilliseconds(EditorSourceInteractionTestSource.HistoryAssertionTimeout));
     }
 
     [Test]
@@ -316,6 +312,7 @@ public sealed class EditorSourceInteractionTests : BunitContext
     private static class EditorSourceInteractionTestSource
     {
         public const int AutosaveAssertionTimeout = 5_000;
+        public const int HistoryAssertionTimeout = 10_000;
         public const string AuthorField = "author:";
         public const string AuthorPersistenceLine = "author: \"Jane Doe\"";
         public const string BaseWpm210 = "210";

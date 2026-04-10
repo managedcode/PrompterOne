@@ -25,41 +25,41 @@ public sealed class OnboardingFlowTests(StandaloneAppFixture fixture) : AppUiTes
                 BrowserTestConstants.AppShellFlow.OnboardingEnglishWelcomeTitle,
                 BrowserTestConstants.AppShellFlow.OnboardingLibraryStep);
 
-            await page.GetByTestId(UiTestIds.Onboarding.Next).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Onboarding.Next));
             await AssertOnboardingStepAsync(
                 page,
                 BrowserTestConstants.AppShellFlow.OnboardingTpsTitle,
                 BrowserTestConstants.AppShellFlow.OnboardingTpsStep,
                 BrowserTestConstants.Routes.Pattern(BrowserTestConstants.Routes.EditorQuantum));
 
-            await page.GetByTestId(UiTestIds.Onboarding.Next).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Onboarding.Next));
             await AssertOnboardingStepAsync(
                 page,
                 BrowserTestConstants.AppShellFlow.OnboardingEditorTitle,
                 BrowserTestConstants.AppShellFlow.OnboardingEditorStep);
 
-            await page.GetByTestId(UiTestIds.Onboarding.Next).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Onboarding.Next));
             await AssertOnboardingStepAsync(
                 page,
                 BrowserTestConstants.AppShellFlow.OnboardingLearnTitle,
                 BrowserTestConstants.AppShellFlow.OnboardingLearnStep,
                 BrowserTestConstants.Routes.Pattern(BrowserTestConstants.Routes.LearnQuantum));
 
-            await page.GetByTestId(UiTestIds.Onboarding.Next).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Onboarding.Next));
             await AssertOnboardingStepAsync(
                 page,
                 BrowserTestConstants.AppShellFlow.OnboardingTeleprompterTitle,
                 BrowserTestConstants.AppShellFlow.OnboardingTeleprompterStep,
                 BrowserTestConstants.Routes.Pattern(BrowserTestConstants.Routes.TeleprompterQuantum));
 
-            await page.GetByTestId(UiTestIds.Onboarding.Next).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Onboarding.Next));
             await AssertOnboardingStepAsync(
                 page,
                 BrowserTestConstants.AppShellFlow.OnboardingGoLiveTitle,
                 BrowserTestConstants.AppShellFlow.OnboardingGoLiveStep,
                 BrowserTestConstants.Routes.Pattern(BrowserTestConstants.Routes.GoLiveQuantum));
 
-            await page.GetByTestId(UiTestIds.Onboarding.Next).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Onboarding.Next));
             await BrowserRouteDriver.WaitForRouteAsync(page, BrowserTestConstants.Routes.Library);
             await Expect(page.GetByTestId(UiTestIds.Onboarding.Surface)).ToBeHiddenAsync();
 
@@ -77,7 +77,7 @@ public sealed class OnboardingFlowTests(StandaloneAppFixture fixture) : AppUiTes
 
             await Expect(page.GetByTestId(UiTestIds.Onboarding.Surface)).ToBeVisibleAsync();
 
-            await page.GetByTestId(UiTestIds.Onboarding.Dismiss).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Onboarding.Dismiss));
             await BrowserRouteDriver.WaitForRouteAsync(page, BrowserTestConstants.Routes.Library);
             await Expect(page.GetByTestId(UiTestIds.Onboarding.Surface)).ToBeHiddenAsync();
 
@@ -92,16 +92,16 @@ public sealed class OnboardingFlowTests(StandaloneAppFixture fixture) : AppUiTes
             await SeedCompletedOnboardingAsync(page);
 
             await ShellRouteDriver.OpenSettingsAsync(page);
-            await page.GetByTestId(UiTestIds.Settings.NavAbout).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Settings.NavAbout));
 
-            await page.GetByTestId(UiTestIds.Settings.AboutOnboardingRestart).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Settings.AboutOnboardingRestart));
             await BrowserRouteDriver.WaitForRouteAsync(page, BrowserTestConstants.Routes.LibraryWithOnboarding);
 
             await Expect(page.GetByTestId(UiTestIds.Onboarding.Surface)).ToBeVisibleAsync();
             await Expect(page.GetByTestId(UiTestIds.Onboarding.Title))
                 .ToHaveTextAsync(BrowserTestConstants.AppShellFlow.OnboardingEnglishWelcomeTitle);
 
-            await page.GetByTestId(UiTestIds.Onboarding.Dismiss).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Onboarding.Dismiss));
             await BrowserRouteDriver.WaitForRouteAsync(page, BrowserTestConstants.Routes.Library);
             await Expect(page.GetByTestId(UiTestIds.Onboarding.Surface)).ToBeHiddenAsync();
         });

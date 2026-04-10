@@ -40,6 +40,14 @@ public sealed class TeleprompterReadingChromeIntensityTests(StandaloneAppFixture
             await Expect(controls).ToHaveAttributeAsync(
                 BrowserTestConstants.State.ActiveAttribute,
                 BrowserTestConstants.Teleprompter.ActiveStateValue);
+            await page.EvaluateAsync(
+                """
+                () => {
+                    if (document.activeElement instanceof HTMLElement) {
+                        document.activeElement.blur();
+                    }
+                }
+                """);
             await ClearChromeHoverAsync(page);
             await page.WaitForTimeoutAsync(BrowserTestConstants.TeleprompterFlow.ReadingChromeSettleDelayMs);
 

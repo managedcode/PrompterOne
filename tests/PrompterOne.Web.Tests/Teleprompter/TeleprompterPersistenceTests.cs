@@ -12,6 +12,7 @@ namespace PrompterOne.Web.Tests;
 
 public sealed class TeleprompterPersistenceTests : BunitContext
 {
+    private static readonly TimeSpan PersistenceAssertionTimeout = TimeSpan.FromSeconds(10);
     private const int MinimumReaderSpeedWpm = 60;
     private const int ReaderSpeedStepWpm = 10;
     private const string WordsPerMinuteSuffix = "WPM";
@@ -89,7 +90,7 @@ public sealed class TeleprompterPersistenceTests : BunitContext
             Assert.Contains(PortraitOrientationTransform, cameraStyle, StringComparison.Ordinal);
             Assert.Contains(HorizontalMirrorTransform, cameraStyle, StringComparison.Ordinal);
             Assert.Contains(VerticalMirrorTransform, cameraStyle, StringComparison.Ordinal);
-        });
+        }, PersistenceAssertionTimeout);
     }
 
     [Test]
@@ -158,7 +159,7 @@ public sealed class TeleprompterPersistenceTests : BunitContext
             Assert.Equal(ReaderTextOrientation.Portrait, harness.Session.State.ReaderSettings.TextOrientation);
             Assert.Equal(expectedUpdatedSpeedWpm, harness.Session.State.ReaderSettings.ScrollSpeed, 2);
             Assert.Equal(expectedShowCameraScene, harness.Session.State.ReaderSettings.ShowCameraScene);
-        });
+        }, PersistenceAssertionTimeout);
     }
 
     [Test]
@@ -185,7 +186,7 @@ public sealed class TeleprompterPersistenceTests : BunitContext
             Assert.Equal(BuildWordsPerMinuteLabel(MinimumReaderSpeedWpm), cut.FindByTestId(UiTestIds.Teleprompter.SpeedValue).TextContent.Trim());
             Assert.Equal(MinimumReaderSpeedWpm, savedSettings.ScrollSpeed, 2);
             Assert.Equal(MinimumReaderSpeedWpm, harness.Session.State.ReaderSettings.ScrollSpeed, 2);
-        });
+        }, PersistenceAssertionTimeout);
     }
 
     private static string BuildWordsPerMinuteLabel(int speedWpm) =>

@@ -259,7 +259,7 @@ public sealed class MainLayoutActionTests : BunitContext
 
         cut.FindByTestId(UiTestIds.Header.EditorSaveFile).Click();
 
-        Assert.Equal(1, saveRequestCount);
+        cut.WaitForAssertion(() => Assert.Equal(1, saveRequestCount));
     }
 
     [Test]
@@ -306,8 +306,9 @@ public sealed class MainLayoutActionTests : BunitContext
         cut.WaitForAssertion(() => Assert.NotNull(cut.FindByTestId(UiTestIds.Header.LiveWidget)));
         cut.FindByTestId(UiTestIds.Header.LiveWidget).Click();
 
-        Assert.EndsWith(AppRoutes.GoLive, navigation.Uri, StringComparison.Ordinal);
-        Assert.DoesNotContain(AppRoutes.ScriptIdQueryKey, navigation.Uri, StringComparison.Ordinal);
+        var goLiveUri = new Uri(navigation.Uri, UriKind.Absolute);
+        Assert.Equal(AppRoutes.GoLive, goLiveUri.AbsolutePath);
+        Assert.DoesNotContain(AppRoutes.ScriptIdQueryKey, goLiveUri.Query, StringComparison.Ordinal);
     }
 
     [Test]

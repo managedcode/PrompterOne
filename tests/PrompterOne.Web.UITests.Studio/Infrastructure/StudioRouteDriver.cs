@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using Microsoft.Playwright;
 using PrompterOne.Shared.Contracts;
 using static Microsoft.Playwright.Assertions;
@@ -44,32 +45,56 @@ internal static class StudioRouteDriver
 
     internal static async Task NavigateToGoLiveFromSettingsAsync(IPage page)
     {
-        await page.GetByTestId(UiTestIds.Settings.CameraRoutingCta).ClickAsync();
+        await UiInteractionDriver.ClickAndContinueAsync(
+            page.GetByTestId(UiTestIds.Settings.CameraRoutingCta),
+            noWaitAfter: true);
         await WaitForGoLiveReadyAsync(page, AppRoutes.GoLive);
     }
 
     internal static async Task NavigateToGoLiveFromHeaderAsync(IPage page)
     {
-        await page.GetByTestId(UiTestIds.Header.GoLive).ClickAsync();
+        await UiInteractionDriver.ClickAndContinueAsync(
+            page.GetByTestId(UiTestIds.Header.GoLive),
+            noWaitAfter: true);
         await WaitForGoLiveReadyAsync(page, AppRoutes.GoLive);
     }
 
     internal static async Task NavigateBackToLibraryAsync(IPage page)
     {
-        await page.GetByTestId(UiTestIds.GoLive.Back).ClickAsync();
+        await UiInteractionDriver.ClickAndContinueAsync(
+            page.GetByTestId(UiTestIds.GoLive.Back),
+            noWaitAfter: true);
+        await WaitForGoLiveExitAsync(page);
         await WaitForLibraryReadyAsync(page);
     }
 
     internal static async Task NavigateBackToSettingsAsync(IPage page)
     {
-        await page.GetByTestId(UiTestIds.GoLive.Back).ClickAsync();
+        await UiInteractionDriver.ClickAndContinueAsync(
+            page.GetByTestId(UiTestIds.GoLive.Back),
+            noWaitAfter: true);
+        await WaitForGoLiveExitAsync(page);
         await WaitForSettingsReadyAsync(page);
     }
 
     internal static async Task NavigateToSettingsFromGoLiveAsync(IPage page)
     {
-        await page.GetByTestId(UiTestIds.GoLive.OpenSettings).ClickAsync();
+        await UiInteractionDriver.ClickAndContinueAsync(
+            page.GetByTestId(UiTestIds.GoLive.OpenSettings),
+            noWaitAfter: true);
+        await WaitForGoLiveExitAsync(page);
         await WaitForSettingsReadyAsync(page);
+    }
+
+    internal static async Task SelectGoLiveSourceAsync(
+        IPage page,
+        string sourceId,
+        string expectedSelectedLabel)
+    {
+        await UiInteractionDriver.ClickAndContinueAsync(
+            page.GetByTestId(UiTestIds.GoLive.SourceCameraSelect(sourceId)));
+        await Expect(page.GetByTestId(UiTestIds.GoLive.SelectedSourceLabel))
+            .ToContainTextAsync(expectedSelectedLabel);
     }
 
     internal static Task WaitForLibraryReadyAsync(IPage page) =>
@@ -82,6 +107,7 @@ internal static class StudioRouteDriver
         await BrowserRouteDriver.WaitForRouteAsync(page, route);
         await Expect(page.GetByTestId(UiTestIds.Library.Page)).ToBeVisibleAsync();
         await Expect(page.GetByTestId(UiTestIds.Library.SortLabel)).ToBeVisibleAsync();
+        await Expect(page.GetByTestId(UiTestIds.Library.FolderAll)).ToBeVisibleAsync();
     }
 
     internal static Task WaitForSettingsReadyAsync(IPage page) =>
@@ -104,6 +130,18 @@ internal static class StudioRouteDriver
         await Expect(page.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
         await Expect(page.GetByTestId(UiTestIds.GoLive.ProgramCard)).ToBeVisibleAsync();
         await Expect(page.GetByTestId(UiTestIds.GoLive.SourcesCard)).ToBeVisibleAsync();
+    }
+
+    private static Task WaitForGoLiveExitAsync(IPage page)
+    {
+        var routePattern = new Regex($".*{Regex.Escape(AppRoutes.GoLive)}(?:\\?.*)?$");
+
+        return Expect(page).Not.ToHaveURLAsync(
+            routePattern,
+            new()
+            {
+                Timeout = BrowserTestConstants.Timing.DefaultNavigationTimeoutMs
+            });
     }
 
     private static Task OpenAsync(

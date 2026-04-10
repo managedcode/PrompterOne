@@ -868,10 +868,14 @@ internal static partial class BrowserTestConstants
     public static class Timing
     {
         public const int DefaultNavigationTimeoutMs = 20_000;
+        public const int EditorMutationTimeoutMs = 20_000;
+        public const int EditorReadyTimeoutMs = 25_000;
         public const int FastVisibleTimeoutMs = 5_000;
         public const int DefaultVisibleTimeoutMs = 10_000;
         public const int DiagnosticPollDelayMs = 50;
         public const int ExtendedVisibleTimeoutMs = 15_000;
+        public const int InteractionRetryCount = 3;
+        public const int InteractionRetryDelayMs = 125;
         public const int RuntimeWarmupVisibleTimeoutMs = 45_000;
         public const int NewDraftPersistGraceDelayMs = 700;
         public const int NewDraftPersistSettleDelayMs = 2_200;

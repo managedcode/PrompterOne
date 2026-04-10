@@ -54,22 +54,25 @@ public sealed class EditorDragDropFlowTests(StandaloneAppFixture fixture) : AppU
         RunPageAsync(async page =>
         {
             await EditorIsolatedDraftDriver.OpenBlankDraftAsync(page);
-            await Expect(EditorMonacoDriver.SourceInput(page)).ToHaveValueAsync(string.Empty);
+            var sourceInput = EditorMonacoDriver.SourceInput(page);
+            await Expect(sourceInput).ToHaveValueAsync(string.Empty);
 
             await EditorMonacoDriver.DropFilesAsync(
                 page,
                 new EditorMonacoDriver.DroppedFileDescriptor(ReplaceFileName, ReplaceFileText));
 
-            await Expect(EditorMonacoDriver.SourceInput(page)).ToHaveValueAsync(ReplaceVisibleBody);
+            await EditorIsolatedDraftDriver.WaitForAssignedScriptRouteAsync(page);
+            await Expect(page.GetByTestId(UiTestIds.Editor.Page))
+                .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
+            await EditorMonacoDriver.WaitUntilReadyAsync(page);
+            await Expect(sourceInput).ToHaveValueAsync(ReplaceVisibleBody);
             await Expect(page.GetByTestId(UiTestIds.Header.Title)).ToHaveTextAsync(ReplaceTitle);
 
-            await EditorMonacoDriver.FocusAsync(page);
-            await page.Keyboard.PressAsync(BrowserTestConstants.Keyboard.Undo);
-            await Expect(EditorMonacoDriver.SourceInput(page)).ToHaveValueAsync(string.Empty);
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Editor.Undo));
+            await Expect(sourceInput).ToHaveValueAsync(string.Empty);
 
-            await EditorMonacoDriver.FocusAsync(page);
-            await page.Keyboard.PressAsync(BrowserTestConstants.Keyboard.Redo);
-            await Expect(EditorMonacoDriver.SourceInput(page)).ToHaveValueAsync(ReplaceVisibleBody);
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Editor.Redo));
+            await Expect(sourceInput).ToHaveValueAsync(ReplaceVisibleBody);
         });
 
     [Test]
@@ -90,12 +93,10 @@ public sealed class EditorDragDropFlowTests(StandaloneAppFixture fixture) : AppU
             await Assert.That(appendedText).DoesNotContain("title:");
             await Assert.That(appendedText).DoesNotContain("---");
 
-            await EditorMonacoDriver.FocusAsync(page);
-            await page.Keyboard.PressAsync(BrowserTestConstants.Keyboard.Undo);
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Editor.Undo));
             await Expect(sourceInput).ToHaveValueAsync(initialText);
 
-            await EditorMonacoDriver.FocusAsync(page);
-            await page.Keyboard.PressAsync(BrowserTestConstants.Keyboard.Redo);
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Editor.Redo));
             await Expect(sourceInput).ToHaveValueAsync(expectedText);
         });
 

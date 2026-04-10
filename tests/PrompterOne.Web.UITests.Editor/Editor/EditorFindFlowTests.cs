@@ -47,7 +47,7 @@ public sealed class EditorFindFlowTests(StandaloneAppFixture fixture) : AppUiTes
         {
             UiScenarioArtifacts.ResetScenario(BrowserTestConstants.EditorFlow.FindSurfaceScenario);
 
-            await EditorIsolatedDraftDriver.CreateSeededDraftAsync(page, BrowserTestConstants.Scripts.DemoId);
+            await EditorIsolatedDraftDriver.CreateSeededDraftAsync(page, BrowserTestConstants.Scripts.QuantumId);
 
             var findBar = page.GetByTestId(UiTestIds.Editor.FindBar);
             var inputShell = page.GetByTestId(UiTestIds.Editor.FindInputShell);
@@ -57,6 +57,8 @@ public sealed class EditorFindFlowTests(StandaloneAppFixture fixture) : AppUiTes
             await Expect(inputShell).ToBeVisibleAsync();
 
             await page.GetByTestId(UiTestIds.Editor.FindInput).FillAsync(BrowserTestConstants.Editor.FindQuery);
+            await Expect(page.GetByTestId(UiTestIds.Editor.FindResult))
+                .ToHaveTextAsync(BrowserTestConstants.Editor.FindSingleMatchSummary);
             await Expect(previousButton).ToBeVisibleAsync();
 
             var inputShellBackground = await ReadCssColorAsync(inputShell, "backgroundColor");

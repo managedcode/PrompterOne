@@ -30,9 +30,10 @@ public partial class EditorPage
             {
                 await Bootstrapper.EnsureReadyAsync();
                 await EnsureSessionLoadedAsync();
+                var preserveHistoryOnLoad = ConsumePreserveHistoryOnNextLoad();
                 await LoadEditorFileWorkflowAsync();
                 PopulateEditorState(
-                    resetHistory: true,
+                    resetHistory: !preserveHistoryOnLoad,
                     clearSplitFeedback: !ConsumePreserveSplitFeedbackOnNextLoad());
                 StateHasChanged();
             });
@@ -57,6 +58,7 @@ public partial class EditorPage
         {
             _currentDraftSessionStartedUntitled = true;
             _pendingAutosaveSelfNavigationScriptId = null;
+            _preserveHistoryOnNextLoad = false;
             return;
         }
 
@@ -64,11 +66,13 @@ public partial class EditorPage
             string.Equals(requestedScriptId, _pendingAutosaveSelfNavigationScriptId, StringComparison.Ordinal))
         {
             _pendingAutosaveSelfNavigationScriptId = null;
+            _preserveHistoryOnNextLoad = true;
             return;
         }
 
         _currentDraftSessionStartedUntitled = false;
         _pendingAutosaveSelfNavigationScriptId = null;
+        _preserveHistoryOnNextLoad = false;
     }
 
     private async Task LoadScriptFromQueryAsync(string requestedScriptId)
@@ -127,6 +131,13 @@ public partial class EditorPage
         var shouldPreserveSplitFeedback = _preserveSplitFeedbackOnNextLoad;
         _preserveSplitFeedbackOnNextLoad = false;
         return shouldPreserveSplitFeedback;
+    }
+
+    private bool ConsumePreserveHistoryOnNextLoad()
+    {
+        var shouldPreserveHistory = _preserveHistoryOnNextLoad;
+        _preserveHistoryOnNextLoad = false;
+        return shouldPreserveHistory;
     }
 
     private void ResetMetadataDefaults(ScriptWorkspaceState state)

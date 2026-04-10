@@ -31,7 +31,7 @@ public sealed class LearnWordLaneStabilityTests(StandaloneAppFixture fixture)
             await StepUntilWordAsync(page, LongProbeWord, StabilityProbeStepLimit);
             var longWordLane = await MeasureRsvpLaneAsync(page);
 
-            await page.GetByTestId(UiTestIds.Learn.StepForward).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Learn.StepForward));
             await ExpectFocusWordAsync(page, ShortProbeWord);
             var shortWordLane = await MeasureRsvpLaneAsync(page);
 
@@ -89,7 +89,7 @@ public sealed class LearnWordLaneStabilityTests(StandaloneAppFixture fixture)
                 return;
             }
 
-            await page.GetByTestId(UiTestIds.Learn.StepForward).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Learn.StepForward));
         }
 
         Assert.Fail("Unexpected execution path.");

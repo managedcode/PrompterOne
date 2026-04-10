@@ -15,8 +15,9 @@ internal static class SettingsSelectDriver
         string triggerTestId,
         string optionValue)
     {
-        await trigger.ClickAsync();
-        await page.GetByTestId(UiTestIds.Settings.SelectOption(triggerTestId, optionValue)).ClickAsync();
+        await UiInteractionDriver.ClickAndContinueAsync(trigger);
+        await UiInteractionDriver.ClickAndContinueAsync(
+            page.GetByTestId(UiTestIds.Settings.SelectOption(triggerTestId, optionValue)));
         await Expect(trigger).ToHaveAttributeAsync(BrowserTestConstants.Html.ValueAttribute, optionValue);
     }
 }

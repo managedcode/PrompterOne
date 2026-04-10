@@ -30,7 +30,7 @@ public sealed class LearnFidelityTests(StandaloneAppFixture fixture)
             var initialDelta = await MeasureOrpDeltaAsync(page);
             await Assert.That(initialDelta).IsBetween(0, 6);
 
-            await page.GetByTestId(UiTestIds.Learn.PlayToggle).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Learn.PlayToggle));
             await page.WaitForTimeoutAsync(BrowserTestConstants.Timing.LearnPlaybackDelayMs);
             await WaitForLearnLayoutReadyAsync(page);
 
@@ -54,11 +54,11 @@ public sealed class LearnFidelityTests(StandaloneAppFixture fixture)
             await Expect(page.GetByTestId(UiTestIds.Learn.Page))
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
 
-            await page.GetByTestId(UiTestIds.Learn.StepForwardLarge).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Learn.StepForwardLarge));
 
             for (var index = 0; index < BrowserTestConstants.Learn.MidFlowStepSmall; index++)
             {
-                await page.GetByTestId(UiTestIds.Learn.StepForward).ClickAsync();
+                await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Learn.StepForward));
             }
 
             await ExpectFocusWordAsync(page, BrowserTestConstants.Learn.MidFlowWord);
@@ -404,7 +404,7 @@ public sealed class LearnFidelityTests(StandaloneAppFixture fixture)
                 return;
             }
 
-            await page.GetByTestId(UiTestIds.Learn.StepForward).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Learn.StepForward));
             await WaitForLearnLayoutReadyAsync(page);
         }
 

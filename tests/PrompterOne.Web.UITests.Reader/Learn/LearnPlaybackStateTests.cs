@@ -23,7 +23,7 @@ public sealed class LearnPlaybackStateTests(StandaloneAppFixture fixture) : AppU
 
             var beforeToggle = await ReadToggleIconStateAsync(page);
 
-            await page.GetByTestId(UiTestIds.Learn.PlayToggle).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Learn.PlayToggle));
 
             var afterToggle = await ReadToggleIconStateAsync(page);
 
@@ -61,7 +61,7 @@ public sealed class LearnPlaybackStateTests(StandaloneAppFixture fixture) : AppU
             UiScenarioArtifacts.ResetScenario(BrowserTestConstants.Learn.StopAtEndScenarioName);
             await NavigateToLearnDemoAsync(page);
             await MoveToPenultimateWordAsync(page);
-            await page.GetByTestId(UiTestIds.Learn.PlayToggle).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Learn.PlayToggle));
             await page.WaitForTimeoutAsync(BrowserTestConstants.Timing.LearnPlaybackProbeWindowMs);
             var finalState = await ReadProgressStateAsync(page);
             var iconState = await ReadToggleIconStateAsync(page);
@@ -80,10 +80,10 @@ public sealed class LearnPlaybackStateTests(StandaloneAppFixture fixture) : AppU
             UiScenarioArtifacts.ResetScenario(BrowserTestConstants.Learn.LoopWrapScenarioName);
             await NavigateToLearnDemoAsync(page);
             await MoveToFinalWordAsync(page);
-            await page.GetByTestId(UiTestIds.Learn.LoopToggle).ClickAsync();
-            await page.GetByTestId(UiTestIds.Learn.PlayToggle).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Learn.LoopToggle));
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Learn.PlayToggle));
             await page.WaitForTimeoutAsync(BrowserTestConstants.Timing.LearnPlaybackProbeWindowMs);
-            await page.GetByTestId(UiTestIds.Learn.PlayToggle).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Learn.PlayToggle));
             var wrappedState = await ReadProgressStateAsync(page);
             await UiScenarioArtifacts.CapturePageAsync(
                 page,
@@ -116,13 +116,13 @@ public sealed class LearnPlaybackStateTests(StandaloneAppFixture fixture) : AppU
         var progress = await ReadProgressStateAsync(page);
         while (progress.CurrentWordNumber + BrowserTestConstants.Learn.StepForwardLargeWordCount <= targetWordNumber)
         {
-            await page.GetByTestId(UiTestIds.Learn.StepForwardLarge).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Learn.StepForwardLarge));
             progress = await ReadProgressStateAsync(page);
         }
 
         while (progress.CurrentWordNumber < targetWordNumber)
         {
-            await page.GetByTestId(UiTestIds.Learn.StepForward).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Learn.StepForward));
             progress = await ReadProgressStateAsync(page);
         }
     }
@@ -135,7 +135,7 @@ public sealed class LearnPlaybackStateTests(StandaloneAppFixture fixture) : AppU
             {
                 return;
             }
-            await page.GetByTestId(UiTestIds.Learn.StepForward).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Learn.StepForward));
         }
         Assert.Fail("Unexpected execution path.");
     }

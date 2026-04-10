@@ -40,12 +40,29 @@ internal static class UiScenarioArtifacts
         var directory = Path.GetDirectoryName(path) ?? throw new InvalidOperationException("Artifact directory path is unavailable.");
         Directory.CreateDirectory(directory);
 
-        await page.ScreenshotAsync(new PageScreenshotOptions
+        for (var attempt = 1; attempt <= BrowserTestConstants.ScenarioArtifacts.CaptureRetryCount; attempt++)
         {
-            Path = path,
-            Animations = ScreenshotAnimations.Disabled,
-            FullPage = false
-        });
+            try
+            {
+                await page.ScreenshotAsync(new PageScreenshotOptions
+                {
+                    Path = path,
+                    Animations = ScreenshotAnimations.Disabled,
+                    FullPage = false
+                });
+                return;
+            }
+            catch (TimeoutException) when (attempt < BrowserTestConstants.ScenarioArtifacts.CaptureRetryCount)
+            {
+                await Task.Delay(BrowserTestConstants.ScenarioArtifacts.CaptureRetryDelayMs);
+            }
+            catch (PlaywrightException exception) when (
+                attempt < BrowserTestConstants.ScenarioArtifacts.CaptureRetryCount &&
+                IsTransientPageCaptureFailure(exception))
+            {
+                await Task.Delay(BrowserTestConstants.ScenarioArtifacts.CaptureRetryDelayMs);
+            }
+        }
     }
 
     public static async Task CaptureLocatorAsync(ILocator locator, string scenarioName, string stepName)
@@ -127,5 +144,12 @@ internal static class UiScenarioArtifacts
                || exception.Message.Contains(
                    BrowserTestConstants.ScenarioArtifacts.UnstableElementMessageFragment,
                    StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsTransientPageCaptureFailure(PlaywrightException exception)
+    {
+        return IsTransientLocatorCaptureFailure(exception)
+               || exception.Message.Contains("waiting for fonts to load", StringComparison.OrdinalIgnoreCase)
+               || exception.Message.Contains("Timeout", StringComparison.OrdinalIgnoreCase);
     }
 }

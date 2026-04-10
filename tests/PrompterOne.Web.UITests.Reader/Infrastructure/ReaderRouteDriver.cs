@@ -12,8 +12,7 @@ internal static class ReaderRouteDriver
         string route,
         [CallerMemberName] string scenarioName = "")
     {
-        await OpenAsync(page, route, UiTestIds.Learn.Page, scenarioName);
-        await WaitForLearnReadyAsync(page);
+        await PlaybackRouteDriver.OpenLearnAsync(page, route, $"{scenarioName}-{UiTestIds.Learn.Page}");
     }
 
     internal static async Task OpenTeleprompterAsync(
@@ -21,8 +20,7 @@ internal static class ReaderRouteDriver
         string route,
         [CallerMemberName] string scenarioName = "")
     {
-        await OpenAsync(page, route, UiTestIds.Teleprompter.Page, scenarioName);
-        await WaitForTeleprompterReadyAsync(page);
+        await PlaybackRouteDriver.OpenTeleprompterAsync(page, route, $"{scenarioName}-{UiTestIds.Teleprompter.Page}");
     }
 
     internal static async Task OpenSettingsAsync(
@@ -43,20 +41,6 @@ internal static class ReaderRouteDriver
             route,
             pageTestId,
             $"{scenarioName}-{pageTestId}");
-
-    private static async Task WaitForLearnReadyAsync(IPage page)
-    {
-        await Expect(page.GetByTestId(UiTestIds.Learn.Page)).ToBeVisibleAsync();
-        await Expect(page.GetByTestId(UiTestIds.Learn.ProgressLabel)).ToBeVisibleAsync();
-        await Expect(page.GetByTestId(UiTestIds.Learn.PlayToggle)).ToBeVisibleAsync();
-    }
-
-    private static async Task WaitForTeleprompterReadyAsync(IPage page)
-    {
-        await Expect(page.GetByTestId(UiTestIds.Teleprompter.Page)).ToBeVisibleAsync();
-        await Expect(page.GetByTestId(UiTestIds.Teleprompter.Stage)).ToBeVisibleAsync();
-        await Expect(page.GetByTestId(UiTestIds.Teleprompter.PlayToggle)).ToBeVisibleAsync();
-    }
 
     private static async Task WaitForSettingsReadyAsync(IPage page)
     {

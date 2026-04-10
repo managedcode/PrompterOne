@@ -9,6 +9,7 @@ public sealed partial class StandaloneAppFixture : IAsyncInitializer, IAsyncDisp
 {
     private const int MinimumPageCount = 1;
     private const int ContextBootstrapAttemptCount = 3;
+    private const int BlankPageBootstrapAttemptCount = 2;
     private const int ServerStartupTimeoutSeconds = 60;
     private const int ServerProbeDelayMilliseconds = 500;
     private readonly ConcurrentDictionary<IBrowserContext, byte> _contexts = [];
@@ -86,6 +87,11 @@ public sealed partial class StandaloneAppFixture : IAsyncInitializer, IAsyncDisp
             {
                 await DisposeContextAsync(context);
             }
+            catch
+            {
+                await DisposeContextAsync(context);
+                throw;
+            }
         }
     }
 
@@ -93,48 +99,42 @@ public sealed partial class StandaloneAppFixture : IAsyncInitializer, IAsyncDisp
     {
         for (var attempt = 1; ; attempt++)
         {
-            var (context, isNewSharedContext) = await GetOrCreateSharedContextAsync(contextKey);
+            if (_sharedContexts.TryGetValue(contextKey, out var existingContext))
+            {
+                EnsureContextTracked(existingContext);
+
+                try
+                {
+                    return await CreateBlankPageAsync(existingContext);
+                }
+                catch (PlaywrightException exception) when (attempt < ContextBootstrapAttemptCount && IsBrowserClosedException(exception))
+                {
+                    RemoveSharedContext(existingContext);
+                }
+            }
+
+            var newContext = await CreateTrackedContextAsync();
 
             try
             {
-                if (isNewSharedContext)
+                var primedPage = await CreatePrimedPageAsync(newContext);
+                if (_sharedContexts.TryAdd(contextKey, newContext))
                 {
-                    return await CreatePrimedPageAsync(context);
+                    return primedPage;
                 }
 
-                return await CreateBlankPageAsync(context);
+                await DisposeContextAsync(newContext);
             }
             catch (PlaywrightException exception) when (attempt < ContextBootstrapAttemptCount && IsBrowserClosedException(exception))
             {
-                RemoveSharedContext(context);
+                await DisposeContextAsync(newContext);
+            }
+            catch
+            {
+                await DisposeContextAsync(newContext);
+                throw;
             }
         }
-    }
-
-    private async Task<(IBrowserContext Context, bool IsNew)> GetOrCreateSharedContextAsync(string contextKey)
-    {
-        if (_sharedContexts.TryGetValue(contextKey, out var existingContext))
-        {
-            EnsureContextTracked(existingContext);
-            return (existingContext, false);
-        }
-
-        var newContext = await CreateTrackedContextAsync();
-
-        if (_sharedContexts.TryAdd(contextKey, newContext))
-        {
-            return (newContext, true);
-        }
-
-        try
-        {
-            await newContext.DisposeAsync();
-        }
-        catch
-        {
-        }
-
-        return (_sharedContexts[contextKey], false);
     }
 
     private async Task<IBrowserContext> CreateTrackedContextAsync()
@@ -229,10 +229,39 @@ public sealed partial class StandaloneAppFixture : IAsyncInitializer, IAsyncDisp
 
     private async Task<IPage> CreateBlankPageAsync(IBrowserContext context)
     {
-        var page = await context.NewPageAsync();
-        PreparePage(page);
-        await page.GotoAsync($"{BaseAddress}{UiTestHostConstants.BlankPagePath}");
-        return page;
+        TimeoutException? lastTimeout = null;
+        PlaywrightException? lastPlaywrightFailure = null;
+
+        for (var attempt = 1; attempt <= BlankPageBootstrapAttemptCount; attempt++)
+        {
+            var page = await context.NewPageAsync();
+            PreparePage(page);
+
+            try
+            {
+                await page.GotoAsync($"{BaseAddress}{UiTestHostConstants.BlankPagePath}", new() { WaitUntil = WaitUntilState.Load });
+                return page;
+            }
+            catch (TimeoutException exception) when (attempt < BlankPageBootstrapAttemptCount)
+            {
+                lastTimeout = exception;
+                await SafeClosePageAsync(page);
+            }
+            catch (PlaywrightException exception) when (attempt < BlankPageBootstrapAttemptCount && !IsBrowserClosedException(exception))
+            {
+                lastPlaywrightFailure = exception;
+                await SafeClosePageAsync(page);
+            }
+            catch
+            {
+                await SafeClosePageAsync(page);
+                throw;
+            }
+        }
+
+        throw (Exception?)lastTimeout
+              ?? (Exception?)lastPlaywrightFailure
+              ?? new InvalidOperationException("Unable to create a shared blank-page browser tab.");
     }
 
     private Task PrimeIsolatedBrowserStorageAsync(IPage page) =>
@@ -242,6 +271,17 @@ public sealed partial class StandaloneAppFixture : IAsyncInitializer, IAsyncDisp
     {
         page.SetDefaultNavigationTimeout(BrowserTestConstants.Timing.DefaultNavigationTimeoutMs);
         page.SetDefaultTimeout(BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs);
+    }
+
+    private static async Task SafeClosePageAsync(IPage page)
+    {
+        try
+        {
+            await page.CloseAsync();
+        }
+        catch
+        {
+        }
     }
 
     private static class SharedRuntime

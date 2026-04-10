@@ -44,11 +44,11 @@ public sealed class EditorLearnScreenFlowTests(StandaloneAppFixture fixture) : A
             await Expect(page.GetByTestId(UiTestIds.Header.Center))
                 .ToContainTextAsync(BrowserTestConstants.Scripts.ProductLaunchTitle, new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
             await Expect(page.GetByTestId(UiTestIds.Learn.NextPhrase)).Not.ToHaveTextAsync(string.Empty);
-            await page.GetByTestId(UiTestIds.Learn.SpeedUp).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Learn.SpeedUp));
             await Expect(page.GetByTestId(UiTestIds.Learn.SpeedValue)).ToHaveTextAsync(BrowserTestConstants.EditorFlow.LearnSpeedAfterIncrease);
-            await page.GetByTestId(UiTestIds.Learn.StepBackward).ClickAsync();
-            await page.GetByTestId(UiTestIds.Learn.StepForward).ClickAsync();
-            await page.GetByTestId(UiTestIds.Learn.PlayToggle).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Learn.StepBackward));
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Learn.StepForward));
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Learn.PlayToggle));
             await Expect(page.GetByTestId(UiTestIds.Learn.PlayToggle)).ToBeVisibleAsync();
             await Expect(page.GetByTestId(UiTestIds.Learn.NextPhrase)).Not.ToHaveTextAsync(string.Empty);
         });

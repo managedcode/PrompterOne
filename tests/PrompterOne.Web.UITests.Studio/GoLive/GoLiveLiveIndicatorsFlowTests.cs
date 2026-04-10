@@ -53,7 +53,7 @@ public sealed class GoLiveLiveIndicatorsFlowTests(StandaloneAppFixture fixture)
             await StudioRouteDriver.OpenGoLiveAsync(page);
             await Expect(page.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
 
-            await page.GetByTestId(UiTestIds.GoLive.StartRecording).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.GoLive.StartRecording));
             await page.WaitForFunctionAsync(
                 BrowserTestConstants.GoLive.RecordingRuntimeActiveScript,
                 BrowserTestConstants.GoLive.RuntimeSessionId,

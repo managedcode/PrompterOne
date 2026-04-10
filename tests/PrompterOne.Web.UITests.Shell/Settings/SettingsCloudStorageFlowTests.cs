@@ -33,8 +33,8 @@ public sealed class SettingsCloudStorageFlowTests(StandaloneAppFixture fixture) 
                 UiTestIds.Settings.CloudProviderField(CloudStorageProviderIds.Dropbox, CloudStorageFieldIds.AccountLabel));
             await Expect(accountLabelField).ToBeVisibleAsync();
             await accountLabelField.FillAsync(BrowserTestConstants.SettingsFlow.DropboxLabel);
-            await page.GetByTestId(UiTestIds.Settings.CloudProviderConnect(CloudStorageProviderIds.Dropbox))
-                .ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(
+                page.GetByTestId(UiTestIds.Settings.CloudProviderConnect(CloudStorageProviderIds.Dropbox)));
 
             await Expect(page.GetByTestId(UiTestIds.Settings.CloudProviderMessage(CloudStorageProviderIds.Dropbox)))
                 .ToHaveTextAsync(BrowserTestConstants.SettingsFlow.DropboxValidationMessage);
@@ -43,7 +43,7 @@ public sealed class SettingsCloudStorageFlowTests(StandaloneAppFixture fixture) 
                 BrowserTestConstants.SettingsFlow.CloudStorageScenario,
                 BrowserTestConstants.SettingsFlow.CloudStorageConfiguredStep);
 
-            await page.ReloadAsync(new() { WaitUntil = WaitUntilState.NetworkIdle });
+            await page.ReloadAsync(new() { WaitUntil = WaitUntilState.Load });
             await Expect(page.GetByTestId(UiTestIds.Settings.Page)).ToBeVisibleAsync(
                 new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
             await Expect(page.GetByTestId(UiTestIds.Settings.CloudDefaultProvider))
@@ -69,14 +69,15 @@ public sealed class SettingsCloudStorageFlowTests(StandaloneAppFixture fixture) 
         {
             await ShellRouteDriver.OpenSettingsAsync(page);
 
-            await page.GetByTestId(UiTestIds.Settings.NavAppearance).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Settings.NavAppearance));
             await Expect(page.GetByTestId(UiTestIds.Settings.AppearancePanel)).ToBeVisibleAsync();
-            await page.GetByTestId(UiTestIds.Settings.ThemeOption(BrowserTestConstants.SettingsFlow.LightTheme)).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(
+                page.GetByTestId(UiTestIds.Settings.ThemeOption(BrowserTestConstants.SettingsFlow.LightTheme)));
             await Expect(page.Locator("html")).ToHaveAttributeAsync(
                 BrowserTestConstants.SettingsFlow.HtmlThemeAttribute,
                 BrowserTestConstants.SettingsFlow.LightTheme);
 
-            await page.GetByTestId(UiTestIds.Settings.NavCloud).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Settings.NavCloud));
             await Expect(page.GetByTestId(UiTestIds.Settings.CloudPanel)).ToBeVisibleAsync();
 
             var oneDriveCard = page.GetByTestId(UiTestIds.Settings.CloudProviderCard(CloudStorageProviderIds.OneDrive));
@@ -93,7 +94,7 @@ public sealed class SettingsCloudStorageFlowTests(StandaloneAppFixture fixture) 
             await Expect(accountLabelField).ToBeVisibleAsync();
             await Expect(oneDriveSubtitle).ToBeVisibleAsync();
 
-            await defaultProvider.ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(defaultProvider);
             await Expect(defaultProviderPanel).ToBeVisibleAsync();
             await Expect(defaultProviderOption).ToBeVisibleAsync();
 
@@ -121,7 +122,7 @@ public sealed class SettingsCloudStorageFlowTests(StandaloneAppFixture fixture) 
     {
         if (await HasEnabledStateAsync(locator))
         {
-            await locator.ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(locator);
             await Expect(locator).ToHaveAttributeAsync(
                 BrowserTestConstants.State.EnabledAttribute,
                 BrowserTestConstants.State.DisabledValue);

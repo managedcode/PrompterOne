@@ -245,6 +245,7 @@ internal static partial class BrowserTestConstants
         public const string WidthSliderTooltipText = "Adjust the reader text width";
         public const int TooltipEarlyCheckDelayMs = 1000;
         public const int TooltipSettleDelayMs = 3400;
+        public const int TooltipRevealTimingSlackMs = 700;
         public const int TooltipDismissTimeoutMs = 1_500;
         public const double MaximumEarlyTooltipOpacity = 0.05;
         public const double MinimumVisibleTooltipOpacity = 0.9;
@@ -437,6 +438,7 @@ internal static partial class BrowserTestConstants
         public const int BoundaryTransitionSampleIndex = 4;
         public const int LearnTimingToleranceMs = 200;
         public const int LearnStartupTimingToleranceMs = 1800;
+        public const double LearnTimingToleranceRatio = 0.35d;
         public const int LearnSpeedStep = 10;
         public const int LearnSlowWpm = 200;
         public const int LearnFastWpm = 300;

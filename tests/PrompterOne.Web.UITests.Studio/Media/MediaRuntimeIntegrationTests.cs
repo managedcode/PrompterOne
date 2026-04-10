@@ -17,7 +17,7 @@ public sealed class MediaRuntimeIntegrationTests(StandaloneAppFixture fixture)
         {
             await StudioRouteDriver.OpenSettingsAsync(page);
             await Expect(page.GetByTestId(UiTestIds.Settings.Page)).ToBeVisibleAsync();
-            await page.GetByTestId(UiTestIds.Settings.NavCameras).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Settings.NavCameras));
             var camerasPanel = page.GetByTestId(UiTestIds.Settings.CamerasPanel);
             await Expect(camerasPanel).ToBeVisibleAsync();
             var requestMediaButton = camerasPanel.GetByTestId(UiTestIds.Settings.RequestMedia);
@@ -62,7 +62,7 @@ public sealed class MediaRuntimeIntegrationTests(StandaloneAppFixture fixture)
                 new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
 
             await page.EvaluateAsync(BrowserTestConstants.Media.ClearRequestLogScript);
-            await page.GetByTestId(UiTestIds.Settings.NavMics).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Settings.NavMics));
             await Expect(page.GetByTestId(UiTestIds.Settings.MicsPanel)).ToBeVisibleAsync();
             await Expect(page.GetByTestId(UiTestIds.Settings.MicDevice(BrowserTestConstants.Media.PrimaryMicrophoneId))).ToBeVisibleAsync();
             await Expect(page.GetByTestId(UiTestIds.Settings.MicPreviewMeter)).ToBeVisibleAsync();
@@ -135,7 +135,7 @@ public sealed class MediaRuntimeIntegrationTests(StandaloneAppFixture fixture)
         {
             await StudioRouteDriver.OpenSettingsAsync(page);
             await Expect(page.GetByTestId(UiTestIds.Settings.Page)).ToBeVisibleAsync();
-            await page.GetByTestId(UiTestIds.Settings.NavCameras).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Settings.NavCameras));
             var camerasPanel = page.GetByTestId(UiTestIds.Settings.CamerasPanel);
             await Expect(camerasPanel).ToBeVisibleAsync();
             var requestMediaButton = camerasPanel.GetByTestId(UiTestIds.Settings.RequestMedia);
@@ -151,7 +151,7 @@ public sealed class MediaRuntimeIntegrationTests(StandaloneAppFixture fixture)
                 },
                 new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
 
-            await page.GetByTestId(UiTestIds.Settings.NavAi).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Settings.NavAi));
             await Expect(page.GetByTestId(UiTestIds.Settings.AiPanel)).ToBeVisibleAsync();
 
             await page.WaitForFunctionAsync(
@@ -244,7 +244,7 @@ public sealed class MediaRuntimeIntegrationTests(StandaloneAppFixture fixture)
             await Expect(page.GetByTestId(UiTestIds.Settings.Page)).ToBeVisibleAsync();
             await page.EvaluateAsync(BrowserTestConstants.Media.ClearDeviceLabelsScript);
 
-            await page.GetByTestId(UiTestIds.Settings.NavCameras).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Settings.NavCameras));
             var camerasPanel = page.GetByTestId(UiTestIds.Settings.CamerasPanel);
             await Expect(camerasPanel).ToBeVisibleAsync();
             var requestMediaButton = camerasPanel.GetByTestId(UiTestIds.Settings.RequestMedia);
@@ -266,7 +266,7 @@ public sealed class MediaRuntimeIntegrationTests(StandaloneAppFixture fixture)
             await Assert.That(string.IsNullOrWhiteSpace(await primaryCameraLabel.TextContentAsync())).IsTrue();
             await Assert.That(string.IsNullOrWhiteSpace(await cameraPreviewLabel.TextContentAsync())).IsTrue();
 
-            await page.GetByTestId(UiTestIds.Settings.NavMics).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Settings.NavMics));
             await Expect(page.GetByTestId(UiTestIds.Settings.MicsPanel)).ToBeVisibleAsync();
 
             var primaryMicrophoneCard = page.GetByTestId(UiTestIds.Settings.MicDevice(BrowserTestConstants.Media.PrimaryMicrophoneId));
@@ -299,7 +299,7 @@ public sealed class MediaRuntimeIntegrationTests(StandaloneAppFixture fixture)
         {
             await StudioRouteDriver.OpenSettingsAsync(page);
             await Expect(page.GetByTestId(UiTestIds.Settings.Page)).ToBeVisibleAsync();
-            await page.GetByTestId(UiTestIds.Settings.NavCameras).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Settings.NavCameras));
             var camerasPanel = page.GetByTestId(UiTestIds.Settings.CamerasPanel);
             await Expect(camerasPanel).ToBeVisibleAsync();
             var requestMediaButton = camerasPanel.GetByTestId(UiTestIds.Settings.RequestMedia);

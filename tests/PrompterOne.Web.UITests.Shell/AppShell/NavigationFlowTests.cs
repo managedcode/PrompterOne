@@ -21,13 +21,13 @@ public sealed class NavigationFlowTests(StandaloneAppFixture fixture)
         {
             await ShellRouteDriver.OpenLibraryAsync(page);
 
-            await page.GetByTestId(UiTestIds.Header.GoLive).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Header.GoLive));
             await BrowserRouteDriver.WaitForRouteAsync(page, AppRoutes.GoLive);
             await Expect(page.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
 
             await ShellRouteDriver.OpenSettingsAsync(page);
 
-            await page.GetByTestId(UiTestIds.Header.GoLive).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Header.GoLive));
             await BrowserRouteDriver.WaitForRouteAsync(page, AppRoutes.GoLive);
             await Expect(page.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
         }
@@ -52,7 +52,7 @@ public sealed class NavigationFlowTests(StandaloneAppFixture fixture)
 
             await page.EvaluateAsync("value => window.__prompterSpaNonce = value", nonce);
 
-            await page.GetByTestId(UiTestIds.Header.EditorLearn).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Header.EditorLearn));
             await BrowserRouteDriver.WaitForRouteAsync(page, BrowserTestConstants.Routes.LearnQuantum);
             await Expect(page.GetByTestId(UiTestIds.Learn.Page)).ToBeVisibleAsync();
             await Assert.That(await page.EvaluateAsync<string>("() => window.__prompterSpaNonce")).IsEqualTo(nonce);
@@ -63,12 +63,12 @@ public sealed class NavigationFlowTests(StandaloneAppFixture fixture)
                 $"{nameof(ScreenNavigation_UsesSpaRoutingWithoutReloadingBrowserContext)}-return");
             await page.EvaluateAsync("value => window.__prompterSpaNonce = value", nonce);
 
-            await page.GetByTestId(UiTestIds.Header.EditorRead).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Header.EditorRead));
             await BrowserRouteDriver.WaitForRouteAsync(page, BrowserTestConstants.Routes.TeleprompterQuantum);
             await Expect(page.GetByTestId(UiTestIds.Teleprompter.Page)).ToBeVisibleAsync();
             await Assert.That(await page.EvaluateAsync<string>("() => window.__prompterSpaNonce")).IsEqualTo(nonce);
 
-            await page.GetByTestId(UiTestIds.Teleprompter.Back).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Teleprompter.Back));
             await BrowserRouteDriver.WaitForRouteAsync(page, BrowserTestConstants.Routes.EditorQuantum);
             await Expect(page.GetByTestId(UiTestIds.Editor.Page)).ToBeVisibleAsync();
             await Assert.That(await page.EvaluateAsync<string>("() => window.__prompterSpaNonce")).IsEqualTo(nonce);

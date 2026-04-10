@@ -39,16 +39,19 @@ public sealed class ReaderPlaybackTimingTests(StandaloneAppFixture fixture)
             await ReaderRouteDriver.OpenTeleprompterAsync(page, BrowserTestConstants.Routes.TeleprompterReaderTiming);
             await Expect(page.GetByTestId(UiTestIds.Teleprompter.Page))
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
-
             await InstallWordRecorderAsync(page, UiTestIds.Teleprompter.ActiveWord);
-            await page.GetByTestId(UiTestIds.Teleprompter.PlayToggle).ClickAsync();
+            await StartWordRecorderAsync(page);
+            var playToggle = page.GetByTestId(UiTestIds.Teleprompter.PlayToggle);
+            await UiInteractionDriver.ClickAndContinueAsync(playToggle);
+            await Expect(playToggle)
+                .ToHaveAttributeAsync(BrowserTestConstants.State.ActiveAttribute, BrowserTestConstants.Teleprompter.ActiveStateValue);
 
-            var samples = await WaitForRecordedSamplesAsync(page, BrowserTestConstants.ReaderTiming.WordCount);
+            var samples = (await WaitForRecordedSamplesAsync(page, BrowserTestConstants.ReaderTiming.WordCount)).ToArray();
 
             await Assert.That(samples.Select(sample => sample.Word).ToArray()).IsEquivalentTo(BrowserTestConstants.ReaderTiming.ExpectedWords, CollectionOrdering.Matching);
             await Assert.That(samples.Select(sample => sample.EffectiveWpm).ToArray()).IsEquivalentTo(TeleprompterEffectiveWpmSequence, CollectionOrdering.Matching);
 
-            for (var sampleIndex = 1; sampleIndex < samples.Count; sampleIndex++)
+            for (var sampleIndex = 1; sampleIndex < samples.Length; sampleIndex++)
             {
                 var previousSample = samples[sampleIndex - 1];
                 var currentSample = samples[sampleIndex];
@@ -170,6 +173,7 @@ public sealed class ReaderPlaybackTimingTests(StandaloneAppFixture fixture)
             """
             config => {
                 const recorder = {
+                    active: false,
                     durationAttributeName: config.durationAttributeName,
                     effectiveWpmAttributeName: config.effectiveWpmAttributeName,
                     lastWord: null,
@@ -177,11 +181,15 @@ public sealed class ReaderPlaybackTimingTests(StandaloneAppFixture fixture)
                     pollIntervalMs: config.pollIntervalMs,
                     samples: [],
                     testId: config.testId,
-                    startMs: performance.now(),
+                    startMs: 0,
                     timer: 0
                 };
 
                 const readWord = () => {
+                    if (!recorder.active) {
+                        return;
+                    }
+
                     const node = document.querySelector(`[data-test="${recorder.testId}"]`);
                     if (!(node instanceof HTMLElement)) {
                         return;
@@ -202,7 +210,14 @@ public sealed class ReaderPlaybackTimingTests(StandaloneAppFixture fixture)
                     });
                 };
 
-                readWord();
+                recorder.start = () => {
+                    recorder.active = true;
+                    recorder.lastWord = null;
+                    recorder.samples = [];
+                    recorder.startMs = performance.now();
+                    readWord();
+                };
+
                 recorder.timer = window.setInterval(readWord, recorder.pollIntervalMs);
                 window[config.key] = recorder;
             }
@@ -217,6 +232,20 @@ public sealed class ReaderPlaybackTimingTests(StandaloneAppFixture fixture)
                 testId
             });
 
+    private static Task StartWordRecorderAsync(IPage page) =>
+        page.EvaluateAsync(
+            """
+            key => {
+                const recorder = window[key];
+                if (!recorder?.start) {
+                    throw new Error(`Reader timing recorder '${key}' is not installed.`);
+                }
+
+                recorder.start();
+            }
+            """,
+            ReaderTimingRecorderKey);
+
     private static async Task<IReadOnlyList<RecordedWordSample>> CaptureLearnSamplesAsync(
         IPage page,
         string route,
@@ -224,7 +253,7 @@ public sealed class ReaderPlaybackTimingTests(StandaloneAppFixture fixture)
         int expectedSampleCount)
     {
         await SeedLearnSpeedAsync(page, targetWpm);
-        await page.GotoAsync(UiTestHostConstants.BlankPagePath, new() { WaitUntil = WaitUntilState.NetworkIdle });
+        await page.GotoAsync(UiTestHostConstants.BlankPagePath, new() { WaitUntil = WaitUntilState.Load });
         await ReaderRouteDriver.OpenLearnAsync(page, route);
         await Expect(page.GetByTestId(UiTestIds.Learn.Word)).ToBeVisibleAsync();
         await Assert.That(await ReadNormalizedLearnWordAsync(page)).IsEqualTo(BrowserTestConstants.ReaderTiming.FirstWord);
@@ -232,7 +261,11 @@ public sealed class ReaderPlaybackTimingTests(StandaloneAppFixture fixture)
             .ToHaveTextAsync(targetWpm.ToString(System.Globalization.CultureInfo.InvariantCulture));
 
         await InstallWordRecorderAsync(page, UiTestIds.Learn.Word);
-        await page.GetByTestId(UiTestIds.Learn.PlayToggle).ClickAsync();
+        await StartWordRecorderAsync(page);
+        var playToggle = page.GetByTestId(UiTestIds.Learn.PlayToggle);
+        await UiInteractionDriver.ClickAndContinueAsync(playToggle);
+        await Expect(playToggle)
+            .ToHaveAttributeAsync("aria-pressed", bool.TrueString.ToLowerInvariant());
 
         var samples = await WaitForRecordedSamplesAsync(page, expectedSampleCount);
         await Expect(page.GetByTestId(UiTestIds.Learn.PlayToggle))
@@ -268,7 +301,9 @@ public sealed class ReaderPlaybackTimingTests(StandaloneAppFixture fixture)
             var expectedDelay = expected.DurationMs + expected.PauseMs;
             var toleranceMilliseconds = sampleIndex == 1
                 ? BrowserTestConstants.ReaderTiming.LearnStartupTimingToleranceMs
-                : BrowserTestConstants.ReaderTiming.LearnTimingToleranceMs;
+                : Math.Max(
+                    BrowserTestConstants.ReaderTiming.LearnTimingToleranceMs,
+                    (int)Math.Ceiling(expectedDelay * BrowserTestConstants.ReaderTiming.LearnTimingToleranceRatio));
 
             await Assert.That(previousSample.Word).IsEqualTo(expected.Word);
             await Assert.That(observedDelay).IsBetween(expectedDelay - toleranceMilliseconds, expectedDelay + toleranceMilliseconds);

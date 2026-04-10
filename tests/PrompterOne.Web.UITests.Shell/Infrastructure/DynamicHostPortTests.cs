@@ -76,12 +76,10 @@ public sealed class DynamicHostPortTests(StandaloneAppFixture fixture)
 
         try
         {
-            await primaryPage.GotoAsync(UiTestHostConstants.BlankPagePath);
             await primaryPage.EvaluateAsync(
                 BrowserTestConstants.Localization.SetLocalStorageScript,
                 new[] { FixtureStorageProbeKey, FixtureStorageProbeValue });
 
-            await secondaryPage.GotoAsync(UiTestHostConstants.BlankPagePath);
             var storedValue = await secondaryPage.EvaluateAsync<string>(ReadLocalStorageScript, FixtureStorageProbeKey);
             var seededLibrary = await secondaryPage.EvaluateAsync<string>(ReadLocalStorageScript, BrowserStorageKeys.DocumentLibrary);
 
@@ -102,7 +100,6 @@ public sealed class DynamicHostPortTests(StandaloneAppFixture fixture)
 
         try
         {
-            await sharedPage.GotoAsync(UiTestHostConstants.BlankPagePath);
             await sharedPage.EvaluateAsync(
                 BrowserTestConstants.Localization.SetLocalStorageScript,
                 new[] { FixtureStorageProbeKey, FixtureStorageProbeValue });

@@ -96,12 +96,20 @@ Tracked failing tests from the current baseline:
   Fix path:
   - remove the CI-only per-context routed warmup, keep only the one-time shared-runtime warmup, and make every returned test page follow the same bootstrap path locally and on CI
 - [ ] `StandaloneAppFixture` build break: `WarmUpContextPageIfNeededAsync` missing in `StandaloneAppFixture.cs`
+- [x] `StandaloneAppFixture` build break: `WarmUpContextPageIfNeededAsync` missing in `StandaloneAppFixture.cs`
   Symptom:
   - compiler reports `CS0103` for `WarmUpContextPageIfNeededAsync` from `tests/PrompterOne.Web.UITests/Infrastructure/StandaloneAppFixture.cs`
   Root cause:
-  - verify whether the current workspace already contains the moved helper in `StandaloneAppFixture.Warmup.cs` and whether the failing build came from an older not-yet-published tree versus a real current partial-class mismatch
+  - the warmup helper had already been split into the partial fixture, but the published tree and the active fixture callers drifted until the shared warmup path and callers were brought back into the same compiled partial surface
   Fix path:
-  - confirm the helper is present in the compiled partial, keep the calling signature aligned, and re-run the required local build after the active full-suite run completes
+  - keep the helper in the compiled partial, align the callers with that partial surface, and prove the fix with the required local build and full solution test commands
+- [x] `EditorDragDropFlowTests.EditorScreen_DropOnEmptyDraft_ReplacesTextAndSupportsUndoRedo`
+  Symptom:
+  - the blank-draft drop scenario updated the source text and title but intermittently left toolbar undo disabled, especially once untitled autosave assigned a real `?id=` route
+  Root cause:
+  - dropping onto an untitled draft triggered autosave self-navigation that reloaded the editor and reset document history, so slower runs could lose undo state before the assertion clicked it
+  Fix path:
+  - preserve editor history across untitled autosave self-navigation and make the browser regression wait for the persisted route before asserting undo/redo on the post-save editor surface
 - [ ] `Release Pipeline` run `24209085607` still fails on GitHub macOS despite the local full-suite baseline being green on the same `727d904` commit
   Symptom:
   - `Shell` and `Studio` fail remotely while local `dotnet build`, targeted suite runs, and the required solution-level `dotnet test` all pass on the exact pushed commit
@@ -197,6 +205,24 @@ Tracked failing tests from the current baseline:
   - detect when `BrowserRouteDriver` is opening the first routed page from the primed blank test page
   - give only that first routed bootstrap the longer runtime-warmup visibility budget and skip the CI blank bounce for that specific path
   - keep the shorter route-visible contract for already-booted routed pages so normal suite latency does not drift upward
+- [ ] `Release Pipeline` run `24221639706` fails remotely in all four browser suites after commit `7983efe`
+  Symptom:
+  - `Shell` fails `11` tests, mostly while opening `/library`, plus two invalid learn/teleprompter missing-script flows and two onboarding route-changing clicks
+  - `Studio` fails `6` tests, split between first-route `/library` boot, `go-live-back` hangs, and `StartRecording` click paths that stall on scheduled navigation waits
+  - `Reader` fails `3` tests: two responsive-layout screenshot captures on iPad Pro portrait and one teleprompter muted-chrome visual threshold
+  - `Editor` fails multiple route-changing action tests, including `Open in Library` from split results and import/drag-drop flows that do not wait on the real completion signal
+  Root cause:
+  - `BrowserRouteDriver` still lets `TimeoutException` escape from the page-visible probe, so the shared route retry loop is bypassed on CI
+  - the harness still contains route/open divergence between runtime warmup and scenario route opens, and shared contexts can be published before priming fully succeeds
+  - several suites still use raw SPA clicks that wait for scheduled navigation even though the tests already do explicit post-click route or readiness waits
+  - responsive screenshot capture is still a one-shot operation, so artifact generation itself can fail otherwise healthy route assertions
+  - a production Go Live route-leave path still blocks navigation on camera detach work
+  Fix path:
+  - make route-open retries catch timeout failures at the shared driver boundary and remove CI-only route-open behavior
+  - publish shared contexts only after priming succeeds and reuse the shared route driver from runtime warmup
+  - introduce a shared `NoWaitAfter` click helper for SPA route/state-changing controls and use it in the failing Shell, Studio, and Editor flows
+  - retry page screenshot capture in the shared artifact helper
+  - stop awaiting camera detach inside `GoLivePage` location-changing so route leaves are not blocked by cleanup
 
 ## Ordered Plan
 
@@ -234,6 +260,7 @@ Tracked failing tests from the current baseline:
   - `dotnet format ./PrompterOne.slnx` passed
   - `dotnet build ./PrompterOne.slnx -warnaserror` passed
   - `dotnet test @./tests/dotnet-test-progress.rsp --solution ./PrompterOne.slnx --max-parallel-test-modules 1` passed with `1162/1162` green in `7m 42.943s`
+  - post-format verification repeated successfully with `dotnet build ./PrompterOne.slnx -warnaserror` and `dotnet test @./tests/dotnet-test-progress.rsp --solution ./PrompterOne.slnx --max-parallel-test-modules 1`, ending at `1162/1162` green in `7m 35.996s`
 
 - [ ] Step 5. Publish directly to `main`.
   Actions:
@@ -258,6 +285,12 @@ Tracked failing tests from the current baseline:
   - `dotnet format ./PrompterOne.slnx` passed
   - `dotnet build ./PrompterOne.slnx -warnaserror` passed
   - `dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.UITests.Studio/PrompterOne.Web.UITests.Studio.csproj` passed with `38/38`
+- [ ] Follow-up remediation for remote run `24221639706`
+  Pending focused validation:
+  - `dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.UITests.Shell/PrompterOne.Web.UITests.Shell.csproj`
+  - `dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.UITests.Studio/PrompterOne.Web.UITests.Studio.csproj`
+  - `dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.UITests.Reader/PrompterOne.Web.UITests.Reader.csproj`
+  - `dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.UITests.Editor/PrompterOne.Web.UITests.Editor.csproj`
   - `dotnet test @./tests/dotnet-test-progress.rsp --solution ./PrompterOne.slnx --max-parallel-test-modules 1` passed with `1162/1162` green in `7m 50.591s`
 - [x] Follow-up local verification after the first-route primed-blank bootstrap change
   Result:

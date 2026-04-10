@@ -23,7 +23,7 @@ public sealed class LibraryFolderOverlayFlowTests(StandaloneAppFixture fixture)
             var nameInput = page.GetByTestId(UiTestIds.Library.NewFolderName);
             await Assert.That(await nameInput.InputValueAsync()).IsEqualTo(string.Empty);
             await nameInput.ClickAsync();
-            await nameInput.PressSequentiallyAsync(BrowserTestConstants.Folders.RoadshowsName);
+            await nameInput.FillAsync(BrowserTestConstants.Folders.RoadshowsName);
             await Expect(nameInput).ToHaveValueAsync(BrowserTestConstants.Folders.RoadshowsName);
 
             var overlayStyles = await page.GetByTestId(UiTestIds.Library.NewFolderOverlay).EvaluateAsync<string[]>(

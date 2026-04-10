@@ -43,17 +43,17 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
             await Expect(page.GetByTestId(UiTestIds.GoLive.ProgramCard)).ToBeVisibleAsync();
             await Expect(page.GetByTestId(UiTestIds.GoLive.SourcesCard)).ToBeVisibleAsync();
 
-            await page.GetByTestId(UiTestIds.GoLive.VdoToggle).ClickAsync();
-            await page.GetByTestId(UiTestIds.GoLive.VdoToggle).ClickAsync();
-            await page.GetByTestId(UiTestIds.GoLive.YoutubeToggle).ClickAsync();
-            await page.GetByTestId(UiTestIds.GoLive.YoutubeToggle).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.GoLive.VdoToggle));
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.GoLive.VdoToggle));
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.GoLive.YoutubeToggle));
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.GoLive.YoutubeToggle));
 
             await page.WaitForFunctionAsync(
                 BrowserTestConstants.GoLive.PersistedToggleTargetsScript,
                 BrowserTestConstants.GoLive.StoredStudioSettingsKey,
                 new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
 
-            await page.ReloadAsync(new() { WaitUntil = Microsoft.Playwright.WaitUntilState.NetworkIdle });
+            await page.ReloadAsync(new() { WaitUntil = Microsoft.Playwright.WaitUntilState.Load });
 
             await Expect(page.GetByTestId(UiTestIds.GoLive.VdoToggle))
                 .ToHaveAttributeAsync(BrowserTestConstants.State.EnabledAttribute, BrowserTestConstants.State.EnabledValue);
@@ -80,9 +80,9 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
 
             var sourceButton = page.GetByTestId(UiTestIds.GoLive.SourceCameraAction(BrowserTestConstants.Media.PrimaryCameraId));
             await Expect(sourceButton).ToContainTextAsync(RemoveActionLabel);
-            await sourceButton.ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(sourceButton);
             await Expect(sourceButton).ToContainTextAsync(IncludeActionLabel);
-            await sourceButton.ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(sourceButton);
             await Expect(sourceButton).ToContainTextAsync(RemoveActionLabel);
 
             await StudioRouteDriver.NavigateBackToLibraryAsync(page);
@@ -159,7 +159,7 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
             await Expect(page.GetByTestId(UiTestIds.GoLive.Page)).ToBeVisibleAsync();
             await Expect(page.GetByTestId(UiTestIds.GoLive.PreviewRail)).ToBeVisibleAsync();
 
-            await page.GetByTestId(UiTestIds.GoLive.RightPanelToggle).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.GoLive.RightPanelToggle));
             await Expect(page.GetByTestId(UiTestIds.GoLive.PreviewRail)).ToHaveCountAsync(0);
         }
         finally
@@ -236,7 +236,6 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
 
         try
         {
-            await StudioRouteDriver.OpenLibraryAsync(page);
             await page.EvaluateAsync(
                 BrowserTestConstants.GoLive.SeedEmptySceneScript,
                 BrowserTestConstants.GoLive.SceneStorageKey);
@@ -249,7 +248,7 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
             var sourceCards = page.Locator($"[data-test^='{UiTestIds.GoLive.SourceCameraSelect(string.Empty)}']");
             await Expect(sourceCards.First).ToContainTextAsync(BrowserTestConstants.Media.PrimaryCameraLabel);
 
-            await page.GetByTestId(UiTestIds.GoLive.AudioTab).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.GoLive.AudioTab));
             await Expect(page.GetByTestId(UiTestIds.GoLive.AudioChannel(BrowserTestConstants.GoLive.MicChannelId)))
                 .ToContainTextAsync(BrowserTestConstants.Media.PrimaryMicrophoneLabel);
 
@@ -264,19 +263,26 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
         }
     }
 
-    private static async Task<LayoutBounds> GetRequiredBoxAsync(Microsoft.Playwright.ILocator locator) =>
-        await locator.EvaluateAsync<LayoutBounds>(
-            """
-            element => {
-                const rect = element.getBoundingClientRect();
-                return {
-                    x: rect.x,
-                    y: rect.y,
-                    width: rect.width,
-                    height: rect.height
-                };
+    private static async Task<LayoutBounds> GetRequiredBoxAsync(Microsoft.Playwright.ILocator locator)
+    {
+        await Expect(locator).ToBeVisibleAsync(new()
+        {
+            Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs
+        });
+
+        for (var attempt = 1; attempt <= BrowserTestConstants.Timing.InteractionRetryCount; attempt++)
+        {
+            var box = await locator.BoundingBoxAsync();
+            if (box is { Width: > 0, Height: > 0 })
+            {
+                return new LayoutBounds(box.X, box.Y, box.Width, box.Height);
             }
-            """);
+
+            await Task.Delay(BrowserTestConstants.Timing.InteractionRetryDelayMs);
+        }
+
+        throw new InvalidOperationException("Unable to capture a stable non-empty layout box for the requested Go Live surface.");
+    }
 
     [Test]
     public async Task GoLivePage_SelectsSecondaryCameraAndTakesItToAir()
@@ -307,7 +313,8 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
                 },
                 new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
 
-            await page.GetByTestId(UiTestIds.GoLive.SourceCameraSelect(BrowserTestConstants.GoLive.SecondSourceId)).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(
+                page.GetByTestId(UiTestIds.GoLive.SourceCameraSelect(BrowserTestConstants.GoLive.SecondSourceId)));
             await page.WaitForFunctionAsync(
                 BrowserTestConstants.Media.ElementUsesVideoDeviceScript,
                 new object[]
@@ -317,7 +324,7 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
                 },
                 new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
 
-            await page.GetByTestId(UiTestIds.GoLive.TakeToAir).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.GoLive.TakeToAir));
             await page.WaitForFunctionAsync(
                 BrowserTestConstants.Media.ElementUsesVideoDeviceScript,
                 new object[]
@@ -362,7 +369,10 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
 
             await Expect(page.GetByTestId(UiTestIds.GoLive.SourceVideo(BrowserTestConstants.GoLive.SecondSourceId))).ToHaveCountAsync(0);
 
-            await page.GetByTestId(UiTestIds.GoLive.SourceCameraSelect(BrowserTestConstants.GoLive.SecondSourceId)).ClickAsync();
+            await StudioRouteDriver.SelectGoLiveSourceAsync(
+                page,
+                BrowserTestConstants.GoLive.SecondSourceId,
+                BrowserTestConstants.GoLive.SideCameraLabel);
 
             await page.WaitForFunctionAsync(
                 BrowserTestConstants.Media.ElementUsesVideoDeviceScript,
@@ -398,7 +408,7 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
             await page.EvaluateAsync(BrowserTestConstants.GoLive.InstallVdoNinjaHarnessScript);
             await Expect(page.GetByTestId(UiTestIds.GoLive.VdoToggle))
                 .ToHaveAttributeAsync(BrowserTestConstants.State.EnabledAttribute, BrowserTestConstants.State.EnabledValue);
-            await page.GetByTestId(UiTestIds.GoLive.StartStream).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.GoLive.StartStream));
 
             await page.WaitForFunctionAsync(
                 BrowserTestConstants.Media.HasVideoOnlyRequestScript,
@@ -451,7 +461,8 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
             await Expect(page.GetByTestId(UiTestIds.GoLive.SourceCameraSelect(BrowserTestConstants.GoLive.RemoteLiveKitGuestSourceId))).ToBeVisibleAsync();
             await Expect(page.GetByTestId(UiTestIds.GoLive.SourceCameraSelect(BrowserTestConstants.GoLive.RemoteVdoGuestSourceId))).ToBeVisibleAsync();
 
-            await page.GetByTestId(UiTestIds.GoLive.SourceCameraSelect(BrowserTestConstants.GoLive.RemoteLiveKitGuestSourceId)).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(
+                page.GetByTestId(UiTestIds.GoLive.SourceCameraSelect(BrowserTestConstants.GoLive.RemoteLiveKitGuestSourceId)));
             await page.WaitForFunctionAsync(
                 BrowserTestConstants.Media.ElementUsesVideoDeviceScript,
                 new object[]
@@ -461,7 +472,7 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
                 },
                 new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
 
-            await page.GetByTestId(UiTestIds.GoLive.StartStream).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.GoLive.StartStream));
 
             await WaitForLiveKitPublishAsync(page);
             await page.WaitForFunctionAsync(
@@ -507,16 +518,16 @@ public sealed class GoLiveFlowTests(StandaloneAppFixture fixture)
             await Expect(page.GetByTestId(UiTestIds.GoLive.SceneControls)).ToBeVisibleAsync();
             await Expect(page.GetByTestId(UiTestIds.GoLive.ProviderCard(GoLiveTargetCatalog.TargetIds.Recording))).ToHaveCountAsync(0);
 
-            await page.GetByTestId(UiTestIds.GoLive.RoomTab).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.GoLive.RoomTab));
             await Expect(page.GetByTestId(UiTestIds.GoLive.RoomEmpty)).ToBeVisibleAsync();
 
-            await page.GetByTestId(UiTestIds.GoLive.CreateRoom).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.GoLive.CreateRoom));
             await Expect(page.GetByTestId(UiTestIds.GoLive.RoomActive)).ToBeVisibleAsync();
             await Expect(page.GetByTestId(UiTestIds.GoLive.RoomParticipant(BrowserTestConstants.GoLive.PrimaryParticipantId))).ToBeVisibleAsync();
             await Expect(page.GetByTestId(UiTestIds.GoLive.RoomParticipant(BrowserTestConstants.GoLive.PrimaryParticipantId)))
                 .ToContainTextAsync(BrowserTestConstants.GoLive.HostParticipantName);
 
-            await page.GetByTestId(UiTestIds.GoLive.AudioTab).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.GoLive.AudioTab));
             await Expect(page.GetByTestId(UiTestIds.GoLive.AudioMixer)).ToBeVisibleAsync();
             await Expect(page.GetByTestId(UiTestIds.GoLive.AudioChannel(BrowserTestConstants.GoLive.MicChannelId))).ToBeVisibleAsync();
             await Expect(page.Locator("body")).Not.ToContainTextAsync(BrowserTestConstants.GoLive.LegacyNetworkUploadMetric);

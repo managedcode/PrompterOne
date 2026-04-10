@@ -1,6 +1,5 @@
 using Microsoft.Playwright;
 using PrompterOne.Shared.Contracts;
-using static Microsoft.Playwright.Assertions;
 
 namespace PrompterOne.Web.UITests;
 
@@ -80,10 +79,11 @@ public sealed partial class StandaloneAppFixture
 
     private static async Task WarmUpRouteAsync(IPage page, string route, string pageTestId)
     {
-        await page.GotoAsync(route);
-        await BrowserRouteDriver.WaitForRouteAsync(page, route);
-        await Expect(page.GetByTestId(pageTestId))
-            .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.RuntimeWarmupVisibleTimeoutMs });
+        await BrowserRouteDriver.OpenPageAsync(
+            page,
+            route,
+            pageTestId,
+            $"runtime-warmup-{pageTestId}");
     }
 
     private static InvalidOperationException BuildWarmupFailure(Exception exception, string browserDiagnostics) =>

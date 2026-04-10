@@ -1,4 +1,5 @@
 using Microsoft.Playwright;
+using PrompterOne.Shared.Contracts;
 using static Microsoft.Playwright.Assertions;
 
 namespace PrompterOne.Web.UITests;
@@ -20,15 +21,17 @@ internal static class ResponsiveLayoutAssertions
             pageTestId,
             $"{routeName}-{viewport.Name}");
 
-        await UiScenarioArtifacts.CapturePageAsync(
-            page,
-            BuildScenarioName(routeName, viewport),
-            BrowserTestConstants.ResponsiveLayout.InitialStep);
+        await WaitForRouteReadyAsync(page, route, pageTestId);
 
         foreach (var controlTestId in controlTestIds)
         {
             await AssertVisibleWithinViewportAsync(page.GetByTestId(controlTestId), controlTestId, routeName, viewport);
         }
+
+        await UiScenarioArtifacts.CapturePageAsync(
+            page,
+            BuildScenarioName(routeName, viewport),
+            BrowserTestConstants.ResponsiveLayout.InitialStep);
     }
 
     private static string BuildScenarioName(string routeName, ResponsiveViewport viewport) =>
@@ -37,6 +40,17 @@ internal static class ResponsiveLayoutAssertions
             BrowserTestConstants.ResponsiveLayout.ScenarioPrefix,
             routeName,
             viewport.Name);
+
+    private static Task WaitForRouteReadyAsync(
+        IPage page,
+        string route,
+        string pageTestId) =>
+        pageTestId switch
+        {
+            UiTestIds.Learn.Page => PlaybackRouteDriver.WaitForLearnReadyAsync(page, route),
+            UiTestIds.Teleprompter.Page => PlaybackRouteDriver.WaitForTeleprompterReadyAsync(page, route),
+            _ => Task.CompletedTask
+        };
 
     internal static async Task AssertVisibleWithinViewportAsync(
         ILocator locator,

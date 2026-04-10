@@ -1,0 +1,61 @@
+using Microsoft.Playwright;
+using static Microsoft.Playwright.Assertions;
+
+namespace PrompterOne.Web.UITests;
+
+internal static class UiInteractionDriver
+{
+    internal static async Task ClickAndContinueAsync(
+        ILocator locator,
+        bool noWaitAfter = false)
+    {
+        Exception? lastFailure = null;
+
+        for (var attempt = 1; attempt <= BrowserTestConstants.Timing.InteractionRetryCount; attempt++)
+        {
+            try
+            {
+                await locator.WaitForAsync(new()
+                {
+                    State = WaitForSelectorState.Visible,
+                    Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs
+                });
+                await Expect(locator).ToBeEnabledAsync(new()
+                {
+                    Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs
+                });
+                await locator.ScrollIntoViewIfNeededAsync();
+                if (noWaitAfter)
+                {
+                    await locator.EvaluateAsync("element => element.click()");
+                }
+                else
+                {
+                    await locator.ClickAsync(new()
+                    {
+                        Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs
+                    });
+                }
+                return;
+            }
+            catch (TimeoutException exception) when (attempt < BrowserTestConstants.Timing.InteractionRetryCount)
+            {
+                lastFailure = exception;
+            }
+            catch (PlaywrightException exception) when (
+                attempt < BrowserTestConstants.Timing.InteractionRetryCount &&
+                IsRetryableInteractionFailure(exception))
+            {
+                lastFailure = exception;
+            }
+
+            await Task.Delay(BrowserTestConstants.Timing.InteractionRetryDelayMs);
+        }
+
+        throw lastFailure ?? new InvalidOperationException("The UI interaction driver exhausted its click retries without capturing a failure.");
+    }
+
+    private static bool IsRetryableInteractionFailure(PlaywrightException exception) =>
+        !exception.Message.Contains("Target page, context or browser has been closed", StringComparison.Ordinal)
+        && !exception.Message.Contains("Process exited", StringComparison.Ordinal);
+}

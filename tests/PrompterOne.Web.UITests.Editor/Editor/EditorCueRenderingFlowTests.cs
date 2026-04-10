@@ -27,6 +27,49 @@ public sealed class EditorCueRenderingFlowTests(StandaloneAppFixture fixture)
                 ### [Delivery Block|140WPM|neutral]
                 [loud][building]Rise together[/building][/loud] and [soft]listen[stress]ing[/stress][/soft].
                 """);
+            await page.WaitForFunctionAsync(
+                """
+                (args) => {
+                    const host = document.querySelector(`[data-test="${args.overlayTestId}"]`);
+                    if (!(host instanceof HTMLElement)) {
+                        return false;
+                    }
+
+                    const nodes = [...host.querySelectorAll('*')];
+                    const loud = nodes.find(node =>
+                        node?.getAttribute(args.volumeAttributeName) === args.loudValue);
+                    const soft = nodes.find(node =>
+                        node?.getAttribute(args.volumeAttributeName) === args.softValue);
+                    const building = nodes.find(node =>
+                        node?.getAttribute(args.deliveryAttributeName) === args.buildingValue);
+                    const stress = nodes.find(node =>
+                        node?.getAttribute(args.stressAttributeName) === args.stressValue);
+                    const readScale = element =>
+                        element instanceof HTMLElement
+                            ? getComputedStyle(element).getPropertyValue(args.cueScaleVariableName).trim()
+                            : '';
+
+                    return Boolean(loud) &&
+                        Boolean(soft) &&
+                        Boolean(building) &&
+                        Boolean(stress) &&
+                        readScale(loud).length > 0 &&
+                        readScale(soft).length > 0;
+                }
+                """,
+                new
+                {
+                    cueScaleVariableName = TpsVisualCueContracts.CueScaleVariableName,
+                    deliveryAttributeName = TpsVisualCueContracts.DeliveryAttributeName,
+                    buildingValue = TpsVisualCueContracts.DeliveryModeBuilding,
+                    loudValue = TpsVisualCueContracts.VolumeLoud,
+                    overlayTestId = UiTestIds.Editor.SourceHighlight,
+                    softValue = TpsVisualCueContracts.VolumeSoft,
+                    stressAttributeName = TpsVisualCueContracts.StressAttributeName,
+                    stressValue = TpsVisualCueContracts.StressAttributeValue,
+                    volumeAttributeName = TpsVisualCueContracts.VolumeAttributeName
+                },
+                new() { Timeout = BrowserTestConstants.Timing.EditorMutationTimeoutMs });
 
             var highlight = page.GetByTestId(UiTestIds.Editor.SourceHighlight);
             var probe = await highlight.EvaluateAsync<EditorCueProbe>(

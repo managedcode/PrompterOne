@@ -1,10 +1,13 @@
 using Microsoft.AspNetCore.Components.Routing;
+using Microsoft.JSInterop;
 using PrompterOne.Shared.Contracts;
+using PrompterOne.Shared.GoLive.Models;
 
 namespace PrompterOne.Shared.Pages;
 
 public partial class GoLivePage
 {
+    private const string BackgroundMaintenanceOperation = "GoLiveBackgroundMaintenance";
     private static readonly string GoLiveRoutePrefix = AppRoutes.GoLive.TrimStart('/');
     private static readonly TimeSpan SessionRefreshInterval = TimeSpan.FromMilliseconds(200);
 
@@ -30,9 +33,9 @@ public partial class GoLivePage
         }
 
         _disposed = true;
-        _ = ReleaseCameraSurfacesAsync();
-        _ = StopPrimaryMicrophoneMonitorAsync();
-        _ = GoLiveRemoteSourceRuntime.StopAsync();
+        RunCleanupInBackground(ReleaseCameraSurfacesAsync);
+        RunCleanupInBackground(StopPrimaryMicrophoneMonitorAsync);
+        RunCleanupInBackground(GoLiveRemoteSourceRuntime.StopAsync);
         DisposeCore();
         GC.SuppressFinalize(this);
     }
@@ -45,9 +48,9 @@ public partial class GoLivePage
         }
 
         _disposed = true;
-        await ReleaseCameraSurfacesAsync();
-        await StopPrimaryMicrophoneMonitorAsync();
-        await GoLiveRemoteSourceRuntime.StopAsync();
+        await RunCleanupSafelyAsync(ReleaseCameraSurfacesAsync);
+        await RunCleanupSafelyAsync(StopPrimaryMicrophoneMonitorAsync);
+        await RunCleanupSafelyAsync(GoLiveRemoteSourceRuntime.StopAsync);
         DisposeCore();
         GC.SuppressFinalize(this);
     }
@@ -114,6 +117,13 @@ public partial class GoLivePage
         catch (OperationCanceledException)
         {
         }
+        catch (Exception exception) when (IsIgnorableBackgroundFailure(exception))
+        {
+        }
+        catch (Exception exception)
+        {
+            ReportBackgroundFailure(exception);
+        }
     }
 
     private void StopSessionRefreshLoop()
@@ -132,7 +142,10 @@ public partial class GoLivePage
             return ValueTask.CompletedTask;
         }
 
-        return new ValueTask(ReleaseCameraSurfacesAsync());
+        StopSessionRefreshLoop();
+        RunCleanupInBackground(ReleaseCameraSurfacesAsync);
+        RunCleanupInBackground(StopPrimaryMicrophoneMonitorAsync);
+        return ValueTask.CompletedTask;
     }
 
     private bool IsGoLiveTarget(string targetLocation)
@@ -151,5 +164,43 @@ public partial class GoLivePage
         StopSessionRefreshLoop();
         DisposePrimaryMicrophoneObserver();
         _interactionGate.Dispose();
+    }
+
+    private void RunCleanupInBackground(Func<Task> cleanup) =>
+        _ = RunCleanupSafelyAsync(cleanup);
+
+    private async Task RunCleanupSafelyAsync(Func<Task> cleanup)
+    {
+        try
+        {
+            await cleanup();
+        }
+        catch (Exception exception) when (IsIgnorableBackgroundFailure(exception))
+        {
+        }
+        catch (Exception exception)
+        {
+            ReportBackgroundFailure(exception);
+        }
+    }
+
+    private static bool IsIgnorableBackgroundFailure(Exception exception) =>
+        exception is OperationCanceledException
+            or ObjectDisposedException
+            or TaskCanceledException
+            or JSException;
+
+    private void ReportBackgroundFailure(Exception exception)
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        Diagnostics.ReportRecoverable(
+            BackgroundMaintenanceOperation,
+            Text(GoLiveText.Load.LoadMessage),
+            exception,
+            alreadyLogged: false);
     }
 }

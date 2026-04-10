@@ -26,13 +26,16 @@ public sealed class TeleprompterAlignmentTooltipFlowTests(StandaloneAppFixture f
             var trigger = page.GetByTestId(UiTestIds.Teleprompter.AlignmentJustify);
             var tooltip = page.GetByTestId(UiTestIds.Teleprompter.RailTooltip(UiTestIds.Teleprompter.AlignmentTooltipJustifyKey));
 
+            await Expect(tooltip).ToBeHiddenAsync();
+            await StartTooltipRevealDelayProbeAsync(
+                page,
+                UiTestIds.Teleprompter.AlignmentJustify,
+                UiTestIds.Teleprompter.RailTooltip(UiTestIds.Teleprompter.AlignmentTooltipJustifyKey));
             await trigger.HoverAsync();
-            await page.WaitForTimeoutAsync(BrowserTestConstants.TeleprompterFlow.TooltipEarlyCheckDelayMs);
-
-            await Assert.That(await ReadOpacityAsync(tooltip)).IsBetween(0, BrowserTestConstants.TeleprompterFlow.MaximumEarlyTooltipOpacity);
-
-            await page.WaitForTimeoutAsync(
-                BrowserTestConstants.TeleprompterFlow.TooltipSettleDelayMs - BrowserTestConstants.TeleprompterFlow.TooltipEarlyCheckDelayMs);
+            var revealDelayMs = await ReadTooltipRevealDelayAsync(page);
+            await Assert.That(revealDelayMs).IsBetween(
+                BrowserTestConstants.TeleprompterFlow.TooltipEarlyCheckDelayMs - BrowserTestConstants.Timing.DiagnosticPollDelayMs,
+                BrowserTestConstants.TeleprompterFlow.TooltipSettleDelayMs + BrowserTestConstants.TeleprompterFlow.TooltipRevealTimingSlackMs);
             await Expect(tooltip).ToBeVisibleAsync();
             await Expect(tooltip).ToHaveTextAsync(BrowserTestConstants.TeleprompterFlow.AlignmentJustifyTooltipText);
 
@@ -58,13 +61,16 @@ public sealed class TeleprompterAlignmentTooltipFlowTests(StandaloneAppFixture f
             var trigger = page.GetByTestId(UiTestIds.Teleprompter.WidthSlider);
             var tooltip = page.GetByTestId(UiTestIds.Teleprompter.RailTooltip(UiTestIds.Teleprompter.AlignmentTooltipWidthKey));
 
+            await Expect(tooltip).ToBeHiddenAsync();
+            await StartTooltipRevealDelayProbeAsync(
+                page,
+                UiTestIds.Teleprompter.WidthSlider,
+                UiTestIds.Teleprompter.RailTooltip(UiTestIds.Teleprompter.AlignmentTooltipWidthKey));
             await trigger.HoverAsync();
-            await page.WaitForTimeoutAsync(BrowserTestConstants.TeleprompterFlow.TooltipEarlyCheckDelayMs);
-
-            await Assert.That(await ReadOpacityAsync(tooltip)).IsBetween(0, BrowserTestConstants.TeleprompterFlow.MaximumEarlyTooltipOpacity);
-
-            await page.WaitForTimeoutAsync(
-                BrowserTestConstants.TeleprompterFlow.TooltipSettleDelayMs - BrowserTestConstants.TeleprompterFlow.TooltipEarlyCheckDelayMs);
+            var revealDelayMs = await ReadTooltipRevealDelayAsync(page);
+            await Assert.That(revealDelayMs).IsBetween(
+                BrowserTestConstants.TeleprompterFlow.TooltipEarlyCheckDelayMs - BrowserTestConstants.Timing.DiagnosticPollDelayMs,
+                BrowserTestConstants.TeleprompterFlow.TooltipSettleDelayMs + BrowserTestConstants.TeleprompterFlow.TooltipRevealTimingSlackMs);
             await Expect(tooltip).ToBeVisibleAsync();
             await Expect(tooltip).ToHaveTextAsync(BrowserTestConstants.TeleprompterFlow.WidthSliderTooltipText);
 
@@ -103,15 +109,59 @@ public sealed class TeleprompterAlignmentTooltipFlowTests(StandaloneAppFixture f
         await page.WaitForTimeoutAsync(BrowserTestConstants.TeleprompterFlow.TooltipSettleDelayMs);
         await Expect(tooltip).ToBeVisibleAsync();
 
-        await trigger.ClickAsync();
+        await UiInteractionDriver.ClickAndContinueAsync(trigger);
         await Expect(tooltip).ToBeHiddenAsync(
             new() { Timeout = BrowserTestConstants.TeleprompterFlow.TooltipDismissTimeoutMs });
     }
 
-    private static async Task<double> ReadOpacityAsync(ILocator locator) =>
-        await locator.EvaluateAsync<double>(
+    private static Task StartTooltipRevealDelayProbeAsync(IPage page, string triggerTestId, string tooltipTestId) =>
+        page.EvaluateAsync(
             """
-            element => Number.parseFloat(getComputedStyle(element).opacity)
+            args => {
+                window.__teleprompterTooltipRevealDelayPromise = new Promise(resolve => {
+                    let startedAt = 0;
+
+                    const tick = () => {
+                        const trigger = document.querySelector(`[data-test="${args.triggerTestId}"]`);
+                        if (!(trigger instanceof HTMLElement) || !trigger.matches(':hover')) {
+                            requestAnimationFrame(tick);
+                            return;
+                        }
+
+                        if (startedAt === 0) {
+                            startedAt = performance.now();
+                        }
+
+                        const tooltip = document.querySelector(`[data-test="${args.tooltipTestId}"]`);
+                        if (!(tooltip instanceof HTMLElement)) {
+                            requestAnimationFrame(tick);
+                            return;
+                        }
+
+                        const opacity = Number.parseFloat(getComputedStyle(tooltip).opacity || "0");
+                        if (opacity >= args.minimumOpacity) {
+                            resolve(Math.round(performance.now() - startedAt));
+                            return;
+                        }
+
+                        requestAnimationFrame(tick);
+                    };
+
+                    requestAnimationFrame(tick);
+                });
+            }
+            """,
+            new
+            {
+                minimumOpacity = BrowserTestConstants.TeleprompterFlow.MinimumVisibleTooltipOpacity,
+                triggerTestId,
+                tooltipTestId
+            });
+
+    private static Task<int> ReadTooltipRevealDelayAsync(IPage page) =>
+        page.EvaluateAsync<int>(
+            """
+            async () => Math.round(await window.__teleprompterTooltipRevealDelayPromise)
             """);
 
     private static async Task<ElementBounds> ReadBoundsAsync(ILocator locator) =>

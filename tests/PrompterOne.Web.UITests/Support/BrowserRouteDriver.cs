@@ -1,6 +1,5 @@
 using System.Text.RegularExpressions;
 using Microsoft.Playwright;
-using PrompterOne.Testing;
 using static Microsoft.Playwright.Assertions;
 
 namespace PrompterOne.Web.UITests;
@@ -17,8 +16,8 @@ internal static class BrowserRouteDriver
         string pageTestId,
         string? failureLabel = null)
     {
-        var bootstrappingFromPrimedBlankPage = IsCurrentRoute(page, UiTestHostConstants.BlankPagePath);
-        var routeVisibleTimeoutMs = bootstrappingFromPrimedBlankPage
+        var willNavigate = !IsCurrentRoute(page, route);
+        var routeVisibleTimeoutMs = willNavigate
             ? BrowserTestConstants.Timing.RuntimeWarmupVisibleTimeoutMs
             : BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs;
 
@@ -29,18 +28,52 @@ internal static class BrowserRouteDriver
 
         for (var attempt = 1; attempt <= RouteBootstrapAttemptCount; attempt++)
         {
-            // Route readiness is validated by explicit URL and page-level sentinels below.
-            // NetworkIdle is too strict for pages that keep long-lived browser activity alive on CI.
-            await page.GotoAsync(route, new() { WaitUntil = RouteNavigationReadyState });
-            await WaitForRouteAsync(page, route);
-            if (await IsPageVisibleAsync(page, pageTestId, routeVisibleTimeoutMs))
+            Exception? lastFailure;
+            try
             {
-                return;
+                // Route readiness is validated by explicit URL and page-level sentinels below.
+                // NetworkIdle is too strict for pages that keep long-lived browser activity alive on CI.
+                if (!IsCurrentRoute(page, route))
+                {
+                    await page.GotoAsync(route, new() { WaitUntil = RouteNavigationReadyState });
+                }
+
+                await WaitForRouteAsync(page, route);
+                if (await IsPageVisibleAsync(page, pageTestId, routeVisibleTimeoutMs))
+                {
+                    return;
+                }
+
+                lastFailure = new TimeoutException(
+                    $"Route '{route}' reached the expected URL but '{pageTestId}' did not become visible within {routeVisibleTimeoutMs}ms.");
+            }
+            catch (TimeoutException exception)
+            {
+                lastFailure = exception;
+            }
+            catch (PlaywrightException exception) when (IsRetryableRouteOpenFailure(exception))
+            {
+                if (IsEquivalentNavigationInterruption(exception, route))
+                {
+                    await WaitForRouteAsync(page, route);
+                    if (await IsPageVisibleAsync(page, pageTestId, routeVisibleTimeoutMs))
+                    {
+                        return;
+                    }
+                }
             }
 
-            if (attempt < RouteBootstrapAttemptCount && TestEnvironment.IsCiEnvironment && !bootstrappingFromPrimedBlankPage)
+            if (attempt < RouteBootstrapAttemptCount)
             {
-                await page.GotoAsync(UiTestHostConstants.BlankPagePath, new() { WaitUntil = RouteNavigationReadyState });
+                if (!IsCurrentRoute(page, UiTestHostConstants.BlankPagePath))
+                {
+                    await page.GotoAsync(UiTestHostConstants.BlankPagePath, new()
+                    {
+                        WaitUntil = RouteNavigationReadyState
+                    });
+                }
+
+                continue;
             }
         }
 
@@ -92,10 +125,26 @@ internal static class BrowserRouteDriver
             });
             return true;
         }
+        catch (TimeoutException)
+        {
+            return false;
+        }
         catch (PlaywrightException)
         {
             return false;
         }
+    }
+
+    private static bool IsRetryableRouteOpenFailure(PlaywrightException exception)
+    {
+        return !exception.Message.Contains("Target page, context or browser has been closed", StringComparison.Ordinal)
+               && !exception.Message.Contains("Process exited", StringComparison.Ordinal);
+    }
+
+    private static bool IsEquivalentNavigationInterruption(PlaywrightException exception, string route)
+    {
+        return exception.Message.Contains("interrupted by another navigation to", StringComparison.Ordinal)
+               && exception.Message.Contains(route, StringComparison.Ordinal);
     }
 
     private static async Task TryCaptureFailurePageAsync(IPage page, string failureLabel)

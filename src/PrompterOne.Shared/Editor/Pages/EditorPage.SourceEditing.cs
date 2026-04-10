@@ -121,6 +121,7 @@ public partial class EditorPage
             PersistDraftInBackground(text, documentNameOverride);
         }
 
+        await InvokeAsync(StateHasChanged);
         await FocusSourceRangeAsync(selection.Start, selection.End, revealSelection: false);
     }
 

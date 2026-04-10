@@ -17,9 +17,10 @@ public sealed class LibraryThemeFlowTests(StandaloneAppFixture fixture) : AppUiT
 
             await ShellRouteDriver.OpenSettingsAsync(page);
 
-            await page.GetByTestId(UiTestIds.Settings.NavAppearance).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(UiTestIds.Settings.NavAppearance));
             await Expect(page.GetByTestId(UiTestIds.Settings.AppearancePanel)).ToBeVisibleAsync();
-            await page.GetByTestId(UiTestIds.Settings.ThemeOption(BrowserTestConstants.SettingsFlow.LightTheme)).ClickAsync();
+            await UiInteractionDriver.ClickAndContinueAsync(
+                page.GetByTestId(UiTestIds.Settings.ThemeOption(BrowserTestConstants.SettingsFlow.LightTheme)));
             await Expect(page.Locator("html")).ToHaveAttributeAsync(
                 BrowserTestConstants.SettingsFlow.HtmlThemeAttribute,
                 BrowserTestConstants.SettingsFlow.LightTheme);

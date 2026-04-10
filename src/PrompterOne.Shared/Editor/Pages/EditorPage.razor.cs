@@ -53,6 +53,7 @@ public partial class EditorPage
     private DateTimeOffset? _lastLocalSaveAt;
     private EditorMetadataRailTab _metadataRailSelectedTab = EditorMetadataRailTab.Metadata;
     private string _profile = DefaultProfileActor;
+    private bool _preserveHistoryOnNextLoad;
     private bool _preserveSplitFeedbackOnNextLoad;
     private string? _pendingAutosaveSelfNavigationScriptId;
     private string _screenTitle = ScriptWorkspaceState.UntitledScriptTitle;
