@@ -175,6 +175,16 @@ Tracked failing tests from the current baseline:
   - the shared reader route helper treated the routed page root as "ready" too early, so slower CI could advance into shortcut/playback assertions before the interactive learn or teleprompter controls were actually present
   Fix path:
   - strengthen `ReaderRouteDriver` to wait for production-owned interactive sentinels (`learn` progress/play controls, teleprompter stage/play toggle, settings title) instead of stopping at the top-level page shell
+- [x] `Release Pipeline` run `24220487918` fails remotely in `Reader`, `Shell`, and `Studio` after commit `9187967`
+  Symptom:
+  - the local full-solution baseline stayed green, but GitHub macOS jobs timed out during initial route opens across `/library`, `/settings`, `/editor?id=...`, and `/go-live?id=...`
+  - remote job logs showed shared route helpers blocking inside `GotoAsync(... WaitUntil = NetworkIdle)` before the routed surface assertions even began
+  Root cause:
+  - the shared browser route driver still used `WaitUntilState.NetworkIdle`, which is too strict for production-shaped pages that keep browser activity alive on CI
+  - this created a remote-only harness divergence where route-open retries could stall before the explicit page sentinel checks had a chance to run
+  Fix path:
+  - switch shared route open and blank-page bounce navigation in `BrowserRouteDriver` from `NetworkIdle` to `Load`
+  - continue treating route readiness as an explicit contract enforced by URL and `data-test` sentinels rather than by global network quiescence
 
 ## Ordered Plan
 
@@ -228,3 +238,12 @@ Tracked failing tests from the current baseline:
   - if any job fails, inspect logs, apply the fix, rerun local validation, and push the follow-up
   Verification:
   - the release path is green or an explicit external blocker is documented
+
+## Latest Validation Snapshot
+
+- [x] Follow-up local verification after the `BrowserRouteDriver` route-open change
+  Result:
+  - `dotnet format ./PrompterOne.slnx` passed
+  - `dotnet build ./PrompterOne.slnx -warnaserror` passed
+  - `dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.UITests.Studio/PrompterOne.Web.UITests.Studio.csproj` passed with `38/38`
+  - `dotnet test @./tests/dotnet-test-progress.rsp --solution ./PrompterOne.slnx --max-parallel-test-modules 1` passed with `1162/1162` green in `7m 50.591s`

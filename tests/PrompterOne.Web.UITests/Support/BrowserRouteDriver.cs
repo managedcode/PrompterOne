@@ -9,6 +9,7 @@ internal static class BrowserRouteDriver
 {
     private const int RouteBootstrapAttemptCount = 2;
     private const string RouteFailurePrefix = "route-open";
+    private const WaitUntilState RouteNavigationReadyState = WaitUntilState.Load;
 
     internal static async Task OpenPageAsync(
         IPage page,
@@ -23,7 +24,9 @@ internal static class BrowserRouteDriver
 
         for (var attempt = 1; attempt <= RouteBootstrapAttemptCount; attempt++)
         {
-            await page.GotoAsync(route, new() { WaitUntil = WaitUntilState.NetworkIdle });
+            // Route readiness is validated by explicit URL and page-level sentinels below.
+            // NetworkIdle is too strict for pages that keep long-lived browser activity alive on CI.
+            await page.GotoAsync(route, new() { WaitUntil = RouteNavigationReadyState });
             await WaitForRouteAsync(page, route);
             if (await IsPageVisibleAsync(page, pageTestId, BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs))
             {
@@ -32,7 +35,7 @@ internal static class BrowserRouteDriver
 
             if (attempt < RouteBootstrapAttemptCount && TestEnvironment.IsCiEnvironment)
             {
-                await page.GotoAsync(UiTestHostConstants.BlankPagePath, new() { WaitUntil = WaitUntilState.NetworkIdle });
+                await page.GotoAsync(UiTestHostConstants.BlankPagePath, new() { WaitUntil = RouteNavigationReadyState });
             }
         }
 
