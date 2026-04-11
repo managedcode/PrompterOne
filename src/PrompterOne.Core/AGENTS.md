@@ -16,6 +16,7 @@ It owns TPS parsing, compilation, export, RSVP helpers, preview and workspace st
 - `Media/*`
 - `Streaming/*`
 - `Localization/*`
+- `AI/*`
 
 ## Boundaries
 
@@ -40,4 +41,5 @@ It owns TPS parsing, compilation, export, RSVP helpers, preview and workspace st
 - TPS compatibility matters more than cosmetic refactors.
 - `Models/` and legacy `Services/` roots should not become new flat dumping grounds; prefer the owning feature slice first.
 - Do not let UI-specific shortcuts leak into domain parsing or RSVP behavior.
+- AI agent infrastructure belongs under `AI/*`; keep one focused class per concrete agent type, colocate that agent's system prompt and skill references with the agent class, prefer one factory that assembles predefined agents and workflows over separate catalog layers, and wire skills or article context through official `AgentSkillsProvider` or `AIContextProvider` support instead of hand-built prompt concatenation.
 - Respect root maintainability limits. Large parser/compiler edits need explicit decomposition or documented exceptions.

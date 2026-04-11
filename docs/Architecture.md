@@ -48,7 +48,7 @@ If a change introduces a new major component, moves ownership, or changes how co
 flowchart LR
     App["src/PrompterOne.Web<br/>Standalone WASM host"]
     Shared["src/PrompterOne.Shared<br/>Razor pages, layout, CSS, JS interop"]
-    Core["src/PrompterOne.Core<br/>TPS, RSVP, workspace, media, streaming"]
+    Core["src/PrompterOne.Core<br/>TPS, RSVP, workspace, media, streaming, AI"]
     TpsSdk["src/PrompterOne.TpsSdk<br/>Vendored TPS runtime + parser/compiler"]
     Docs["docs/<br/>Architecture + TPS reference + feature docs"]
     Tests["tests/*<br/>TUnit + bUnit + Playwright + shared test support"]
@@ -68,7 +68,7 @@ flowchart LR
 ## Vertical Slice Layout
 
 - `src/PrompterOne.Shared` keeps routed UI in feature slices: `AppShell`, `Diagnostics`, `Editor`, `Library`, `Learn`, `Teleprompter`, `GoLive`, `Settings`, and `Media`.
-- `src/PrompterOne.Core` keeps host-neutral behavior in matching domain slices: `Tps`, `Editor`, `Workspace`, `Library`, `Rsvp`, `Media`, `Streaming`, and `Localization`.
+- `src/PrompterOne.Core` keeps host-neutral behavior in matching domain slices: `Tps`, `Editor`, `Workspace`, `Library`, `Rsvp`, `Media`, `Streaming`, `Localization`, and `AI`.
 - `src/PrompterOne.TpsSdk` keeps the vendored `ManagedCode.Tps` parser/compiler/runtime that `PrompterOne.Core` adapts into app-owned contracts.
 - `tests/PrompterOne.Core.Tests` and `tests/PrompterOne.Web.Tests` mirror the core and component slices.
 - `tests/PrompterOne.Web.UITests` owns the shared Playwright/browser-host harness, browser test assets, and cross-suite helpers for browser acceptance.
@@ -89,7 +89,7 @@ flowchart LR
 
 - `src/PrompterOne.Web` hosts only bootstrapping and runtime startup concerns.
 - `src/PrompterOne.Shared` owns routed pages, Razor components, CSS, UI state wiring, and browser interop.
-- `src/PrompterOne.Core` owns reusable domain logic, parsing, workspace state, media models, and streaming logic.
+- `src/PrompterOne.Core` owns reusable domain logic, parsing, workspace state, media models, streaming logic, and agent orchestration.
 - `src/PrompterOne.TpsSdk` owns vendored TPS parser/compiler internals and spec-aligned runtime contracts; `PrompterOne.Core` should adapt it, not duplicate it.
 - `tests/` mirrors production ownership and proves behavior through real UI, component, and core flows.
 - New code should be added where the owning boundary already lives; do not create duplicate feature centers.
@@ -107,6 +107,7 @@ flowchart LR
 | `Teleprompter` | Read-mode playback surface | Presents the script for live reading with camera-backed composition | `src/PrompterOne.Shared/Teleprompter` | reading layout, background camera composition, runtime reading flow | script persistence rules, destination setup screens |
 | `GoLive` | Operational browser studio surface | Operates the composed program feed and exposes honest live/runtime state | `src/PrompterOne.Shared/GoLive`, `src/PrompterOne.Core/Streaming` | studio layout, left-rail source control, selected vs on-air source state, browser-owned program capture, local recording control, concurrent transport publish state, right-rail telemetry and downstream health summaries | provider credential editing, source inventory, per-device sync definitions, PrompterOne-managed server media processing, unrelated editor or library concerns |
 | `Settings` | Device, scene, and transport setup surface | Configures the inputs, sync, capture profile, transport connections, and downstream targets that `Go Live` operates | `src/PrompterOne.Shared/Settings`, `src/PrompterOne.Core/Media`, `src/PrompterOne.Core/Streaming` | device selection UI, source inventory, scene transforms, microphone gain/delay/sync, program-capture profiles, recording defaults, transport connection profiles, downstream target profiles, scene persistence flows | live output orchestration policy, document editing |
+| `AI` | Local multi-agent text orchestration | Loads embedded skills, builds predefined agents through one factory, and exposes workflow execution for future UI actions | `src/PrompterOne.Core/AI`, `src/PrompterOne.Shared/Settings/Services` | per-agent classes with colocated system prompts, one agent factory, embedded markdown skills, provider-agnostic runtime settings contract, predefined sequential and group-chat workflows, settings-to-agent runtime bridge | routed UI, browser interop, server-hosted orchestration |
 | `Storage` | Browser persistence and cloud transfer orchestration | Keeps scripts and settings local-first while exposing provider-backed import/export | `src/PrompterOne.Shared/Storage`, `src/PrompterOne.Shared/Library/Services/Storage` | browser `IStorage` and VFS registration, authoritative browser repositories for scripts/folders, provider credential persistence, scripts/settings snapshot transfer | routed page layout, teleprompter rendering, video-stream upload workflows |
 | `Cross-Tab Messaging` | Same-origin browser runtime coordination | Lets separate WASM tabs coordinate browser-owned state without a backend | `src/PrompterOne.Shared/AppShell/Services`, `src/PrompterOne.Shared/Settings/Services`, `src/PrompterOne.Shared/wwwroot/app` | `BroadcastChannel` bridge, typed envelopes, settings fan-out, same-origin tab sync | server state, cross-origin transport, collaborative editor conflict resolution |
 | `Diagnostics` | Error and operation feedback layer | Makes recoverable and fatal issues visible in the shell | `src/PrompterOne.Shared/Diagnostics` | banners, error boundary reporting, operation status wiring | owning business logic of the failing feature |
@@ -442,11 +443,12 @@ Rules:
 
 ### `src/PrompterOne.Core`
 
-- feature slices keep related abstractions, models, previews, and services together under `Tps/`, `Editor/`, `Workspace/`, `Library/`, `Rsvp/`, `Media/`, and `Streaming/`
+- feature slices keep related abstractions, models, previews, and services together under `Tps/`, `Editor/`, `Workspace/`, `Library/`, `Rsvp/`, `Media/`, `Streaming/`, and `AI/`
 - TPS parser, compiler, exporter
 - RSVP helpers
 - workspace state and preview generation
 - media scene and streaming descriptor models
+- predefined agent classes, one agent factory, embedded skills, and multi-agent workflow runtime
 
 Rules:
 

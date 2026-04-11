@@ -135,6 +135,8 @@ Rule format:
 - Legacy, dead, duplicate, or speculative code paths should be deleted aggressively instead of being preserved behind compatibility instincts; if code has no clear runtime owner or authoritative contract, remove it rather than keep it as “just in case” ballast.
 - For repo-wide remediation passes, keep an explicit root-level accounting of fixed versus remaining feedback items, finish the code fixes first, and only then run and stabilize the test suites; do not bounce back into verification mid-remediation unless the user explicitly asks.
 - For task-scoped work, edit, stage, and commit only the files directly required for the requested change; do not widen the change set into unrelated user-owned or parallel worktree edits, do not touch changes owned by another agent, and if a blocker comes from that parallel work, wait briefly and re-check instead of patching around their in-flight fix.
+- Core AI infrastructure should stay minimal and predefined: prefer one factory that assembles known agents and known workflows, and avoid extra catalog or registry layers for skills, agents, or workflows unless a later task explicitly requires dynamic discovery.
+- Core AI skill and article wiring should use official Microsoft Agent Framework context primitives such as `AgentSkillsProvider` and `AIContextProvider`; do not manually concatenate embedded skill markdown into an agent system prompt.
 
 ## Rules to Follow (Mandatory)
 

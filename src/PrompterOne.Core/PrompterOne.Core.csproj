@@ -8,12 +8,17 @@
     <PackageReference Include="Microsoft.Agents.AI.Anthropic" />
     <PackageReference Include="Microsoft.Agents.AI.AzureAI" />
     <PackageReference Include="Microsoft.Agents.AI.OpenAI" />
+    <PackageReference Include="Microsoft.Agents.AI.Workflows" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
     <PackageReference Include="OllamaSharp" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\PrompterOne.TpsSdk\PrompterOne.TpsSdk.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="AI/Skills/**/*.md" />
   </ItemGroup>
 
 </Project>
