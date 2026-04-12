@@ -11,6 +11,7 @@
     <PackageReference Include="Microsoft.Agents.AI.OpenAI" />
     <PackageReference Include="Microsoft.Agents.AI.Workflows" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="ModelContextProtocol.Core" />
     <PackageReference Include="OllamaSharp" />
   </ItemGroup>
 

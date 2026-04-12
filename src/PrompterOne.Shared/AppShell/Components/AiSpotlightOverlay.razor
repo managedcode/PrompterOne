@@ -6,6 +6,7 @@
 @using PrompterOne.Shared.Contracts
 @using PrompterOne.Shared.Localization
 @using PrompterOne.Shared.Services
+@using PrompterOne.Shared.Tools
 @implements IDisposable
 @inject AiSpotlightService Spotlight
 @inject IStringLocalizer<SharedResource> Localizer
@@ -66,20 +67,24 @@
                 </div>
                 <p class="ai-spotlight-hint">@Text(UiTextKey.AiSpotlightIdleHint)</p>
 
-                <div class="ai-spotlight-suggestions" data-test="@UiTestIds.AiSpotlight.SuggestionList">
-                    @foreach (var suggestion in Suggestions)
-                    {
-                        <button type="button"
-                                class="ai-spotlight-suggestion"
-                                @onclick="() => SelectSuggestionAsync(suggestion)"
-                                data-kind="@suggestion.Kind.ToString().ToLowerInvariant()"
-                                data-test="@UiTestIds.AiSpotlight.SuggestionItem">
-                            <span aria-hidden="true"></span>
-                            <strong>@Text(suggestion.LabelKey)</strong>
-                            <p>@Text(suggestion.DetailKey)</p>
-                        </button>
-                    }
-                </div>
+                @if (Suggestions.Count > 0)
+                {
+                    <div class="ai-spotlight-suggestions" data-test="@UiTestIds.AiSpotlight.SuggestionList">
+                        @foreach (var suggestion in Suggestions)
+                        {
+                            <button type="button"
+                                    class="ai-spotlight-suggestion"
+                                    @onclick="() => SelectSuggestionAsync(suggestion)"
+                                    data-kind="@suggestion.Kind.ToString().ToLowerInvariant()"
+                                    data-tool="@suggestion.Name"
+                                    data-test="@UiTestIds.AiSpotlight.SuggestionItem">
+                                <span aria-hidden="true"></span>
+                                <strong>@Text(suggestion.LabelKey)</strong>
+                                <p>@Text(suggestion.DetailKey)</p>
+                            </button>
+                        }
+                    </div>
+                }
             }
             else
             {
@@ -133,6 +138,9 @@
 }
 
 @code {
+    private const int TopSuggestionLimit = 3;
+    private const int SearchSuggestionLimit = 7;
+
     private AiSpotlightState State => Spotlight.State;
 
     private string ContextLabel => ResolveContextLabel();
@@ -141,7 +149,7 @@
         ? $"{graph.NodeCount} nodes - {graph.EdgeCount} links"
         : Text(UiTextKey.AiSpotlightGraphMissing);
 
-    private IReadOnlyList<AiSpotlightSuggestion> Suggestions => BuildSuggestions();
+    private IReadOnlyList<AiSpotlightTool> Suggestions => BuildSuggestions();
 
     protected override void OnInitialized()
     {
@@ -171,27 +179,115 @@
 
     private string Text(UiTextKey key) => Localizer[key.ToString()];
 
-    private IReadOnlyList<AiSpotlightSuggestion> BuildSuggestions()
+    private IReadOnlyList<AiSpotlightTool> BuildSuggestions()
     {
-        var suggestions = AiSpotlightSuggestionProvider.Build(State.Context);
+        var suggestions = AiSpotlightToolCatalog.BuildSpotlightSuggestions(State.Context);
         var prompt = State.Prompt.Trim();
         if (string.IsNullOrWhiteSpace(prompt))
         {
-            return suggestions;
+            return suggestions
+                .OrderByDescending(ScoreTopSuggestion)
+                .Take(TopSuggestionLimit)
+                .ToArray();
         }
 
         var filtered = suggestions
-            .Where(suggestion =>
-                Text(suggestion.LabelKey).Contains(prompt, StringComparison.OrdinalIgnoreCase) ||
-                Text(suggestion.DetailKey).Contains(prompt, StringComparison.OrdinalIgnoreCase))
+            .Select(suggestion => new
+            {
+                Tool = suggestion,
+                Score = ScoreSuggestion(suggestion, prompt)
+            })
+            .Where(match => match.Score > 0)
+            .OrderByDescending(match => match.Score)
+            .ThenBy(match => Text(match.Tool.LabelKey), StringComparer.OrdinalIgnoreCase)
+            .Take(SearchSuggestionLimit)
+            .Select(match => match.Tool)
             .ToArray();
 
-        return filtered.Length == 0 ? suggestions : filtered;
+        return filtered;
     }
 
-    private async Task SelectSuggestionAsync(AiSpotlightSuggestion suggestion)
+    private int ScoreTopSuggestion(AiSpotlightTool suggestion)
     {
-        if (!string.IsNullOrWhiteSpace(suggestion.Route))
+        var score = suggestion.Kind switch
+        {
+            AiSpotlightSuggestionKind.Command => 40,
+            AiSpotlightSuggestionKind.Graph => 35,
+            AiSpotlightSuggestionKind.Navigation => 25,
+            AiSpotlightSuggestionKind.Settings => 15,
+            AiSpotlightSuggestionKind.Hotkey => 10,
+            _ => 0
+        };
+
+        if (string.Equals(suggestion.Scope, State.Context.Screen, StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(suggestion.Scope, State.Context.Editor is null ? string.Empty : "editor", StringComparison.OrdinalIgnoreCase))
+        {
+            score += 20;
+        }
+
+        if (string.Equals(suggestion.Name, AiSpotlightToolNames.AskContext, StringComparison.Ordinal))
+        {
+            score += 50;
+        }
+
+        if (string.Equals(suggestion.Name, AiSpotlightToolNames.EditorSelectionRewrite, StringComparison.Ordinal) &&
+            State.Context.Editor?.SelectedRange is not null)
+        {
+            score += 45;
+        }
+
+        if (suggestion.Kind == AiSpotlightSuggestionKind.Graph && State.Context.Screen == AppShellScreen.Editor.ToString())
+        {
+            score += 35;
+        }
+
+        if (!string.IsNullOrWhiteSpace(suggestion.Route) &&
+            string.Equals(new Uri(Navigation.Uri).AbsolutePath, suggestion.Route, StringComparison.OrdinalIgnoreCase))
+        {
+            score -= 50;
+        }
+
+        return score;
+    }
+
+    private int ScoreSuggestion(AiSpotlightTool suggestion, string prompt)
+    {
+        var score = 0;
+        var label = Text(suggestion.LabelKey);
+        var detail = Text(suggestion.DetailKey);
+
+        score += ScoreText(label, prompt, 100, 75, 55);
+        score += ScoreText(detail, prompt, 45, 35, 20);
+        score += ScoreText(suggestion.Prompt, prompt, 30, 20, 10);
+        score += ScoreText(suggestion.Name.Replace('_', ' '), prompt, 25, 15, 10);
+
+        if (score > 0)
+        {
+            score += Math.Max(0, ScoreTopSuggestion(suggestion) / 10);
+        }
+
+        return score;
+    }
+
+    private static int ScoreText(string value, string prompt, int exact, int startsWith, int contains)
+    {
+        if (string.Equals(value, prompt, StringComparison.OrdinalIgnoreCase))
+        {
+            return exact;
+        }
+
+        if (value.StartsWith(prompt, StringComparison.OrdinalIgnoreCase))
+        {
+            return startsWith;
+        }
+
+        return value.Contains(prompt, StringComparison.OrdinalIgnoreCase) ? contains : 0;
+    }
+
+    private async Task SelectSuggestionAsync(AiSpotlightTool suggestion)
+    {
+        if (suggestion.DispatchKind == AiSpotlightToolDispatchKinds.Navigation &&
+            !string.IsNullOrWhiteSpace(suggestion.Route))
         {
             Navigation.NavigateTo(suggestion.Route);
             Spotlight.Close();

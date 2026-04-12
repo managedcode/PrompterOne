@@ -10,6 +10,7 @@ using PrompterOne.Shared.Contracts;
 using PrompterOne.Shared.Layout;
 using PrompterOne.Shared.Services;
 using PrompterOne.Shared.Tests;
+using PrompterOne.Shared.Tools;
 
 namespace PrompterOne.Web.Tests;
 
@@ -23,6 +24,8 @@ public sealed class MainLayoutActionTests : BunitContext
     private const string EnglishGoLiveLabel = "Go Live";
     private const string EnglishImportLabel = "Import";
     private const string IntroSubtitle = "Intro";
+    private const int MaximumAiSpotlightTopSuggestionCount = 3;
+    private const int MaximumAiSpotlightSearchSuggestionCount = 7;
     private const string UkrainianExportLabel = "Експорт";
     private const string UkrainianImportLabel = "Імпорт";
     private static readonly string SupportedImportAcceptValue = ScriptDocumentFileTypes.PickerAcceptValue;
@@ -189,8 +192,82 @@ public sealed class MainLayoutActionTests : BunitContext
             Assert.NotNull(cut.FindByTestId(UiTestIds.AiSpotlight.Surface));
             Assert.NotNull(cut.FindByTestId(UiTestIds.AiSpotlight.PromptInput));
             Assert.NotNull(cut.FindByTestId(UiTestIds.AiSpotlight.SuggestionList));
-            Assert.NotEmpty(cut.FindAll(BunitTestSelectors.BuildTestIdSelector(UiTestIds.AiSpotlight.SuggestionItem)));
+            var suggestions = cut.FindAll(BunitTestSelectors.BuildTestIdSelector(UiTestIds.AiSpotlight.SuggestionItem));
+            Assert.InRange(suggestions.Count, 1, MaximumAiSpotlightTopSuggestionCount);
+            Assert.Contains(
+                suggestions,
+                static suggestion => suggestion.GetAttribute("data-tool") == AiSpotlightToolNames.AskContext);
         });
+    }
+
+    [Test]
+    public void MainLayout_GlobalAiSpotlightAction_FiltersSuggestionListToBestMatches()
+    {
+        _ = TestHarnessFactory.Create(this);
+        var navigation = Services.GetRequiredService<NavigationManager>();
+        navigation.NavigateTo(AppRoutes.EditorWithId(AppTestData.Scripts.QuantumId));
+
+        var cut = Render<MainLayout>(parameters => parameters
+            .Add(layout => layout.Body, (RenderFragment)(builder => builder.AddMarkupContent(0, "<div>Body</div>"))));
+
+        cut.FindByTestId(UiTestIds.Header.AiSpotlight).Click();
+        cut.FindByTestId(UiTestIds.AiSpotlight.PromptInput).Input("micro");
+
+        cut.WaitForAssertion(() =>
+        {
+            var suggestions = cut.FindAll(BunitTestSelectors.BuildTestIdSelector(UiTestIds.AiSpotlight.SuggestionItem));
+            Assert.InRange(suggestions.Count, 1, MaximumAiSpotlightSearchSuggestionCount);
+            Assert.Contains(
+                suggestions,
+                static suggestion => suggestion.GetAttribute("data-tool") == AiSpotlightToolNames.SettingsMicrophones);
+        });
+    }
+
+    [Test]
+    public void MainLayout_GlobalAiSpotlightAction_HidesSuggestionsWhenSearchHasNoMatches()
+    {
+        _ = TestHarnessFactory.Create(this);
+        var navigation = Services.GetRequiredService<NavigationManager>();
+        navigation.NavigateTo(AppRoutes.EditorWithId(AppTestData.Scripts.QuantumId));
+
+        var cut = Render<MainLayout>(parameters => parameters
+            .Add(layout => layout.Body, (RenderFragment)(builder => builder.AddMarkupContent(0, "<div>Body</div>"))));
+
+        cut.FindByTestId(UiTestIds.Header.AiSpotlight).Click();
+        cut.FindByTestId(UiTestIds.AiSpotlight.PromptInput).Input("zzzzzz-no-action-match");
+
+        cut.WaitForAssertion(() =>
+        {
+            Assert.Empty(cut.FindAll(BunitTestSelectors.BuildTestIdSelector(UiTestIds.AiSpotlight.SuggestionList)));
+            Assert.Empty(cut.FindAll(BunitTestSelectors.BuildTestIdSelector(UiTestIds.AiSpotlight.SuggestionItem)));
+        });
+    }
+
+    [Test]
+    public void MainLayout_GlobalAiSpotlightContext_AttachesFullAgentToolCatalog()
+    {
+        _ = TestHarnessFactory.Create(this);
+        var navigation = Services.GetRequiredService<NavigationManager>();
+        var spotlight = Services.GetRequiredService<AiSpotlightService>();
+        navigation.NavigateTo(AppRoutes.EditorWithId(AppTestData.Scripts.QuantumId));
+
+        _ = Render<MainLayout>(parameters => parameters
+            .Add(layout => layout.Body, (RenderFragment)(builder => builder.AddMarkupContent(0, "<div>Body</div>"))));
+
+        var availableTools = spotlight.State.Context.AvailableTools ?? [];
+
+        Assert.Contains(
+            availableTools,
+            static tool => tool.Name == AiSpotlightToolNames.NavSettings);
+        Assert.Contains(
+            availableTools,
+            static tool => tool.Name == HotkeyToolName(AppHotkeyIds.Definitions.GlobalOpenAssistant));
+        Assert.Contains(
+            availableTools,
+            static tool => tool.Name == AiSpotlightToolNames.StreamYouTubeKeyConfigure && tool.RequiresApproval);
+        Assert.Contains(
+            availableTools,
+            static tool => tool.Name == AiSpotlightToolNames.AgentSpawnScript && tool.Scope == "agent");
     }
 
     [Test]
@@ -554,4 +631,7 @@ public sealed class MainLayoutActionTests : BunitContext
             Assert.Contains(UkrainianExportLabel, exportAction.TextContent, StringComparison.Ordinal);
         });
     }
+
+    private static string HotkeyToolName(string id) =>
+        AiSpotlightToolNames.HotkeyPrefix + id.Replace('-', '_');
 }

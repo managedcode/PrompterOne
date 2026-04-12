@@ -1,10 +1,15 @@
+using Microsoft.Extensions.Localization;
 using PrompterOne.Core.AI.Models;
 using PrompterOne.Core.AI.Services;
 using PrompterOne.Shared.Contracts;
+using PrompterOne.Shared.Localization;
+using PrompterOne.Shared.Tools;
 
 namespace PrompterOne.Shared.Services;
 
-public sealed class AiSpotlightService(ScriptDocumentEditService documentEditService)
+public sealed class AiSpotlightService(
+    ScriptDocumentEditService documentEditService,
+    IStringLocalizer<SharedResource> localizer)
 {
     public event Action? StateChanged;
 
@@ -36,7 +41,7 @@ public sealed class AiSpotlightService(ScriptDocumentEditService documentEditSer
     }
 
     public void SetContext(ScriptArticleContext context) =>
-        SetState(State with { Context = context });
+        SetState(State with { Context = AttachAvailableTools(context) });
 
     public void Open() =>
         SetState(State with { IsOpen = true });
@@ -171,4 +176,15 @@ public sealed class AiSpotlightService(ScriptDocumentEditService documentEditSer
         State = state;
         StateChanged?.Invoke();
     }
+
+    private ScriptArticleContext AttachAvailableTools(ScriptArticleContext context)
+    {
+        var tools = AiSpotlightToolCatalog.BuildAgentTools(context)
+            .Select(tool => tool.ToAgentTool(Text))
+            .ToArray();
+
+        return context with { AvailableTools = tools };
+    }
+
+    private string Text(UiTextKey key) => localizer[key.ToString()];
 }

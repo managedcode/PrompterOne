@@ -1,5 +1,4 @@
 using PrompterOne.Core.AI.Models;
-using PrompterOne.Shared.Localization;
 
 namespace PrompterOne.Shared.Services;
 
@@ -11,20 +10,6 @@ public enum AiSpotlightMode
 }
 
 public sealed record AiSpotlightLogEntry(string Label, string Detail, bool IsComplete = false);
-
-public enum AiSpotlightSuggestionKind
-{
-    Command,
-    Navigation,
-    Graph
-}
-
-public sealed record AiSpotlightSuggestion(
-    AiSpotlightSuggestionKind Kind,
-    UiTextKey LabelKey,
-    UiTextKey DetailKey,
-    string Prompt,
-    string? Route = null);
 
 public sealed record AiSpotlightApprovalRequest(
     string Reason,

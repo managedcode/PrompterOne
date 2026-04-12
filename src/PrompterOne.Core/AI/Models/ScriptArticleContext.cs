@@ -8,7 +8,8 @@ public sealed record ScriptArticleContext(
     string? Route = null,
     string? Screen = null,
     ScriptEditorContext? Editor = null,
-    ScriptKnowledgeGraphContext? Graph = null)
+    ScriptKnowledgeGraphContext? Graph = null,
+    IReadOnlyList<ScriptAgentAppToolDescriptor>? AvailableTools = null)
 {
     public bool IsEmpty =>
         string.IsNullOrWhiteSpace(Title)
@@ -18,7 +19,8 @@ public sealed record ScriptArticleContext(
         && string.IsNullOrWhiteSpace(Route)
         && string.IsNullOrWhiteSpace(Screen)
         && (Editor is null || Editor.IsEmpty)
-        && (Graph is null || Graph.IsEmpty);
+        && (Graph is null || Graph.IsEmpty)
+        && (AvailableTools is null || AvailableTools.Count == 0);
 }
 
 public sealed record ScriptEditorContext(
