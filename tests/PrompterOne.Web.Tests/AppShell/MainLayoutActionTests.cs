@@ -188,6 +188,8 @@ public sealed class MainLayoutActionTests : BunitContext
             Assert.NotNull(cut.FindByTestId(UiTestIds.AiSpotlight.Overlay));
             Assert.NotNull(cut.FindByTestId(UiTestIds.AiSpotlight.Surface));
             Assert.NotNull(cut.FindByTestId(UiTestIds.AiSpotlight.PromptInput));
+            Assert.NotNull(cut.FindByTestId(UiTestIds.AiSpotlight.SuggestionList));
+            Assert.NotEmpty(cut.FindAll(BunitTestSelectors.BuildTestIdSelector(UiTestIds.AiSpotlight.SuggestionItem)));
         });
     }
 
@@ -232,7 +234,6 @@ public sealed class MainLayoutActionTests : BunitContext
         cut.FindByTestId(UiTestIds.Header.AiSpotlight).Click();
         cut.FindByTestId(UiTestIds.AiSpotlight.PromptInput).Input("rewrite this selected paragraph");
         cut.FindByTestId(UiTestIds.AiSpotlight.Submit).Click();
-        cut.FindByTestId(UiTestIds.AiSpotlight.RunPlan).Click();
 
         cut.WaitForAssertion(() =>
         {

@@ -39,7 +39,6 @@ public sealed class EditorScriptGraphViewTests(StandaloneAppFixture fixture)
             await page.GetByTestId(UiTestIds.Header.AiSpotlight).ClickAsync();
             await page.GetByTestId(UiTestIds.AiSpotlight.PromptInput).FillAsync("rewrite selected graph range");
             await page.GetByTestId(UiTestIds.AiSpotlight.Submit).ClickAsync();
-            await page.GetByTestId(UiTestIds.AiSpotlight.RunPlan).ClickAsync();
             await Expect(page.GetByTestId(UiTestIds.AiSpotlight.ApprovalState))
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
             await page.GetByTestId(UiTestIds.AiSpotlight.ApprovalApprove).ClickAsync();

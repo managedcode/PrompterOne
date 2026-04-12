@@ -1,18 +1,30 @@
 using PrompterOne.Core.AI.Models;
+using PrompterOne.Shared.Localization;
 
 namespace PrompterOne.Shared.Services;
 
 public enum AiSpotlightMode
 {
     Idle,
-    Plan,
     Running,
     Approval
 }
 
-public sealed record AiSpotlightPlanItem(string Label, string Detail, bool IsComplete = false);
-
 public sealed record AiSpotlightLogEntry(string Label, string Detail, bool IsComplete = false);
+
+public enum AiSpotlightSuggestionKind
+{
+    Command,
+    Navigation,
+    Graph
+}
+
+public sealed record AiSpotlightSuggestion(
+    AiSpotlightSuggestionKind Kind,
+    UiTextKey LabelKey,
+    UiTextKey DetailKey,
+    string Prompt,
+    string? Route = null);
 
 public sealed record AiSpotlightApprovalRequest(
     string Reason,
@@ -28,7 +40,6 @@ public sealed record AiSpotlightState(
     AiSpotlightMode Mode,
     string Prompt,
     ScriptArticleContext Context,
-    IReadOnlyList<AiSpotlightPlanItem> Plan,
     IReadOnlyList<AiSpotlightLogEntry> Log,
     bool RequiresApproval,
     AiSpotlightApprovalRequest? ApprovalRequest = null,
@@ -39,7 +50,6 @@ public sealed record AiSpotlightState(
         Mode: AiSpotlightMode.Idle,
         Prompt: string.Empty,
         Context: new ScriptArticleContext(),
-        Plan: [],
         Log: [],
         RequiresApproval: false);
 }

@@ -9,6 +9,7 @@
 @implements IDisposable
 @inject AiSpotlightService Spotlight
 @inject IStringLocalizer<SharedResource> Localizer
+@inject NavigationManager Navigation
 
 @if (State.IsOpen)
 {
@@ -64,35 +65,21 @@
                     </button>
                 </div>
                 <p class="ai-spotlight-hint">@Text(UiTextKey.AiSpotlightIdleHint)</p>
-            }
-            else if (State.Mode == AiSpotlightMode.Plan)
-            {
-                <div class="ai-spotlight-plan" data-test="@UiTestIds.AiSpotlight.PlanState">
-                    <div>
-                        <h3>@Text(UiTextKey.AiSpotlightPlanTitle)</h3>
-                        @foreach (var item in State.Plan)
-                        {
-                            <div class="ai-spotlight-step" data-test="@UiTestIds.AiSpotlight.PlanItem">
-                                <span></span>
-                                <div>
-                                    <strong>@item.Label</strong>
-                                    <p>@item.Detail</p>
-                                </div>
-                            </div>
-                        }
-                    </div>
-                    <aside class="ai-spotlight-context" data-test="@UiTestIds.AiSpotlight.Context">
-                        <span>@Text(UiTextKey.AiSpotlightContextTitle)</span>
-                        <strong>@ContextLabel</strong>
-                        <p>@GraphLabel</p>
-                    </aside>
+
+                <div class="ai-spotlight-suggestions" data-test="@UiTestIds.AiSpotlight.SuggestionList">
+                    @foreach (var suggestion in Suggestions)
+                    {
+                        <button type="button"
+                                class="ai-spotlight-suggestion"
+                                @onclick="() => SelectSuggestionAsync(suggestion)"
+                                data-kind="@suggestion.Kind.ToString().ToLowerInvariant()"
+                                data-test="@UiTestIds.AiSpotlight.SuggestionItem">
+                            <span aria-hidden="true"></span>
+                            <strong>@Text(suggestion.LabelKey)</strong>
+                            <p>@Text(suggestion.DetailKey)</p>
+                        </button>
+                    }
                 </div>
-                <button type="button"
-                        class="ai-spotlight-run"
-                        @onclick="RunPlanAsync"
-                        data-test="@UiTestIds.AiSpotlight.RunPlan">
-                    @Text(UiTextKey.AiSpotlightRunPlan)
-                </button>
             }
             else
             {
@@ -154,6 +141,8 @@
         ? $"{graph.NodeCount} nodes - {graph.EdgeCount} links"
         : Text(UiTextKey.AiSpotlightGraphMissing);
 
+    private IReadOnlyList<AiSpotlightSuggestion> Suggestions => BuildSuggestions();
+
     protected override void OnInitialized()
     {
         Spotlight.StateChanged += HandleSpotlightStateChanged;
@@ -172,8 +161,6 @@
 
     private Task SubmitAsync() => Spotlight.SubmitAsync();
 
-    private Task RunPlanAsync() => Spotlight.RunPlanAsync();
-
     private Task ApproveAsync() => Spotlight.ApproveAsync();
 
     private void RejectApproval() => Spotlight.RejectApproval();
@@ -183,6 +170,37 @@
     private void HandleSpotlightStateChanged() => _ = InvokeAsync(StateHasChanged);
 
     private string Text(UiTextKey key) => Localizer[key.ToString()];
+
+    private IReadOnlyList<AiSpotlightSuggestion> BuildSuggestions()
+    {
+        var suggestions = AiSpotlightSuggestionProvider.Build(State.Context);
+        var prompt = State.Prompt.Trim();
+        if (string.IsNullOrWhiteSpace(prompt))
+        {
+            return suggestions;
+        }
+
+        var filtered = suggestions
+            .Where(suggestion =>
+                Text(suggestion.LabelKey).Contains(prompt, StringComparison.OrdinalIgnoreCase) ||
+                Text(suggestion.DetailKey).Contains(prompt, StringComparison.OrdinalIgnoreCase))
+            .ToArray();
+
+        return filtered.Length == 0 ? suggestions : filtered;
+    }
+
+    private async Task SelectSuggestionAsync(AiSpotlightSuggestion suggestion)
+    {
+        if (!string.IsNullOrWhiteSpace(suggestion.Route))
+        {
+            Navigation.NavigateTo(suggestion.Route);
+            Spotlight.Close();
+            return;
+        }
+
+        Spotlight.UpdatePrompt(suggestion.Prompt);
+        await Spotlight.SubmitAsync();
+    }
 
     private string ResolveContextLabel()
     {

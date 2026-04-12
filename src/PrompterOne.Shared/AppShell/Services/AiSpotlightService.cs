@@ -65,21 +65,10 @@ public sealed class AiSpotlightService(ScriptDocumentEditService documentEditSer
             return Task.CompletedTask;
         }
 
-        SetState(State with
-        {
-            IsOpen = true,
-            Mode = AiSpotlightMode.Plan,
-            Plan = AiSpotlightPlanBuilder.BuildPlan(State.Context),
-            Log = [],
-            RequiresApproval = false,
-            ApprovalRequest = null,
-            ErrorMessage = null
-        });
-
-        return Task.CompletedTask;
+        return ExecuteAsync();
     }
 
-    public Task RunPlanAsync()
+    public Task ExecuteAsync()
     {
         if (AiSpotlightApprovalBuilder.TryCreate(
                 State,
@@ -89,9 +78,9 @@ public sealed class AiSpotlightService(ScriptDocumentEditService documentEditSer
         {
             SetState(State with
             {
+                IsOpen = true,
                 Mode = AiSpotlightMode.Approval,
-                Plan = State.Plan.Select(item => item with { IsComplete = true }).ToArray(),
-                Log = AiSpotlightPlanBuilder.BuildApprovalLog(approvalRequest),
+                Log = AiSpotlightExecutionBuilder.BuildApprovalLog(approvalRequest),
                 RequiresApproval = true,
                 ApprovalRequest = approvalRequest,
                 ErrorMessage = null
@@ -102,9 +91,9 @@ public sealed class AiSpotlightService(ScriptDocumentEditService documentEditSer
 
         SetState(State with
         {
+            IsOpen = true,
             Mode = AiSpotlightMode.Running,
-            Plan = State.Plan.Select(item => item with { IsComplete = true }).ToArray(),
-            Log = AiSpotlightPlanBuilder.BuildRunningLog(State.Context),
+            Log = AiSpotlightExecutionBuilder.BuildRunningLog(State.Context),
             RequiresApproval = false,
             ApprovalRequest = null,
             ErrorMessage = null
@@ -125,7 +114,7 @@ public sealed class AiSpotlightService(ScriptDocumentEditService documentEditSer
             SetState(State with
             {
                 ErrorMessage = "There is no active editor target for this document edit.",
-                Log = AiSpotlightPlanBuilder.AddLog(
+                Log = AiSpotlightExecutionBuilder.AddLog(
                     State.Log,
                     new AiSpotlightLogEntry("Approval failed", "Open the source editor and try again."))
             });
@@ -138,7 +127,7 @@ public sealed class AiSpotlightService(ScriptDocumentEditService documentEditSer
             SetState(State with
             {
                 Mode = AiSpotlightMode.Running,
-                Log = AiSpotlightPlanBuilder.AddLog(
+                Log = AiSpotlightExecutionBuilder.AddLog(
                     State.Log,
                     new AiSpotlightLogEntry("Applied edit", $"Document revision {result.Revision.Value[..8]}", true)),
                 RequiresApproval = false,
@@ -151,7 +140,7 @@ public sealed class AiSpotlightService(ScriptDocumentEditService documentEditSer
             SetState(State with
             {
                 ErrorMessage = exception.Message,
-                Log = AiSpotlightPlanBuilder.AddLog(
+                Log = AiSpotlightExecutionBuilder.AddLog(
                     State.Log,
                     new AiSpotlightLogEntry("Approval failed", exception.Message))
             });
@@ -163,7 +152,7 @@ public sealed class AiSpotlightService(ScriptDocumentEditService documentEditSer
         SetState(State with
         {
             Mode = AiSpotlightMode.Running,
-            Log = AiSpotlightPlanBuilder.AddLog(
+            Log = AiSpotlightExecutionBuilder.AddLog(
                 State.Log,
                 new AiSpotlightLogEntry("Change rejected", "No document text was changed.", true)),
             RequiresApproval = false,

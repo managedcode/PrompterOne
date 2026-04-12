@@ -811,7 +811,7 @@
     <value>Chiedi della schermata, del testo selezionato o del grafo dello script</value>
   </data>
   <data name="AiSpotlightIdleHint" xml:space="preserve">
-    <value>Le righe selezionate permettono riscritture precise. PrompterOne chiederà conferma prima di cambiare testo.</value>
+    <value>Scegli un suggerimento o premi Invio per chiedere all'agente. PrompterOne chiederà conferma prima di modificare il testo.</value>
   </data>
   <data name="AiSpotlightClose" xml:space="preserve">
     <value>Chiudi assistente</value>
@@ -823,13 +823,43 @@
     <value>Input vocale</value>
   </data>
   <data name="AiSpotlightSubmit" xml:space="preserve">
-    <value>Piano</value>
+    <value>Chiedi</value>
   </data>
-  <data name="AiSpotlightRunPlan" xml:space="preserve">
-    <value>Esegui</value>
+  <data name="AiSpotlightSuggestionAskContext" xml:space="preserve">
+    <value>Chiedi su questa schermata</value>
   </data>
-  <data name="AiSpotlightPlanTitle" xml:space="preserve">
-    <value>Piano</value>
+  <data name="AiSpotlightSuggestionAskContextDetail" xml:space="preserve">
+    <value>Usa rotta corrente, contesto dello script e stato visibile.</value>
+  </data>
+  <data name="AiSpotlightSuggestionRewriteSelection" xml:space="preserve">
+    <value>Riscrivi righe selezionate</value>
+  </data>
+  <data name="AiSpotlightSuggestionRewriteSelectionDetail" xml:space="preserve">
+    <value>Prepara una modifica solo per la selezione corrente dell'editor.</value>
+  </data>
+  <data name="AiSpotlightSuggestionInspectGraph" xml:space="preserve">
+    <value>Ispeziona grafo dello script</value>
+  </data>
+  <data name="AiSpotlightSuggestionInspectGraphDetail" xml:space="preserve">
+    <value>Controlla personaggi, temi, link e stato del grafo prima di rispondere.</value>
+  </data>
+  <data name="AiSpotlightSuggestionOpenEditor" xml:space="preserve">
+    <value>Apri Editor</value>
+  </data>
+  <data name="AiSpotlightSuggestionOpenEditorDetail" xml:space="preserve">
+    <value>Vai allo spazio di modifica dello script.</value>
+  </data>
+  <data name="AiSpotlightSuggestionOpenLibrary" xml:space="preserve">
+    <value>Apri Libreria</value>
+  </data>
+  <data name="AiSpotlightSuggestionOpenLibraryDetail" xml:space="preserve">
+    <value>Sfoglia, cerca, importa o crea script.</value>
+  </data>
+  <data name="AiSpotlightSuggestionOpenSettings" xml:space="preserve">
+    <value>Apri Impostazioni</value>
+  </data>
+  <data name="AiSpotlightSuggestionOpenSettingsDetail" xml:space="preserve">
+    <value>Configura IA, microfoni, scorciatoie e comportamento dell'app.</value>
   </data>
   <data name="AiSpotlightRunningTitle" xml:space="preserve">
     <value>In corso</value>

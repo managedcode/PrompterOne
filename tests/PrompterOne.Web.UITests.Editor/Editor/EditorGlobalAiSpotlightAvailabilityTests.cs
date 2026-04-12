@@ -55,9 +55,11 @@ public sealed class EditorGlobalAiSpotlightAvailabilityTests(StandaloneAppFixtur
     {
         await Expect(page.GetByTestId(UiTestIds.AiSpotlight.Overlay)).ToBeVisibleAsync();
         await Expect(page.GetByTestId(UiTestIds.AiSpotlight.IdleState)).ToBeVisibleAsync();
+        await Expect(page.GetByTestId(UiTestIds.AiSpotlight.SuggestionList)).ToBeVisibleAsync();
+        await Expect(page.GetByTestId(UiTestIds.AiSpotlight.SuggestionItem).First).ToBeVisibleAsync();
         await page.GetByTestId(UiTestIds.AiSpotlight.PromptInput).FillAsync("Explain the selected script lines");
         await page.GetByTestId(UiTestIds.AiSpotlight.Submit).ClickAsync();
-        await Expect(page.GetByTestId(UiTestIds.AiSpotlight.PlanState)).ToBeVisibleAsync();
-        await Expect(page.GetByTestId(UiTestIds.AiSpotlight.Context)).ToBeVisibleAsync();
+        await Expect(page.GetByTestId(UiTestIds.AiSpotlight.RunningState)).ToBeVisibleAsync();
+        await Expect(page.GetByTestId(UiTestIds.AiSpotlight.LogItem).First).ToBeVisibleAsync();
     }
 }

@@ -2,24 +2,8 @@ using PrompterOne.Core.AI.Models;
 
 namespace PrompterOne.Shared.Services;
 
-internal static class AiSpotlightPlanBuilder
+internal static class AiSpotlightExecutionBuilder
 {
-    public static IReadOnlyList<AiSpotlightPlanItem> BuildPlan(ScriptArticleContext context)
-    {
-        var editorDetail = context.Editor?.SelectedRange is { } range
-            ? $"Selected range {range.Start}-{range.End}"
-            : context.Editor is not null
-                ? "Active editor document"
-                : "Current route";
-
-        return
-        [
-            new("Read context", editorDetail),
-            new("Inspect graph", FormatGraphDetail(context.Graph)),
-            new("Prepare action", "Use range-based edits and ask before applying changes")
-        ];
-    }
-
     public static IReadOnlyList<AiSpotlightLogEntry> BuildRunningLog(ScriptArticleContext context) =>
     [
         new("Context loaded", context.Screen ?? "Route", true),

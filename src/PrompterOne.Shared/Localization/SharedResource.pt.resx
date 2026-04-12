@@ -997,7 +997,7 @@
     <value>Pergunte sobre esta tela, o texto selecionado ou o grafo do roteiro</value>
   </data>
   <data name="AiSpotlightIdleHint" xml:space="preserve">
-    <value>Linhas selecionadas permitem reescritas precisas. PrompterOne pedirá confirmação antes de alterar texto.</value>
+    <value>Escolha uma sugestão ou pressione Enter para perguntar ao agente. PrompterOne pedirá confirmação antes de alterar texto.</value>
   </data>
   <data name="AiSpotlightClose" xml:space="preserve">
     <value>Fechar assistente</value>
@@ -1009,13 +1009,43 @@
     <value>Entrada de voz</value>
   </data>
   <data name="AiSpotlightSubmit" xml:space="preserve">
-    <value>Plano</value>
+    <value>Perguntar</value>
   </data>
-  <data name="AiSpotlightRunPlan" xml:space="preserve">
-    <value>Executar</value>
+  <data name="AiSpotlightSuggestionAskContext" xml:space="preserve">
+    <value>Perguntar sobre esta tela</value>
   </data>
-  <data name="AiSpotlightPlanTitle" xml:space="preserve">
-    <value>Plano</value>
+  <data name="AiSpotlightSuggestionAskContextDetail" xml:space="preserve">
+    <value>Usar rota atual, contexto do roteiro e estado visível.</value>
+  </data>
+  <data name="AiSpotlightSuggestionRewriteSelection" xml:space="preserve">
+    <value>Reescrever linhas selecionadas</value>
+  </data>
+  <data name="AiSpotlightSuggestionRewriteSelectionDetail" xml:space="preserve">
+    <value>Preparar uma edição apenas para a seleção atual do editor.</value>
+  </data>
+  <data name="AiSpotlightSuggestionInspectGraph" xml:space="preserve">
+    <value>Inspecionar grafo do roteiro</value>
+  </data>
+  <data name="AiSpotlightSuggestionInspectGraphDetail" xml:space="preserve">
+    <value>Verificar personagens, temas, links e estado do grafo antes de responder.</value>
+  </data>
+  <data name="AiSpotlightSuggestionOpenEditor" xml:space="preserve">
+    <value>Abrir Editor</value>
+  </data>
+  <data name="AiSpotlightSuggestionOpenEditorDetail" xml:space="preserve">
+    <value>Ir para o espaço de edição do roteiro.</value>
+  </data>
+  <data name="AiSpotlightSuggestionOpenLibrary" xml:space="preserve">
+    <value>Abrir Biblioteca</value>
+  </data>
+  <data name="AiSpotlightSuggestionOpenLibraryDetail" xml:space="preserve">
+    <value>Navegar, buscar, importar ou criar roteiros.</value>
+  </data>
+  <data name="AiSpotlightSuggestionOpenSettings" xml:space="preserve">
+    <value>Abrir Configurações</value>
+  </data>
+  <data name="AiSpotlightSuggestionOpenSettingsDetail" xml:space="preserve">
+    <value>Configurar IA, microfones, atalhos e comportamento do app.</value>
   </data>
   <data name="AiSpotlightRunningTitle" xml:space="preserve">
     <value>Trabalhando</value>

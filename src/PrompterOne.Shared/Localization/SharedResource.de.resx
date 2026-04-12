@@ -1219,7 +1219,7 @@
     <value>Frage zum Bildschirm, zur Auswahl oder zum Skriptgraphen stellen</value>
   </data>
   <data name="AiSpotlightIdleHint" xml:space="preserve">
-    <value>Ausgewählte Editorzeilen ermöglichen präzise Umschreibungen. PrompterOne fragt vor Textänderungen nach.</value>
+    <value>Wähle einen Vorschlag oder drücke Enter, um den Agenten zu fragen. PrompterOne fragt nach, bevor Text geändert wird.</value>
   </data>
   <data name="AiSpotlightClose" xml:space="preserve">
     <value>Assistent schließen</value>
@@ -1231,13 +1231,43 @@
     <value>Spracheingabe</value>
   </data>
   <data name="AiSpotlightSubmit" xml:space="preserve">
-    <value>Plan</value>
+    <value>Fragen</value>
   </data>
-  <data name="AiSpotlightRunPlan" xml:space="preserve">
-    <value>Starten</value>
+  <data name="AiSpotlightSuggestionAskContext" xml:space="preserve">
+    <value>Diese Ansicht fragen</value>
   </data>
-  <data name="AiSpotlightPlanTitle" xml:space="preserve">
-    <value>Plan</value>
+  <data name="AiSpotlightSuggestionAskContextDetail" xml:space="preserve">
+    <value>Aktuelle Route, Skriptkontext und sichtbaren Zustand verwenden.</value>
+  </data>
+  <data name="AiSpotlightSuggestionRewriteSelection" xml:space="preserve">
+    <value>Ausgewählte Zeilen umschreiben</value>
+  </data>
+  <data name="AiSpotlightSuggestionRewriteSelectionDetail" xml:space="preserve">
+    <value>Eine Änderung nur für die aktuelle Editor-Auswahl vorbereiten.</value>
+  </data>
+  <data name="AiSpotlightSuggestionInspectGraph" xml:space="preserve">
+    <value>Skriptgraph prüfen</value>
+  </data>
+  <data name="AiSpotlightSuggestionInspectGraphDetail" xml:space="preserve">
+    <value>Figuren, Themen, Links und Graphstatus vor der Antwort prüfen.</value>
+  </data>
+  <data name="AiSpotlightSuggestionOpenEditor" xml:space="preserve">
+    <value>Editor öffnen</value>
+  </data>
+  <data name="AiSpotlightSuggestionOpenEditorDetail" xml:space="preserve">
+    <value>Zum Arbeitsbereich für Skriptbearbeitung wechseln.</value>
+  </data>
+  <data name="AiSpotlightSuggestionOpenLibrary" xml:space="preserve">
+    <value>Bibliothek öffnen</value>
+  </data>
+  <data name="AiSpotlightSuggestionOpenLibraryDetail" xml:space="preserve">
+    <value>Skripte durchsuchen, importieren oder erstellen.</value>
+  </data>
+  <data name="AiSpotlightSuggestionOpenSettings" xml:space="preserve">
+    <value>Einstellungen öffnen</value>
+  </data>
+  <data name="AiSpotlightSuggestionOpenSettingsDetail" xml:space="preserve">
+    <value>KI, Mikrofone, Kurzbefehle und App-Verhalten konfigurieren.</value>
   </data>
   <data name="AiSpotlightRunningTitle" xml:space="preserve">
     <value>In Arbeit</value>

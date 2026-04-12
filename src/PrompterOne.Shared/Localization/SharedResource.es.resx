@@ -1219,7 +1219,7 @@
     <value>Pregunta sobre esta pantalla, el texto seleccionado o el grafo del guion</value>
   </data>
   <data name="AiSpotlightIdleHint" xml:space="preserve">
-    <value>Las líneas seleccionadas permiten reescrituras precisas. PrompterOne pedirá permiso antes de cambiar texto.</value>
+    <value>Elige una sugerencia o pulsa Enter para preguntar al agente. PrompterOne pedirá confirmación antes de cambiar texto.</value>
   </data>
   <data name="AiSpotlightClose" xml:space="preserve">
     <value>Cerrar asistente</value>
@@ -1231,13 +1231,43 @@
     <value>Entrada de voz</value>
   </data>
   <data name="AiSpotlightSubmit" xml:space="preserve">
-    <value>Plan</value>
+    <value>Preguntar</value>
   </data>
-  <data name="AiSpotlightRunPlan" xml:space="preserve">
-    <value>Ejecutar</value>
+  <data name="AiSpotlightSuggestionAskContext" xml:space="preserve">
+    <value>Preguntar sobre esta pantalla</value>
   </data>
-  <data name="AiSpotlightPlanTitle" xml:space="preserve">
-    <value>Plan</value>
+  <data name="AiSpotlightSuggestionAskContextDetail" xml:space="preserve">
+    <value>Usar la ruta actual, el contexto del guion y el estado visible.</value>
+  </data>
+  <data name="AiSpotlightSuggestionRewriteSelection" xml:space="preserve">
+    <value>Reescribir líneas seleccionadas</value>
+  </data>
+  <data name="AiSpotlightSuggestionRewriteSelectionDetail" xml:space="preserve">
+    <value>Preparar una edición solo para la selección actual del editor.</value>
+  </data>
+  <data name="AiSpotlightSuggestionInspectGraph" xml:space="preserve">
+    <value>Inspeccionar grafo del guion</value>
+  </data>
+  <data name="AiSpotlightSuggestionInspectGraphDetail" xml:space="preserve">
+    <value>Revisar personajes, temas, enlaces y estado del grafo antes de responder.</value>
+  </data>
+  <data name="AiSpotlightSuggestionOpenEditor" xml:space="preserve">
+    <value>Abrir Editor</value>
+  </data>
+  <data name="AiSpotlightSuggestionOpenEditorDetail" xml:space="preserve">
+    <value>Ir al espacio de edición del guion.</value>
+  </data>
+  <data name="AiSpotlightSuggestionOpenLibrary" xml:space="preserve">
+    <value>Abrir Biblioteca</value>
+  </data>
+  <data name="AiSpotlightSuggestionOpenLibraryDetail" xml:space="preserve">
+    <value>Explorar, buscar, importar o crear guiones.</value>
+  </data>
+  <data name="AiSpotlightSuggestionOpenSettings" xml:space="preserve">
+    <value>Abrir Configuración</value>
+  </data>
+  <data name="AiSpotlightSuggestionOpenSettingsDetail" xml:space="preserve">
+    <value>Configurar IA, micrófonos, atajos y comportamiento de la app.</value>
   </data>
   <data name="AiSpotlightRunningTitle" xml:space="preserve">
     <value>Trabajando</value>
