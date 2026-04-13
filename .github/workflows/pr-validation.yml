@@ -21,7 +21,7 @@ env:
 
 jobs:
   build_supporting_suites:
-    name: Restore + Build Supporting Suites
+    name: Build Supporting Tests
     runs-on: macos-latest
 
     steps:
@@ -43,7 +43,7 @@ jobs:
         run: dotnet build "$SOLUTION_FILE" -warnaserror
 
   test_supporting_suites:
-    name: Run Supporting Suites
+    name: Supporting Tests
     needs: build_supporting_suites
     runs-on: macos-latest
 
@@ -79,7 +79,7 @@ jobs:
           if-no-files-found: ignore
 
   build_browser_suites:
-    name: Restore + Build Browser Suites
+    name: Build Browser Tests
     runs-on: macos-latest
 
     steps:
@@ -100,8 +100,8 @@ jobs:
       - name: Build solution
         run: dotnet build "$SOLUTION_FILE" -warnaserror
 
-  test_browser_suites:
-    name: Run Browser Suite (${{ matrix.suite.name }})
+  browser_tests:
+    name: ${{ matrix.suite.name }}
     needs: build_browser_suites
     runs-on: macos-latest
     strategy:

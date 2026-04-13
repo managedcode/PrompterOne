@@ -21,89 +21,155 @@ public sealed class EditorToolbarCoverageTests(StandaloneAppFixture fixture)
     public static IEnumerable<EditorCommandScenario> FloatingCommandScenarios => EditorToolbarCoverageScenarios.FloatingCommandScenarios;
 
     [Test]
-    [MethodDataSource(nameof(MenuScenarios))]
-    public async Task EditorToolbar_MenuTrigger_ExposesExpectedBehavior(EditorMenuScenario scenario)
+    public async Task EditorToolbar_MenuTriggers_ExposeExpectedBehavior()
     {
         await UiPageScenarioDriver.RunWithIsolatedPageRetryAsync(
             _fixture,
             async page =>
             {
                 await OpenEditorAsync(page);
-                await page.GetByTestId(scenario.TriggerTestId).ClickAsync();
-                await Expect(page.GetByTestId(scenario.PanelTestId))
-                    .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.FastVisibleTimeoutMs });
-            },
-            $"Toolbar menu coverage failed for scenario '{scenario.TriggerTestId}'.");
-    }
 
-    [Test]
-    [MethodDataSource(nameof(FloatingMenuScenarios))]
-    public async Task EditorToolbar_FloatingMenuTrigger_ExposesExpectedBehavior(EditorMenuScenario scenario)
-    {
-        await UiPageScenarioDriver.RunWithIsolatedPageRetryAsync(
-            _fixture,
-            async page =>
-            {
-                await OpenEditorAsync(page);
-                await SetSourceTextAndSelectPhraseAsync(page, BrowserTestSource.AlphaSource, BrowserTestSource.AlphaToken);
-                await Expect(page.GetByTestId(UiTestIds.Editor.FloatingBar))
-                    .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.FastVisibleTimeoutMs });
-                await page.GetByTestId(scenario.TriggerTestId).ClickAsync();
-                await Expect(page.GetByTestId(scenario.PanelTestId))
-                    .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.FastVisibleTimeoutMs });
-            },
-            $"Floating toolbar menu coverage failed for scenario '{scenario.TriggerTestId}'.");
-    }
-
-    [Test]
-    [MethodDataSource(nameof(ToolbarCommandScenarios))]
-    public async Task EditorToolbar_CommandButton_MutatesSource(EditorCommandScenario scenario)
-    {
-        await UiPageScenarioDriver.RunWithIsolatedPageRetryAsync(
-            _fixture,
-            async page =>
-            {
-                await OpenEditorAsync(page);
-                await PrepareScenarioAsync(page, scenario);
-                if (!string.IsNullOrWhiteSpace(scenario.MenuTriggerTestId))
+                foreach (var scenario in MenuScenarios)
                 {
-                    await page.GetByTestId(scenario.MenuTriggerTestId).ClickAsync();
+                    await RunCoverageStepAsync(
+                        scenario.TriggerTestId,
+                        async () =>
+                        {
+                            await UiInteractionDriver.ClickAndWaitForVisibleAsync(
+                                page.GetByTestId(scenario.TriggerTestId),
+                                page.GetByTestId(scenario.PanelTestId));
+                            await page.Keyboard.PressAsync("Escape");
+                        });
                 }
-
-                var beforeValue = await EditorMonacoDriver.SourceInput(page).InputValueAsync();
-                await page.GetByTestId(scenario.TestId).ClickAsync();
-                var afterValue = await EditorMonacoDriver.SourceInput(page).InputValueAsync();
-
-                await AssertCommandMutation(scenario, beforeValue, afterValue);
             },
-            $"Toolbar command coverage failed for scenario '{scenario.TestId}'.");
+            "Toolbar menu coverage failed.");
     }
 
     [Test]
-    [MethodDataSource(nameof(FloatingCommandScenarios))]
-    public async Task EditorToolbar_FloatingCommandButton_MutatesSource(EditorCommandScenario scenario)
+    public async Task EditorToolbar_FloatingMenuTriggers_ExposeExpectedBehavior()
     {
         await UiPageScenarioDriver.RunWithIsolatedPageRetryAsync(
             _fixture,
             async page =>
             {
                 await OpenEditorAsync(page);
-                await PrepareScenarioAsync(page, scenario);
-                await Expect(page.GetByTestId(UiTestIds.Editor.FloatingBar))
-                    .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.FastVisibleTimeoutMs });
-                await page.WaitForTimeoutAsync(BrowserTestConstants.Timing.FloatingToolbarSettleDelayMs);
-                if (!string.IsNullOrWhiteSpace(scenario.MenuTriggerTestId))
+
+                foreach (var scenario in FloatingMenuScenarios)
                 {
-                    await page.GetByTestId(scenario.MenuTriggerTestId).ClickAsync();
+                    await RunCoverageStepAsync(
+                        scenario.TriggerTestId,
+                        async () =>
+                        {
+                            await SetSourceTextAndSelectPhraseAsync(page, BrowserTestSource.AlphaSource, BrowserTestSource.AlphaToken);
+                            await Expect(page.GetByTestId(UiTestIds.Editor.FloatingBar))
+                                .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.FastVisibleTimeoutMs });
+                            await UiInteractionDriver.ClickAndWaitForVisibleAsync(
+                                page.GetByTestId(scenario.TriggerTestId),
+                                page.GetByTestId(scenario.PanelTestId),
+                                noWaitAfter: true);
+                            await page.Keyboard.PressAsync("Escape");
+                        });
                 }
-
-                var beforeValue = await EditorMonacoDriver.SourceInput(page).InputValueAsync();
-                await page.GetByTestId(scenario.TestId).ClickAsync();
-                var afterValue = await EditorMonacoDriver.SourceInput(page).InputValueAsync();
-
-                await AssertCommandMutation(scenario, beforeValue, afterValue);
             },
-            $"Floating toolbar coverage failed for scenario '{scenario.TestId}'.");
+            "Floating toolbar menu coverage failed.");
+    }
+
+    [Test]
+    public async Task EditorToolbar_CommandButtons_MutateSource()
+    {
+        await UiPageScenarioDriver.RunWithIsolatedPageRetryAsync(
+            _fixture,
+            async page =>
+            {
+                await OpenEditorAsync(page);
+
+                foreach (var scenario in ToolbarCommandScenarios)
+                {
+                    await RunCoverageStepAsync(
+                        scenario.TestId,
+                        async () =>
+                        {
+                            await PrepareScenarioAsync(page, scenario);
+                            if (!string.IsNullOrWhiteSpace(scenario.MenuTriggerTestId))
+                            {
+                                await OpenScenarioMenuAsync(page, scenario);
+                            }
+
+                            var beforeValue = await EditorMonacoDriver.SourceInput(page).InputValueAsync();
+                            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(scenario.TestId));
+                            var afterValue = await EditorMonacoDriver.SourceInput(page).InputValueAsync();
+
+                            await AssertCommandMutation(scenario, beforeValue, afterValue);
+                        });
+                }
+            },
+            "Toolbar command coverage failed.");
+    }
+
+    [Test]
+    public async Task EditorToolbar_FloatingCommandButtons_MutateSource()
+    {
+        await UiPageScenarioDriver.RunWithIsolatedPageRetryAsync(
+            _fixture,
+            async page =>
+            {
+                await OpenEditorAsync(page);
+
+                foreach (var scenario in FloatingCommandScenarios)
+                {
+                    await RunCoverageStepAsync(
+                        scenario.TestId,
+                        async () =>
+                        {
+                            await PrepareScenarioAsync(page, scenario);
+                            await Expect(page.GetByTestId(UiTestIds.Editor.FloatingBar))
+                                .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.FastVisibleTimeoutMs });
+                            if (!string.IsNullOrWhiteSpace(scenario.MenuTriggerTestId))
+                            {
+                                await OpenScenarioMenuAsync(page, scenario, noWaitAfter: true);
+                            }
+
+                            var beforeValue = await EditorMonacoDriver.SourceInput(page).InputValueAsync();
+                            await UiInteractionDriver.ClickAndContinueAsync(page.GetByTestId(scenario.TestId), noWaitAfter: true);
+                            var afterValue = await EditorMonacoDriver.SourceInput(page).InputValueAsync();
+
+                            await AssertCommandMutation(scenario, beforeValue, afterValue);
+                        });
+                }
+            },
+            "Floating toolbar coverage failed.");
+    }
+
+    private static async Task RunCoverageStepAsync(string scenarioId, Func<Task> step)
+    {
+        try
+        {
+            await step();
+        }
+        catch (Exception exception)
+        {
+            throw new InvalidOperationException($"Editor toolbar coverage step failed for '{scenarioId}'.", exception);
+        }
+    }
+
+    private static async Task OpenScenarioMenuAsync(IPage page, EditorCommandScenario scenario, bool noWaitAfter = false)
+    {
+        if (string.IsNullOrWhiteSpace(scenario.MenuTriggerTestId))
+        {
+            return;
+        }
+
+        var trigger = page.GetByTestId(scenario.MenuTriggerTestId);
+        if (string.IsNullOrWhiteSpace(scenario.MenuPanelTestId))
+        {
+            await UiInteractionDriver.ClickAndContinueAsync(trigger, noWaitAfter);
+            return;
+        }
+
+        await UiInteractionDriver.ClickAndWaitForVisibleAsync(
+            trigger,
+            page.GetByTestId(scenario.MenuPanelTestId),
+            noWaitAfter);
     }
 
     private static async Task AssertCommandMutation(EditorCommandScenario scenario, string beforeValue, string afterValue)

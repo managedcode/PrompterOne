@@ -122,5 +122,8 @@ public sealed class EditorToolbarDropdownPaintTests(StandaloneAppFixture fixture
     public sealed record DropdownPaintScenario(
         int ScenarioIndex,
         string TriggerTestId,
-        string PanelTestId);
+        string PanelTestId)
+    {
+        public override string ToString() => TriggerTestId;
+    }
 }

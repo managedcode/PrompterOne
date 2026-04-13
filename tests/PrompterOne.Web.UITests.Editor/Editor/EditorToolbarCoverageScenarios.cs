@@ -12,12 +12,19 @@ public enum EditorScenarioSelectionMode
 public sealed record EditorCommandScenario(
     string TestId,
     string? MenuTriggerTestId,
+    string? MenuPanelTestId,
     EditorCommandRequest Command,
-    EditorScenarioSelectionMode SelectionMode);
+    EditorScenarioSelectionMode SelectionMode)
+{
+    public override string ToString() => TestId;
+}
 
 public sealed record EditorMenuScenario(
     string TriggerTestId,
-    string PanelTestId);
+    string PanelTestId)
+{
+    public override string ToString() => TriggerTestId;
+}
 
 internal static class EditorToolbarCoverageScenarios
 {
@@ -54,6 +61,7 @@ internal static class EditorToolbarCoverageScenarios
             .Select(action => new EditorCommandScenario(
                 action.TestId!,
                 null,
+                null,
                 action.Command!,
                 GetFloatingSelectionMode(action.Command!)));
 
@@ -65,6 +73,7 @@ internal static class EditorToolbarCoverageScenarios
                     .Select(action => new EditorCommandScenario(
                         action.TestId!,
                         menu.TriggerTestId,
+                        menu.PanelTestId,
                         action.Command!,
                         GetFloatingSelectionMode(action.Command!)))));
 
@@ -74,7 +83,7 @@ internal static class EditorToolbarCoverageScenarios
 
         foreach (var section in EditorToolbarCatalog.Sections)
         {
-            scenarios.AddRange(BuildSectionCommandScenarios(section.MainActions, null));
+            scenarios.AddRange(BuildSectionCommandScenarios(section.MainActions, null, null));
 
             if (!string.IsNullOrWhiteSpace(section.MainActions.FirstOrDefault(action => action.ActionType == EditorToolbarActionType.ToggleMenu)?.TestId))
             {
@@ -84,7 +93,7 @@ internal static class EditorToolbarCoverageScenarios
 
                 foreach (var group in section.DropdownGroups)
                 {
-                    scenarios.AddRange(BuildSectionCommandScenarios(group.Actions, menuTriggerTestId));
+                    scenarios.AddRange(BuildSectionCommandScenarios(group.Actions, menuTriggerTestId, section.DropdownTestId));
                 }
             }
         }
@@ -94,12 +103,14 @@ internal static class EditorToolbarCoverageScenarios
 
     private static IEnumerable<EditorCommandScenario> BuildSectionCommandScenarios(
         IReadOnlyList<EditorToolbarActionDescriptor> actions,
-        string? menuTriggerTestId) =>
+        string? menuTriggerTestId,
+        string? menuPanelTestId) =>
         actions
             .Where(action => action.ActionType == EditorToolbarActionType.Command && action.Command is not null && !string.IsNullOrWhiteSpace(action.TestId))
             .Select(action => new EditorCommandScenario(
                 action.TestId!,
                 menuTriggerTestId,
+                menuPanelTestId,
                 action.Command!,
                 GetSelectionMode(action.Command!)));
 
