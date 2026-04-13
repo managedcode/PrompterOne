@@ -1,6 +1,6 @@
-using ManagedCode.Tps;
+using ManagedCode.Tps.Models;
 using PrompterOne.Core.AI.Models;
-using System.Text.RegularExpressions;
+using System.Text;
 
 namespace PrompterOne.Core.AI.Services;
 
@@ -14,12 +14,13 @@ internal static class ScriptKnowledgeGraphTpsEnricher
         string documentNodeId,
         string containsEdgeLabel,
         string content,
+        ScriptKnowledgeGraphCompiledDocument compiledDocument,
         ICollection<ScriptKnowledgeGraphSemanticScope> scopes,
         IDictionary<string, ScriptKnowledgeGraphNode> nodes,
         IDictionary<string, ScriptKnowledgeGraphEdge> edges,
         IDictionary<string, ScriptKnowledgeGraphSourceRange> ranges)
     {
-        var result = TpsRuntime.Compile(content);
+        var result = compiledDocument.Compilation;
         var compiledSegments = result.Script.Segments.ToDictionary(static segment => segment.Id, StringComparer.Ordinal);
         var usedHeaderOffsets = new HashSet<int>();
         foreach (var segment in result.Document.Segments)
@@ -34,7 +35,7 @@ internal static class ScriptKnowledgeGraphTpsEnricher
                     segment.Name,
                     "TpsSegment",
                     "tps",
-                    CreateReadableDetail(segment.Content, segment.Name),
+                    CreateReadableDetail(compiledDocument.GetSegmentText(segment.Id), segment.Name),
                     CreateScopeAttributes(
                         "segment",
                         compiledSegment?.TargetWpm ?? segment.TargetWpm,
@@ -50,10 +51,13 @@ internal static class ScriptKnowledgeGraphTpsEnricher
                 compiledSegment?.Speaker ?? segment.Speaker,
                 nodes,
                 edges);
-            scopes.Add(new ScriptKnowledgeGraphSemanticScope(segmentNodeId, segment.Name, segment.Content));
+            scopes.Add(new ScriptKnowledgeGraphSemanticScope(
+                segmentNodeId,
+                segment.Name,
+                compiledDocument.GetSegmentText(segment.Id)));
 
             var compiledBlocks = compiledSegment?.Blocks.ToDictionary(static block => block.Id, StringComparer.Ordinal)
-                ?? new Dictionary<string, ManagedCode.Tps.Models.CompiledBlock>(StringComparer.Ordinal);
+                ?? new Dictionary<string, CompiledBlock>(StringComparer.Ordinal);
 
             foreach (var block in segment.Blocks)
             {
@@ -67,7 +71,7 @@ internal static class ScriptKnowledgeGraphTpsEnricher
                         block.Name,
                         "TpsBlock",
                         "tps",
-                        CreateReadableDetail(block.Content, block.Name),
+                        CreateReadableDetail(compiledDocument.GetBlockText(block.Id), block.Name),
                         CreateScopeAttributes(
                             "block",
                             compiledBlock?.TargetWpm ?? block.TargetWpm ?? compiledSegment?.TargetWpm ?? segment.TargetWpm,
@@ -83,7 +87,10 @@ internal static class ScriptKnowledgeGraphTpsEnricher
                     compiledBlock?.Speaker ?? block.Speaker ?? compiledSegment?.Speaker ?? segment.Speaker,
                     nodes,
                     edges);
-                scopes.Add(new ScriptKnowledgeGraphSemanticScope(blockNodeId, block.Name, block.Content));
+                scopes.Add(new ScriptKnowledgeGraphSemanticScope(
+                    blockNodeId,
+                    block.Name,
+                    compiledDocument.GetBlockText(block.Id)));
             }
         }
     }
@@ -165,21 +172,36 @@ internal static class ScriptKnowledgeGraphTpsEnricher
         return null;
     }
 
-    private static string SanitizeId(string value) =>
-        Regex.Replace(value.Trim().ToLowerInvariant(), "[^a-z0-9]+", "-", RegexOptions.CultureInvariant).Trim('-');
+    private static string SanitizeId(string value)
+    {
+        var builder = new StringBuilder(value.Length);
+        var pendingSeparator = false;
+        foreach (var character in value.Trim().ToLowerInvariant())
+        {
+            if (character is >= 'a' and <= 'z' or >= '0' and <= '9')
+            {
+                if (pendingSeparator && builder.Length > 0)
+                {
+                    builder.Append('-');
+                }
+
+                builder.Append(character);
+                pendingSeparator = false;
+                continue;
+            }
+
+            pendingSeparator = true;
+        }
+
+        return builder.ToString();
+    }
 
     private static string CreateReadableDetail(string content, string fallback)
     {
-        var text = Regex.Replace(content, @"(?m)^\s*@[\p{L}_][^\r\n]*$", " ", RegexOptions.CultureInvariant);
-        text = Regex.Replace(text, @"\[([^\]]+)\]\([^)]+\)", "$1", RegexOptions.CultureInvariant);
-        text = Regex.Replace(text, @"\[[^\]\r\n|]+:[^\]\r\n]*\]|\[/[^\]\r\n]+\]|\[[^\]\r\n|]+\]", string.Empty, RegexOptions.CultureInvariant);
-        text = Regex.Replace(text, @"\s+", " ", RegexOptions.CultureInvariant).Trim();
-        if (string.IsNullOrWhiteSpace(text))
-        {
-            return fallback;
-        }
-
-        return text.Length <= 220 ? text : string.Concat(text.AsSpan(0, 217).Trim(), "...");
+        var text = string.IsNullOrWhiteSpace(content) ? fallback : content;
+        return text.Length <= 220
+            ? text
+            : string.Concat(text.AsSpan(0, 217).Trim(), "...");
     }
 
     private static IReadOnlyDictionary<string, string> CreateScopeAttributes(

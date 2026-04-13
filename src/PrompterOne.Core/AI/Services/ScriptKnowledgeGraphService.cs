@@ -20,9 +20,13 @@ public sealed class ScriptKnowledgeGraphService(
         ArgumentNullException.ThrowIfNull(request);
 
         var content = request.Content ?? string.Empty;
+        var compiledDocument = ScriptKnowledgeGraphCompiledDocument.Create(content, request.Title);
         var pipeline = new MarkdownKnowledgePipeline();
         var kbResult = await pipeline
-            .BuildFromMarkdownAsync(content, CreateSourcePath(request.DocumentId), cancellationToken: cancellationToken)
+            .BuildFromMarkdownAsync(
+                compiledDocument.DisplayMarkdown,
+                CreateSourcePath(request.DocumentId),
+                cancellationToken: cancellationToken)
             .ConfigureAwait(false);
 
         var nodes = new Dictionary<string, ScriptKnowledgeGraphNode>(StringComparer.Ordinal);
@@ -35,6 +39,7 @@ public sealed class ScriptKnowledgeGraphService(
             ContainsEdgeLabel,
             request,
             content,
+            compiledDocument.DisplayText,
             semanticScopes,
             nodes,
             edges,
@@ -43,16 +48,32 @@ public sealed class ScriptKnowledgeGraphService(
             DocumentNodeId,
             ContainsEdgeLabel,
             content,
+            compiledDocument,
             semanticScopes,
             nodes,
             edges,
             ranges);
         AddKnowledgeBankGraph(kbResult.Graph.ToSnapshot(), content, nodes, edges, ranges);
-        var semanticStatus = await TryAddModelSemanticGraphAsync(request, content, semanticScopes, nodes, edges, ranges, cancellationToken)
+        var semanticStatus = await TryAddModelSemanticGraphAsync(
+                request,
+                compiledDocument.DisplayMarkdown,
+                semanticScopes,
+                nodes,
+                edges,
+                ranges,
+                cancellationToken)
             .ConfigureAwait(false);
         if (semanticStatus != ScriptKnowledgeGraphSemanticStatus.Model &&
             request.SemanticMode == ScriptKnowledgeGraphSemanticMode.TokenizerSimilarity &&
-            _tokenizerSimilarityExtractor.AddTokenizerSimilarity(content, semanticScopes, nodes, edges, ranges))
+            await _tokenizerSimilarityExtractor
+                .AddTokenizerSimilarityAsync(
+                    content,
+                    compiledDocument.DisplayMarkdown,
+                    nodes,
+                    edges,
+                    ranges,
+                    cancellationToken)
+                .ConfigureAwait(false))
         {
             semanticStatus = ScriptKnowledgeGraphSemanticStatus.TokenizerSimilarity;
         }

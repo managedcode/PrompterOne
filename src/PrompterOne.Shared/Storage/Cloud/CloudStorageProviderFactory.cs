@@ -24,6 +24,7 @@ public sealed class CloudStorageProviderFactory(
 {
     private const string GoogleCloudStorageScope = "https://www.googleapis.com/auth/devstorage.full_control";
     private const string GoogleDriveApplicationName = "PrompterOne";
+    private const string OneDriveBrowserUnsupportedMessage = "OneDrive client-secret storage is not supported in the browser runtime.";
     private static readonly string[] GraphScopes = ["https://graph.microsoft.com/.default"];
 
     private readonly BrowserCloudStorageStore _cloudStorageStore = cloudStorageStore;
@@ -91,6 +92,10 @@ public sealed class CloudStorageProviderFactory(
     {
         var credentials = await _cloudStorageStore.LoadOneDriveCredentialsAsync(cancellationToken);
         ValidateOneDriveCredentials(credentials);
+        if (OperatingSystem.IsBrowser())
+        {
+            throw new PlatformNotSupportedException(OneDriveBrowserUnsupportedMessage);
+        }
 
         var graphClient = new GraphServiceClient(
             new ClientSecretCredential(credentials.TenantId, credentials.ClientId, credentials.ClientSecret),

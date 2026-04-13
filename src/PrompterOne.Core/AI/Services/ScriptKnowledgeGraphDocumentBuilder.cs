@@ -12,6 +12,7 @@ internal static class ScriptKnowledgeGraphDocumentBuilder
         string containsEdgeLabel,
         ScriptKnowledgeGraphBuildRequest request,
         string content,
+        string displayContent,
         ICollection<ScriptKnowledgeGraphSemanticScope> scopes,
         IDictionary<string, ScriptKnowledgeGraphNode> nodes,
         IDictionary<string, ScriptKnowledgeGraphEdge> edges,
@@ -28,7 +29,7 @@ internal static class ScriptKnowledgeGraphDocumentBuilder
                 ["source"] = "script",
                 ["documentId"] = request.DocumentId ?? string.Empty
             });
-        scopes.Add(new ScriptKnowledgeGraphSemanticScope(documentNodeId, "Document", content));
+        scopes.Add(new ScriptKnowledgeGraphSemanticScope(documentNodeId, "Document", displayContent));
 
         AddSectionNodes(documentNodeId, containsEdgeLabel, content, nodes, edges, ranges);
     }

@@ -22,16 +22,14 @@ const defaultKindStyle = {
     fill: "defaultFill",
     stroke: "defaultStroke",
     labelFill: "labelLight",
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: 600,
     maxLines: 4,
-    compactSize: [200, 54],
-    size: [230, 60]
+    compactSize: [220, 60],
+    size: [250, 68]
 };
 const manualLayoutModes = new Set([
-    "knowledge", "compact", "structure", "delivery",
-    "grid", "radial", "circular", "concentric", "mds",
-    "relationship", "force", "fruchterman", "force-atlas2", "d3-force"
+    "knowledge", "compact", "structure", "delivery"
 ]);
 const fitViewPadding = 36;
 
@@ -64,8 +62,12 @@ function read(value, camelName, pascalName, fallback) {
 function cfgColor(config, key, fallback) {
     const token = config?.colors?.[key];
     if (token) {
-        const val = getComputedStyle(document.documentElement).getPropertyValue(token).trim();
-        if (val) return val;
+        const host = config?.colorHost instanceof Element ? config.colorHost : document.documentElement;
+        const hostValue = getComputedStyle(host).getPropertyValue(token).trim();
+        if (hostValue) return hostValue;
+
+        const rootValue = getComputedStyle(document.documentElement).getPropertyValue(token).trim();
+        if (rootValue) return rootValue;
     }
     return fallback;
 }
@@ -533,13 +535,23 @@ function scaleNodeSize(size, degree, kind) {
 }
 
 function cleanDisplayText(value) {
-    const text = `${value ?? ""}`.trim();
+    const text = removeInlineGraphMarkup(`${value ?? ""}`)
+        .replace(/^\s*#{1,6}\s+/, "")
+        .replace(/^Line\s+\d+\s*:\s*/i, "")
+        .trim();
     if (!text) {
         return "";
     }
 
     const primary = text.split("|").map(part => part.trim()).filter(Boolean)[0] ?? text;
-    return primary.replace(/^Line\s+\d+\s*:\s*/i, "").trim();
+    return primary.trim();
+}
+
+function removeInlineGraphMarkup(value) {
+    let text = `${value ?? ""}`;
+    text = text.replace(/\[([^\]\r\n]+)\]\([^)]+\)/g, "$1");
+    text = text.replace(/\[[^\]\r\n]+\]/g, " ");
+    return text.replace(/\s+/g, " ");
 }
 
 function readDisplayLabel(kind, label, detail) {
@@ -670,6 +682,7 @@ function createEdgeData(edge, config) {
     const label = read(edge, "label", "Label", "");
     const edgeStyle = readEdgeStyle(label, config);
     const stroke = edgeStyle.stroke ?? edgeStyle.Stroke ?? "edgeStroke";
+    const edgeStroke = cfgColor(config, stroke, colorFallbacks[stroke] ?? colorFallbacks.edgeStroke);
     return {
         id,
         source,
@@ -679,9 +692,11 @@ function createEdgeData(edge, config) {
             endArrow: true,
             labelText: "",
             lineDash: readEdgeLineDash(edgeStyle),
-            lineWidth: edgeStyle.lineWidth ?? edgeStyle.LineWidth ?? 1.25,
-            opacity: edgeStyle.opacity ?? edgeStyle.Opacity ?? 0.54,
-            stroke: cfgColor(config, stroke, colorFallbacks[stroke] ?? colorFallbacks.edgeStroke)
+            lineWidth: edgeStyle.lineWidth ?? edgeStyle.LineWidth ?? 1.7,
+            opacity: edgeStyle.opacity ?? edgeStyle.Opacity ?? 0.72,
+            stroke: edgeStroke,
+            endArrowFill: edgeStroke,
+            endArrowStroke: edgeStroke
         }
     };
 }
@@ -839,12 +854,13 @@ function createLayoutNodeDiameter(metrics, padding = 48) {
 function createLayoutConfig(mode, graphData, element) {
     const metrics = readLayoutMetrics(graphData, element);
     const nodeSize = createLayoutNodeSize(graphData);
+    const storyNodeSize = createLayoutNodeSize(graphData, 18, 18);
     const nodeDiameter = createLayoutNodeDiameter(metrics);
     const linkDistance = Math.max(180, Math.ceil(metrics.avgWidth * 1.8));
 
     switch (mode) {
         case "story":
-            return { type: "dagre", rankdir: "LR", nodesep: 48, ranksep: 110, nodeSize };
+            return { type: "dagre", rankdir: "LR", nodesep: 56, ranksep: 76, nodeSize: storyNodeSize };
         case "relationship":
             return { type: "force-atlas2", kr: 110, kg: 10, nodeSize, preventOverlap: true };
         case "dagre":
@@ -936,8 +952,8 @@ function createGraph(g6, element, graphData, mode, config) {
             style: {
                 halo: true,
                 haloStroke: cfgColor(config, "haloStroke", colorFallbacks.haloStroke),
-                labelFontSize: 11,
-                labelLineHeight: 14,
+                labelFontSize: 13,
+                labelLineHeight: 17,
                 labelPlacement: "center",
                 labelTextAlign: "center",
                 labelTextBaseline: "middle",
@@ -967,22 +983,46 @@ function createGraph(g6, element, graphData, mode, config) {
     return new g6.Graph(graphConfig);
 }
 
+function syncRenderedGraphData(element, graphData) {
+    try {
+        const renderedData = element.prompterOneGraph?.getData?.();
+        const nodes = read(renderedData, "nodes", "Nodes", []);
+        if (Array.isArray(nodes) && nodes.length > 0) {
+            const edges = read(renderedData, "edges", "Edges", graphData.edges);
+            element.prompterOneGraphData = { nodes, edges };
+            return;
+        }
+    }
+    catch {
+        // Keep the deterministic Blazor-authored graph data when G6 does not expose rendered data.
+    }
+
+    element.prompterOneGraphData = graphData;
+}
+
 async function fitGraphView(graph, mode, duration = 120) {
     await graph.fitView?.({ padding: fitViewPadding }, { duration });
+
+    if (mode === "grid" || mode === "radial" || mode === "mds") {
+        return;
+    }
 
     const minimumZoom = readMinimumZoom(mode);
     const currentZoom = graph.getZoom?.() ?? 1;
     if (Number.isFinite(currentZoom) && currentZoom < minimumZoom) {
         await graph.zoomTo?.(minimumZoom, { duration: 0 });
     }
-
-    if (mode === defaultLayoutMode) {
-        await graph.zoomBy?.(1, { duration });
-    }
 }
 
 function readMinimumZoom(mode) {
     switch (mode) {
+        case "story":
+            return 0.36;
+        case "compact":
+        case "knowledge":
+        case "structure":
+        case "delivery":
+            return 0.3;
         case "grid":
             return 0.46;
         case "mds":
@@ -1019,13 +1059,14 @@ function formatAttributes(attributes) {
 
 function buildNodeTooltip(node, config) {
     const attributes = formatAttributes(node.data.attributes);
-    const label = node.data.displayLabel || node.style?.labelText || node.data.label;
-    const detail = node.data.detail && node.data.detail !== label ? node.data.detail : "";
+    const label = cleanDisplayText(node.data.displayLabel || node.style?.labelText || node.data.label);
+    const detail = cleanDisplayText(node.data.detail);
+    const visibleDetail = detail && detail !== label ? detail : "";
     const sourceHint = node.data.hasSourceRange ? (config?.sourceHint ?? config?.SourceHint ?? "") : "";
     return [
         `<strong>${escapeHtml(label)}</strong>`,
         `<span>${escapeHtml(node.data.kind)}</span>`,
-        detail ? `<p>${escapeHtml(detail)}</p>` : "",
+        visibleDetail ? `<p>${escapeHtml(visibleDetail)}</p>` : "",
         attributes.length ? `<small>${attributes.map(escapeHtml).join("<br>")}</small>` : "",
         sourceHint ? `<em>${escapeHtml(sourceHint)}</em>` : ""
     ].filter(Boolean).join("");
@@ -1034,8 +1075,8 @@ function buildNodeTooltip(node, config) {
 function buildEdgeTooltip(edge, graphData) {
     const sourceNode = graphData.nodes.find(node => node.id === edge.source);
     const targetNode = graphData.nodes.find(node => node.id === edge.target);
-    const source = sourceNode?.style?.labelText ?? sourceNode?.data.label ?? "Source";
-    const target = targetNode?.style?.labelText ?? targetNode?.data.label ?? "Target";
+    const source = cleanDisplayText(sourceNode?.style?.labelText ?? sourceNode?.data.label ?? "Source");
+    const target = cleanDisplayText(targetNode?.style?.labelText ?? targetNode?.data.label ?? "Target");
     return [
         `<strong>${escapeHtml(edge.data.label || "related")}</strong>`,
         `<p>${escapeHtml(source)}</p>`,
@@ -1058,8 +1099,8 @@ function moveTooltip(element, tooltip, event) {
     const point = readClientPoint(element, event, bounds);
     const tooltipWidth = tooltip.offsetWidth || 280;
     const tooltipHeight = tooltip.offsetHeight || 120;
-    const localX = point.x - bounds.left;
-    const localY = point.y - bounds.top;
+    const localX = clampNumber(point.x - bounds.left, 0, bounds.width);
+    const localY = clampNumber(point.y - bounds.top, 0, bounds.height);
     const offset = 18;
     const opensLeft = localX > bounds.width * 0.58;
     const opensAbove = localY > bounds.height * 0.62;
@@ -1067,25 +1108,73 @@ function moveTooltip(element, tooltip, event) {
     const preferredY = opensAbove ? localY - tooltipHeight - offset : localY + offset;
     const nextX = Math.min(Math.max(preferredX, 12), Math.max(12, bounds.width - tooltipWidth - 12));
     const nextY = Math.min(Math.max(preferredY, 12), Math.max(12, bounds.height - tooltipHeight - 12));
+    tooltip.dataset.anchorX = `${Math.round(localX)}`;
+    tooltip.dataset.anchorY = `${Math.round(localY)}`;
     tooltip.style.transform = `translate(${Math.round(nextX)}px, ${Math.round(nextY)}px)`;
 }
 
 function readClientPoint(element, event, bounds) {
-    const nativeEvent = event?.nativeEvent ?? event?.originalEvent ?? event?.event ?? event;
-    const x = nativeEvent?.clientX ?? event?.clientX ?? event?.client?.x ?? event?.canvas?.x ?? event?.canvasPoint?.x ??
-        event?.point?.x ?? event?.x ?? element.prompterOneGraphPointer?.clientX;
-    const y = nativeEvent?.clientY ?? event?.clientY ?? event?.client?.y ?? event?.canvas?.y ?? event?.canvasPoint?.y ??
-        event?.point?.y ?? event?.y ?? element.prompterOneGraphPointer?.clientY;
-    if (Number.isFinite(x) && Number.isFinite(y)) {
-        if (x >= 0 && x <= bounds.width && y >= 0 && y <= bounds.height &&
-            (x < bounds.left || y < bounds.top)) {
-            return { x: bounds.left + x, y: bounds.top + y };
+    const nativeEvent = event?.nativeEvent ?? event?.originalEvent ?? event?.event;
+    const nativePoint = readFinitePoint(nativeEvent?.clientX, nativeEvent?.clientY) ??
+        readFinitePoint(event?.clientX, event?.clientY);
+    if (nativePoint) {
+        return nativePoint;
+    }
+
+    const storedPointer = readFinitePoint(
+        element.prompterOneGraphPointer?.clientX,
+        element.prompterOneGraphPointer?.clientY);
+    if (storedPointer) {
+        return storedPointer;
+    }
+
+    const graphPoint = readFinitePoint(event?.client?.x, event?.client?.y) ??
+        readFinitePoint(event?.canvas?.x, event?.canvas?.y) ??
+        readFinitePoint(event?.canvasPoint?.x, event?.canvasPoint?.y) ??
+        readFinitePoint(event?.point?.x, event?.point?.y) ??
+        readFinitePoint(event?.x, event?.y);
+    if (graphPoint) {
+        if (graphPoint.x >= bounds.left &&
+            graphPoint.x <= bounds.right &&
+            graphPoint.y >= bounds.top &&
+            graphPoint.y <= bounds.bottom) {
+            return graphPoint;
         }
 
-        return { x, y };
+        return {
+            x: bounds.left + clampNumber(graphPoint.x, 0, bounds.width),
+            y: bounds.top + clampNumber(graphPoint.y, 0, bounds.height)
+        };
     }
 
     return { x: bounds.left + bounds.width / 2, y: bounds.top + bounds.height / 2 };
+}
+
+function readFinitePoint(x, y) {
+    const pointX = Number(x);
+    const pointY = Number(y);
+    return Number.isFinite(pointX) && Number.isFinite(pointY)
+        ? { x: pointX, y: pointY }
+        : null;
+}
+
+function clampNumber(value, minimum, maximum) {
+    return Math.min(Math.max(value, minimum), maximum);
+}
+
+function storeGraphPointer(element, event) {
+    const point = readFinitePoint(event.clientX, event.clientY);
+    if (!point) {
+        return;
+    }
+
+    const bounds = element.getBoundingClientRect();
+    element.prompterOneGraphPointer = {
+        clientX: point.x,
+        clientY: point.y,
+        localX: clampNumber(point.x - bounds.left, 0, bounds.width),
+        localY: clampNumber(point.y - bounds.top, 0, bounds.height)
+    };
 }
 
 function readEventElementId(event) {
@@ -1101,9 +1190,8 @@ function bindGraphTooltips(graph, element, graphData) {
     element.prompterOneGraphTooltipAbort?.abort();
     const abort = new AbortController();
     element.prompterOneGraphTooltipAbort = abort;
-    element.addEventListener("pointermove", event => {
-        element.prompterOneGraphPointer = { clientX: event.clientX, clientY: event.clientY };
-    }, { signal: abort.signal });
+    element.addEventListener("pointermove", event => storeGraphPointer(element, event), { signal: abort.signal });
+    element.addEventListener("pointerenter", event => storeGraphPointer(element, event), { signal: abort.signal });
 
     const tooltip = createTooltip(element);
     const nodeById = new Map(graphData.nodes.map(node => [node.id, node]));
@@ -1189,6 +1277,8 @@ async function autoLayoutGraph(element) {
 
 async function renderGraphInstance(element, artifact, config, mode, fitDuration = 0) {
     const g6 = await ensureG6();
+    config ??= {};
+    config.colorHost = element;
     const graphData = createGraphData(artifact, mode, config, element);
     destroyExistingGraph(element);
     delete element.dataset.graphReady;
@@ -1207,6 +1297,7 @@ async function renderGraphInstance(element, artifact, config, mode, fitDuration 
     bindControls(element);
     bindSpacebarGrab(element);
     await element.prompterOneGraph.render();
+    syncRenderedGraphData(element, graphData);
     bindGraphTooltips(element.prompterOneGraph, element, graphData);
     bindGraphNavigation(element.prompterOneGraph, element, graphData, config);
     await fitGraphView(element.prompterOneGraph, mode, fitDuration);

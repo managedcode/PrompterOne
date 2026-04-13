@@ -182,6 +182,35 @@
     min-height: 360px;
     height: 100%;
     overflow: hidden;
+    --script-graph-document-fill: rgba(245, 230, 208, .96);
+    --script-graph-document-stroke: rgba(245, 230, 208, .82);
+    --script-graph-section-fill: rgba(18, 23, 31, .98);
+    --script-graph-section-stroke: rgba(238, 190, 120, .88);
+    --script-graph-block-fill: rgba(15, 21, 29, .97);
+    --script-graph-block-stroke: rgba(220, 183, 118, .74);
+    --script-graph-idea-fill: rgba(17, 26, 31, .96);
+    --script-graph-idea-stroke: rgba(245, 230, 208, .70);
+    --script-graph-character-fill: rgba(14, 25, 35, .97);
+    --script-graph-character-stroke: rgba(154, 204, 232, .88);
+    --script-graph-theme-fill: rgba(14, 29, 23, .97);
+    --script-graph-theme-stroke: rgba(151, 219, 169, .88);
+    --script-graph-term-fill: rgba(13, 28, 31, .97);
+    --script-graph-term-stroke: rgba(151, 218, 220, .88);
+    --script-graph-claim-fill: rgba(12, 20, 24, .96);
+    --script-graph-claim-stroke: rgba(151, 219, 169, .82);
+    --script-graph-default-fill: rgba(17, 26, 31, .96);
+    --script-graph-default-stroke: rgba(245, 230, 208, .58);
+    --script-graph-edge-default: rgba(245, 230, 208, .88);
+    --script-graph-edge-structural: rgba(245, 230, 208, .78);
+    --script-graph-edge-semantic: rgba(151, 219, 169, .94);
+    --script-graph-edge-mention: rgba(238, 190, 120, .92);
+    --script-graph-edge-reference: rgba(154, 204, 232, .94);
+    --script-graph-label-light: rgba(245, 230, 208, .98);
+    --script-graph-label-dark: rgba(8, 10, 20, .96);
+    --script-graph-label-muted: rgba(232, 213, 176, .72);
+    --script-graph-lane-bg: rgba(8, 10, 20, .70);
+    --script-graph-lane-border: rgba(245, 230, 208, .24);
+    --script-graph-halo: rgba(245, 230, 208, .32);
 }
 
 .script-graph-canvas:focus {

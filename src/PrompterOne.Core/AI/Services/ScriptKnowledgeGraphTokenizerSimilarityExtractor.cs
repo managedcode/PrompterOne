@@ -1,232 +1,208 @@
-using Microsoft.ML.Tokenizers;
+using ManagedCode.MarkdownLd.Kb.Pipeline;
 using PrompterOne.Core.AI.Models;
 using System.Globalization;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace PrompterOne.Core.AI.Services;
 
 public sealed class ScriptKnowledgeGraphTokenizerSimilarityExtractor
 {
-    private const int MinimumChunkCharacters = 24;
     private const int MaximumLabelCharacters = 84;
     private const int MaximumDetailCharacters = 220;
-    private const int MaximumChunks = 32;
-    private const int MaximumNeighborsPerChunk = 3;
-    private const double MinimumSimilarity = .18;
-    private const string SimilarityNodePrefix = "prompterone:similarity:";
+    private const int MaximumRelatedSegments = 3;
+    private const string SourceName = "markdown-ld-kb";
     private const string SimilarityEdgeLabel = "token similarity";
+    private const string AboutEdgeLabel = "about";
+    private const string MentionsEdgeLabel = "mentions";
+    private const string SimilarityKind = "SimilarityChunk";
+    private const string TermKind = "Term";
+    private const string EntityKind = "Entity";
+    private const string SimilarityGroup = "similarity";
+    private const string TokenSegmentIdPart = "/token-segment/";
+    private const string TokenTopicIdPart = "/token-topic/";
+    private const string TokenEntityHintIdPart = "/token-entity-hint/";
+    private const string KbRelatedToPredicate = "kb:relatedTo";
+    private const string SchemaAboutPredicate = "schema:about";
+    private const string SchemaMentionsPredicate = "schema:mentions";
 
-    private static readonly Lazy<Tokenizer> Tokenizer = new(
-        static () => TiktokenTokenizer.CreateForModel("gpt-5"));
-
-    public bool AddTokenizerSimilarity(
+    public async Task<bool> AddTokenizerSimilarityAsync(
         string content,
-        IReadOnlyList<ScriptKnowledgeGraphSemanticScope> scopes,
+        string displayMarkdown,
         IDictionary<string, ScriptKnowledgeGraphNode> nodes,
         IDictionary<string, ScriptKnowledgeGraphEdge> edges,
+        IDictionary<string, ScriptKnowledgeGraphSourceRange> ranges,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(displayMarkdown))
+        {
+            return false;
+        }
+
+        var pipeline = new MarkdownKnowledgePipeline(
+            extractionMode: MarkdownKnowledgeExtractionMode.Tiktoken,
+            tiktokenOptions: new TiktokenKnowledgeGraphOptions
+            {
+                MaxRelatedSegments = MaximumRelatedSegments,
+            });
+        var result = await pipeline
+            .BuildFromMarkdownAsync(displayMarkdown, "script-display.md", cancellationToken: cancellationToken)
+            .ConfigureAwait(false);
+        if (result.ExtractionMode != MarkdownKnowledgeExtractionMode.Tiktoken)
+        {
+            return false;
+        }
+
+        var tokenizerNodes = AddTokenizerNodes(result.Facts.Entities, content, nodes, ranges);
+        AddTokenizerEdges(result.Facts.Assertions, tokenizerNodes, edges);
+        return tokenizerNodes.Values.Count(static node => node.Kind == SimilarityKind) > 1;
+    }
+
+    private static IReadOnlyDictionary<string, ScriptKnowledgeGraphNode> AddTokenizerNodes(
+        IEnumerable<KnowledgeEntityFact> entities,
+        string content,
+        IDictionary<string, ScriptKnowledgeGraphNode> nodes,
         IDictionary<string, ScriptKnowledgeGraphSourceRange> ranges)
     {
-        var chunks = CreateChunks(content, scopes, ranges).Take(MaximumChunks).ToArray();
-        if (chunks.Length < 2)
+        var added = new Dictionary<string, ScriptKnowledgeGraphNode>(StringComparer.Ordinal);
+        foreach (var entity in entities)
         {
+            if (!TryCreateTokenizerNode(entity, out var node))
+            {
+                continue;
+            }
+
+            nodes.TryAdd(node.Id, node);
+            added[node.Id] = node;
+            ScriptKnowledgeGraphSourceRanges.AddRangeIfFound(content, node.Id, node.Label, ranges);
+        }
+
+        return added;
+    }
+
+    private static bool TryCreateTokenizerNode(KnowledgeEntityFact entity, out ScriptKnowledgeGraphNode node)
+    {
+        var kind = ResolveKind(entity.Id);
+        if (kind is null)
+        {
+            node = new ScriptKnowledgeGraphNode(string.Empty, string.Empty, string.Empty);
             return false;
         }
 
-        var vectors = chunks
-            .Select(static chunk => new TokenVector(chunk, Tokenizer.Value.EncodeToIds(chunk.Text)))
-            .Where(static vector => vector.Magnitude > 0)
-            .ToArray();
-        if (vectors.Length < 2)
-        {
-            return false;
-        }
-
-        AddChunkNodes(content, vectors, nodes, edges, ranges);
-        AddSimilarityEdges(vectors, edges);
+        var label = TrimForLabel(entity.Label);
+        node = new ScriptKnowledgeGraphNode(
+            entity.Id!,
+            label,
+            kind,
+            SimilarityGroup,
+            TrimForDetail(entity.Label),
+            CreateNodeAttributes(entity, kind));
         return true;
     }
 
-    private static IEnumerable<ScriptSimilarityChunk> CreateChunks(
-        string content,
-        IReadOnlyList<ScriptKnowledgeGraphSemanticScope> scopes,
-        IDictionary<string, ScriptKnowledgeGraphSourceRange> ranges)
+    private static string? ResolveKind(string? id)
     {
-        foreach (var scope in scopes.Where(static scope => !string.Equals(scope.Label, "Document", StringComparison.Ordinal)))
+        if (string.IsNullOrWhiteSpace(id))
         {
-            var text = NormalizeWhitespace(scope.Content);
-            if (text.Length >= MinimumChunkCharacters)
-            {
-                yield return CreateScopeChunk(content, scope, text, ranges);
-            }
+            return null;
         }
 
-        if (scopes.Count > 1)
+        if (id.Contains(TokenSegmentIdPart, StringComparison.Ordinal))
         {
-            yield break;
+            return SimilarityKind;
         }
 
-        foreach (var chunk in CreateLineChunks(content))
+        if (id.Contains(TokenTopicIdPart, StringComparison.Ordinal))
         {
-            yield return chunk;
+            return TermKind;
         }
+
+        return id.Contains(TokenEntityHintIdPart, StringComparison.Ordinal)
+            ? EntityKind
+            : null;
     }
 
-    private static ScriptSimilarityChunk CreateScopeChunk(
-        string content,
-        ScriptKnowledgeGraphSemanticScope scope,
-        string text,
-        IDictionary<string, ScriptKnowledgeGraphSourceRange> ranges)
-    {
-        var start = content.IndexOf(scope.Content, StringComparison.OrdinalIgnoreCase);
-        if (start >= 0)
-        {
-            return new ScriptSimilarityChunk(scope.NodeId, scope.Label, text, start, start + scope.Content.Length);
-        }
-
-        return ranges.TryGetValue(scope.NodeId, out var range)
-            ? new ScriptSimilarityChunk(scope.NodeId, scope.Label, text, range.Range.Start, range.Range.End)
-            : new ScriptSimilarityChunk(scope.NodeId, scope.Label, text, null, null);
-    }
-
-    private static IEnumerable<ScriptSimilarityChunk> CreateLineChunks(string content)
-    {
-        foreach (var line in ScriptKnowledgeGraphSourceRanges.EnumerateLines(content))
-        {
-            var text = NormalizeWhitespace(line.Text);
-            if (text.Length >= MinimumChunkCharacters)
-            {
-                yield return new ScriptSimilarityChunk(
-                    null,
-                    CreateLabel(text),
-                    text,
-                    line.Start,
-                    line.End);
-            }
-        }
-    }
-
-    private static void AddChunkNodes(
-        string content,
-        IReadOnlyList<TokenVector> vectors,
-        IDictionary<string, ScriptKnowledgeGraphNode> nodes,
-        IDictionary<string, ScriptKnowledgeGraphEdge> edges,
-        IDictionary<string, ScriptKnowledgeGraphSourceRange> ranges)
-    {
-        foreach (var vector in vectors)
-        {
-            var nodeId = CreateSimilarityNodeId(vector.Chunk);
-            nodes.TryAdd(
-                nodeId,
-                new ScriptKnowledgeGraphNode(
-                    nodeId,
-                    CreateLabel(vector.Chunk.Text),
-                    "SimilarityChunk",
-                    "similarity",
-                    TrimDetail(vector.Chunk.Text),
-                    CreateNodeAttributes(vector)));
-            if (!string.IsNullOrWhiteSpace(vector.Chunk.ScopeNodeId) && nodes.ContainsKey(vector.Chunk.ScopeNodeId))
-            {
-                ScriptKnowledgeGraphEdges.Add(edges, vector.Chunk.ScopeNodeId, nodeId, "contains");
-            }
-
-            AddSourceRange(content, nodeId, vector.Chunk, ranges);
-        }
-    }
-
-    private static void AddSimilarityEdges(
-        IReadOnlyList<TokenVector> vectors,
+    private static void AddTokenizerEdges(
+        IEnumerable<KnowledgeAssertionFact> assertions,
+        IReadOnlyDictionary<string, ScriptKnowledgeGraphNode> tokenizerNodes,
         IDictionary<string, ScriptKnowledgeGraphEdge> edges)
     {
-        var candidates = CreateSimilarityCandidates(vectors)
-            .Where(static candidate => candidate.Similarity >= MinimumSimilarity)
-            .GroupBy(static candidate => candidate.Left.Id, StringComparer.Ordinal)
-            .SelectMany(static group => group
-                .OrderByDescending(static candidate => candidate.Similarity)
-                .Take(MaximumNeighborsPerChunk))
-            .ToArray();
-        var added = new HashSet<string>(StringComparer.Ordinal);
-        foreach (var candidate in candidates)
+        foreach (var assertion in assertions)
         {
-            var key = string.CompareOrdinal(candidate.Left.Id, candidate.Right.Id) <= 0
-                ? $"{candidate.Left.Id}|{candidate.Right.Id}"
-                : $"{candidate.Right.Id}|{candidate.Left.Id}";
-            if (!added.Add(key))
+            if (!tokenizerNodes.ContainsKey(assertion.SubjectId) || !tokenizerNodes.ContainsKey(assertion.ObjectId))
+            {
+                continue;
+            }
+
+            var label = ResolveEdgeLabel(assertion.Predicate);
+            if (label is null)
             {
                 continue;
             }
 
             ScriptKnowledgeGraphEdges.Add(
                 edges,
-                candidate.Left.Id,
-                candidate.Right.Id,
-                SimilarityEdgeLabel,
-                CreateEdgeAttributes(candidate));
+                assertion.SubjectId,
+                assertion.ObjectId,
+                label,
+                CreateEdgeAttributes(assertion, label));
         }
     }
 
-    private static IEnumerable<SimilarityCandidate> CreateSimilarityCandidates(IReadOnlyList<TokenVector> vectors)
+    private static string? ResolveEdgeLabel(string predicate)
     {
-        for (var left = 0; left < vectors.Count; left++)
+        return predicate switch
         {
-            for (var right = left + 1; right < vectors.Count; right++)
-            {
-                var similarity = CosineSimilarity(vectors[left], vectors[right]);
-                yield return new SimilarityCandidate(vectors[left], vectors[right], similarity);
-                yield return new SimilarityCandidate(vectors[right], vectors[left], similarity);
-            }
-        }
+            KbRelatedToPredicate => SimilarityEdgeLabel,
+            SchemaAboutPredicate => AboutEdgeLabel,
+            SchemaMentionsPredicate => MentionsEdgeLabel,
+            _ => null,
+        };
     }
 
-    private static double CosineSimilarity(TokenVector left, TokenVector right)
+    private static IReadOnlyDictionary<string, string> CreateNodeAttributes(
+        KnowledgeEntityFact entity,
+        string kind)
     {
-        var dot = 0d;
-        foreach (var (tokenId, leftWeight) in left.Weights)
+        var attributes = new Dictionary<string, string>(StringComparer.Ordinal)
         {
-            if (right.Weights.TryGetValue(tokenId, out var rightWeight))
-            {
-                dot += leftWeight * rightWeight;
-            }
-        }
-
-        return dot <= 0 ? 0 : dot / (left.Magnitude * right.Magnitude);
+            ["source"] = SourceName,
+            ["category"] = ResolveCategory(kind),
+        };
+        AddAttribute(attributes, "confidence", entity.Confidence.ToString("0.###", CultureInfo.InvariantCulture));
+        AddAttribute(attributes, "sourceDocument", entity.Source);
+        AddAttribute(attributes, "entityType", entity.Type);
+        return attributes;
     }
 
-    private static IReadOnlyDictionary<string, string> CreateNodeAttributes(TokenVector vector) =>
-        new Dictionary<string, string>(StringComparer.Ordinal)
+    private static string ResolveCategory(string kind) =>
+        kind switch
         {
-            ["source"] = "tokenizer",
-            ["category"] = "token-similarity",
-            ["scopeLabel"] = vector.Chunk.ScopeLabel,
-            ["tokenCount"] = vector.TokenCount.ToString(CultureInfo.InvariantCulture)
+            SimilarityKind => "token-segment",
+            TermKind => "token-topic",
+            EntityKind => "token-entity",
+            _ => "token",
         };
 
-    private static IReadOnlyDictionary<string, string> CreateEdgeAttributes(SimilarityCandidate candidate) =>
-        new Dictionary<string, string>(StringComparer.Ordinal)
-        {
-            ["source"] = "tokenizer",
-            ["similarity"] = candidate.Similarity.ToString("0.###", CultureInfo.InvariantCulture),
-            ["distance"] = (1 - candidate.Similarity).ToString("0.###", CultureInfo.InvariantCulture)
-        };
-
-    private static void AddSourceRange(
-        string content,
-        string nodeId,
-        ScriptSimilarityChunk chunk,
-        IDictionary<string, ScriptKnowledgeGraphSourceRange> ranges)
+    private static IReadOnlyDictionary<string, string> CreateEdgeAttributes(
+        KnowledgeAssertionFact assertion,
+        string label)
     {
-        if (chunk.Start is not { } start || chunk.End is not { } end || end <= start || end > content.Length)
+        var attributes = new Dictionary<string, string>(StringComparer.Ordinal)
         {
-            return;
-        }
-
-        ranges.TryAdd(nodeId, ScriptKnowledgeGraphSourceRanges.CreateSourceRange(nodeId, content, start, end));
+            ["source"] = SourceName,
+        };
+        AddAttribute(attributes, "confidence", assertion.Confidence.ToString("0.###", CultureInfo.InvariantCulture));
+        return attributes;
     }
 
-    private static string CreateSimilarityNodeId(ScriptSimilarityChunk chunk) =>
-        SimilarityNodePrefix + StableHash($"{chunk.ScopeNodeId}:{chunk.Text}");
+    private static void AddAttribute(IDictionary<string, string> attributes, string key, string? value)
+    {
+        if (!string.IsNullOrWhiteSpace(value))
+        {
+            attributes[key] = value.Trim();
+        }
+    }
 
-    private static string CreateLabel(string text)
+    private static string TrimForLabel(string text)
     {
         var normalized = NormalizeWhitespace(text);
         return normalized.Length <= MaximumLabelCharacters
@@ -234,7 +210,7 @@ public sealed class ScriptKnowledgeGraphTokenizerSimilarityExtractor
             : string.Concat(normalized.AsSpan(0, MaximumLabelCharacters - 3).Trim(), "...");
     }
 
-    private static string TrimDetail(string text)
+    private static string TrimForDetail(string text)
     {
         var normalized = NormalizeWhitespace(text);
         return normalized.Length <= MaximumDetailCharacters
@@ -244,40 +220,4 @@ public sealed class ScriptKnowledgeGraphTokenizerSimilarityExtractor
 
     private static string NormalizeWhitespace(string? text) =>
         string.Join(' ', (text ?? string.Empty).Split([' ', '\t', '\r', '\n'], StringSplitOptions.RemoveEmptyEntries));
-
-    private static string StableHash(string value) =>
-        Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(value))).ToLowerInvariant()[..16];
-
-    private sealed record ScriptSimilarityChunk(
-        string? ScopeNodeId,
-        string ScopeLabel,
-        string Text,
-        int? Start,
-        int? End);
-
-    private sealed class TokenVector
-    {
-        public TokenVector(ScriptSimilarityChunk chunk, IReadOnlyList<int> tokenIds)
-        {
-            Chunk = chunk;
-            TokenCount = tokenIds.Count;
-            Weights = tokenIds
-                .GroupBy(static tokenId => tokenId)
-                .ToDictionary(static group => group.Key, static group => (double)group.Count());
-            Magnitude = Math.Sqrt(Weights.Values.Sum(static value => value * value));
-            Id = CreateSimilarityNodeId(chunk);
-        }
-
-        public string Id { get; }
-
-        public ScriptSimilarityChunk Chunk { get; }
-
-        public int TokenCount { get; }
-
-        public IReadOnlyDictionary<int, double> Weights { get; }
-
-        public double Magnitude { get; }
-    }
-
-    private sealed record SimilarityCandidate(TokenVector Left, TokenVector Right, double Similarity);
 }

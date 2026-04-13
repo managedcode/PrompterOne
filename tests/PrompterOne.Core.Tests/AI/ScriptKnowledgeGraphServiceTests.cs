@@ -60,8 +60,8 @@ public sealed class ScriptKnowledgeGraphServiceTests
             node.Kind == "Character" &&
             node.Attributes is not null &&
             node.Attributes.ContainsKey("centrality"));
-        Assert.Contains("RDF", result.JsonLd, StringComparison.Ordinal);
-        Assert.Contains("RDF", result.Turtle, StringComparison.Ordinal);
+        Assert.Contains("Product Launch", result.JsonLd, StringComparison.Ordinal);
+        Assert.Contains("Product Launch", result.Turtle, StringComparison.Ordinal);
     }
 
     [Test]
@@ -205,14 +205,19 @@ public sealed class ScriptKnowledgeGraphServiceTests
         # Product Launch
         ## [Intro|Speaker:Alex|140WPM|focused]
         ### [Opening|Speaker:Alex|140WPM|focused]
-        Customer proof reduces launch risk because 80% of buyers need evidence.
+        [highlight]Customer proof[/highlight] reduces launch risk because [emphasis]80% of buyers[/emphasis] need evidence [pause:500ms].
         """;
 
         var result = await service.BuildAsync(CreateRequest(source));
 
         Assert.Equal(1, extractor.Calls);
+        Assert.Contains("Customer proof reduces launch risk", extractor.LastRequest!.Content, StringComparison.Ordinal);
+        AssertNoVisibleTpsMarkup(extractor.LastRequest.Content);
         Assert.Contains(extractor.LastRequest!.Scopes, static scope => scope.Label == "Document");
         Assert.Contains(extractor.LastRequest.Scopes, static scope => scope.Label == "Opening");
+        var openingScope = extractor.LastRequest.Scopes.Single(static scope => scope.Label == "Opening");
+        Assert.Contains("Customer proof reduces launch risk", openingScope.Content, StringComparison.Ordinal);
+        AssertNoVisibleTpsMarkup(openingScope.Content);
         Assert.Contains(result.Nodes, static node =>
             node.Label == ModelThemeLabel &&
             node.Kind == "Theme" &&
@@ -255,9 +260,9 @@ public sealed class ScriptKnowledgeGraphServiceTests
         # Product Launch
         ## [Intro|Speaker:Alex|140WPM|focused]
         ### [Proof One|Speaker:Alex|140WPM|focused]
-        Customer proof launch confidence repeats customer proof evidence for launch confidence.
+        [highlight]Customer proof launch confidence[/highlight] repeats customer proof evidence for launch confidence [pause:500ms].
         ### [Proof Two|Speaker:Alex|140WPM|focused]
-        Customer proof launch confidence creates evidence for launch readiness.
+        [emphasis]Customer proof launch confidence[/emphasis] creates evidence for launch readiness [pause:1s].
         ### [Operations|Speaker:Alex|140WPM|focused]
         Orchard weather packing crates describe an unrelated logistics rehearsal.
         """;
@@ -268,14 +273,34 @@ public sealed class ScriptKnowledgeGraphServiceTests
         Assert.Equal(ScriptKnowledgeGraphSemanticStatus.TokenizerSimilarity, result.SemanticStatus);
         Assert.Contains(result.Nodes, static node =>
             node.Kind == "SimilarityChunk" &&
-            node.Attributes?["source"] == "tokenizer" &&
-            node.Attributes.ContainsKey("tokenCount"));
+            node.Attributes?["source"] == "markdown-ld-kb" &&
+            node.Attributes.ContainsKey("entityType"));
+        Assert.Contains(result.Nodes, static node =>
+            node.Kind == "Term" &&
+            node.Attributes?["source"] == "markdown-ld-kb");
         Assert.Contains(result.Edges, static edge =>
             edge.Label == "token similarity" &&
-            edge.Attributes?["source"] == "tokenizer" &&
-            edge.Attributes.ContainsKey("similarity") &&
-            edge.Attributes.ContainsKey("distance"));
+            edge.Attributes?["source"] == "markdown-ld-kb" &&
+            edge.Attributes.ContainsKey("confidence"));
+        var similarityNodes = result.Nodes.Where(static node => node.Kind == "SimilarityChunk").ToArray();
+        Assert.Contains(similarityNodes, static node =>
+            node.Label.Contains("Customer proof launch confidence", StringComparison.Ordinal) ||
+            (node.Detail?.Contains("Customer proof launch confidence", StringComparison.Ordinal) ?? false));
+        foreach (var node in similarityNodes)
+        {
+            AssertNoVisibleTpsMarkup(node.Label);
+            AssertNoVisibleTpsMarkup(node.Detail ?? string.Empty);
+        }
+
         Assert.DoesNotContain(result.Nodes, static node => node.Attributes?.ContainsKey("claimScore") == true);
+    }
+
+    private static void AssertNoVisibleTpsMarkup(string value)
+    {
+        Assert.DoesNotContain("[", value, StringComparison.Ordinal);
+        Assert.DoesNotContain("]", value, StringComparison.Ordinal);
+        Assert.DoesNotContain("WPM", value, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("pause:", value, StringComparison.OrdinalIgnoreCase);
     }
 
     private static ScriptKnowledgeGraphBuildRequest CreateRequest(

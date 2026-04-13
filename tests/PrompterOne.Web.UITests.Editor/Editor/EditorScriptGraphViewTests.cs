@@ -8,6 +8,8 @@ namespace PrompterOne.Web.UITests;
 [ClassDataSource<StandaloneAppFixture>(Shared = SharedType.PerClass)]
 public sealed class EditorScriptGraphViewTests(StandaloneAppFixture fixture)
 {
+    private const string GraphVisibilityScenario = "editor-script-graph-visibility";
+    private const string GraphStoryLayoutStep = "01-story-layout";
     private readonly StandaloneAppFixture _fixture = fixture;
 
     [Test]
@@ -195,6 +197,83 @@ public sealed class EditorScriptGraphViewTests(StandaloneAppFixture fixture)
             var graphEdgeLabels = await page.GetByTestId(UiTestIds.Editor.GraphCanvas)
                 .EvaluateAsync<string[]>("element => Array.from(new Set(element.prompterOneGraphData.edges.map(edge => edge.data.label)))");
             await Assert.That(graphEdgeLabels.Contains(BrowserTestConstants.Editor.GraphEdgeLabelTokenSimilarityValue)).IsTrue();
+            var edgeTooltipAnchor = await page.GetByTestId(UiTestIds.Editor.GraphCanvas)
+                .EvaluateAsync<GraphTooltipAnchorProbe>(
+                    """
+                    (element, edgeLabel) => {
+                        const bounds = element.getBoundingClientRect();
+                        const pointerX = bounds.left + (bounds.width * 0.62);
+                        const pointerY = bounds.top + (bounds.height * 0.46);
+                        element.dispatchEvent(new PointerEvent("pointerenter", {
+                            bubbles: true,
+                            clientX: pointerX,
+                            clientY: pointerY
+                        }));
+                        element.dispatchEvent(new PointerEvent("pointermove", {
+                            bubbles: true,
+                            clientX: pointerX,
+                            clientY: pointerY
+                        }));
+                        const edge = element.prompterOneGraphData.edges.find(edge => edge.data.label === edgeLabel) ??
+                            element.prompterOneGraphData.edges[0];
+                        element.prompterOneGraph.emit?.("edge:pointerenter", {
+                            target: { id: edge.id },
+                            canvas: { x: 1, y: 1 },
+                            canvasPoint: { x: 1, y: 1 },
+                            point: { x: 1, y: 1 },
+                            x: 1,
+                            y: 1
+                        });
+                        const tooltip = element.prompterOneGraphTooltip;
+                        return {
+                            visible: Boolean(tooltip && !tooltip.hidden),
+                            expectedAnchorX: pointerX - bounds.left,
+                            expectedAnchorY: pointerY - bounds.top,
+                            anchorX: Number(tooltip?.dataset.anchorX ?? Number.NaN),
+                            anchorY: Number(tooltip?.dataset.anchorY ?? Number.NaN),
+                            text: tooltip?.textContent ?? ""
+                        };
+                    }
+                    """,
+                    BrowserTestConstants.Editor.GraphEdgeLabelTokenSimilarityValue);
+            await Assert.That(edgeTooltipAnchor.Visible)
+                .IsTrue()
+                .Because("Hovering a graph edge should show the relationship tooltip.");
+            await Assert.That(edgeTooltipAnchor.Text.Contains(
+                    BrowserTestConstants.Editor.GraphEdgeLabelTokenSimilarityValue,
+                    StringComparison.Ordinal))
+                .IsTrue()
+                .Because("The edge tooltip should describe the hovered relationship.");
+            await Assert.That(Math.Abs(edgeTooltipAnchor.AnchorX - edgeTooltipAnchor.ExpectedAnchorX))
+                .IsBetween(0, BrowserTestConstants.Editor.GraphTooltipAnchorTolerancePx)
+                .Because("Edge tooltip positioning should anchor to the last DOM pointer, not the graph-space edge point.");
+            await Assert.That(Math.Abs(edgeTooltipAnchor.AnchorY - edgeTooltipAnchor.ExpectedAnchorY))
+                .IsBetween(0, BrowserTestConstants.Editor.GraphTooltipAnchorTolerancePx)
+                .Because("Edge tooltip positioning should anchor to the last DOM pointer, not the graph-space edge point.");
+            var visibleRawTpsMarkup = await page.GetByTestId(UiTestIds.Editor.GraphCanvas)
+                .EvaluateAsync<string[]>(
+                    """
+                    (element, rawPattern) => {
+                        const pattern = new RegExp(rawPattern);
+                        return element.prompterOneGraphData.nodes
+                            .flatMap(node => [node.data?.displayLabel, node.data?.detail, node.style?.labelText])
+                            .filter(value => pattern.test(value ?? ""));
+                    }
+                    """,
+                    BrowserTestConstants.Editor.GraphRawTpsMarkupRegex);
+            await Assert.That(visibleRawTpsMarkup).IsEmpty();
+            var minimumReadableEdgeOpacity = await page.GetByTestId(UiTestIds.Editor.GraphCanvas)
+                .EvaluateAsync<double>(
+                    """
+                    element => {
+                        const opacities = element.prompterOneGraphData.edges
+                            .map(edge => Number(edge.style?.opacity ?? 1))
+                            .filter(Number.isFinite);
+                        return opacities.length === 0 ? 1 : Math.min(...opacities);
+                    }
+                    """);
+            await Assert.That(minimumReadableEdgeOpacity)
+                .IsGreaterThanOrEqualTo(BrowserTestConstants.Editor.GraphMinimumReadableEdgeOpacity);
             var navigableSimilarityNodeId = await page.GetByTestId(UiTestIds.Editor.GraphCanvas)
                 .EvaluateAsync<string>(
                     "(element, kind) => element.prompterOneGraphData.nodes.find(node => node.data.kind === kind && node.data.hasSourceRange)?.id || ''",
@@ -242,30 +321,46 @@ public sealed class EditorScriptGraphViewTests(StandaloneAppFixture fixture)
                     BrowserTestConstants.Editor.GraphLayoutAttributeName,
                     BrowserTestConstants.Editor.GraphLayoutGridValue,
                     new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
+            var gridNodePositionCount = await page.GetByTestId(UiTestIds.Editor.GraphCanvas)
+                .EvaluateAsync<int>(
+                    """
+                    element => element.prompterOneGraphData.nodes
+                        .filter(node => Number.isFinite(node.style?.x ?? node.x) &&
+                            Number.isFinite(node.style?.y ?? node.y))
+                        .length
+                    """);
+            await Assert.That(gridNodePositionCount)
+                .IsGreaterThanOrEqualTo(BrowserTestConstants.Editor.GraphRenderedNodePositionMinimumCount);
             var gridNodeOverlapCount = await page.GetByTestId(UiTestIds.Editor.GraphCanvas)
                 .EvaluateAsync<int>(
                     """
                     element => {
                         const nodes = element.prompterOneGraphData.nodes
-                            .filter(node => Number.isFinite(node.style?.x) && Number.isFinite(node.style?.y));
+                            .map(node => ({
+                                id: node.id,
+                                x: Number(node.style?.x ?? node.x),
+                                y: Number(node.style?.y ?? node.y),
+                                size: node.style?.size ?? [160, 48]
+                            }))
+                            .filter(node => Number.isFinite(node.x) && Number.isFinite(node.y));
                         let overlapCount = 0;
                         for (let outer = 0; outer < nodes.length; outer += 1) {
                             const left = nodes[outer];
-                            const leftSize = left.style.size;
+                            const leftSize = left.size;
                             const leftBox = {
-                                minX: left.style.x - leftSize[0] / 2,
-                                maxX: left.style.x + leftSize[0] / 2,
-                                minY: left.style.y - leftSize[1] / 2,
-                                maxY: left.style.y + leftSize[1] / 2
+                                minX: left.x - leftSize[0] / 2,
+                                maxX: left.x + leftSize[0] / 2,
+                                minY: left.y - leftSize[1] / 2,
+                                maxY: left.y + leftSize[1] / 2
                             };
                             for (let inner = outer + 1; inner < nodes.length; inner += 1) {
                                 const right = nodes[inner];
-                                const rightSize = right.style.size;
+                                const rightSize = right.size;
                                 const rightBox = {
-                                    minX: right.style.x - rightSize[0] / 2,
-                                    maxX: right.style.x + rightSize[0] / 2,
-                                    minY: right.style.y - rightSize[1] / 2,
-                                    maxY: right.style.y + rightSize[1] / 2
+                                    minX: right.x - rightSize[0] / 2,
+                                    maxX: right.x + rightSize[0] / 2,
+                                    minY: right.y - rightSize[1] / 2,
+                                    maxY: right.y + rightSize[1] / 2
                                 };
                                 if (leftBox.minX < rightBox.maxX &&
                                     leftBox.maxX > rightBox.minX &&
@@ -329,6 +424,10 @@ public sealed class EditorScriptGraphViewTests(StandaloneAppFixture fixture)
                     BrowserTestConstants.Editor.GraphLayoutAttributeName,
                     BrowserTestConstants.Editor.GraphLayoutStoryValue,
                     new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
+            await UiScenarioArtifacts.CaptureLocatorAsync(
+                page.GetByTestId(UiTestIds.Editor.GraphCanvas),
+                GraphVisibilityScenario,
+                GraphStoryLayoutStep);
         }
         catch (Exception exception)
         {
@@ -416,6 +515,21 @@ public sealed class EditorScriptGraphViewTests(StandaloneAppFixture fixture)
         public string Layout { get; set; } = string.Empty;
 
         public string NodeStyle { get; set; } = string.Empty;
+    }
+
+    private sealed class GraphTooltipAnchorProbe
+    {
+        public bool Visible { get; set; }
+
+        public double ExpectedAnchorX { get; set; }
+
+        public double ExpectedAnchorY { get; set; }
+
+        public double AnchorX { get; set; }
+
+        public double AnchorY { get; set; }
+
+        public string Text { get; set; } = string.Empty;
     }
 
     private static Task<string[]> ReadNonLaneGraphNodeTypesAsync(IPage page) =>

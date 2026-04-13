@@ -309,6 +309,10 @@ internal static partial class BrowserTestConstants
         public const string GraphLayoutGridValue = "grid";
         public const string GraphLayoutMdsValue = "mds";
         public const int GraphNodeOverlapExpectedCount = 0;
+        public const int GraphRenderedNodePositionMinimumCount = 2;
+        public const double GraphMinimumReadableEdgeOpacity = .64;
+        public const double GraphTooltipAnchorTolerancePx = 2;
+        public const string GraphRawTpsMarkupRegex = @"\[[^\]\r\n]+\]";
         public const string GraphLaneNodePrefix = "prompterone:graph:lane:";
         public const string GraphNodeTypeEllipseValue = "ellipse";
         public const string GraphNodeTypeRectValue = "rect";
