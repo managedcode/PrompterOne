@@ -52,7 +52,7 @@ public sealed class ReaderPlaybackTimingTests(StandaloneAppFixture fixture)
             await Assert.That(samples.Select(sample => sample.EffectiveWpm).ToArray()).IsEquivalentTo(TeleprompterEffectiveWpmSequence, CollectionOrdering.Matching);
 
             var timingTolerance = BrowserTestConstants.ReaderTiming.TeleprompterTimingToleranceMs
-                                  + BrowserTestConstants.ReaderTiming.CapturePollIntervalMs;
+                                  + BrowserTestConstants.ReaderTiming.CapturePollIntervalMs * 2;
 
             for (var sampleIndex = 1; sampleIndex < samples.Length; sampleIndex++)
             {

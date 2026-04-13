@@ -8,6 +8,7 @@
     const minimumVisiblePixelCount = 16;
     const visibleVideoProbeTimeoutMs = 1500;
     const visibleVideoPollDelayMs = 100;
+    const visibleVideoSeekSamples = Object.freeze([0, 0.2, 0.45, 0.7, 0.92]);
     const readyStateHaveCurrentData = 2;
     const runtimeGlobalName = "__prompterOneRuntime";
     const mediaContractProperty = "media";
@@ -193,6 +194,60 @@
         });
     }
 
+    async function seekToVideoSample(videoElement, timeSeconds) {
+        await new Promise(resolve => {
+            let completed = false;
+
+            const finish = () => {
+                if (completed) {
+                    return;
+                }
+
+                completed = true;
+                videoElement.removeEventListener("seeked", finish);
+                resolve();
+            };
+
+            window.setTimeout(finish, visibleVideoPollDelayMs * 4);
+            videoElement.addEventListener("seeked", finish, { once: true });
+
+            try {
+                videoElement.currentTime = timeSeconds;
+            }
+            catch {
+                finish();
+            }
+        });
+    }
+
+    async function detectVisibleVideoAcrossSeekSamples(videoElement, highestVisiblePixelCount) {
+        const duration = Number.isFinite(videoElement.duration)
+            ? videoElement.duration
+            : 0;
+        if (duration <= 0) {
+            return {
+                hasVisibleVideo: highestVisiblePixelCount >= minimumVisiblePixelCount,
+                nonBlackPixelCount: highestVisiblePixelCount
+            };
+        }
+
+        const maximumSeekTime = Math.max(0, duration - 0.01);
+        for (const sample of visibleVideoSeekSamples) {
+            await seekToVideoSample(videoElement, Math.min(maximumSeekTime, duration * sample));
+
+            const frame = detectVisibleVideo(videoElement);
+            highestVisiblePixelCount = Math.max(highestVisiblePixelCount, frame.nonBlackPixelCount);
+            if (frame.hasVisibleVideo) {
+                return frame;
+            }
+        }
+
+        return {
+            hasVisibleVideo: highestVisiblePixelCount >= minimumVisiblePixelCount,
+            nonBlackPixelCount: highestVisiblePixelCount
+        };
+    }
+
     async function detectVisibleVideoAcrossFrames(videoElement) {
         const deadline = Date.now() + visibleVideoProbeTimeoutMs;
         let highestVisiblePixelCount = 0;
@@ -208,10 +263,7 @@
             await waitForNextVideoFrame(videoElement);
         }
 
-        return {
-            hasVisibleVideo: highestVisiblePixelCount >= minimumVisiblePixelCount,
-            nonBlackPixelCount: highestVisiblePixelCount
-        };
+        return await detectVisibleVideoAcrossSeekSamples(videoElement, highestVisiblePixelCount);
     }
 
     async function analyzeSavedRecording() {
@@ -223,6 +275,7 @@
         const videoElement = document.createElement("video");
         videoElement.muted = true;
         videoElement.playsInline = true;
+        videoElement.loop = true;
         videoElement.src = objectUrl;
 
         try {

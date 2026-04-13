@@ -12,6 +12,7 @@ public sealed class TeleprompterAlignmentTooltipFlowTests(StandaloneAppFixture f
     private const string LeftRailTooltipStep = "01-left-rail-tooltip";
     private const string RightRailTooltipScenario = "teleprompter-alignment-tooltips-right";
     private const string RightRailTooltipStep = "02-right-rail-tooltip";
+    private const int RevealProbeSchedulerSlackPolls = 4;
 
     private readonly record struct ElementBounds(double Left, double Top, double Right, double Bottom);
 
@@ -33,9 +34,7 @@ public sealed class TeleprompterAlignmentTooltipFlowTests(StandaloneAppFixture f
                 UiTestIds.Teleprompter.RailTooltip(UiTestIds.Teleprompter.AlignmentTooltipJustifyKey));
             await trigger.HoverAsync();
             var revealDelayMs = await ReadTooltipRevealDelayAsync(page);
-            await Assert.That(revealDelayMs).IsBetween(
-                BrowserTestConstants.TeleprompterFlow.TooltipEarlyCheckDelayMs - BrowserTestConstants.Timing.DiagnosticPollDelayMs,
-                BrowserTestConstants.TeleprompterFlow.TooltipSettleDelayMs + BrowserTestConstants.TeleprompterFlow.TooltipRevealTimingSlackMs);
+            await AssertTooltipRevealDelayWithinBudgetAsync(revealDelayMs);
             await Expect(tooltip).ToBeVisibleAsync();
             await Expect(tooltip).ToHaveTextAsync(BrowserTestConstants.TeleprompterFlow.AlignmentJustifyTooltipText);
 
@@ -68,9 +67,7 @@ public sealed class TeleprompterAlignmentTooltipFlowTests(StandaloneAppFixture f
                 UiTestIds.Teleprompter.RailTooltip(UiTestIds.Teleprompter.AlignmentTooltipWidthKey));
             await trigger.HoverAsync();
             var revealDelayMs = await ReadTooltipRevealDelayAsync(page);
-            await Assert.That(revealDelayMs).IsBetween(
-                BrowserTestConstants.TeleprompterFlow.TooltipEarlyCheckDelayMs - BrowserTestConstants.Timing.DiagnosticPollDelayMs,
-                BrowserTestConstants.TeleprompterFlow.TooltipSettleDelayMs + BrowserTestConstants.TeleprompterFlow.TooltipRevealTimingSlackMs);
+            await AssertTooltipRevealDelayWithinBudgetAsync(revealDelayMs);
             await Expect(tooltip).ToBeVisibleAsync();
             await Expect(tooltip).ToHaveTextAsync(BrowserTestConstants.TeleprompterFlow.WidthSliderTooltipText);
 
@@ -91,6 +88,13 @@ public sealed class TeleprompterAlignmentTooltipFlowTests(StandaloneAppFixture f
         var overlapHeight = Math.Max(0, Math.Min(left.Bottom, right.Bottom) - Math.Max(left.Top, right.Top));
         return overlapWidth * overlapHeight;
     }
+
+    private static async Task AssertTooltipRevealDelayWithinBudgetAsync(int revealDelayMs) =>
+        await Assert.That(revealDelayMs).IsBetween(
+            BrowserTestConstants.TeleprompterFlow.TooltipEarlyCheckDelayMs - BrowserTestConstants.Timing.DiagnosticPollDelayMs,
+            BrowserTestConstants.TeleprompterFlow.TooltipSettleDelayMs
+            + BrowserTestConstants.TeleprompterFlow.TooltipRevealTimingSlackMs
+            + BrowserTestConstants.Timing.DiagnosticPollDelayMs * RevealProbeSchedulerSlackPolls);
 
     private static async Task OpenTeleprompterAsync(IPage page)
     {

@@ -158,7 +158,7 @@ public sealed class EditorTypingTests(StandaloneAppFixture fixture)
             await page.Keyboard.TypeAsync(BrowserTestConstants.Editor.SecondProbeCharacter);
             await Expect(EditorMonacoDriver.SourceInput(page)).ToHaveValueAsync(BrowserTestConstants.Editor.NewDraftProbeText);
 
-            await page.WaitForTimeoutAsync(BrowserTestConstants.Timing.NewDraftPersistSettleDelayMs);
+            await EditorIsolatedDraftDriver.WaitForAssignedScriptRouteAsync(page);
 
             var currentUri = new Uri(page.Url);
             await Assert.That(currentUri.AbsolutePath).IsEqualTo(BrowserTestConstants.Routes.Editor);
