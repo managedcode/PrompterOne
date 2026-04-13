@@ -219,7 +219,14 @@ internal static class UiInteractionDriver
         {
             Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs
         });
-        await locator.ScrollIntoViewIfNeededAsync();
+        await locator.EvaluateAsync(
+            """
+            element => element.scrollIntoView({
+                block: 'center',
+                inline: 'center',
+                behavior: 'auto'
+            })
+            """);
     }
 
     private static Task WaitUntilEditableAsync(IPage page, string testId, int timeoutMs) =>
