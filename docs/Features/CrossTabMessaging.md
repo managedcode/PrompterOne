@@ -37,7 +37,7 @@ flowchart LR
 | Message Type | Payload | Published By | Read By | Reaction |
 | --- | --- | --- | --- | --- |
 | `settings-changed` | `BrowserSettingChangePayload` with `Key` and `ChangeKind` | `BrowserSettingsStore` after local save or remove | `BrowserSettingsStore` in other tabs | raises local `Changed` notifications so downstream consumers reload the latest value from browser storage |
-| `go-live-session-requested` | `GoLiveSessionSyncRequest` empty payload | `GoLiveSessionService` when a tab joins cross-tab sync | `GoLiveSessionService` in other tabs that already have an active session | answers with a fresh `go-live-session-changed` snapshot so newly joined tabs can catch up |
+| `go-live-session-requested` | `GoLiveSessionSyncRequest` empty payload | `GoLiveSessionService` when a tab joins cross-tab sync or navigates between shell routes | `GoLiveSessionService` in other tabs that already have an active session | answers with a fresh `go-live-session-changed` snapshot so newly joined or newly routed tabs can catch up |
 | `go-live-session-changed` | `GoLiveSessionState` snapshot | `GoLiveSessionService` after stream start or stop, recording start or stop, active source switch during an active session, and request-response catch-up | `GoLiveSessionService` in other tabs | replaces the local session snapshot and triggers shell or page rerender through the existing `StateChanged` event |
 
 ## Consumers And UI Reactions

@@ -81,6 +81,38 @@ function finalizeSync(state, didSync) {
     }
 }
 
+function scheduleFontReadySync(state) {
+    if (state.fontSyncScheduled || state.displayElement.getAttribute(state.fontSyncReadyAttributeName) === trueString) {
+        return;
+    }
+
+    state.fontSyncScheduled = true;
+
+    const fontReady = document.fonts?.ready;
+    if (!fontReady) {
+        state.displayElement.setAttribute(state.fontSyncReadyAttributeName, trueString);
+        return;
+    }
+
+    fontReady
+        .then(() => {
+            if (!state.displayElement.isConnected || !state.rowElement.isConnected) {
+                return;
+            }
+
+            state.displayElement.setAttribute(state.fontSyncReadyAttributeName, trueString);
+            scheduleSync(state);
+        })
+        .catch(() => {
+            if (!state.displayElement.isConnected || !state.rowElement.isConnected) {
+                return;
+            }
+
+            state.displayElement.setAttribute(state.fontSyncReadyAttributeName, trueString);
+            scheduleSync(state);
+        });
+}
+
 function createSyncState(
     displayElement,
     rowElement,
@@ -98,6 +130,7 @@ function createSyncState(
         focusRightExtentPropertyName,
         layoutReadyAttributeName,
         orpElement,
+        fontSyncScheduled: false,
         pendingSyncResolvers: [],
         rowElement,
         scheduled: false
@@ -174,17 +207,7 @@ export async function syncLayout(
         layoutReadyAttributeName,
         fontSyncReadyAttributeName);
 
-    if (displayElement.getAttribute(fontSyncReadyAttributeName) !== trueString) {
-        if (document.fonts?.ready) {
-            await document.fonts.ready;
-        }
-
-        if (!displayElement.isConnected || !rowElement.isConnected) {
-            return false;
-        }
-
-        displayElement.setAttribute(fontSyncReadyAttributeName, trueString);
-    }
+    scheduleFontReadySync(state);
 
     return scheduleSync(state);
 }

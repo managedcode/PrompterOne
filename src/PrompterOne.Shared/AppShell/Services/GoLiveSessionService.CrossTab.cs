@@ -18,6 +18,12 @@ internal sealed partial class GoLiveSessionService
         }
 
         _stateRequestPublished = true;
+        await RequestCrossTabStateAsync(cancellationToken);
+    }
+
+    public async Task RequestCrossTabStateAsync(CancellationToken cancellationToken = default)
+    {
+        await EnsureCrossTabReadyAsync(cancellationToken);
         await _crossTabMessageBus.PublishAsync(
             CrossTabMessageTypes.GoLiveSessionRequested,
             GoLiveSessionSyncRequest.Empty,

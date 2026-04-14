@@ -74,6 +74,24 @@ public sealed class GoLiveCrossTabTests : BunitContext
     }
 
     [Test]
+    public async Task GoLiveSessionService_RequestCrossTabStateAsync_PublishesRepeatedCatchUpRequests()
+    {
+        var harness = TestHarnessFactory.Create(this);
+        var service = Services.GetRequiredService<GoLiveSessionService>();
+
+        await service.StartCrossTabSyncAsync();
+        await service.RequestCrossTabStateAsync();
+
+        var requestMessages = harness.JsRuntime.InvocationRecords
+            .Where(record => string.Equals(record.Identifier, CrossTabInteropMethodNames.Publish, StringComparison.Ordinal))
+            .Select(record => Assert.IsType<CrossTabMessageEnvelope>(record.Arguments[1]))
+            .Where(message => string.Equals(message.MessageType, CrossTabMessageTypes.GoLiveSessionRequested, StringComparison.Ordinal))
+            .ToList();
+
+        Assert.Equal(2, requestMessages.Count);
+    }
+
+    [Test]
     public async Task MainLayout_UpdatesGoLiveIndicator_WhenAnotherTabChangesGoLiveSessionState()
     {
         var harness = TestHarnessFactory.Create(this);

@@ -18,6 +18,7 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
     private const string GoLiveWidgetCssClass = "app-live-widget";
     private const string GoLiveWidgetReaderMutedCssClass = "app-live-widget--reader-muted";
     private const string GoLiveWidgetIdleElapsed = "00:00:00";
+    private const string GoLiveSessionStateRequestFailureLogMessage = "Failed to request active Go Live session state.";
     private const string RouteChangedLogTemplate = "Route changed to {Location}.";
     private static readonly TimeSpan GoLiveWidgetRefreshInterval = TimeSpan.FromSeconds(1);
 
@@ -233,10 +234,28 @@ public partial class MainLayout : LayoutComponentBase, IDisposable, IAsyncDispos
         Shell.TrackNavigation(e.Location);
         SyncShellStateWithCurrentRoute(e.Location);
         PublishRouteAiContext();
+        RequestGoLiveSessionStateInBackground();
         SyncOnboardingStepWithCurrentRoute(e.Location);
         _ = HandleOnboardingLocationChangedAsync(e.Location);
         _ = InvokeAsync(TrackCurrentPageViewAsync);
         StateHasChanged();
+    }
+
+    private void RequestGoLiveSessionStateInBackground()
+    {
+        _ = RequestGoLiveSessionStateAsync();
+    }
+
+    private async Task RequestGoLiveSessionStateAsync()
+    {
+        try
+        {
+            await GoLiveSession.RequestCrossTabStateAsync();
+        }
+        catch (Exception exception)
+        {
+            Logger.LogDebug(exception, GoLiveSessionStateRequestFailureLogMessage);
+        }
     }
 
     private async Task HandleOnboardingLocationChangedAsync(string location)
