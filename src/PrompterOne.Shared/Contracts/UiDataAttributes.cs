@@ -20,6 +20,7 @@ public static class UiDataAttributes
         public const string CardState = "data-reader-card-state";
         public const string DurationMilliseconds = "data-ms";
         public const string EffectiveWordsPerMinute = "data-effective-wpm";
+        public const string OriginalText = "data-original-text";
         public const string PauseMilliseconds = "data-pause-ms";
         public const string Pronunciation = "data-pronunciation";
         public const string TotalMilliseconds = "data-total-ms";

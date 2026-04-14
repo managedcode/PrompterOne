@@ -28,7 +28,7 @@ runs:
         tag: ${{ github.run_number }}_${{ github.run_id }}
 
     - name: Upload coverage report artifact
-      uses: actions/upload-artifact@v7
+      uses: actions/upload-artifact@v7.0.1
       with:
         name: ${{ inputs.artifact-name }}
         path: ${{ inputs.targetdir }}

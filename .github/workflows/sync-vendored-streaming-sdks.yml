@@ -31,7 +31,7 @@ jobs:
         run: python scripts/vendored_streaming_sdks.py verify
 
       - name: Upload vendored runtime artifacts
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: vendored-browser-runtimes
           path: |

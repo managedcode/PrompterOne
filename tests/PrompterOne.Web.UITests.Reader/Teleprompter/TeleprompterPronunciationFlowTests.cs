@@ -39,7 +39,7 @@ public sealed class TeleprompterPronunciationFlowTests(StandaloneAppFixture fixt
                 """
                 (element, args) => {
                     const word = Array.from(element.querySelectorAll(`[data-test^="${args.wordPrefix}"]`))
-                        .find(node => node.textContent?.trim() === args.expectedWord);
+                        .find(node => node.textContent?.trim() === args.expectedGuide);
 
                     if (!(word instanceof HTMLElement)) {
                         return null;
@@ -48,6 +48,8 @@ public sealed class TeleprompterPronunciationFlowTests(StandaloneAppFixture fixt
                     return {
                         guideContent: getComputedStyle(word, '::after').content ?? '',
                         guideFontSize: getComputedStyle(word, '::after').fontSize ?? '',
+                        mainFontSize: getComputedStyle(word).fontSize ?? '',
+                        originalText: word.getAttribute(args.originalTextAttributeName) ?? '',
                         pronunciation: word.getAttribute(args.pronunciationAttributeName) ?? '',
                         title: word.getAttribute('title') ?? ''
                     };
@@ -55,17 +57,22 @@ public sealed class TeleprompterPronunciationFlowTests(StandaloneAppFixture fixt
                 """,
                 new
                 {
-                    expectedWord = BrowserTestConstants.TeleprompterFlow.ProductLaunchVisionWord,
+                    expectedGuide = BrowserTestConstants.TeleprompterFlow.ProductLaunchVisionPronunciation,
+                    originalTextAttributeName = UiDataAttributes.Teleprompter.OriginalText,
                     pronunciationAttributeName = UiDataAttributes.Teleprompter.Pronunciation,
                     wordPrefix = UiTestIds.Teleprompter.CardWordPrefix(InspirationCardIndex)
                 });
 
             await Assert.That(probe).IsNotNull();
             await Assert.That(probe!.Pronunciation).IsEqualTo(BrowserTestConstants.TeleprompterFlow.ProductLaunchVisionPronunciation);
-            await Assert.That(probe.GuideContent).Contains(BrowserTestConstants.TeleprompterFlow.ProductLaunchVisionPronunciation);
-            await Assert.That(ParseCssPixels(probe.GuideFontSize))
+            await Assert.That(probe.OriginalText).IsEqualTo(BrowserTestConstants.TeleprompterFlow.ProductLaunchVisionWord);
+            await Assert.That(probe.GuideContent).Contains(BrowserTestConstants.TeleprompterFlow.ProductLaunchVisionWord);
+            await Assert.That(ParseCssPixels(probe.MainFontSize))
                 .IsGreaterThanOrEqualTo(MinimumReadableGuideFontSizePx)
-                .Because("Expected the pronunciation guide to read as large rehearsal text, not a tiny tooltip.");
+                .Because("Expected the pronunciation guide to be the primary large rehearsal text, not a tiny tooltip.");
+            await Assert.That(ParseCssPixels(probe.GuideFontSize))
+                .IsLessThan(ParseCssPixels(probe.MainFontSize))
+                .Because("Expected the original spelling annotation to stay secondary to the guide.");
             await Assert.That(probe.Title).IsEqualTo(string.Empty);
 
             await UiScenarioArtifacts.CapturePageAsync(page, ScenarioName, StepName);
@@ -81,6 +88,10 @@ public sealed class TeleprompterPronunciationFlowTests(StandaloneAppFixture fixt
         public string GuideContent { get; init; } = string.Empty;
 
         public string GuideFontSize { get; init; } = string.Empty;
+
+        public string MainFontSize { get; init; } = string.Empty;
+
+        public string OriginalText { get; init; } = string.Empty;
 
         public string Pronunciation { get; init; } = string.Empty;
 

@@ -12,7 +12,7 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
     private const string CueMatrixScenario = "teleprompter-tps-cue-matrix";
     private const int InspirationCardIndex = 6;
     private const int ActiveWordProbeTimeoutMs = 1_000;
-    private const double MinimumReadablePronunciationGuideFontSizePx = 24d;
+    private const double MinimumReadablePronunciationMainFontSizePx = 24d;
     private const string StepName = "01-teleprompter-cue-rendering";
     private const string CueTextStepName = "02-teleprompter-cue-text";
     private static readonly CueMatrixCapture[] CueMatrixCaptures =
@@ -56,12 +56,12 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
         new(36, "37-editorial-emphasis", "[emphasis]", TpsVisualCueContracts.EmphasisAttributeName, TpsVisualCueContracts.EmphasisTag, ExpectEmphasis: true, TargetWord: "emphasis"),
         new(37, "38-markdown-bold", "Markdown bold", TpsVisualCueContracts.EmphasisAttributeName, TpsVisualCueContracts.EmphasisMarkdownStrong, ExpectEmphasis: true, TargetWord: "bold"),
         new(38, "39-markdown-italic", "Markdown italic", TpsVisualCueContracts.EmphasisAttributeName, TpsVisualCueContracts.EmphasisMarkdownItalic, ExpectEmphasis: true, TargetWord: "italic"),
-        new(39, "40-guide-pronunciation", "[pronunciation:/prəˌnʌnsiˈeɪʃən/]", UiDataAttributes.Teleprompter.Pronunciation, "/prəˌnʌnsiˈeɪʃən/", TargetWord: "pronunciation"),
-        new(40, "41-guide-phonetic", "[phonetic:/fəˈnɛtɪk/]", UiDataAttributes.Teleprompter.Pronunciation, "/fəˈnɛtɪk/", TargetWord: "phonetic"),
+        new(39, "40-guide-pronunciation", "[pronunciation:/prəˌnʌnsiˈeɪʃən/]", UiDataAttributes.Teleprompter.Pronunciation, "/prəˌnʌnsiˈeɪʃən/", TargetWord: "/prəˌnʌnsiˈeɪʃən/", ExpectedOriginalText: "pronunciation"),
+        new(40, "41-guide-phonetic", "[phonetic:/fəˈnɛtɪk/]", UiDataAttributes.Teleprompter.Pronunciation, "/fəˈnɛtɪk/", TargetWord: "/fəˈnɛtɪk/", ExpectedOriginalText: "phonetic"),
         new(41, "42-guide-stress", "[stress:rising]", TpsVisualCueContracts.StressAttributeName, TpsVisualCueContracts.StressAttributeValue, TargetWord: "stress"),
-        new(42, "43-edit-point", "[edit_point]", TargetWord: "edit"),
-        new(43, "44-edit-point-medium", "[edit_point:medium]", TargetWord: "medium"),
-        new(44, "45-edit-point-high", "[edit_point:high]", TargetWord: "high"),
+        new(42, "43-edit-point", "[edit_point]", TargetWord: "edit", ExpectedEditPointPriority: TpsVisualCueContracts.EditPointStandard),
+        new(43, "44-edit-point-medium", "[edit_point:medium]", TargetWord: "medium", ExpectedEditPointPriority: TpsVisualCueContracts.EditPointMedium),
+        new(44, "45-edit-point-high", "[edit_point:high]", TargetWord: "high", ExpectedEditPointPriority: TpsVisualCueContracts.EditPointHigh),
         new(45, "46-metadata-speaker", "Speaker metadata", TargetWord: "speaker"),
         new(46, "47-metadata-archetype", "Archetype metadata", TargetWord: "archetype"),
         new(47, "48-phrase-speed-slow", "[slow] phrase", TpsVisualCueContracts.SpeedAttributeName, TpsVisualCueContracts.SpeedCueSlow, TargetWord: "slow", ExpectedAttributeMatchCount: 2),
@@ -323,6 +323,15 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
                 const pronunciationFontSize = target instanceof HTMLElement
                     ? getComputedStyle(target, '::after').fontSize ?? ''
                     : '';
+                const editPoint = args.expectedEditPointPriority
+                    ? host.querySelector(`[${args.editPointAttributeName}="${args.expectedEditPointPriority}"]`)
+                    : null;
+                const editPointBeforeStyle = editPoint instanceof HTMLElement
+                    ? getComputedStyle(editPoint, '::before')
+                    : null;
+                const editPointAfterStyle = editPoint instanceof HTMLElement
+                    ? getComputedStyle(editPoint, '::after')
+                    : null;
                 const targetStyle = target instanceof HTMLElement
                     ? getComputedStyle(target)
                     : null;
@@ -345,11 +354,31 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
                 const targetGroupAfterStyle = targetGroup instanceof HTMLElement
                     ? getComputedStyle(targetGroup, '::after')
                     : null;
+                const groupRect = targetGroup instanceof HTMLElement
+                    ? targetGroup.getBoundingClientRect()
+                    : null;
+                const attributeRects = attributeWords
+                    .filter(candidate => candidate instanceof HTMLElement)
+                    .map(candidate => candidate.getBoundingClientRect())
+                    .filter(rect => rect.width > 0 && rect.height > 0);
+                const attributeUnion = attributeRects.length > 0
+                    ? {
+                        left: Math.min(...attributeRects.map(rect => rect.left)),
+                        right: Math.max(...attributeRects.map(rect => rect.right))
+                    }
+                    : null;
                 return {
                     rawTagsVisible: /\[[^\]]+\]/.test(host.textContent ?? ''),
                     targetText: target?.textContent?.trim() ?? '',
+                    originalText: target?.getAttribute(args.originalTextAttributeName) ?? '',
                     attributeValue: args.attributeName ? target?.getAttribute(args.attributeName) ?? '' : '',
                     attributeMatchCount: attributeWords.length,
+                    editPointMatchCount: args.expectedEditPointPriority
+                        ? host.querySelectorAll(`[${args.editPointAttributeName}="${args.expectedEditPointPriority}"]`).length
+                        : 0,
+                    editPointBeforeBorderLeftColor: editPointBeforeStyle?.borderLeftColor ?? '',
+                    editPointAfterBorderRightColor: editPointAfterStyle?.borderRightColor ?? '',
+                    editPointAfterBorderTopColor: editPointAfterStyle?.borderTopColor ?? '',
                     pauseCueCount: host.querySelectorAll('.rd-pause').length,
                     breathCueCount: host.querySelectorAll('[data-tps-breath="true"]').length,
                     emphasisGroupCount: host.querySelectorAll('[data-emphasis="true"]').length,
@@ -361,7 +390,9 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
                     hostFontSize: hostStyle.fontSize ?? '',
                     targetLetterSpacing: targetStyle?.letterSpacing ?? '',
                     targetBackgroundImage: targetStyle?.backgroundImage ?? '',
+                    targetBoxShadow: targetStyle?.boxShadow ?? '',
                     targetBeforeBackgroundImage: targetBeforeStyle?.backgroundImage ?? '',
+                    targetBeforeContent: targetBeforeStyle?.content ?? '',
                     targetTextDecorationLine: targetStyle?.textDecorationLine ?? '',
                     targetTextDecorationStyle: targetStyle?.textDecorationStyle ?? '',
                     targetTextDecorationThickness: targetStyle?.textDecorationThickness ?? '',
@@ -371,7 +402,9 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
                     targetGroupBeforeContent: targetGroupBeforeStyle?.content ?? '',
                     targetGroupBeforeBackgroundImage: targetGroupBeforeStyle?.backgroundImage ?? '',
                     targetGroupAfterContent: targetGroupAfterStyle?.content ?? '',
-                    targetGroupAfterBackgroundImage: targetGroupAfterStyle?.backgroundImage ?? ''
+                    targetGroupAfterBackgroundImage: targetGroupAfterStyle?.backgroundImage ?? '',
+                    targetGroupWidth: groupRect?.width ?? 0,
+                    attributeUnionWidth: attributeUnion ? attributeUnion.right - attributeUnion.left : 0
                 };
             }
             """,
@@ -380,6 +413,9 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
                 attributeName = capture.AttributeName,
                 attributeValue = capture.AttributeValue,
                 activeWordTestId = UiTestIds.Teleprompter.ActiveWord,
+                editPointAttributeName = TpsVisualCueContracts.EditPointAttributeName,
+                expectedEditPointPriority = capture.ExpectedEditPointPriority,
+                originalTextAttributeName = UiDataAttributes.Teleprompter.OriginalText,
                 targetWord = capture.TargetWord,
                 wordPrefix = UiTestIds.Teleprompter.CardWordPrefix(capture.CardIndex)
             });
@@ -412,12 +448,21 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
 
         if (string.Equals(capture.AttributeName, UiDataAttributes.Teleprompter.Pronunciation, StringComparison.Ordinal))
         {
+            await Assert.That(probe.AttributeValue)
+                .IsEqualTo(capture.AttributeValue ?? string.Empty)
+                .Because($"Expected cue example '{capture.CueLabel}' to keep the pronunciation guide as data.");
+            await Assert.That(probe.OriginalText)
+                .IsEqualTo(capture.ExpectedOriginalText ?? string.Empty)
+                .Because($"Expected cue example '{capture.CueLabel}' to keep the original spelling as secondary context.");
+            await Assert.That(ParseCssPixels(probe.TargetFontSize))
+                .IsGreaterThanOrEqualTo(MinimumReadablePronunciationMainFontSizePx)
+                .Because($"Expected cue example '{capture.CueLabel}' to render the guide itself as the primary readable word.");
             await Assert.That(probe.PronunciationContent)
-                .Contains(capture.AttributeValue ?? string.Empty)
-                .Because($"Expected cue example '{capture.CueLabel}' to show the pronunciation guide visibly.");
+                .Contains(capture.ExpectedOriginalText ?? string.Empty)
+                .Because($"Expected cue example '{capture.CueLabel}' to show the original spelling only as compact secondary text.");
             await Assert.That(ParseCssPixels(probe.PronunciationFontSize))
-                .IsGreaterThanOrEqualTo(MinimumReadablePronunciationGuideFontSizePx)
-                .Because($"Expected cue example '{capture.CueLabel}' to render the pronunciation guide as readable rehearsal text.");
+                .IsLessThan(ParseCssPixels(probe.TargetFontSize))
+                .Because($"Expected cue example '{capture.CueLabel}' to keep original spelling smaller than the pronunciation guide.");
         }
 
         if (string.Equals(capture.AttributeName, TpsVisualCueContracts.VolumeAttributeName, StringComparison.Ordinal))
@@ -463,7 +508,14 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
                 await Assert.That(IsDisabledPseudoContent(probe.TargetAfterContent))
                     .IsTrue()
                     .Because("Expected phrase building to render one group-level crescendo hairpin, not one hairpin per word.");
+                await Assert.That(probe.TargetGroupWidth)
+                    .IsGreaterThanOrEqualTo(probe.AttributeUnionWidth - 1d)
+                    .Because("Expected phrase building to scope the crescendo marker across the full cue phrase.");
             }
+
+            await Assert.That(probe.TargetTextDecorationLine)
+                .DoesNotContain("underline")
+                .Because("Expected building to use the crescendo hairpin instead of a generic active underline.");
         }
 
         if (string.Equals(capture.AttributeName, TpsVisualCueContracts.ArticulationAttributeName, StringComparison.Ordinal))
@@ -482,11 +534,17 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
                     await Assert.That(IsDisabledPseudoContent(probe.TargetAfterContent))
                         .IsTrue()
                         .Because("Expected phrase legato to render one group-level slur, not one slur per word.");
+                    await Assert.That(probe.TargetGroupWidth)
+                        .IsGreaterThanOrEqualTo(probe.AttributeUnionWidth - 1d)
+                        .Because("Expected phrase legato to scope the slur across the full cue phrase.");
                 }
 
                 await Assert.That(ParseCssPixels(probe.TargetLetterSpacing))
-                    .IsLessThan(0d)
-                    .Because("Expected legato to visually connect the cue word.");
+                    .IsGreaterThanOrEqualTo(0d)
+                    .Because("Expected legato to connect with a slur without compressing letters into each other.");
+                await Assert.That(probe.TargetTextDecorationLine)
+                    .DoesNotContain("underline")
+                    .Because("Expected legato to use a curved slur instead of a generic underline.");
             }
             else if (string.Equals(capture.AttributeValue, TpsVisualCueContracts.ArticulationStaccato, StringComparison.Ordinal))
             {
@@ -504,9 +562,38 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
             await Assert.That(ParseCssNumber(probe.TargetFontWeight))
                 .IsGreaterThanOrEqualTo(750d)
                 .Because("Expected stress to carry visible rehearsal weight.");
+            await Assert.That(probe.TargetBeforeContent)
+                .Contains("ˈ")
+                .Because("Expected stress to show a stress mark above the cue word.");
+            await Assert.That(probe.TargetTextDecorationStyle)
+                .IsEqualTo("double")
+                .Because("Expected stress to stay distinct from editorial emphasis and markdown bold.");
             await Assert.That(ParseCssPixels(probe.TargetTextDecorationThickness))
                 .IsGreaterThanOrEqualTo(2d)
                 .Because("Expected stress to have a stronger visible underline.");
+        }
+
+        if (!string.IsNullOrWhiteSpace(capture.ExpectedEditPointPriority))
+        {
+            await Assert.That(probe.EditPointMatchCount)
+                .IsEqualTo(1)
+                .Because($"Expected cue example '{capture.CueLabel}' to expose exactly one non-spoken edit-point marker.");
+            await Assert.That(probe.EditPointBeforeBorderLeftColor)
+                .IsNotEqualTo(string.Empty)
+                .Because($"Expected cue example '{capture.CueLabel}' to render a visible edit-point marker.");
+            await Assert.That(probe.EditPointBeforeBorderLeftColor)
+                .IsNotEqualTo("rgba(0, 0, 0, 0)")
+                .Because($"Expected cue example '{capture.CueLabel}' to render a visible edit-point marker.");
+
+            if (!string.Equals(capture.ExpectedEditPointPriority, TpsVisualCueContracts.EditPointStandard, StringComparison.Ordinal))
+            {
+                await Assert.That(probe.EditPointAfterBorderRightColor)
+                    .IsNotEqualTo(string.Empty)
+                    .Because($"Expected cue example '{capture.CueLabel}' to add an extra visible priority marker.");
+                await Assert.That(probe.EditPointAfterBorderRightColor)
+                    .IsNotEqualTo("rgba(0, 0, 0, 0)")
+                    .Because($"Expected cue example '{capture.CueLabel}' to add an extra visible priority marker.");
+            }
         }
 
         if (string.Equals(capture.AttributeName, TpsVisualCueContracts.EmphasisAttributeName, StringComparison.Ordinal))
@@ -529,6 +616,12 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
                 await Assert.That(ParseCssNumber(probe.TargetFontWeight))
                     .IsGreaterThanOrEqualTo(800d)
                     .Because("Expected markdown bold to read as a strong word shape.");
+            }
+            else if (string.Equals(capture.AttributeValue, TpsVisualCueContracts.EmphasisTag, StringComparison.Ordinal))
+            {
+                await Assert.That(probe.TargetBoxShadow)
+                    .DoesNotContain("none")
+                    .Because("Expected bracketed emphasis to use a distinct editorial marker, not plain markdown bold.");
             }
         }
 
@@ -780,7 +873,9 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
         bool ExpectedNoAttribute = false,
         string? SpeedProbeKey = null,
         string TargetWord = "",
-        int ExpectedAttributeMatchCount = 1);
+        int ExpectedAttributeMatchCount = 1,
+        string? ExpectedOriginalText = null,
+        string? ExpectedEditPointPriority = null);
 
     private sealed class CueMatrixCardProbe
     {
@@ -788,9 +883,19 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
 
         public string TargetText { get; init; } = string.Empty;
 
+        public string OriginalText { get; init; } = string.Empty;
+
         public string AttributeValue { get; init; } = string.Empty;
 
         public int AttributeMatchCount { get; init; }
+
+        public int EditPointMatchCount { get; init; }
+
+        public string EditPointBeforeBorderLeftColor { get; init; } = string.Empty;
+
+        public string EditPointAfterBorderRightColor { get; init; } = string.Empty;
+
+        public string EditPointAfterBorderTopColor { get; init; } = string.Empty;
 
         public int PauseCueCount { get; init; }
 
@@ -814,7 +919,11 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
 
         public string TargetBackgroundImage { get; init; } = string.Empty;
 
+        public string TargetBoxShadow { get; init; } = string.Empty;
+
         public string TargetBeforeBackgroundImage { get; init; } = string.Empty;
+
+        public string TargetBeforeContent { get; init; } = string.Empty;
 
         public string TargetTextDecorationLine { get; init; } = string.Empty;
 
@@ -835,6 +944,10 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
         public string TargetGroupAfterContent { get; init; } = string.Empty;
 
         public string TargetGroupAfterBackgroundImage { get; init; } = string.Empty;
+
+        public double TargetGroupWidth { get; init; }
+
+        public double AttributeUnionWidth { get; init; }
     }
 
     private sealed class CueMatrixSpeedProbe

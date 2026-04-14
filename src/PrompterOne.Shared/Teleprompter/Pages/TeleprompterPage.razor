@@ -135,6 +135,12 @@
                                             <span class="@pause.CssClass"
                                                   @attributes="BuildReaderPauseDataAttributes(pause)"></span>
                                         }
+                                        else if (chunk is ReaderEditPointViewModel editPoint)
+                                        {
+                                            <span class="@editPoint.CssClass"
+                                                  @attributes="BuildReaderEditPointDataAttributes(editPoint)"
+                                                  aria-hidden="true"></span>
+                                        }
 
                                         if (nextChunk is ReaderGroupViewModel)
                                         {

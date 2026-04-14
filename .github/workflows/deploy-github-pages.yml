@@ -78,7 +78,7 @@ jobs:
 
       - name: Upload supporting suite test results
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: test-results-release-pipeline-supporting
           path: |
@@ -177,7 +177,7 @@ jobs:
 
       - name: Upload browser suite test results
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: test-results-release-pipeline-${{ matrix.suite.artifact }}
           path: tests/PrompterOne.Web.UITests.${{ matrix.suite.name }}/bin/**/TestResults/**
@@ -194,7 +194,7 @@ jobs:
 
       - name: Upload Playwright artifacts
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: playwright-artifacts-release-pipeline-${{ matrix.suite.artifact }}
           path: output/playwright/
@@ -291,7 +291,7 @@ jobs:
           zip -r "$GITHUB_WORKSPACE/$RELEASE_ARTIFACT_ROOT/$RELEASE_ARCHIVE_NAME" .
 
       - name: Upload GitHub release artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: ${{ env.RELEASE_ARTIFACT_NAME }}
           path: ${{ env.RELEASE_ARTIFACT_ROOT }}/${{ env.RELEASE_ARCHIVE_NAME }}
@@ -320,7 +320,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Download release artifact
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@v8.0.1
         with:
           name: ${{ env.RELEASE_ARTIFACT_NAME }}
           path: ${{ env.RELEASE_ARTIFACT_ROOT }}

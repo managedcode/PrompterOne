@@ -17,6 +17,7 @@ public partial class TeleprompterPage
     private const string NeutralEmotionKey = "neutral";
     private const string ReaderPauseCssClass = "rd-pause";
     private const string ReaderPauseBreathCssClass = "rd-pause rd-pause-breath";
+    private const string ReaderEditPointCssClass = "rd-edit-point";
     private const string ReaderPauseLongCssClass = "rd-pause rd-pause-long";
     private const string ReaderPauseMediumCssClass = "rd-pause rd-pause-med";
     private const string TpsClassPrefix = "tps";
@@ -194,6 +195,22 @@ public partial class TeleprompterPage
                 continue;
             }
 
+            if (word.Metadata?.IsEditPoint == true)
+            {
+                FlushGroup(chunks, currentGroup, currentGroupIsEmphasis ?? false, currentGroupIsHighlight ?? false);
+                currentCharacterCount = 0;
+                currentGroupIsEmphasis = null;
+                currentGroupIsHighlight = null;
+                currentGroupIsBuilding = null;
+                currentGroupIsLegato = null;
+
+                var editPointPriority = ResolveEditPointCueValue(word.Metadata);
+                chunks.Add(new ReaderEditPointViewModel(
+                    editPointPriority,
+                    $"{ReaderEditPointCssClass} {ReaderEditPointCssClass}-{editPointPriority}"));
+                continue;
+            }
+
             if (word.Metadata?.IsPause == true)
             {
                 var pauseDuration = Math.Max(MinimumPauseDurationMilliseconds, word.Metadata.PauseDuration ?? MinimumPauseDurationMilliseconds);
@@ -258,8 +275,11 @@ public partial class TeleprompterPage
 
             var effectiveWpm = ResolveEffectiveWpm(word.Metadata, targetWpm);
             var speedCueValue = ResolveReaderSpeedCueValue(targetWpm, effectiveWpm);
+            var pronunciationGuide = string.IsNullOrWhiteSpace(word.Metadata?.PronunciationGuide)
+                ? null
+                : word.Metadata.PronunciationGuide.Trim();
             currentGroup.Add(new ReaderWordViewModel(
-                Text: word.CleanText,
+                Text: pronunciationGuide ?? word.CleanText,
                 CssClass: BuildReaderWordBaseClass(word.Metadata, speedCueValue),
                 DurationMs: Math.Max(MinimumReaderWordDurationMilliseconds, (int)Math.Round(word.DisplayDuration.TotalMilliseconds)),
                 Style: BuildReaderWordStyle(
@@ -267,7 +287,8 @@ public partial class TeleprompterPage
                     targetWpm,
                     effectiveWpm,
                     ResolveReaderCueProgress(compiledWords, compiledWordIndex)),
-                PronunciationGuide: string.IsNullOrWhiteSpace(word.Metadata?.PronunciationGuide) ? null : word.Metadata.PronunciationGuide.Trim(),
+                OriginalText: pronunciationGuide is null ? null : word.CleanText,
+                PronunciationGuide: pronunciationGuide,
                 EffectiveWpm: effectiveWpm,
                 Attributes: BuildReaderWordAttributes(word.Metadata, speedCueValue)));
 
@@ -402,6 +423,13 @@ public partial class TeleprompterPage
             classes.Add("tps-phonetic");
         }
 
+        if (metadata.IsEditPoint)
+        {
+            var editPointPriority = ResolveEditPointCueValue(metadata);
+            classes.Add($"{TpsClassPrefix}-edit-point");
+            classes.Add($"{TpsClassPrefix}-edit-{editPointPriority}");
+        }
+
         return string.Join(' ', classes);
     }
 
@@ -433,6 +461,14 @@ public partial class TeleprompterPage
             AddReaderWordAttribute(ref attributes, TpsVisualCueContracts.StressAttributeName, TpsVisualCueContracts.StressAttributeValue);
         }
 
+        if (metadata.IsEditPoint)
+        {
+            AddReaderWordAttribute(
+                ref attributes,
+                TpsVisualCueContracts.EditPointAttributeName,
+                ResolveEditPointCueValue(metadata));
+        }
+
         return attributes;
     }
 
@@ -440,6 +476,15 @@ public partial class TeleprompterPage
         string.IsNullOrWhiteSpace(value)
             ? null
             : value.Trim().ToLowerInvariant();
+
+    private static string ResolveEditPointCueValue(WordMetadata metadata) =>
+        NormalizeCueValue(metadata.EditPointPriority) switch
+        {
+            TpsVisualCueContracts.EditPointHigh => TpsVisualCueContracts.EditPointHigh,
+            TpsVisualCueContracts.EditPointMedium => TpsVisualCueContracts.EditPointMedium,
+            TpsVisualCueContracts.EditPointLow => TpsVisualCueContracts.EditPointLow,
+            _ => TpsVisualCueContracts.EditPointStandard
+        };
 
     private static string ResolveEmphasisWordClass(WordMetadata metadata) =>
         ResolveEmphasisValue(metadata) switch

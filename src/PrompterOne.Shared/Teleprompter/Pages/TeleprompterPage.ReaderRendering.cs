@@ -356,6 +356,12 @@ public partial class TeleprompterPage
         return attributes;
     }
 
+    private static IReadOnlyDictionary<string, object> BuildReaderEditPointDataAttributes(ReaderEditPointViewModel editPoint) =>
+        new Dictionary<string, object>(StringComparer.Ordinal)
+        {
+            [TpsVisualCueContracts.EditPointAttributeName] = editPoint.Priority
+        };
+
     private IReadOnlyDictionary<string, object> BuildReaderTimeDataAttributes() =>
         new Dictionary<string, object>(StringComparer.Ordinal)
         {
@@ -379,6 +385,10 @@ public partial class TeleprompterPage
             attributes,
             UiDataAttributes.Teleprompter.EffectiveWordsPerMinute,
             word.EffectiveWpm);
+        AddOptionalDataAttribute(
+            attributes,
+            UiDataAttributes.Teleprompter.OriginalText,
+            word.OriginalText);
         AddOptionalDataAttribute(
             attributes,
             UiDataAttributes.Teleprompter.Pronunciation,

@@ -113,9 +113,9 @@ public sealed class TeleprompterFullFlowTests(StandaloneAppFixture fixture)
         var fastWord = await GetWordProbeAsync(page, BenefitsCardIndex, BrowserTestConstants.TeleprompterFlow.FastWord);
         var softWord = await GetWordProbeAsync(page, InspirationCardIndex, BrowserTestConstants.TeleprompterFlow.ProductLaunchSoftWord);
         var urgentWord = await GetWordProbeAsync(page, ClosingCardIndex, BrowserTestConstants.TeleprompterFlow.ProductLaunchUrgentWord);
-        var visionWord = await GetWordProbeAsync(page, InspirationCardIndex, BrowserTestConstants.TeleprompterFlow.ProductLaunchVisionWord);
+        var visionWord = await GetWordProbeAsync(page, InspirationCardIndex, BrowserTestConstants.TeleprompterFlow.ProductLaunchVisionPronunciation);
         var rhetoricalWord = await GetWordProbeAsync(page, InspirationCardIndex, BrowserTestConstants.TeleprompterFlow.ProductLaunchRhetoricalWord);
-        var teleprompterWord = await GetWordProbeAsync(page, ClosingCardIndex, BrowserTestConstants.TeleprompterFlow.ProductLaunchTeleprompterWord);
+        var teleprompterWord = await GetWordProbeAsync(page, ClosingCardIndex, BrowserTestConstants.TeleprompterFlow.ProductLaunchTeleprompterPronunciation);
 
         await Assert.That(neutralWord.EmotionCue).IsEqualTo(string.Empty);
         await Assert.That(neutralWord.VolumeCue).IsEqualTo(string.Empty);
@@ -138,9 +138,11 @@ public sealed class TeleprompterFullFlowTests(StandaloneAppFixture fixture)
         await Assert.That(teleprompterWord.EmotionCue).IsNotEqualTo("energetic");
 
         await Assert.That(visionWord.Pronunciation).IsEqualTo(BrowserTestConstants.TeleprompterFlow.ProductLaunchVisionPronunciation);
+        await Assert.That(visionWord.OriginalText).IsEqualTo(BrowserTestConstants.TeleprompterFlow.ProductLaunchVisionWord);
         await Assert.That(visionWord.Title).IsEqualTo(string.Empty);
 
         await Assert.That(teleprompterWord.Pronunciation).IsEqualTo(BrowserTestConstants.TeleprompterFlow.ProductLaunchTeleprompterPronunciation);
+        await Assert.That(teleprompterWord.OriginalText).IsEqualTo(BrowserTestConstants.TeleprompterFlow.ProductLaunchTeleprompterWord);
         await Assert.That(teleprompterWord.EffectiveWpm).IsEqualTo(BrowserTestConstants.TeleprompterFlow.ProductLaunchTeleprompterWpm);
         await Assert.That(teleprompterWord.Title).IsEqualTo(string.Empty);
 
@@ -181,6 +183,7 @@ public sealed class TeleprompterFullFlowTests(StandaloneAppFixture fixture)
                     cardState: card instanceof HTMLElement ? card.getAttribute(args.cardStateAttributeName) ?? '' : '',
                     style: word.getAttribute('style') ?? '',
                     title: word.getAttribute('title') ?? '',
+                    originalText: word.getAttribute(args.originalTextAttributeName) ?? '',
                     pronunciation: word.getAttribute(args.pronunciationAttributeName) ?? '',
                     effectiveWpm: word.getAttribute(args.effectiveWpmAttributeName) ?? '',
                     durationMs: word.getAttribute(args.durationAttributeName) ?? '',
@@ -204,6 +207,7 @@ public sealed class TeleprompterFullFlowTests(StandaloneAppFixture fixture)
                 emotionAttributeName = TpsVisualCueContracts.EmotionAttributeName,
                 expectedWord = wordText,
                 highlightAttributeName = TpsVisualCueContracts.HighlightAttributeName,
+                originalTextAttributeName = UiDataAttributes.Teleprompter.OriginalText,
                 wordPrefix = UiTestIds.Teleprompter.CardWordPrefix(cardIndex),
                 pronunciationAttributeName = UiDataAttributes.Teleprompter.Pronunciation,
                 speedAttributeName = TpsVisualCueContracts.SpeedAttributeName,
@@ -234,6 +238,7 @@ public sealed class TeleprompterFullFlowTests(StandaloneAppFixture fixture)
         public string CardState { get; set; } = string.Empty;
         public string Style { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;
+        public string OriginalText { get; set; } = string.Empty;
         public string Pronunciation { get; set; } = string.Empty;
         public string EffectiveWpm { get; set; } = string.Empty;
         public string DurationMs { get; set; } = string.Empty;

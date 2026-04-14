@@ -70,7 +70,7 @@ jobs:
 
       - name: Upload supporting suite test results
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: test-results-pr-validation-supporting
           path: |
@@ -163,7 +163,7 @@ jobs:
 
       - name: Upload browser suite test results
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: test-results-pr-validation-${{ matrix.suite.artifact }}
           path: tests/PrompterOne.Web.UITests.${{ matrix.suite.name }}/bin/**/TestResults/**
@@ -180,7 +180,7 @@ jobs:
 
       - name: Upload Playwright artifacts
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: playwright-artifacts-pr-validation-${{ matrix.suite.artifact }}
           path: output/playwright/

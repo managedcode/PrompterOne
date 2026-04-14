@@ -42,8 +42,10 @@ public sealed class TeleprompterFidelityTests : BunitContext
     private const string SpeedOffsetsFastWpm = "154";
     private const string WordLetterSpacingVariableName = "--tps-word-letter-spacing";
     private const string TeleprompterWord = "teleprompter";
+    private const string TeleprompterPronunciation = "TELE-promp-ter";
     private const string UrgentWord = "time";
     private const string VisionWord = "vision";
+    private const string VisionPronunciation = "VI-zhun";
     private const string SoftWord = "Let";
 
     [Test]
@@ -107,8 +109,8 @@ public sealed class TeleprompterFidelityTests : BunitContext
         {
             var slowWord = FindReaderWordByText(cut, StatisticsCardIndex, SlowWord);
             var fastWord = FindReaderWordByText(cut, BenefitsCardIndex, FastWord);
-            var visionWord = FindReaderWordByText(cut, InspirationCardIndex, VisionWord);
-            var teleprompterWord = FindReaderWordByText(cut, ClosingCardIndex, TeleprompterWord);
+            var visionWord = FindReaderWordByText(cut, InspirationCardIndex, VisionPronunciation);
+            var teleprompterWord = FindReaderWordByText(cut, ClosingCardIndex, TeleprompterPronunciation);
             var rhetoricalWord = FindReaderWordByText(cut, InspirationCardIndex, RhetoricalWord);
 
             Assert.Equal("xslow", slowWord.GetAttribute(TpsVisualCueContracts.SpeedAttributeName));
@@ -124,10 +126,12 @@ public sealed class TeleprompterFidelityTests : BunitContext
 
             Assert.Equal("rhetorical", rhetoricalWord.GetAttribute(TpsVisualCueContracts.DeliveryAttributeName));
 
-            Assert.Equal("VI-zhun", visionWord.GetAttribute(UiDataAttributes.Teleprompter.Pronunciation));
+            Assert.Equal(VisionPronunciation, visionWord.GetAttribute(UiDataAttributes.Teleprompter.Pronunciation));
+            Assert.Equal(VisionWord, visionWord.GetAttribute(UiDataAttributes.Teleprompter.OriginalText));
             Assert.Null(visionWord.GetAttribute("title"));
 
-            Assert.Equal("TELE-promp-ter", teleprompterWord.GetAttribute(UiDataAttributes.Teleprompter.Pronunciation));
+            Assert.Equal(TeleprompterPronunciation, teleprompterWord.GetAttribute(UiDataAttributes.Teleprompter.Pronunciation));
+            Assert.Equal(TeleprompterWord, teleprompterWord.GetAttribute(UiDataAttributes.Teleprompter.OriginalText));
             Assert.Equal("180", teleprompterWord.GetAttribute(UiDataAttributes.Teleprompter.EffectiveWordsPerMinute));
             Assert.Null(teleprompterWord.GetAttribute("title"));
         });
@@ -190,7 +194,7 @@ public sealed class TeleprompterFidelityTests : BunitContext
             var highlightWord = FindReaderWordByText(cut, PurposeCardIndex, HighlightWord);
             var softWord = FindReaderWordByText(cut, InspirationCardIndex, SoftWord);
             var urgentWord = FindReaderWordByText(cut, ClosingCardIndex, UrgentWord);
-            var teleprompterWord = FindReaderWordByText(cut, ClosingCardIndex, TeleprompterWord);
+            var teleprompterWord = FindReaderWordByText(cut, ClosingCardIndex, TeleprompterPronunciation);
             var introductionWord = FindReaderWordByText(cut, IntroductionCardIndex, IntroductionWord);
 
             AssertDoesNotHaveCueValue(neutralWord, "neutral");

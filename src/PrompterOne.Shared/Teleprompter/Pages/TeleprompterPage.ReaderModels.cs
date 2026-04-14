@@ -40,6 +40,8 @@ public partial class TeleprompterPage
         bool IsEmphasis,
         bool IsHighlight) : ReaderChunkViewModel;
 
+    private sealed record ReaderEditPointViewModel(string Priority, string CssClass) : ReaderChunkViewModel;
+
     private sealed record ReaderPauseViewModel(int DurationMs, string CssClass) : ReaderChunkViewModel;
 
     private sealed record ReaderWordViewModel(
@@ -48,6 +50,7 @@ public partial class TeleprompterPage
         int DurationMs,
         int PauseAfterMs = 0,
         string? Style = null,
+        string? OriginalText = null,
         string? PronunciationGuide = null,
         int? EffectiveWpm = null,
         IReadOnlyDictionary<string, object>? Attributes = null);
