@@ -1,6 +1,6 @@
-# TPS Cue Rendering Plan
+# TPS Cue Rendering Specification
 
-Status: draft before implementation
+Status: implemented and verified
 
 ## Inputs
 
@@ -66,6 +66,18 @@ Status: draft before implementation
 - Visual assertion that the reader surface has no visible grid/ruler background in the prompter view.
 - Timing probe that verifies TPS speed and pause tags change playback timing but breath/stress/pronunciation do not.
 - Real-model smoke for graph extraction and AI Spotlight through Microsoft Agent Framework configuration loaded from ignored local appsettings.
+
+## Verification Evidence
+
+- README screenshots:
+  - `docs/screenshots/readme/tps-editor-cues.png` (1920 x 1080)
+  - `docs/screenshots/readme/tps-teleprompter-cues.png` (1366 x 768)
+  - `docs/screenshots/readme/editor.png` (1440 x 1100, real-model graph canvas)
+- Source browser artifacts:
+  - `output/playwright/teleprompter-tps-cue-rendering/01-teleprompter-cue-rendering.png`
+  - `output/playwright/teleprompter-tps-cue-rendering/02-teleprompter-cue-text.png`
+  - `output/playwright/manual-real-ai-check/editor-graph-real-model-maf-canvas.png`
+- Local real-model smoke completed against Azure OpenAI through the Microsoft Agent Framework path. The graph status reached `Model`, the browser sent the model request through the configured Azure OpenAI deployment, and no production graph extraction call bypassed the `ChatClientAgent` composition path.
 
 ## Claude Review
 

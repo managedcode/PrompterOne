@@ -78,7 +78,7 @@ The authoring surface includes structure navigation on the left, a full formatti
 
 ### TPS Cue Language
 
-PrompterOne treats TPS cues as reading instructions, not markup noise. The editor and reader now carry the same cue intent forward for voice, delivery, pace, emphasis, highlight, pronunciation, phonetics, stress, breath marks, staccato, legato, energy, melody, aside, rhetorical turns, building delivery, sarcasm, loud, soft, whisper, warm, urgent, and related emotion cues.
+PrompterOne treats TPS cues as reading instructions, not markup noise. The editor and reader now carry the same cue intent forward for voice, delivery, pace, emphasis, highlight, pronunciation, phonetics, stress, breath marks, staccato, legato, energy, melody, edit points, speaker/archetype metadata, aside, rhetorical turns, building delivery, sarcasm, loud, soft, whisper, warm, urgent, and related emotion cues.
 
 In the editor, TPS authoring stays readable while Monaco colors cue tags, underlines articulation, and keeps pronunciation and delivery hints visible beside the clean script text.
 
@@ -91,15 +91,19 @@ In the teleprompter, the clean reading line keeps those cues visible through sub
 | TPS cue | Reader meaning | Visible reader treatment |
 | --- | --- | --- |
 | `#`, `##`, `###` | Script, segment, and block structure | Groups reader cards, segmented progress, and jump targets without showing raw headers in the reading line |
-| `/`, `//`, `[pause:500ms]`, `[pause:1s]`, `[breathe]` | Short and explicit rests | Adds phrase-aware timing gaps; breath and pause cues shape the cadence without becoming noisy text |
+| `/`, `//`, `[pause:500ms]`, `[pause:1s]`, `[breath]` | Short and explicit rests | Adds phrase-aware timing gaps; breath and pause cues shape the cadence without becoming noisy text |
 | `[xslow]`, `[slow]`, `[normal]`, `[fast]`, `[xfast]`, `[180WPM]` | Relative or explicit pace | Changes effective word timing; slow cues can add airy spacing, while fast cues keep readable normal spacing instead of squeezing words together |
 | `[loud]`, `[soft]`, `[whisper]` | Volume and vocal intensity | Adjusts subtle color, weight, and opacity so the delivery cue is visible but the line remains readable |
-| `[warm]`, `[urgent]`, `[happy]`, `[sad]`, `[calm]`, `[energetic]`, `[professional]`, `[focused]`, `[concerned]`, `[motivational]`, `[neutral]` | Emotional tone | Tints the word and reader background mood while preserving the base reading contrast |
+| `[warm]`, `[urgent]`, `[excited]`, `[happy]`, `[sad]`, `[calm]`, `[energetic]`, `[professional]`, `[focused]`, `[concerned]`, `[motivational]`, `[neutral]` | Emotional tone | Tints the word and reader background mood while preserving the base reading contrast |
 | `[aside]`, `[rhetorical]`, `[building]`, `[sarcasm]` | Delivery shape | Adds delivery-specific tone color and emphasis so the speaker sees how to bend the phrase |
 | `[legato]`, `[staccato]` | Smooth versus clipped articulation | Uses music-like wavy or dotted underline texture below the affected words |
 | `[energy:8]`, `[melody:3]` | Intensity and melodic movement | Adds controlled glow or line color rhythm without shifting word layout |
 | `[highlight]`, `[emphasis]`, Markdown bold/italic | Editorial emphasis | Preserves highlight and emphasis as continuous phrase styling, not broken word-by-word fragments |
 | `[pronunciation:guide]`, `[phonetic:IPA]`, `[stress:rising]` | Pronunciation, phonetic, and stress help | Keeps the reading word clean while retaining metadata, tooltip/detail, and stress underline cues for rehearsal and review |
+| `[edit_point]`, `[edit_point:medium]`, `[edit_point:high]` | Editing and production cut points | Stays out of the spoken reader line; appears only as an editor or operator marker |
+| `Speaker:*`, `Archetype:*` | Talent and delivery persona metadata | Affects validation, graph context, and optional chrome without becoming raw reader text |
+
+The full implemented rendering contract, animation constraints, and verification evidence are recorded in [TPS Cue Rendering Specification](TPS_CUE_RENDERING_PLAN.md).
 
 ---
 

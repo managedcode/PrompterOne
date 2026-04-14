@@ -238,7 +238,7 @@ The **+/−** buttons on the reading page change the **base speed** for the curr
 [whisper]secret or intimate[/whisper]     # Whispered delivery
 ```
 
-Volume tags control the **intended loudness** of delivery. Renderers should visually distinguish volume levels (e.g., larger/bolder text for `[loud]`, smaller/lighter for `[soft]`, styled differently for `[whisper]`).
+Volume tags control the **intended loudness** of delivery. PrompterOne distinguishes volume with weight, opacity, accent color, and italic treatment for whisper, not with font-size scaling that would shift the reading line.
 
 #### Highlighting
 
@@ -287,7 +287,7 @@ develop[stress]me[/stress]nt        # Stress on "me"
 [stress]in[/stress]frastructure     # Stress on "in"
 ```
 
-The tag can wrap a single letter or a syllable. Renderers should visually distinguish the stressed portion (e.g., larger font size, underline, or bold).
+The tag can wrap a single letter or a syllable. PrompterOne distinguishes the stressed portion with underline, weight, or accent metadata, not with font-size scaling that would move the word baseline.
 
 **Stress guide** — full syllable breakdown with a parameter:
 
@@ -905,20 +905,15 @@ A TPS file is **source markup**, not display output. The teleprompter applicatio
 
 ### Tag Visibility
 
-All tags (`[emphasis]`, `[slow]`, `[loud]`, `[sarcasm]`, etc.) are **invisible in the rendered output**. The renderer applies their effects visually:
+All tags (`[emphasis]`, `[slow]`, `[loud]`, `[sarcasm]`, etc.) are **invisible in PrompterOne reader output**. The renderer applies their effects through timing, color, weight, underline texture, metadata, and stable animation. PrompterOne must not expose raw tags in the reading line, must not use negative letter spacing, and must not scale or move active reader words in ways that make lines jump or overlap.
 
-- `[emphasis]word[/emphasis]` → the word appears **bold** or in a distinct color
-- `[slow]text[/slow]` → text may appear with a pacing indicator or wider spacing
-- `[loud]text[/loud]` → text appears larger or bolder
-- `[whisper]text[/whisper]` → text appears smaller or lighter
-- `[sarcasm]text[/sarcasm]` → text styled with a distinct visual cue (e.g., italic + indicator)
-- `[building]text[/building]` → text may gradually increase in size or intensity
-- `[legato]text[/legato]` → words appear closer together, smooth underline
-- `[staccato]text[/staccato]` → words appear spaced apart, dotted underline
-- `[energy:N]text[/energy]` → text size/weight scales with energy level
-- `[melody:N]text[/melody]` → wave or flat indicator based on level
-- `[breath]` → a small visual indicator (e.g., a subtle mark or gap)
-- Segment/block headers → rendered as section dividers, not raw markdown
+- Segment and block headers group reader cards, segmented progress, and jump targets; they are not spoken text.
+- Pause markers (`/`, `//`, `[pause:...]`) affect phrase timing and may show a low-emphasis rest mark; they never become literal slash text.
+- `[breath]` is a natural breath cue, not an added pause duration.
+- Inline speed tags alter effective WPM; slow tags may widen spacing, while fast and xfast stay at non-negative readable spacing.
+- Voice, delivery, emotion, articulation, energy, melody, highlight, stress, and pronunciation tags become visual contour and metadata only.
+- `[edit_point]`, `[edit_point:medium]`, and `[edit_point:high]` are editor/operator markers and do not enter the spoken reader line.
+- `Speaker:*` and `Archetype:*` remain metadata for validation, graph context, and optional chrome, not raw reader text.
 
 The reader sees only the spoken text with visual styling applied. Tags are commands for the renderer, not content for the speaker.
 
@@ -937,32 +932,34 @@ TPS is designed for **teleprompter use** — text is always rendered on a **dark
 
 ### Visual Rendering Hints
 
-Renderers should use **text size, letter spacing, weight, and animation** to communicate delivery cues without the reader needing to see tags. Recommended visual mappings:
+PrompterOne uses the following implementation-specific contract. It intentionally tightens the upstream rendering guidance so reader text stays legible during real teleprompter playback.
 
-| Tag | Font size | Letter spacing | Weight | Other |
-|-----|-----------|---------------|--------|-------|
-| `[loud]` | Larger (120–140%) | Normal | Bold | — |
-| `[soft]` | Smaller (80–90%) | Normal | Light | Lower opacity |
-| `[whisper]` | Smaller (70–80%) | Wider (+1–2px) | Light | Italic or distinct style |
-| `[emphasis]` | Normal | Normal | Bold | — |
-| `[stress]` (wrap) | Larger on stressed part | Normal | Bold | Underline or distinct color |
-| `[stress:...]` (guide) | Normal | Normal | Normal | Tooltip/overlay with syllable guide |
-| `[slow]` | Normal | Wider (+1–2px) | Normal | Stretches word visually |
-| `[fast]` | Normal | Tighter (-0.5–1px) | Normal | Compresses word visually |
-| `[building]` | Gradually increasing | Normal | Gradually bolder | Animated size ramp |
-| `[sarcasm]` | Normal | Normal | Normal | Italic + visual indicator |
-| `[aside]` | Smaller (85–90%) | Normal | Light | Dimmed or offset |
-| `[highlight]` | Normal | Normal | Normal | Background overlay |
-| `[legato]` | Normal | Tighter (-0.5px) | Normal | Smooth underline or wave |
-| `[staccato]` | Normal | Wider (+1–2px) | Bold | Dotted underline or dashes between words |
-| `[energy:1–4]` | Smaller (90%) | Normal | Light | Lower opacity |
-| `[energy:5–6]` | Normal | Normal | Normal | Default styling (no special treatment) |
-| `[energy:7–10]` | Larger (110–130%) | Normal | Bold | Glow or pulsing effect |
-| `[melody:1–3]` | Normal | Normal | Normal | Flat visual indicator (dash) |
-| `[melody:4–6]` | Normal | Normal | Normal | Default styling (no special treatment) |
-| `[melody:7–10]` | Normal | Normal | Normal | Wave or oscillating indicator |
+| TPS input | PrompterOne reader treatment | PrompterOne editor treatment |
+| --- | --- | --- |
+| `#`, `##`, `###`, `Speaker:*`, `Archetype:*` | Metadata, card grouping, segmented progress, validation, graph context, and optional chrome only; no raw header or metadata text in the active reader line. | Monaco tokens, section metadata, structure navigation, and diagnostics. |
+| `/`, `//`, `[pause:...]` | Phrase timing gap and optional low-emphasis rest mark; no visible grid/ruler line and no literal slash text. | Marker token and hover with duration. |
+| `[breath]` | Tiny breath affordance with zero added pause duration. | Token and hover that distinguishes breath from pause. |
+| `[xslow]`, `[slow]` | Slower effective WPM, positive airy letter spacing, and dotted pacing underline; active words remain on the same baseline. | Completion, color token, and hover. |
+| `[normal]`, `[fast]`, `[xfast]`, `[NWPM]` | Effective WPM changes; fast and xfast keep non-negative spacing so words cannot merge or overlap. | Completion, color token, and hover for relative and absolute speed scopes. |
+| `[loud]` | Stronger weight and warmer active accent; no font-size scaling or baseline jump. | Token and hover. |
+| `[soft]` | Lower opacity and lighter cool accent with stable geometry. | Token and hover. |
+| `[whisper]` | Subdued italic treatment with normal readable spacing. | Token and hover. |
+| `[emphasis]`, `*`, `**` | Existing emphasis hierarchy through underline/weight/highlight without splitting phrase styling word by word. | Monaco Markdown/TPS decoration. |
+| `[highlight]` | Subtle translucent background at a visible opacity floor; not a color-only cue. | Token and hover. |
+| Inline emotions (`neutral`, `warm`, `professional`, `focused`, `concerned`, `urgent`, `motivational`, `excited`, `happy`, `sad`, `calm`, `energetic`) | Active-word accent and reader surface tint that preserve base contrast. Segment/block emotion changes fade smoothly; inline emotion changes apply immediately. | Completion, semantic color token, and hover. |
+| `[sarcasm]` | Subtle italic/rose accent with no joke label. | Token and hover. |
+| `[aside]` | Slightly dimmer parenthetical feel; aside itself does not change timing unless nested speed tags do. | Token and hover. |
+| `[rhetorical]` | Statement-like underline and tone accent without question-mark decoration. | Token and hover. |
+| `[building]` | Crescendo through `--tps-build-progress`, bounded weight, glow, and accent intensity; no scale ramp. | Token and hover. |
+| `[legato]` | Smooth or wavy underline and connected visual rhythm without negative spacing. | Token and hover. |
+| `[staccato]` | Dotted underline and crisp weight using natural word gaps, not inserted separators. | Token and hover. |
+| `[energy:N]` | Bounded glow/weight normalized with `(N - 1) / 9`; no scale or baseline motion. | Token, range validation, and hover. |
+| `[melody:N]` | Wavy underline intensity normalized with `(N - 1) / 9`; low melody stays nearly flat. | Token, range validation, and hover. |
+| `[phonetic:IPA]`, `[pronunciation:guide]` | Clean spoken word with subtle dotted underline and metadata/tooltip detail. | Hover or tooltip displays the guide. |
+| `[stress]`, `[stress:guide]` | Stress underline/weight on the affected syllable or word; guide remains metadata, not replacement text. | Hover or tooltip displays the guide. |
+| `[edit_point]`, `[edit_point:medium]`, `[edit_point:high]` | Omitted from spoken reader text or shown only as non-disruptive operator chrome. | Priority marker in the source/editor workflow. |
 
-These are **recommendations**, not requirements. Renderers may adapt the visual treatment to their platform. The key principle: the reader should **feel** the delivery instruction from the visual presentation alone.
+See the root [TPS Cue Rendering Specification](../../TPS_CUE_RENDERING_PLAN.md) for the animation contract, verification plan, screenshots, and real-model AI smoke evidence.
 
 ### Dark Background Rules
 
