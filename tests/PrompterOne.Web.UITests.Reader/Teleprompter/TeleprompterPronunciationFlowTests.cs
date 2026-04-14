@@ -1,3 +1,4 @@
+using System.Globalization;
 using PrompterOne.Shared.Contracts;
 using static Microsoft.Playwright.Assertions;
 
@@ -7,6 +8,7 @@ namespace PrompterOne.Web.UITests;
 public sealed class TeleprompterPronunciationFlowTests(StandaloneAppFixture fixture)
 {
     private const int InspirationCardIndex = 6;
+    private const double MinimumReadableGuideFontSizePx = 24d;
     private const string ScenarioName = "teleprompter-pronunciation";
     private const string StepName = "01-vision-pronunciation";
 
@@ -45,6 +47,7 @@ public sealed class TeleprompterPronunciationFlowTests(StandaloneAppFixture fixt
 
                     return {
                         guideContent: getComputedStyle(word, '::after').content ?? '',
+                        guideFontSize: getComputedStyle(word, '::after').fontSize ?? '',
                         pronunciation: word.getAttribute(args.pronunciationAttributeName) ?? '',
                         title: word.getAttribute('title') ?? ''
                     };
@@ -60,6 +63,9 @@ public sealed class TeleprompterPronunciationFlowTests(StandaloneAppFixture fixt
             await Assert.That(probe).IsNotNull();
             await Assert.That(probe!.Pronunciation).IsEqualTo(BrowserTestConstants.TeleprompterFlow.ProductLaunchVisionPronunciation);
             await Assert.That(probe.GuideContent).Contains(BrowserTestConstants.TeleprompterFlow.ProductLaunchVisionPronunciation);
+            await Assert.That(ParseCssPixels(probe.GuideFontSize))
+                .IsGreaterThanOrEqualTo(MinimumReadableGuideFontSizePx)
+                .Because("Expected the pronunciation guide to read as large rehearsal text, not a tiny tooltip.");
             await Assert.That(probe.Title).IsEqualTo(string.Empty);
 
             await UiScenarioArtifacts.CapturePageAsync(page, ScenarioName, StepName);
@@ -74,8 +80,20 @@ public sealed class TeleprompterPronunciationFlowTests(StandaloneAppFixture fixt
     {
         public string GuideContent { get; init; } = string.Empty;
 
+        public string GuideFontSize { get; init; } = string.Empty;
+
         public string Pronunciation { get; init; } = string.Empty;
 
         public string Title { get; init; } = string.Empty;
+    }
+
+    private static double ParseCssPixels(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value) || string.Equals(value, "normal", StringComparison.Ordinal))
+        {
+            return 0d;
+        }
+
+        return double.Parse(value.Replace("px", string.Empty, StringComparison.Ordinal), CultureInfo.InvariantCulture);
     }
 }

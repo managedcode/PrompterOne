@@ -10,66 +10,65 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
 {
     private const string CueScenario = "teleprompter-tps-cue-rendering";
     private const string CueMatrixScenario = "teleprompter-tps-cue-matrix";
-    private const string CueMatrixPhraseTargetWord = "steady";
-    private const string CueMatrixTargetWord = "calibration";
     private const int InspirationCardIndex = 6;
     private const int ActiveWordProbeTimeoutMs = 1_000;
+    private const double MinimumReadablePronunciationGuideFontSizePx = 24d;
     private const string StepName = "01-teleprompter-cue-rendering";
     private const string CueTextStepName = "02-teleprompter-cue-text";
     private static readonly CueMatrixCapture[] CueMatrixCaptures =
     [
-        new(0, "01-structure-baseline", "Structure baseline"),
-        new(1, "02-pause-slash", "Pause slash", ExpectedPauseCount: 1),
-        new(2, "03-pause-double-slash", "Pause double slash", ExpectedPauseCount: 1),
-        new(3, "04-pause-500ms", "Pause 500ms", ExpectedPauseCount: 1),
-        new(4, "05-pause-1s", "Pause 1s", ExpectedPauseCount: 1),
-        new(5, "06-breath", "Breath", ExpectedBreathCount: 1),
-        new(6, "07-speed-xslow", "[xslow]", TpsVisualCueContracts.SpeedAttributeName, TpsVisualCueContracts.SpeedCueXslow, SpeedProbeKey: "xslow"),
-        new(7, "08-speed-slow", "[slow]", TpsVisualCueContracts.SpeedAttributeName, TpsVisualCueContracts.SpeedCueSlow, SpeedProbeKey: "slow"),
-        new(8, "09-speed-normal", "[normal]", TpsVisualCueContracts.SpeedAttributeName, ExpectedNoAttribute: true, SpeedProbeKey: "normal"),
-        new(9, "10-speed-fast", "[fast]", TpsVisualCueContracts.SpeedAttributeName, TpsVisualCueContracts.SpeedCueFast, SpeedProbeKey: "fast"),
-        new(10, "11-speed-xfast", "[xfast]", TpsVisualCueContracts.SpeedAttributeName, TpsVisualCueContracts.SpeedCueXfast, SpeedProbeKey: "xfast"),
-        new(11, "12-speed-180wpm", "[180WPM]", TpsVisualCueContracts.SpeedAttributeName, TpsVisualCueContracts.SpeedCueFast, SpeedProbeKey: "180wpm"),
-        new(12, "13-volume-loud", "[loud]", TpsVisualCueContracts.VolumeAttributeName, TpsVisualCueContracts.VolumeLoud),
-        new(13, "14-volume-soft", "[soft]", TpsVisualCueContracts.VolumeAttributeName, TpsVisualCueContracts.VolumeSoft),
-        new(14, "15-volume-whisper", "[whisper]", TpsVisualCueContracts.VolumeAttributeName, TpsVisualCueContracts.VolumeWhisper),
-        new(15, "16-emotion-warm", "[warm]", TpsVisualCueContracts.EmotionAttributeName, "warm"),
-        new(16, "17-emotion-urgent", "[urgent]", TpsVisualCueContracts.EmotionAttributeName, "urgent"),
-        new(17, "18-emotion-excited", "[excited]", TpsVisualCueContracts.EmotionAttributeName, "excited"),
-        new(18, "19-emotion-happy", "[happy]", TpsVisualCueContracts.EmotionAttributeName, "happy"),
-        new(19, "20-emotion-sad", "[sad]", TpsVisualCueContracts.EmotionAttributeName, "sad"),
-        new(20, "21-emotion-calm", "[calm]", TpsVisualCueContracts.EmotionAttributeName, "calm"),
-        new(21, "22-emotion-energetic", "[energetic]", TpsVisualCueContracts.EmotionAttributeName, "energetic"),
-        new(22, "23-emotion-professional", "[professional]", TpsVisualCueContracts.EmotionAttributeName, "professional"),
-        new(23, "24-emotion-focused", "[focused]", TpsVisualCueContracts.EmotionAttributeName, "focused"),
-        new(24, "25-emotion-concerned", "[concerned]", TpsVisualCueContracts.EmotionAttributeName, "concerned"),
-        new(25, "26-emotion-motivational", "[motivational]", TpsVisualCueContracts.EmotionAttributeName, "motivational"),
-        new(26, "27-emotion-neutral", "[neutral]", TpsVisualCueContracts.EmotionAttributeName, "neutral"),
-        new(27, "28-delivery-aside", "[aside]", TpsVisualCueContracts.DeliveryAttributeName, "aside"),
-        new(28, "29-delivery-rhetorical", "[rhetorical]", TpsVisualCueContracts.DeliveryAttributeName, "rhetorical"),
-        new(29, "30-delivery-building", "[building]", TpsVisualCueContracts.DeliveryAttributeName, TpsVisualCueContracts.DeliveryModeBuilding),
-        new(30, "31-delivery-sarcasm", "[sarcasm]", TpsVisualCueContracts.DeliveryAttributeName, "sarcasm"),
-        new(31, "32-articulation-legato", "[legato]", TpsVisualCueContracts.ArticulationAttributeName, TpsVisualCueContracts.ArticulationLegato),
-        new(32, "33-articulation-staccato", "[staccato]", TpsVisualCueContracts.ArticulationAttributeName, TpsVisualCueContracts.ArticulationStaccato),
-        new(33, "34-contour-energy", "[energy:8]", TpsVisualCueContracts.EnergyAttributeName, "8"),
-        new(34, "35-contour-melody", "[melody:3]", TpsVisualCueContracts.MelodyAttributeName, "3"),
-        new(35, "36-editorial-highlight", "[highlight]", TpsVisualCueContracts.HighlightAttributeName, TpsVisualCueContracts.HighlightAttributeValue),
-        new(36, "37-editorial-emphasis", "[emphasis]", ExpectEmphasis: true),
-        new(37, "38-markdown-bold", "Markdown bold", ExpectEmphasis: true),
-        new(38, "39-markdown-italic", "Markdown italic", ExpectEmphasis: true),
-        new(39, "40-guide-pronunciation", "[pronunciation:guide]", UiDataAttributes.Teleprompter.Pronunciation, "guide"),
-        new(40, "41-guide-phonetic", "[phonetic:IPA]", UiDataAttributes.Teleprompter.Pronunciation, "IPA"),
-        new(41, "42-guide-stress", "[stress:rising]", TpsVisualCueContracts.StressAttributeName, TpsVisualCueContracts.StressAttributeValue),
-        new(42, "43-edit-point", "[edit_point]"),
-        new(43, "44-edit-point-medium", "[edit_point:medium]"),
-        new(44, "45-edit-point-high", "[edit_point:high]"),
-        new(45, "46-metadata-speaker", "Speaker metadata"),
-        new(46, "47-metadata-archetype", "Archetype metadata"),
-        new(47, "48-phrase-speed-slow", "[slow] phrase", TpsVisualCueContracts.SpeedAttributeName, TpsVisualCueContracts.SpeedCueSlow, TargetWord: CueMatrixPhraseTargetWord, ExpectedAttributeMatchCount: 2),
-        new(48, "49-phrase-emotion-urgent", "[urgent] phrase", TpsVisualCueContracts.EmotionAttributeName, "urgent", TargetWord: CueMatrixPhraseTargetWord, ExpectedAttributeMatchCount: 2),
-        new(49, "50-phrase-volume-loud", "[loud] phrase", TpsVisualCueContracts.VolumeAttributeName, TpsVisualCueContracts.VolumeLoud, TargetWord: CueMatrixPhraseTargetWord, ExpectedAttributeMatchCount: 2),
-        new(50, "51-phrase-delivery-building", "[building] phrase", TpsVisualCueContracts.DeliveryAttributeName, TpsVisualCueContracts.DeliveryModeBuilding, TargetWord: CueMatrixPhraseTargetWord, ExpectedAttributeMatchCount: 2),
-        new(51, "52-phrase-articulation-legato", "[legato] phrase", TpsVisualCueContracts.ArticulationAttributeName, TpsVisualCueContracts.ArticulationLegato, TargetWord: CueMatrixPhraseTargetWord, ExpectedAttributeMatchCount: 2)
+        new(0, "01-structure-baseline", "Structure baseline", TargetWord: "baseline"),
+        new(1, "02-pause-slash", "Pause slash", ExpectedPauseCount: 1, TargetWord: "slash"),
+        new(2, "03-pause-double-slash", "Pause double slash", ExpectedPauseCount: 1, TargetWord: "double"),
+        new(3, "04-pause-500ms", "Pause 500ms", ExpectedPauseCount: 1, TargetWord: "pause500"),
+        new(4, "05-pause-1s", "Pause 1s", ExpectedPauseCount: 1, TargetWord: "pause1s"),
+        new(5, "06-breath", "Breath", ExpectedBreathCount: 1, TargetWord: "breath"),
+        new(6, "07-speed-xslow", "[xslow]", TpsVisualCueContracts.SpeedAttributeName, TpsVisualCueContracts.SpeedCueXslow, SpeedProbeKey: "xslow", TargetWord: "xslow"),
+        new(7, "08-speed-slow", "[slow]", TpsVisualCueContracts.SpeedAttributeName, TpsVisualCueContracts.SpeedCueSlow, SpeedProbeKey: "slow", TargetWord: "slow"),
+        new(8, "09-speed-normal", "[normal]", TpsVisualCueContracts.SpeedAttributeName, ExpectedNoAttribute: true, SpeedProbeKey: "normal", TargetWord: "normal"),
+        new(9, "10-speed-fast", "[fast]", TpsVisualCueContracts.SpeedAttributeName, TpsVisualCueContracts.SpeedCueFast, SpeedProbeKey: "fast", TargetWord: "fast"),
+        new(10, "11-speed-xfast", "[xfast]", TpsVisualCueContracts.SpeedAttributeName, TpsVisualCueContracts.SpeedCueXfast, SpeedProbeKey: "xfast", TargetWord: "xfast"),
+        new(11, "12-speed-180wpm", "[180WPM]", TpsVisualCueContracts.SpeedAttributeName, TpsVisualCueContracts.SpeedCueFast, SpeedProbeKey: "180wpm", TargetWord: "180wpm"),
+        new(12, "13-volume-loud", "[loud]", TpsVisualCueContracts.VolumeAttributeName, TpsVisualCueContracts.VolumeLoud, TargetWord: "loud"),
+        new(13, "14-volume-soft", "[soft]", TpsVisualCueContracts.VolumeAttributeName, TpsVisualCueContracts.VolumeSoft, TargetWord: "soft"),
+        new(14, "15-volume-whisper", "[whisper]", TpsVisualCueContracts.VolumeAttributeName, TpsVisualCueContracts.VolumeWhisper, TargetWord: "whisper"),
+        new(15, "16-emotion-warm", "[warm]", TpsVisualCueContracts.EmotionAttributeName, "warm", TargetWord: "warm"),
+        new(16, "17-emotion-urgent", "[urgent]", TpsVisualCueContracts.EmotionAttributeName, "urgent", TargetWord: "urgent"),
+        new(17, "18-emotion-excited", "[excited]", TpsVisualCueContracts.EmotionAttributeName, "excited", TargetWord: "excited"),
+        new(18, "19-emotion-happy", "[happy]", TpsVisualCueContracts.EmotionAttributeName, "happy", TargetWord: "happy"),
+        new(19, "20-emotion-sad", "[sad]", TpsVisualCueContracts.EmotionAttributeName, "sad", TargetWord: "sad"),
+        new(20, "21-emotion-calm", "[calm]", TpsVisualCueContracts.EmotionAttributeName, "calm", TargetWord: "calm"),
+        new(21, "22-emotion-energetic", "[energetic]", TpsVisualCueContracts.EmotionAttributeName, "energetic", TargetWord: "energetic"),
+        new(22, "23-emotion-professional", "[professional]", TpsVisualCueContracts.EmotionAttributeName, "professional", TargetWord: "professional"),
+        new(23, "24-emotion-focused", "[focused]", TpsVisualCueContracts.EmotionAttributeName, "focused", TargetWord: "focused"),
+        new(24, "25-emotion-concerned", "[concerned]", TpsVisualCueContracts.EmotionAttributeName, "concerned", TargetWord: "concerned"),
+        new(25, "26-emotion-motivational", "[motivational]", TpsVisualCueContracts.EmotionAttributeName, "motivational", TargetWord: "motivational"),
+        new(26, "27-emotion-neutral", "[neutral]", TpsVisualCueContracts.EmotionAttributeName, "neutral", TargetWord: "neutral"),
+        new(27, "28-delivery-aside", "[aside]", TpsVisualCueContracts.DeliveryAttributeName, "aside", TargetWord: "aside"),
+        new(28, "29-delivery-rhetorical", "[rhetorical]", TpsVisualCueContracts.DeliveryAttributeName, "rhetorical", TargetWord: "rhetorical"),
+        new(29, "30-delivery-building", "[building]", TpsVisualCueContracts.DeliveryAttributeName, TpsVisualCueContracts.DeliveryModeBuilding, TargetWord: "building"),
+        new(30, "31-delivery-sarcasm", "[sarcasm]", TpsVisualCueContracts.DeliveryAttributeName, "sarcasm", TargetWord: "sarcasm"),
+        new(31, "32-articulation-legato", "[legato]", TpsVisualCueContracts.ArticulationAttributeName, TpsVisualCueContracts.ArticulationLegato, TargetWord: "legato"),
+        new(32, "33-articulation-staccato", "[staccato]", TpsVisualCueContracts.ArticulationAttributeName, TpsVisualCueContracts.ArticulationStaccato, TargetWord: "staccato"),
+        new(33, "34-contour-energy", "[energy:8]", TpsVisualCueContracts.EnergyAttributeName, "8", TargetWord: "energy"),
+        new(34, "35-contour-melody", "[melody:3]", TpsVisualCueContracts.MelodyAttributeName, "3", TargetWord: "melody"),
+        new(35, "36-editorial-highlight", "[highlight]", TpsVisualCueContracts.HighlightAttributeName, TpsVisualCueContracts.HighlightAttributeValue, TargetWord: "highlight"),
+        new(36, "37-editorial-emphasis", "[emphasis]", ExpectEmphasis: true, TargetWord: "emphasis"),
+        new(37, "38-markdown-bold", "Markdown bold", ExpectEmphasis: true, TargetWord: "bold"),
+        new(38, "39-markdown-italic", "Markdown italic", ExpectEmphasis: true, TargetWord: "italic"),
+        new(39, "40-guide-pronunciation", "[pronunciation:guide]", UiDataAttributes.Teleprompter.Pronunciation, "GUIDE", TargetWord: "pronunciation"),
+        new(40, "41-guide-phonetic", "[phonetic:IPA]", UiDataAttributes.Teleprompter.Pronunciation, "IPA", TargetWord: "phonetic"),
+        new(41, "42-guide-stress", "[stress:rising]", TpsVisualCueContracts.StressAttributeName, TpsVisualCueContracts.StressAttributeValue, TargetWord: "stress"),
+        new(42, "43-edit-point", "[edit_point]", TargetWord: "edit"),
+        new(43, "44-edit-point-medium", "[edit_point:medium]", TargetWord: "medium"),
+        new(44, "45-edit-point-high", "[edit_point:high]", TargetWord: "high"),
+        new(45, "46-metadata-speaker", "Speaker metadata", TargetWord: "speaker"),
+        new(46, "47-metadata-archetype", "Archetype metadata", TargetWord: "archetype"),
+        new(47, "48-phrase-speed-slow", "[slow] phrase", TpsVisualCueContracts.SpeedAttributeName, TpsVisualCueContracts.SpeedCueSlow, TargetWord: "slow", ExpectedAttributeMatchCount: 2),
+        new(48, "49-phrase-emotion-urgent", "[urgent] phrase", TpsVisualCueContracts.EmotionAttributeName, "urgent", TargetWord: "urgent", ExpectedAttributeMatchCount: 2),
+        new(49, "50-phrase-volume-loud", "[loud] phrase", TpsVisualCueContracts.VolumeAttributeName, TpsVisualCueContracts.VolumeLoud, TargetWord: "loud", ExpectedAttributeMatchCount: 2),
+        new(50, "51-phrase-delivery-building", "[building] phrase", TpsVisualCueContracts.DeliveryAttributeName, TpsVisualCueContracts.DeliveryModeBuilding, TargetWord: "building", ExpectedAttributeMatchCount: 2),
+        new(51, "52-phrase-articulation-legato", "[legato] phrase", TpsVisualCueContracts.ArticulationAttributeName, TpsVisualCueContracts.ArticulationLegato, TargetWord: "legato", ExpectedAttributeMatchCount: 2)
     ];
 
     [Test]
@@ -321,6 +320,12 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
                 const pronunciationContent = target instanceof HTMLElement
                     ? getComputedStyle(target, '::after').content ?? ''
                     : '';
+                const pronunciationFontSize = target instanceof HTMLElement
+                    ? getComputedStyle(target, '::after').fontSize ?? ''
+                    : '';
+                const targetStyle = target instanceof HTMLElement
+                    ? getComputedStyle(target)
+                    : null;
                 return {
                     rawTagsVisible: /\[[^\]]+\]/.test(host.textContent ?? ''),
                     targetText: target?.textContent?.trim() ?? '',
@@ -329,7 +334,13 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
                     pauseCueCount: host.querySelectorAll('.rd-pause').length,
                     breathCueCount: host.querySelectorAll('[data-tps-breath="true"]').length,
                     emphasisGroupCount: host.querySelectorAll('[data-emphasis="true"]').length,
-                    pronunciationContent
+                    pronunciationContent,
+                    pronunciationFontSize,
+                    targetFontStyle: targetStyle?.fontStyle ?? '',
+                    targetFontWeight: targetStyle?.fontWeight ?? '',
+                    targetLetterSpacing: targetStyle?.letterSpacing ?? '',
+                    targetTextDecorationStyle: targetStyle?.textDecorationStyle ?? '',
+                    targetTextDecorationThickness: targetStyle?.textDecorationThickness ?? ''
                 };
             }
             """,
@@ -373,6 +384,60 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
             await Assert.That(probe.PronunciationContent)
                 .Contains(capture.AttributeValue ?? string.Empty)
                 .Because($"Expected cue example '{capture.CueLabel}' to show the pronunciation guide visibly.");
+            await Assert.That(ParseCssPixels(probe.PronunciationFontSize))
+                .IsGreaterThanOrEqualTo(MinimumReadablePronunciationGuideFontSizePx)
+                .Because($"Expected cue example '{capture.CueLabel}' to render the pronunciation guide as readable rehearsal text.");
+        }
+
+        if (string.Equals(capture.AttributeName, TpsVisualCueContracts.VolumeAttributeName, StringComparison.Ordinal))
+        {
+            if (string.Equals(capture.AttributeValue, TpsVisualCueContracts.VolumeWhisper, StringComparison.Ordinal))
+            {
+                await Assert.That(probe.TargetFontStyle)
+                    .IsEqualTo("italic")
+                    .Because("Expected whisper to have a distinct breathy shape cue.");
+                await Assert.That(probe.TargetTextDecorationStyle)
+                    .IsEqualTo("dotted")
+                    .Because("Expected whisper to stay visually distinct from soft volume.");
+            }
+            else if (string.Equals(capture.AttributeValue, TpsVisualCueContracts.VolumeSoft, StringComparison.Ordinal))
+            {
+                await Assert.That(probe.TargetFontStyle)
+                    .IsNotEqualTo("italic")
+                    .Because("Expected soft volume to stay visually separate from whisper.");
+            }
+        }
+
+        if (string.Equals(capture.AttributeName, TpsVisualCueContracts.ArticulationAttributeName, StringComparison.Ordinal))
+        {
+            if (string.Equals(capture.AttributeValue, TpsVisualCueContracts.ArticulationLegato, StringComparison.Ordinal))
+            {
+                await Assert.That(probe.TargetTextDecorationStyle)
+                    .IsEqualTo("wavy")
+                    .Because("Expected legato to read as a smooth connected cue.");
+                await Assert.That(ParseCssPixels(probe.TargetLetterSpacing))
+                    .IsLessThan(0d)
+                    .Because("Expected legato to visually connect the cue word.");
+            }
+            else if (string.Equals(capture.AttributeValue, TpsVisualCueContracts.ArticulationStaccato, StringComparison.Ordinal))
+            {
+                await Assert.That(probe.TargetTextDecorationStyle)
+                    .IsEqualTo("dotted")
+                    .Because("Expected staccato to read as a clipped dotted cue.");
+                await Assert.That(ParseCssPixels(probe.TargetLetterSpacing))
+                    .IsGreaterThan(0d)
+                    .Because("Expected staccato to separate the cue word rhythm.");
+            }
+        }
+
+        if (string.Equals(capture.AttributeName, TpsVisualCueContracts.StressAttributeName, StringComparison.Ordinal))
+        {
+            await Assert.That(ParseCssNumber(probe.TargetFontWeight))
+                .IsGreaterThanOrEqualTo(750d)
+                .Because("Expected stress to carry visible rehearsal weight.");
+            await Assert.That(ParseCssPixels(probe.TargetTextDecorationThickness))
+                .IsGreaterThanOrEqualTo(2d)
+                .Because("Expected stress to have a stronger visible underline.");
         }
 
         if (capture.ExpectedPauseCount > 0)
@@ -415,10 +480,8 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
                 }
 
                 const computed = getComputedStyle(target);
-                const box = target.getBoundingClientRect();
                 return {
-                    letterSpacing: computed.letterSpacing ?? '',
-                    width: box.width
+                    letterSpacing: computed.letterSpacing ?? ''
                 };
             }
             """,
@@ -454,12 +517,6 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
         await Assert.That(ParseCssPixels(normal.LetterSpacing)).IsGreaterThan(ParseCssPixels(fast.LetterSpacing));
         await Assert.That(ParseCssPixels(fast.LetterSpacing)).IsGreaterThan(ParseCssPixels(xfast.LetterSpacing));
         await Assert.That(ParseCssPixels(customWpm.LetterSpacing)).IsLessThan(ParseCssPixels(normal.LetterSpacing));
-
-        await Assert.That(xslow.Width).IsGreaterThan(slow.Width);
-        await Assert.That(slow.Width).IsGreaterThan(normal.Width);
-        await Assert.That(normal.Width).IsGreaterThan(fast.Width);
-        await Assert.That(fast.Width).IsGreaterThan(xfast.Width);
-        await Assert.That(customWpm.Width).IsLessThan(normal.Width);
     }
 
     private static double ParseCssPixels(string value)
@@ -470,6 +527,16 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
         }
 
         return double.Parse(value.Replace("px", string.Empty, StringComparison.Ordinal), CultureInfo.InvariantCulture);
+    }
+
+    private static double ParseCssNumber(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return 0d;
+        }
+
+        return double.Parse(value, CultureInfo.InvariantCulture);
     }
 
     private static string NormalizeReaderWord(string? value) =>
@@ -592,7 +659,7 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
         bool ExpectEmphasis = false,
         bool ExpectedNoAttribute = false,
         string? SpeedProbeKey = null,
-        string TargetWord = CueMatrixTargetWord,
+        string TargetWord = "",
         int ExpectedAttributeMatchCount = 1);
 
     private sealed class CueMatrixCardProbe
@@ -612,12 +679,22 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
         public int EmphasisGroupCount { get; init; }
 
         public string PronunciationContent { get; init; } = string.Empty;
+
+        public string PronunciationFontSize { get; init; } = string.Empty;
+
+        public string TargetFontStyle { get; init; } = string.Empty;
+
+        public string TargetFontWeight { get; init; } = string.Empty;
+
+        public string TargetLetterSpacing { get; init; } = string.Empty;
+
+        public string TargetTextDecorationStyle { get; init; } = string.Empty;
+
+        public string TargetTextDecorationThickness { get; init; } = string.Empty;
     }
 
     private sealed class CueMatrixSpeedProbe
     {
         public string LetterSpacing { get; init; } = string.Empty;
-
-        public double Width { get; init; }
     }
 }

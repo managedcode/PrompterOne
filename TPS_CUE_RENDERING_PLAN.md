@@ -9,6 +9,7 @@ Status: implemented and verified
 - Product rule: reader output must show clean spoken text only; raw TPS tags stay invisible.
 - Product rule: every supported cue needs a visible editor and reader affordance, not just parser support.
 - Product rule: teleprompter reader text must never overlap, merge words, show decorative grid/ruler textures, or move the active focus-word baseline when context wraps.
+- Product rule: cue-matrix screenshots must use cue-named focus words when possible so each row is self-explanatory, for example `[sad]sad[/sad]` rather than a generic styled word.
 - Product rule: AI graph and assistant model access must stay on the Microsoft Agent Framework path.
 
 ## Rendering Principles
@@ -18,7 +19,7 @@ Status: implemented and verified
 3. Volume and energy may use weight and opacity. Avoid large transforms that move baselines or change neighboring line geometry.
 4. Delivery and articulation should use underlines, separator rhythm, and subtle motion, not decorative cards or raw tag labels.
 5. Emotion is a surface/context tint plus active-word accent. Emotion colors must be meaningfully distinct: red for urgency, yellow/orange for happy or energetic delivery, green/teal for focus or calm, blue for sadness or professionalism, and violet for concern or motivation. Do not recolor entire passages so strongly that text becomes hard to read.
-6. Pronunciation/stress help must be visible but calm: dotted underline, tooltip/overlay in editor, and a small reader guide above the word when a pronunciation or phonetic cue is present.
+6. Pronunciation/stress help must be visible but calm: dotted underline, tooltip/overlay in editor, and a large readable reader guide above the word when a pronunciation or phonetic cue is present.
 7. Motion should explain reading flow. Card/phrase transitions can slide on the vertical axis, but individual words should not drift, jump, or animate into place after appearing.
 
 ## Cue Mapping
@@ -40,11 +41,11 @@ Status: implemented and verified
 | `[aside]` | Slightly dimmer/lower-emphasis, parenthetical feel. | Token + hover. | Often pairs with fast timing if author tagged speed; aside itself no timing change. | Cue class and opacity test. |
 | `[rhetorical]` | Clear violet accent and statement-like underline, not question-mark decoration. | Token + hover. | No timing change. | Cue class test. |
 | `[building]` | Crescendo by progressive `--tps-build-progress` and weight/intensity across the span; avoid transform/scale that shifts lines. | Token + hover. | No timing change unless nested speed. | Later words in span have higher cue progress/weight. |
-| `[legato]` | Smooth/wavy underline and slightly connected visual rhythm without negative spacing. | Token + hover. | No timing change. | Underline style and no overlap. |
+| `[legato]` | Smooth/wavy underline and slightly connected visual rhythm with bounded tighter tracking that cannot merge words. | Token + hover. | No timing change. | Underline style, negative tracking, and no overlap. |
 | `[staccato]` | Dotted underline and crisp higher weight; use natural word gaps, not injected separators. | Token + hover. | No timing change. | Dotted underline and no overlap. |
 | `[energy:N]` | Energy controls glow/weight within bounded values; no scale baseline shift. Normalize with `(N - 1) / 9` so 1 is no extra intensity and 10 is full intensity. | Token + range validation hover. | No timing change. | CSS variable clamped 1-10 and style visible. |
 | `[melody:N]` | Wavy underline intensity; high melody gets stronger wave, low melody stays nearly flat. Normalize with `(N - 1) / 9`. | Token + range validation hover. | No timing change. | CSS variable clamped 1-10. |
-| `[phonetic:IPA]`, `[pronunciation:guide]` | Subtle dotted underline plus a small readable guide above the word, never replacing the spoken word. | Hover/tooltip displays the guide. | No timing change. | Visible pseudo-guide, metadata attribute, and screenshot example. |
+| `[phonetic:IPA]`, `[pronunciation:guide]` | Subtle dotted underline plus a large readable guide above the word, never replacing the spoken word or changing phonetic casing. | Hover/tooltip displays the guide. | No timing change. | Visible pseudo-guide, metadata attribute, minimum 24px guide font-size, and screenshot example. |
 | `[stress]`, `[stress:guide]` | Stressed syllable/word gets clear underline/weight; guide stays tooltip-like. | Hover/tooltip shows guide. | No timing change. | Stress style and guide metadata test. |
 | `[edit_point]`, `[edit_point:medium/high]` | Not spoken; reader can show only a non-disruptive operator marker or omit from live text. | Editor marker with priority. | No timing change. | Edit marker not rendered as spoken word. |
 | `Archetype:*`, `Speaker:*` | Reader metadata only; can influence validation and optional chrome, not per-word raw nodes. | Section metadata + diagnostics. | Archetype recommended WPM only when no explicit WPM. | Graph/readable metadata test. |
@@ -63,8 +64,8 @@ Status: implemented and verified
 - Component tests for TPS cue class/style mapping and speed-derived spacing.
 - Reader Playwright screenshot for the cue matrix, including one-word cue examples and short phrase-span examples.
 - Geometry test that adjacent word bounding boxes never overlap for fast/xfast, underline, stress, phrase-span, and punctuation-heavy cases.
-- Speed visual test that proves xslow/slow are wider than normal and fast/xfast/explicit fast WPM are narrower than normal.
-- Pronunciation visual test that proves the readable guide is present in the rendered reader UI.
+- Speed visual test that proves xslow/slow/normal/fast/xfast/explicit fast WPM map to ordered letter spacing while the cue-named focus words remain non-overlapping.
+- Pronunciation visual test that proves the large readable guide is present in the rendered reader UI.
 - Geometry test that active focus-word center/baseline stays stable when context wraps to one, two, and three lines.
 - Visual assertion that the reader surface has no visible grid/ruler background in the prompter view.
 - Timing probe that verifies TPS speed and pause tags change playback timing but breath/stress/pronunciation do not.
@@ -81,6 +82,16 @@ Status: implemented and verified
   - `output/playwright/teleprompter-tps-cue-rendering/02-teleprompter-cue-text.png`
   - `output/playwright/manual-real-ai-check/editor-graph-real-model-maf-canvas.png`
 - Local real-model smoke completed against Azure OpenAI through the Microsoft Agent Framework path. The graph status reached `Model`, the browser sent the model request through the configured Azure OpenAI deployment, and no production graph extraction call bypassed the `ChatClientAgent` composition path.
+
+### Visual Screenshot Audit
+
+The latest cue-matrix audit compares related screenshots instead of treating screenshot generation as the finish line:
+
+- `warm`, `urgent`, and `excited` now land in different hue families in the generated screenshots: amber/orange, crimson/red, and magenta/violet. A crop-based color probe measured average active-word hues around 32°, 359°, and 275°, with pairwise RGB distances of about 106, 164, and 160, so these cues are no longer near-identical tints.
+- `soft` and `whisper` separate by both color and form: soft keeps a readable cool light treatment, while whisper is dimmer, italic, and dotted.
+- `legato` and `staccato` separate by both color and articulation texture: legato uses teal with a wavy underline and tighter connected tracking, while staccato uses a pinker tone, dotted underline, higher weight, and wider clipped tracking.
+- `pronunciation` and `phonetic` screenshots now show large rehearsal guides above the active word, with a test floor of 24px so the guide reads as pronunciation help rather than a tiny tooltip pill.
+- Speed screenshots preserve the cue-named focus words while tests compare computed tracking order and non-overlap instead of relying on generic same-word width screenshots.
 
 ## Claude Review
 
