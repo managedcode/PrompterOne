@@ -60,8 +60,13 @@ public sealed class EditorLargeDraftPerformanceTests(StandaloneAppFixture fixtur
                     await harness.setText(args.stageTestId, args.draftText);
                     harness.focus(args.stageTestId);
                     await harness.setSelection(args.stageTestId, input.value.length, input.value.length, true);
+                    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 
-                    window.__editorLargeDraftProbe = { longTasks, observer, samples };
+                    const pasteMaxLongTaskMs = longTasks.length ? Math.max(...longTasks) : 0;
+                    longTasks.length = 0;
+                    samples.length = 0;
+
+                    window.__editorLargeDraftProbe = { longTasks, observer, pasteMaxLongTaskMs, samples };
                 }
                 """,
                 new
@@ -75,7 +80,27 @@ public sealed class EditorLargeDraftPerformanceTests(StandaloneAppFixture fixtur
                 });
 
             await page.Keyboard.TypeAsync(EditorLargeDraftPerformanceTestData.FollowupTypingText, new() { Delay = 0 });
-            await page.WaitForTimeoutAsync(EditorLargeDraftPerformanceTestData.ObservationDelayMs);
+            await page.WaitForFunctionAsync(
+                """
+                (args) => {
+                    const overlay = document.querySelector(`[data-test="${args.overlayTestId}"]`);
+                    const probe = window.__editorLargeDraftProbe;
+                    if (!overlay || !probe) {
+                        return false;
+                    }
+
+                    const renderedLength = Number.parseInt(overlay.dataset.renderedLength ?? "-1", 10);
+                    return renderedLength >= args.expectedLength &&
+                        probe.samples.length >= args.expectedSampleCount;
+                }
+                """,
+                new
+                {
+                    expectedLength,
+                    expectedSampleCount = EditorLargeDraftPerformanceTestData.FollowupTypingText.Length,
+                    overlayTestId = UiTestIds.Editor.SourceHighlight
+                },
+                new() { Timeout = EditorLargeDraftPerformanceTestData.ObservationDelayMs });
 
             var result = await page.EvaluateAsync<LargeDraftProbeResult>(
                 """
@@ -91,8 +116,10 @@ public sealed class EditorLargeDraftPerformanceTests(StandaloneAppFixture fixtur
                     return {
                         finalInputLength: input.value.length,
                         finalRenderedLength: Number.parseInt(overlay.dataset.renderedLength ?? "-1", 10),
-                        pasteMaxLongTaskMs: probe.longTasks.length ? Math.max(...probe.longTasks) : 0,
-                        typingLatencyMs: probe.samples[probe.samples.length - 1]?.latency ?? -1,
+                        pasteMaxLongTaskMs: probe.pasteMaxLongTaskMs ?? 0,
+                        typingLatencyMs: probe.samples.length
+                            ? Math.max(...probe.samples.map(sample => sample.latency))
+                            : -1,
                         typingSampleCount: probe.samples.length
                     };
                 }
