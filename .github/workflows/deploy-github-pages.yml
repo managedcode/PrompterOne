@@ -297,7 +297,7 @@ jobs:
           path: ${{ env.RELEASE_ARTIFACT_ROOT }}/${{ env.RELEASE_ARCHIVE_NAME }}
 
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v5.0.0
         with:
           path: ${{ env.PAGES_ARTIFACT_ROOT }}
 
