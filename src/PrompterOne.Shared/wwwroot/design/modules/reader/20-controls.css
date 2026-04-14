@@ -536,7 +536,8 @@
 .rd-controls.rd-reading-active .rd-ctrl-btn.rd-ctrl-play,
 .rd-controls[data-active="true"] .rd-ctrl-btn.rd-ctrl-play,
 .rd-ctrl-btn.rd-ctrl-play[data-active="true"] {
-    background: rgba(196,160,96,.06);
+    background-color: rgba(196,160,96,.06);
+    background-image: none;
 }
 .rd-ctrl-play:hover {
     background: var(--gold-16);
@@ -544,7 +545,17 @@
 .rd-controls.rd-reading-active .rd-ctrl-btn.rd-ctrl-play:hover,
 .rd-controls[data-active="true"] .rd-ctrl-btn.rd-ctrl-play:hover,
 .rd-ctrl-btn.rd-ctrl-play[data-active="true"]:hover {
-    background: rgba(196,160,96,.08);
+    background-color: rgba(196,160,96,.08);
+    background-image: none;
+}
+#tp-play-btn[data-active="true"] {
+    background-color: rgba(196,160,96,.06);
+    background-image: none;
+}
+
+#tp-play-btn[data-active="true"]:hover {
+    background-color: rgba(196,160,96,.08);
+    background-image: none;
 }
 
 .rd-ctrl-label {
