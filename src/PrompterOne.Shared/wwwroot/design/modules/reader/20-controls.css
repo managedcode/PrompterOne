@@ -531,31 +531,27 @@
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    background: var(--gold-12);
+    background: rgba(196,160,96,.08);
 }
 .rd-controls.rd-reading-active .rd-ctrl-btn.rd-ctrl-play,
 .rd-controls[data-active="true"] .rd-ctrl-btn.rd-ctrl-play,
 .rd-ctrl-btn.rd-ctrl-play[data-active="true"] {
-    background-color: rgba(196,160,96,.06);
-    background-image: none;
+    background: rgba(196,160,96,.06);
 }
 .rd-ctrl-play:hover {
-    background: var(--gold-16);
+    background: rgba(196,160,96,.10);
 }
 .rd-controls.rd-reading-active .rd-ctrl-btn.rd-ctrl-play:hover,
 .rd-controls[data-active="true"] .rd-ctrl-btn.rd-ctrl-play:hover,
 .rd-ctrl-btn.rd-ctrl-play[data-active="true"]:hover {
-    background-color: rgba(196,160,96,.08);
-    background-image: none;
+    background: rgba(196,160,96,.08);
 }
 #tp-play-btn[data-active="true"] {
-    background-color: rgba(196,160,96,.06);
-    background-image: none;
+    background: rgba(196,160,96,.06);
 }
 
 #tp-play-btn[data-active="true"]:hover {
-    background-color: rgba(196,160,96,.08);
-    background-image: none;
+    background: rgba(196,160,96,.08);
 }
 
 .rd-ctrl-label {
