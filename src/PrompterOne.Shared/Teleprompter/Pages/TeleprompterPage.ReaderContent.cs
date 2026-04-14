@@ -16,6 +16,7 @@ public partial class TeleprompterPage
     private const int MinimumPauseDurationMilliseconds = 250;
     private const string NeutralEmotionKey = "neutral";
     private const string ReaderPauseCssClass = "rd-pause";
+    private const string ReaderPauseBreathCssClass = "rd-pause rd-pause-breath";
     private const string ReaderPauseLongCssClass = "rd-pause rd-pause-long";
     private const string ReaderPauseMediumCssClass = "rd-pause rd-pause-med";
     private const string TpsClassPrefix = "tps";
@@ -178,6 +179,15 @@ public partial class TeleprompterPage
         for (var compiledWordIndex = 0; compiledWordIndex < compiledWords.Count; compiledWordIndex++)
         {
             var word = compiledWords[compiledWordIndex];
+            if (word.Metadata?.IsBreath == true)
+            {
+                FlushGroup(chunks, currentGroup, currentGroupIsEmphasis ?? false);
+                currentCharacterCount = 0;
+                currentGroupIsEmphasis = null;
+                chunks.Add(new ReaderPauseViewModel(0, ReaderPauseBreathCssClass));
+                continue;
+            }
+
             if (word.Metadata?.IsPause == true)
             {
                 var pauseDuration = Math.Max(MinimumPauseDurationMilliseconds, word.Metadata.PauseDuration ?? MinimumPauseDurationMilliseconds);
@@ -310,6 +320,22 @@ public partial class TeleprompterPage
             classes.Add(deliveryClass);
         }
 
+        var articulationClass = ResolveSemanticWordClass(metadata.ArticulationStyle, TpsClassPrefix);
+        if (!string.IsNullOrWhiteSpace(articulationClass))
+        {
+            classes.Add(articulationClass);
+        }
+
+        if (metadata.EnergyLevel.HasValue)
+        {
+            classes.Add($"{TpsClassPrefix}-energy");
+        }
+
+        if (metadata.MelodyLevel.HasValue)
+        {
+            classes.Add($"{TpsClassPrefix}-melody");
+        }
+
         if (!string.IsNullOrWhiteSpace(metadata.StressText) || !string.IsNullOrWhiteSpace(metadata.StressGuide))
         {
             classes.Add($"{TpsClassPrefix}-stress");
@@ -340,6 +366,9 @@ public partial class TeleprompterPage
         AddReaderWordAttribute(ref attributes, TpsVisualCueContracts.EmotionAttributeName, emotionCueValue);
         AddReaderWordAttribute(ref attributes, TpsVisualCueContracts.VolumeAttributeName, NormalizeCueValue(metadata.VolumeLevel));
         AddReaderWordAttribute(ref attributes, TpsVisualCueContracts.DeliveryAttributeName, NormalizeCueValue(metadata.DeliveryMode));
+        AddReaderWordAttribute(ref attributes, TpsVisualCueContracts.ArticulationAttributeName, NormalizeCueValue(metadata.ArticulationStyle));
+        AddReaderWordAttribute(ref attributes, TpsVisualCueContracts.EnergyAttributeName, metadata.EnergyLevel?.ToString(CultureInfo.InvariantCulture));
+        AddReaderWordAttribute(ref attributes, TpsVisualCueContracts.MelodyAttributeName, metadata.MelodyLevel?.ToString(CultureInfo.InvariantCulture));
         AddReaderWordAttribute(ref attributes, TpsVisualCueContracts.SpeedAttributeName, speedCueValue);
 
         if (metadata.IsHighlight)

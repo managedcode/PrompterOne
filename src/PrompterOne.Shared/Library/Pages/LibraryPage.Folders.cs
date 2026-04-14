@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using PrompterOne.Core.Models.Library;
 using PrompterOne.Shared.Components.Library;
+using PrompterOne.Shared.Localization;
 
 namespace PrompterOne.Shared.Pages;
 
@@ -54,7 +55,7 @@ public partial class LibraryPage
 
         return RunLibraryOperationAsync(
             CreateFolderOperation,
-            CreateFolderMessage,
+            Text(UiTextKey.LibraryCreateFolderMessage),
             async () =>
             {
                 await Bootstrapper.EnsureReadyAsync();

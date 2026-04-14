@@ -1,5 +1,6 @@
 using PrompterOne.Shared.Components.Library;
 using PrompterOne.Shared.Contracts;
+using PrompterOne.Shared.Localization;
 
 namespace PrompterOne.Shared.Pages;
 
@@ -8,7 +9,7 @@ public partial class LibraryPage
     private Task CreateScriptAsync() =>
         RunLibraryOperationAsync(
             CreateScriptOperation,
-            CreateScriptMessage,
+            Text(UiTextKey.LibraryCreateScriptMessage),
             async () =>
             {
                 await Bootstrapper.EnsureReadyAsync();
@@ -19,7 +20,7 @@ public partial class LibraryPage
     private Task OpenScriptAsync(string id) =>
         RunLibraryOperationAsync(
             OpenScriptOperation,
-            OpenScriptMessage,
+            Text(UiTextKey.LibraryOpenScriptMessage),
             async () =>
             {
                 await Bootstrapper.EnsureReadyAsync();
@@ -48,7 +49,7 @@ public partial class LibraryPage
     private Task DuplicateScriptAsync(string id) =>
         RunLibraryOperationAsync(
             DuplicateScriptOperation,
-            DuplicateScriptMessage,
+            Text(UiTextKey.LibraryDuplicateScriptMessage),
             async () =>
             {
                 await Bootstrapper.EnsureReadyAsync();
@@ -59,7 +60,7 @@ public partial class LibraryPage
                 }
 
                 await ScriptRepository.SaveAsync(
-                    title: $"{document.Title} Copy",
+                    title: Format(UiTextKey.LibraryDuplicateTitleFormat, document.Title),
                     text: document.Text,
                     documentName: null,
                     existingId: null,
@@ -70,7 +71,7 @@ public partial class LibraryPage
     private Task MoveScriptAsync(LibraryMoveRequest request) =>
         RunLibraryOperationAsync(
             MoveScriptOperation,
-            MoveScriptMessage,
+            Text(UiTextKey.LibraryMoveScriptMessage),
             async () =>
             {
                 await Bootstrapper.EnsureReadyAsync();
@@ -82,7 +83,7 @@ public partial class LibraryPage
     private Task DeleteScriptAsync(string id) =>
         RunLibraryOperationAsync(
             DeleteScriptOperation,
-            DeleteScriptMessage,
+            Text(UiTextKey.LibraryDeleteScriptMessage),
             async () =>
             {
                 await Bootstrapper.EnsureReadyAsync();

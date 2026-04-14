@@ -42,6 +42,12 @@ public static class EditorMarkupRenderer
         ["building"] = "mk-del-building"
     };
 
+    private static readonly IReadOnlyDictionary<string, string> ArticulationClasses = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+    {
+        [TpsVisualCueContracts.ArticulationLegato] = "mk-art-legato",
+        [TpsVisualCueContracts.ArticulationStaccato] = "mk-art-staccato"
+    };
+
     private static readonly IReadOnlyDictionary<string, string?> SpeedClasses = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase)
     {
         ["xslow"] = "mk-xslow",
@@ -186,7 +192,11 @@ public static class EditorMarkupRenderer
 
             if (string.Equals(name, "breath", StringComparison.OrdinalIgnoreCase))
             {
-                AppendStandalone("mk-breath", rawTag);
+                AppendStandalone(
+                    "mk-breath",
+                    rawTag,
+                    TpsVisualCueContracts.BreathAttributeName,
+                    TpsVisualCueContracts.BreathAttributeValue);
                 return;
             }
 
@@ -225,6 +235,34 @@ public static class EditorMarkupRenderer
             {
                 AppendTag(rawTag);
                 PushScope(name, ScopeKind.Style, CurrentState with { IsStress = true });
+                return;
+            }
+
+            if (string.Equals(name, "energy", StringComparison.OrdinalIgnoreCase))
+            {
+                AppendTag(rawTag);
+                PushScope(
+                    name,
+                    ScopeKind.Style,
+                    CurrentState with
+                    {
+                        EnergyClass = "mk-energy",
+                        EnergyValue = string.IsNullOrWhiteSpace(argument) ? null : argument.Trim()
+                    });
+                return;
+            }
+
+            if (string.Equals(name, "melody", StringComparison.OrdinalIgnoreCase))
+            {
+                AppendTag(rawTag);
+                PushScope(
+                    name,
+                    ScopeKind.Style,
+                    CurrentState with
+                    {
+                        MelodyClass = "mk-melody",
+                        MelodyValue = string.IsNullOrWhiteSpace(argument) ? null : argument.Trim()
+                    });
                 return;
             }
 
@@ -270,10 +308,31 @@ public static class EditorMarkupRenderer
                 return;
             }
 
+            if (ArticulationClasses.TryGetValue(name, out var articulationClass))
+            {
+                AppendTag(rawTag);
+                PushScope(
+                    name,
+                    ScopeKind.Style,
+                    CurrentState with
+                    {
+                        ArticulationClass = articulationClass,
+                        ArticulationValue = name.ToLowerInvariant()
+                    });
+                return;
+            }
+
             if (EmotionClasses.TryGetValue(name, out var emotionClass))
             {
                 AppendTag(rawTag);
-                PushScope(name, ScopeKind.Style, CurrentState with { EmotionClass = emotionClass });
+                PushScope(
+                    name,
+                    ScopeKind.Style,
+                    CurrentState with
+                    {
+                        EmotionClass = emotionClass,
+                        EmotionValue = name.ToLowerInvariant()
+                    });
                 return;
             }
 
@@ -375,6 +434,17 @@ public static class EditorMarkupRenderer
                 .Append("</span>");
         }
 
+        private void AppendStandalone(string cssClass, string value, string attributeName, string attributeValue)
+        {
+            _builder.Append("<span class=\"")
+                .Append(cssClass)
+                .Append('"');
+            RenderState.AppendAttribute(_builder, attributeName, attributeValue);
+            _builder.Append('>')
+                .Append(WebUtility.HtmlEncode(value))
+                .Append("</span>");
+        }
+
         private void PushScope(string name, ScopeKind kind, RenderState state, string? argument = null)
         {
             _scopes.Push(new ScopeFrame(name, kind, state, argument));
@@ -421,23 +491,33 @@ public static class EditorMarkupRenderer
     }
 
     private sealed record RenderState(
+        string? EmotionValue,
         string? EmotionClass,
         string? VolumeValue,
         string? VolumeClass,
         string? DeliveryValue,
         string? DeliveryClass,
+        string? ArticulationValue,
+        string? ArticulationClass,
+        string? EnergyValue,
+        string? EnergyClass,
+        string? MelodyValue,
+        string? MelodyClass,
         string? SpeedValue,
         string? SpeedClass,
         bool IsEmphasis,
         bool IsHighlighted,
         bool IsStress)
     {
-        public static readonly RenderState Default = new(null, null, null, null, null, null, null, false, false, false);
+        public static readonly RenderState Default = new(null, null, null, null, null, null, null, null, null, null, null, null, null, null, false, false, false);
 
         public bool RequiresSpan(params string[] extraClasses) =>
             !string.IsNullOrWhiteSpace(EmotionClass) ||
             !string.IsNullOrWhiteSpace(VolumeClass) ||
             !string.IsNullOrWhiteSpace(DeliveryClass) ||
+            !string.IsNullOrWhiteSpace(ArticulationClass) ||
+            !string.IsNullOrWhiteSpace(EnergyClass) ||
+            !string.IsNullOrWhiteSpace(MelodyClass) ||
             !string.IsNullOrWhiteSpace(SpeedClass) ||
             IsEmphasis ||
             IsHighlighted ||
@@ -478,6 +558,21 @@ public static class EditorMarkupRenderer
                 classes.Add(DeliveryClass);
             }
 
+            if (!string.IsNullOrWhiteSpace(ArticulationClass))
+            {
+                classes.Add(ArticulationClass);
+            }
+
+            if (!string.IsNullOrWhiteSpace(EnergyClass))
+            {
+                classes.Add(EnergyClass);
+            }
+
+            if (!string.IsNullOrWhiteSpace(MelodyClass))
+            {
+                classes.Add(MelodyClass);
+            }
+
             if (!string.IsNullOrWhiteSpace(SpeedClass))
             {
                 classes.Add(SpeedClass);
@@ -495,6 +590,11 @@ public static class EditorMarkupRenderer
                 AppendAttribute(builder, "class", classes);
             }
 
+            if (!string.IsNullOrWhiteSpace(EmotionValue))
+            {
+                AppendAttribute(builder, TpsVisualCueContracts.EmotionAttributeName, EmotionValue);
+            }
+
             if (!string.IsNullOrWhiteSpace(VolumeValue))
             {
                 AppendAttribute(builder, TpsVisualCueContracts.VolumeAttributeName, VolumeValue);
@@ -505,9 +605,29 @@ public static class EditorMarkupRenderer
                 AppendAttribute(builder, TpsVisualCueContracts.DeliveryAttributeName, DeliveryValue);
             }
 
+            if (!string.IsNullOrWhiteSpace(ArticulationValue))
+            {
+                AppendAttribute(builder, TpsVisualCueContracts.ArticulationAttributeName, ArticulationValue);
+            }
+
+            if (!string.IsNullOrWhiteSpace(EnergyValue))
+            {
+                AppendAttribute(builder, TpsVisualCueContracts.EnergyAttributeName, EnergyValue);
+            }
+
+            if (!string.IsNullOrWhiteSpace(MelodyValue))
+            {
+                AppendAttribute(builder, TpsVisualCueContracts.MelodyAttributeName, MelodyValue);
+            }
+
             if (!string.IsNullOrWhiteSpace(SpeedValue))
             {
                 AppendAttribute(builder, TpsVisualCueContracts.SpeedAttributeName, SpeedValue);
+            }
+
+            if (IsHighlighted)
+            {
+                AppendAttribute(builder, TpsVisualCueContracts.HighlightAttributeName, TpsVisualCueContracts.HighlightAttributeValue);
             }
 
             if (IsStress)
@@ -516,7 +636,7 @@ public static class EditorMarkupRenderer
             }
         }
 
-        private static void AppendAttribute(StringBuilder builder, string name, string value)
+        public static void AppendAttribute(StringBuilder builder, string name, string value)
         {
             builder.Append(' ')
                 .Append(name)

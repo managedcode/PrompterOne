@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <root>
   <resheader name="resmimetype">
     <value>text/microsoft-resx</value>
@@ -676,7 +676,7 @@
     <value>Relais</value>
   </data>
   <data name="GoLiveDestinationTransportBindingSummary" xml:space="preserve">
-    <value>Liez cette destination à au moins une connexion de transport armée.</value>
+    <value>Liez cette destination à au moins une connexion de transport activée.</value>
   </data>
   <data name="GoLiveSidebarAudioTabLabel" xml:space="preserve">
     <value>Audio</value>
@@ -1111,7 +1111,7 @@
     <value>Dites-nous ce qui fonctionne, ce qui bloque ou ce qui améliorerait PrompterOne.</value>
   </data>
   <data name="FeedbackDialogFatalTitle" xml:space="preserve">
-    <value>Dites-nous ce qui s&apos;est passé</value>
+    <value>Dites-nous ce qui s'est passé</value>
   </data>
   <data name="FeedbackDialogFatalBody" xml:space="preserve">
     <value>PrompterOne a rencontré une erreur inattendue. Décrivez ce que vous faisiez et nous relierons votre note au crash capturé.</value>
@@ -1126,10 +1126,10 @@
     <value>E-mail</value>
   </data>
   <data name="FeedbackDialogMessageLabel" xml:space="preserve">
-    <value>Que s&apos;est-il passé ?</value>
+    <value>Que s'est-il passé ?</value>
   </data>
   <data name="FeedbackDialogMessagePlaceholder" xml:space="preserve">
-    <value>Que vouliez-vous faire ? Qu&apos;attendiez-vous à la place ?</value>
+    <value>Que vouliez-vous faire ? Qu'attendiez-vous à la place ?</value>
   </data>
   <data name="FeedbackDialogCancel" xml:space="preserve">
     <value>Annuler</value>
@@ -1141,13 +1141,13 @@
     <value>Envoi...</value>
   </data>
   <data name="FeedbackDialogError" xml:space="preserve">
-    <value>Nous n&apos;avons pas pu envoyer votre retour pour le moment. Réessayez dans un instant.</value>
+    <value>Nous n'avons pas pu envoyer votre retour pour le moment. Réessayez dans un instant.</value>
   </data>
   <data name="FeedbackDialogMessageRequired" xml:space="preserve">
-    <value>Ajoutez une courte description avant d&apos;envoyer votre retour.</value>
+    <value>Ajoutez une courte description avant d'envoyer votre retour.</value>
   </data>
   <data name="CommonApiVersion" xml:space="preserve">
-    <value>Version d&apos;API</value>
+    <value>Version d'API</value>
   </data>
   <data name="CommonClientType" xml:space="preserve">
     <value>Type de client</value>
@@ -1478,5 +1478,1517 @@
   </data>
   <data name="EditorWorkspaceGraphTab" xml:space="preserve">
     <value>Graphe</value>
+  </data>
+  <data name="HeaderOpenScript" xml:space="preserve">
+    <value>Importer</value>
+  </data>
+  <data name="HeaderSaveFile" xml:space="preserve">
+    <value>Exporter</value>
+  </data>
+  <data name="SettingsNavShortcuts" xml:space="preserve">
+    <value>Raccourcis</value>
+  </data>
+  <data name="SettingsShortcutsSectionTitle" xml:space="preserve">
+    <value>Raccourcis clavier</value>
+  </data>
+  <data name="SettingsShortcutsSectionDescription" xml:space="preserve">
+    <value>Passez en revue les commandes clavier actuelles pour les surfaces Éditeur, Apprendre, Téléprompteur et Go Live.</value>
+  </data>
+  <data name="LibraryCardBadgeTps" xml:space="preserve">
+    <value>TPS</value>
+  </data>
+  <data name="LibraryCardWordsFormat" xml:space="preserve">
+    <value>Mots {0:N0}</value>
+  </data>
+  <data name="LibraryCardLearn" xml:space="preserve">
+    <value>Apprendre</value>
+  </data>
+  <data name="LibraryCardRead" xml:space="preserve">
+    <value>Lire</value>
+  </data>
+  <data name="LibraryDefaultAuthor" xml:space="preserve">
+    <value>Vous</value>
+  </data>
+  <data name="LibraryDefaultEmotion" xml:space="preserve">
+    <value>Neutre</value>
+  </data>
+  <data name="LibraryDefaultModeActor" xml:space="preserve">
+    <value>Acteur</value>
+  </data>
+  <data name="LearnNext" xml:space="preserve">
+    <value>Suivant</value>
+  </data>
+  <data name="LearnWpm" xml:space="preserve">
+    <value>WPM</value>
+  </data>
+  <data name="LearnReadyWord" xml:space="preserve">
+    <value>Prêt</value>
+  </data>
+  <data name="LearnEndOfScript" xml:space="preserve">
+    <value>Fin du scénario.</value>
+  </data>
+  <data name="LearnProgressFormat" xml:space="preserve">
+    <value>{0}/{1} · {2}:{3:00}</value>
+  </data>
+  <data name="RoutesNotFoundTitle" xml:space="preserve">
+    <value>Écran introuvable</value>
+  </data>
+  <data name="RoutesNotFoundDescription" xml:space="preserve">
+    <value>Cet itinéraire n'existe pas. Retournez à la bibliothèque et choisissez un autre écran.</value>
+  </data>
+  <data name="CommonTitle" xml:space="preserve">
+    <value>Titre</value>
+  </data>
+  <data name="CommonProfile" xml:space="preserve">
+    <value>Profil</value>
+  </data>
+  <data name="CommonBaseWpm" xml:space="preserve">
+    <value>Socle WPM</value>
+  </data>
+  <data name="CommonDuration" xml:space="preserve">
+    <value>Durée</value>
+  </data>
+  <data name="CommonAuthor" xml:space="preserve">
+    <value>Auteur</value>
+  </data>
+  <data name="CommonCreated" xml:space="preserve">
+    <value>Créé</value>
+  </data>
+  <data name="CommonVersion" xml:space="preserve">
+    <value>Version</value>
+  </data>
+  <data name="CommonSpeaker" xml:space="preserve">
+    <value>Conférencier</value>
+  </data>
+  <data name="CommonEmotion" xml:space="preserve">
+    <value>Émotion</value>
+  </data>
+  <data name="CommonTiming" xml:space="preserve">
+    <value>Timing</value>
+  </data>
+  <data name="CommonEstimatedTime" xml:space="preserve">
+    <value>Temps estimé</value>
+  </data>
+  <data name="CommonInherit" xml:space="preserve">
+    <value>Hériter</value>
+  </data>
+  <data name="CommonActor" xml:space="preserve">
+    <value>Acteur</value>
+  </data>
+  <data name="CommonRsvp" xml:space="preserve">
+    <value>RSVP</value>
+  </data>
+  <data name="CommonWpm" xml:space="preserve">
+    <value>WPM</value>
+  </data>
+  <data name="CommonWords" xml:space="preserve">
+    <value>Mots</value>
+  </data>
+  <data name="CommonSegments" xml:space="preserve">
+    <value>Segments</value>
+  </data>
+  <data name="CommonBlocks" xml:space="preserve">
+    <value>Blocs</value>
+  </data>
+  <data name="CommonXslow" xml:space="preserve">
+    <value>très lent</value>
+  </data>
+  <data name="CommonSlow" xml:space="preserve">
+    <value>lent</value>
+  </data>
+  <data name="CommonFast" xml:space="preserve">
+    <value>rapide</value>
+  </data>
+  <data name="CommonXfast" xml:space="preserve">
+    <value>très rapide</value>
+  </data>
+  <data name="CommonStats" xml:space="preserve">
+    <value>Statistiques</value>
+  </data>
+  <data name="CommonHistory" xml:space="preserve">
+    <value>Historique</value>
+  </data>
+  <data name="CommonRestore" xml:space="preserve">
+    <value>Restaurer</value>
+  </data>
+  <data name="CommonScripts" xml:space="preserve">
+    <value>Scripts</value>
+  </data>
+  <data name="CommonRecordings" xml:space="preserve">
+    <value>Enregistrements</value>
+  </data>
+  <data name="CommonExports" xml:space="preserve">
+    <value>Exportations</value>
+  </data>
+  <data name="CommonRename" xml:space="preserve">
+    <value>Renommer</value>
+  </data>
+  <data name="CommonDuplicate" xml:space="preserve">
+    <value>Dupliquer</value>
+  </data>
+  <data name="CommonDelete" xml:space="preserve">
+    <value>Supprimer</value>
+  </data>
+  <data name="CommonSaveLocally" xml:space="preserve">
+    <value>Enregistrer localement</value>
+  </data>
+  <data name="CommonClear" xml:space="preserve">
+    <value>Effacer</value>
+  </data>
+  <data name="CommonNoFolder" xml:space="preserve">
+    <value>Aucun dossier</value>
+  </data>
+  <data name="CommonMoveToEllipsis" xml:space="preserve">
+    <value>Passer à...</value>
+  </data>
+  <data name="CommonStorageMode" xml:space="preserve">
+    <value>Mode de stockage</value>
+  </data>
+  <data name="CommonStorageScope" xml:space="preserve">
+    <value>Portée du stockage</value>
+  </data>
+  <data name="CommonBrowserKeys" xml:space="preserve">
+    <value>Touches du navigateur</value>
+  </data>
+  <data name="CommonBrowserContainerPath" xml:space="preserve">
+    <value>Chemin du conteneur du navigateur</value>
+  </data>
+  <data name="CommonDefaultExportFormat" xml:space="preserve">
+    <value>Format d'exportation par défaut</value>
+  </data>
+  <data name="CommonMaxStorage" xml:space="preserve">
+    <value>Stockage maximum</value>
+  </data>
+  <data name="CommonModel" xml:space="preserve">
+    <value>Modèle</value>
+  </data>
+  <data name="CommonApiKey" xml:space="preserve">
+    <value>Clé API</value>
+  </data>
+  <data name="CommonBaseUrlOptional" xml:space="preserve">
+    <value>URL de base (facultatif)</value>
+  </data>
+  <data name="CommonDefaultProvider" xml:space="preserve">
+    <value>Fournisseur par défaut</value>
+  </data>
+  <data name="CommonAutoSyncOnSave" xml:space="preserve">
+    <value>Synchronisation automatique lors de l'enregistrement</value>
+  </data>
+  <data name="CommonSyncOnStartup" xml:space="preserve">
+    <value>Synchroniser au démarrage</value>
+  </data>
+  <data name="CommonAccountLabel" xml:space="preserve">
+    <value>Libellé du compte</value>
+  </data>
+  <data name="CommonRootPath" xml:space="preserve">
+    <value>Chemin racine</value>
+  </data>
+  <data name="CommonClientId" xml:space="preserve">
+    <value>Identifiant client</value>
+  </data>
+  <data name="CommonClientSecret" xml:space="preserve">
+    <value>Secret client</value>
+  </data>
+  <data name="CommonTenantId" xml:space="preserve">
+    <value>ID du locataire</value>
+  </data>
+  <data name="CommonDriveId" xml:space="preserve">
+    <value>ID du lecteur</value>
+  </data>
+  <data name="CommonRootFolderId" xml:space="preserve">
+    <value>ID du dossier racine</value>
+  </data>
+  <data name="CommonSupportSharedDrives" xml:space="preserve">
+    <value>Prise en charge des Drive partagés</value>
+  </data>
+  <data name="CommonServiceAccountJson" xml:space="preserve">
+    <value>Compte de service JSON</value>
+  </data>
+  <data name="CommonAccessToken" xml:space="preserve">
+    <value>Jeton d'accès</value>
+  </data>
+  <data name="CommonRefreshToken" xml:space="preserve">
+    <value>Actualiser le jeton</value>
+  </data>
+  <data name="CommonAppKey" xml:space="preserve">
+    <value>Clé d'application</value>
+  </data>
+  <data name="CommonAppSecret" xml:space="preserve">
+    <value>Secret d'application</value>
+  </data>
+  <data name="CommonProjectId" xml:space="preserve">
+    <value>ID du projet</value>
+  </data>
+  <data name="CommonBucketName" xml:space="preserve">
+    <value>Nom du compartiment</value>
+  </data>
+  <data name="CommonContainerId" xml:space="preserve">
+    <value>ID du conteneur</value>
+  </data>
+  <data name="CommonEnvironment" xml:space="preserve">
+    <value>Environnement</value>
+  </data>
+  <data name="CommonDatabase" xml:space="preserve">
+    <value>Base de données</value>
+  </data>
+  <data name="CommonApiToken" xml:space="preserve">
+    <value>Jeton API</value>
+  </data>
+  <data name="CommonWebAuthToken" xml:space="preserve">
+    <value>Jeton d'authentification Web</value>
+  </data>
+  <data name="CommonServerToServerKeyId" xml:space="preserve">
+    <value>ID de clé de serveur à serveur</value>
+  </data>
+  <data name="CommonServerPrivateKeyPem" xml:space="preserve">
+    <value>Clé privée du serveur PEM</value>
+  </data>
+  <data name="CommonConnected" xml:space="preserve">
+    <value>Connecté</value>
+  </data>
+  <data name="CommonDisconnected" xml:space="preserve">
+    <value>Déconnecté</value>
+  </data>
+  <data name="CommonNotConnected" xml:space="preserve">
+    <value>Non connecté</value>
+  </data>
+  <data name="CommonNotConfigured" xml:space="preserve">
+    <value>Non configuré</value>
+  </data>
+  <data name="CommonSavedLocally" xml:space="preserve">
+    <value>Enregistré localement</value>
+  </data>
+  <data name="CommonSaveAndTest" xml:space="preserve">
+    <value>Enregistrer et tester</value>
+  </data>
+  <data name="CommonImport" xml:space="preserve">
+    <value>Importer</value>
+  </data>
+  <data name="CommonExport" xml:space="preserve">
+    <value>Exporter</value>
+  </data>
+  <data name="CommonDisconnect" xml:space="preserve">
+    <value>Déconnecter</value>
+  </data>
+  <data name="CommonOn" xml:space="preserve">
+    <value>Sur</value>
+  </data>
+  <data name="CommonOff" xml:space="preserve">
+    <value>Désactivé</value>
+  </data>
+  <data name="CommonOpenInLibrary" xml:space="preserve">
+    <value>Ouvrir dans la bibliothèque</value>
+  </data>
+  <data name="EditorPlaceholder" xml:space="preserve">
+    <value>Écrivez ou collez TPS ici...</value>
+  </data>
+  <data name="EditorStatusLineShort" xml:space="preserve">
+    <value>Ln</value>
+  </data>
+  <data name="EditorStatusColumnShort" xml:space="preserve">
+    <value>Col.</value>
+  </data>
+  <data name="EditorStatusSegmentsFormat" xml:space="preserve">
+    <value>Segments {0}</value>
+  </data>
+  <data name="EditorStatusWordsFormat" xml:space="preserve">
+    <value>~{0} Mots</value>
+  </data>
+  <data name="EditorMetadataSpeedOffsetsSection" xml:space="preserve">
+    <value>Décalages de vitesse</value>
+  </data>
+  <data name="EditorMetadataStatsSection" xml:space="preserve">
+    <value>Statistiques</value>
+  </data>
+  <data name="EditorMetadataAutoSave" xml:space="preserve">
+    <value>Sauvegarde automatique</value>
+  </data>
+  <data name="EditorMetadataNoLocalHistory" xml:space="preserve">
+    <value>Aucune révision locale pour le moment.</value>
+  </data>
+  <data name="EditorMetadataHistoryHint" xml:space="preserve">
+    <value>Les révisions récentes locales du navigateur sont conservées ici.</value>
+  </data>
+  <data name="EditorMetadataLastInternalSaveFormat" xml:space="preserve">
+    <value>Dernière sauvegarde : {0}</value>
+  </data>
+  <data name="EditorMetadataOneRevision" xml:space="preserve">
+    <value>1 révision</value>
+  </data>
+  <data name="EditorMetadataMultipleRevisionsFormat" xml:space="preserve">
+    <value>Révisions {0}</value>
+  </data>
+  <data name="EditorMetadataToggleExpand" xml:space="preserve">
+    <value>Développer le panneau de métadonnées</value>
+  </data>
+  <data name="EditorMetadataToggleCollapse" xml:space="preserve">
+    <value>Réduire le panneau de métadonnées</value>
+  </data>
+  <data name="EditorStructureSection" xml:space="preserve">
+    <value>Structure</value>
+  </data>
+  <data name="EditorStructureActiveSegment" xml:space="preserve">
+    <value>Segment actif</value>
+  </data>
+  <data name="EditorStructureActiveBlock" xml:space="preserve">
+    <value>Blocage actif</value>
+  </data>
+  <data name="EditorSplitMoreInLibraryFormat" xml:space="preserve">
+    <value>+{0} plus dans la bibliothèque</value>
+  </data>
+  <data name="EditorSplitCompleteTitle" xml:space="preserve">
+    <value>Séparation terminée</value>
+  </data>
+  <data name="EditorSplitSavedToLibrary" xml:space="preserve">
+    <value>De nouveaux scripts ont été enregistrés dans la bibliothèque.</value>
+  </data>
+  <data name="EditorSplitSavedToSibling" xml:space="preserve">
+    <value>De nouveaux scripts ont été enregistrés à côté de ce script.</value>
+  </data>
+  <data name="EditorSplitSavedToSiblingFolder" xml:space="preserve">
+    <value>De nouveaux scripts ont été enregistrés à côté de ce script dans le même dossier.</value>
+  </data>
+  <data name="EditorSplitDraftStayedOpen" xml:space="preserve">
+    <value>Le projet actuel est resté ouvert.</value>
+  </data>
+  <data name="EditorSplitNeedTopLevelHeadings" xml:space="preserve">
+    <value>Ajoutez # titres avant de diviser ce brouillon.</value>
+  </data>
+  <data name="EditorSplitNeedSegmentHeadings" xml:space="preserve">
+    <value>Ajoutez ## titres avant de diviser ce brouillon.</value>
+  </data>
+  <data name="EditorSplitHeadingBadgeFormat" xml:space="preserve">
+    <value>De {0}</value>
+  </data>
+  <data name="EditorSplitSummaryFormat" xml:space="preserve">
+    <value>{0} nouveaux scripts créés.</value>
+  </data>
+  <data name="EditorToolbarSectionHistory" xml:space="preserve">
+    <value>Histoire</value>
+  </data>
+  <data name="EditorToolbarSectionFormat" xml:space="preserve">
+    <value>Format</value>
+  </data>
+  <data name="EditorToolbarSectionVoice" xml:space="preserve">
+    <value>Voix</value>
+  </data>
+  <data name="EditorToolbarSectionEmotion" xml:space="preserve">
+    <value>Émotion</value>
+  </data>
+  <data name="EditorToolbarSectionPause" xml:space="preserve">
+    <value>Pause</value>
+  </data>
+  <data name="EditorToolbarSectionSpeed" xml:space="preserve">
+    <value>Vitesse</value>
+  </data>
+  <data name="EditorToolbarSectionInsert" xml:space="preserve">
+    <value>Insérer</value>
+  </data>
+  <data name="EditorToolbarGroupFormatting" xml:space="preserve">
+    <value>Formatage</value>
+  </data>
+  <data name="EditorToolbarGroupVolume" xml:space="preserve">
+    <value>Volume</value>
+  </data>
+  <data name="EditorToolbarGroupArticulation" xml:space="preserve">
+    <value>Articulation</value>
+  </data>
+  <data name="EditorToolbarGroupDynamics" xml:space="preserve">
+    <value>Dynamique</value>
+  </data>
+  <data name="EditorToolbarGroupStress" xml:space="preserve">
+    <value>Stresser</value>
+  </data>
+  <data name="EditorToolbarGroupReset" xml:space="preserve">
+    <value>Réinitialiser</value>
+  </data>
+  <data name="EditorToolbarGroupTpsEmotions" xml:space="preserve">
+    <value>TPS Émotions</value>
+  </data>
+  <data name="EditorToolbarGroupDeliveryModes" xml:space="preserve">
+    <value>Modes de livraison</value>
+  </data>
+  <data name="EditorToolbarGroupBreathAndPauses" xml:space="preserve">
+    <value>Respiration et pauses</value>
+  </data>
+  <data name="EditorToolbarGroupSpeedPresets" xml:space="preserve">
+    <value>Préréglages de vitesse</value>
+  </data>
+  <data name="EditorToolbarGroupCustomSpeed" xml:space="preserve">
+    <value>Vitesse personnalisée</value>
+  </data>
+  <data name="EditorToolbarGroupStructure" xml:space="preserve">
+    <value>Structure</value>
+  </data>
+  <data name="EditorToolbarGroupEditPoints" xml:space="preserve">
+    <value>Modifier des points</value>
+  </data>
+  <data name="EditorToolbarGroupPronunciation" xml:space="preserve">
+    <value>Prononciation</value>
+  </data>
+  <data name="EditorToolbarTooltipUndo" xml:space="preserve">
+    <value>Annuler la dernière modification</value>
+  </data>
+  <data name="EditorToolbarTooltipRedo" xml:space="preserve">
+    <value>Refaire la dernière modification</value>
+  </data>
+  <data name="EditorToolbarTooltipVoiceCues" xml:space="preserve">
+    <value>Indices vocaux</value>
+  </data>
+  <data name="EditorToolbarTooltipEmotionCues" xml:space="preserve">
+    <value>Indices d'émotion</value>
+  </data>
+  <data name="EditorToolbarTooltipPauseCues" xml:space="preserve">
+    <value>Indices de pause</value>
+  </data>
+  <data name="EditorToolbarTooltipSpeedCues" xml:space="preserve">
+    <value>Indices de vitesse</value>
+  </data>
+  <data name="EditorToolbarTooltipInsertHelpers" xml:space="preserve">
+    <value>Insérer des assistants</value>
+  </data>
+  <data name="EditorToolbarTooltipMoreFormatting" xml:space="preserve">
+    <value>Plus de formatage</value>
+  </data>
+  <data name="EditorToolbarTooltipRemoveInlineTags" xml:space="preserve">
+    <value>Supprimer les balises en ligne</value>
+  </data>
+  <data name="EditorToolbarTooltipWrapFormat" xml:space="preserve">
+    <value>Envelopper la sélection avec ce format</value>
+  </data>
+  <data name="EditorToolbarTooltipInsertFormat" xml:space="preserve">
+    <value>Insérez cette réplique TPS</value>
+  </data>
+  <data name="EditorToolbarTooltipEmotionTrigger" xml:space="preserve">
+    <value>Émotions TPS</value>
+  </data>
+  <data name="EditorToolbarTooltipEmotionMotivational" xml:space="preserve">
+    <value>Émotion motivationnelle</value>
+  </data>
+  <data name="EditorToolbarTooltipFloatingVoiceTrigger" xml:space="preserve">
+    <value>Menu vocal</value>
+  </data>
+  <data name="EditorToolbarTooltipFloatingEmotionTrigger" xml:space="preserve">
+    <value>Menu émotion</value>
+  </data>
+  <data name="EditorToolbarTooltipFloatingVoiceWhisper" xml:space="preserve">
+    <value>Voix murmurée</value>
+  </data>
+  <data name="EditorToolbarTooltipFloatingVoiceLegato" xml:space="preserve">
+    <value>Articulation legato</value>
+  </data>
+  <data name="EditorToolbarTooltipFloatingVoiceEnergy" xml:space="preserve">
+    <value>Dynamique énergétique</value>
+  </data>
+  <data name="EditorToolbarTooltipFloatingPauseTrigger" xml:space="preserve">
+    <value>Menu Pause</value>
+  </data>
+  <data name="EditorToolbarTooltipFloatingPauseTimed" xml:space="preserve">
+    <value>Pause chronométrée</value>
+  </data>
+  <data name="EditorToolbarTooltipFloatingSpeedTrigger" xml:space="preserve">
+    <value>Menu rapide</value>
+  </data>
+  <data name="EditorToolbarTooltipFloatingSpeedCustomWpm" xml:space="preserve">
+    <value>WPM personnalisé</value>
+  </data>
+  <data name="EditorToolbarTooltipFloatingInsertTrigger" xml:space="preserve">
+    <value>Insérer un menu</value>
+  </data>
+  <data name="EditorToolbarTooltipFloatingInsertPronunciation" xml:space="preserve">
+    <value>Indice de prononciation</value>
+  </data>
+  <data name="EditorToolbarTooltipMoreInsertOptions" xml:space="preserve">
+    <value>Plus d'options d'insertion</value>
+  </data>
+  <data name="EditorToolbarTooltipInsertSegmentArchetype" xml:space="preserve">
+    <value>Insérer un archétype de segment</value>
+  </data>
+  <data name="EditorToolbarTooltipInsertBlockArchetype" xml:space="preserve">
+    <value>Insérer un archétype de bloc</value>
+  </data>
+  <data name="SettingsFilesScriptsDetail" xml:space="preserve">
+    <value>La persistance quotidienne des scripts et des dossiers faisant autorité reste dans le stockage du navigateur, et non sur le chemin du système de fichiers du bureau.</value>
+  </data>
+  <data name="SettingsFilesRecordingsDetail" xml:space="preserve">
+    <value>PrompterOne provisionne ce chemin de conteneur local du navigateur pour l'enregistrement des artefacts.</value>
+  </data>
+  <data name="SettingsFilesExportsDetail" xml:space="preserve">
+    <value>Les exportations sont écrites dans le conteneur local du navigateur au lieu d'un faux dossier de téléchargements sur le bureau.</value>
+  </data>
+  <data name="SettingsFilesScriptsAutoSave" xml:space="preserve">
+    <value>Scripts d'enregistrement automatique</value>
+  </data>
+  <data name="SettingsFilesScriptsHistory" xml:space="preserve">
+    <value>Historique des révisions locales</value>
+  </data>
+  <data name="SettingsFilesScopeBrowserJsonLibrary" xml:space="preserve">
+    <value>Magasin de bibliothèques JSON du navigateur</value>
+  </data>
+  <data name="SettingsFilesScopeManagedCodeBrowserContainer" xml:space="preserve">
+    <value>Conteneur du navigateur ManagedCode</value>
+  </data>
+  <data name="SettingsFilesScopeManagedCodeBrowserVfs" xml:space="preserve">
+    <value>Navigateur ManagedCode.Storage VFS</value>
+  </data>
+  <data name="SettingsFilesEmptyUsage" xml:space="preserve">
+    <value>Vide</value>
+  </data>
+  <data name="SettingsFilesStorageLimitNoLimit" xml:space="preserve">
+    <value>Aucune limite</value>
+  </data>
+  <data name="SettingsFilesStorageLimit10Gb" xml:space="preserve">
+    <value>10 Go</value>
+  </data>
+  <data name="SettingsFilesStorageLimit50Gb" xml:space="preserve">
+    <value>50 Go</value>
+  </data>
+  <data name="SettingsFilesStorageLimit100Gb" xml:space="preserve">
+    <value>100 Go</value>
+  </data>
+  <data name="SettingsFilesExportFormatTpsNative" xml:space="preserve">
+    <value>TPS (natif)</value>
+  </data>
+  <data name="SettingsFilesExportFormatMarkdown" xml:space="preserve">
+    <value>Markdown</value>
+  </data>
+  <data name="SettingsFilesExportFormatPlainText" xml:space="preserve">
+    <value>Texte brut</value>
+  </data>
+  <data name="SettingsFilesExportFormatPdf" xml:space="preserve">
+    <value>PDF</value>
+  </data>
+  <data name="SettingsFilesSingularScript" xml:space="preserve">
+    <value>scénario</value>
+  </data>
+  <data name="SettingsFilesPluralScript" xml:space="preserve">
+    <value>scripts</value>
+  </data>
+  <data name="SettingsFilesSingularFolder" xml:space="preserve">
+    <value>dossier</value>
+  </data>
+  <data name="SettingsFilesPluralFolder" xml:space="preserve">
+    <value>dossiers</value>
+  </data>
+  <data name="SettingsFilesSingularFile" xml:space="preserve">
+    <value>déposer</value>
+  </data>
+  <data name="SettingsFilesPluralFile" xml:space="preserve">
+    <value>fichiers</value>
+  </data>
+  <data name="SettingsAiProviderCleared" xml:space="preserve">
+    <value>Fournisseur autorisé.</value>
+  </data>
+  <data name="SettingsAiSavedLocallyDetail" xml:space="preserve">
+    <value>Enregistré localement dans ce navigateur.</value>
+  </data>
+  <data name="SettingsAiSelfHosted" xml:space="preserve">
+    <value>Auto-hébergé</value>
+  </data>
+  <data name="SettingsCloudSyncDefaultsTitle" xml:space="preserve">
+    <value>Paramètres de synchronisation par défaut</value>
+  </data>
+  <data name="SettingsCloudLocalFirstNote" xml:space="preserve">
+    <value>La synchronisation cloud reste facultative. PrompterOne reste local d'abord jusqu'à ce que vous connectiez un fournisseur.</value>
+  </data>
+  <data name="SettingsCloudProviderDisconnected" xml:space="preserve">
+    <value>Fournisseur déconnecté.</value>
+  </data>
+  <data name="SettingsCloudGoogleDriveDescription" xml:space="preserve">
+    <value>Stockez une cible de dossier Google Drive et des paramètres facultatifs de synchronisation de compte de service pour les transferts déclenchés par le navigateur.</value>
+  </data>
+  <data name="SettingsCloudOneDriveDescription" xml:space="preserve">
+    <value>Connectez un espace de travail OneDrive pour les flux de travail d'importation et d'exportation locaux dans le navigateur.</value>
+  </data>
+  <data name="SettingsCloudDropboxDescription" xml:space="preserve">
+    <value>Gardez une cible Dropbox prête pour les importations et exportations locales du navigateur.</value>
+  </data>
+  <data name="SettingsCloudGoogleCloudStorageDescription" xml:space="preserve">
+    <value>Configurez un bucket Google Cloud Storage pour les transferts d'archives déclenchés par le navigateur.</value>
+  </data>
+  <data name="SettingsCloudCloudKitDescription" xml:space="preserve">
+    <value>Configurez un conteneur CloudKit pour la synchronisation des instantanés locaux du navigateur.</value>
+  </data>
+  <data name="SettingsRecordingGeneralTitle" xml:space="preserve">
+    <value>Général</value>
+  </data>
+  <data name="SettingsRecordingGeneralSubtitle" xml:space="preserve">
+    <value>Dossier · Dénomination du fichier · Enregistrement automatique</value>
+  </data>
+  <data name="SettingsRecordingAutoRecordWhenStreaming" xml:space="preserve">
+    <value>Enregistrement automatique lors du streaming</value>
+  </data>
+  <data name="SettingsRecordingSplitHourly" xml:space="preserve">
+    <value>Enregistrement fractionné toutes les heures</value>
+  </data>
+  <data name="SettingsRecordingFolder" xml:space="preserve">
+    <value>Dossier d'enregistrement</value>
+  </data>
+  <data name="SettingsRecordingFileNaming" xml:space="preserve">
+    <value>Nom du fichier</value>
+  </data>
+  <data name="SettingsRecordingVideoSubtitleFormat" xml:space="preserve">
+    <value>{0} · {1} · {2} · {3} kbps</value>
+  </data>
+  <data name="SettingsRecordingAudioSubtitleFormat" xml:space="preserve">
+    <value>{0} · {1} · {2} kbps · {3}</value>
+  </data>
+  <data name="SettingsRecordingBitrateKbps" xml:space="preserve">
+    <value>Débit (kbit/s)</value>
+  </data>
+  <data name="SettingsRecordingSameAsSource" xml:space="preserve">
+    <value>Identique à la source</value>
+  </data>
+  <data name="SettingsRecordingBrowse" xml:space="preserve">
+    <value>Parcourir</value>
+  </data>
+  <data name="SettingsCamerasSectionDescription" xml:space="preserve">
+    <value>Choisissez les caméras disponibles dans Go Live et sélectionnez la caméra de flux principale.</value>
+  </data>
+  <data name="SettingsCamerasDeviceAccessTitle" xml:space="preserve">
+    <value>Accès aux appareils</value>
+  </data>
+  <data name="SettingsCamerasNoDevicesVisible" xml:space="preserve">
+    <value>Aucun appareil photo n'est actuellement visible par le navigateur.</value>
+  </data>
+  <data name="SettingsCamerasPrimaryBadge" xml:space="preserve">
+    <value>Primaire</value>
+  </data>
+  <data name="SettingsCamerasPrimaryButton" xml:space="preserve">
+    <value>Caméra principale</value>
+  </data>
+  <data name="SettingsCamerasSetPrimaryButton" xml:space="preserve">
+    <value>Définir comme principal</value>
+  </data>
+  <data name="SettingsCamerasMirrorHorizontal" xml:space="preserve">
+    <value>Miroir (retournement horizontal)</value>
+  </data>
+  <data name="SettingsCamerasAutoStartOnRead" xml:space="preserve">
+    <value>Démarrage automatique à la lecture</value>
+  </data>
+  <data name="SettingsCamerasGeneralTitle" xml:space="preserve">
+    <value>Général</value>
+  </data>
+  <data name="SettingsCamerasAutoStartAllOnGoLive" xml:space="preserve">
+    <value>Démarrage automatique de toutes les caméras activées lors du Go Live</value>
+  </data>
+  <data name="SettingsMicrophonesSectionDescription" xml:space="preserve">
+    <value>Choisissez quels microphones sont utilisés dans Go Live. Ajoutez un délai audio pour synchroniser avec la vidéo si nécessaire.</value>
+  </data>
+  <data name="SettingsMicrophonesDeviceAccessTitle" xml:space="preserve">
+    <value>Accès aux appareils</value>
+  </data>
+  <data name="SettingsMicrophonesNoDevicesVisible" xml:space="preserve">
+    <value>Aucun microphone n'est actuellement visible par le navigateur.</value>
+  </data>
+  <data name="SettingsMicrophonesInputLevel" xml:space="preserve">
+    <value>Niveau d'entrée</value>
+  </data>
+  <data name="SettingsMicrophonesAudioDelay" xml:space="preserve">
+    <value>Délai audio (ms)</value>
+  </data>
+  <data name="SettingsMicrophonesAudioDelayHint" xml:space="preserve">
+    <value>0 - 5000 ms</value>
+  </data>
+  <data name="SettingsMicrophonesNoiseSuppression" xml:space="preserve">
+    <value>Suppression du bruit</value>
+  </data>
+  <data name="SettingsMicrophonesEchoCancellation" xml:space="preserve">
+    <value>Annulation de l'écho</value>
+  </data>
+  <data name="SettingsMicrophonesGeneralTitle" xml:space="preserve">
+    <value>Général</value>
+  </data>
+  <data name="SettingsMicrophonesMuteWhenNotInGoLive" xml:space="preserve">
+    <value>Couper tous les microphones lorsque vous n'êtes pas en mode Go Live</value>
+  </data>
+  <data name="SettingsStreamingArmDestination" xml:space="preserve">
+    <value>Destination du bras</value>
+  </data>
+  <data name="SettingsStreamingAddDistributionTargetButtonLabel" xml:space="preserve">
+    <value>Ajouter une cible</value>
+  </data>
+  <data name="SettingsStreamingAddTransportConnectionButtonLabel" xml:space="preserve">
+    <value>Ajouter un transport</value>
+  </data>
+  <data name="SettingsStreamingAvailableInProgramRoutingLabel" xml:space="preserve">
+    <value>Disponible en routage programme</value>
+  </data>
+  <data name="SettingsStreamingBaseUrlLabel" xml:space="preserve">
+    <value>URL de base</value>
+  </data>
+  <data name="SettingsStreamingBitrateLabel" xml:space="preserve">
+    <value>Débit (kbit/s)</value>
+  </data>
+  <data name="SettingsStreamingBlockedStatusLabel" xml:space="preserve">
+    <value>Bloqué</value>
+  </data>
+  <data name="SettingsStreamingBoundTransportConnectionsLabel" xml:space="preserve">
+    <value>Transports à destination</value>
+  </data>
+  <data name="SettingsStreamingBoundTransportConnectionsSummary" xml:space="preserve">
+    <value>Sélectionnez au moins une connexion de transport pour cette cible.</value>
+  </data>
+  <data name="SettingsStreamingBoundTransportSelectedLabel" xml:space="preserve">
+    <value>Lié</value>
+  </data>
+  <data name="SettingsStreamingBoundTransportAvailableLabel" xml:space="preserve">
+    <value>Disponible</value>
+  </data>
+  <data name="SettingsStreamingConnectionRoleLabel" xml:space="preserve">
+    <value>Rôle de connexion</value>
+  </data>
+  <data name="SettingsStreamingConnectionRoleBothLabel" xml:space="preserve">
+    <value>Source + Publier</value>
+  </data>
+  <data name="SettingsStreamingConnectionRolePublishLabel" xml:space="preserve">
+    <value>Publier uniquement</value>
+  </data>
+  <data name="SettingsStreamingConnectionRoleSourceLabel" xml:space="preserve">
+    <value>Source uniquement</value>
+  </data>
+  <data name="SettingsStreamingDestinationDisabledSummary" xml:space="preserve">
+    <value>Désactivé jusqu'à ce que vous armiez cette destination.</value>
+  </data>
+  <data name="SettingsStreamingDestinationDisabledStatusLabel" xml:space="preserve">
+    <value>Désactivé</value>
+  </data>
+  <data name="SettingsStreamingDestinationNeedsSetupStatusLabel" xml:space="preserve">
+    <value>Nécessite une configuration</value>
+  </data>
+  <data name="SettingsStreamingDestinationNoSourceSummary" xml:space="preserve">
+    <value>Sélectionnez au moins une caméra de scène pour cette destination.</value>
+  </data>
+  <data name="SettingsStreamingDestinationReadyStatusLabel" xml:space="preserve">
+    <value>Prêt</value>
+  </data>
+  <data name="SettingsStreamingDestinationRelayStatusLabel" xml:space="preserve">
+    <value>Relais</value>
+  </data>
+  <data name="SettingsStreamingDistributionTargetsTitle" xml:space="preserve">
+    <value>Objectifs de distribution</value>
+  </data>
+  <data name="SettingsStreamingFullHd1080p30Label" xml:space="preserve">
+    <value>1920 x 1080 à 30 ips</value>
+  </data>
+  <data name="SettingsStreamingFullHd1080p60Label" xml:space="preserve">
+    <value>1920 x 1080 à 60 ips</value>
+  </data>
+  <data name="SettingsStreamingHd720p30Label" xml:space="preserve">
+    <value>1280 x 720 à 30 ips</value>
+  </data>
+  <data name="SettingsStreamingIncludeCameraInOutputLabel" xml:space="preserve">
+    <value>Inclure la caméra dans la sortie</value>
+  </data>
+  <data name="SettingsStreamingLocalDestinationSummaryFormat" xml:space="preserve">
+    <value>Source(s) de caméra {0} armée(s) à partir des paramètres.</value>
+  </data>
+  <data name="SettingsStreamingOutputResolutionLabel" xml:space="preserve">
+    <value>Résolution de sortie</value>
+  </data>
+  <data name="SettingsStreamingProgramCaptureTitle" xml:space="preserve">
+    <value>Capture de programme</value>
+  </data>
+  <data name="SettingsStreamingPublishUrlLabel" xml:space="preserve">
+    <value>URL de publication</value>
+  </data>
+  <data name="SettingsStreamingRemoveDestinationLabel" xml:space="preserve">
+    <value>Supprimer la destination</value>
+  </data>
+  <data name="SettingsStreamingRoomNameLabel" xml:space="preserve">
+    <value>Nom de la pièce</value>
+  </data>
+  <data name="SettingsStreamingRtmpUrlLabel" xml:space="preserve">
+    <value>URL RTMP / RTMPS</value>
+  </data>
+  <data name="SettingsStreamingServerUrlLabel" xml:space="preserve">
+    <value>URL du serveur</value>
+  </data>
+  <data name="SettingsStreamingShowTextOverlayLabel" xml:space="preserve">
+    <value>Afficher la superposition de texte</value>
+  </data>
+  <data name="SettingsStreamingSourcePickerAvailableLabel" xml:space="preserve">
+    <value>Disponible</value>
+  </data>
+  <data name="SettingsStreamingSourcePickerEmptyStateMessage" xml:space="preserve">
+    <value>Aucune caméra de scène n'est encore disponible pour cette destination.</value>
+  </data>
+  <data name="SettingsStreamingSourcePickerMultipleCamerasSelectedFormat" xml:space="preserve">
+    <value>Caméras {0} sélectionnées</value>
+  </data>
+  <data name="SettingsStreamingSourcePickerNoCamerasSelectedLabel" xml:space="preserve">
+    <value>Aucune caméra sélectionnée</value>
+  </data>
+  <data name="SettingsStreamingSourcePickerSectionLabel" xml:space="preserve">
+    <value>Sources de destination</value>
+  </data>
+  <data name="SettingsStreamingSourcePickerSelectedLabel" xml:space="preserve">
+    <value>Choisi</value>
+  </data>
+  <data name="SettingsStreamingSourcePickerSingleCameraSelectedFormat" xml:space="preserve">
+    <value>Caméra {0} sélectionnée</value>
+  </data>
+  <data name="SettingsStreamingStreamKeyLabel" xml:space="preserve">
+    <value>Clé de flux</value>
+  </data>
+  <data name="SettingsStreamingTargetNameLabel" xml:space="preserve">
+    <value>Nom de la cible</value>
+  </data>
+  <data name="SettingsStreamingTokenLabel" xml:space="preserve">
+    <value>Jeton d'accès</value>
+  </data>
+  <data name="SettingsStreamingTransportConnectionsTitle" xml:space="preserve">
+    <value>Liaisons de transport</value>
+  </data>
+  <data name="SettingsStreamingUltraHd2160p30Label" xml:space="preserve">
+    <value>3840 x 2160 à 30 ips</value>
+  </data>
+  <data name="SettingsStreamingUnsupportedTransportSummary" xml:space="preserve">
+    <value>Cette cible est liée uniquement aux transports qui ne peuvent pas fournir de chemin de relais en aval.</value>
+  </data>
+  <data name="SettingsStreamingViewUrlLabel" xml:space="preserve">
+    <value>Afficher l'URL</value>
+  </data>
+  <data name="SettingsCameraPreviewDefaultDescription" xml:space="preserve">
+    <value>Prévisualisez la caméra sélectionnée exactement là où la configuration de l'appareil a lieu, avant de la mettre en ligne ou d'ouvrir Reader.</value>
+  </data>
+  <data name="SettingsCameraPreviewDefaultTitle" xml:space="preserve">
+    <value>Aperçu de la caméra</value>
+  </data>
+  <data name="SettingsCameraPreviewNoCameraDescription" xml:space="preserve">
+    <value>Choisissez une caméra par défaut ou ajoutez-en une à la scène pour voir un aperçu en direct ici.</value>
+  </data>
+  <data name="SettingsCameraPreviewNoCameraTitle" xml:space="preserve">
+    <value>Aucune caméra sélectionnée</value>
+  </data>
+  <data name="SettingsCameraPreviewPermissionDescription" xml:space="preserve">
+    <value>Activez l'accès à la caméra pour confirmer le cadrage, le mode miroir et l'appareil actif avant la lecture.</value>
+  </data>
+  <data name="SettingsCameraPreviewPermissionTitle" xml:space="preserve">
+    <value>Accès à la caméra requis</value>
+  </data>
+  <data name="SettingsCameraPreviewEyebrow" xml:space="preserve">
+    <value>Aperçu</value>
+  </data>
+  <data name="SettingsCameraPreviewReadyDescription" xml:space="preserve">
+    <value>Cet aperçu suit la sélection de caméra par défaut actuelle et l'état du miroir.</value>
+  </data>
+  <data name="SettingsMicrophoneMonitorDefaultDescription" xml:space="preserve">
+    <value>Parlez dans le microphone sélectionné pour confirmer que le navigateur voit un signal en direct avant l'enregistrement ou la diffusion.</value>
+  </data>
+  <data name="SettingsMicrophoneMonitorDefaultTitle" xml:space="preserve">
+    <value>Activité du microphone</value>
+  </data>
+  <data name="SettingsMicrophoneMonitorNoMicrophoneDescription" xml:space="preserve">
+    <value>Choisissez un microphone par défaut pour voir un indicateur de niveau en direct ici.</value>
+  </data>
+  <data name="SettingsMicrophoneMonitorNoMicrophoneTitle" xml:space="preserve">
+    <value>Aucun microphone sélectionné</value>
+  </data>
+  <data name="SettingsMicrophoneMonitorPendingStatusLabel" xml:space="preserve">
+    <value>En attendant</value>
+  </data>
+  <data name="SettingsMicrophoneMonitorPermissionDescription" xml:space="preserve">
+    <value>Activez d'abord l'accès au microphone dans les caméras, puis revenez ici pour confirmer l'activité d'entrée en direct.</value>
+  </data>
+  <data name="SettingsMicrophoneMonitorPermissionTitle" xml:space="preserve">
+    <value>Accès au microphone requis</value>
+  </data>
+  <data name="SettingsMicrophoneMonitorPreviewDescription" xml:space="preserve">
+    <value>Moniteur de saisie en direct du navigateur</value>
+  </data>
+  <data name="SettingsMicrophoneMonitorReadyStatusLabel" xml:space="preserve">
+    <value>Niveau en direct</value>
+  </data>
+  <data name="SettingsHotkeysGroupEditorTitle" xml:space="preserve">
+    <value>Éditeur</value>
+  </data>
+  <data name="SettingsHotkeysGroupEditorSubtitle" xml:space="preserve">
+    <value>Raccourcis de création de base</value>
+  </data>
+  <data name="SettingsHotkeysGroupLearnTitle" xml:space="preserve">
+    <value>Apprendre</value>
+  </data>
+  <data name="SettingsHotkeysGroupLearnSubtitle" xml:space="preserve">
+    <value>Commandes de répétition RSVP</value>
+  </data>
+  <data name="SettingsHotkeysGroupTeleprompterTitle" xml:space="preserve">
+    <value>Téléprompteur</value>
+  </data>
+  <data name="SettingsHotkeysGroupTeleprompterSubtitle" xml:space="preserve">
+    <value>Commandes de lecture et d'affichage du lecteur</value>
+  </data>
+  <data name="SettingsHotkeysGroupGoLiveTitle" xml:space="preserve">
+    <value>Passez en direct</value>
+  </data>
+  <data name="SettingsHotkeysGroupGoLiveSubtitle" xml:space="preserve">
+    <value>Contrôles de studio et de session</value>
+  </data>
+  <data name="SettingsHotkeyEditorUndoLabel" xml:space="preserve">
+    <value>Défaire</value>
+  </data>
+  <data name="SettingsHotkeyEditorUndoDescription" xml:space="preserve">
+    <value>Annulez la dernière modification de l'éditeur.</value>
+  </data>
+  <data name="SettingsHotkeyEditorRedoLabel" xml:space="preserve">
+    <value>Refaire</value>
+  </data>
+  <data name="SettingsHotkeyEditorRedoDescription" xml:space="preserve">
+    <value>Réappliquez la dernière modification de l'éditeur annulée.</value>
+  </data>
+  <data name="SettingsHotkeyEditorSelectAllLabel" xml:space="preserve">
+    <value>Tout sélectionner</value>
+  </data>
+  <data name="SettingsHotkeyEditorSelectAllDescription" xml:space="preserve">
+    <value>Sélectionnez l'intégralité du document dans l'éditeur de source.</value>
+  </data>
+  <data name="SettingsHotkeyLearnBackLabel" xml:space="preserve">
+    <value>Retour à l'éditeur</value>
+  </data>
+  <data name="SettingsHotkeyLearnBackDescription" xml:space="preserve">
+    <value>Quittez Learn et revenez au script actuel.</value>
+  </data>
+  <data name="SettingsHotkeyLearnPlayPauseLabel" xml:space="preserve">
+    <value>Lecture ou pause</value>
+  </data>
+  <data name="SettingsHotkeyLearnPlayPauseDescription" xml:space="preserve">
+    <value>Démarrez ou mettez en pause la lecture de RSVP.</value>
+  </data>
+  <data name="SettingsHotkeyLearnSpeedDownLabel" xml:space="preserve">
+    <value>Ralentir</value>
+  </data>
+  <data name="SettingsHotkeyLearnSpeedDownDescription" xml:space="preserve">
+    <value>Réduisez la vitesse RSVP.</value>
+  </data>
+  <data name="SettingsHotkeyLearnSpeedUpLabel" xml:space="preserve">
+    <value>Accélérer</value>
+  </data>
+  <data name="SettingsHotkeyLearnSpeedUpDescription" xml:space="preserve">
+    <value>Augmentez la vitesse RSVP.</value>
+  </data>
+  <data name="SettingsHotkeyLearnStepBackwardLabel" xml:space="preserve">
+    <value>Mot précédent</value>
+  </data>
+  <data name="SettingsHotkeyLearnStepBackwardDescription" xml:space="preserve">
+    <value>Reculez d’un mot.</value>
+  </data>
+  <data name="SettingsHotkeyLearnStepBackwardLargeLabel" xml:space="preserve">
+    <value>Saut de phrase précédente</value>
+  </data>
+  <data name="SettingsHotkeyLearnStepBackwardLargeDescription" xml:space="preserve">
+    <value>Reculez de cinq mots.</value>
+  </data>
+  <data name="SettingsHotkeyLearnStepForwardLabel" xml:space="preserve">
+    <value>Mot suivant</value>
+  </data>
+  <data name="SettingsHotkeyLearnStepForwardDescription" xml:space="preserve">
+    <value>Avancez d’un mot.</value>
+  </data>
+  <data name="SettingsHotkeyLearnStepForwardLargeLabel" xml:space="preserve">
+    <value>Saut de phrase suivant</value>
+  </data>
+  <data name="SettingsHotkeyLearnStepForwardLargeDescription" xml:space="preserve">
+    <value>Avancez de cinq mots.</value>
+  </data>
+  <data name="SettingsHotkeyLearnLoopLabel" xml:space="preserve">
+    <value>Lecture en boucle</value>
+  </data>
+  <data name="SettingsHotkeyLearnLoopDescription" xml:space="preserve">
+    <value>Basculez le mode boucle RSVP.</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterBackLabel" xml:space="preserve">
+    <value>Retour à l'éditeur</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterBackDescription" xml:space="preserve">
+    <value>Quittez le plein écran si nécessaire, puis revenez au script.</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterPlayPauseLabel" xml:space="preserve">
+    <value>Lecture ou pause</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterPlayPauseDescription" xml:space="preserve">
+    <value>Démarrez ou mettez en pause la lecture du téléprompteur.</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterPreviousBlockLabel" xml:space="preserve">
+    <value>Bloc précédent</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterPreviousBlockDescription" xml:space="preserve">
+    <value>Passer au bloc de lecture précédent.</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterNextBlockLabel" xml:space="preserve">
+    <value>Bloc suivant</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterNextBlockDescription" xml:space="preserve">
+    <value>Passez au bloc de lecture suivant.</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterMirrorHorizontalLabel" xml:space="preserve">
+    <value>Miroir horizontalement</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterMirrorHorizontalDescription" xml:space="preserve">
+    <value>Retournez le lecteur horizontalement.</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterMirrorVerticalLabel" xml:space="preserve">
+    <value>Miroir verticalement</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterMirrorVerticalDescription" xml:space="preserve">
+    <value>Retournez le lecteur verticalement.</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterOrientationLabel" xml:space="preserve">
+    <value>Rotation du lecteur</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterOrientationDescription" xml:space="preserve">
+    <value>Basculez l’orientation du lecteur paysage et portrait.</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterFullscreenLabel" xml:space="preserve">
+    <value>Basculer en plein écran</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterFullscreenDescription" xml:space="preserve">
+    <value>Entrez ou quittez le navigateur en mode plein écran.</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterAlignLeftLabel" xml:space="preserve">
+    <value>Aligner à gauche</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterAlignLeftDescription" xml:space="preserve">
+    <value>Utilisez la voie des lecteurs alignée à gauche.</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterAlignCenterLabel" xml:space="preserve">
+    <value>Aligner au centre</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterAlignCenterDescription" xml:space="preserve">
+    <value>Utilisez la voie de lecture centrée.</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterAlignRightLabel" xml:space="preserve">
+    <value>Aligner à droite</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterAlignRightDescription" xml:space="preserve">
+    <value>Utilisez la voie des lecteurs alignée à droite.</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterAlignJustifyLabel" xml:space="preserve">
+    <value>Aligner justifier</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterAlignJustifyDescription" xml:space="preserve">
+    <value>Étirez le texte sur toute la largeur lisible.</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterCameraLabel" xml:space="preserve">
+    <value>Basculer la caméra</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterCameraDescription" xml:space="preserve">
+    <value>Afficher ou masquer la couche de caméra du lecteur.</value>
+  </data>
+  <data name="SettingsHotkeyGoLiveDirectorModeLabel" xml:space="preserve">
+    <value>Mode réalisateur</value>
+  </data>
+  <data name="SettingsHotkeyGoLiveDirectorModeDescription" xml:space="preserve">
+    <value>Basculez le studio en mode Réalisateur.</value>
+  </data>
+  <data name="SettingsHotkeyGoLiveStudioModeLabel" xml:space="preserve">
+    <value>Mode studio</value>
+  </data>
+  <data name="SettingsHotkeyGoLiveStudioModeDescription" xml:space="preserve">
+    <value>Basculez le studio en mode Studio.</value>
+  </data>
+  <data name="SettingsHotkeyGoLiveLeftRailLabel" xml:space="preserve">
+    <value>Basculer le rail source</value>
+  </data>
+  <data name="SettingsHotkeyGoLiveLeftRailDescription" xml:space="preserve">
+    <value>Afficher ou masquer le rail source gauche.</value>
+  </data>
+  <data name="SettingsHotkeyGoLiveRightRailLabel" xml:space="preserve">
+    <value>Basculer le rail de sortie</value>
+  </data>
+  <data name="SettingsHotkeyGoLiveRightRailDescription" xml:space="preserve">
+    <value>Afficher ou masquer le rail d'aperçu droit.</value>
+  </data>
+  <data name="SettingsHotkeyGoLiveFullProgramLabel" xml:space="preserve">
+    <value>Basculer le programme complet</value>
+  </data>
+  <data name="SettingsHotkeyGoLiveFullProgramDescription" xml:space="preserve">
+    <value>Développez ou réduisez la disposition complète du moniteur du programme.</value>
+  </data>
+  <data name="SettingsHotkeyGoLiveTakeToAirLabel" xml:space="preserve">
+    <value>Prendre l'air</value>
+  </data>
+  <data name="SettingsHotkeyGoLiveTakeToAirDescription" xml:space="preserve">
+    <value>Basculez la source sélectionnée vers le programme.</value>
+  </data>
+  <data name="SettingsHotkeyGoLiveRecordingLabel" xml:space="preserve">
+    <value>Démarrer ou arrêter l'enregistrement</value>
+  </data>
+  <data name="SettingsHotkeyGoLiveRecordingDescription" xml:space="preserve">
+    <value>Activer/désactiver l'enregistrement local pour le programme actif.</value>
+  </data>
+  <data name="SettingsHotkeyGoLiveStreamLabel" xml:space="preserve">
+    <value>Démarrer ou arrêter la diffusion</value>
+  </data>
+  <data name="SettingsHotkeyGoLiveStreamDescription" xml:space="preserve">
+    <value>Activez/désactivez la session de diffusion en direct.</value>
+  </data>
+  <data name="CommonGeneral" xml:space="preserve">
+    <value>Général</value>
+  </data>
+  <data name="CommonVideo" xml:space="preserve">
+    <value>Vidéo</value>
+  </data>
+  <data name="CommonAudio" xml:space="preserve">
+    <value>Audio</value>
+  </data>
+  <data name="CommonBrowse" xml:space="preserve">
+    <value>Parcourir</value>
+  </data>
+  <data name="CommonContainer" xml:space="preserve">
+    <value>Récipient</value>
+  </data>
+  <data name="CommonCodec" xml:space="preserve">
+    <value>Codec</value>
+  </data>
+  <data name="CommonResolution" xml:space="preserve">
+    <value>Résolution</value>
+  </data>
+  <data name="CommonFrameRate" xml:space="preserve">
+    <value>Fréquence d'images</value>
+  </data>
+  <data name="CommonSampleRate" xml:space="preserve">
+    <value>Taux d'échantillonnage</value>
+  </data>
+  <data name="CommonChannels" xml:space="preserve">
+    <value>Canaux</value>
+  </data>
+  <data name="LibraryCardOneSegment" xml:space="preserve">
+    <value>1 segment</value>
+  </data>
+  <data name="LibraryCardSegmentsFormat" xml:space="preserve">
+    <value>Segments {0}</value>
+  </data>
+  <data name="DiagnosticsEyebrow" xml:space="preserve">
+    <value>Diagnostics</value>
+  </data>
+  <data name="GoLiveSceneControlsLayout" xml:space="preserve">
+    <value>Disposition</value>
+  </data>
+  <data name="GoLiveSceneTransitionCut" xml:space="preserve">
+    <value>Coupe</value>
+  </data>
+  <data name="GoLiveSceneTransitionFade" xml:space="preserve">
+    <value>Fondu</value>
+  </data>
+  <data name="GoLiveSceneTransitionWipe" xml:space="preserve">
+    <value>Balayage</value>
+  </data>
+  <data name="EditorActionLabelOneSecond" xml:space="preserve">
+    <value>1 seconde</value>
+  </data>
+  <data name="EditorActionLabelTwoSeconds" xml:space="preserve">
+    <value>2 secondes</value>
+  </data>
+  <data name="EditorActionLabelThreeSeconds" xml:space="preserve">
+    <value>3 secondes</value>
+  </data>
+  <data name="EditorActionLabelAside" xml:space="preserve">
+    <value>De côté</value>
+  </data>
+  <data name="EditorActionLabelBlock" xml:space="preserve">
+    <value>Bloc</value>
+  </data>
+  <data name="EditorActionLabelBold" xml:space="preserve">
+    <value>Audacieux</value>
+  </data>
+  <data name="EditorActionLabelBreath" xml:space="preserve">
+    <value>Haleine</value>
+  </data>
+  <data name="EditorActionLabelBuilding" xml:space="preserve">
+    <value>Bâtiment</value>
+  </data>
+  <data name="EditorActionLabelCalm" xml:space="preserve">
+    <value>Calme</value>
+  </data>
+  <data name="EditorActionLabelConcerned" xml:space="preserve">
+    <value>Concerné</value>
+  </data>
+  <data name="EditorActionLabelCustomMs" xml:space="preserve">
+    <value>Personnalisé (ms)</value>
+  </data>
+  <data name="EditorActionLabelCustomWpm" xml:space="preserve">
+    <value>WPM personnalisé</value>
+  </data>
+  <data name="EditorActionLabelEmphasis" xml:space="preserve">
+    <value>Accent</value>
+  </data>
+  <data name="EditorActionLabelEnergetic" xml:space="preserve">
+    <value>Énergique</value>
+  </data>
+  <data name="EditorActionLabelEnergy" xml:space="preserve">
+    <value>Énergie</value>
+  </data>
+  <data name="EditorActionLabelExcited" xml:space="preserve">
+    <value>Excité</value>
+  </data>
+  <data name="EditorActionLabelExtraFast" xml:space="preserve">
+    <value>Très rapide</value>
+  </data>
+  <data name="EditorActionLabelExtraSlow" xml:space="preserve">
+    <value>Très lent</value>
+  </data>
+  <data name="EditorActionLabelFast" xml:space="preserve">
+    <value>Rapide</value>
+  </data>
+  <data name="EditorActionLabelFocused" xml:space="preserve">
+    <value>Concentré</value>
+  </data>
+  <data name="EditorActionLabelHappy" xml:space="preserve">
+    <value>Heureux</value>
+  </data>
+  <data name="EditorActionLabelHighPriority" xml:space="preserve">
+    <value>Haute priorité</value>
+  </data>
+  <data name="EditorActionLabelHighlight" xml:space="preserve">
+    <value>Souligner</value>
+  </data>
+  <data name="EditorActionLabelItalic" xml:space="preserve">
+    <value>Italique</value>
+  </data>
+  <data name="EditorActionLabelLegato" xml:space="preserve">
+    <value>Legato</value>
+  </data>
+  <data name="EditorActionLabelLoud" xml:space="preserve">
+    <value>Fort</value>
+  </data>
+  <data name="EditorActionLabelMediumPause" xml:space="preserve">
+    <value>Pause moyenne</value>
+  </data>
+  <data name="EditorActionLabelMediumPriority" xml:space="preserve">
+    <value>Priorité moyenne</value>
+  </data>
+  <data name="EditorActionLabelMelody" xml:space="preserve">
+    <value>Mélodie</value>
+  </data>
+  <data name="EditorActionLabelMotivational" xml:space="preserve">
+    <value>Motivationnel</value>
+  </data>
+  <data name="EditorActionLabelNeutral" xml:space="preserve">
+    <value>Neutre</value>
+  </data>
+  <data name="EditorActionLabelNormal" xml:space="preserve">
+    <value>Normale</value>
+  </data>
+  <data name="EditorActionLabelPhoneticIpa" xml:space="preserve">
+    <value>Phonétique (IPA)</value>
+  </data>
+  <data name="EditorActionLabelProfessional" xml:space="preserve">
+    <value>Professionnel</value>
+  </data>
+  <data name="EditorActionLabelPronunciation" xml:space="preserve">
+    <value>Prononciation</value>
+  </data>
+  <data name="EditorActionLabelRemoveCues" xml:space="preserve">
+    <value>Supprimer les signaux</value>
+  </data>
+  <data name="EditorActionLabelRhetorical" xml:space="preserve">
+    <value>Rhétorique</value>
+  </data>
+  <data name="EditorActionLabelSad" xml:space="preserve">
+    <value>Triste</value>
+  </data>
+  <data name="EditorActionLabelSarcasm" xml:space="preserve">
+    <value>Sarcasme</value>
+  </data>
+  <data name="EditorActionLabelSegment" xml:space="preserve">
+    <value>Segment</value>
+  </data>
+  <data name="EditorActionLabelShortPause" xml:space="preserve">
+    <value>Courte pause</value>
+  </data>
+  <data name="EditorActionLabelSlow" xml:space="preserve">
+    <value>Lent</value>
+  </data>
+  <data name="EditorActionLabelSoft" xml:space="preserve">
+    <value>Doux</value>
+  </data>
+  <data name="EditorActionLabelStaccato" xml:space="preserve">
+    <value>Staccato</value>
+  </data>
+  <data name="EditorActionLabelStandard" xml:space="preserve">
+    <value>Standard</value>
+  </data>
+  <data name="EditorActionLabelStress" xml:space="preserve">
+    <value>Stresser</value>
+  </data>
+  <data name="EditorActionLabelStressGuide" xml:space="preserve">
+    <value>Guide anti-stress</value>
+  </data>
+  <data name="EditorActionLabelUrgent" xml:space="preserve">
+    <value>Urgent</value>
+  </data>
+  <data name="EditorActionLabelWarm" xml:space="preserve">
+    <value>Chaud</value>
+  </data>
+  <data name="EditorActionLabelWhisper" xml:space="preserve">
+    <value>Chuchoter</value>
+  </data>
+  <data name="EditorActionMetaArchetypeAware" xml:space="preserve">
+    <value>Conscient de l'archétype</value>
+  </data>
+  <data name="EditorActionMetaSpeakerAware" xml:space="preserve">
+    <value>Orateur conscient</value>
+  </data>
+  <data name="AiSpotlightContextLoaded" xml:space="preserve">
+    <value>Contexte chargé</value>
+  </data>
+  <data name="AiSpotlightGraphChecked" xml:space="preserve">
+    <value>Graphique vérifié</value>
+  </data>
+  <data name="AiSpotlightWaitingPoint" xml:space="preserve">
+    <value>Point d'attente</value>
+  </data>
+  <data name="AiSpotlightReadyForNextInstruction" xml:space="preserve">
+    <value>Prêt pour la prochaine instruction</value>
+  </data>
+  <data name="AiSpotlightApprovalRequiredBeforeChangingSelection" xml:space="preserve">
+    <value>Approbation requise avant de modifier le texte sélectionné</value>
+  </data>
+  <data name="AiSpotlightSelectedRangeFormat" xml:space="preserve">
+    <value>Plage sélectionnée {0}-{1}</value>
+  </data>
+  <data name="AiSpotlightPreparedRangeEdit" xml:space="preserve">
+    <value>Modification de la plage préparée</value>
+  </data>
+  <data name="AiSpotlightReviewEditBeforeApplying" xml:space="preserve">
+    <value>Examinez le texte actuel et proposé avant d'appliquer cette modification.</value>
+  </data>
+  <data name="AiSpotlightNoGraphBuilt" xml:space="preserve">
+    <value>Aucun graphique de script n'a encore été construit</value>
+  </data>
+  <data name="AiSpotlightGraphSummaryFormat" xml:space="preserve">
+    <value>{0} nœuds, {1} liens</value>
+  </data>
+  <data name="AiSpotlightNoActiveEditorTarget" xml:space="preserve">
+    <value>Il n’existe aucune cible d’éditeur active pour cette modification de document.</value>
+  </data>
+  <data name="AiSpotlightApprovalFailed" xml:space="preserve">
+    <value>Échec de l'approbation</value>
+  </data>
+  <data name="AiSpotlightOpenEditorTryAgain" xml:space="preserve">
+    <value>Ouvrez l'éditeur de source et réessayez.</value>
+  </data>
+  <data name="AiSpotlightAppliedEdit" xml:space="preserve">
+    <value>Modification appliquée</value>
+  </data>
+  <data name="AiSpotlightDocumentRevisionFormat" xml:space="preserve">
+    <value>Révision du document {0}</value>
+  </data>
+  <data name="AiSpotlightChangeRejected" xml:space="preserve">
+    <value>Modification rejetée</value>
+  </data>
+  <data name="AiSpotlightNoDocumentTextChanged" xml:space="preserve">
+    <value>Aucun texte de document n'a été modifié.</value>
+  </data>
+  <data name="LibraryLoadMessage" xml:space="preserve">
+    <value>Impossible de charger la bibliothèque pour le moment.</value>
+  </data>
+  <data name="LibraryCreateScriptMessage" xml:space="preserve">
+    <value>Impossible de créer un nouveau script.</value>
+  </data>
+  <data name="LibraryOpenScriptMessage" xml:space="preserve">
+    <value>Impossible d'ouvrir ce script.</value>
+  </data>
+  <data name="LibraryDuplicateScriptMessage" xml:space="preserve">
+    <value>Impossible de dupliquer ce script.</value>
+  </data>
+  <data name="LibraryDuplicateTitleFormat" xml:space="preserve">
+    <value>{0} Copie</value>
+  </data>
+  <data name="LibraryMoveScriptMessage" xml:space="preserve">
+    <value>Impossible de déplacer ce script.</value>
+  </data>
+  <data name="LibraryDeleteScriptMessage" xml:space="preserve">
+    <value>Impossible de supprimer ce script.</value>
+  </data>
+  <data name="LibraryCreateFolderMessage" xml:space="preserve">
+    <value>Impossible de créer ce dossier.</value>
+  </data>
+  <data name="LibraryUntitledScriptTitle" xml:space="preserve">
+    <value>Script sans titre</value>
+  </data>
+  <data name="LibraryUntitledFolderTitle" xml:space="preserve">
+    <value>Dossier sans titre</value>
+  </data>
+  <data name="LibraryFolderNameRequiredMessage" xml:space="preserve">
+    <value>Le nom du dossier est requis.</value>
+  </data>
+  <data name="LearnLoadMessage" xml:space="preserve">
+    <value>Impossible de charger la répétition RSVP pour le moment.</value>
+  </data>
+  <data name="TeleprompterLoadMessage" xml:space="preserve">
+    <value>Impossible de préparer la lecture du téléprompteur.</value>
+  </data>
+  <data name="TeleprompterAttachCameraMessage" xml:space="preserve">
+    <value>Impossible d'activer la caméra du téléprompteur.</value>
+  </data>
+  <data name="SettingsLoadMessage" xml:space="preserve">
+    <value>Impossible de charger les paramètres pour le moment.</value>
+  </data>
+  <data name="SettingsPersistSceneMessage" xml:space="preserve">
+    <value>Impossible d'enregistrer les modifications de scène.</value>
+  </data>
+  <data name="SettingsPersistStudioMessage" xml:space="preserve">
+    <value>Impossible d'enregistrer les paramètres du studio.</value>
+  </data>
+  <data name="SettingsPersistPreferencesMessage" xml:space="preserve">
+    <value>Impossible d'enregistrer les paramètres généraux.</value>
+  </data>
+  <data name="SettingsRefreshMediaMessage" xml:space="preserve">
+    <value>Impossible d'actualiser l'accès à la caméra et au microphone.</value>
+  </data>
+  <data name="SettingsEnableDevicesLabel" xml:space="preserve">
+    <value>Activer la caméra + le micro</value>
+  </data>
+  <data name="SettingsRefreshDevicesLabel" xml:space="preserve">
+    <value>Actualiser les appareils</value>
+  </data>
+  <data name="CloudStorageProviderInitializeMessage" xml:space="preserve">
+    <value>Impossible d'initialiser le fournisseur sélectionné.</value>
+  </data>
+  <data name="CloudStorageExportedSummaryFormat" xml:space="preserve">
+    <value>Scripts et paramètres {0} exportés.</value>
+  </data>
+  <data name="CloudStorageUploadBackupMessage" xml:space="preserve">
+    <value>Impossible de télécharger l'instantané de sauvegarde.</value>
+  </data>
+  <data name="CloudStorageNoBackupSnapshotMessage" xml:space="preserve">
+    <value>Aucun instantané de sauvegarde n'a été trouvé pour ce fournisseur.</value>
+  </data>
+  <data name="CloudStorageInvalidBackupSnapshotMessage" xml:space="preserve">
+    <value>L'instantané de sauvegarde est vide ou invalide.</value>
+  </data>
+  <data name="CloudStorageImportedSummaryFormat" xml:space="preserve">
+    <value>Scripts et paramètres {0} importés.</value>
+  </data>
+  <data name="CloudStorageConnectionValidated" xml:space="preserve">
+    <value>Connexion validée.</value>
+  </data>
+  <data name="CloudStorageConnectionFailed" xml:space="preserve">
+    <value>La connexion a échoué.</value>
+  </data>
+  <data name="CloudStorageUnknownProviderFormat" xml:space="preserve">
+    <value>Fournisseur de stockage cloud inconnu « {0} ».</value>
+  </data>
+  <data name="CloudStorageOneDriveBrowserUnsupportedMessage" xml:space="preserve">
+    <value>Le stockage secret client OneDrive n’est pas pris en charge dans le runtime du navigateur.</value>
+  </data>
+  <data name="CloudStorageDropboxCredentialsRequiredMessage" xml:space="preserve">
+    <value>Dropbox nécessite un jeton d'accès ou un jeton d'actualisation avec la clé d'application.</value>
+  </data>
+  <data name="CloudStorageOneDriveCredentialsRequiredMessage" xml:space="preserve">
+    <value>OneDrive nécessite un identifiant de locataire, un identifiant client et un secret client.</value>
+  </data>
+  <data name="CloudStorageServiceAccountJsonRequiredFormat" xml:space="preserve">
+    <value>{0} nécessite une clé JSON de compte de service.</value>
+  </data>
+  <data name="CloudStorageGoogleCloudStorageProfileRequiredMessage" xml:space="preserve">
+    <value>Google Cloud Storage nécessite un identifiant de projet et un nom de bucket.</value>
+  </data>
+  <data name="CloudStorageCloudKitContainerRequiredMessage" xml:space="preserve">
+    <value>CloudKit nécessite un identifiant de conteneur.</value>
+  </data>
+  <data name="CloudStorageCloudKitCredentialsRequiredMessage" xml:space="preserve">
+    <value>CloudKit nécessite un jeton API, un jeton d'authentification Web ou des informations d'identification de serveur à serveur.</value>
   </data>
 </root>

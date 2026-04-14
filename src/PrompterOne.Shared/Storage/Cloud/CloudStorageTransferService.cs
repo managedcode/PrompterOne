@@ -1,11 +1,14 @@
+using System.Globalization;
 using System.Text.Json;
 using ManagedCode.Communication;
 using ManagedCode.Storage.Core.Models;
+using Microsoft.Extensions.Localization;
 using PrompterOne.Core.Abstractions;
 using PrompterOne.Core.Models.Documents;
 using PrompterOne.Core.Models.Library;
 using PrompterOne.Core.Models.Media;
 using PrompterOne.Core.Models.Workspace;
+using PrompterOne.Shared.Localization;
 using PrompterOne.Shared.Services;
 using PrompterOne.Shared.Settings.Models;
 using PrompterOne.Shared.Settings.Services;
@@ -22,7 +25,8 @@ public sealed class CloudStorageTransferService(
     IMediaSceneService mediaSceneService,
     StudioSettingsStore studioSettingsStore,
     AiProviderSettingsStore aiProviderSettingsStore,
-    BrowserFileStorageStore browserFileStorageStore)
+    BrowserFileStorageStore browserFileStorageStore,
+    IStringLocalizer<SharedResource> localizer)
 {
     private readonly AiProviderSettingsStore _aiProviderSettingsStore = aiProviderSettingsStore;
     private readonly BrowserFileStorageStore _browserFileStorageStore = browserFileStorageStore;
@@ -40,6 +44,7 @@ public sealed class CloudStorageTransferService(
     private readonly IUserSettingsStore _settingsStore = settingsStore;
     private readonly StudioSettingsStore _studioSettingsStore = studioSettingsStore;
     private readonly BrowserThemeService _themeService = themeService;
+    private readonly IStringLocalizer<SharedResource> _localizer = localizer;
 
     public async Task<CloudStorageOperationResult> ExportAsync(
         CloudStoragePreferences preferences,
@@ -52,7 +57,7 @@ public sealed class CloudStorageTransferService(
             var createResult = await storage.CreateContainerAsync(cancellationToken);
             if (!createResult.IsSuccess)
             {
-                return CloudStorageOperationResult.Failure(ToMessage(createResult.Problem, "Unable to initialize the selected provider."));
+                return CloudStorageOperationResult.Failure(ToMessage(createResult.Problem, Text(UiTextKey.CloudStorageProviderInitializeMessage)));
             }
 
             var backup = await BuildBackupAsync(cancellationToken);
@@ -63,8 +68,8 @@ public sealed class CloudStorageTransferService(
                 cancellationToken);
 
             return uploadResult.IsSuccess
-                ? CloudStorageOperationResult.Success($"Exported {backup.Scripts.Count} scripts and settings.")
-                : CloudStorageOperationResult.Failure(ToMessage(uploadResult.Problem, "Unable to upload the backup snapshot."));
+                ? CloudStorageOperationResult.Success(Format(UiTextKey.CloudStorageExportedSummaryFormat, backup.Scripts.Count))
+                : CloudStorageOperationResult.Failure(ToMessage(uploadResult.Problem, Text(UiTextKey.CloudStorageUploadBackupMessage)));
         }
         catch (Exception exception)
         {
@@ -83,13 +88,13 @@ public sealed class CloudStorageTransferService(
             var createResult = await storage.CreateContainerAsync(cancellationToken);
             if (!createResult.IsSuccess)
             {
-                return CloudStorageOperationResult.Failure(ToMessage(createResult.Problem, "Unable to initialize the selected provider."));
+                return CloudStorageOperationResult.Failure(ToMessage(createResult.Problem, Text(UiTextKey.CloudStorageProviderInitializeMessage)));
             }
 
             var streamResult = await storage.GetStreamAsync(CloudStorageStoreKeys.BackupPath, cancellationToken);
             if (!streamResult.IsSuccess || streamResult.Value is null)
             {
-                return CloudStorageOperationResult.Failure(ToMessage(streamResult.Problem, "No backup snapshot was found for this provider."));
+                return CloudStorageOperationResult.Failure(ToMessage(streamResult.Problem, Text(UiTextKey.CloudStorageNoBackupSnapshotMessage)));
             }
 
             using var stream = streamResult.Value;
@@ -99,11 +104,11 @@ public sealed class CloudStorageTransferService(
 
             if (backup is null)
             {
-                return CloudStorageOperationResult.Failure("The backup snapshot is empty or invalid.");
+                return CloudStorageOperationResult.Failure(Text(UiTextKey.CloudStorageInvalidBackupSnapshotMessage));
             }
 
             await RestoreBackupAsync(backup, cancellationToken);
-            return CloudStorageOperationResult.Success($"Imported {backup.Scripts.Count} scripts and settings.");
+            return CloudStorageOperationResult.Success(Format(UiTextKey.CloudStorageImportedSummaryFormat, backup.Scripts.Count));
         }
         catch (Exception exception)
         {
@@ -267,4 +272,9 @@ public sealed class CloudStorageTransferService(
 
     private static string ToMessage(Problem? problem, string fallbackMessage) =>
         problem?.Detail ?? problem?.Title ?? fallbackMessage;
+
+    private string Text(UiTextKey key) => _localizer[key.ToString()];
+
+    private string Format(UiTextKey key, params object[] arguments) =>
+        string.Format(CultureInfo.CurrentCulture, Text(key), arguments);
 }

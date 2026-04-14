@@ -1,18 +1,23 @@
 using System.Text.Json;
+using Microsoft.Extensions.Localization;
 using Microsoft.JSInterop;
 using PrompterOne.Core.Abstractions;
 using PrompterOne.Core.Models.Documents;
+using PrompterOne.Shared.Localization;
 
 namespace PrompterOne.Shared.Services;
 
-public sealed class BrowserScriptRepository(IJSRuntime jsRuntime) : IScriptRepository
+public sealed class BrowserScriptRepository(IJSRuntime jsRuntime, IStringLocalizer<SharedResource> localizer) : IScriptRepository
 {
+    private const string DefaultDocumentName = "untitled-script.tps";
+
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true
     };
 
     private readonly IJSRuntime _jsRuntime = jsRuntime;
+    private readonly IStringLocalizer<SharedResource> _localizer = localizer;
     private IReadOnlyList<BrowserStoredScriptDocumentDto> _seedDocuments = [];
 
     public Task InitializeAsync(IEnumerable<StoredScriptDocument> initialDocuments, CancellationToken cancellationToken = default)
@@ -57,7 +62,7 @@ public sealed class BrowserScriptRepository(IJSRuntime jsRuntime) : IScriptRepos
         string? folderId = null,
         CancellationToken cancellationToken = default)
     {
-        title = string.IsNullOrWhiteSpace(title) ? "Untitled Script" : title.Trim();
+        title = string.IsNullOrWhiteSpace(title) ? Text(UiTextKey.LibraryUntitledScriptTitle) : title.Trim();
         documentName = string.IsNullOrWhiteSpace(documentName)
             ? $"{BrowserStorageSlugifier.Slugify(title)}.tps"
             : documentName;
@@ -210,14 +215,16 @@ public sealed class BrowserScriptRepository(IJSRuntime jsRuntime) : IScriptRepos
             ? 0
             : text.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Length;
 
-    private static StoredScriptDocument ToDocument(BrowserStoredScriptDocumentDto dto) =>
+    private StoredScriptDocument ToDocument(BrowserStoredScriptDocumentDto dto) =>
         new(
             dto.Id ?? string.Empty,
-            dto.Title ?? "Untitled Script",
+            dto.Title ?? Text(UiTextKey.LibraryUntitledScriptTitle),
             dto.Text ?? string.Empty,
-            dto.DocumentName ?? "untitled-script.tps",
+            dto.DocumentName ?? DefaultDocumentName,
             dto.UpdatedAt,
             string.IsNullOrWhiteSpace(dto.FolderId) ? null : dto.FolderId);
+
+    private string Text(UiTextKey key) => _localizer[key.ToString()];
 
     private static BrowserStoredScriptDocumentDto ToDto(StoredScriptDocument document) =>
         new()

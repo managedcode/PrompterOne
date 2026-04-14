@@ -6,7 +6,7 @@
 </p>
 
 <p align="center">
-  <a href="https://prompter.managed-code.com/">Try it now</a> &middot;
+  <a href="https://app.prompter.one/">Try it now</a> &middot;
   <a href="https://github.com/managedcode/PrompterOne">GitHub</a> &middot;
   <a href="https://github.com/managedcode/TPS">TPS</a> &middot;
   <a href="docs/Architecture.md">Architecture</a> &middot;
@@ -49,11 +49,11 @@ No PrompterOne backend. No desktop install. No account wall. Open the app, start
 ## What Works Today
 
 - **Library**: browse scripts, create folders, move documents, search by title, file name, and script content, then jump straight into edit, Learn, or Teleprompter flows from the same card.
-- **Editor**: author real TPS with Monaco-native syntax support, metadata hydration, structure-aware navigation, floating formatting controls, in-document find, syntax-aware rendering, browser-local autosave/history, and responsive large-draft typing.
+- **Editor**: author real TPS with Monaco-native syntax support, metadata hydration, structure-aware navigation, floating formatting controls, in-document find, syntax-aware rendering, browser-local autosave/history, a script knowledge-graph view, and responsive large-draft typing.
 - **Learn**: rehearse with ORP-aligned RSVP, context rails, phrase-aware timing, WPM controls, stepping, looping, and punctuation-safe word progression.
 - **Teleprompter**: read with persisted font and width controls, focal-line positioning, horizontal and vertical mirror toggles, orientation switching, browser fullscreen, segmented progress, and optional camera background.
-- **Go Live onboarding**: walk the first-run flow with a localized tour that explains TPS, RSVP, the editor, Learn, Teleprompter, and Go Live, then reopen that tour later from Settings.
-- **Settings**: manage appearance, browser language, media permissions, camera and microphone setup, sync offsets, recording defaults, cloud snapshot targets, transport credentials, and onboarding restart from one routed screen.
+- **Onboarding**: walk the first-run flow with a localized tour that explains TPS, RSVP, the editor, Learn, Teleprompter, and Go Live, then reopen that tour later from Settings.
+- **Settings**: manage appearance, browser language, media permissions, camera and microphone setup, sync offsets, recording defaults, AI provider preferences, cloud snapshot targets, transport credentials, and onboarding restart from one routed screen.
 - **Go Live**: run the browser-owned studio shell and save the composed program feed locally with decodable video and audio while remote transport and destination routing continue to expand.
 
 ## What You Get
@@ -70,9 +70,23 @@ The operating desk for the rest of the app. The library keeps starter scripts an
 
 This is not a plain textarea. The editor understands **TPS** (Teleprompter Script), so you can write in segments, blocks, pacing markers, emphasis, emotion tags, pronunciation guides, pause cues, and speed modifiers directly in the source. Front matter is parsed into the metadata rail and kept out of the visible body instead of lingering inline.
 
-The authoring surface includes structure navigation on the left, a full formatting and insert toolbar, floating selection controls, a metadata rail for front matter and speed offsets, in-document find, import and export actions, browser-local autosave with revision history, and syntax-aware highlighting over the live source. Recent UI work moved TPS authoring fully onto the Monaco editor surface, tightened dropdown and tooltip behavior, cleaned up gutter spacing, and kept large-draft responsiveness intact on both polished demo scripts and very large seeded drafts.
+The authoring surface includes structure navigation on the left, a full formatting and insert toolbar, floating selection controls, a metadata rail for front matter and speed offsets, in-document find, import and export actions, browser-local autosave with revision history, syntax-aware highlighting over the live source, and a first-class script graph tab. The graph view can run beside or over the source, lets writers inspect the script's high-level knowledge map, and keeps jump-back-to-source context attached to graph nodes. Recent UI work moved TPS authoring fully onto the Monaco editor surface, tightened dropdown and tooltip behavior, cleaned up gutter spacing, and kept large-draft responsiveness intact on both polished demo scripts and very large seeded drafts.
 
 ![Editor](docs/screenshots/readme/editor.png)
+
+---
+
+### TPS Cue Language
+
+PrompterOne treats TPS cues as reading instructions, not markup noise. The editor and reader now carry the same cue intent forward for voice, delivery, pace, emphasis, highlight, pronunciation, phonetics, stress, breath marks, staccato, legato, energy, melody, aside, rhetorical turns, building delivery, sarcasm, loud, soft, whisper, warm, urgent, and related emotion cues.
+
+In the editor, TPS authoring stays readable while Monaco colors cue tags, underlines articulation, and keeps pronunciation and delivery hints visible beside the clean script text.
+
+![TPS cue styling in the editor](docs/screenshots/readme/tps-editor-cues.png)
+
+In the teleprompter, the clean reading line keeps those cues visible through subtle contour: speed affects spacing, voice and delivery affect emphasis, breath marks appear as reading rests, legato and staccato use music-like line texture, and energy or melody adds a stronger visual rhythm without exposing raw TPS tags.
+
+![TPS cue styling in the teleprompter](docs/screenshots/readme/tps-teleprompter-cues.png)
 
 ---
 
@@ -122,13 +136,13 @@ Distribution targets such as YouTube, Twitch, and custom RTMP are capability-gat
 
 ### Settings
 
-Settings holds the operational state for the rest of the app: appearance, browser language, cloud snapshot targets, camera selection with preview, microphone setup with live meters, delay and sync offsets, output quality profiles, recording defaults, transport credentials, and onboarding restart. Theme changes and layout preferences persist, and appearance changes propagate across tabs instead of drifting out of sync.
+Settings holds the operational state for the rest of the app: appearance, browser language, cloud snapshot targets, camera selection with preview, microphone setup with live meters, delay and sync offsets, output quality profiles, recording defaults, AI provider preferences, transport credentials, and onboarding restart. Theme changes and layout preferences persist, and appearance changes propagate across tabs instead of drifting out of sync.
 
 ---
 
 ### Localization
 
-PrompterOne negotiates the initial language from your browser and remembers your explicit choice after that. Localized chrome, the first-run onboarding flow, and the persisted user override are part of the browser runtime, not post-build demo copy. The remaining hardcoded-string audit is still being finished, so localization is broad already but not yet fully complete across every surface.
+PrompterOne negotiates the initial language from your browser and remembers your explicit choice after that. The routed chrome, onboarding, diagnostics, settings, library actions, editor command surfaces, cloud sync status, AI Spotlight shell, and core reader controls all use the shared localization catalog across English, German, Spanish, French, Italian, Portuguese, and Ukrainian. Technical protocol names, API-key examples, and product brand text stay intentionally unlocalized.
 
 ## The Full Flow
 
@@ -149,13 +163,13 @@ PrompterOne is in **active alpha**: the core authoring, rehearsal, reader, and l
 | Area | Status | Current reality |
 | --- | :---: | --- |
 | **Library** | ✅ | Script browsing, folder organization, create and move flows, workflow launchers, persisted browser storage |
-| **Editor** | ✅ | Monaco-native TPS authoring, front-matter hydration, metadata rail, floating formatting controls, in-document find, local autosave/history, syntax-aware rendering, responsive large-draft typing |
+| **Editor** | ✅ | Monaco-native TPS authoring, front-matter hydration, metadata rail, floating formatting controls, in-document find, script graph tab, local autosave/history, syntax-aware cue rendering, responsive large-draft typing |
 | **Learn** | ✅ | ORP-aligned RSVP, phrase-aware timing, context rails, WPM controls, stepping, looping, punctuation-safe progression |
-| **Teleprompter** | ✅ | Reader width and font controls, focal positioning, horizontal and vertical mirror toggles, orientation toggle, browser fullscreen, segmented progress, persisted layout |
+| **Teleprompter** | ✅ | Reader width and font controls, focal positioning, TPS cue contour rendering, horizontal and vertical mirror toggles, orientation toggle, browser fullscreen, segmented progress, persisted layout |
 | **Onboarding** | ✅ | Localized first-run walkthrough plus Settings-driven tour restart |
-| **Settings** | ✅ | Appearance sync, browser language, media permissions, camera and mic setup, delay offsets, recording defaults, cloud snapshot forms, transport configuration |
+| **Settings** | ✅ | Appearance sync, browser language, media permissions, camera and mic setup, delay offsets, recording defaults, AI provider preferences, cloud snapshot forms, transport configuration |
 | **Local recording** | ✅ | Browser-side recording of the composed program feed with decodable video and audio |
-| **Localization** | 🟡 | Browser-negotiated chrome, localized onboarding, and persisted manual override ship now; the remaining string audit is still being finished |
+| **Localization** | ✅ | Browser-negotiated language, persisted manual override, shared resource parity across supported languages, localized onboarding, diagnostics, settings, library actions, editor command surfaces, AI Spotlight shell, and reader controls |
 | **Go Live studio shell** | ✅ | Source rails, scene switching, preview/program layout, runtime telemetry, session chrome, browser-owned operator workflow |
 | **VDO.Ninja transport** | 🟡 | Real transport-aware browser integration, with operational polish still expanding |
 | **LiveKit transport** | 🟡 | Real transport-aware browser integration and guest-path work, with operational polish still expanding |
@@ -172,7 +186,6 @@ These are product directions, not release-date promises.
 **Near term:**
 - Remote publish polish for VDO.Ninja and LiveKit transport flows
 - Broader cloud portability for scripts, settings, and snapshots
-- Finish the remaining localization audit across routed screens and editor chrome
 - More public documentation and real-world workflow examples
 
 **After that:**
@@ -190,7 +203,7 @@ cd PrompterOne
 dotnet run --project src/PrompterOne.Web
 ```
 
-Or just open [prompter.managed-code.com](https://prompter.managed-code.com/) — no install needed.
+Or just open [app.prompter.one](https://app.prompter.one/) — no install needed.
 
 ## Technology
 
@@ -200,9 +213,14 @@ PrompterOne is a standalone [Blazor WebAssembly](https://dotnet.microsoft.com/en
 
 ```bash
 dotnet build ./PrompterOne.slnx -warnaserror
-dotnet test ./PrompterOne.slnx
+dotnet test @./tests/dotnet-test-progress.rsp --solution ./PrompterOne.slnx
 dotnet format ./PrompterOne.slnx
-dotnet test ./PrompterOne.slnx --collect:"XPlat Code Coverage"
+dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Core.Tests/PrompterOne.Core.Tests.csproj --coverage --coverage-output-format cobertura
+dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.Tests/PrompterOne.Web.Tests.csproj --coverage --coverage-output-format cobertura
+dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.UITests.Shell/PrompterOne.Web.UITests.Shell.csproj --coverage --coverage-output-format cobertura
+dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.UITests.Studio/PrompterOne.Web.UITests.Studio.csproj --coverage --coverage-output-format cobertura
+dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.UITests.Editor/PrompterOne.Web.UITests.Editor.csproj --coverage --coverage-output-format cobertura
+dotnet test @./tests/dotnet-test-progress.rsp --project ./tests/PrompterOne.Web.UITests.Reader/PrompterOne.Web.UITests.Reader.csproj --coverage --coverage-output-format cobertura
 ```
 
 Architecture and ownership boundaries are documented in [docs/Architecture.md](docs/Architecture.md). Each project has a local `AGENTS.md` that describes purpose, entry points, and rules for that area. Feature docs live in [docs/Features/](docs/Features/).

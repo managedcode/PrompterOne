@@ -3,6 +3,7 @@ using PrompterOne.Core.Abstractions;
 using PrompterOne.Core.Models.Media;
 using PrompterOne.Core.Models.Workspace;
 using PrompterOne.Shared.Contracts;
+using PrompterOne.Shared.Localization;
 using PrompterOne.Shared.Services;
 using PrompterOne.Shared.Services.Diagnostics;
 
@@ -14,7 +15,6 @@ public partial class TeleprompterPage : IAsyncDisposable
     private const int DefaultReaderFocalPointPercent = 30;
     private const int MaxReaderGroupCharacterCount = 24;
     private const int MaxReaderGroupWordCount = 5;
-    private const string LoadReaderMessage = "Unable to prepare teleprompter playback.";
     private const string LoadReaderOperation = "Teleprompter load";
     private const int ReaderBackwardStep = -1;
     private const int ReaderCardBackwardStep = -1;
@@ -110,7 +110,7 @@ public partial class TeleprompterPage : IAsyncDisposable
             _loadState = false;
             await Diagnostics.RunAsync(
                 LoadReaderOperation,
-                LoadReaderMessage,
+                Text(UiTextKey.TeleprompterLoadMessage),
                 async () =>
                 {
                     await Bootstrapper.EnsureReadyAsync();

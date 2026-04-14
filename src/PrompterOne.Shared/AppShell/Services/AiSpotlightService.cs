@@ -85,7 +85,7 @@ public sealed class AiSpotlightService(
             {
                 IsOpen = true,
                 Mode = AiSpotlightMode.Approval,
-                Log = AiSpotlightExecutionBuilder.BuildApprovalLog(approvalRequest),
+                Log = AiSpotlightExecutionBuilder.BuildApprovalLog(approvalRequest, Text, Format),
                 RequiresApproval = true,
                 ApprovalRequest = approvalRequest,
                 ErrorMessage = null
@@ -98,7 +98,7 @@ public sealed class AiSpotlightService(
         {
             IsOpen = true,
             Mode = AiSpotlightMode.Running,
-            Log = AiSpotlightExecutionBuilder.BuildRunningLog(State.Context),
+            Log = AiSpotlightExecutionBuilder.BuildRunningLog(State.Context, Text, Format),
             RequiresApproval = false,
             ApprovalRequest = null,
             ErrorMessage = null
@@ -118,10 +118,10 @@ public sealed class AiSpotlightService(
         {
             SetState(State with
             {
-                ErrorMessage = "There is no active editor target for this document edit.",
+                ErrorMessage = Text(UiTextKey.AiSpotlightNoActiveEditorTarget),
                 Log = AiSpotlightExecutionBuilder.AddLog(
                     State.Log,
-                    new AiSpotlightLogEntry("Approval failed", "Open the source editor and try again."))
+                    new AiSpotlightLogEntry(Text(UiTextKey.AiSpotlightApprovalFailed), Text(UiTextKey.AiSpotlightOpenEditorTryAgain)))
             });
             return;
         }
@@ -134,7 +134,7 @@ public sealed class AiSpotlightService(
                 Mode = AiSpotlightMode.Running,
                 Log = AiSpotlightExecutionBuilder.AddLog(
                     State.Log,
-                    new AiSpotlightLogEntry("Applied edit", $"Document revision {result.Revision.Value[..8]}", true)),
+                    new AiSpotlightLogEntry(Text(UiTextKey.AiSpotlightAppliedEdit), Format(UiTextKey.AiSpotlightDocumentRevisionFormat, result.Revision.Value[..8]), true)),
                 RequiresApproval = false,
                 ApprovalRequest = null,
                 ErrorMessage = null
@@ -147,7 +147,7 @@ public sealed class AiSpotlightService(
                 ErrorMessage = exception.Message,
                 Log = AiSpotlightExecutionBuilder.AddLog(
                     State.Log,
-                    new AiSpotlightLogEntry("Approval failed", exception.Message))
+                    new AiSpotlightLogEntry(Text(UiTextKey.AiSpotlightApprovalFailed), exception.Message))
             });
         }
     }
@@ -159,7 +159,7 @@ public sealed class AiSpotlightService(
             Mode = AiSpotlightMode.Running,
             Log = AiSpotlightExecutionBuilder.AddLog(
                 State.Log,
-                new AiSpotlightLogEntry("Change rejected", "No document text was changed.", true)),
+                new AiSpotlightLogEntry(Text(UiTextKey.AiSpotlightChangeRejected), Text(UiTextKey.AiSpotlightNoDocumentTextChanged), true)),
             RequiresApproval = false,
             ApprovalRequest = null,
             ErrorMessage = null
@@ -187,4 +187,7 @@ public sealed class AiSpotlightService(
     }
 
     private string Text(UiTextKey key) => localizer[key.ToString()];
+
+    private string Format(UiTextKey key, params object[] arguments) =>
+        string.Format(System.Globalization.CultureInfo.CurrentCulture, Text(key), arguments);
 }

@@ -12,7 +12,9 @@ public partial class TeleprompterPage
     private const double FastLetterSpacingFloorEm = -0.024d;
     private const double MaximumFastLetterSpacingEm = -0.05d;
     private const double MaximumSlowClassLetterSpacingEm = 0.085d;
+    private const int MaximumTpsContourLevel = 10;
     private const int MinimumReaderReferenceWpm = 60;
+    private const int MinimumTpsContourLevel = 1;
     private const string ReaderWordLetterSpacingVariable = "--tps-word-letter-spacing";
     private const double SlowLetterSpacingFloorEm = 0.045d;
     private const double SlowLetterSpacingRangeRatio = 0.32d;
@@ -46,6 +48,18 @@ public partial class TeleprompterPage
         }
 
         var cueMetrics = ResolveReaderCueMetrics(metadata, cueProgress);
+        var energyLevel = NormalizeTpsContourLevel(metadata.EnergyLevel);
+        if (energyLevel > 0d)
+        {
+            styles.Add(CreateStyleVariable(TpsVisualCueContracts.EnergyVariableName, energyLevel));
+        }
+
+        var melodyLevel = NormalizeTpsContourLevel(metadata.MelodyLevel);
+        if (melodyLevel > 0d)
+        {
+            styles.Add(CreateStyleVariable(TpsVisualCueContracts.MelodyVariableName, melodyLevel));
+        }
+
         if (Math.Abs(cueMetrics.Scale - ReaderCueScaleDefault) > 0.001d)
         {
             styles.Add(CreateStyleVariable(TpsVisualCueContracts.CueScaleVariableName, cueMetrics.Scale));
@@ -189,6 +203,32 @@ public partial class TeleprompterPage
                 break;
         }
 
+        switch (NormalizeCueValue(metadata.ArticulationStyle))
+        {
+            case TpsVisualCueContracts.ArticulationLegato:
+                scale = Math.Max(scale, 1.01d);
+                weight = MaxCueWeight(weight, 680);
+                break;
+            case TpsVisualCueContracts.ArticulationStaccato:
+                scale = Math.Max(scale, 1.04d);
+                weight = MaxCueWeight(weight, 760);
+                break;
+        }
+
+        var energyLevel = NormalizeTpsContourLevel(metadata.EnergyLevel);
+        if (energyLevel > 0d)
+        {
+            scale = Math.Max(scale, 1.01d + (0.07d * energyLevel));
+            weight = MaxCueWeight(weight, 620 + (int)Math.Round(190d * energyLevel, MidpointRounding.AwayFromZero));
+        }
+
+        var melodyLevel = NormalizeTpsContourLevel(metadata.MelodyLevel);
+        if (melodyLevel > 0d)
+        {
+            scale = Math.Max(scale, 1.01d + (0.025d * melodyLevel));
+            weight = MaxCueWeight(weight, 620 + (int)Math.Round(80d * melodyLevel, MidpointRounding.AwayFromZero));
+        }
+
         if (!string.IsNullOrWhiteSpace(metadata.StressText) || !string.IsNullOrWhiteSpace(metadata.StressGuide))
         {
             scale = Math.Max(scale, ReaderCueScaleStress);
@@ -205,6 +245,11 @@ public partial class TeleprompterPage
 
     private static string CreateStyleVariable(string name, double value, string suffix = "") =>
         FormattableString.Invariant($"{name}:{value:0.###}{suffix};");
+
+    private static double NormalizeTpsContourLevel(int? value) =>
+        value is int level
+            ? Math.Clamp(level, MinimumTpsContourLevel, MaximumTpsContourLevel) / (double)MaximumTpsContourLevel
+            : 0d;
 
     private readonly record struct ReaderCueMetrics(double Scale, double Opacity, int? Weight);
 }

@@ -41,7 +41,10 @@ public sealed class EditorMarkupRendererTests
         var markup = EditorMarkupRenderer.Render("Good morning //\n\n[breath]\n\n[pause:2s]\n\n[edit_point:high]").Value;
 
         Assert.Contains("<span class=\"mk-pause\">//</span>", markup);
-        Assert.Contains("<br><br><span class=\"mk-breath\">[breath]</span><br><br>", markup);
+        Assert.Contains(
+            $"<br><br><span class=\"mk-breath\" {TpsVisualCueContracts.BreathAttributeName}=\"{TpsVisualCueContracts.BreathAttributeValue}\">[breath]</span><br><br>",
+            markup,
+            StringComparison.Ordinal);
         Assert.Contains("<span class=\"mk-special\">[pause:2s]</span>", markup);
         Assert.Contains("<span class=\"mk-edit\">[edit_point:high]</span>", markup);
     }

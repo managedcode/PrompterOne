@@ -41,6 +41,10 @@ public sealed class LocalizationBrandNameContractTests
         .OrderBy(key => key, StringComparer.Ordinal)
         .ToArray();
 
+    public static IEnumerable<string> LocalizedResourcePaths =>
+        ResourcePaths
+            .Where(resourcePath => !string.Equals(Path.GetFileName(resourcePath), DefaultResourceFileName, StringComparison.Ordinal));
+
     public static IEnumerable<(string ResourcePath, string ForbiddenVariant)> ForbiddenVariantCases =>
         ResourcePaths.SelectMany(
             resourcePath => ForbiddenBrandVariants.Select(forbiddenVariant => (resourcePath, forbiddenVariant)));
@@ -89,6 +93,20 @@ public sealed class LocalizationBrandNameContractTests
 
         Assert.True(resourceValues.TryGetValue(resourceKey, out var resourceValue));
         Assert.False(string.IsNullOrWhiteSpace(resourceValue));
+    }
+
+    [Test]
+    [MethodDataSource(nameof(LocalizedResourcePaths))]
+    public void SharedResources_ContainDefaultKeys_ForEveryLocale(string resourcePath)
+    {
+        var resourceValues = LoadResourceValues(resourcePath);
+
+        var missingKeys = DefaultResourceValues.Keys
+            .Where(resourceKey => !resourceValues.TryGetValue(resourceKey, out var resourceValue) || string.IsNullOrWhiteSpace(resourceValue))
+            .OrderBy(resourceKey => resourceKey, StringComparer.Ordinal)
+            .ToArray();
+
+        Assert.Empty(missingKeys);
     }
 
     private static IReadOnlyDictionary<string, string> LoadResourceValues(string resourcePath)

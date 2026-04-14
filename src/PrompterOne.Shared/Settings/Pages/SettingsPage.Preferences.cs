@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using PrompterOne.Core.Localization;
 using PrompterOne.Shared.Contracts;
+using PrompterOne.Shared.Localization;
 using PrompterOne.Shared.Services;
 using PrompterOne.Shared.Settings.Models;
 
@@ -9,7 +10,6 @@ namespace PrompterOne.Shared.Pages;
 public partial class SettingsPage
 {
     private const string PersistPreferencesOperation = "Settings save preferences";
-    private const string PersistPreferencesMessage = "Unable to save general settings.";
     private const string OnCssClass = "on";
     private const string SetToggleCssClass = "set-toggle";
 
@@ -37,7 +37,7 @@ public partial class SettingsPage
     private Task PersistPreferencesAsync() =>
         Diagnostics.RunAsync(
             PersistPreferencesOperation,
-            PersistPreferencesMessage,
+            Text(UiTextKey.SettingsPersistPreferencesMessage),
             () => SettingsStore.SaveAsync(SettingsPagePreferences.StorageKey, _pagePreferences));
 
     private async Task TogglePreferenceCardAsync(string cardId)

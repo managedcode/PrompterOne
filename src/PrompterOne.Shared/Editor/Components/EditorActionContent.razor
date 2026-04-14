@@ -1,5 +1,7 @@
 @namespace PrompterOne.Shared.Components.Editor
 @using PrompterOne.Shared.Contracts
+@using PrompterOne.Shared.Localization
+@inject IStringLocalizer<SharedResource> Localizer
 
 <span class="ed-action-content">
     @if (Content.HasLeadingIcon)
@@ -19,12 +21,12 @@
         <span class="ed-action-copy">
             @if (Content.HasLabel)
             {
-                <span class="ed-action-label" data-test="@UiTestIds.Editor.ToolbarActionLabel(ActionTestId)">@Content.Label</span>
+                <span class="ed-action-label" data-test="@UiTestIds.Editor.ToolbarActionLabel(ActionTestId)">@LocalizeActionText(Content.Label)</span>
             }
 
             @if (Content.HasMetaText)
             {
-                <small class="ed-action-meta" data-test="@UiTestIds.Editor.ToolbarActionMeta(ActionTestId)">@Content.MetaText</small>
+                <small class="ed-action-meta" data-test="@UiTestIds.Editor.ToolbarActionMeta(ActionTestId)">@LocalizeActionText(Content.MetaText)</small>
             }
         </span>
     }
@@ -41,6 +43,66 @@
     [Parameter] public string ActionTestId { get; set; } = string.Empty;
 
     [Parameter] public EditorActionContentDescriptor Content { get; set; } = new();
+
+    private string LocalizeActionText(string value) =>
+        value switch
+        {
+            "1 second" => T("EditorActionLabelOneSecond"),
+            "2 seconds" => T("EditorActionLabelTwoSeconds"),
+            "3 seconds" => T("EditorActionLabelThreeSeconds"),
+            "Aside" => T("EditorActionLabelAside"),
+            "Block" => T("EditorActionLabelBlock"),
+            "Bold" => T("EditorActionLabelBold"),
+            "Breath" => T("EditorActionLabelBreath"),
+            "Building" => T("EditorActionLabelBuilding"),
+            "Calm" => T("EditorActionLabelCalm"),
+            "Concerned" => T("EditorActionLabelConcerned"),
+            "Custom (ms)" => T("EditorActionLabelCustomMs"),
+            "Custom WPM" => T("EditorActionLabelCustomWpm"),
+            "Emphasis" => T("EditorActionLabelEmphasis"),
+            "Energetic" => T("EditorActionLabelEnergetic"),
+            "Energy" => T("EditorActionLabelEnergy"),
+            "Excited" => T("EditorActionLabelExcited"),
+            "Extra Fast" => T("EditorActionLabelExtraFast"),
+            "Extra Slow" => T("EditorActionLabelExtraSlow"),
+            "Fast" => T("EditorActionLabelFast"),
+            "Focused" => T("EditorActionLabelFocused"),
+            "Happy" => T("EditorActionLabelHappy"),
+            "High priority" => T("EditorActionLabelHighPriority"),
+            "Highlight" => T("EditorActionLabelHighlight"),
+            "Italic" => T("EditorActionLabelItalic"),
+            "Legato" => T("EditorActionLabelLegato"),
+            "Loud" => T("EditorActionLabelLoud"),
+            "Medium pause" => T("EditorActionLabelMediumPause"),
+            "Medium priority" => T("EditorActionLabelMediumPriority"),
+            "Melody" => T("EditorActionLabelMelody"),
+            "Motivational" => T("EditorActionLabelMotivational"),
+            "Neutral" => T("EditorActionLabelNeutral"),
+            "Normal" => T("EditorActionLabelNormal"),
+            "Phonetic (IPA)" => T("EditorActionLabelPhoneticIpa"),
+            "Professional" => T("EditorActionLabelProfessional"),
+            "Pronunciation" => T("EditorActionLabelPronunciation"),
+            "Remove cues" => T("EditorActionLabelRemoveCues"),
+            "Rhetorical" => T("EditorActionLabelRhetorical"),
+            "Sad" => T("EditorActionLabelSad"),
+            "Sarcasm" => T("EditorActionLabelSarcasm"),
+            "Segment" => T("EditorActionLabelSegment"),
+            "Short pause" => T("EditorActionLabelShortPause"),
+            "Slow" => T("EditorActionLabelSlow"),
+            "Soft" => T("EditorActionLabelSoft"),
+            "Staccato" => T("EditorActionLabelStaccato"),
+            "Standard" => T("EditorActionLabelStandard"),
+            "Stress" => T("EditorActionLabelStress"),
+            "Stress guide" => T("EditorActionLabelStressGuide"),
+            "Urgent" => T("EditorActionLabelUrgent"),
+            "Warm" => T("EditorActionLabelWarm"),
+            "Whisper" => T("EditorActionLabelWhisper"),
+            "Archetype aware" => T("EditorActionMetaArchetypeAware"),
+            "Speaker aware" => T("EditorActionMetaSpeakerAware"),
+            _ => value
+        };
+
+    private string T(string key) => Localizer[key];
 
     private string GetLeadingTextCss()
     {

@@ -1,25 +1,32 @@
 using PrompterOne.Core.AI.Models;
+using PrompterOne.Shared.Localization;
 
 namespace PrompterOne.Shared.Services;
 
 internal static class AiSpotlightExecutionBuilder
 {
-    public static IReadOnlyList<AiSpotlightLogEntry> BuildRunningLog(ScriptArticleContext context) =>
+    public static IReadOnlyList<AiSpotlightLogEntry> BuildRunningLog(
+        ScriptArticleContext context,
+        Func<UiTextKey, string> text,
+        Func<UiTextKey, object[], string> format) =>
     [
-        new("Context loaded", context.Screen ?? "Route", true),
-        new("Graph checked", FormatGraphDetail(context.Graph), true),
+        new(text(UiTextKey.AiSpotlightContextLoaded), context.Screen ?? text(UiTextKey.AiSpotlightContextRoute), true),
+        new(text(UiTextKey.AiSpotlightGraphChecked), FormatGraphDetail(context.Graph, text, format), true),
         new(
-            "Waiting point",
+            text(UiTextKey.AiSpotlightWaitingPoint),
             context.Editor?.SelectedRange is null
-                ? "Ready for the next instruction"
-                : "Approval required before changing selected text")
+                ? text(UiTextKey.AiSpotlightReadyForNextInstruction)
+                : text(UiTextKey.AiSpotlightApprovalRequiredBeforeChangingSelection))
     ];
 
-    public static IReadOnlyList<AiSpotlightLogEntry> BuildApprovalLog(AiSpotlightApprovalRequest request) =>
+    public static IReadOnlyList<AiSpotlightLogEntry> BuildApprovalLog(
+        AiSpotlightApprovalRequest request,
+        Func<UiTextKey, string> text,
+        Func<UiTextKey, object[], string> format) =>
     [
-        new("Context loaded", $"Selected range {request.Range.Start}-{request.Range.End}", true),
-        new("Prepared range edit", request.Reason, true),
-        new("Waiting point", "Review the current and proposed text before applying this edit")
+        new(text(UiTextKey.AiSpotlightContextLoaded), format(UiTextKey.AiSpotlightSelectedRangeFormat, [request.Range.Start, request.Range.End]), true),
+        new(text(UiTextKey.AiSpotlightPreparedRangeEdit), request.Reason, true),
+        new(text(UiTextKey.AiSpotlightWaitingPoint), text(UiTextKey.AiSpotlightReviewEditBeforeApplying))
     ];
 
     public static IReadOnlyList<AiSpotlightLogEntry> AddLog(
@@ -27,8 +34,11 @@ internal static class AiSpotlightExecutionBuilder
         AiSpotlightLogEntry entry) =>
         existing.Concat([entry]).ToArray();
 
-    private static string FormatGraphDetail(ScriptKnowledgeGraphContext? graph) =>
+    private static string FormatGraphDetail(
+        ScriptKnowledgeGraphContext? graph,
+        Func<UiTextKey, string> text,
+        Func<UiTextKey, object[], string> format) =>
         graph is null || graph.IsEmpty
-            ? "No script graph has been built yet"
-            : $"{graph.NodeCount} nodes, {graph.EdgeCount} links";
+            ? text(UiTextKey.AiSpotlightNoGraphBuilt)
+            : format(UiTextKey.AiSpotlightGraphSummaryFormat, [graph.NodeCount, graph.EdgeCount]);
 }

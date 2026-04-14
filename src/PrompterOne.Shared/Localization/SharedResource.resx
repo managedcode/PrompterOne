@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <root>
   <resheader name="resmimetype">
     <value>text/microsoft-resx</value>
@@ -2657,5 +2657,338 @@
   </data>
   <data name="EditorWorkspaceGraphTab" xml:space="preserve">
     <value>Graph</value>
+  </data>
+  <data name="DiagnosticsEyebrow" xml:space="preserve">
+    <value>Diagnostics</value>
+  </data>
+  <data name="GoLiveSceneControlsLayout" xml:space="preserve">
+    <value>Layout</value>
+  </data>
+  <data name="GoLiveSceneTransitionCut" xml:space="preserve">
+    <value>Cut</value>
+  </data>
+  <data name="GoLiveSceneTransitionFade" xml:space="preserve">
+    <value>Fade</value>
+  </data>
+  <data name="GoLiveSceneTransitionWipe" xml:space="preserve">
+    <value>Wipe</value>
+  </data>
+  <data name="EditorActionLabelOneSecond" xml:space="preserve">
+    <value>1 second</value>
+  </data>
+  <data name="EditorActionLabelTwoSeconds" xml:space="preserve">
+    <value>2 seconds</value>
+  </data>
+  <data name="EditorActionLabelThreeSeconds" xml:space="preserve">
+    <value>3 seconds</value>
+  </data>
+  <data name="EditorActionLabelAside" xml:space="preserve">
+    <value>Aside</value>
+  </data>
+  <data name="EditorActionLabelBlock" xml:space="preserve">
+    <value>Block</value>
+  </data>
+  <data name="EditorActionLabelBold" xml:space="preserve">
+    <value>Bold</value>
+  </data>
+  <data name="EditorActionLabelBreath" xml:space="preserve">
+    <value>Breath</value>
+  </data>
+  <data name="EditorActionLabelBuilding" xml:space="preserve">
+    <value>Building</value>
+  </data>
+  <data name="EditorActionLabelCalm" xml:space="preserve">
+    <value>Calm</value>
+  </data>
+  <data name="EditorActionLabelConcerned" xml:space="preserve">
+    <value>Concerned</value>
+  </data>
+  <data name="EditorActionLabelCustomMs" xml:space="preserve">
+    <value>Custom (ms)</value>
+  </data>
+  <data name="EditorActionLabelCustomWpm" xml:space="preserve">
+    <value>Custom WPM</value>
+  </data>
+  <data name="EditorActionLabelEmphasis" xml:space="preserve">
+    <value>Emphasis</value>
+  </data>
+  <data name="EditorActionLabelEnergetic" xml:space="preserve">
+    <value>Energetic</value>
+  </data>
+  <data name="EditorActionLabelEnergy" xml:space="preserve">
+    <value>Energy</value>
+  </data>
+  <data name="EditorActionLabelExcited" xml:space="preserve">
+    <value>Excited</value>
+  </data>
+  <data name="EditorActionLabelExtraFast" xml:space="preserve">
+    <value>Extra Fast</value>
+  </data>
+  <data name="EditorActionLabelExtraSlow" xml:space="preserve">
+    <value>Extra Slow</value>
+  </data>
+  <data name="EditorActionLabelFast" xml:space="preserve">
+    <value>Fast</value>
+  </data>
+  <data name="EditorActionLabelFocused" xml:space="preserve">
+    <value>Focused</value>
+  </data>
+  <data name="EditorActionLabelHappy" xml:space="preserve">
+    <value>Happy</value>
+  </data>
+  <data name="EditorActionLabelHighPriority" xml:space="preserve">
+    <value>High priority</value>
+  </data>
+  <data name="EditorActionLabelHighlight" xml:space="preserve">
+    <value>Highlight</value>
+  </data>
+  <data name="EditorActionLabelItalic" xml:space="preserve">
+    <value>Italic</value>
+  </data>
+  <data name="EditorActionLabelLegato" xml:space="preserve">
+    <value>Legato</value>
+  </data>
+  <data name="EditorActionLabelLoud" xml:space="preserve">
+    <value>Loud</value>
+  </data>
+  <data name="EditorActionLabelMediumPause" xml:space="preserve">
+    <value>Medium pause</value>
+  </data>
+  <data name="EditorActionLabelMediumPriority" xml:space="preserve">
+    <value>Medium priority</value>
+  </data>
+  <data name="EditorActionLabelMelody" xml:space="preserve">
+    <value>Melody</value>
+  </data>
+  <data name="EditorActionLabelMotivational" xml:space="preserve">
+    <value>Motivational</value>
+  </data>
+  <data name="EditorActionLabelNeutral" xml:space="preserve">
+    <value>Neutral</value>
+  </data>
+  <data name="EditorActionLabelNormal" xml:space="preserve">
+    <value>Normal</value>
+  </data>
+  <data name="EditorActionLabelPhoneticIpa" xml:space="preserve">
+    <value>Phonetic (IPA)</value>
+  </data>
+  <data name="EditorActionLabelProfessional" xml:space="preserve">
+    <value>Professional</value>
+  </data>
+  <data name="EditorActionLabelPronunciation" xml:space="preserve">
+    <value>Pronunciation</value>
+  </data>
+  <data name="EditorActionLabelRemoveCues" xml:space="preserve">
+    <value>Remove cues</value>
+  </data>
+  <data name="EditorActionLabelRhetorical" xml:space="preserve">
+    <value>Rhetorical</value>
+  </data>
+  <data name="EditorActionLabelSad" xml:space="preserve">
+    <value>Sad</value>
+  </data>
+  <data name="EditorActionLabelSarcasm" xml:space="preserve">
+    <value>Sarcasm</value>
+  </data>
+  <data name="EditorActionLabelSegment" xml:space="preserve">
+    <value>Segment</value>
+  </data>
+  <data name="EditorActionLabelShortPause" xml:space="preserve">
+    <value>Short pause</value>
+  </data>
+  <data name="EditorActionLabelSlow" xml:space="preserve">
+    <value>Slow</value>
+  </data>
+  <data name="EditorActionLabelSoft" xml:space="preserve">
+    <value>Soft</value>
+  </data>
+  <data name="EditorActionLabelStaccato" xml:space="preserve">
+    <value>Staccato</value>
+  </data>
+  <data name="EditorActionLabelStandard" xml:space="preserve">
+    <value>Standard</value>
+  </data>
+  <data name="EditorActionLabelStress" xml:space="preserve">
+    <value>Stress</value>
+  </data>
+  <data name="EditorActionLabelStressGuide" xml:space="preserve">
+    <value>Stress guide</value>
+  </data>
+  <data name="EditorActionLabelUrgent" xml:space="preserve">
+    <value>Urgent</value>
+  </data>
+  <data name="EditorActionLabelWarm" xml:space="preserve">
+    <value>Warm</value>
+  </data>
+  <data name="EditorActionLabelWhisper" xml:space="preserve">
+    <value>Whisper</value>
+  </data>
+  <data name="EditorActionMetaArchetypeAware" xml:space="preserve">
+    <value>Archetype aware</value>
+  </data>
+  <data name="EditorActionMetaSpeakerAware" xml:space="preserve">
+    <value>Speaker aware</value>
+  </data>
+  <data name="AiSpotlightContextLoaded" xml:space="preserve">
+    <value>Context loaded</value>
+  </data>
+  <data name="AiSpotlightGraphChecked" xml:space="preserve">
+    <value>Graph checked</value>
+  </data>
+  <data name="AiSpotlightWaitingPoint" xml:space="preserve">
+    <value>Waiting point</value>
+  </data>
+  <data name="AiSpotlightReadyForNextInstruction" xml:space="preserve">
+    <value>Ready for the next instruction</value>
+  </data>
+  <data name="AiSpotlightApprovalRequiredBeforeChangingSelection" xml:space="preserve">
+    <value>Approval required before changing selected text</value>
+  </data>
+  <data name="AiSpotlightSelectedRangeFormat" xml:space="preserve">
+    <value>Selected range {0}-{1}</value>
+  </data>
+  <data name="AiSpotlightPreparedRangeEdit" xml:space="preserve">
+    <value>Prepared range edit</value>
+  </data>
+  <data name="AiSpotlightReviewEditBeforeApplying" xml:space="preserve">
+    <value>Review the current and proposed text before applying this edit</value>
+  </data>
+  <data name="AiSpotlightNoGraphBuilt" xml:space="preserve">
+    <value>No script graph has been built yet</value>
+  </data>
+  <data name="AiSpotlightGraphSummaryFormat" xml:space="preserve">
+    <value>{0} nodes, {1} links</value>
+  </data>
+  <data name="AiSpotlightNoActiveEditorTarget" xml:space="preserve">
+    <value>There is no active editor target for this document edit.</value>
+  </data>
+  <data name="AiSpotlightApprovalFailed" xml:space="preserve">
+    <value>Approval failed</value>
+  </data>
+  <data name="AiSpotlightOpenEditorTryAgain" xml:space="preserve">
+    <value>Open the source editor and try again.</value>
+  </data>
+  <data name="AiSpotlightAppliedEdit" xml:space="preserve">
+    <value>Applied edit</value>
+  </data>
+  <data name="AiSpotlightDocumentRevisionFormat" xml:space="preserve">
+    <value>Document revision {0}</value>
+  </data>
+  <data name="AiSpotlightChangeRejected" xml:space="preserve">
+    <value>Change rejected</value>
+  </data>
+  <data name="AiSpotlightNoDocumentTextChanged" xml:space="preserve">
+    <value>No document text was changed.</value>
+  </data>
+  <data name="LibraryLoadMessage" xml:space="preserve">
+    <value>Unable to load the library right now.</value>
+  </data>
+  <data name="LibraryCreateScriptMessage" xml:space="preserve">
+    <value>Unable to create a new script.</value>
+  </data>
+  <data name="LibraryOpenScriptMessage" xml:space="preserve">
+    <value>Unable to open this script.</value>
+  </data>
+  <data name="LibraryDuplicateScriptMessage" xml:space="preserve">
+    <value>Unable to duplicate this script.</value>
+  </data>
+  <data name="LibraryDuplicateTitleFormat" xml:space="preserve">
+    <value>{0} Copy</value>
+  </data>
+  <data name="LibraryMoveScriptMessage" xml:space="preserve">
+    <value>Unable to move this script.</value>
+  </data>
+  <data name="LibraryDeleteScriptMessage" xml:space="preserve">
+    <value>Unable to delete this script.</value>
+  </data>
+  <data name="LibraryCreateFolderMessage" xml:space="preserve">
+    <value>Unable to create this folder.</value>
+  </data>
+  <data name="LibraryUntitledScriptTitle" xml:space="preserve">
+    <value>Untitled Script</value>
+  </data>
+  <data name="LibraryUntitledFolderTitle" xml:space="preserve">
+    <value>Untitled Folder</value>
+  </data>
+  <data name="LibraryFolderNameRequiredMessage" xml:space="preserve">
+    <value>Folder name is required.</value>
+  </data>
+  <data name="LearnLoadMessage" xml:space="preserve">
+    <value>Unable to load RSVP rehearsal right now.</value>
+  </data>
+  <data name="TeleprompterLoadMessage" xml:space="preserve">
+    <value>Unable to prepare teleprompter playback.</value>
+  </data>
+  <data name="TeleprompterAttachCameraMessage" xml:space="preserve">
+    <value>Unable to enable the teleprompter camera.</value>
+  </data>
+  <data name="SettingsLoadMessage" xml:space="preserve">
+    <value>Unable to load settings right now.</value>
+  </data>
+  <data name="SettingsPersistSceneMessage" xml:space="preserve">
+    <value>Unable to save scene changes.</value>
+  </data>
+  <data name="SettingsPersistStudioMessage" xml:space="preserve">
+    <value>Unable to save studio settings.</value>
+  </data>
+  <data name="SettingsPersistPreferencesMessage" xml:space="preserve">
+    <value>Unable to save general settings.</value>
+  </data>
+  <data name="SettingsRefreshMediaMessage" xml:space="preserve">
+    <value>Unable to refresh camera and microphone access.</value>
+  </data>
+  <data name="SettingsEnableDevicesLabel" xml:space="preserve">
+    <value>Enable Camera + Mic</value>
+  </data>
+  <data name="SettingsRefreshDevicesLabel" xml:space="preserve">
+    <value>Refresh Devices</value>
+  </data>
+  <data name="CloudStorageProviderInitializeMessage" xml:space="preserve">
+    <value>Unable to initialize the selected provider.</value>
+  </data>
+  <data name="CloudStorageExportedSummaryFormat" xml:space="preserve">
+    <value>Exported {0} scripts and settings.</value>
+  </data>
+  <data name="CloudStorageUploadBackupMessage" xml:space="preserve">
+    <value>Unable to upload the backup snapshot.</value>
+  </data>
+  <data name="CloudStorageNoBackupSnapshotMessage" xml:space="preserve">
+    <value>No backup snapshot was found for this provider.</value>
+  </data>
+  <data name="CloudStorageInvalidBackupSnapshotMessage" xml:space="preserve">
+    <value>The backup snapshot is empty or invalid.</value>
+  </data>
+  <data name="CloudStorageImportedSummaryFormat" xml:space="preserve">
+    <value>Imported {0} scripts and settings.</value>
+  </data>
+  <data name="CloudStorageConnectionValidated" xml:space="preserve">
+    <value>Connection validated.</value>
+  </data>
+  <data name="CloudStorageConnectionFailed" xml:space="preserve">
+    <value>Connection failed.</value>
+  </data>
+  <data name="CloudStorageUnknownProviderFormat" xml:space="preserve">
+    <value>Unknown cloud storage provider '{0}'.</value>
+  </data>
+  <data name="CloudStorageOneDriveBrowserUnsupportedMessage" xml:space="preserve">
+    <value>OneDrive client-secret storage is not supported in the browser runtime.</value>
+  </data>
+  <data name="CloudStorageDropboxCredentialsRequiredMessage" xml:space="preserve">
+    <value>Dropbox requires an access token or a refresh token with app key.</value>
+  </data>
+  <data name="CloudStorageOneDriveCredentialsRequiredMessage" xml:space="preserve">
+    <value>OneDrive requires tenant id, client id, and client secret.</value>
+  </data>
+  <data name="CloudStorageServiceAccountJsonRequiredFormat" xml:space="preserve">
+    <value>{0} requires a service account JSON key.</value>
+  </data>
+  <data name="CloudStorageGoogleCloudStorageProfileRequiredMessage" xml:space="preserve">
+    <value>Google Cloud Storage requires a project id and bucket name.</value>
+  </data>
+  <data name="CloudStorageCloudKitContainerRequiredMessage" xml:space="preserve">
+    <value>CloudKit requires a container id.</value>
+  </data>
+  <data name="CloudStorageCloudKitCredentialsRequiredMessage" xml:space="preserve">
+    <value>CloudKit requires an API token, web auth token, or server-to-server credentials.</value>
   </data>
 </root>

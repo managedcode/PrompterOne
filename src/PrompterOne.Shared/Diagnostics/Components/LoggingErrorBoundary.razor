@@ -12,7 +12,7 @@ else
 {
     <section class="diag-fatal-shell" role="alertdialog" aria-modal="true" data-test="@UiTestIds.Diagnostics.Fatal">
         <div class="diag-fatal-card">
-            <span class="diag-fatal-eyebrow">Diagnostics</span>
+            <span class="diag-fatal-eyebrow">@Localizer[UiTextKey.DiagnosticsEyebrow.ToString()]</span>
             <h1>@CurrentDiagnostic?.Title</h1>
             <p>@CurrentDiagnostic?.Message</p>
             <div class="diag-fatal-detail">@CurrentDiagnostic?.Detail</div>

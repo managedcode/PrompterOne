@@ -180,6 +180,19 @@
     border-radius: 50%;
     background: rgba(232,213,176,.08);
 }
+.rd-pause-breath::after {
+    content: 'ˈ';
+    top: -0.78em;
+    left: .08em;
+    width: auto;
+    height: auto;
+    border-radius: 0;
+    background: transparent;
+    color: rgba(238,219,150,.34);
+    font-size: 15px;
+    line-height: 1;
+    text-shadow: 0 0 10px rgba(238,219,150,.12);
+}
 /* Medium pause — sentence boundary (//)
    Forces a line break: next phrase starts on a fresh line.
    Uses flex-basis:100% trick inside a flex-wrap parent to guarantee
@@ -280,6 +293,10 @@ span.rd-pause.rd-pause-long {
 .rd-g-active > .rd-w.tps-rhetorical:not(.rd-now):not(.rd-read) { color: rgba(205,179,233,.7); }
 .rd-g-active > .rd-w.tps-sarcasm:not(.rd-now):not(.rd-read) { color: rgba(226,182,199,.68); }
 .rd-g-active > .rd-w.tps-building:not(.rd-now):not(.rd-read) { color: rgba(240,212,141,.74); }
+.rd-g-active > .rd-w.tps-legato:not(.rd-now):not(.rd-read) { color: rgba(141,213,226,.7); }
+.rd-g-active > .rd-w.tps-staccato:not(.rd-now):not(.rd-read) { color: rgba(236,181,216,.7); }
+.rd-g-active > .rd-w.tps-energy:not(.rd-now):not(.rd-read) { color: rgba(149,230,196,.72); }
+.rd-g-active > .rd-w.tps-melody:not(.rd-now):not(.rd-read) { color: rgba(255,195,142,.72); }
 .rd-g-active > .rd-w.tps-stress:not(.rd-now):not(.rd-read) {
     text-decoration-color: rgba(255,208,96,.2);
     color: rgba(242,230,204,.7);
@@ -296,6 +313,9 @@ span.rd-pause.rd-pause-long {
 
 .rd-w[data-tps-volume],
 .rd-w[data-tps-delivery],
+.rd-w[data-tps-articulation],
+.rd-w[data-tps-energy],
+.rd-w[data-tps-melody],
 .rd-w[data-tps-speed],
 .rd-w[data-tps-stress="true"] {
     --tps-cue-opacity: 1;
@@ -305,6 +325,30 @@ span.rd-pause.rd-pause-long {
     opacity: var(--tps-cue-opacity);
     transform: translateY(calc((1 - var(--tps-cue-scale)) * .08em)) scale(var(--tps-cue-scale));
     transform-origin: left 72%;
+}
+.rd-w.tps-legato,
+.rd-w.tps-melody {
+    text-decoration-line: underline;
+    text-decoration-style: wavy;
+    text-decoration-color: rgba(125,219,255,.24);
+    text-decoration-thickness: 1px;
+    text-underline-offset: .26em;
+    text-decoration-skip-ink: none;
+}
+.rd-w.tps-staccato {
+    text-decoration-line: underline;
+    text-decoration-style: dotted;
+    text-decoration-color: rgba(255,176,230,.32);
+    text-decoration-thickness: 2px;
+    text-underline-offset: .32em;
+}
+.rd-w.tps-energy {
+    text-shadow:
+        0 0 calc(8px + (14px * var(--tps-energy, 0))) rgba(94,236,194, calc(.08 + (.18 * var(--tps-energy, 0)))),
+        0 0 calc(4px + (10px * var(--tps-energy, 0))) rgba(242,230,204,.05);
+}
+.rd-w.tps-melody {
+    text-decoration-color: rgba(255,159,110, calc(.18 + (.28 * var(--tps-melody, 0))));
 }
 
 .rd-card-prev .rd-w,
@@ -359,6 +403,10 @@ span.rd-pause.rd-pause-long {
 .rd-w.rd-now.tps-rhetorical { color: #D9C0EF; text-shadow: 0 0 14px rgba(205,179,233,.12); }
 .rd-w.rd-now.tps-sarcasm { color: #E8C0D0; text-shadow: 0 0 14px rgba(226,182,199,.12); }
 .rd-w.rd-now.tps-building { color: #F3DA9A; text-shadow: 0 0 14px rgba(240,212,141,.14); }
+.rd-w.rd-now.tps-legato { color: #A4E4F1; text-decoration-style: wavy; text-decoration-color: rgba(164,228,241,.44); text-shadow: 0 0 14px rgba(141,213,226,.12); }
+.rd-w.rd-now.tps-staccato { color: #F2C1E1; text-decoration-style: dotted; text-decoration-color: rgba(242,193,225,.52); text-shadow: 0 0 14px rgba(236,181,216,.12); }
+.rd-w.rd-now.tps-energy { color: #A7EBD3; text-shadow: 0 0 calc(12px + (18px * var(--tps-energy, 0))) rgba(94,236,194, calc(.12 + (.2 * var(--tps-energy, 0)))); }
+.rd-w.rd-now.tps-melody { color: #F8C49E; text-decoration-style: wavy; text-decoration-color: rgba(255,159,110,.52); text-shadow: 0 0 14px rgba(255,159,110,.12); }
 .rd-w.rd-now.tps-stress {
     text-decoration-color: rgba(255,208,96,.32);
     text-shadow: 0 0 14px rgba(255,208,96,.08);

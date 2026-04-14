@@ -310,11 +310,20 @@ public partial class TeleprompterPage
             ?? UiTestIds.Teleprompter.CardWord(cardIndex, chunkIndex, wordIndex);
     }
 
-    private static IReadOnlyDictionary<string, object> BuildReaderPauseDataAttributes(ReaderPauseViewModel pause) =>
-        new Dictionary<string, object>(StringComparer.Ordinal)
+    private static IReadOnlyDictionary<string, object> BuildReaderPauseDataAttributes(ReaderPauseViewModel pause)
+    {
+        var attributes = new Dictionary<string, object>(StringComparer.Ordinal)
         {
             [UiDataAttributes.Teleprompter.DurationMilliseconds] = pause.DurationMs
         };
+
+        if (string.Equals(pause.CssClass, ReaderPauseBreathCssClass, StringComparison.Ordinal))
+        {
+            attributes[TpsVisualCueContracts.BreathAttributeName] = TpsVisualCueContracts.BreathAttributeValue;
+        }
+
+        return attributes;
+    }
 
     private IReadOnlyDictionary<string, object> BuildReaderTimeDataAttributes() =>
         new Dictionary<string, object>(StringComparer.Ordinal)

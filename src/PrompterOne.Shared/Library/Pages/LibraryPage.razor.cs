@@ -14,19 +14,12 @@ public partial class LibraryPage : ComponentBase, IDisposable
 {
     private const string LibrarySettingsKey = "prompterone.library";
     private const string LoadLibraryOperation = "Library load";
-    private const string LoadLibraryMessage = "Unable to load the library right now.";
     private const string CreateScriptOperation = "Library create script";
-    private const string CreateScriptMessage = "Unable to create a new script.";
     private const string OpenScriptOperation = "Library open script";
-    private const string OpenScriptMessage = "Unable to open this script.";
     private const string DuplicateScriptOperation = "Library duplicate script";
-    private const string DuplicateScriptMessage = "Unable to duplicate this script.";
     private const string MoveScriptOperation = "Library move script";
-    private const string MoveScriptMessage = "Unable to move this script.";
     private const string DeleteScriptOperation = "Library delete script";
-    private const string DeleteScriptMessage = "Unable to delete this script.";
     private const string CreateFolderOperation = "Library create folder";
-    private const string CreateFolderMessage = "Unable to create this folder.";
     private const string SelectFolderLogTemplate = "Selecting library folder {FolderId}.";
     private const string StartCreateFolderLogTemplate = "Opening library folder overlay with parent {ParentId}.";
     private const string CancelCreateFolderLogMessage = "Cancelling library folder overlay.";

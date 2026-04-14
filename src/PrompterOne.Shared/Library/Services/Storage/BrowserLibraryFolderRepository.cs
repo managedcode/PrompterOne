@@ -1,11 +1,13 @@
 using System.Text.Json;
+using Microsoft.Extensions.Localization;
 using Microsoft.JSInterop;
 using PrompterOne.Core.Abstractions;
 using PrompterOne.Core.Models.Library;
+using PrompterOne.Shared.Localization;
 
 namespace PrompterOne.Shared.Services;
 
-public sealed class BrowserLibraryFolderRepository(IJSRuntime jsRuntime) : ILibraryFolderRepository
+public sealed class BrowserLibraryFolderRepository(IJSRuntime jsRuntime, IStringLocalizer<SharedResource> localizer) : ILibraryFolderRepository
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -13,6 +15,7 @@ public sealed class BrowserLibraryFolderRepository(IJSRuntime jsRuntime) : ILibr
     };
 
     private readonly IJSRuntime _jsRuntime = jsRuntime;
+    private readonly IStringLocalizer<SharedResource> _localizer = localizer;
     private IReadOnlyList<BrowserStoredLibraryFolderDto> _seedFolders = [];
 
     public Task InitializeAsync(IEnumerable<StoredLibraryFolder> initialFolders, CancellationToken cancellationToken = default)
@@ -43,7 +46,7 @@ public sealed class BrowserLibraryFolderRepository(IJSRuntime jsRuntime) : ILibr
         var normalizedName = name?.Trim() ?? string.Empty;
         if (normalizedName.Length == 0)
         {
-            throw new InvalidOperationException("Folder name is required.");
+            throw new InvalidOperationException(Text(UiTextKey.LibraryFolderNameRequiredMessage));
         }
 
         var folders = await ListAsync(cancellationToken);
@@ -139,13 +142,15 @@ public sealed class BrowserLibraryFolderRepository(IJSRuntime jsRuntime) : ILibr
             UpdatedAt = folder.UpdatedAt
         };
 
-    private static StoredLibraryFolder MapFolder(BrowserStoredLibraryFolderDto dto) =>
+    private StoredLibraryFolder MapFolder(BrowserStoredLibraryFolderDto dto) =>
         new(
             Id: dto.Id ?? string.Empty,
-            Name: dto.Name ?? "Untitled Folder",
+            Name: dto.Name ?? Text(UiTextKey.LibraryUntitledFolderTitle),
             ParentId: string.IsNullOrWhiteSpace(dto.ParentId) ? null : dto.ParentId,
             DisplayOrder: dto.DisplayOrder,
             UpdatedAt: dto.UpdatedAt);
+
+    private string Text(UiTextKey key) => _localizer[key.ToString()];
 
     private static int ResolveDisplayOrder(string? parentId, IEnumerable<StoredLibraryFolder> folders) =>
         folders

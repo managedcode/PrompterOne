@@ -1,5 +1,6 @@
 using PrompterOne.Core.Models.Media;
 using PrompterOne.Core.Models.Workspace;
+using PrompterOne.Shared.Localization;
 using PrompterOne.Shared.Services;
 using PrompterOne.Shared.Storage;
 
@@ -7,15 +8,9 @@ namespace PrompterOne.Shared.Pages;
 
 public partial class SettingsPage
 {
-    private const string EnableDevicesLabel = "Enable Camera + Mic";
-    private const string LoadSettingsMessage = "Unable to load settings right now.";
     private const string LoadSettingsOperation = "Settings load";
-    private const string PersistSceneMessage = "Unable to save scene changes.";
     private const string PersistSceneOperation = "Settings save scene";
-    private const string PersistStudioMessage = "Unable to save studio settings.";
     private const string PersistStudioOperation = "Settings save studio";
-    private const string RefreshDevicesLabel = "Refresh Devices";
-    private const string RefreshMediaMessage = "Unable to refresh camera and microphone access.";
     private const string RefreshMediaOperation = "Settings media refresh";
 
     private bool _loadState = true;
@@ -36,7 +31,9 @@ public partial class SettingsPage
         _sceneCameras.Count > 0 && _sceneCameras.All(camera => camera.Transform.IncludeInOutput);
 
     private string MediaAccessActionLabel =>
-        _permissions.CameraGranted && _permissions.MicrophoneGranted ? RefreshDevicesLabel : EnableDevicesLabel;
+        _permissions.CameraGranted && _permissions.MicrophoneGranted
+            ? Text(UiTextKey.SettingsRefreshDevicesLabel)
+            : Text(UiTextKey.SettingsEnableDevicesLabel);
 
     private MediaDeviceInfo? PreviewCamera => ResolvePreviewCamera();
 
@@ -65,7 +62,7 @@ public partial class SettingsPage
         _loadState = false;
         await Diagnostics.RunAsync(
             LoadSettingsOperation,
-            LoadSettingsMessage,
+            Text(UiTextKey.SettingsLoadMessage),
             async () =>
             {
                 await LoadAsync();
@@ -146,7 +143,7 @@ public partial class SettingsPage
     {
         await Diagnostics.RunAsync(
             RefreshMediaOperation,
-            RefreshMediaMessage,
+            Text(UiTextKey.SettingsRefreshMediaMessage),
             async () =>
             {
                 _permissions = await MediaPermissionService.RequestAsync();
@@ -199,14 +196,14 @@ public partial class SettingsPage
         _primaryMicrophoneId = MediaSceneService.State.PrimaryMicrophoneId;
         await Diagnostics.RunAsync(
             PersistSceneOperation,
-            PersistSceneMessage,
+            Text(UiTextKey.SettingsPersistSceneMessage),
             () => SettingsStore.SaveAsync(BrowserAppSettingsKeys.SceneSettings, MediaSceneService.State));
     }
 
     private Task PersistStudioSettingsAsync() =>
         Diagnostics.RunAsync(
             PersistStudioOperation,
-            PersistStudioMessage,
+            Text(UiTextKey.SettingsPersistStudioMessage),
             () => StudioSettingsStore.SaveAsync(_studioSettings));
 
     private MediaDeviceInfo? ResolveSelectedCamera() =>

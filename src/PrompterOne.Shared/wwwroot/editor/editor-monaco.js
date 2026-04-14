@@ -46,7 +46,9 @@ const tagSemanticClassNames = Object.freeze({
     breath: `${cssClassPrefix}-tag-breath`,
     editPoint: `${cssClassPrefix}-tag-editpoint`,
     emphasis: `${cssClassPrefix}-tag-emphasis`,
+    energy: `${cssClassPrefix}-tag-energy`,
     highlight: `${cssClassPrefix}-tag-highlight`,
+    melody: `${cssClassPrefix}-tag-melody`,
     pause: `${cssClassPrefix}-tag-pause`,
     pronunciation: `${cssClassPrefix}-tag-pronunciation`,
     stress: `${cssClassPrefix}-tag-stress`,
@@ -106,8 +108,11 @@ function createDecorationCatalog(options) {
     const emotionNames = normalizeCatalogNames(runtimeCatalog.emotions);
     const volumeNames = normalizeCatalogNames(runtimeCatalog.volumeLevels);
     const deliveryNames = normalizeCatalogNames(runtimeCatalog.deliveryModes);
+    const articulationNames = normalizeCatalogNames(runtimeCatalog.articulationStyles);
     const speedNames = normalizeCatalogNames(runtimeCatalog.relativeSpeedTags);
     return {
+        articulationClasses: new Map(articulationNames.map(name => [name, `${cssClassPrefix}-inline-articulation-${name}`])),
+        articulationTagClasses: createSemanticTagClassMap(articulationNames, "articulation"),
         deliveryClasses: new Map(deliveryNames.map(name => [name, `${cssClassPrefix}-inline-delivery-${name}`])),
         deliveryTagClasses: createSemanticTagClassMap(deliveryNames, "delivery"),
         emotionClasses: new Map(emotionNames.map(name => [name, `${cssClassPrefix}-inline-emotion-${name}`])),
@@ -163,6 +168,10 @@ function resolveSemanticTagClassName(normalizedName, tpsCatalog) {
         return tpsCatalog.deliveryTagClasses.get(normalizedName);
     }
 
+    if (tpsCatalog.articulationTagClasses.has(normalizedName)) {
+        return tpsCatalog.articulationTagClasses.get(normalizedName);
+    }
+
     if (tpsCatalog.speedTagClasses.has(normalizedName)) {
         return tpsCatalog.speedTagClasses.get(normalizedName);
     }
@@ -174,6 +183,10 @@ function resolveSemanticTagClassName(normalizedName, tpsCatalog) {
         case "strong":
         case "bold":
             return tagSemanticClassNames.emphasis;
+        case "energy":
+            return tagSemanticClassNames.energy;
+        case "melody":
+            return tagSemanticClassNames.melody;
         case "stress":
             return tagSemanticClassNames.stress;
         case "phonetic":
@@ -679,6 +692,8 @@ function createThemeData(isLight) {
             { token: "cue.close", foreground: isLight ? "8A7B6B" : "8A9E98" },
             { token: "cue.breath", foreground: isLight ? "7A6B4D" : "D7C79C" },
             { token: "cue.editpoint", foreground: isLight ? "9A5A63" : "FFB0BD" },
+            { token: "cue.energy", foreground: isLight ? "357D62" : "5EECC2" },
+            { token: "cue.melody", foreground: isLight ? "A4572A" : "FF9F6E" },
             { token: "cue.pronunciation", foreground: isLight ? "5C6AA0" : "AFC2FF" },
             { token: "markdown.bold", foreground: isLight ? "4F3C2A" : "FFE8B2", fontStyle: "bold" },
             { token: "markdown.italic", foreground: isLight ? "7A5A36" : "F3D39B", fontStyle: "italic" },
@@ -1290,6 +1305,26 @@ function decorateInlineTag(monaco, decorations, lineNumber, rawTag, tagIndex, sc
         return;
     }
 
+    if (normalizedName === "energy") {
+        decorateRawRange(monaco, decorations, lineNumber, startColumn, endColumn, createTagClassName(semanticTagClassName));
+        scopes.push(createInlineScopeFrame(normalizedName, scopeKindStyle, {
+            ...currentState,
+            energyClass: `${cssClassPrefix}-inline-energy`,
+            energyValue: argument ?? null
+        }, null, semanticTagClassName));
+        return;
+    }
+
+    if (normalizedName === "melody") {
+        decorateRawRange(monaco, decorations, lineNumber, startColumn, endColumn, createTagClassName(semanticTagClassName));
+        scopes.push(createInlineScopeFrame(normalizedName, scopeKindStyle, {
+            ...currentState,
+            melodyClass: `${cssClassPrefix}-inline-melody`,
+            melodyValue: argument ?? null
+        }, null, semanticTagClassName));
+        return;
+    }
+
     if (tpsCatalog.speedClasses.has(normalizedName)) {
         decorateRawRange(monaco, decorations, lineNumber, startColumn, endColumn, createTagClassName(semanticTagClassName));
         scopes.push(createInlineScopeFrame(normalizedName, scopeKindStyle, {
@@ -1316,6 +1351,16 @@ function decorateInlineTag(monaco, decorations, lineNumber, rawTag, tagIndex, sc
             ...currentState,
             deliveryClass: tpsCatalog.deliveryClasses.get(normalizedName),
             deliveryValue: normalizedName
+        }, null, semanticTagClassName));
+        return;
+    }
+
+    if (tpsCatalog.articulationClasses.has(normalizedName)) {
+        decorateRawRange(monaco, decorations, lineNumber, startColumn, endColumn, createTagClassName(semanticTagClassName));
+        scopes.push(createInlineScopeFrame(normalizedName, scopeKindStyle, {
+            ...currentState,
+            articulationClass: tpsCatalog.articulationClasses.get(normalizedName),
+            articulationValue: normalizedName
         }, null, semanticTagClassName));
         return;
     }
@@ -1359,12 +1404,18 @@ function createInlineScopeFrame(name, kind, state, argument, tagClassName) {
 
 function createInlineRenderState() {
     return {
+        articulationClass: null,
+        articulationValue: null,
         deliveryClass: null,
         deliveryValue: null,
+        energyClass: null,
+        energyValue: null,
         emotionClass: null,
         isEmphasis: false,
         isHighlighted: false,
         isStress: false,
+        melodyClass: null,
+        melodyValue: null,
         speedClass: null,
         speedValue: null,
         volumeClass: null,
@@ -1416,6 +1467,15 @@ function buildInlineStateClassName(state, extraClasses) {
     }
     if (state.deliveryClass) {
         classes.push(state.deliveryClass);
+    }
+    if (state.articulationClass) {
+        classes.push(state.articulationClass);
+    }
+    if (state.energyClass) {
+        classes.push(state.energyClass);
+    }
+    if (state.melodyClass) {
+        classes.push(state.melodyClass);
     }
     if (state.speedClass) {
         classes.push(state.speedClass);

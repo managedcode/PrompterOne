@@ -74,6 +74,11 @@ where [building]every interaction is intuitive[/building], /
 every workflow is [soft]seamless[/soft], /
 and every user feels [loud]empowered[/loud]. //
 
+[breath]
+[legato][energy:8]steady confidence[/energy][/legato], /
+[staccato][melody:4]crisp signals[/melody][/staccato], /
+and [stress:TRUST-wor-thy]trustworthy[/stress] guidance. //
+
 [pause:3s]
 
 ### [Closing Block|140WPM|energetic]

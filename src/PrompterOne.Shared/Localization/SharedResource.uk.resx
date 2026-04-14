@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <root>
   <resheader name="resmimetype">
     <value>text/microsoft-resx</value>
@@ -709,7 +709,7 @@
     <value>Relay</value>
   </data>
   <data name="GoLiveDestinationTransportBindingSummary" xml:space="preserve">
-    <value>Прив’яжіть це призначення щонайменше до одного озброєного transport-з’єднання.</value>
+    <value>Прив’яжіть це призначення щонайменше до одного активованого transport-з’єднання.</value>
   </data>
   <data name="GoLiveSidebarAudioTabLabel" xml:space="preserve">
     <value>Аудіо</value>
@@ -1493,5 +1493,1502 @@
   </data>
   <data name="EditorWorkspaceGraphTab" xml:space="preserve">
     <value>Граф</value>
+  </data>
+  <data name="LibraryCardBadgeTps" xml:space="preserve">
+    <value>TPS</value>
+  </data>
+  <data name="LibraryCardWordsFormat" xml:space="preserve">
+    <value>{0:N0} слова</value>
+  </data>
+  <data name="LibraryCardLearn" xml:space="preserve">
+    <value>вчитися</value>
+  </data>
+  <data name="LibraryCardRead" xml:space="preserve">
+    <value>Прочитайте</value>
+  </data>
+  <data name="LibraryDefaultAuthor" xml:space="preserve">
+    <value>Ви</value>
+  </data>
+  <data name="LibraryDefaultEmotion" xml:space="preserve">
+    <value>Нейтральний</value>
+  </data>
+  <data name="LibraryDefaultModeActor" xml:space="preserve">
+    <value>Актор</value>
+  </data>
+  <data name="LearnNext" xml:space="preserve">
+    <value>Далі</value>
+  </data>
+  <data name="LearnWpm" xml:space="preserve">
+    <value>WPM</value>
+  </data>
+  <data name="LearnReadyWord" xml:space="preserve">
+    <value>Готовий</value>
+  </data>
+  <data name="LearnEndOfScript" xml:space="preserve">
+    <value>Кінець сценарію.</value>
+  </data>
+  <data name="LearnProgressFormat" xml:space="preserve">
+    <value>{0}/{1} · {2}:{3:00}</value>
+  </data>
+  <data name="RoutesNotFoundTitle" xml:space="preserve">
+    <value>Екран не знайдено</value>
+  </data>
+  <data name="RoutesNotFoundDescription" xml:space="preserve">
+    <value>Цей маршрут не існує. Поверніться до бібліотеки та виберіть інший екран.</value>
+  </data>
+  <data name="CommonTitle" xml:space="preserve">
+    <value>Назва</value>
+  </data>
+  <data name="CommonProfile" xml:space="preserve">
+    <value>Профіль</value>
+  </data>
+  <data name="CommonBaseWpm" xml:space="preserve">
+    <value>Основа WPM</value>
+  </data>
+  <data name="CommonDuration" xml:space="preserve">
+    <value>Тривалість</value>
+  </data>
+  <data name="CommonAuthor" xml:space="preserve">
+    <value>Автор</value>
+  </data>
+  <data name="CommonCreated" xml:space="preserve">
+    <value>Створено</value>
+  </data>
+  <data name="CommonVersion" xml:space="preserve">
+    <value>Версія</value>
+  </data>
+  <data name="CommonSpeaker" xml:space="preserve">
+    <value>Спікер</value>
+  </data>
+  <data name="CommonEmotion" xml:space="preserve">
+    <value>Емоція</value>
+  </data>
+  <data name="CommonTiming" xml:space="preserve">
+    <value>Час</value>
+  </data>
+  <data name="CommonEstimatedTime" xml:space="preserve">
+    <value>Прибл. час</value>
+  </data>
+  <data name="CommonInherit" xml:space="preserve">
+    <value>Успадкувати</value>
+  </data>
+  <data name="CommonActor" xml:space="preserve">
+    <value>Актор</value>
+  </data>
+  <data name="CommonRsvp" xml:space="preserve">
+    <value>RSVP</value>
+  </data>
+  <data name="CommonWpm" xml:space="preserve">
+    <value>WPM</value>
+  </data>
+  <data name="CommonWords" xml:space="preserve">
+    <value>Слова</value>
+  </data>
+  <data name="CommonSegments" xml:space="preserve">
+    <value>Сегменти</value>
+  </data>
+  <data name="CommonBlocks" xml:space="preserve">
+    <value>Блоки</value>
+  </data>
+  <data name="CommonXslow" xml:space="preserve">
+    <value>дуже повільно</value>
+  </data>
+  <data name="CommonSlow" xml:space="preserve">
+    <value>повільний</value>
+  </data>
+  <data name="CommonFast" xml:space="preserve">
+    <value>швидко</value>
+  </data>
+  <data name="CommonXfast" xml:space="preserve">
+    <value>дуже швидко</value>
+  </data>
+  <data name="CommonStats" xml:space="preserve">
+    <value>статистика</value>
+  </data>
+  <data name="CommonHistory" xml:space="preserve">
+    <value>Історія</value>
+  </data>
+  <data name="CommonRestore" xml:space="preserve">
+    <value>Відновити</value>
+  </data>
+  <data name="CommonScripts" xml:space="preserve">
+    <value>Сценарії</value>
+  </data>
+  <data name="CommonRecordings" xml:space="preserve">
+    <value>Записи</value>
+  </data>
+  <data name="CommonExports" xml:space="preserve">
+    <value>Експорт</value>
+  </data>
+  <data name="CommonRename" xml:space="preserve">
+    <value>Перейменувати</value>
+  </data>
+  <data name="CommonDuplicate" xml:space="preserve">
+    <value>Дублювати</value>
+  </data>
+  <data name="CommonDelete" xml:space="preserve">
+    <value>Видалити</value>
+  </data>
+  <data name="CommonSaveLocally" xml:space="preserve">
+    <value>Зберегти локально</value>
+  </data>
+  <data name="CommonClear" xml:space="preserve">
+    <value>Очистити</value>
+  </data>
+  <data name="CommonNoFolder" xml:space="preserve">
+    <value>Немає папки</value>
+  </data>
+  <data name="CommonMoveToEllipsis" xml:space="preserve">
+    <value>Перейти до...</value>
+  </data>
+  <data name="CommonStorageMode" xml:space="preserve">
+    <value>Режим зберігання</value>
+  </data>
+  <data name="CommonStorageScope" xml:space="preserve">
+    <value>Обсяг зберігання</value>
+  </data>
+  <data name="CommonBrowserKeys" xml:space="preserve">
+    <value>Ключі браузера</value>
+  </data>
+  <data name="CommonBrowserContainerPath" xml:space="preserve">
+    <value>Шлях до контейнера браузера</value>
+  </data>
+  <data name="CommonDefaultExportFormat" xml:space="preserve">
+    <value>Формат експорту за замовчуванням</value>
+  </data>
+  <data name="CommonMaxStorage" xml:space="preserve">
+    <value>Макс пам'яті</value>
+  </data>
+  <data name="CommonModel" xml:space="preserve">
+    <value>Модель</value>
+  </data>
+  <data name="CommonApiKey" xml:space="preserve">
+    <value>Ключ API</value>
+  </data>
+  <data name="CommonBaseUrlOptional" xml:space="preserve">
+    <value>Базова URL-адреса (необов’язково)</value>
+  </data>
+  <data name="CommonDefaultProvider" xml:space="preserve">
+    <value>Провайдер за замовчуванням</value>
+  </data>
+  <data name="CommonAutoSyncOnSave" xml:space="preserve">
+    <value>Автоматична синхронізація під час збереження</value>
+  </data>
+  <data name="CommonSyncOnStartup" xml:space="preserve">
+    <value>Синхронізація під час запуску</value>
+  </data>
+  <data name="CommonAccountLabel" xml:space="preserve">
+    <value>Мітка облікового запису</value>
+  </data>
+  <data name="CommonRootPath" xml:space="preserve">
+    <value>Кореневий шлях</value>
+  </data>
+  <data name="CommonClientId" xml:space="preserve">
+    <value>ID клієнта</value>
+  </data>
+  <data name="CommonClientSecret" xml:space="preserve">
+    <value>Секрет клієнта</value>
+  </data>
+  <data name="CommonTenantId" xml:space="preserve">
+    <value>ID орендаря</value>
+  </data>
+  <data name="CommonDriveId" xml:space="preserve">
+    <value>ID диска</value>
+  </data>
+  <data name="CommonRootFolderId" xml:space="preserve">
+    <value>Ідентифікатор кореневої папки</value>
+  </data>
+  <data name="CommonSupportSharedDrives" xml:space="preserve">
+    <value>Підтримка спільних дисків</value>
+  </data>
+  <data name="CommonServiceAccountJson" xml:space="preserve">
+    <value>Обліковий запис служби JSON</value>
+  </data>
+  <data name="CommonAccessToken" xml:space="preserve">
+    <value>Маркер доступу</value>
+  </data>
+  <data name="CommonRefreshToken" xml:space="preserve">
+    <value>Оновити маркер</value>
+  </data>
+  <data name="CommonAppKey" xml:space="preserve">
+    <value>Ключ програми</value>
+  </data>
+  <data name="CommonAppSecret" xml:space="preserve">
+    <value>App Secret</value>
+  </data>
+  <data name="CommonProjectId" xml:space="preserve">
+    <value>ID проекту</value>
+  </data>
+  <data name="CommonBucketName" xml:space="preserve">
+    <value>Назва сегмента</value>
+  </data>
+  <data name="CommonContainerId" xml:space="preserve">
+    <value>ID контейнера</value>
+  </data>
+  <data name="CommonEnvironment" xml:space="preserve">
+    <value>Навколишнє середовище</value>
+  </data>
+  <data name="CommonDatabase" xml:space="preserve">
+    <value>База даних</value>
+  </data>
+  <data name="CommonApiToken" xml:space="preserve">
+    <value>Маркер API</value>
+  </data>
+  <data name="CommonWebAuthToken" xml:space="preserve">
+    <value>Маркер веб-автентифікації</value>
+  </data>
+  <data name="CommonServerToServerKeyId" xml:space="preserve">
+    <value>ID ключа між серверами</value>
+  </data>
+  <data name="CommonServerPrivateKeyPem" xml:space="preserve">
+    <value>Закритий ключ сервера PEM</value>
+  </data>
+  <data name="CommonConnected" xml:space="preserve">
+    <value>Підключено</value>
+  </data>
+  <data name="CommonDisconnected" xml:space="preserve">
+    <value>Відключено</value>
+  </data>
+  <data name="CommonNotConnected" xml:space="preserve">
+    <value>Не підключено</value>
+  </data>
+  <data name="CommonNotConfigured" xml:space="preserve">
+    <value>Не налаштовано</value>
+  </data>
+  <data name="CommonSavedLocally" xml:space="preserve">
+    <value>Збережено локально</value>
+  </data>
+  <data name="CommonSaveAndTest" xml:space="preserve">
+    <value>Зберегти та перевірити</value>
+  </data>
+  <data name="CommonImport" xml:space="preserve">
+    <value>Імпорт</value>
+  </data>
+  <data name="CommonExport" xml:space="preserve">
+    <value>Експорт</value>
+  </data>
+  <data name="CommonDisconnect" xml:space="preserve">
+    <value>Відключити</value>
+  </data>
+  <data name="CommonOn" xml:space="preserve">
+    <value>Увімкнено</value>
+  </data>
+  <data name="CommonOff" xml:space="preserve">
+    <value>Вимкнено</value>
+  </data>
+  <data name="CommonOpenInLibrary" xml:space="preserve">
+    <value>Відкрити в бібліотеці</value>
+  </data>
+  <data name="EditorPlaceholder" xml:space="preserve">
+    <value>Напишіть або вставте TPS тут...</value>
+  </data>
+  <data name="EditorStatusLineShort" xml:space="preserve">
+    <value>пров</value>
+  </data>
+  <data name="EditorStatusColumnShort" xml:space="preserve">
+    <value>Кол</value>
+  </data>
+  <data name="EditorStatusSegmentsFormat" xml:space="preserve">
+    <value>{0} Сегменти</value>
+  </data>
+  <data name="EditorStatusWordsFormat" xml:space="preserve">
+    <value>~{0} Слова</value>
+  </data>
+  <data name="EditorMetadataSpeedOffsetsSection" xml:space="preserve">
+    <value>Зміщення швидкості</value>
+  </data>
+  <data name="EditorMetadataStatsSection" xml:space="preserve">
+    <value>статистика</value>
+  </data>
+  <data name="EditorMetadataAutoSave" xml:space="preserve">
+    <value>Автозбереження</value>
+  </data>
+  <data name="EditorMetadataNoLocalHistory" xml:space="preserve">
+    <value>Локальних версій ще немає.</value>
+  </data>
+  <data name="EditorMetadataHistoryHint" xml:space="preserve">
+    <value>Тут зберігаються останні локальні версії браузера.</value>
+  </data>
+  <data name="EditorMetadataLastInternalSaveFormat" xml:space="preserve">
+    <value>Останнє збереження: {0}</value>
+  </data>
+  <data name="EditorMetadataOneRevision" xml:space="preserve">
+    <value>1 перегляд</value>
+  </data>
+  <data name="EditorMetadataMultipleRevisionsFormat" xml:space="preserve">
+    <value>Ревізії {0}</value>
+  </data>
+  <data name="EditorMetadataToggleExpand" xml:space="preserve">
+    <value>Розгорнути панель метаданих</value>
+  </data>
+  <data name="EditorMetadataToggleCollapse" xml:space="preserve">
+    <value>Згорнути панель метаданих</value>
+  </data>
+  <data name="EditorStructureSection" xml:space="preserve">
+    <value>Структура</value>
+  </data>
+  <data name="EditorStructureActiveSegment" xml:space="preserve">
+    <value>Активний сегмент</value>
+  </data>
+  <data name="EditorStructureActiveBlock" xml:space="preserve">
+    <value>Активний блок</value>
+  </data>
+  <data name="EditorSplitMoreInLibraryFormat" xml:space="preserve">
+    <value>+{0} більше в бібліотеці</value>
+  </data>
+  <data name="EditorSplitCompleteTitle" xml:space="preserve">
+    <value>Спліт завершено</value>
+  </data>
+  <data name="EditorSplitSavedToLibrary" xml:space="preserve">
+    <value>Нові сценарії збережено в бібліотеці.</value>
+  </data>
+  <data name="EditorSplitSavedToSibling" xml:space="preserve">
+    <value>Нові сценарії були збережені поруч із цим сценарієм.</value>
+  </data>
+  <data name="EditorSplitSavedToSiblingFolder" xml:space="preserve">
+    <value>Нові сценарії були збережені поруч із цим сценарієм у тій же папці.</value>
+  </data>
+  <data name="EditorSplitDraftStayedOpen" xml:space="preserve">
+    <value>Поточний проект залишився відкритим.</value>
+  </data>
+  <data name="EditorSplitNeedTopLevelHeadings" xml:space="preserve">
+    <value>Додайте # заголовка, перш ніж розділяти цю чернетку.</value>
+  </data>
+  <data name="EditorSplitNeedSegmentHeadings" xml:space="preserve">
+    <value>Додайте ## заголовків перед розділенням цієї чернетки.</value>
+  </data>
+  <data name="EditorSplitHeadingBadgeFormat" xml:space="preserve">
+    <value>Від {0}</value>
+  </data>
+  <data name="EditorSplitSummaryFormat" xml:space="preserve">
+    <value>{0} створено нові сценарії.</value>
+  </data>
+  <data name="EditorToolbarSectionHistory" xml:space="preserve">
+    <value>історія</value>
+  </data>
+  <data name="EditorToolbarSectionFormat" xml:space="preserve">
+    <value>Формат</value>
+  </data>
+  <data name="EditorToolbarSectionVoice" xml:space="preserve">
+    <value>Голос</value>
+  </data>
+  <data name="EditorToolbarSectionEmotion" xml:space="preserve">
+    <value>Емоція</value>
+  </data>
+  <data name="EditorToolbarSectionPause" xml:space="preserve">
+    <value>Пауза</value>
+  </data>
+  <data name="EditorToolbarSectionSpeed" xml:space="preserve">
+    <value>швидкість</value>
+  </data>
+  <data name="EditorToolbarSectionInsert" xml:space="preserve">
+    <value>Вставка</value>
+  </data>
+  <data name="EditorToolbarGroupFormatting" xml:space="preserve">
+    <value>Форматування</value>
+  </data>
+  <data name="EditorToolbarGroupVolume" xml:space="preserve">
+    <value>Обсяг</value>
+  </data>
+  <data name="EditorToolbarGroupArticulation" xml:space="preserve">
+    <value>Артикуляція</value>
+  </data>
+  <data name="EditorToolbarGroupDynamics" xml:space="preserve">
+    <value>Динаміка</value>
+  </data>
+  <data name="EditorToolbarGroupStress" xml:space="preserve">
+    <value>Стрес</value>
+  </data>
+  <data name="EditorToolbarGroupReset" xml:space="preserve">
+    <value>Скинути</value>
+  </data>
+  <data name="EditorToolbarGroupTpsEmotions" xml:space="preserve">
+    <value>TPS Емоції</value>
+  </data>
+  <data name="EditorToolbarGroupDeliveryModes" xml:space="preserve">
+    <value>Режими доставки</value>
+  </data>
+  <data name="EditorToolbarGroupBreathAndPauses" xml:space="preserve">
+    <value>Дихання і паузи</value>
+  </data>
+  <data name="EditorToolbarGroupSpeedPresets" xml:space="preserve">
+    <value>Попередні налаштування швидкості</value>
+  </data>
+  <data name="EditorToolbarGroupCustomSpeed" xml:space="preserve">
+    <value>Спеціальна швидкість</value>
+  </data>
+  <data name="EditorToolbarGroupStructure" xml:space="preserve">
+    <value>Структура</value>
+  </data>
+  <data name="EditorToolbarGroupEditPoints" xml:space="preserve">
+    <value>Редагувати точки</value>
+  </data>
+  <data name="EditorToolbarGroupPronunciation" xml:space="preserve">
+    <value>Вимова</value>
+  </data>
+  <data name="EditorToolbarTooltipUndo" xml:space="preserve">
+    <value>Скасувати останню зміну</value>
+  </data>
+  <data name="EditorToolbarTooltipRedo" xml:space="preserve">
+    <value>Повторити останню зміну</value>
+  </data>
+  <data name="EditorToolbarTooltipVoiceCues" xml:space="preserve">
+    <value>Голосові підказки</value>
+  </data>
+  <data name="EditorToolbarTooltipEmotionCues" xml:space="preserve">
+    <value>Сигнали емоцій</value>
+  </data>
+  <data name="EditorToolbarTooltipPauseCues" xml:space="preserve">
+    <value>Репліки паузи</value>
+  </data>
+  <data name="EditorToolbarTooltipSpeedCues" xml:space="preserve">
+    <value>Підказки швидкості</value>
+  </data>
+  <data name="EditorToolbarTooltipInsertHelpers" xml:space="preserve">
+    <value>Вставте помічники</value>
+  </data>
+  <data name="EditorToolbarTooltipMoreFormatting" xml:space="preserve">
+    <value>Більше форматування</value>
+  </data>
+  <data name="EditorToolbarTooltipRemoveInlineTags" xml:space="preserve">
+    <value>Видаліть вбудовані теги</value>
+  </data>
+  <data name="EditorToolbarTooltipWrapFormat" xml:space="preserve">
+    <value>Обгорнути виділення цим форматом</value>
+  </data>
+  <data name="EditorToolbarTooltipInsertFormat" xml:space="preserve">
+    <value>Вставте цю репліку TPS</value>
+  </data>
+  <data name="EditorToolbarTooltipEmotionTrigger" xml:space="preserve">
+    <value>TPS емоції</value>
+  </data>
+  <data name="EditorToolbarTooltipEmotionMotivational" xml:space="preserve">
+    <value>Мотиваційна емоція</value>
+  </data>
+  <data name="EditorToolbarTooltipFloatingVoiceTrigger" xml:space="preserve">
+    <value>Голосове меню</value>
+  </data>
+  <data name="EditorToolbarTooltipFloatingEmotionTrigger" xml:space="preserve">
+    <value>Емоційне меню</value>
+  </data>
+  <data name="EditorToolbarTooltipFloatingVoiceWhisper" xml:space="preserve">
+    <value>Шепітний голос</value>
+  </data>
+  <data name="EditorToolbarTooltipFloatingVoiceLegato" xml:space="preserve">
+    <value>Легато артикуляція</value>
+  </data>
+  <data name="EditorToolbarTooltipFloatingVoiceEnergy" xml:space="preserve">
+    <value>Енергетична динаміка</value>
+  </data>
+  <data name="EditorToolbarTooltipFloatingPauseTrigger" xml:space="preserve">
+    <value>Меню паузи</value>
+  </data>
+  <data name="EditorToolbarTooltipFloatingPauseTimed" xml:space="preserve">
+    <value>Часова пауза</value>
+  </data>
+  <data name="EditorToolbarTooltipFloatingSpeedTrigger" xml:space="preserve">
+    <value>Швидке меню</value>
+  </data>
+  <data name="EditorToolbarTooltipFloatingSpeedCustomWpm" xml:space="preserve">
+    <value>Спеціальний WPM</value>
+  </data>
+  <data name="EditorToolbarTooltipFloatingInsertTrigger" xml:space="preserve">
+    <value>Меню вставки</value>
+  </data>
+  <data name="EditorToolbarTooltipFloatingInsertPronunciation" xml:space="preserve">
+    <value>Репліка вимови</value>
+  </data>
+  <data name="EditorToolbarTooltipMoreInsertOptions" xml:space="preserve">
+    <value>Більше варіантів вставки</value>
+  </data>
+  <data name="EditorToolbarTooltipInsertSegmentArchetype" xml:space="preserve">
+    <value>Вставте архетип сегмента</value>
+  </data>
+  <data name="EditorToolbarTooltipInsertBlockArchetype" xml:space="preserve">
+    <value>Вставити архетип блоку</value>
+  </data>
+  <data name="SettingsFilesScriptsDetail" xml:space="preserve">
+    <value>Авторитетний повсякденний сценарій і збереження папок зберігаються в сховищі браузера, а не на шляху файлової системи робочого столу.</value>
+  </data>
+  <data name="SettingsFilesRecordingsDetail" xml:space="preserve">
+    <value>PrompterOne забезпечує цей шлях локального контейнера браузера для запису артефактів.</value>
+  </data>
+  <data name="SettingsFilesExportsDetail" xml:space="preserve">
+    <value>Експорт записується в локальний контейнер браузера, а не в підроблену папку завантажень робочого столу.</value>
+  </data>
+  <data name="SettingsFilesScriptsAutoSave" xml:space="preserve">
+    <value>Скрипти автозбереження</value>
+  </data>
+  <data name="SettingsFilesScriptsHistory" xml:space="preserve">
+    <value>Локальна історія версій</value>
+  </data>
+  <data name="SettingsFilesScopeBrowserJsonLibrary" xml:space="preserve">
+    <value>Сховище бібліотеки JSON браузера</value>
+  </data>
+  <data name="SettingsFilesScopeManagedCodeBrowserContainer" xml:space="preserve">
+    <value>Контейнер браузера ManagedCode</value>
+  </data>
+  <data name="SettingsFilesScopeManagedCodeBrowserVfs" xml:space="preserve">
+    <value>ManagedCode.Storage браузер VFS</value>
+  </data>
+  <data name="SettingsFilesEmptyUsage" xml:space="preserve">
+    <value>Порожній</value>
+  </data>
+  <data name="SettingsFilesStorageLimitNoLimit" xml:space="preserve">
+    <value>Без обмежень</value>
+  </data>
+  <data name="SettingsFilesStorageLimit10Gb" xml:space="preserve">
+    <value>10 ГБ</value>
+  </data>
+  <data name="SettingsFilesStorageLimit50Gb" xml:space="preserve">
+    <value>50 ГБ</value>
+  </data>
+  <data name="SettingsFilesStorageLimit100Gb" xml:space="preserve">
+    <value>100 ГБ</value>
+  </data>
+  <data name="SettingsFilesExportFormatTpsNative" xml:space="preserve">
+    <value>TPS (рідний)</value>
+  </data>
+  <data name="SettingsFilesExportFormatMarkdown" xml:space="preserve">
+    <value>Markdown</value>
+  </data>
+  <data name="SettingsFilesExportFormatPlainText" xml:space="preserve">
+    <value>Звичайний текст</value>
+  </data>
+  <data name="SettingsFilesExportFormatPdf" xml:space="preserve">
+    <value>PDF</value>
+  </data>
+  <data name="SettingsFilesSingularScript" xml:space="preserve">
+    <value>сценарій</value>
+  </data>
+  <data name="SettingsFilesPluralScript" xml:space="preserve">
+    <value>сценарії</value>
+  </data>
+  <data name="SettingsFilesSingularFolder" xml:space="preserve">
+    <value>папку</value>
+  </data>
+  <data name="SettingsFilesPluralFolder" xml:space="preserve">
+    <value>папки</value>
+  </data>
+  <data name="SettingsFilesSingularFile" xml:space="preserve">
+    <value>файл</value>
+  </data>
+  <data name="SettingsFilesPluralFile" xml:space="preserve">
+    <value>файли</value>
+  </data>
+  <data name="SettingsAiProviderCleared" xml:space="preserve">
+    <value>Провайдер дозволено.</value>
+  </data>
+  <data name="SettingsAiSavedLocallyDetail" xml:space="preserve">
+    <value>Збережено локально в цьому браузері.</value>
+  </data>
+  <data name="SettingsAiSelfHosted" xml:space="preserve">
+    <value>Саморозміщений</value>
+  </data>
+  <data name="SettingsCloudSyncDefaultsTitle" xml:space="preserve">
+    <value>Синхронізація за умовчанням</value>
+  </data>
+  <data name="SettingsCloudLocalFirstNote" xml:space="preserve">
+    <value>Хмарна синхронізація залишається необов’язковою. PrompterOne залишається спочатку локальним, доки ви не підключите постачальника.</value>
+  </data>
+  <data name="SettingsCloudProviderDisconnected" xml:space="preserve">
+    <value>Провайдер відключений.</value>
+  </data>
+  <data name="SettingsCloudGoogleDriveDescription" xml:space="preserve">
+    <value>Зберігайте цільову папку Диска Google і додаткові налаштування синхронізації облікового запису служби для передачі, ініційованої браузером.</value>
+  </data>
+  <data name="SettingsCloudOneDriveDescription" xml:space="preserve">
+    <value>Підключіть робочу область OneDrive для локальних робочих процесів імпорту та експорту в браузері.</value>
+  </data>
+  <data name="SettingsCloudDropboxDescription" xml:space="preserve">
+    <value>Тримайте ціль Dropbox готовим до локального імпорту та експорту в браузері.</value>
+  </data>
+  <data name="SettingsCloudGoogleCloudStorageDescription" xml:space="preserve">
+    <value>Налаштуйте відро Google Cloud Storage для передавання архівів за допомогою браузера.</value>
+  </data>
+  <data name="SettingsCloudCloudKitDescription" xml:space="preserve">
+    <value>Налаштуйте контейнер CloudKit для локальної синхронізації знімків браузера.</value>
+  </data>
+  <data name="SettingsRecordingGeneralTitle" xml:space="preserve">
+    <value>Загальний</value>
+  </data>
+  <data name="SettingsRecordingGeneralSubtitle" xml:space="preserve">
+    <value>Папка · Іменування файлів · Автозапис</value>
+  </data>
+  <data name="SettingsRecordingAutoRecordWhenStreaming" xml:space="preserve">
+    <value>Автоматичний запис під час трансляції</value>
+  </data>
+  <data name="SettingsRecordingSplitHourly" xml:space="preserve">
+    <value>Розділяти запис щогодини</value>
+  </data>
+  <data name="SettingsRecordingFolder" xml:space="preserve">
+    <value>Папка для записів</value>
+  </data>
+  <data name="SettingsRecordingFileNaming" xml:space="preserve">
+    <value>Іменування файлів</value>
+  </data>
+  <data name="SettingsRecordingVideoSubtitleFormat" xml:space="preserve">
+    <value>{0} · {1} · {2} · {3} кбіт/с</value>
+  </data>
+  <data name="SettingsRecordingAudioSubtitleFormat" xml:space="preserve">
+    <value>{0} · {1} · {2} кбіт/с · {3}</value>
+  </data>
+  <data name="SettingsRecordingBitrateKbps" xml:space="preserve">
+    <value>Бітрейт (кбіт/с)</value>
+  </data>
+  <data name="SettingsRecordingSameAsSource" xml:space="preserve">
+    <value>Те саме, що джерело</value>
+  </data>
+  <data name="SettingsRecordingBrowse" xml:space="preserve">
+    <value>переглядати</value>
+  </data>
+  <data name="SettingsCamerasSectionDescription" xml:space="preserve">
+    <value>Виберіть, які камери доступні в Go Live, і виберіть основну камеру потоку.</value>
+  </data>
+  <data name="SettingsCamerasDeviceAccessTitle" xml:space="preserve">
+    <value>Доступ до пристрою</value>
+  </data>
+  <data name="SettingsCamerasNoDevicesVisible" xml:space="preserve">
+    <value>Браузер наразі не бачить жодного пристрою камери.</value>
+  </data>
+  <data name="SettingsCamerasPrimaryBadge" xml:space="preserve">
+    <value>Первинний</value>
+  </data>
+  <data name="SettingsCamerasPrimaryButton" xml:space="preserve">
+    <value>Основна камера</value>
+  </data>
+  <data name="SettingsCamerasSetPrimaryButton" xml:space="preserve">
+    <value>Установити як основний</value>
+  </data>
+  <data name="SettingsCamerasMirrorHorizontal" xml:space="preserve">
+    <value>Дзеркало (перевертання по горизонталі)</value>
+  </data>
+  <data name="SettingsCamerasAutoStartOnRead" xml:space="preserve">
+    <value>Автозапуск на Read</value>
+  </data>
+  <data name="SettingsCamerasGeneralTitle" xml:space="preserve">
+    <value>Загальний</value>
+  </data>
+  <data name="SettingsCamerasAutoStartAllOnGoLive" xml:space="preserve">
+    <value>Автоматичний запуск усіх увімкнених камер на Go Live</value>
+  </data>
+  <data name="SettingsMicrophonesSectionDescription" xml:space="preserve">
+    <value>Виберіть, які мікрофони використовуватимуться в Go Live. За потреби додайте затримку звуку для синхронізації з відео.</value>
+  </data>
+  <data name="SettingsMicrophonesDeviceAccessTitle" xml:space="preserve">
+    <value>Доступ до пристрою</value>
+  </data>
+  <data name="SettingsMicrophonesNoDevicesVisible" xml:space="preserve">
+    <value>У браузері наразі не видно мікрофонів.</value>
+  </data>
+  <data name="SettingsMicrophonesInputLevel" xml:space="preserve">
+    <value>Вхідний рівень</value>
+  </data>
+  <data name="SettingsMicrophonesAudioDelay" xml:space="preserve">
+    <value>Затримка звуку (мс)</value>
+  </data>
+  <data name="SettingsMicrophonesAudioDelayHint" xml:space="preserve">
+    <value>0 - 5000 мс</value>
+  </data>
+  <data name="SettingsMicrophonesNoiseSuppression" xml:space="preserve">
+    <value>Придушення шуму</value>
+  </data>
+  <data name="SettingsMicrophonesEchoCancellation" xml:space="preserve">
+    <value>Ехоподавлення</value>
+  </data>
+  <data name="SettingsMicrophonesGeneralTitle" xml:space="preserve">
+    <value>Загальний</value>
+  </data>
+  <data name="SettingsMicrophonesMuteWhenNotInGoLive" xml:space="preserve">
+    <value>Вимкніть усі мікрофони, коли ви не в режимі Go Live</value>
+  </data>
+  <data name="SettingsStreamingArmDestination" xml:space="preserve">
+    <value>Рука призначення</value>
+  </data>
+  <data name="SettingsStreamingAddDistributionTargetButtonLabel" xml:space="preserve">
+    <value>Додати ціль</value>
+  </data>
+  <data name="SettingsStreamingAddTransportConnectionButtonLabel" xml:space="preserve">
+    <value>Додати транспорт</value>
+  </data>
+  <data name="SettingsStreamingAvailableInProgramRoutingLabel" xml:space="preserve">
+    <value>Доступно в програмі маршрутизації</value>
+  </data>
+  <data name="SettingsStreamingBaseUrlLabel" xml:space="preserve">
+    <value>Базовий URL</value>
+  </data>
+  <data name="SettingsStreamingBitrateLabel" xml:space="preserve">
+    <value>Бітрейт (кбіт/с)</value>
+  </data>
+  <data name="SettingsStreamingBlockedStatusLabel" xml:space="preserve">
+    <value>заблоковано</value>
+  </data>
+  <data name="SettingsStreamingBoundTransportConnectionsLabel" xml:space="preserve">
+    <value>Прив'язані транспорти</value>
+  </data>
+  <data name="SettingsStreamingBoundTransportConnectionsSummary" xml:space="preserve">
+    <value>Виберіть принаймні одне транспортне сполучення для цієї цілі.</value>
+  </data>
+  <data name="SettingsStreamingBoundTransportSelectedLabel" xml:space="preserve">
+    <value>Переплетений</value>
+  </data>
+  <data name="SettingsStreamingBoundTransportAvailableLabel" xml:space="preserve">
+    <value>в наявності</value>
+  </data>
+  <data name="SettingsStreamingConnectionRoleLabel" xml:space="preserve">
+    <value>Роль зв'язку</value>
+  </data>
+  <data name="SettingsStreamingConnectionRoleBothLabel" xml:space="preserve">
+    <value>Джерело + Публікація</value>
+  </data>
+  <data name="SettingsStreamingConnectionRolePublishLabel" xml:space="preserve">
+    <value>Тільки опублікувати</value>
+  </data>
+  <data name="SettingsStreamingConnectionRoleSourceLabel" xml:space="preserve">
+    <value>Лише джерело</value>
+  </data>
+  <data name="SettingsStreamingDestinationDisabledSummary" xml:space="preserve">
+    <value>Вимкнено, доки не буде встановлено цей пункт призначення.</value>
+  </data>
+  <data name="SettingsStreamingDestinationDisabledStatusLabel" xml:space="preserve">
+    <value>Вимкнено</value>
+  </data>
+  <data name="SettingsStreamingDestinationNeedsSetupStatusLabel" xml:space="preserve">
+    <value>Потребує налаштування</value>
+  </data>
+  <data name="SettingsStreamingDestinationNoSourceSummary" xml:space="preserve">
+    <value>Виберіть принаймні одну сценічну камеру для цього призначення.</value>
+  </data>
+  <data name="SettingsStreamingDestinationReadyStatusLabel" xml:space="preserve">
+    <value>Готовий</value>
+  </data>
+  <data name="SettingsStreamingDestinationRelayStatusLabel" xml:space="preserve">
+    <value>естафета</value>
+  </data>
+  <data name="SettingsStreamingDistributionTargetsTitle" xml:space="preserve">
+    <value>Цілі розподілу</value>
+  </data>
+  <data name="SettingsStreamingFullHd1080p30Label" xml:space="preserve">
+    <value>1920 x 1080 @ 30 кадрів в секунду</value>
+  </data>
+  <data name="SettingsStreamingFullHd1080p60Label" xml:space="preserve">
+    <value>1920 x 1080 @ 60 кадрів в секунду</value>
+  </data>
+  <data name="SettingsStreamingHd720p30Label" xml:space="preserve">
+    <value>1280 x 720 @ 30 кадрів в секунду</value>
+  </data>
+  <data name="SettingsStreamingIncludeCameraInOutputLabel" xml:space="preserve">
+    <value>Включити камеру у вихід</value>
+  </data>
+  <data name="SettingsStreamingLocalDestinationSummaryFormat" xml:space="preserve">
+    <value>Джерела камери {0} ввімкнено в налаштуваннях.</value>
+  </data>
+  <data name="SettingsStreamingOutputResolutionLabel" xml:space="preserve">
+    <value>Вихідна роздільна здатність</value>
+  </data>
+  <data name="SettingsStreamingProgramCaptureTitle" xml:space="preserve">
+    <value>Програма захоплення</value>
+  </data>
+  <data name="SettingsStreamingPublishUrlLabel" xml:space="preserve">
+    <value>Опублікувати URL</value>
+  </data>
+  <data name="SettingsStreamingRemoveDestinationLabel" xml:space="preserve">
+    <value>Видалити призначення</value>
+  </data>
+  <data name="SettingsStreamingRoomNameLabel" xml:space="preserve">
+    <value>Назва кімнати</value>
+  </data>
+  <data name="SettingsStreamingRtmpUrlLabel" xml:space="preserve">
+    <value>RTMP / RTMPS URL</value>
+  </data>
+  <data name="SettingsStreamingServerUrlLabel" xml:space="preserve">
+    <value>URL-адреса сервера</value>
+  </data>
+  <data name="SettingsStreamingShowTextOverlayLabel" xml:space="preserve">
+    <value>Показати накладання тексту</value>
+  </data>
+  <data name="SettingsStreamingSourcePickerAvailableLabel" xml:space="preserve">
+    <value>в наявності</value>
+  </data>
+  <data name="SettingsStreamingSourcePickerEmptyStateMessage" xml:space="preserve">
+    <value>Для цього пункту призначення ще немає доступних камер.</value>
+  </data>
+  <data name="SettingsStreamingSourcePickerMultipleCamerasSelectedFormat" xml:space="preserve">
+    <value>Вибрані камери {0}</value>
+  </data>
+  <data name="SettingsStreamingSourcePickerNoCamerasSelectedLabel" xml:space="preserve">
+    <value>Камери не вибрано</value>
+  </data>
+  <data name="SettingsStreamingSourcePickerSectionLabel" xml:space="preserve">
+    <value>Джерела призначення</value>
+  </data>
+  <data name="SettingsStreamingSourcePickerSelectedLabel" xml:space="preserve">
+    <value>Вибране</value>
+  </data>
+  <data name="SettingsStreamingSourcePickerSingleCameraSelectedFormat" xml:space="preserve">
+    <value>Вибрано камеру {0}</value>
+  </data>
+  <data name="SettingsStreamingStreamKeyLabel" xml:space="preserve">
+    <value>Ключ потоку</value>
+  </data>
+  <data name="SettingsStreamingTargetNameLabel" xml:space="preserve">
+    <value>Назва цілі</value>
+  </data>
+  <data name="SettingsStreamingTokenLabel" xml:space="preserve">
+    <value>Маркер доступу</value>
+  </data>
+  <data name="SettingsStreamingTransportConnectionsTitle" xml:space="preserve">
+    <value>Транспортне сполучення</value>
+  </data>
+  <data name="SettingsStreamingUltraHd2160p30Label" xml:space="preserve">
+    <value>3840 x 2160 при 30 кадрах в секунду</value>
+  </data>
+  <data name="SettingsStreamingUnsupportedTransportSummary" xml:space="preserve">
+    <value>Ця ціль прив’язана лише до транспортів, які не можуть забезпечити вихідний шлях ретрансляції.</value>
+  </data>
+  <data name="SettingsStreamingViewUrlLabel" xml:space="preserve">
+    <value>Переглянути URL</value>
+  </data>
+  <data name="SettingsCameraPreviewDefaultDescription" xml:space="preserve">
+    <value>Перегляньте вибрану камеру саме там, де відбувається налаштування пристрою, перш ніж почати трансляцію чи відкрити Reader.</value>
+  </data>
+  <data name="SettingsCameraPreviewDefaultTitle" xml:space="preserve">
+    <value>Попередній перегляд камери</value>
+  </data>
+  <data name="SettingsCameraPreviewNoCameraDescription" xml:space="preserve">
+    <value>Виберіть камеру за замовчуванням або додайте камеру до сцени, щоб переглянути тут попередній перегляд.</value>
+  </data>
+  <data name="SettingsCameraPreviewNoCameraTitle" xml:space="preserve">
+    <value>Камера не вибрана</value>
+  </data>
+  <data name="SettingsCameraPreviewPermissionDescription" xml:space="preserve">
+    <value>Увімкніть доступ до камери, щоб підтвердити кадрування, дзеркальний режим і активний пристрій перед читанням.</value>
+  </data>
+  <data name="SettingsCameraPreviewPermissionTitle" xml:space="preserve">
+    <value>Потрібен доступ до камери</value>
+  </data>
+  <data name="SettingsCameraPreviewEyebrow" xml:space="preserve">
+    <value>Попередній перегляд</value>
+  </data>
+  <data name="SettingsCameraPreviewReadyDescription" xml:space="preserve">
+    <value>Цей попередній перегляд відповідає поточному вибору камери за замовчуванням і стану дзеркала.</value>
+  </data>
+  <data name="SettingsMicrophoneMonitorDefaultDescription" xml:space="preserve">
+    <value>Говоріть у вибраний мікрофон, щоб підтвердити, що браузер бачить живий сигнал перед записом або трансляцією.</value>
+  </data>
+  <data name="SettingsMicrophoneMonitorDefaultTitle" xml:space="preserve">
+    <value>Активність мікрофона</value>
+  </data>
+  <data name="SettingsMicrophoneMonitorNoMicrophoneDescription" xml:space="preserve">
+    <value>Виберіть мікрофон за замовчуванням, щоб побачити живий вимірювач рівня тут.</value>
+  </data>
+  <data name="SettingsMicrophoneMonitorNoMicrophoneTitle" xml:space="preserve">
+    <value>Мікрофон не вибрано</value>
+  </data>
+  <data name="SettingsMicrophoneMonitorPendingStatusLabel" xml:space="preserve">
+    <value>Очікування</value>
+  </data>
+  <data name="SettingsMicrophoneMonitorPermissionDescription" xml:space="preserve">
+    <value>Спочатку ввімкніть доступ до мікрофона в Камерах, а потім поверніться сюди, щоб підтвердити активність введення в реальному часі.</value>
+  </data>
+  <data name="SettingsMicrophoneMonitorPermissionTitle" xml:space="preserve">
+    <value>Потрібен доступ до мікрофона</value>
+  </data>
+  <data name="SettingsMicrophoneMonitorPreviewDescription" xml:space="preserve">
+    <value>Живий монітор введення в браузері</value>
+  </data>
+  <data name="SettingsMicrophoneMonitorReadyStatusLabel" xml:space="preserve">
+    <value>Живий рівень</value>
+  </data>
+  <data name="SettingsHotkeysGroupEditorTitle" xml:space="preserve">
+    <value>редактор</value>
+  </data>
+  <data name="SettingsHotkeysGroupEditorSubtitle" xml:space="preserve">
+    <value>Основні ярлики створення</value>
+  </data>
+  <data name="SettingsHotkeysGroupLearnTitle" xml:space="preserve">
+    <value>вчитися</value>
+  </data>
+  <data name="SettingsHotkeysGroupLearnSubtitle" xml:space="preserve">
+    <value>RSVP контроль репетиції</value>
+  </data>
+  <data name="SettingsHotkeysGroupTeleprompterTitle" xml:space="preserve">
+    <value>Телесуфлер</value>
+  </data>
+  <data name="SettingsHotkeysGroupTeleprompterSubtitle" xml:space="preserve">
+    <value>Елементи керування відтворенням і відображенням у програмі Reader</value>
+  </data>
+  <data name="SettingsHotkeysGroupGoLiveTitle" xml:space="preserve">
+    <value>Вийти в прямому ефірі</value>
+  </data>
+  <data name="SettingsHotkeysGroupGoLiveSubtitle" xml:space="preserve">
+    <value>Елементи керування студією та сеансом</value>
+  </data>
+  <data name="SettingsHotkeyEditorUndoLabel" xml:space="preserve">
+    <value>Скасувати</value>
+  </data>
+  <data name="SettingsHotkeyEditorUndoDescription" xml:space="preserve">
+    <value>Скасувати останню зміну редактора.</value>
+  </data>
+  <data name="SettingsHotkeyEditorRedoLabel" xml:space="preserve">
+    <value>Повторити</value>
+  </data>
+  <data name="SettingsHotkeyEditorRedoDescription" xml:space="preserve">
+    <value>Повторно застосувати останню скасовану зміну редактора.</value>
+  </data>
+  <data name="SettingsHotkeyEditorSelectAllLabel" xml:space="preserve">
+    <value>Вибрати все</value>
+  </data>
+  <data name="SettingsHotkeyEditorSelectAllDescription" xml:space="preserve">
+    <value>Виберіть весь документ у вихідному редакторі.</value>
+  </data>
+  <data name="SettingsHotkeyLearnBackLabel" xml:space="preserve">
+    <value>Назад до редактора</value>
+  </data>
+  <data name="SettingsHotkeyLearnBackDescription" xml:space="preserve">
+    <value>Залиште навчання та поверніться до поточного сценарію.</value>
+  </data>
+  <data name="SettingsHotkeyLearnPlayPauseLabel" xml:space="preserve">
+    <value>Відтворення або пауза</value>
+  </data>
+  <data name="SettingsHotkeyLearnPlayPauseDescription" xml:space="preserve">
+    <value>Почати або призупинити відтворення RSVP.</value>
+  </data>
+  <data name="SettingsHotkeyLearnSpeedDownLabel" xml:space="preserve">
+    <value>сповільнити</value>
+  </data>
+  <data name="SettingsHotkeyLearnSpeedDownDescription" xml:space="preserve">
+    <value>Зменшіть швидкість RSVP.</value>
+  </data>
+  <data name="SettingsHotkeyLearnSpeedUpLabel" xml:space="preserve">
+    <value>Прискорити</value>
+  </data>
+  <data name="SettingsHotkeyLearnSpeedUpDescription" xml:space="preserve">
+    <value>Збільште швидкість RSVP.</value>
+  </data>
+  <data name="SettingsHotkeyLearnStepBackwardLabel" xml:space="preserve">
+    <value>Попереднє слово</value>
+  </data>
+  <data name="SettingsHotkeyLearnStepBackwardDescription" xml:space="preserve">
+    <value>Відступіть на одне слово.</value>
+  </data>
+  <data name="SettingsHotkeyLearnStepBackwardLargeLabel" xml:space="preserve">
+    <value>Перехід до попередньої фрази</value>
+  </data>
+  <data name="SettingsHotkeyLearnStepBackwardLargeDescription" xml:space="preserve">
+    <value>Відступіть п'ять слів назад.</value>
+  </data>
+  <data name="SettingsHotkeyLearnStepForwardLabel" xml:space="preserve">
+    <value>Наступне слово</value>
+  </data>
+  <data name="SettingsHotkeyLearnStepForwardDescription" xml:space="preserve">
+    <value>Крок вперед одне слово.</value>
+  </data>
+  <data name="SettingsHotkeyLearnStepForwardLargeLabel" xml:space="preserve">
+    <value>Перехід наступної фрази</value>
+  </data>
+  <data name="SettingsHotkeyLearnStepForwardLargeDescription" xml:space="preserve">
+    <value>Крок вперед п'ять слів.</value>
+  </data>
+  <data name="SettingsHotkeyLearnLoopLabel" xml:space="preserve">
+    <value>Циклічне відтворення</value>
+  </data>
+  <data name="SettingsHotkeyLearnLoopDescription" xml:space="preserve">
+    <value>Перемкнути режим циклу RSVP.</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterBackLabel" xml:space="preserve">
+    <value>Назад до редактора</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterBackDescription" xml:space="preserve">
+    <value>За потреби вийдіть із повноекранного режиму, а потім поверніться до сценарію.</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterPlayPauseLabel" xml:space="preserve">
+    <value>Відтворення або пауза</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterPlayPauseDescription" xml:space="preserve">
+    <value>Почати або призупинити відтворення телесуфлера.</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterPreviousBlockLabel" xml:space="preserve">
+    <value>Попередній блок</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterPreviousBlockDescription" xml:space="preserve">
+    <value>Перейти до попереднього блоку читача.</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterNextBlockLabel" xml:space="preserve">
+    <value>Наступний блок</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterNextBlockDescription" xml:space="preserve">
+    <value>Перейти до наступного блоку читача.</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterMirrorHorizontalLabel" xml:space="preserve">
+    <value>Дзеркало горизонтально</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterMirrorHorizontalDescription" xml:space="preserve">
+    <value>Переверніть зчитувач горизонтально.</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterMirrorVerticalLabel" xml:space="preserve">
+    <value>Дзеркало вертикально</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterMirrorVerticalDescription" xml:space="preserve">
+    <value>Переверніть зчитувач вертикально.</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterOrientationLabel" xml:space="preserve">
+    <value>Обернути зчитувач</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterOrientationDescription" xml:space="preserve">
+    <value>Перемикання альбомної та портретної орієнтації читача.</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterFullscreenLabel" xml:space="preserve">
+    <value>Перемкнути повноекранний режим</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterFullscreenDescription" xml:space="preserve">
+    <value>Перейти в повноекранний режим браузера або вийти з нього.</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterAlignLeftLabel" xml:space="preserve">
+    <value>Вирівняти ліворуч</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterAlignLeftDescription" xml:space="preserve">
+    <value>Використовуйте смугу для читання, вирівняну за лівим краєм.</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterAlignCenterLabel" xml:space="preserve">
+    <value>Вирівняти по центру</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterAlignCenterDescription" xml:space="preserve">
+    <value>Використовуйте смугу читання по центру.</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterAlignRightLabel" xml:space="preserve">
+    <value>Вирівняти праворуч</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterAlignRightDescription" xml:space="preserve">
+    <value>Використовуйте смугу для читання, вирівняну праворуч.</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterAlignJustifyLabel" xml:space="preserve">
+    <value>Вирівняти по ширині</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterAlignJustifyDescription" xml:space="preserve">
+    <value>Розтягніть текст на всю читабельну ширину.</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterCameraLabel" xml:space="preserve">
+    <value>Перемкнути камеру</value>
+  </data>
+  <data name="SettingsHotkeyTeleprompterCameraDescription" xml:space="preserve">
+    <value>Показати або приховати шар камери читача.</value>
+  </data>
+  <data name="SettingsHotkeyGoLiveDirectorModeLabel" xml:space="preserve">
+    <value>Режим директора</value>
+  </data>
+  <data name="SettingsHotkeyGoLiveDirectorModeDescription" xml:space="preserve">
+    <value>Перемкніть студію в режим режисера.</value>
+  </data>
+  <data name="SettingsHotkeyGoLiveStudioModeLabel" xml:space="preserve">
+    <value>Студійний режим</value>
+  </data>
+  <data name="SettingsHotkeyGoLiveStudioModeDescription" xml:space="preserve">
+    <value>Перемкніть студію в режим Studio.</value>
+  </data>
+  <data name="SettingsHotkeyGoLiveLeftRailLabel" xml:space="preserve">
+    <value>Перемкнути джерело</value>
+  </data>
+  <data name="SettingsHotkeyGoLiveLeftRailDescription" xml:space="preserve">
+    <value>Показати або приховати ліву вихідну панель.</value>
+  </data>
+  <data name="SettingsHotkeyGoLiveRightRailLabel" xml:space="preserve">
+    <value>Перемкнути вихідну рейку</value>
+  </data>
+  <data name="SettingsHotkeyGoLiveRightRailDescription" xml:space="preserve">
+    <value>Показати або приховати праву панель попереднього перегляду.</value>
+  </data>
+  <data name="SettingsHotkeyGoLiveFullProgramLabel" xml:space="preserve">
+    <value>Перемкнути повну програму</value>
+  </data>
+  <data name="SettingsHotkeyGoLiveFullProgramDescription" xml:space="preserve">
+    <value>Розгорніть або згорніть макет повного програмного монітора.</value>
+  </data>
+  <data name="SettingsHotkeyGoLiveTakeToAirLabel" xml:space="preserve">
+    <value>Винести на повітря</value>
+  </data>
+  <data name="SettingsHotkeyGoLiveTakeToAirDescription" xml:space="preserve">
+    <value>Переключіть вибране джерело на програмне.</value>
+  </data>
+  <data name="SettingsHotkeyGoLiveRecordingLabel" xml:space="preserve">
+    <value>Почати або зупинити запис</value>
+  </data>
+  <data name="SettingsHotkeyGoLiveRecordingDescription" xml:space="preserve">
+    <value>Увімкнути локальний запис для активної програми.</value>
+  </data>
+  <data name="SettingsHotkeyGoLiveStreamLabel" xml:space="preserve">
+    <value>Почати або зупинити трансляцію</value>
+  </data>
+  <data name="SettingsHotkeyGoLiveStreamDescription" xml:space="preserve">
+    <value>Перемкнути сеанс прямої трансляції.</value>
+  </data>
+  <data name="CommonGeneral" xml:space="preserve">
+    <value>Загальний</value>
+  </data>
+  <data name="CommonVideo" xml:space="preserve">
+    <value>відео</value>
+  </data>
+  <data name="CommonAudio" xml:space="preserve">
+    <value>Аудіо</value>
+  </data>
+  <data name="CommonBrowse" xml:space="preserve">
+    <value>переглядати</value>
+  </data>
+  <data name="CommonContainer" xml:space="preserve">
+    <value>Контейнер</value>
+  </data>
+  <data name="CommonCodec" xml:space="preserve">
+    <value>Кодек</value>
+  </data>
+  <data name="CommonResolution" xml:space="preserve">
+    <value>роздільна здатність</value>
+  </data>
+  <data name="CommonFrameRate" xml:space="preserve">
+    <value>Частота кадрів</value>
+  </data>
+  <data name="CommonSampleRate" xml:space="preserve">
+    <value>Частота вибірки</value>
+  </data>
+  <data name="CommonChannels" xml:space="preserve">
+    <value>Канали</value>
+  </data>
+  <data name="LibraryCardOneSegment" xml:space="preserve">
+    <value>1 сегмент</value>
+  </data>
+  <data name="LibraryCardSegmentsFormat" xml:space="preserve">
+    <value>сегменти {0}</value>
+  </data>
+  <data name="DiagnosticsEyebrow" xml:space="preserve">
+    <value>Діагностика</value>
+  </data>
+  <data name="GoLiveSceneControlsLayout" xml:space="preserve">
+    <value>Макет</value>
+  </data>
+  <data name="GoLiveSceneTransitionCut" xml:space="preserve">
+    <value>Склейка</value>
+  </data>
+  <data name="GoLiveSceneTransitionFade" xml:space="preserve">
+    <value>Затемнення</value>
+  </data>
+  <data name="GoLiveSceneTransitionWipe" xml:space="preserve">
+    <value>Витіснення</value>
+  </data>
+  <data name="EditorActionLabelOneSecond" xml:space="preserve">
+    <value>1 секунда</value>
+  </data>
+  <data name="EditorActionLabelTwoSeconds" xml:space="preserve">
+    <value>2 секунди</value>
+  </data>
+  <data name="EditorActionLabelThreeSeconds" xml:space="preserve">
+    <value>3 секунди</value>
+  </data>
+  <data name="EditorActionLabelAside" xml:space="preserve">
+    <value>Вбік</value>
+  </data>
+  <data name="EditorActionLabelBlock" xml:space="preserve">
+    <value>Блокувати</value>
+  </data>
+  <data name="EditorActionLabelBold" xml:space="preserve">
+    <value>Жирний</value>
+  </data>
+  <data name="EditorActionLabelBreath" xml:space="preserve">
+    <value>Дихання</value>
+  </data>
+  <data name="EditorActionLabelBuilding" xml:space="preserve">
+    <value>будівля</value>
+  </data>
+  <data name="EditorActionLabelCalm" xml:space="preserve">
+    <value>Спокійно</value>
+  </data>
+  <data name="EditorActionLabelConcerned" xml:space="preserve">
+    <value>стурбований</value>
+  </data>
+  <data name="EditorActionLabelCustomMs" xml:space="preserve">
+    <value>Спеціальний (мс)</value>
+  </data>
+  <data name="EditorActionLabelCustomWpm" xml:space="preserve">
+    <value>Спеціальний WPM</value>
+  </data>
+  <data name="EditorActionLabelEmphasis" xml:space="preserve">
+    <value>Наголос</value>
+  </data>
+  <data name="EditorActionLabelEnergetic" xml:space="preserve">
+    <value>Енергійний</value>
+  </data>
+  <data name="EditorActionLabelEnergy" xml:space="preserve">
+    <value>Енергія</value>
+  </data>
+  <data name="EditorActionLabelExcited" xml:space="preserve">
+    <value>схвильований</value>
+  </data>
+  <data name="EditorActionLabelExtraFast" xml:space="preserve">
+    <value>Екстра швидкий</value>
+  </data>
+  <data name="EditorActionLabelExtraSlow" xml:space="preserve">
+    <value>Дуже повільно</value>
+  </data>
+  <data name="EditorActionLabelFast" xml:space="preserve">
+    <value>швидко</value>
+  </data>
+  <data name="EditorActionLabelFocused" xml:space="preserve">
+    <value>Зосереджений</value>
+  </data>
+  <data name="EditorActionLabelHappy" xml:space="preserve">
+    <value>Щаслива</value>
+  </data>
+  <data name="EditorActionLabelHighPriority" xml:space="preserve">
+    <value>Високий пріоритет</value>
+  </data>
+  <data name="EditorActionLabelHighlight" xml:space="preserve">
+    <value>Виділіть</value>
+  </data>
+  <data name="EditorActionLabelItalic" xml:space="preserve">
+    <value>Курсив</value>
+  </data>
+  <data name="EditorActionLabelLegato" xml:space="preserve">
+    <value>Легато</value>
+  </data>
+  <data name="EditorActionLabelLoud" xml:space="preserve">
+    <value>Голосно</value>
+  </data>
+  <data name="EditorActionLabelMediumPause" xml:space="preserve">
+    <value>Середня пауза</value>
+  </data>
+  <data name="EditorActionLabelMediumPriority" xml:space="preserve">
+    <value>Середній пріоритет</value>
+  </data>
+  <data name="EditorActionLabelMelody" xml:space="preserve">
+    <value>Мелодія</value>
+  </data>
+  <data name="EditorActionLabelMotivational" xml:space="preserve">
+    <value>Мотиваційний</value>
+  </data>
+  <data name="EditorActionLabelNeutral" xml:space="preserve">
+    <value>Нейтральний</value>
+  </data>
+  <data name="EditorActionLabelNormal" xml:space="preserve">
+    <value>нормальний</value>
+  </data>
+  <data name="EditorActionLabelPhoneticIpa" xml:space="preserve">
+    <value>Фонетичний (IPA)</value>
+  </data>
+  <data name="EditorActionLabelProfessional" xml:space="preserve">
+    <value>професійний</value>
+  </data>
+  <data name="EditorActionLabelPronunciation" xml:space="preserve">
+    <value>Вимова</value>
+  </data>
+  <data name="EditorActionLabelRemoveCues" xml:space="preserve">
+    <value>Видаліть сигнали</value>
+  </data>
+  <data name="EditorActionLabelRhetorical" xml:space="preserve">
+    <value>Риторичний</value>
+  </data>
+  <data name="EditorActionLabelSad" xml:space="preserve">
+    <value>Сумно</value>
+  </data>
+  <data name="EditorActionLabelSarcasm" xml:space="preserve">
+    <value>сарказм</value>
+  </data>
+  <data name="EditorActionLabelSegment" xml:space="preserve">
+    <value>Відрізок</value>
+  </data>
+  <data name="EditorActionLabelShortPause" xml:space="preserve">
+    <value>Коротка пауза</value>
+  </data>
+  <data name="EditorActionLabelSlow" xml:space="preserve">
+    <value>Повільно</value>
+  </data>
+  <data name="EditorActionLabelSoft" xml:space="preserve">
+    <value>М'які</value>
+  </data>
+  <data name="EditorActionLabelStaccato" xml:space="preserve">
+    <value>стаккато</value>
+  </data>
+  <data name="EditorActionLabelStandard" xml:space="preserve">
+    <value>Стандартний</value>
+  </data>
+  <data name="EditorActionLabelStress" xml:space="preserve">
+    <value>Стрес</value>
+  </data>
+  <data name="EditorActionLabelStressGuide" xml:space="preserve">
+    <value>Посібник зі стресу</value>
+  </data>
+  <data name="EditorActionLabelUrgent" xml:space="preserve">
+    <value>Терміново</value>
+  </data>
+  <data name="EditorActionLabelWarm" xml:space="preserve">
+    <value>Теплий</value>
+  </data>
+  <data name="EditorActionLabelWhisper" xml:space="preserve">
+    <value>Шепіт</value>
+  </data>
+  <data name="EditorActionMetaArchetypeAware" xml:space="preserve">
+    <value>Усвідомлення архетипу</value>
+  </data>
+  <data name="EditorActionMetaSpeakerAware" xml:space="preserve">
+    <value>Спікер в курсі</value>
+  </data>
+  <data name="AiSpotlightContextLoaded" xml:space="preserve">
+    <value>Контекст завантажено</value>
+  </data>
+  <data name="AiSpotlightGraphChecked" xml:space="preserve">
+    <value>Графік перевірено</value>
+  </data>
+  <data name="AiSpotlightWaitingPoint" xml:space="preserve">
+    <value>Пункт очікування</value>
+  </data>
+  <data name="AiSpotlightReadyForNextInstruction" xml:space="preserve">
+    <value>Готовий до наступної інструкції</value>
+  </data>
+  <data name="AiSpotlightApprovalRequiredBeforeChangingSelection" xml:space="preserve">
+    <value>Перед зміною виділеного тексту потрібне схвалення</value>
+  </data>
+  <data name="AiSpotlightSelectedRangeFormat" xml:space="preserve">
+    <value>Вибраний діапазон {0}-{1}</value>
+  </data>
+  <data name="AiSpotlightPreparedRangeEdit" xml:space="preserve">
+    <value>Готове редагування діапазону</value>
+  </data>
+  <data name="AiSpotlightReviewEditBeforeApplying" xml:space="preserve">
+    <value>Перегляньте поточний і запропонований текст перед застосуванням цієї правки</value>
+  </data>
+  <data name="AiSpotlightNoGraphBuilt" xml:space="preserve">
+    <value>Скрипт-граф ще не створено</value>
+  </data>
+  <data name="AiSpotlightGraphSummaryFormat" xml:space="preserve">
+    <value>{0} вузлів, {1} посилань</value>
+  </data>
+  <data name="AiSpotlightNoActiveEditorTarget" xml:space="preserve">
+    <value>Немає активного цільового редактора для цього редагування документа.</value>
+  </data>
+  <data name="AiSpotlightApprovalFailed" xml:space="preserve">
+    <value>Помилка схвалення</value>
+  </data>
+  <data name="AiSpotlightOpenEditorTryAgain" xml:space="preserve">
+    <value>Відкрийте редактор джерел і повторіть спробу.</value>
+  </data>
+  <data name="AiSpotlightAppliedEdit" xml:space="preserve">
+    <value>Застосована правка</value>
+  </data>
+  <data name="AiSpotlightDocumentRevisionFormat" xml:space="preserve">
+    <value>Редакція документа {0}</value>
+  </data>
+  <data name="AiSpotlightChangeRejected" xml:space="preserve">
+    <value>Зміну відхилено</value>
+  </data>
+  <data name="AiSpotlightNoDocumentTextChanged" xml:space="preserve">
+    <value>Текст документа не змінено.</value>
+  </data>
+  <data name="LibraryLoadMessage" xml:space="preserve">
+    <value>Зараз неможливо завантажити бібліотеку.</value>
+  </data>
+  <data name="LibraryCreateScriptMessage" xml:space="preserve">
+    <value>Не вдалося створити новий сценарій.</value>
+  </data>
+  <data name="LibraryOpenScriptMessage" xml:space="preserve">
+    <value>Неможливо відкрити цей сценарій.</value>
+  </data>
+  <data name="LibraryDuplicateScriptMessage" xml:space="preserve">
+    <value>Неможливо скопіювати цей сценарій.</value>
+  </data>
+  <data name="LibraryDuplicateTitleFormat" xml:space="preserve">
+    <value>{0} Копія</value>
+  </data>
+  <data name="LibraryMoveScriptMessage" xml:space="preserve">
+    <value>Не вдалося перемістити цей сценарій.</value>
+  </data>
+  <data name="LibraryDeleteScriptMessage" xml:space="preserve">
+    <value>Не вдалося видалити цей сценарій.</value>
+  </data>
+  <data name="LibraryCreateFolderMessage" xml:space="preserve">
+    <value>Не вдалося створити цю папку.</value>
+  </data>
+  <data name="LibraryUntitledScriptTitle" xml:space="preserve">
+    <value>Сценарій без назви</value>
+  </data>
+  <data name="LibraryUntitledFolderTitle" xml:space="preserve">
+    <value>Папка без назви</value>
+  </data>
+  <data name="LibraryFolderNameRequiredMessage" xml:space="preserve">
+    <value>Потрібно вказати назву папки.</value>
+  </data>
+  <data name="LearnLoadMessage" xml:space="preserve">
+    <value>Зараз неможливо завантажити репетицію відповіді.</value>
+  </data>
+  <data name="TeleprompterLoadMessage" xml:space="preserve">
+    <value>Неможливо підготувати відтворення телесуфлера.</value>
+  </data>
+  <data name="TeleprompterAttachCameraMessage" xml:space="preserve">
+    <value>Не вдається ввімкнути камеру телесуфлера.</value>
+  </data>
+  <data name="SettingsLoadMessage" xml:space="preserve">
+    <value>Зараз неможливо завантажити налаштування.</value>
+  </data>
+  <data name="SettingsPersistSceneMessage" xml:space="preserve">
+    <value>Не вдалося зберегти зміни сцени.</value>
+  </data>
+  <data name="SettingsPersistStudioMessage" xml:space="preserve">
+    <value>Не вдалося зберегти налаштування студії.</value>
+  </data>
+  <data name="SettingsPersistPreferencesMessage" xml:space="preserve">
+    <value>Не вдалося зберегти загальні налаштування.</value>
+  </data>
+  <data name="SettingsRefreshMediaMessage" xml:space="preserve">
+    <value>Не вдалося оновити доступ до камери та мікрофона.</value>
+  </data>
+  <data name="SettingsEnableDevicesLabel" xml:space="preserve">
+    <value>Увімкнути камеру + мікрофон</value>
+  </data>
+  <data name="SettingsRefreshDevicesLabel" xml:space="preserve">
+    <value>Оновити пристрої</value>
+  </data>
+  <data name="CloudStorageProviderInitializeMessage" xml:space="preserve">
+    <value>Не вдалося ініціалізувати вибраного постачальника.</value>
+  </data>
+  <data name="CloudStorageExportedSummaryFormat" xml:space="preserve">
+    <value>Експортовано {0} сценаріїв і налаштувань.</value>
+  </data>
+  <data name="CloudStorageUploadBackupMessage" xml:space="preserve">
+    <value>Не вдалося завантажити знімок резервної копії.</value>
+  </data>
+  <data name="CloudStorageNoBackupSnapshotMessage" xml:space="preserve">
+    <value>Резервний знімок для цього постачальника не знайдено.</value>
+  </data>
+  <data name="CloudStorageInvalidBackupSnapshotMessage" xml:space="preserve">
+    <value>Знімок резервної копії порожній або недійсний.</value>
+  </data>
+  <data name="CloudStorageImportedSummaryFormat" xml:space="preserve">
+    <value>Імпортовано {0} сценаріїв і налаштувань.</value>
+  </data>
+  <data name="CloudStorageConnectionValidated" xml:space="preserve">
+    <value>Підключення перевірено.</value>
+  </data>
+  <data name="CloudStorageConnectionFailed" xml:space="preserve">
+    <value>Помилка підключення.</value>
+  </data>
+  <data name="CloudStorageUnknownProviderFormat" xml:space="preserve">
+    <value>Невідомий постачальник хмарних сховищ "{0}".</value>
+  </data>
+  <data name="CloudStorageOneDriveBrowserUnsupportedMessage" xml:space="preserve">
+    <value>Секретне сховище клієнта OneDrive не підтримується у середовищі виконання браузера.</value>
+  </data>
+  <data name="CloudStorageDropboxCredentialsRequiredMessage" xml:space="preserve">
+    <value>Dropbox вимагає маркер доступу або маркер оновлення з ключем програми.</value>
+  </data>
+  <data name="CloudStorageOneDriveCredentialsRequiredMessage" xml:space="preserve">
+    <value>Для OneDrive потрібен ідентифікатор клієнта, ідентифікатор клієнта та секрет клієнта.</value>
+  </data>
+  <data name="CloudStorageServiceAccountJsonRequiredFormat" xml:space="preserve">
+    <value>Для {0} потрібен ключ JSON сервісного облікового запису.</value>
+  </data>
+  <data name="CloudStorageGoogleCloudStorageProfileRequiredMessage" xml:space="preserve">
+    <value>Google Cloud Storage потребує ідентифікатора проекту та назви сегмента.</value>
+  </data>
+  <data name="CloudStorageCloudKitContainerRequiredMessage" xml:space="preserve">
+    <value>Для CloudKit потрібен ідентифікатор контейнера.</value>
+  </data>
+  <data name="CloudStorageCloudKitCredentialsRequiredMessage" xml:space="preserve">
+    <value>Для CloudKit потрібен маркер API, маркер веб-автентифікації або облікові дані між серверами.</value>
   </data>
 </root>

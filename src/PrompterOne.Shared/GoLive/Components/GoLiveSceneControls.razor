@@ -1,5 +1,7 @@
 @namespace PrompterOne.Shared.Components.GoLive
 @using PrompterOne.Shared.Components
+@using PrompterOne.Shared.Localization
+@inject IStringLocalizer<SharedResource> Localizer
 
 <section class="gl-program-tools"
          data-test="@UiTestIds.GoLive.SceneControls">
@@ -30,7 +32,7 @@
 
     <div class="gl-controls-bar">
         <div class="gl-scene-tools">
-            <span class="gl-tools-label">Layout</span>
+            <span class="gl-tools-label">@Text(UiTextKey.GoLiveSceneControlsLayout)</span>
             <button type="button"
                     class="gl-scene-btn @(ActiveLayout == GoLiveSceneLayout.Full ? "active" : null)"
                     data-test="@UiTestIds.GoLive.LayoutFull"
@@ -54,13 +56,13 @@
         <div class="gl-trans-bar">
             <button type="button"
                     class="gl-trans-btn @(ActiveTransitionKind == GoLiveTransitionKind.Cut ? "active" : null)"
-                    @onclick="() => SelectTransitionKind.InvokeAsync(GoLiveTransitionKind.Cut)">Cut</button>
+                    @onclick="() => SelectTransitionKind.InvokeAsync(GoLiveTransitionKind.Cut)">@Text(UiTextKey.GoLiveSceneTransitionCut)</button>
             <button type="button"
                     class="gl-trans-btn @(ActiveTransitionKind == GoLiveTransitionKind.Fade ? "active" : null)"
-                    @onclick="() => SelectTransitionKind.InvokeAsync(GoLiveTransitionKind.Fade)">Fade</button>
+                    @onclick="() => SelectTransitionKind.InvokeAsync(GoLiveTransitionKind.Fade)">@Text(UiTextKey.GoLiveSceneTransitionFade)</button>
             <button type="button"
                     class="gl-trans-btn @(ActiveTransitionKind == GoLiveTransitionKind.Wipe ? "active" : null)"
-                    @onclick="() => SelectTransitionKind.InvokeAsync(GoLiveTransitionKind.Wipe)">Wipe</button>
+                    @onclick="() => SelectTransitionKind.InvokeAsync(GoLiveTransitionKind.Wipe)">@Text(UiTextKey.GoLiveSceneTransitionWipe)</button>
             <button type="button"
                     class="gl-take-btn"
                     data-test="@UiTestIds.GoLive.TakeToAir"
@@ -117,4 +119,6 @@
             GoLiveSceneChipKind.Custom => UiIconKind.Spark,
             _ => UiIconKind.Camera
         };
+
+    private string Text(UiTextKey key) => Localizer[key.ToString()];
 }

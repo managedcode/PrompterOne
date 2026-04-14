@@ -371,11 +371,14 @@ body.theme-light .ed-main ::deep .efb-menu-item:hover {
 .ed-main ::deep .po-tag-highlight,
 .ed-main ::deep .po-tag-pronunciation,
 .ed-main ::deep .po-tag-emphasis,
+.ed-main ::deep .po-tag-energy,
 .ed-main ::deep .po-tag-stress,
+.ed-main ::deep .po-tag-melody,
 .ed-main ::deep .po-tag-pause,
 .ed-main ::deep .po-tag-breath,
 .ed-main ::deep .po-tag-editpoint,
 .ed-main ::deep .po-tag-wpm,
+.ed-main ::deep [class*="po-tag-articulation-"],
 .ed-main ::deep [class*="po-tag-emotion-"],
 .ed-main ::deep [class*="po-tag-volume-"],
 .ed-main ::deep [class*="po-tag-delivery-"],
@@ -383,6 +386,8 @@ body.theme-light .ed-main ::deep .efb-menu-item:hover {
 .ed-main ::deep .po-tag-highlight{--ed-tag-color:#FFE87A;}
 .ed-main ::deep .po-tag-pronunciation{--ed-tag-color:#D88AFF;}
 .ed-main ::deep .po-tag-emphasis{--ed-tag-color:var(--accent);}
+.ed-main ::deep .po-tag-energy{--ed-tag-color:#5EECC2;}
+.ed-main ::deep .po-tag-melody{--ed-tag-color:#FF9F6E;}
 .ed-main ::deep .po-tag-stress{--ed-tag-color:#FFD060;}
 .ed-main ::deep .po-tag-pause{--ed-tag-color:#E0C070;}
 .ed-main ::deep .po-tag-breath{--ed-tag-color:#EEDB96;}
@@ -457,6 +462,9 @@ body.theme-light .ed-main ::deep .monaco-editor .line-numbers.active-line-number
 .ed-main ::deep .po-tag-emotion-professional{--ed-tag-color:#80B8FF;}
 .ed-main ::deep [data-tps-volume],
 .ed-main ::deep [data-tps-delivery],
+.ed-main ::deep [data-tps-articulation],
+.ed-main ::deep [data-tps-energy],
+.ed-main ::deep [data-tps-melody],
 .ed-main ::deep [data-tps-speed],
 .ed-main ::deep [data-tps-stress="true"]{
     --tps-cue-opacity:1;
@@ -488,6 +496,16 @@ body.theme-light .ed-main ::deep .monaco-editor .line-numbers.active-line-number
 .ed-main ::deep .mk-del-building{color:#FFD98A;font-weight:var(--tps-cue-weight, 700);--tps-cue-scale:1.05;--tps-cue-weight:760;}
 .ed-main ::deep .po-inline-delivery-building{color:#FFD98A;text-shadow:0 0 8px rgba(255,217,138,.14);}
 .ed-main ::deep .po-tag-delivery-building{--ed-tag-color:#FFD98A;}
+.ed-main ::deep .mk-art-legato,
+.ed-main ::deep .po-inline-articulation-legato{color:#7FDBFF;text-decoration-line:underline;text-decoration-style:wavy;text-decoration-color:rgba(127,219,255,.46);text-decoration-thickness:1px;text-underline-offset:5px;text-decoration-skip-ink:none;}
+.ed-main ::deep .po-tag-articulation-legato{--ed-tag-color:#7FDBFF;}
+.ed-main ::deep .mk-art-staccato,
+.ed-main ::deep .po-inline-articulation-staccato{color:#FFB0E6;text-decoration-line:underline;text-decoration-style:dotted;text-decoration-color:rgba(255,176,230,.56);text-decoration-thickness:2px;text-underline-offset:5px;}
+.ed-main ::deep .po-tag-articulation-staccato{--ed-tag-color:#FFB0E6;}
+.ed-main ::deep .mk-energy,
+.ed-main ::deep .po-inline-energy{color:#5EECC2;text-shadow:0 0 10px rgba(94,236,194,.18),0 0 18px rgba(94,236,194,.1);}
+.ed-main ::deep .mk-melody,
+.ed-main ::deep .po-inline-melody{color:#FF9F6E;text-decoration-line:underline;text-decoration-style:wavy;text-decoration-color:rgba(255,159,110,.5);text-decoration-thickness:1px;text-underline-offset:5px;text-decoration-skip-ink:none;}
 .ed-main ::deep .mk-stress{text-decoration:underline;text-decoration-color:#FFD060;text-underline-offset:4px;text-decoration-thickness:2px;--tps-cue-scale:1.07;--tps-cue-weight:820;}
 .ed-main ::deep .po-inline-stress{text-decoration:underline;text-decoration-color:#FFD060;text-underline-offset:4px;text-decoration-thickness:2px;}
 .ed-main ::deep .mk-xslow{color:#FF8A8A;letter-spacing:.018em;text-shadow:0 0 8px rgba(255,138,138,.16);}

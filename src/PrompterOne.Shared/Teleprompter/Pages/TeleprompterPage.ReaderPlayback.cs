@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Components;
 using PrompterOne.Shared.Contracts;
+using PrompterOne.Shared.Localization;
 
 namespace PrompterOne.Shared.Pages;
 
 public partial class TeleprompterPage
 {
-    private const string AttachReaderCameraMessage = "Unable to enable the teleprompter camera.";
     private const string AttachReaderCameraOperation = "Teleprompter camera attach";
     private const int MinimumReaderLoopDelayMilliseconds = 120;
     private const int ReaderCardTransitionMilliseconds = 600;
@@ -270,7 +270,7 @@ public partial class TeleprompterPage
     {
         var attached = await Diagnostics.RunAsync(
             AttachReaderCameraOperation,
-            AttachReaderCameraMessage,
+            Text(UiTextKey.TeleprompterAttachCameraMessage),
             () => CameraPreviewInterop.AttachCameraAsync(_cameraLayer.ElementId, _cameraLayer.DeviceId));
 
         if (!attached)

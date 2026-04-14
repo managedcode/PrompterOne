@@ -13,22 +13,25 @@ using ManagedCode.Storage.GoogleDrive;
 using ManagedCode.Storage.GoogleDrive.Options;
 using ManagedCode.Storage.OneDrive;
 using ManagedCode.Storage.OneDrive.Options;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Graph;
+using PrompterOne.Shared.Localization;
 
 namespace PrompterOne.Shared.Storage.Cloud;
 
 public sealed class CloudStorageProviderFactory(
     BrowserCloudStorageStore cloudStorageStore,
-    ILoggerFactory loggerFactory)
+    ILoggerFactory loggerFactory,
+    IStringLocalizer<SharedResource> localizer)
 {
     private const string GoogleCloudStorageScope = "https://www.googleapis.com/auth/devstorage.full_control";
     private const string GoogleDriveApplicationName = "PrompterOne";
-    private const string OneDriveBrowserUnsupportedMessage = "OneDrive client-secret storage is not supported in the browser runtime.";
     private static readonly string[] GraphScopes = ["https://graph.microsoft.com/.default"];
 
     private readonly BrowserCloudStorageStore _cloudStorageStore = cloudStorageStore;
     private readonly ILoggerFactory _loggerFactory = loggerFactory;
+    private readonly IStringLocalizer<SharedResource> _localizer = localizer;
 
     public async Task<IStorage> CreateAsync(
         CloudStoragePreferences preferences,
@@ -44,7 +47,7 @@ public sealed class CloudStorageProviderFactory(
             CloudStorageProviderIds.GoogleCloudStorage => await CreateGoogleCloudStorageAsync(preferences.GoogleCloudStorage, cancellationToken),
             CloudStorageProviderIds.GoogleDrive => await CreateGoogleDriveStorageAsync(preferences.GoogleDrive, cancellationToken),
             CloudStorageProviderIds.OneDrive => await CreateOneDriveStorageAsync(preferences.OneDrive, cancellationToken),
-            _ => throw new InvalidOperationException($"Unknown cloud storage provider '{providerId}'.")
+            _ => throw new InvalidOperationException(Format(UiTextKey.CloudStorageUnknownProviderFormat, providerId))
         };
     }
 
@@ -58,8 +61,8 @@ public sealed class CloudStorageProviderFactory(
             using var storage = await CreateAsync(preferences, providerId, cancellationToken);
             var result = await storage.CreateContainerAsync(cancellationToken);
             return result.IsSuccess
-                ? CloudStorageOperationResult.Success("Connection validated.")
-                : CloudStorageOperationResult.Failure(ToMessage(result.Problem, "Connection failed."));
+                ? CloudStorageOperationResult.Success(Text(UiTextKey.CloudStorageConnectionValidated))
+                : CloudStorageOperationResult.Failure(ToMessage(result.Problem, Text(UiTextKey.CloudStorageConnectionFailed)));
         }
         catch (Exception exception)
         {
@@ -94,7 +97,7 @@ public sealed class CloudStorageProviderFactory(
         ValidateOneDriveCredentials(credentials);
         if (OperatingSystem.IsBrowser())
         {
-            throw new PlatformNotSupportedException(OneDriveBrowserUnsupportedMessage);
+            throw new PlatformNotSupportedException(Text(UiTextKey.CloudStorageOneDriveBrowserUnsupportedMessage));
         }
 
         var graphClient = new GraphServiceClient(
@@ -188,7 +191,7 @@ public sealed class CloudStorageProviderFactory(
             _loggerFactory.CreateLogger<CloudKitStorage>());
     }
 
-    private static void ValidateDropboxCredentials(DropboxCloudStorageCredentials credentials)
+    private void ValidateDropboxCredentials(DropboxCloudStorageCredentials credentials)
     {
         var hasAccessToken = !string.IsNullOrWhiteSpace(credentials.AccessToken);
         var hasRefreshFlow = !string.IsNullOrWhiteSpace(credentials.RefreshToken) &&
@@ -196,29 +199,29 @@ public sealed class CloudStorageProviderFactory(
 
         if (!hasAccessToken && !hasRefreshFlow)
         {
-            throw new InvalidOperationException("Dropbox requires an access token or a refresh token with app key.");
+            throw new InvalidOperationException(Text(UiTextKey.CloudStorageDropboxCredentialsRequiredMessage));
         }
     }
 
-    private static void ValidateOneDriveCredentials(OneDriveCloudStorageCredentials credentials)
+    private void ValidateOneDriveCredentials(OneDriveCloudStorageCredentials credentials)
     {
         if (string.IsNullOrWhiteSpace(credentials.TenantId) ||
             string.IsNullOrWhiteSpace(credentials.ClientId) ||
             string.IsNullOrWhiteSpace(credentials.ClientSecret))
         {
-            throw new InvalidOperationException("OneDrive requires tenant id, client id, and client secret.");
+            throw new InvalidOperationException(Text(UiTextKey.CloudStorageOneDriveCredentialsRequiredMessage));
         }
     }
 
-    private static void ValidateServiceAccountJson(string value, string providerName)
+    private void ValidateServiceAccountJson(string value, string providerName)
     {
         if (string.IsNullOrWhiteSpace(value))
         {
-            throw new InvalidOperationException($"{providerName} requires a service account JSON key.");
+            throw new InvalidOperationException(Format(UiTextKey.CloudStorageServiceAccountJsonRequiredFormat, providerName));
         }
     }
 
-    private static void ValidateGoogleCloudStorage(
+    private void ValidateGoogleCloudStorage(
         GoogleCloudStorageProfile profile,
         GoogleCloudStorageCredentials credentials)
     {
@@ -226,17 +229,17 @@ public sealed class CloudStorageProviderFactory(
 
         if (string.IsNullOrWhiteSpace(profile.ProjectId) || string.IsNullOrWhiteSpace(profile.BucketName))
         {
-            throw new InvalidOperationException("Google Cloud Storage requires a project id and bucket name.");
+            throw new InvalidOperationException(Text(UiTextKey.CloudStorageGoogleCloudStorageProfileRequiredMessage));
         }
     }
 
-    private static void ValidateCloudKit(
+    private void ValidateCloudKit(
         CloudKitStorageProfile profile,
         CloudKitStorageCredentials credentials)
     {
         if (string.IsNullOrWhiteSpace(profile.ContainerId))
         {
-            throw new InvalidOperationException("CloudKit requires a container id.");
+            throw new InvalidOperationException(Text(UiTextKey.CloudStorageCloudKitContainerRequiredMessage));
         }
 
         var hasApiToken = !string.IsNullOrWhiteSpace(credentials.ApiToken);
@@ -246,7 +249,7 @@ public sealed class CloudStorageProviderFactory(
 
         if (!hasApiToken && !hasServerCredentials && !hasWebToken)
         {
-            throw new InvalidOperationException("CloudKit requires an API token, web auth token, or server-to-server credentials.");
+            throw new InvalidOperationException(Text(UiTextKey.CloudStorageCloudKitCredentialsRequiredMessage));
         }
     }
 
@@ -255,4 +258,9 @@ public sealed class CloudStorageProviderFactory(
 
     private static string ToMessage(ManagedCode.Communication.Problem? problem, string fallbackMessage) =>
         problem?.Detail ?? problem?.Title ?? fallbackMessage;
+
+    private string Text(UiTextKey key) => _localizer[key.ToString()];
+
+    private string Format(UiTextKey key, params object[] arguments) =>
+        string.Format(System.Globalization.CultureInfo.CurrentCulture, Text(key), arguments);
 }

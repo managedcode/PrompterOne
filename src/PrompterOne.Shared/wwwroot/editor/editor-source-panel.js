@@ -63,6 +63,10 @@
         ["sarcasm", "mk-del-sarcasm"],
         ["building", "mk-del-building"]
     ]);
+    const articulationClasses = new Map([
+        ["legato", "mk-art-legato"],
+        ["staccato", "mk-art-staccato"]
+    ]);
     const speedClasses = new Map([
         ["xslow", "mk-xslow"],
         ["slow", "mk-slow"],
@@ -753,7 +757,11 @@
             }
 
             if (equalsIgnoreCase(name, "breath")) {
-                appendStandalone("mk-breath", rawTag);
+                appendStandalone(
+                    "mk-breath",
+                    rawTag,
+                    cueContracts?.breathAttributeName,
+                    cueContracts?.breathAttributeValue);
                 return;
             }
 
@@ -783,6 +791,26 @@
             if (equalsIgnoreCase(name, "stress")) {
                 appendTag(rawTag);
                 pushScope(name, scopeKindStyle, { ...currentState, isStress: true });
+                return;
+            }
+
+            if (equalsIgnoreCase(name, "energy")) {
+                appendTag(rawTag);
+                pushScope(name, scopeKindStyle, {
+                    ...currentState,
+                    energyClass: "mk-energy",
+                    energyValue: argument || null
+                });
+                return;
+            }
+
+            if (equalsIgnoreCase(name, "melody")) {
+                appendTag(rawTag);
+                pushScope(name, scopeKindStyle, {
+                    ...currentState,
+                    melodyClass: "mk-melody",
+                    melodyValue: argument || null
+                });
                 return;
             }
 
@@ -819,10 +847,25 @@
                 return;
             }
 
+            const articulationClass = articulationClasses.get(name.toLowerCase());
+            if (articulationClass) {
+                appendTag(rawTag);
+                pushScope(name, scopeKindStyle, {
+                    ...currentState,
+                    articulationClass,
+                    articulationValue: name.toLowerCase()
+                });
+                return;
+            }
+
             const emotionClass = emotionClasses.get(name.toLowerCase());
             if (emotionClass) {
                 appendTag(rawTag);
-                pushScope(name, scopeKindStyle, { ...currentState, emotionClass });
+                pushScope(name, scopeKindStyle, {
+                    ...currentState,
+                    emotionClass,
+                    emotionValue: name.toLowerCase()
+                });
                 return;
             }
 
@@ -884,8 +927,8 @@
             builder.push(`<span class="mk-tag">${encodeHtml(value)}</span>`);
         }
 
-        function appendStandalone(cssClass, value) {
-            builder.push(`<span class="${cssClass}">${encodeHtml(value)}</span>`);
+        function appendStandalone(cssClass, value, attributeName, attributeValue) {
+            builder.push(`<span class="${cssClass}"${buildOptionalHtmlAttribute(attributeName, attributeValue)}>${encodeHtml(value)}</span>`);
         }
 
         function pushScope(name, kind, state, argument) {
@@ -918,7 +961,14 @@
 
     function createRenderState() {
         return {
+            articulationValue: null,
+            articulationClass: null,
             emotionClass: null,
+            emotionValue: null,
+            energyClass: null,
+            energyValue: null,
+            melodyClass: null,
+            melodyValue: null,
             volumeValue: null,
             volumeClass: null,
             deliveryValue: null,
@@ -933,8 +983,16 @@
 
     function normalizeCueContracts(rawContracts) {
         return {
+            articulationAttributeName: rawContracts?.articulationAttributeName || "",
+            breathAttributeName: rawContracts?.breathAttributeName || "",
+            breathAttributeValue: rawContracts?.breathAttributeValue || "",
             volumeAttributeName: rawContracts?.volumeAttributeName || "",
             deliveryAttributeName: rawContracts?.deliveryAttributeName || "",
+            emotionAttributeName: rawContracts?.emotionAttributeName || "",
+            energyAttributeName: rawContracts?.energyAttributeName || "",
+            highlightAttributeName: rawContracts?.highlightAttributeName || "",
+            highlightAttributeValue: rawContracts?.highlightAttributeValue || "",
+            melodyAttributeName: rawContracts?.melodyAttributeName || "",
             speedAttributeName: rawContracts?.speedAttributeName || "",
             stressAttributeName: rawContracts?.stressAttributeName || "",
             stressAttributeValue: rawContracts?.stressAttributeValue || ""
@@ -957,6 +1015,15 @@
         }
         if (state.deliveryClass) {
             classes.push(state.deliveryClass);
+        }
+        if (state.articulationClass) {
+            classes.push(state.articulationClass);
+        }
+        if (state.energyClass) {
+            classes.push(state.energyClass);
+        }
+        if (state.melodyClass) {
+            classes.push(state.melodyClass);
         }
         if (state.speedClass) {
             classes.push(state.speedClass);
@@ -981,6 +1048,9 @@
             state.emotionClass ||
             state.volumeClass ||
             state.deliveryClass ||
+            state.articulationClass ||
+            state.energyClass ||
+            state.melodyClass ||
             state.speedClass ||
             (extraClasses || []).some(value => Boolean(value)));
     }
@@ -989,9 +1059,17 @@
         const attributes = [];
         const cssClass = buildCssClass(state, extraClasses);
         appendHtmlAttribute(attributes, "class", cssClass);
+        appendHtmlAttribute(attributes, cueContracts?.emotionAttributeName, state.emotionValue);
         appendHtmlAttribute(attributes, cueContracts?.volumeAttributeName, state.volumeValue);
         appendHtmlAttribute(attributes, cueContracts?.deliveryAttributeName, state.deliveryValue);
+        appendHtmlAttribute(attributes, cueContracts?.articulationAttributeName, state.articulationValue);
+        appendHtmlAttribute(attributes, cueContracts?.energyAttributeName, state.energyValue);
+        appendHtmlAttribute(attributes, cueContracts?.melodyAttributeName, state.melodyValue);
         appendHtmlAttribute(attributes, cueContracts?.speedAttributeName, state.speedValue);
+        if (state.isHighlighted) {
+            appendHtmlAttribute(attributes, cueContracts?.highlightAttributeName, cueContracts?.highlightAttributeValue);
+        }
+
         if (state.isStress) {
             appendHtmlAttribute(attributes, cueContracts?.stressAttributeName, cueContracts?.stressAttributeValue);
         }
@@ -1005,6 +1083,12 @@
         }
 
         attributes.push(` ${name}="${encodeHtml(value)}"`);
+    }
+
+    function buildOptionalHtmlAttribute(name, value) {
+        return name && value
+            ? ` ${name}="${encodeHtml(value)}"`
+            : "";
     }
 
     function getPauseLength(text, index) {

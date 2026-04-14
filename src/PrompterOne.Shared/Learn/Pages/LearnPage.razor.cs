@@ -12,7 +12,6 @@ namespace PrompterOne.Shared.Pages;
 public partial class LearnPage : IAsyncDisposable
 {
     private const int DefaultContextWordCount = LearnSettingsDefaults.ContextWords;
-    private const string LoadLearnMessage = "Unable to load RSVP rehearsal right now.";
     private const string LoadLearnOperation = "Learn load";
     private const int MinimumLoopDelayMilliseconds = 60;
     private const int MinimumWordDurationMilliseconds = 60;
@@ -83,7 +82,7 @@ public partial class LearnPage : IAsyncDisposable
             _loadState = false;
             await Diagnostics.RunAsync(
                 LoadLearnOperation,
-                LoadLearnMessage,
+                Text(UiTextKey.LearnLoadMessage),
                 async () =>
                 {
                     await Bootstrapper.EnsureReadyAsync();

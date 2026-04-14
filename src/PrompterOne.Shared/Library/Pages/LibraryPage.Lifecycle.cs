@@ -1,4 +1,5 @@
 using PrompterOne.Shared.Services.Library;
+using PrompterOne.Shared.Localization;
 
 namespace PrompterOne.Shared.Pages;
 
@@ -27,7 +28,7 @@ public partial class LibraryPage
     private Task RunLibraryLoadAsync() =>
         RunLibraryOperationAsync(
             LoadLibraryOperation,
-            LoadLibraryMessage,
+            Text(UiTextKey.LibraryLoadMessage),
             async () =>
             {
                 await LoadLibraryAsync();

@@ -17,12 +17,16 @@ public sealed class EditorMonacoTagColorContractTests
         Assert.Contains("emotionTagClasses: createSemanticTagClassMap(emotionNames, \"emotion\")", monacoScript, StringComparison.Ordinal);
         Assert.Contains("volumeTagClasses: createSemanticTagClassMap(volumeNames, \"volume\")", monacoScript, StringComparison.Ordinal);
         Assert.Contains("deliveryTagClasses: createSemanticTagClassMap(deliveryNames, \"delivery\")", monacoScript, StringComparison.Ordinal);
+        Assert.Contains("articulationTagClasses: createSemanticTagClassMap(articulationNames, \"articulation\")", monacoScript, StringComparison.Ordinal);
         Assert.Contains("speedTagClasses: createSemanticTagClassMap(speedNames.filter(name => name !== \"normal\"), \"speed\")", monacoScript, StringComparison.Ordinal);
+        Assert.Contains("energy: `${cssClassPrefix}-tag-energy`", monacoScript, StringComparison.Ordinal);
+        Assert.Contains("melody: `${cssClassPrefix}-tag-melody`", monacoScript, StringComparison.Ordinal);
         Assert.Contains("highlight: `${cssClassPrefix}-tag-highlight`", monacoScript, StringComparison.Ordinal);
         Assert.Contains("pronunciation: `${cssClassPrefix}-tag-pronunciation`", monacoScript, StringComparison.Ordinal);
         Assert.Contains("return tpsCatalog.emotionTagClasses.get(normalizedName);", monacoScript, StringComparison.Ordinal);
         Assert.Contains("return tpsCatalog.volumeTagClasses.get(normalizedName);", monacoScript, StringComparison.Ordinal);
         Assert.Contains("return tpsCatalog.deliveryTagClasses.get(normalizedName);", monacoScript, StringComparison.Ordinal);
+        Assert.Contains("return tpsCatalog.articulationTagClasses.get(normalizedName);", monacoScript, StringComparison.Ordinal);
     }
 
     [Test]
@@ -36,6 +40,9 @@ public sealed class EditorMonacoTagColorContractTests
         Assert.Contains(".ed-main ::deep .po-tag-emotion-urgent", stylesheet, StringComparison.Ordinal);
         Assert.Contains(".ed-main ::deep .po-tag-delivery-building", stylesheet, StringComparison.Ordinal);
         Assert.Contains(".ed-main ::deep .po-tag-volume-soft", stylesheet, StringComparison.Ordinal);
+        Assert.Contains(".ed-main ::deep .po-tag-articulation-legato", stylesheet, StringComparison.Ordinal);
+        Assert.Contains(".ed-main ::deep .po-tag-energy", stylesheet, StringComparison.Ordinal);
+        Assert.Contains(".ed-main ::deep .po-tag-melody", stylesheet, StringComparison.Ordinal);
         Assert.Contains("--ed-tag-opacity", stylesheet, StringComparison.Ordinal);
     }
 }

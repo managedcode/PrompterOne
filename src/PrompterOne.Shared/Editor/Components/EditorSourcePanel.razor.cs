@@ -44,8 +44,16 @@ public partial class EditorSourcePanel : IAsyncDisposable
     private bool _visibleCanUndo;
     private static readonly object SourceCueContracts = new
     {
+        articulationAttributeName = TpsVisualCueContracts.ArticulationAttributeName,
+        breathAttributeName = TpsVisualCueContracts.BreathAttributeName,
+        breathAttributeValue = TpsVisualCueContracts.BreathAttributeValue,
         volumeAttributeName = TpsVisualCueContracts.VolumeAttributeName,
         deliveryAttributeName = TpsVisualCueContracts.DeliveryAttributeName,
+        emotionAttributeName = TpsVisualCueContracts.EmotionAttributeName,
+        energyAttributeName = TpsVisualCueContracts.EnergyAttributeName,
+        highlightAttributeName = TpsVisualCueContracts.HighlightAttributeName,
+        highlightAttributeValue = TpsVisualCueContracts.HighlightAttributeValue,
+        melodyAttributeName = TpsVisualCueContracts.MelodyAttributeName,
         speedAttributeName = TpsVisualCueContracts.SpeedAttributeName,
         stressAttributeName = TpsVisualCueContracts.StressAttributeName,
         stressAttributeValue = TpsVisualCueContracts.StressAttributeValue

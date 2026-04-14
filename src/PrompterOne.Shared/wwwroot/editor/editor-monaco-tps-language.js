@@ -48,6 +48,8 @@ function createTokenizer(spec) {
                 [/\[pause:[^\]]+\]/i, "pause.timed"],
                 [/\[(?:edit_point|editpoint)(?::[^\]]+)?\]/i, "cue.editpoint"],
                 [/\[breath\]/i, "cue.breath"],
+                [/\[energy:[^\]]+\]/i, "cue.energy"],
+                [/\[melody:[^\]]+\]/i, "cue.melody"],
                 [new RegExp(`\\[(?:${parameterizedPattern}):[^\\]]+\\]`, "i"), "cue.pronunciation"],
                 [new RegExp(`\\[\\/(?:${closingPattern})(?::[^\\]]+)?\\]`, "i"), "cue.close"],
                 [new RegExp(`\\[(?:${simpleWrapperPattern})\\]`, "i"), "cue.open"],
