@@ -327,11 +327,20 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
                     ? getComputedStyle(target)
                     : null;
                 const hostStyle = getComputedStyle(host);
+                const targetBeforeStyle = target instanceof HTMLElement
+                    ? getComputedStyle(target, '::before')
+                    : null;
                 const targetAfterStyle = target instanceof HTMLElement
                     ? getComputedStyle(target, '::after')
                     : null;
                 const targetGroup = target instanceof HTMLElement
                     ? target.closest('.rd-g')
+                    : null;
+                const targetGroupStyle = targetGroup instanceof HTMLElement
+                    ? getComputedStyle(targetGroup)
+                    : null;
+                const targetGroupBeforeStyle = targetGroup instanceof HTMLElement
+                    ? getComputedStyle(targetGroup, '::before')
                     : null;
                 const targetGroupAfterStyle = targetGroup instanceof HTMLElement
                     ? getComputedStyle(targetGroup, '::after')
@@ -351,10 +360,16 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
                     targetFontWeight: targetStyle?.fontWeight ?? '',
                     hostFontSize: hostStyle.fontSize ?? '',
                     targetLetterSpacing: targetStyle?.letterSpacing ?? '',
+                    targetBackgroundImage: targetStyle?.backgroundImage ?? '',
+                    targetBeforeBackgroundImage: targetBeforeStyle?.backgroundImage ?? '',
+                    targetTextDecorationLine: targetStyle?.textDecorationLine ?? '',
                     targetTextDecorationStyle: targetStyle?.textDecorationStyle ?? '',
                     targetTextDecorationThickness: targetStyle?.textDecorationThickness ?? '',
                     targetAfterContent: targetAfterStyle?.content ?? '',
                     targetAfterBackgroundImage: targetAfterStyle?.backgroundImage ?? '',
+                    targetGroupTextDecorationLine: targetGroupStyle?.textDecorationLine ?? '',
+                    targetGroupBeforeContent: targetGroupBeforeStyle?.content ?? '',
+                    targetGroupBeforeBackgroundImage: targetGroupBeforeStyle?.backgroundImage ?? '',
                     targetGroupAfterContent: targetGroupAfterStyle?.content ?? '',
                     targetGroupAfterBackgroundImage: targetGroupAfterStyle?.backgroundImage ?? ''
                 };
@@ -496,6 +511,13 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
 
         if (string.Equals(capture.AttributeName, TpsVisualCueContracts.EmphasisAttributeName, StringComparison.Ordinal))
         {
+            await Assert.That(probe.TargetGroupTextDecorationLine)
+                .DoesNotContain("underline")
+                .Because("Expected phrase emphasis not to draw underline strokes through the spaces between words.");
+            await Assert.That(probe.TargetTextDecorationLine)
+                .DoesNotContain("underline")
+                .Because("Expected editorial emphasis to use word shape and weight instead of extra underline strokes.");
+
             if (string.Equals(capture.AttributeValue, TpsVisualCueContracts.EmphasisMarkdownItalic, StringComparison.Ordinal))
             {
                 await Assert.That(probe.TargetFontStyle)
@@ -508,6 +530,22 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
                     .IsGreaterThanOrEqualTo(800d)
                     .Because("Expected markdown bold to read as a strong word shape.");
             }
+        }
+
+        if (string.Equals(capture.AttributeName, TpsVisualCueContracts.HighlightAttributeName, StringComparison.Ordinal))
+        {
+            await Assert.That(IsDisabledPseudoContent(probe.TargetGroupBeforeContent))
+                .IsFalse()
+                .Because("Expected highlight to render as an intentional phrase shape behind the reader word.");
+            await Assert.That(HasVisiblePseudoBackground(probe.TargetGroupBeforeBackgroundImage))
+                .IsTrue()
+                .Because("Expected highlight to use a shaped pseudo-element instead of a broken half-height word fill.");
+            await Assert.That(IsDisabledPseudoBackground(probe.TargetBackgroundImage))
+                .IsTrue()
+                .Because("Expected the raw word background to stay clear so the highlight does not become a muddy half-fill.");
+            await Assert.That(IsDisabledPseudoBackground(probe.TargetBeforeBackgroundImage))
+                .IsTrue()
+                .Because("Expected grouped highlight words to avoid stacked per-word highlight fills.");
         }
 
         if (capture.ExpectedPauseCount > 0)
@@ -612,6 +650,10 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
     private static bool HasVisiblePseudoBackground(string value) =>
         !string.IsNullOrWhiteSpace(value) &&
         !string.Equals(value, "none", StringComparison.OrdinalIgnoreCase);
+
+    private static bool IsDisabledPseudoBackground(string value) =>
+        string.IsNullOrWhiteSpace(value) ||
+        string.Equals(value, "none", StringComparison.OrdinalIgnoreCase);
 
     private static bool IsDisabledPseudoContent(string value) =>
         string.Equals(value, "none", StringComparison.OrdinalIgnoreCase) ||
@@ -770,6 +812,12 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
 
         public string TargetLetterSpacing { get; init; } = string.Empty;
 
+        public string TargetBackgroundImage { get; init; } = string.Empty;
+
+        public string TargetBeforeBackgroundImage { get; init; } = string.Empty;
+
+        public string TargetTextDecorationLine { get; init; } = string.Empty;
+
         public string TargetTextDecorationStyle { get; init; } = string.Empty;
 
         public string TargetTextDecorationThickness { get; init; } = string.Empty;
@@ -777,6 +825,12 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
         public string TargetAfterContent { get; init; } = string.Empty;
 
         public string TargetAfterBackgroundImage { get; init; } = string.Empty;
+
+        public string TargetGroupTextDecorationLine { get; init; } = string.Empty;
+
+        public string TargetGroupBeforeContent { get; init; } = string.Empty;
+
+        public string TargetGroupBeforeBackgroundImage { get; init; } = string.Empty;
 
         public string TargetGroupAfterContent { get; init; } = string.Empty;
 

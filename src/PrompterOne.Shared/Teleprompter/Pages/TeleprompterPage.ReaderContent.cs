@@ -175,6 +175,7 @@ public partial class TeleprompterPage
         var currentGroup = new List<ReaderWordViewModel>();
         var currentCharacterCount = 0;
         bool? currentGroupIsEmphasis = null;
+        bool? currentGroupIsHighlight = null;
         bool? currentGroupIsBuilding = null;
         bool? currentGroupIsLegato = null;
 
@@ -183,9 +184,10 @@ public partial class TeleprompterPage
             var word = compiledWords[compiledWordIndex];
             if (word.Metadata?.IsBreath == true)
             {
-                FlushGroup(chunks, currentGroup, currentGroupIsEmphasis ?? false);
+                FlushGroup(chunks, currentGroup, currentGroupIsEmphasis ?? false, currentGroupIsHighlight ?? false);
                 currentCharacterCount = 0;
                 currentGroupIsEmphasis = null;
+                currentGroupIsHighlight = null;
                 currentGroupIsBuilding = null;
                 currentGroupIsLegato = null;
                 chunks.Add(new ReaderPauseViewModel(0, ReaderPauseBreathCssClass));
@@ -201,9 +203,10 @@ public partial class TeleprompterPage
                     currentGroup[^1] = lastWord with { PauseAfterMs = pauseDuration };
                 }
 
-                FlushGroup(chunks, currentGroup, currentGroupIsEmphasis ?? false);
+                FlushGroup(chunks, currentGroup, currentGroupIsEmphasis ?? false, currentGroupIsHighlight ?? false);
                 currentCharacterCount = 0;
                 currentGroupIsEmphasis = null;
+                currentGroupIsHighlight = null;
                 currentGroupIsBuilding = null;
                 currentGroupIsLegato = null;
                 chunks.Add(new ReaderPauseViewModel(
@@ -222,24 +225,29 @@ public partial class TeleprompterPage
             }
 
             var isEmphasisWord = IsReaderWordEmphasis(word.Metadata);
+            var isHighlightWord = IsReaderWordHighlight(word.Metadata);
             var isBuildingWord = IsReaderWordBuilding(word.Metadata);
             var isLegatoWord = IsReaderWordLegato(word.Metadata);
             if (currentGroup.Count > 0 &&
                 (currentGroupIsEmphasis.HasValue &&
                     currentGroupIsEmphasis.Value != isEmphasisWord ||
+                    currentGroupIsHighlight.HasValue &&
+                    currentGroupIsHighlight.Value != isHighlightWord ||
                     currentGroupIsBuilding.HasValue &&
                     currentGroupIsBuilding.Value != isBuildingWord ||
                     currentGroupIsLegato.HasValue &&
                     currentGroupIsLegato.Value != isLegatoWord))
             {
-                FlushGroup(chunks, currentGroup, currentGroupIsEmphasis ?? false);
+                FlushGroup(chunks, currentGroup, currentGroupIsEmphasis ?? false, currentGroupIsHighlight ?? false);
                 currentCharacterCount = 0;
                 currentGroupIsEmphasis = null;
+                currentGroupIsHighlight = null;
                 currentGroupIsBuilding = null;
                 currentGroupIsLegato = null;
             }
 
             currentGroupIsEmphasis ??= isEmphasisWord;
+            currentGroupIsHighlight ??= isHighlightWord;
             currentGroupIsBuilding ??= isBuildingWord;
             currentGroupIsLegato ??= isLegatoWord;
             currentCharacterCount += word.CleanText.Length;
@@ -265,15 +273,16 @@ public partial class TeleprompterPage
 
             if (ShouldEndReaderGroup(word.CleanText, currentGroup.Count, currentCharacterCount))
             {
-                FlushGroup(chunks, currentGroup, currentGroupIsEmphasis ?? false);
+                FlushGroup(chunks, currentGroup, currentGroupIsEmphasis ?? false, currentGroupIsHighlight ?? false);
                 currentCharacterCount = 0;
                 currentGroupIsEmphasis = null;
+                currentGroupIsHighlight = null;
                 currentGroupIsBuilding = null;
                 currentGroupIsLegato = null;
             }
         }
 
-        FlushGroup(chunks, currentGroup, currentGroupIsEmphasis ?? false);
+        FlushGroup(chunks, currentGroup, currentGroupIsEmphasis ?? false, currentGroupIsHighlight ?? false);
         return chunks;
     }
 
@@ -292,19 +301,26 @@ public partial class TeleprompterPage
         return HasClausePunctuation(cleanText) && wordCount >= 3;
     }
 
-    private static void FlushGroup(List<ReaderChunkViewModel> chunks, List<ReaderWordViewModel> currentGroup, bool isEmphasis)
+    private static void FlushGroup(
+        List<ReaderChunkViewModel> chunks,
+        List<ReaderWordViewModel> currentGroup,
+        bool isEmphasis,
+        bool isHighlight)
     {
         if (currentGroup.Count == 0)
         {
             return;
         }
 
-        chunks.Add(new ReaderGroupViewModel(currentGroup.ToArray(), isEmphasis));
+        chunks.Add(new ReaderGroupViewModel(currentGroup.ToArray(), isEmphasis, isHighlight));
         currentGroup.Clear();
     }
 
     private static bool IsReaderWordEmphasis(WordMetadata? metadata) =>
         metadata?.IsEmphasis == true;
+
+    private static bool IsReaderWordHighlight(WordMetadata? metadata) =>
+        metadata?.IsHighlight == true;
 
     private static bool IsReaderWordLegato(WordMetadata? metadata) =>
         string.Equals(

@@ -944,8 +944,8 @@ PrompterOne uses the following implementation-specific contract. It intentionall
 | `[loud]` | Stronger weight and warmer active accent; no font-size scaling or baseline jump. | Token and hover. |
 | `[soft]` | Lower opacity and lighter cool accent with stable geometry. | Token and hover. |
 | `[whisper]` | Subdued italic treatment with normal readable spacing. | Token and hover. |
-| `[emphasis]`, `*`, `**` | Existing emphasis hierarchy through underline/weight/highlight without splitting phrase styling word by word. | Monaco Markdown/TPS decoration. |
-| `[highlight]` | Subtle translucent background at a visible opacity floor; not a color-only cue. | Token and hover. |
+| `[emphasis]`, `*`, `**` | Existing emphasis hierarchy through weight, word shape, and italic or bold styling without connector underlines between words. | Monaco Markdown/TPS decoration. |
+| `[highlight]` | Shaped translucent background at a visible opacity floor; not a color-only cue or broken half-height fill. | Token and hover. |
 | Inline emotions (`neutral`, `warm`, `professional`, `focused`, `concerned`, `urgent`, `motivational`, `excited`, `happy`, `sad`, `calm`, `energetic`) | Active-word accent and reader surface tint that preserve base contrast. Segment/block emotion changes fade smoothly; inline emotion changes apply immediately. | Completion, semantic color token, and hover. |
 | `[sarcasm]` | Subtle italic/rose accent with no joke label. | Token and hover. |
 | `[aside]` | Slightly dimmer parenthetical feel; aside itself does not change timing unless nested speed tags do. | Token and hover. |

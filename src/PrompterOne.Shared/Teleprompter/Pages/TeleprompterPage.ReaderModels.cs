@@ -35,7 +35,10 @@ public partial class TeleprompterPage
 
     private abstract record ReaderChunkViewModel;
 
-    private sealed record ReaderGroupViewModel(IReadOnlyList<ReaderWordViewModel> Words, bool IsEmphasis) : ReaderChunkViewModel;
+    private sealed record ReaderGroupViewModel(
+        IReadOnlyList<ReaderWordViewModel> Words,
+        bool IsEmphasis,
+        bool IsHighlight) : ReaderChunkViewModel;
 
     private sealed record ReaderPauseViewModel(int DurationMs, string CssClass) : ReaderChunkViewModel;
 

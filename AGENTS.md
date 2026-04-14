@@ -455,6 +455,7 @@ Repo-specific design rules:
 - Teleprompter speed styling MUST produce a visible but tasteful letter-spacing or kerning change: slower text opens up slightly and faster text tightens slightly, not a no-op.
 - Teleprompter reader word styling MUST mirror TPS/editor inline semantics: explicit inline TPS tags control per-word emphasis and color, while section or block emotion sets card context and must not recolor every reader word.
 - Teleprompter TPS visual cue styling MUST preserve normal readable word spacing and must never cause adjacent words, punctuation, underline treatments, or emphasis spans to overlap or visually merge.
+- Teleprompter TPS highlight, fill, underline, and articulation treatments MUST look intentional and readable at full reader scale: avoid muddy half-height rectangles, broken fills, stray connector strokes between words, or decorative marks that can be mistaken for punctuation.
 - Teleprompter reader backgrounds MUST NOT expose visible grid, ruler, or guide-line textures in the prompter view; guide lines may exist only as explicit controls or diagnostics, not as always-on reader chrome.
 - Teleprompter active focus-word baseline MUST remain vertically stable regardless of whether surrounding context wraps into one, two, or three lines; context rails may change, but the word the operator reads must not hop up or down.
 - Learn, RSVP, and Teleprompter reading surfaces MUST render spoken words only; raw TPS control tags, front matter fragments, and metadata tokens must never leak into the visible reading text.

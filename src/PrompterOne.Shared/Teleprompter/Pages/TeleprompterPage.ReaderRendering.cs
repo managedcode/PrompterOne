@@ -24,6 +24,7 @@ public partial class TeleprompterPage
     private const string ReaderGroupBuildingCssClass = "rd-g-building";
     private const string ReaderGroupCssClass = "rd-g";
     private const string ReaderGroupEmphasisCssClass = "rd-g-emphasis";
+    private const string ReaderGroupHighlightCssClass = "rd-g-highlight";
     private const string ReaderGroupLegatoCssClass = "rd-g-legato";
     private const string ReaderHorizontalGuideCssClass = "rd-guide-h";
     private const string ReaderMirrorButtonCssClass = "rd-mirror-btn";
@@ -270,6 +271,7 @@ public partial class TeleprompterPage
             return BuildClassList(
                 ReaderGroupCssClass,
                 group.IsEmphasis ? ReaderGroupEmphasisCssClass : null,
+                group.IsHighlight ? ReaderGroupHighlightCssClass : null,
                 ResolveReaderGroupDeliveryCssClass(group),
                 ResolveReaderGroupArticulationCssClass(group));
         }
@@ -282,6 +284,7 @@ public partial class TeleprompterPage
         return BuildClassList(
             ReaderGroupCssClass,
             group.IsEmphasis ? ReaderGroupEmphasisCssClass : null,
+            group.IsHighlight ? ReaderGroupHighlightCssClass : null,
             ResolveReaderGroupDeliveryCssClass(group),
             ResolveReaderGroupArticulationCssClass(group),
             isActiveGroup ? ReaderGroupActiveCssClass : null);
