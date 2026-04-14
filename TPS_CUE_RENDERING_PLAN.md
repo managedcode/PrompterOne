@@ -5,6 +5,7 @@ Status: implemented and verified
 ## Inputs
 
 - Canonical TPS reference: https://tps.managed-code.com/ (v1.1.0, built April 5, 2026).
+- Color-emotion reference: https://link.springer.com/article/10.1186/s40359-025-03034-y for hue, saturation, brightness, warm/cool, and common emotion associations.
 - Product rule: reader output must show clean spoken text only; raw TPS tags stay invisible.
 - Product rule: every supported cue needs a visible editor and reader affordance, not just parser support.
 - Product rule: teleprompter reader text must never overlap, merge words, show decorative grid/ruler textures, or move the active focus-word baseline when context wraps.
@@ -12,12 +13,12 @@ Status: implemented and verified
 
 ## Rendering Principles
 
-1. Stable layout beats expressive styling. Cue effects may change color, weight, underline style, opacity, or timing, but must not collapse readable word spacing or make lines reflow while the active word is being read.
-2. Speed is primarily timing. Slow cues may widen spacing because that improves scanability; fast cues must not use negative spacing in the prompter because it can visually merge adjacent words.
+1. Stable layout beats expressive styling. Cue effects may change color, gradient, shadow, underline style, opacity, or timing, but must not collapse readable word spacing or make lines reflow while the active word is being read.
+2. Speed is timing plus a bounded word-shape cue. Slow cues widen tracking and visibly expand the cue word; fast cues use small negative tracking and a pace underline so the cue word becomes visibly tighter without touching neighboring words.
 3. Volume and energy may use weight and opacity. Avoid large transforms that move baselines or change neighboring line geometry.
 4. Delivery and articulation should use underlines, separator rhythm, and subtle motion, not decorative cards or raw tag labels.
-5. Emotion is a surface/context tint plus active-word accent. Do not recolor entire passages so strongly that text becomes hard to read.
-6. Pronunciation/stress help must be available but calm: dotted underline, tooltip/overlay in editor, subtle in-reader hint only when useful.
+5. Emotion is a surface/context tint plus active-word accent. Emotion colors must be meaningfully distinct: red for urgency, yellow/orange for happy or energetic delivery, green/teal for focus or calm, blue for sadness or professionalism, and violet for concern or motivation. Do not recolor entire passages so strongly that text becomes hard to read.
+6. Pronunciation/stress help must be visible but calm: dotted underline, tooltip/overlay in editor, and a small reader guide above the word when a pronunciation or phonetic cue is present.
 7. Motion should explain reading flow. Card/phrase transitions can slide on the vertical axis, but individual words should not drift, jump, or animate into place after appearing.
 
 ## Cue Mapping
@@ -25,8 +26,8 @@ Status: implemented and verified
 | TPS cue | Reader visual treatment | Editor authoring treatment | Motion/timing rule | Tests |
 | --- | --- | --- | --- | --- |
 | Segment/block WPM | No raw header in reader; playback timing uses effective WPM. | Monaco token + hover/intellisense, section metadata. | Changes phrase duration only. | Timing probe confirms effective WPM. |
-| `[xslow]`, `[slow]` | Wider positive letter spacing, dotted pacing underline, active word remains readable. | Token color + completion + hover. | Slower phrase/word duration from TPS runtime. | Letter spacing is positive and no overlap. |
-| `[fast]`, `[xfast]`, `[normal]` | Fast/xfast keep normal non-negative spacing; xfast may dim slightly to signal skimming. | Token color + completion + hover. | Faster phrase/word duration from TPS runtime. | Letter spacing >= 0 and no overlap. |
+| `[xslow]`, `[slow]` | Wider positive letter spacing, dotted pacing underline, active word remains readable and visibly wider than normal. | Token color + completion + hover. | Slower phrase/word duration from TPS runtime. | Letter spacing and measured width are greater than normal, with no overlap. |
+| `[fast]`, `[xfast]`, `[normal]` | Fast/xfast use bounded compact tracking and a pace underline; normal resets to base spacing. | Token color + completion + hover. | Faster phrase/word duration from TPS runtime. | Fast/xfast letter spacing and measured width are lower than normal, with no overlap. |
 | `/`, `//`, `[pause:...]` | Short pause: small breath dot; medium/long pause: low-contrast phrase break, no visible grid line. | Inline marker token and hover with duration. | Pause duration comes from TPS runtime. | Pause timing probe and no decorative line/grid assertion. |
 | `[breath]` | Tiny breath mark, no added timing. | Token + hover. | Does not add pause duration. | Timing test distinguishes breath from pause. |
 | `[loud]` | Stronger weight, warmer active accent, no baseline scale jump. | Token + hover. | No timing change. | CSS/geometry test verifies stable bounds. |
@@ -34,7 +35,7 @@ Status: implemented and verified
 | `[whisper]` | Lighter italic/dim style with normal readable spacing. | Token + hover. | No timing change. | No overlap and readable color assertion. |
 | `[emphasis]`, `*`, `**` | Underline/bold/strong active treatment using existing emphasis hierarchy. | Monaco markdown/TPS decorations. | No timing change. | Existing cue rendering plus no overlap. |
 | `[highlight]` | Subtle translucent background behind the word, not a color-only cue. | Token + hover. | No timing change. | Highlight remains visible on dark background. |
-| Inline emotions (`warm`, `urgent`, `calm`, `focused`, `professional`, `concerned`, `motivational`, `excited`, `happy`, `sad`, `energetic`, `neutral`) | Active-word accent and reader surface tint; surrounding words remain readable. | Completion + hover + semantic color token. | Segment/block emotion changes fade surface over about 3 seconds; inline emotion changes are immediate but calm. | Emotion menu/cue screenshot and contrast checks. |
+| Inline emotions (`warm`, `urgent`, `calm`, `focused`, `professional`, `concerned`, `motivational`, `excited`, `happy`, `sad`, `energetic`, `neutral`) | Distinct active-word gradients and shadows grounded in common color-emotion associations; surrounding words remain readable. | Completion + hover + semantic color token. | Segment/block emotion changes fade surface over about 3 seconds; urgent/excited/energetic may use restrained saturation animation. | Emotion menu/cue screenshot and contrast checks. |
 | `[sarcasm]` | Subtle italic/rose accent; no gimmick label. | Token + hover. | No timing change. | Cue class and active color test. |
 | `[aside]` | Slightly dimmer/lower-emphasis, parenthetical feel. | Token + hover. | Often pairs with fast timing if author tagged speed; aside itself no timing change. | Cue class and opacity test. |
 | `[rhetorical]` | Clear violet accent and statement-like underline, not question-mark decoration. | Token + hover. | No timing change. | Cue class test. |
@@ -43,7 +44,7 @@ Status: implemented and verified
 | `[staccato]` | Dotted underline and crisp higher weight; use natural word gaps, not injected separators. | Token + hover. | No timing change. | Dotted underline and no overlap. |
 | `[energy:N]` | Energy controls glow/weight within bounded values; no scale baseline shift. Normalize with `(N - 1) / 9` so 1 is no extra intensity and 10 is full intensity. | Token + range validation hover. | No timing change. | CSS variable clamped 1-10 and style visible. |
 | `[melody:N]` | Wavy underline intensity; high melody gets stronger wave, low melody stays nearly flat. Normalize with `(N - 1) / 9`. | Token + range validation hover. | No timing change. | CSS variable clamped 1-10. |
-| `[phonetic:IPA]`, `[pronunciation:guide]` | Subtle dotted underline; optional tooltip/assistive overlay, never replacing spoken word. | Hover/tooltip displays the guide. | No timing change. | Tooltip/attribute and screenshot example. |
+| `[phonetic:IPA]`, `[pronunciation:guide]` | Subtle dotted underline plus a small readable guide above the word, never replacing the spoken word. | Hover/tooltip displays the guide. | No timing change. | Visible pseudo-guide, metadata attribute, and screenshot example. |
 | `[stress]`, `[stress:guide]` | Stressed syllable/word gets clear underline/weight; guide stays tooltip-like. | Hover/tooltip shows guide. | No timing change. | Stress style and guide metadata test. |
 | `[edit_point]`, `[edit_point:medium/high]` | Not spoken; reader can show only a non-disruptive operator marker or omit from live text. | Editor marker with priority. | No timing change. | Edit marker not rendered as spoken word. |
 | `Archetype:*`, `Speaker:*` | Reader metadata only; can influence validation and optional chrome, not per-word raw nodes. | Section metadata + diagnostics. | Archetype recommended WPM only when no explicit WPM. | Graph/readable metadata test. |
@@ -60,8 +61,10 @@ Status: implemented and verified
 ## Verification Plan
 
 - Component tests for TPS cue class/style mapping and speed-derived spacing.
-- Reader Playwright screenshot for the cue matrix.
-- Geometry test that adjacent word bounding boxes never overlap for fast/xfast, underline, stress, and punctuation-heavy cases.
+- Reader Playwright screenshot for the cue matrix, including one-word cue examples and short phrase-span examples.
+- Geometry test that adjacent word bounding boxes never overlap for fast/xfast, underline, stress, phrase-span, and punctuation-heavy cases.
+- Speed visual test that proves xslow/slow are wider than normal and fast/xfast/explicit fast WPM are narrower than normal.
+- Pronunciation visual test that proves the readable guide is present in the rendered reader UI.
 - Geometry test that active focus-word center/baseline stays stable when context wraps to one, two, and three lines.
 - Visual assertion that the reader surface has no visible grid/ruler background in the prompter view.
 - Timing probe that verifies TPS speed and pause tags change playback timing but breath/stress/pronunciation do not.

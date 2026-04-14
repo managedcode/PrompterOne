@@ -88,7 +88,7 @@ In the teleprompter, the clean reading line keeps those cues visible through sub
 
 ![TPS cue styling in the teleprompter](docs/screenshots/readme/tps-teleprompter-cues.png)
 
-The screenshot matrix below is generated from `test-tps-cue-matrix.tps`. Each row uses one plain reader card, one normal sentence, and one central cue word so the visual treatment is isolated.
+The screenshot matrix below is generated from `test-tps-cue-matrix.tps`. Each row uses one plain reader card, one normal sentence, and one isolated cue scope: usually one central cue word, plus phrase-span examples where TPS tags can intentionally wrap multiple words.
 
 | TPS cue | Reader meaning | Visible reader treatment | Reader screenshot |
 | --- | --- | --- | --- |
@@ -98,12 +98,12 @@ The screenshot matrix below is generated from `test-tps-cue-matrix.tps`. Each ro
 | `[pause:500ms]` | Explicit half-second rest | Renders a pause cue before the central word and preserves phrase spacing | <img src="docs/screenshots/readme/tps-cues/04-pause-500ms.png" alt="500 millisecond pause reader screenshot" width="360"> |
 | `[pause:1s]` | Explicit one-second rest | Renders a pause cue before the central word and keeps the next word readable | <img src="docs/screenshots/readme/tps-cues/05-pause-1s.png" alt="One second pause reader screenshot" width="360"> |
 | `[breath]` | Breath cue | Renders a breath rest before the central word without turning the cue into spoken text | <img src="docs/screenshots/readme/tps-cues/06-breath.png" alt="Breath cue reader screenshot" width="360"> |
-| `[xslow]` | Extra-slow pace | Carries a slow timing contract and airy treatment on the central word | <img src="docs/screenshots/readme/tps-cues/07-speed-xslow.png" alt="Xslow cue reader screenshot" width="360"> |
-| `[slow]` | Slow pace | Carries a slow timing contract without overlapping surrounding words | <img src="docs/screenshots/readme/tps-cues/08-speed-slow.png" alt="Slow cue reader screenshot" width="360"> |
+| `[xslow]` | Extra-slow pace | Widens the central word with visibly airy tracking and slower timing | <img src="docs/screenshots/readme/tps-cues/07-speed-xslow.png" alt="Xslow cue reader screenshot" width="360"> |
+| `[slow]` | Slow pace | Opens the central word with positive tracking while preserving readable gaps | <img src="docs/screenshots/readme/tps-cues/08-speed-slow.png" alt="Slow cue reader screenshot" width="360"> |
 | `[normal]` | Reset to normal pace | Returns the central word to the base pace treatment | <img src="docs/screenshots/readme/tps-cues/09-speed-normal.png" alt="Normal pace cue reader screenshot" width="360"> |
-| `[fast]` | Fast pace | Speeds timing while preserving normal readable word spacing | <img src="docs/screenshots/readme/tps-cues/10-speed-fast.png" alt="Fast cue reader screenshot" width="360"> |
-| `[xfast]` | Extra-fast pace | Speeds timing further without visually squeezing the central word into neighbors | <img src="docs/screenshots/readme/tps-cues/11-speed-xfast.png" alt="Xfast cue reader screenshot" width="360"> |
-| `[180WPM]` | Explicit WPM pace | Maps the central word to a fast timing contract | <img src="docs/screenshots/readme/tps-cues/12-speed-180wpm.png" alt="180 WPM cue reader screenshot" width="360"> |
+| `[fast]` | Fast pace | Tightens the central word with compact tracking and faster timing | <img src="docs/screenshots/readme/tps-cues/10-speed-fast.png" alt="Fast cue reader screenshot" width="360"> |
+| `[xfast]` | Extra-fast pace | Makes the central word visibly narrower without colliding with neighbors | <img src="docs/screenshots/readme/tps-cues/11-speed-xfast.png" alt="Xfast cue reader screenshot" width="360"> |
+| `[180WPM]` | Explicit WPM pace | Maps the central word to a measured fast timing and compact spacing contract | <img src="docs/screenshots/readme/tps-cues/12-speed-180wpm.png" alt="180 WPM cue reader screenshot" width="360"> |
 | `[loud]` | Strong vocal intensity | Adds stronger weight and tone to the central word | <img src="docs/screenshots/readme/tps-cues/13-volume-loud.png" alt="Loud cue reader screenshot" width="360"> |
 | `[soft]` | Softer delivery | Lowers intensity while keeping the central word legible | <img src="docs/screenshots/readme/tps-cues/14-volume-soft.png" alt="Soft cue reader screenshot" width="360"> |
 | `[whisper]` | Whispered delivery | Uses subdued opacity and tone for the central word | <img src="docs/screenshots/readme/tps-cues/15-volume-whisper.png" alt="Whisper cue reader screenshot" width="360"> |
@@ -131,14 +131,19 @@ The screenshot matrix below is generated from `test-tps-cue-matrix.tps`. Each ro
 | `[emphasis]` | Editorial emphasis | Preserves emphasis as continuous reader styling | <img src="docs/screenshots/readme/tps-cues/37-editorial-emphasis.png" alt="Emphasis cue reader screenshot" width="360"> |
 | Markdown bold | Strong editorial emphasis | Shows bold emphasis on the central word without raw markdown markers | <img src="docs/screenshots/readme/tps-cues/38-markdown-bold.png" alt="Markdown bold reader screenshot" width="360"> |
 | Markdown italic | Light editorial emphasis | Shows italic emphasis on the central word without raw markdown markers | <img src="docs/screenshots/readme/tps-cues/39-markdown-italic.png" alt="Markdown italic reader screenshot" width="360"> |
-| `[pronunciation:guide]` | Pronunciation note | Keeps the central reader word clean while preserving pronunciation metadata | <img src="docs/screenshots/readme/tps-cues/40-guide-pronunciation.png" alt="Pronunciation guide reader screenshot" width="360"> |
-| `[phonetic:IPA]` | Phonetic note | Keeps the central reader word clean while preserving phonetic metadata | <img src="docs/screenshots/readme/tps-cues/41-guide-phonetic.png" alt="Phonetic guide reader screenshot" width="360"> |
+| `[pronunciation:guide]` | Pronunciation note | Shows the readable pronunciation guide above the central word while keeping the spoken word clean | <img src="docs/screenshots/readme/tps-cues/40-guide-pronunciation.png" alt="Pronunciation guide reader screenshot" width="360"> |
+| `[phonetic:IPA]` | Phonetic note | Shows the phonetic guide above the central word while keeping the spoken word clean | <img src="docs/screenshots/readme/tps-cues/41-guide-phonetic.png" alt="Phonetic guide reader screenshot" width="360"> |
 | `[stress:rising]` | Stress guide | Adds stress treatment to the central word for rehearsal | <img src="docs/screenshots/readme/tps-cues/42-guide-stress.png" alt="Stress guide reader screenshot" width="360"> |
 | `[edit_point]` | Production cut point | Stays out of the spoken word while leaving operator/editor context | <img src="docs/screenshots/readme/tps-cues/43-edit-point.png" alt="Edit point reader screenshot" width="360"> |
 | `[edit_point:medium]` | Medium production cut point | Stays out of the spoken line and records a stronger editor marker | <img src="docs/screenshots/readme/tps-cues/44-edit-point-medium.png" alt="Medium edit point reader screenshot" width="360"> |
 | `[edit_point:high]` | High production cut point | Stays out of the spoken line and records the strongest editor marker | <img src="docs/screenshots/readme/tps-cues/45-edit-point-high.png" alt="High edit point reader screenshot" width="360"> |
 | `Speaker:Narrator` | Speaker metadata | Keeps persona metadata in validation, graph, and optional chrome without raw reader text | <img src="docs/screenshots/readme/tps-cues/46-metadata-speaker.png" alt="Speaker metadata reader screenshot" width="360"> |
 | `Archetype:Coach` | Archetype metadata | Keeps delivery persona metadata in validation, graph, and optional chrome without raw reader text | <img src="docs/screenshots/readme/tps-cues/47-metadata-archetype.png" alt="Archetype metadata reader screenshot" width="360"> |
+| `[slow]steady cadence[/slow]` | Phrase pace span | Applies the same slow timing and open tracking across a two-word cue phrase | <img src="docs/screenshots/readme/tps-cues/48-phrase-speed-slow.png" alt="Slow phrase reader screenshot" width="360"> |
+| `[urgent]steady cadence[/urgent]` | Phrase emotion span | Applies the urgent color treatment across a two-word cue phrase | <img src="docs/screenshots/readme/tps-cues/49-phrase-emotion-urgent.png" alt="Urgent phrase reader screenshot" width="360"> |
+| `[loud]steady cadence[/loud]` | Phrase volume span | Applies stronger vocal weight and tone across a two-word cue phrase | <img src="docs/screenshots/readme/tps-cues/50-phrase-volume-loud.png" alt="Loud phrase reader screenshot" width="360"> |
+| `[building]steady cadence[/building]` | Phrase delivery span | Applies the building delivery treatment across a two-word cue phrase | <img src="docs/screenshots/readme/tps-cues/51-phrase-delivery-building.png" alt="Building phrase reader screenshot" width="360"> |
+| `[legato]steady cadence[/legato]` | Phrase articulation span | Applies the smooth legato underline texture across a two-word cue phrase | <img src="docs/screenshots/readme/tps-cues/52-phrase-articulation-legato.png" alt="Legato phrase reader screenshot" width="360"> |
 
 The full implemented rendering contract, animation constraints, and verification evidence are recorded in [TPS Cue Rendering Specification](TPS_CUE_RENDERING_PLAN.md).
 

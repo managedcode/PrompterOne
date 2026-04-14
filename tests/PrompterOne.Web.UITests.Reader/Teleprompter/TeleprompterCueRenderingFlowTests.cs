@@ -10,6 +10,8 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
 {
     private const string CueScenario = "teleprompter-tps-cue-rendering";
     private const string CueMatrixScenario = "teleprompter-tps-cue-matrix";
+    private const string CueMatrixPhraseTargetWord = "steady";
+    private const string CueMatrixTargetWord = "calibration";
     private const int InspirationCardIndex = 6;
     private const int ActiveWordProbeTimeoutMs = 1_000;
     private const string StepName = "01-teleprompter-cue-rendering";
@@ -22,12 +24,12 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
         new(3, "04-pause-500ms", "Pause 500ms", ExpectedPauseCount: 1),
         new(4, "05-pause-1s", "Pause 1s", ExpectedPauseCount: 1),
         new(5, "06-breath", "Breath", ExpectedBreathCount: 1),
-        new(6, "07-speed-xslow", "[xslow]", TpsVisualCueContracts.SpeedAttributeName, TpsVisualCueContracts.SpeedCueXslow),
-        new(7, "08-speed-slow", "[slow]", TpsVisualCueContracts.SpeedAttributeName, TpsVisualCueContracts.SpeedCueSlow),
-        new(8, "09-speed-normal", "[normal]", TpsVisualCueContracts.SpeedAttributeName, ExpectedNoAttribute: true),
-        new(9, "10-speed-fast", "[fast]", TpsVisualCueContracts.SpeedAttributeName, TpsVisualCueContracts.SpeedCueFast),
-        new(10, "11-speed-xfast", "[xfast]", TpsVisualCueContracts.SpeedAttributeName, TpsVisualCueContracts.SpeedCueXfast),
-        new(11, "12-speed-180wpm", "[180WPM]", TpsVisualCueContracts.SpeedAttributeName, TpsVisualCueContracts.SpeedCueFast),
+        new(6, "07-speed-xslow", "[xslow]", TpsVisualCueContracts.SpeedAttributeName, TpsVisualCueContracts.SpeedCueXslow, SpeedProbeKey: "xslow"),
+        new(7, "08-speed-slow", "[slow]", TpsVisualCueContracts.SpeedAttributeName, TpsVisualCueContracts.SpeedCueSlow, SpeedProbeKey: "slow"),
+        new(8, "09-speed-normal", "[normal]", TpsVisualCueContracts.SpeedAttributeName, ExpectedNoAttribute: true, SpeedProbeKey: "normal"),
+        new(9, "10-speed-fast", "[fast]", TpsVisualCueContracts.SpeedAttributeName, TpsVisualCueContracts.SpeedCueFast, SpeedProbeKey: "fast"),
+        new(10, "11-speed-xfast", "[xfast]", TpsVisualCueContracts.SpeedAttributeName, TpsVisualCueContracts.SpeedCueXfast, SpeedProbeKey: "xfast"),
+        new(11, "12-speed-180wpm", "[180WPM]", TpsVisualCueContracts.SpeedAttributeName, TpsVisualCueContracts.SpeedCueFast, SpeedProbeKey: "180wpm"),
         new(12, "13-volume-loud", "[loud]", TpsVisualCueContracts.VolumeAttributeName, TpsVisualCueContracts.VolumeLoud),
         new(13, "14-volume-soft", "[soft]", TpsVisualCueContracts.VolumeAttributeName, TpsVisualCueContracts.VolumeSoft),
         new(14, "15-volume-whisper", "[whisper]", TpsVisualCueContracts.VolumeAttributeName, TpsVisualCueContracts.VolumeWhisper),
@@ -62,7 +64,12 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
         new(43, "44-edit-point-medium", "[edit_point:medium]"),
         new(44, "45-edit-point-high", "[edit_point:high]"),
         new(45, "46-metadata-speaker", "Speaker metadata"),
-        new(46, "47-metadata-archetype", "Archetype metadata")
+        new(46, "47-metadata-archetype", "Archetype metadata"),
+        new(47, "48-phrase-speed-slow", "[slow] phrase", TpsVisualCueContracts.SpeedAttributeName, TpsVisualCueContracts.SpeedCueSlow, TargetWord: CueMatrixPhraseTargetWord, ExpectedAttributeMatchCount: 2),
+        new(48, "49-phrase-emotion-urgent", "[urgent] phrase", TpsVisualCueContracts.EmotionAttributeName, "urgent", TargetWord: CueMatrixPhraseTargetWord, ExpectedAttributeMatchCount: 2),
+        new(49, "50-phrase-volume-loud", "[loud] phrase", TpsVisualCueContracts.VolumeAttributeName, TpsVisualCueContracts.VolumeLoud, TargetWord: CueMatrixPhraseTargetWord, ExpectedAttributeMatchCount: 2),
+        new(50, "51-phrase-delivery-building", "[building] phrase", TpsVisualCueContracts.DeliveryAttributeName, TpsVisualCueContracts.DeliveryModeBuilding, TargetWord: CueMatrixPhraseTargetWord, ExpectedAttributeMatchCount: 2),
+        new(51, "52-phrase-articulation-legato", "[legato] phrase", TpsVisualCueContracts.ArticulationAttributeName, TpsVisualCueContracts.ArticulationLegato, TargetWord: CueMatrixPhraseTargetWord, ExpectedAttributeMatchCount: 2)
     ];
 
     [Test]
@@ -200,6 +207,7 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
 
             var activeCardIndex = 0;
             var readerStage = page.GetByTestId(UiTestIds.Teleprompter.Stage);
+            var speedProbes = new Dictionary<string, CueMatrixSpeedProbe>(StringComparer.Ordinal);
             foreach (var capture in CueMatrixCaptures)
             {
                 activeCardIndex = await ActivateCueMatrixCardAsync(page, activeCardIndex, capture.CardIndex);
@@ -212,8 +220,15 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
                 await ActivateCueMatrixTargetWordAsync(page, capture);
                 await AssertCueMatrixCardContractAsync(cardCluster, capture);
                 await AssertReaderWordsDoNotOverlapAsync(cardText, capture.CardIndex);
+                if (!string.IsNullOrWhiteSpace(capture.SpeedProbeKey))
+                {
+                    speedProbes[capture.SpeedProbeKey] = await ReadCueMatrixSpeedProbeAsync(cardText, capture);
+                }
+
                 await UiScenarioArtifacts.CaptureLocatorAsync(readerStage, CueMatrixScenario, capture.StepName);
             }
+
+            await AssertCueMatrixSpeedTreatmentAsync(speedProbes);
         }
         finally
         {
@@ -249,7 +264,7 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
             var text = await TryReadActiveReaderWordAsync(activeWord);
             if (string.Equals(
                     NormalizeReaderWord(text),
-                    "signal",
+                    capture.TargetWord,
                     StringComparison.Ordinal))
             {
                 return;
@@ -298,29 +313,40 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
                     .trim()
                     .toLowerCase()
                     .replace(/[.,;:!?]+$/g, '');
-                const words = [...host.querySelectorAll('.rd-w')];
+                const words = [...host.querySelectorAll(`[data-test="${args.activeWordTestId}"], [data-test^="${args.wordPrefix}"]`)];
                 const target = words.find(candidate => normalize(candidate.textContent) === args.targetWord);
+                const attributeWords = args.attributeName && args.attributeValue
+                    ? words.filter(candidate => candidate?.getAttribute(args.attributeName) === args.attributeValue)
+                    : [];
+                const pronunciationContent = target instanceof HTMLElement
+                    ? getComputedStyle(target, '::after').content ?? ''
+                    : '';
                 return {
                     rawTagsVisible: /\[[^\]]+\]/.test(host.textContent ?? ''),
                     targetText: target?.textContent?.trim() ?? '',
                     attributeValue: args.attributeName ? target?.getAttribute(args.attributeName) ?? '' : '',
+                    attributeMatchCount: attributeWords.length,
                     pauseCueCount: host.querySelectorAll('.rd-pause').length,
                     breathCueCount: host.querySelectorAll('[data-tps-breath="true"]').length,
-                    emphasisGroupCount: host.querySelectorAll('[data-emphasis="true"]').length
+                    emphasisGroupCount: host.querySelectorAll('[data-emphasis="true"]').length,
+                    pronunciationContent
                 };
             }
             """,
             new
             {
                 attributeName = capture.AttributeName,
-                targetWord = "signal"
+                attributeValue = capture.AttributeValue,
+                activeWordTestId = UiTestIds.Teleprompter.ActiveWord,
+                targetWord = capture.TargetWord,
+                wordPrefix = UiTestIds.Teleprompter.CardWordPrefix(capture.CardIndex)
             });
 
         await Assert.That(probe.RawTagsVisible)
             .IsFalse()
             .Because($"Expected raw TPS tags to be hidden in cue example '{capture.CueLabel}'.");
         await Assert.That(probe.TargetText)
-            .IsEqualTo("signal")
+            .IsEqualTo(capture.TargetWord)
             .Because($"Expected cue example '{capture.CueLabel}' to keep the central reader word visible.");
 
         if (!string.IsNullOrWhiteSpace(capture.AttributeName))
@@ -336,7 +362,17 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
                 await Assert.That(probe.AttributeValue)
                     .IsEqualTo(capture.AttributeValue ?? string.Empty)
                     .Because($"Expected cue example '{capture.CueLabel}' to expose its reader visual contract.");
+                await Assert.That(probe.AttributeMatchCount)
+                    .IsEqualTo(capture.ExpectedAttributeMatchCount)
+                    .Because($"Expected cue example '{capture.CueLabel}' to style the expected cue scope.");
             }
+        }
+
+        if (string.Equals(capture.AttributeName, UiDataAttributes.Teleprompter.Pronunciation, StringComparison.Ordinal))
+        {
+            await Assert.That(probe.PronunciationContent)
+                .Contains(capture.AttributeValue ?? string.Empty)
+                .Because($"Expected cue example '{capture.CueLabel}' to show the pronunciation guide visibly.");
         }
 
         if (capture.ExpectedPauseCount > 0)
@@ -361,6 +397,81 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
         }
     }
 
+    private static async Task<CueMatrixSpeedProbe> ReadCueMatrixSpeedProbeAsync(
+        Microsoft.Playwright.ILocator cardText,
+        CueMatrixCapture capture)
+    {
+        var probe = await cardText.EvaluateAsync<CueMatrixSpeedProbe>(
+            """
+            (host, args) => {
+                const normalize = value => (value ?? '')
+                    .trim()
+                    .toLowerCase()
+                    .replace(/[.,;:!?]+$/g, '');
+                const target = [...host.querySelectorAll(`[data-test="${args.activeWordTestId}"], [data-test^="${args.wordPrefix}"]`)]
+                    .find(candidate => normalize(candidate.textContent) === args.targetWord);
+                if (!(target instanceof HTMLElement)) {
+                    return null;
+                }
+
+                const computed = getComputedStyle(target);
+                const box = target.getBoundingClientRect();
+                return {
+                    letterSpacing: computed.letterSpacing ?? '',
+                    width: box.width
+                };
+            }
+            """,
+            new
+            {
+                activeWordTestId = UiTestIds.Teleprompter.ActiveWord,
+                targetWord = capture.TargetWord,
+                wordPrefix = UiTestIds.Teleprompter.CardWordPrefix(capture.CardIndex)
+            });
+
+        await Assert.That(probe).IsNotNull();
+        return probe!;
+    }
+
+    private static async Task AssertCueMatrixSpeedTreatmentAsync(IReadOnlyDictionary<string, CueMatrixSpeedProbe> probes)
+    {
+        await Assert.That(probes.ContainsKey("xslow")).IsTrue();
+        await Assert.That(probes.ContainsKey("slow")).IsTrue();
+        await Assert.That(probes.ContainsKey("normal")).IsTrue();
+        await Assert.That(probes.ContainsKey("fast")).IsTrue();
+        await Assert.That(probes.ContainsKey("xfast")).IsTrue();
+        await Assert.That(probes.ContainsKey("180wpm")).IsTrue();
+
+        var xslow = probes["xslow"];
+        var slow = probes["slow"];
+        var normal = probes["normal"];
+        var fast = probes["fast"];
+        var xfast = probes["xfast"];
+        var customWpm = probes["180wpm"];
+
+        await Assert.That(ParseCssPixels(xslow.LetterSpacing)).IsGreaterThan(ParseCssPixels(slow.LetterSpacing));
+        await Assert.That(ParseCssPixels(slow.LetterSpacing)).IsGreaterThan(ParseCssPixels(normal.LetterSpacing));
+        await Assert.That(ParseCssPixels(normal.LetterSpacing)).IsGreaterThan(ParseCssPixels(fast.LetterSpacing));
+        await Assert.That(ParseCssPixels(fast.LetterSpacing)).IsGreaterThan(ParseCssPixels(xfast.LetterSpacing));
+        await Assert.That(ParseCssPixels(customWpm.LetterSpacing)).IsLessThan(ParseCssPixels(normal.LetterSpacing));
+
+        await Assert.That(xslow.Width).IsGreaterThan(slow.Width);
+        await Assert.That(slow.Width).IsGreaterThan(normal.Width);
+        await Assert.That(normal.Width).IsGreaterThan(fast.Width);
+        await Assert.That(fast.Width).IsGreaterThan(xfast.Width);
+        await Assert.That(customWpm.Width).IsLessThan(normal.Width);
+    }
+
+    private static double ParseCssPixels(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value) || string.Equals(value, "normal", StringComparison.Ordinal))
+        {
+            return 0d;
+        }
+
+        return double.Parse(value.Replace("px", string.Empty, StringComparison.Ordinal), CultureInfo.InvariantCulture);
+    }
+
     private static string NormalizeReaderWord(string? value) =>
         (value ?? string.Empty)
             .Trim()
@@ -372,7 +483,7 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
         var probe = await cardText.EvaluateAsync<ReaderSpacingProbe>(
             """
             (host, args) => {
-                const nodes = Array.from(host.querySelectorAll(`[data-test^="${args.wordPrefix}"]`));
+                const nodes = Array.from(host.querySelectorAll(`[data-test="${args.activeWordTestId}"], [data-test^="${args.wordPrefix}"]`));
                 const words = nodes
                     .filter(node => node instanceof HTMLElement)
                     .map(node => {
@@ -413,6 +524,7 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
             """,
             new
             {
+                activeWordTestId = UiTestIds.Teleprompter.ActiveWord,
                 wordPrefix = UiTestIds.Teleprompter.CardWordPrefix(cardIndex)
             });
 
@@ -478,7 +590,10 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
         int ExpectedPauseCount = 0,
         int ExpectedBreathCount = 0,
         bool ExpectEmphasis = false,
-        bool ExpectedNoAttribute = false);
+        bool ExpectedNoAttribute = false,
+        string? SpeedProbeKey = null,
+        string TargetWord = CueMatrixTargetWord,
+        int ExpectedAttributeMatchCount = 1);
 
     private sealed class CueMatrixCardProbe
     {
@@ -488,10 +603,21 @@ public sealed class TeleprompterCueRenderingFlowTests(StandaloneAppFixture fixtu
 
         public string AttributeValue { get; init; } = string.Empty;
 
+        public int AttributeMatchCount { get; init; }
+
         public int PauseCueCount { get; init; }
 
         public int BreathCueCount { get; init; }
 
         public int EmphasisGroupCount { get; init; }
+
+        public string PronunciationContent { get; init; } = string.Empty;
+    }
+
+    private sealed class CueMatrixSpeedProbe
+    {
+        public string LetterSpacing { get; init; } = string.Empty;
+
+        public double Width { get; init; }
     }
 }

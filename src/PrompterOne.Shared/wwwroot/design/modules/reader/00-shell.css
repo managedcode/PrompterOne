@@ -252,18 +252,18 @@
 }
 
 /* ── TPS Emotion Inline Semantics ── */
-.tps-warm { color: #E4B07A; }
-.tps-concerned { color: #E49A9A; }
-.tps-focused { color: #9FD7AD; }
-.tps-motivational { color: #C5A4DD; }
-.tps-neutral { color: #ACCBE6; }
-.tps-urgent { color: #E58A8A; font-weight: 800; }
-.tps-happy { color: #E8D58E; }
-.tps-excited { color: #DEB1C5; }
-.tps-sad { color: #A59DDC; }
-.tps-calm { color: #8ECDBE; }
-.tps-energetic { color: #E1A581; }
-.tps-professional { color: #A9BFE7; }
+.tps-warm { color: #FFB35C; }
+.tps-concerned { color: #D89CFF; }
+.tps-focused { color: #7CFFB2; }
+.tps-motivational { color: #BFA4FF; }
+.tps-neutral { color: #D9E2EC; }
+.tps-urgent { color: #FF6B6B; font-weight: 800; }
+.tps-happy { color: #FFE66D; }
+.tps-excited { color: #FF7AC8; }
+.tps-sad { color: #9DB6FF; }
+.tps-calm { color: #76E4C5; }
+.tps-energetic { color: #FF9F1C; }
+.tps-professional { color: #AFC8FF; }
 
 /* ── TPS Delivery And Volume ── */
 .tps-loud { color: #F2C18B; font-weight: var(--tps-cue-weight, 800); }
@@ -279,8 +279,8 @@
 }
 
 /* ── TPS Speed Indicators (visual cue for speed tags) ── */
-.tps-xslow { letter-spacing: var(--tps-word-letter-spacing, 0.085em); }
-.tps-slow { letter-spacing: var(--tps-word-letter-spacing, 0.045em); }
-.tps-fast { letter-spacing: var(--tps-word-letter-spacing, 0); }
-.tps-xfast { letter-spacing: var(--tps-word-letter-spacing, 0); opacity: .82; }
+.tps-xslow { letter-spacing: var(--tps-word-letter-spacing, 0.16em); }
+.tps-slow { letter-spacing: var(--tps-word-letter-spacing, 0.09em); }
+.tps-fast { letter-spacing: var(--tps-word-letter-spacing, -0.03em); }
+.tps-xfast { letter-spacing: var(--tps-word-letter-spacing, -0.06em); opacity: .9; }
 .tps-normal { letter-spacing: 0; }

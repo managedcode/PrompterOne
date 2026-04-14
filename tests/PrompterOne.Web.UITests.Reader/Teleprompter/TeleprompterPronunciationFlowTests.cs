@@ -23,6 +23,16 @@ public sealed class TeleprompterPronunciationFlowTests(StandaloneAppFixture fixt
             await Expect(page.GetByTestId(UiTestIds.Teleprompter.Page))
                 .ToBeVisibleAsync(new() { Timeout = BrowserTestConstants.Timing.ExtendedVisibleTimeoutMs });
 
+            for (var index = 0; index < InspirationCardIndex; index++)
+            {
+                await page.GetByTestId(UiTestIds.Teleprompter.NextBlock).ClickAsync();
+            }
+
+            await Expect(page.GetByTestId(UiTestIds.Teleprompter.Card(InspirationCardIndex))).ToHaveAttributeAsync(
+                UiDataAttributes.Teleprompter.CardState,
+                UiDataAttributes.Teleprompter.ActiveState,
+                new() { Timeout = BrowserTestConstants.Timing.DefaultVisibleTimeoutMs });
+
             var probe = await page.GetByTestId(UiTestIds.Teleprompter.CardText(InspirationCardIndex)).EvaluateAsync<PronunciationProbe>(
                 """
                 (element, args) => {
@@ -34,6 +44,7 @@ public sealed class TeleprompterPronunciationFlowTests(StandaloneAppFixture fixt
                     }
 
                     return {
+                        guideContent: getComputedStyle(word, '::after').content ?? '',
                         pronunciation: word.getAttribute(args.pronunciationAttributeName) ?? '',
                         title: word.getAttribute('title') ?? ''
                     };
@@ -48,6 +59,7 @@ public sealed class TeleprompterPronunciationFlowTests(StandaloneAppFixture fixt
 
             await Assert.That(probe).IsNotNull();
             await Assert.That(probe!.Pronunciation).IsEqualTo(BrowserTestConstants.TeleprompterFlow.ProductLaunchVisionPronunciation);
+            await Assert.That(probe.GuideContent).Contains(BrowserTestConstants.TeleprompterFlow.ProductLaunchVisionPronunciation);
             await Assert.That(probe.Title).IsEqualTo(string.Empty);
 
             await UiScenarioArtifacts.CapturePageAsync(page, ScenarioName, StepName);
@@ -60,6 +72,8 @@ public sealed class TeleprompterPronunciationFlowTests(StandaloneAppFixture fixt
 
     private sealed class PronunciationProbe
     {
+        public string GuideContent { get; init; } = string.Empty;
+
         public string Pronunciation { get; init; } = string.Empty;
 
         public string Title { get; init; } = string.Empty;
