@@ -21,6 +21,7 @@ public abstract class AppUiTestBase(StandaloneAppFixture fixture)
         [CallerMemberName] string testName = "")
     {
         var page = await _fixture.NewPageAsync(additionalContext: true, contextKey: testName);
+        var browserErrors = BrowserErrorCollector.Attach(page);
 
         try
         {
@@ -29,6 +30,7 @@ public abstract class AppUiTestBase(StandaloneAppFixture fixture)
         catch
         {
             await TryCaptureFailurePageAsync(page, testName);
+            Console.WriteLine(browserErrors.Describe());
             throw;
         }
         finally

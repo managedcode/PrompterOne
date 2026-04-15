@@ -4,11 +4,10 @@
 @using PrompterOne.Shared.Localization
 @using PrompterOne.Shared.Pages
 @using PrompterOne.Shared.Settings.Models
-@using PrompterOne.Shared.Settings.Components
 @inject IStringLocalizer<SharedResource> Localizer
 
-<div class="set-device-fields">
-    <div class="set-path-field set-path-field-actions">
+<div class="set-ai-models">
+    <div class="set-path-field set-path-field-actions set-ai-models-header">
         <p class="set-card-copy">@Text(UiTextKey.CommonModels)</p>
         <button class="set-btn-outline set-btn-sm"
                 type="button"
@@ -19,57 +18,20 @@
         </button>
     </div>
 
-    @for (var index = 0; index < Models.Count; index++)
-    {
-        var currentIndex = index;
-        var model = Models[currentIndex];
+    <div class="set-ai-model-list">
+        @for (var index = 0; index < Models.Count; index++)
+        {
+            var currentIndex = index;
+            var model = Models[currentIndex];
 
-        <div class="set-device-fields"
-             data-test="@UiTestIds.Settings.AiProviderModel(ProviderId, currentIndex)">
-            <div class="set-field">
-                <label>@ModelNameLabel</label>
-                <input type="text"
-                       class="set-input"
-                       placeholder="@ModelNamePlaceholder"
-                       data-test="@UiTestIds.Settings.AiProviderModelField(ProviderId, currentIndex, SettingsAiModelFieldIds.Name)"
-                       @bind="model.Name"
-                       @onclick:stopPropagation="true" />
-            </div>
-
-            @if (ShowModelPath)
-            {
-                <div class="set-field">
-                    <label>@EffectiveModelPathLabel</label>
-                    <input type="text"
-                           class="set-input"
-                           placeholder="@ModelPathPlaceholder"
-                           data-test="@UiTestIds.Settings.AiProviderModelField(ProviderId, currentIndex, SettingsAiModelFieldIds.Path)"
-                           @bind="model.ModelPath"
-                           @onclick:stopPropagation="true" />
-                </div>
-            }
-
-            <div class="set-field">
-                <label>@Text(UiTextKey.CommonModelType)</label>
-                <SettingsSelect Value="@model.Type"
-                                TestId="@UiTestIds.Settings.AiProviderModelField(ProviderId, currentIndex, SettingsAiModelFieldIds.Type)"
-                                Options="@BuildModelTypeOptions()"
-                                OnChange="args => OnModelTypeChangedAsync(currentIndex, args)" />
-            </div>
-
-            <div class="set-field">
-                <label>@Text(UiTextKey.CommonContextSize)</label>
-                <input type="number"
-                       min="1"
-                       step="1"
-                       class="set-input"
-                       data-test="@UiTestIds.Settings.AiProviderModelField(ProviderId, currentIndex, SettingsAiModelFieldIds.ContextSize)"
-                       @bind="model.ContextSize"
-                       @onclick:stopPropagation="true" />
-            </div>
-
-            <div class="set-field">
-                <label>@Text(UiTextKey.CommonRemoveModel)</label>
+            <div class="set-ai-model-row">
+                <button class="set-ai-model-pill"
+                        type="button"
+                        data-test="@UiTestIds.Settings.AiProviderModel(ProviderId, currentIndex)"
+                        @onclick="() => EditModelAsync(currentIndex)"
+                        @onclick:stopPropagation="true">
+                    @(string.IsNullOrWhiteSpace(model.Name) ? ModelNameLabel : model.Name)
+                </button>
                 <button class="set-btn-outline set-btn-sm"
                         type="button"
                         data-test="@UiTestIds.Settings.AiProviderModelRemove(ProviderId, currentIndex)"
@@ -78,12 +40,81 @@
                     @Text(UiTextKey.CommonRemoveModel)
                 </button>
             </div>
-        </div>
-    }
+        }
+    </div>
 </div>
 
+@if (_editingModelIndex is not null)
+{
+    var effectiveIndex = _editingModelIndex.Value;
+
+    <div class="set-modal-backdrop"
+         role="presentation"
+         data-test="@UiTestIds.Settings.AiProviderModelDialog(ProviderId, effectiveIndex)">
+        <section class="set-modal-card"
+                 role="dialog"
+                 aria-modal="true"
+                 aria-labelledby="@($"{ProviderId}-model-dialog-title")">
+            <header class="set-modal-header">
+                <div>
+                    <p class="set-kicker">@Text(UiTextKey.CommonModels)</p>
+                    <h4 id="@($"{ProviderId}-model-dialog-title")">@ModelNameLabel</h4>
+                </div>
+                <button class="set-btn-outline set-btn-sm"
+                        type="button"
+                        @onclick="CancelModelAsync"
+                        @onclick:stopPropagation="true">
+                    @Text(UiTextKey.CommonCancel)
+                </button>
+            </header>
+            <div class="set-device-fields">
+                <div class="set-field">
+                    <label>@ModelNameLabel</label>
+                    <input type="text"
+                           class="set-input"
+                           placeholder="@ModelNamePlaceholder"
+                           data-test="@UiTestIds.Settings.AiProviderModelField(ProviderId, effectiveIndex, SettingsAiModelFieldIds.Name)"
+                           @bind="_draftModelName"
+                           @onclick:stopPropagation="true" />
+                </div>
+
+                @if (ShowModelPath)
+                {
+                    <div class="set-field">
+                        <label>@EffectiveModelPathLabel</label>
+                        <input type="text"
+                               class="set-input"
+                               placeholder="@ModelPathPlaceholder"
+                               data-test="@UiTestIds.Settings.AiProviderModelField(ProviderId, effectiveIndex, SettingsAiModelFieldIds.Path)"
+                               @bind="_draftModelPath"
+                               @onclick:stopPropagation="true" />
+                    </div>
+                }
+            </div>
+            <footer class="set-modal-actions">
+                <button class="set-btn-golden set-btn-sm"
+                        type="button"
+                        data-test="@UiTestIds.Settings.AiProviderModelSave(ProviderId, effectiveIndex)"
+                        @onclick="SaveModelAsync"
+                        @onclick:stopPropagation="true">
+                    @Text(UiTextKey.CommonSaveLocally)
+                </button>
+                <button class="set-btn-outline set-btn-sm"
+                        type="button"
+                        @onclick="CancelModelAsync"
+                        @onclick:stopPropagation="true">
+                    @Text(UiTextKey.CommonCancel)
+                </button>
+            </footer>
+        </section>
+    </div>
+}
+
 @code {
-    [Parameter] public Func<AiProviderModelSettings> CreateModel { get; set; } = static () => new();
+    private int? _editingModelIndex;
+    private string _draftModelName = string.Empty;
+    private string _draftModelPath = string.Empty;
+
     [Parameter] public string ModelNameLabel { get; set; } = string.Empty;
     [Parameter] public string ModelNamePlaceholder { get; set; } = string.Empty;
     [Parameter] public string ModelPathLabel { get; set; } = string.Empty;
@@ -98,19 +129,61 @@
             ? Text(UiTextKey.CommonModelPath)
             : ModelPathLabel;
 
-    private async Task AddModelAsync()
+    private Task AddModelAsync()
     {
-        Models.Add(CreateModel());
-        await NotifyChangedAsync();
+        _editingModelIndex = Models.Count;
+        _draftModelName = string.Empty;
+        _draftModelPath = string.Empty;
+        return Task.CompletedTask;
     }
 
-    private IReadOnlyList<SettingsSelectOption> BuildModelTypeOptions() =>
-    [
-        new(AiProviderModelTypes.Text, Text(UiTextKey.CommonText)),
-        new(AiProviderModelTypes.Embeddings, Text(UiTextKey.CommonEmbeddings)),
-        new(AiProviderModelTypes.AudioToText, Text(UiTextKey.CommonAudioToText)),
-        new(AiProviderModelTypes.TextToAudio, Text(UiTextKey.CommonTextToAudio))
-    ];
+    private Task EditModelAsync(int index)
+    {
+        if (index < 0 || index >= Models.Count)
+        {
+            return Task.CompletedTask;
+        }
+
+        _editingModelIndex = index;
+        _draftModelName = Models[index].Name;
+        _draftModelPath = Models[index].ModelPath;
+        return Task.CompletedTask;
+    }
+
+    private Task CancelModelAsync()
+    {
+        _editingModelIndex = null;
+        _draftModelName = string.Empty;
+        _draftModelPath = string.Empty;
+        return Task.CompletedTask;
+    }
+
+    private async Task SaveModelAsync()
+    {
+        if (_editingModelIndex is not { } index)
+        {
+            return;
+        }
+
+        var model = AiProviderModelSettings.Create(_draftModelName, ShowModelPath ? _draftModelPath : string.Empty);
+        if (!model.HasAnyValue())
+        {
+            await CancelModelAsync();
+            return;
+        }
+
+        if (index >= Models.Count)
+        {
+            Models.Add(model);
+        }
+        else
+        {
+            Models[index] = model;
+        }
+
+        _editingModelIndex = null;
+        await NotifyChangedAsync();
+    }
 
     private async Task NotifyChangedAsync()
     {
@@ -118,17 +191,6 @@
         {
             await OnChanged.InvokeAsync();
         }
-    }
-
-    private async Task OnModelTypeChangedAsync(int index, ChangeEventArgs args)
-    {
-        if (index < 0 || index >= Models.Count)
-        {
-            return;
-        }
-
-        Models[index].Type = args.Value?.ToString() ?? string.Empty;
-        await NotifyChangedAsync();
     }
 
     private async Task RemoveModelAsync(int index)

@@ -132,6 +132,8 @@ public sealed class AiSpotlightService(
                 AgentOutput = result.Output,
                 ErrorMessage = null
             });
+
+            await ApplyStructuredDocumentEditsAsync(result, context);
         }
         catch (InvalidOperationException exception)
         {
@@ -212,6 +214,104 @@ public sealed class AiSpotlightService(
                     State.Log,
                     new AiSpotlightLogEntry(Text(UiTextKey.AiSpotlightApprovalFailed), exception.Message))
             });
+        }
+    }
+
+    private async Task ApplyStructuredDocumentEditsAsync(ScriptAgentRunResult result, ScriptArticleContext context)
+    {
+        var edits = result.StructuredOutput?.DocumentEdits;
+        if (edits is null || edits.Count == 0)
+        {
+            return;
+        }
+
+        if (_documentEditHandler is null || context.Editor is null)
+        {
+            SetState(State with
+            {
+                ErrorMessage = Text(UiTextKey.AiSpotlightNoActiveEditorTarget),
+                Log = AiSpotlightExecutionBuilder.AddLog(
+                    State.Log,
+                    new AiSpotlightLogEntry(Text(UiTextKey.AiSpotlightApprovalFailed), Text(UiTextKey.AiSpotlightOpenEditorTryAgain)))
+            });
+            return;
+        }
+
+        try
+        {
+            var sourceText = context.Editor.Content ?? string.Empty;
+            var operations = CreateValidatedStructuredOperations(edits, sourceText);
+            if (operations.Length == 0)
+            {
+                return;
+            }
+
+            var revision = context.Editor.Revision ?? ScriptDocumentRevision.Create(sourceText);
+            var plan = new ScriptDocumentEditPlan(revision, operations, context.Editor.DocumentId);
+            var applied = await _documentEditHandler(plan);
+            SetState(State with
+            {
+                Log = AiSpotlightExecutionBuilder.AddLog(
+                    State.Log,
+                    new AiSpotlightLogEntry(
+                        Text(UiTextKey.AiSpotlightAppliedEdit),
+                        Format(UiTextKey.AiSpotlightDocumentRevisionFormat, applied.Revision.Value[..8]),
+                        true)),
+                ErrorMessage = null
+            });
+        }
+        catch (Exception exception) when (exception is InvalidOperationException or ArgumentOutOfRangeException)
+        {
+            SetState(State with
+            {
+                ErrorMessage = exception.Message,
+                Log = AiSpotlightExecutionBuilder.AddLog(
+                    State.Log,
+                    new AiSpotlightLogEntry(Text(UiTextKey.AiSpotlightAgentFailed), exception.Message))
+            });
+        }
+    }
+
+    private ScriptDocumentEditOperation[] CreateValidatedStructuredOperations(
+        IEnumerable<ScriptAgentStructuredEdit> edits,
+        string sourceText)
+    {
+        var operations = new List<ScriptDocumentEditOperation>();
+        foreach (var edit in edits)
+        {
+            var operation = edit.ToDocumentEditOperation();
+            if (operation is null)
+            {
+                continue;
+            }
+
+            ValidateStructuredEdit(operation, edit.ExpectedText, sourceText);
+            operations.Add(operation);
+        }
+
+        return [.. operations];
+    }
+
+    private void ValidateStructuredEdit(
+        ScriptDocumentEditOperation operation,
+        string? expectedText,
+        string sourceText)
+    {
+        operation.Range.ValidateWithin(sourceText.Length);
+        if (operation.Kind is not (ScriptDocumentEditKind.Replace or ScriptDocumentEditKind.Delete))
+        {
+            return;
+        }
+
+        if (expectedText is null)
+        {
+            throw new InvalidOperationException(Text(UiTextKey.AiSpotlightStructuredEditMissingExpectedText));
+        }
+
+        var actualText = sourceText.Substring(operation.Range.Start, operation.Range.Length);
+        if (!string.Equals(actualText, expectedText, StringComparison.Ordinal))
+        {
+            throw new InvalidOperationException(Text(UiTextKey.AiSpotlightStructuredEditRangeMismatch));
         }
     }
 

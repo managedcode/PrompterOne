@@ -18,8 +18,8 @@
     <div class="set-device-list">
         <SettingsAiProviderCard Title="@Text(UiTextKey.SettingsAiClaudeTitle)"
                                 Subtitle="@BuildClaudeSubtitle(_settings.ClaudeApi)"
-                                StatusLabel="@BuildStatusLabel(_settings.ClaudeApi.IsConfigured())"
-                                StatusClass="@BuildStatusClass(_settings.ClaudeApi.IsConfigured())"
+                                StatusLabel="@BuildStatusLabel(SettingsAiProviderIds.ClaudeApi)"
+                                StatusClass="@BuildStatusClass(SettingsAiProviderIds.ClaudeApi)"
                                 IconTone="UiIconSurfaceTone.Gold"
                                 AdditionalCssClass="@BuildCardCssClass(_settings.ClaudeApi.IsConfigured())"
                                 IsOpen="@IsCardOpen(ClaudeApiCardId)"
@@ -60,16 +60,15 @@
                 <SettingsAiModelCatalog ProviderId="@SettingsAiProviderIds.ClaudeApi"
                                         Models="@_settings.ClaudeApi.Models"
                                         ModelNameLabel="@Text(UiTextKey.CommonModel)"
-                                        ModelNamePlaceholder="claude-sonnet-4-6"
-                                        CreateModel="@CreateEmptyRemoteModel"
+                                        ModelNamePlaceholder="model-name"
                                         OnChanged="HandleModelCatalogChangedAsync" />
             </ChildContent>
         </SettingsAiProviderCard>
 
         <SettingsAiProviderCard Title="@Text(UiTextKey.SettingsAiOpenAiTitle)"
                                 Subtitle="@BuildOpenAiSubtitle(_settings.OpenAi)"
-                                StatusLabel="@BuildStatusLabel(_settings.OpenAi.IsConfigured())"
-                                StatusClass="@BuildStatusClass(_settings.OpenAi.IsConfigured())"
+                                StatusLabel="@BuildStatusLabel(SettingsAiProviderIds.OpenAi)"
+                                StatusClass="@BuildStatusClass(SettingsAiProviderIds.OpenAi)"
                                 IconTone="UiIconSurfaceTone.Emerald"
                                 AdditionalCssClass="@BuildCardCssClass(_settings.OpenAi.IsConfigured())"
                                 IsOpen="@IsCardOpen(OpenAiCardId)"
@@ -87,13 +86,6 @@
             </Icon>
             <ChildContent>
                 <div class="set-device-fields">
-                    <div class="set-field">
-                        <label>@Text(UiTextKey.CommonClientType)</label>
-                        <SettingsSelect Value="@_settings.OpenAi.ClientType"
-                                        TestId="@UiTestIds.Settings.AiProviderField(SettingsAiProviderIds.OpenAi, ClientTypeFieldId)"
-                                        Options="@ClientTypeOptions"
-                                        OnChange="OnOpenAiClientTypeChanged" />
-                    </div>
                     <div class="set-field">
                         <label>@Text(UiTextKey.CommonApiKey)</label>
                         <input type="password"
@@ -117,16 +109,15 @@
                 <SettingsAiModelCatalog ProviderId="@SettingsAiProviderIds.OpenAi"
                                         Models="@_settings.OpenAi.Models"
                                         ModelNameLabel="@Text(UiTextKey.CommonModel)"
-                                        ModelNamePlaceholder="gpt-4o-mini"
-                                        CreateModel="@CreateEmptyRemoteModel"
+                                        ModelNamePlaceholder="model-name"
                                         OnChanged="HandleModelCatalogChangedAsync" />
             </ChildContent>
         </SettingsAiProviderCard>
 
         <SettingsAiProviderCard Title="@Text(UiTextKey.SettingsAiAzureOpenAiTitle)"
                                 Subtitle="@BuildAzureOpenAiSubtitle(_settings.AzureOpenAi)"
-                                StatusLabel="@BuildStatusLabel(_settings.AzureOpenAi.IsConfigured())"
-                                StatusClass="@BuildStatusClass(_settings.AzureOpenAi.IsConfigured())"
+                                StatusLabel="@BuildStatusLabel(SettingsAiProviderIds.AzureOpenAi)"
+                                StatusClass="@BuildStatusClass(SettingsAiProviderIds.AzureOpenAi)"
                                 IconTone="UiIconSurfaceTone.Cobalt"
                                 AdditionalCssClass="@BuildCardCssClass(_settings.AzureOpenAi.IsConfigured())"
                                 IsOpen="@IsCardOpen(AzureOpenAiCardId)"
@@ -145,28 +136,12 @@
             <ChildContent>
                 <div class="set-device-fields">
                     <div class="set-field">
-                        <label>@Text(UiTextKey.CommonClientType)</label>
-                        <SettingsSelect Value="@_settings.AzureOpenAi.ClientType"
-                                        TestId="@UiTestIds.Settings.AiProviderField(SettingsAiProviderIds.AzureOpenAi, ClientTypeFieldId)"
-                                        Options="@ClientTypeOptions"
-                                        OnChange="OnAzureOpenAiClientTypeChanged" />
-                    </div>
-                    <div class="set-field">
                         <label>@Text(UiTextKey.CommonEndpoint)</label>
                         <input type="text"
                                class="set-input"
                                placeholder="https://your-resource.openai.azure.com"
                                data-test="@UiTestIds.Settings.AiProviderField(SettingsAiProviderIds.AzureOpenAi, EndpointFieldId)"
                                @bind="_settings.AzureOpenAi.Endpoint"
-                               @onclick:stopPropagation="true" />
-                    </div>
-                    <div class="set-field">
-                        <label>@Text(UiTextKey.CommonApiVersion)</label>
-                        <input type="text"
-                               class="set-input"
-                               placeholder="2025-04-01-preview"
-                               data-test="@UiTestIds.Settings.AiProviderField(SettingsAiProviderIds.AzureOpenAi, ApiVersionFieldId)"
-                               @bind="_settings.AzureOpenAi.ApiVersion"
                                @onclick:stopPropagation="true" />
                     </div>
                     <div class="set-field">
@@ -183,16 +158,15 @@
                 <SettingsAiModelCatalog ProviderId="@SettingsAiProviderIds.AzureOpenAi"
                                         Models="@_settings.AzureOpenAi.Models"
                                         ModelNameLabel="@Text(UiTextKey.CommonDeployment)"
-                                        ModelNamePlaceholder="gpt-4o-mini"
-                                        CreateModel="@CreateEmptyRemoteModel"
+                                        ModelNamePlaceholder="deployment-name"
                                         OnChanged="HandleModelCatalogChangedAsync" />
             </ChildContent>
         </SettingsAiProviderCard>
 
         <SettingsAiProviderCard Title="@Text(UiTextKey.SettingsAiOllamaTitle)"
                                 Subtitle="@BuildOllamaSubtitle(_settings.Ollama)"
-                                StatusLabel="@BuildStatusLabel(_settings.Ollama.IsConfigured())"
-                                StatusClass="@BuildStatusClass(_settings.Ollama.IsConfigured())"
+                                StatusLabel="@BuildStatusLabel(SettingsAiProviderIds.Ollama)"
+                                StatusClass="@BuildStatusClass(SettingsAiProviderIds.Ollama)"
                                 IconTone="UiIconSurfaceTone.Indigo"
                                 AdditionalCssClass="@BuildCardCssClass(_settings.Ollama.IsConfigured())"
                                 IsOpen="@IsCardOpen(OllamaCardId)"
@@ -224,16 +198,15 @@
                 <SettingsAiModelCatalog ProviderId="@SettingsAiProviderIds.Ollama"
                                         Models="@_settings.Ollama.Models"
                                         ModelNameLabel="@Text(UiTextKey.CommonModel)"
-                                        ModelNamePlaceholder="llama3.2:3b"
-                                        CreateModel="@CreateEmptyRemoteModel"
+                                        ModelNamePlaceholder="model-name"
                                         OnChanged="HandleModelCatalogChangedAsync" />
             </ChildContent>
         </SettingsAiProviderCard>
 
         <SettingsAiProviderCard Title="@Text(UiTextKey.SettingsAiLlamaSharpTitle)"
                                 Subtitle="@BuildLlamaSharpSubtitle(_settings.LlamaSharp)"
-                                StatusLabel="@BuildStatusLabel(_settings.LlamaSharp.IsConfigured())"
-                                StatusClass="@BuildStatusClass(_settings.LlamaSharp.IsConfigured())"
+                                StatusLabel="@BuildStatusLabel(SettingsAiProviderIds.LlamaSharp)"
+                                StatusClass="@BuildStatusClass(SettingsAiProviderIds.LlamaSharp)"
                                 IconTone="UiIconSurfaceTone.Slate"
                                 AdditionalCssClass="@BuildCardCssClass(_settings.LlamaSharp.IsConfigured())"
                                 IsOpen="@IsCardOpen(LlamaSharpCardId)"
@@ -250,25 +223,11 @@
                 <UiIcon Kind="UiIconKind.Database" Size="17" />
             </Icon>
             <ChildContent>
-                <div class="set-device-fields">
-                    <div class="set-field">
-                        <label>@Text(UiTextKey.CommonGpuLayers)</label>
-                        <input type="number"
-                               min="0"
-                               step="1"
-                               class="set-input"
-                               data-test="@UiTestIds.Settings.AiProviderField(SettingsAiProviderIds.LlamaSharp, GpuLayersFieldId)"
-                               @bind="_settings.LlamaSharp.GpuLayers"
-                               @onclick:stopPropagation="true" />
-                    </div>
-                </div>
-
                 <SettingsAiModelCatalog ProviderId="@SettingsAiProviderIds.LlamaSharp"
                                         Models="@_settings.LlamaSharp.Models"
                                         ModelNameLabel="@Text(UiTextKey.CommonModel)"
-                                        ModelNamePlaceholder="llama-3.2-3b-instruct"
-                                        ModelPathPlaceholder="/models/llama-3.2-3b-instruct.gguf"
-                                        CreateModel="@CreateEmptyLocalModel"
+                                        ModelNamePlaceholder="model-name"
+                                        ModelPathPlaceholder="/models/local-model.gguf"
                                         ShowModelPath="true"
                                         OnChanged="HandleModelCatalogChangedAsync" />
             </ChildContent>

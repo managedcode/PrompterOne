@@ -53,8 +53,8 @@ No PrompterOne backend. No desktop install. No account wall. Open the app, start
 - **Learn**: rehearse with ORP-aligned RSVP, context rails, phrase-aware timing, WPM controls, stepping, looping, and punctuation-safe word progression.
 - **Teleprompter**: read with persisted font and width controls, focal-line positioning, horizontal and vertical mirror toggles, orientation switching, browser fullscreen, segmented progress, and optional camera background.
 - **Onboarding**: walk the first-run flow with a localized tour that explains TPS, RSVP, the editor, Learn, Teleprompter, and Go Live, then reopen that tour later from Settings.
-- **Settings**: manage appearance, browser language, media permissions, camera and microphone setup, sync offsets, recording defaults, AI provider preferences, cloud snapshot targets, transport credentials, and onboarding restart from one routed screen.
-- **AI Spotlight**: when an AI provider is configured, run the global assistant as a real Microsoft Agent Framework agent with route context, editor text, selected ranges, graph summary, and PrompterOne MCP-style tools.
+- **Settings**: manage appearance, browser language, media permissions, camera and microphone setup, sync offsets, recording defaults, minimal active AI provider setup, cloud snapshot targets, transport credentials, and onboarding restart from one routed screen.
+- **AI Spotlight**: when an AI provider is configured, run the global assistant as a real Microsoft Agent Framework agent with route context, editor text, selected ranges, graph summary, PrompterOne MCP-style tools, and structured output that separates chat replies from exact document edits.
 - **Go Live**: run the browser-owned studio shell and save the composed program feed locally with decodable video and audio while remote transport and destination routing continue to expand.
 
 ## What You Get
@@ -196,7 +196,7 @@ Distribution targets such as YouTube, Twitch, and custom RTMP are capability-gat
 
 ### Settings
 
-Settings holds the operational state for the rest of the app: appearance, browser language, cloud snapshot targets, camera selection with preview, microphone setup with live meters, delay and sync offsets, output quality profiles, recording defaults, AI provider preferences, transport credentials, and onboarding restart. Theme changes and layout preferences persist, and appearance changes propagate across tabs instead of drifting out of sync.
+Settings holds the operational state for the rest of the app: appearance, browser language, cloud snapshot targets, camera selection with preview, microphone setup with live meters, delay and sync offsets, output quality profiles, recording defaults, minimal AI provider preferences, transport credentials, and onboarding restart. AI provider setup stays intentionally small: choose one active provider, enter only the endpoint or base URL when needed, the API key when needed, and the model or deployment names you actually use. Theme changes and layout preferences persist, and appearance changes propagate across tabs instead of drifting out of sync.
 
 ---
 
@@ -235,7 +235,7 @@ PrompterOne is in **active alpha**: the core authoring, rehearsal, reader, and l
 | **LiveKit transport** | 🟡 | Real transport-aware browser integration and guest-path work, with operational polish still expanding |
 | **Distribution routing** | 🟡 | Targets are capability-gated and blocked when the selected transport cannot service them |
 | **Cloud storage snapshots** | 🟡 | Browser-local provider configuration ships now; broader import/export maturity is still expanding |
-| **AI provider execution** | ✅ | AI Spotlight runs a configured Microsoft Agent Framework agent with route/editor context and MCP-style tools; script graph analysis uses the configured LLM extractor before any explicit tokenizer fallback |
+| **AI provider execution** | ✅ | AI Spotlight runs a configured Microsoft Agent Framework agent with route/editor context, MCP-style tools, structured chat-plus-edit output, and exact range edit application; script graph analysis uses the configured LLM extractor before any explicit tokenizer fallback |
 | **Generic RTMP fan-out** | ❌ | Intentionally unsupported without a real upstream transport path |
 | **PrompterOne backend** | ❌ | By design: the browser is the only app runtime |
 

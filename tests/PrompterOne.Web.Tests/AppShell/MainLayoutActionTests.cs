@@ -301,6 +301,127 @@ public sealed class MainLayoutActionTests : BunitContext
     }
 
     [Test]
+    public async Task MainLayout_GlobalAiSpotlightAction_AppliesStructuredAgentDocumentEdits()
+    {
+        var harness = TestHarnessFactory.Create(this);
+        var spotlight = Services.GetRequiredService<AiSpotlightService>();
+        var sourceText = "Keep intro.";
+        const string prompt = "tighten intro";
+        const string agentOutput = "Done.";
+        var revision = ScriptDocumentRevision.Create(sourceText);
+        ScriptDocumentEditPlan? appliedPlan = null;
+        using var registration = spotlight.RegisterDocumentEditTarget(plan =>
+        {
+            appliedPlan = plan;
+            return Task.FromResult(new ScriptDocumentEditResult("Sharper intro.", ScriptDocumentRevision.Create("Sharper intro."), []));
+        });
+
+        harness.ScriptAgentRuntime.NextResult = new ScriptAgentRunResult(
+            AssistantScriptWorkflow.WorkflowId,
+            "Script Assistant",
+            prompt,
+            [new ScriptAgentStepResult("assistant", "Script Assistant", prompt, agentOutput)],
+            agentOutput,
+            new ScriptAgentStructuredOutput
+            {
+                ChatMessage = agentOutput,
+                DocumentEdits =
+                [
+                    new ScriptAgentStructuredEdit
+                    {
+                        Kind = "replace",
+                        Start = 0,
+                        End = sourceText.Length,
+                        ExpectedText = sourceText,
+                        Text = "Sharper intro."
+                    }
+                ]
+            });
+        spotlight.SetContext(new ScriptArticleContext(
+            Title: "Draft",
+            Content: sourceText,
+            Source: "PrompterOne Editor",
+            Route: AppRoutes.Editor,
+            Screen: AppShellScreen.Editor.ToString(),
+            Editor: new ScriptEditorContext(
+                DocumentId: "draft",
+                DocumentTitle: "Draft",
+                Content: sourceText,
+                Revision: revision)));
+
+        spotlight.UpdatePrompt(prompt);
+        await spotlight.ExecuteAsync();
+
+        Assert.NotNull(appliedPlan);
+        Assert.Equal(revision, appliedPlan.Revision);
+        var operation = Assert.Single(appliedPlan.Operations);
+        Assert.Equal(ScriptDocumentEditKind.Replace, operation.Kind);
+        Assert.Equal(new ScriptDocumentRange(0, sourceText.Length), operation.Range);
+        Assert.Equal("Sharper intro.", operation.Text);
+        Assert.Contains(spotlight.State.Log, entry => string.Equals(entry.Label, "Applied edit", StringComparison.Ordinal));
+    }
+
+    [Test]
+    public async Task MainLayout_GlobalAiSpotlightAction_RejectsStructuredDocumentEdit_WhenExpectedTextDoesNotMatch()
+    {
+        var harness = TestHarnessFactory.Create(this);
+        var spotlight = Services.GetRequiredService<AiSpotlightService>();
+        var sourceText = "Keep intro.";
+        const string prompt = "tighten intro";
+        const string agentOutput = "Done.";
+        ScriptDocumentEditPlan? appliedPlan = null;
+        using var registration = spotlight.RegisterDocumentEditTarget(plan =>
+        {
+            appliedPlan = plan;
+            return Task.FromResult(new ScriptDocumentEditResult("Sharper intro.", ScriptDocumentRevision.Create("Sharper intro."), []));
+        });
+
+        harness.ScriptAgentRuntime.NextResult = new ScriptAgentRunResult(
+            AssistantScriptWorkflow.WorkflowId,
+            "Script Assistant",
+            prompt,
+            [new ScriptAgentStepResult("assistant", "Script Assistant", prompt, agentOutput)],
+            agentOutput,
+            new ScriptAgentStructuredOutput
+            {
+                ChatMessage = agentOutput,
+                DocumentEdits =
+                [
+                    new ScriptAgentStructuredEdit
+                    {
+                        Kind = "replace",
+                        Start = 0,
+                        End = sourceText.Length,
+                        ExpectedText = "Wrong text.",
+                        Text = "Sharper intro."
+                    }
+                ]
+            });
+        spotlight.SetContext(new ScriptArticleContext(
+            Title: "Draft",
+            Content: sourceText,
+            Source: "PrompterOne Editor",
+            Route: AppRoutes.Editor,
+            Screen: AppShellScreen.Editor.ToString(),
+            Editor: new ScriptEditorContext(
+                DocumentId: "draft",
+                DocumentTitle: "Draft",
+                Content: sourceText,
+                Revision: ScriptDocumentRevision.Create(sourceText))));
+
+        spotlight.UpdatePrompt(prompt);
+        await spotlight.ExecuteAsync();
+
+        Assert.Null(appliedPlan);
+        Assert.Equal(
+            "The range edit was skipped because the expected source text did not match the current document.",
+            spotlight.State.ErrorMessage);
+        Assert.Contains(
+            spotlight.State.Log,
+            entry => string.Equals(entry.Detail, "The range edit was skipped because the expected source text did not match the current document.", StringComparison.Ordinal));
+    }
+
+    [Test]
     public void MainLayout_GlobalAiSpotlightAction_ReportsUnavailableProviderInsteadOfPretendRunning()
     {
         var harness = TestHarnessFactory.Create(this);

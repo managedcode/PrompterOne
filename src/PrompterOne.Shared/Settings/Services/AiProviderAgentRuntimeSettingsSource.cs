@@ -1,5 +1,6 @@
 using PrompterOne.Core.AI.Abstractions;
 using PrompterOne.Core.AI.Models;
+using PrompterOne.Shared.Pages;
 using PrompterOne.Shared.Settings.Models;
 
 namespace PrompterOne.Shared.Settings.Services;
@@ -16,67 +17,89 @@ public sealed class AiProviderAgentRuntimeSettingsSource(AiProviderSettingsStore
 
     private static AgentRuntimeSettings SelectProvider(AiProviderSettings settings)
     {
-        if (settings.ClaudeApi.IsConfigured())
+        return settings.ActiveProviderId switch
+        {
+            SettingsAiProviderIds.ClaudeApi => CreateAnthropicSettings(settings.ClaudeApi),
+            SettingsAiProviderIds.OpenAi => CreateOpenAiSettings(settings.OpenAi),
+            SettingsAiProviderIds.AzureOpenAi => CreateAzureOpenAiSettings(settings.AzureOpenAi),
+            SettingsAiProviderIds.Ollama => CreateOllamaSettings(settings.Ollama),
+            SettingsAiProviderIds.LlamaSharp => CreateLlamaSharpSettings(settings.LlamaSharp),
+            _ => new AgentRuntimeSettings()
+        };
+    }
+
+    private static AgentRuntimeSettings CreateAnthropicSettings(AnthropicAiProviderSettings settings)
+    {
+        if (settings.IsConfigured())
         {
             return new AgentRuntimeSettings
             {
-                ApiKey = settings.ClaudeApi.ApiKey,
-                ClientType = AgentClientTypes.ChatCompletions,
-                ContextSize = GetTextModel(settings.ClaudeApi.Models)?.ContextSize ?? 0,
-                Endpoint = settings.ClaudeApi.BaseUrl,
-                Model = GetTextModel(settings.ClaudeApi.Models)?.Name ?? settings.ClaudeApi.Model,
+                ApiKey = settings.ApiKey,
+                Endpoint = settings.BaseUrl,
+                Model = GetModelName(settings.Models, settings.Model),
                 ProviderId = AgentProviderIds.Anthropic
             };
         }
 
-        if (settings.OpenAi.IsConfigured())
+        return new AgentRuntimeSettings();
+    }
+
+    private static AgentRuntimeSettings CreateOpenAiSettings(OpenAiProviderSettings settings)
+    {
+        if (settings.IsConfigured())
         {
             return new AgentRuntimeSettings
             {
-                ApiKey = settings.OpenAi.ApiKey,
-                ClientType = settings.OpenAi.ClientType,
-                ContextSize = GetTextModel(settings.OpenAi.Models)?.ContextSize ?? 0,
-                Endpoint = settings.OpenAi.BaseUrl,
-                Model = GetTextModel(settings.OpenAi.Models)?.Name ?? settings.OpenAi.Model,
+                ApiKey = settings.ApiKey,
+                Endpoint = settings.BaseUrl,
+                Model = GetModelName(settings.Models, settings.Model),
                 ProviderId = AgentProviderIds.OpenAi
             };
         }
 
-        if (settings.AzureOpenAi.IsConfigured())
+        return new AgentRuntimeSettings();
+    }
+
+    private static AgentRuntimeSettings CreateAzureOpenAiSettings(AzureOpenAiProviderSettings settings)
+    {
+        if (settings.IsConfigured())
         {
             return new AgentRuntimeSettings
             {
-                ApiKey = settings.AzureOpenAi.ApiKey,
-                ApiVersion = settings.AzureOpenAi.ApiVersion,
-                ClientType = settings.AzureOpenAi.ClientType,
-                ContextSize = GetTextModel(settings.AzureOpenAi.Models)?.ContextSize ?? 0,
-                Endpoint = settings.AzureOpenAi.Endpoint,
-                Model = GetTextModel(settings.AzureOpenAi.Models)?.Name ?? settings.AzureOpenAi.Deployment,
+                ApiKey = settings.ApiKey,
+                ApiVersion = settings.ApiVersion,
+                Endpoint = settings.Endpoint,
+                Model = GetModelName(settings.Models, settings.Deployment),
                 ProviderId = AgentProviderIds.AzureOpenAi
             };
         }
 
-        if (settings.Ollama.IsConfigured())
+        return new AgentRuntimeSettings();
+    }
+
+    private static AgentRuntimeSettings CreateOllamaSettings(OllamaAiProviderSettings settings)
+    {
+        if (settings.IsConfigured())
         {
             return new AgentRuntimeSettings
             {
-                ClientType = AgentClientTypes.ChatCompletions,
-                ContextSize = GetTextModel(settings.Ollama.Models)?.ContextSize ?? 0,
-                Endpoint = settings.Ollama.Endpoint,
-                Model = GetTextModel(settings.Ollama.Models)?.Name ?? settings.Ollama.Model,
+                Endpoint = settings.Endpoint,
+                Model = GetModelName(settings.Models, settings.Model),
                 ProviderId = AgentProviderIds.Ollama
             };
         }
 
-        if (settings.LlamaSharp.IsConfigured())
+        return new AgentRuntimeSettings();
+    }
+
+    private static AgentRuntimeSettings CreateLlamaSharpSettings(LlamaSharpProviderSettings settings)
+    {
+        if (settings.IsConfigured())
         {
-            var model = GetTextModel(settings.LlamaSharp.Models);
+            var model = GetModel(settings.Models);
             return new AgentRuntimeSettings
             {
-                ClientType = AgentClientTypes.ChatCompletions,
-                ContextSize = model?.ContextSize ?? settings.LlamaSharp.ContextSize,
-                GpuLayers = settings.LlamaSharp.GpuLayers,
-                LocalModelPath = model?.ModelPath ?? settings.LlamaSharp.ModelPath,
+                LocalModelPath = model?.ModelPath ?? settings.ModelPath,
                 Model = model?.Name ?? string.Empty,
                 ProviderId = AgentProviderIds.LlamaSharp
             };
@@ -85,7 +108,9 @@ public sealed class AiProviderAgentRuntimeSettingsSource(AiProviderSettingsStore
         return new AgentRuntimeSettings();
     }
 
-    private static AiProviderModelSettings? GetTextModel(IEnumerable<AiProviderModelSettings> models) =>
-        models.FirstOrDefault(static model => model.IsConfigured() && string.Equals(model.Type, AiProviderModelTypes.Text, StringComparison.Ordinal))
-        ?? models.FirstOrDefault(static model => model.IsConfigured());
+    private static AiProviderModelSettings? GetModel(IEnumerable<AiProviderModelSettings> models) =>
+        models.FirstOrDefault(static model => model.IsConfigured());
+
+    private static string GetModelName(IEnumerable<AiProviderModelSettings> models, string fallback) =>
+        GetModel(models)?.Name ?? fallback;
 }

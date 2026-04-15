@@ -5,6 +5,7 @@ public static class ScriptAgentToolNames
     public const string GetContext = "get_context";
     public const string ListAppTools = "list_app_tools";
     public const string RequestAppTool = "request_app_tool";
+    public const string FindScriptText = "find_script_text";
     public const string ReadScriptRange = "read_script_range";
     public const string ReadEditorSelection = "read_editor_selection";
     public const string ProposeScriptReplacement = "propose_script_replacement";

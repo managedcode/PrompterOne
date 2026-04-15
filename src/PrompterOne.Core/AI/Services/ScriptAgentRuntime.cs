@@ -1,4 +1,6 @@
+using System.Text.Json;
 using Microsoft.Agents.AI;
+using Microsoft.Extensions.AI;
 using PrompterOne.Core.AI.Abstractions;
 using PrompterOne.Core.AI.Agents;
 using PrompterOne.Core.AI.Models;
@@ -11,6 +13,11 @@ public sealed class ScriptAgentRuntime(
     IEnumerable<ScriptWorkflow> workflows,
     IScriptAgentFactory agentFactory) : IScriptAgentRuntime
 {
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
+    {
+        PropertyNameCaseInsensitive = true
+    };
+
     private readonly IReadOnlyDictionary<string, ScriptAgent> _agentsById = agents.ToDictionary(
         static agent => agent.Id,
         StringComparer.OrdinalIgnoreCase);
@@ -71,6 +78,31 @@ public sealed class ScriptAgentRuntime(
         return string.Join(Environment.NewLine + Environment.NewLine, messages);
     }
 
+    private static AgentRunOptions CreateStructuredOutputOptions() =>
+        new()
+        {
+            ResponseFormat = ChatResponseFormat.ForJsonSchema<ScriptAgentStructuredOutput>()
+        };
+
+    private static ScriptAgentStructuredOutput ExtractStructuredOutput(AgentResponse response)
+    {
+        var output = ExtractOutput(response);
+        var structuredOutput = JsonSerializer.Deserialize<ScriptAgentStructuredOutput>(output, JsonOptions);
+        if (structuredOutput is null)
+        {
+            throw new InvalidOperationException("The agent did not return the required structured output.");
+        }
+
+        structuredOutput.ChatMessage = structuredOutput.ChatMessage.Trim();
+        structuredOutput.DocumentEdits ??= [];
+        return structuredOutput;
+    }
+
+    private static string GetChatMessage(ScriptAgentStructuredOutput structuredOutput) =>
+        string.IsNullOrWhiteSpace(structuredOutput.ChatMessage)
+            ? "Done."
+            : structuredOutput.ChatMessage;
+
     private ScriptAgent GetRequiredAgent(string agentId) =>
         _agentsById.TryGetValue(agentId, out var agent)
             ? agent
@@ -98,6 +130,7 @@ public sealed class ScriptAgentRuntime(
     {
         var steps = new List<ScriptAgentStepResult>(workflow.AgentIds.Count);
         var nextInput = originalInput;
+        ScriptAgentStructuredOutput? finalStructuredOutput = null;
 
         foreach (var agentId in workflow.AgentIds)
         {
@@ -106,8 +139,10 @@ public sealed class ScriptAgentRuntime(
             var definition = GetRequiredAgent(agentId);
             var agent = await _agentFactory.CreateRequiredAsync(agentId, agentContext, cancellationToken);
             var session = await agent.CreateSessionAsync(cancellationToken);
-            var response = await agent.RunAsync(nextInput, session, new AgentRunOptions(), cancellationToken);
-            var output = ExtractOutput(response);
+            var response = await agent.RunAsync(nextInput, session, CreateStructuredOutputOptions(), cancellationToken);
+            var structuredOutput = ExtractStructuredOutput(response);
+            var output = GetChatMessage(structuredOutput);
+            finalStructuredOutput = structuredOutput;
 
             steps.Add(new ScriptAgentStepResult(definition.Id, definition.Name, nextInput, output));
             nextInput = BuildNextInput(originalInput, output);
@@ -118,7 +153,8 @@ public sealed class ScriptAgentRuntime(
             workflow.Name,
             originalInput,
             steps,
-            steps.Count == 0 ? string.Empty : steps[^1].Output);
+            steps.Count == 0 ? string.Empty : steps[^1].Output,
+            finalStructuredOutput);
     }
 
     private async Task<ScriptAgentRunResult> RunWorkflowAgentAsync(
@@ -129,14 +165,17 @@ public sealed class ScriptAgentRuntime(
     {
         var workflowAgent = await workflow.CreateWorkflowAgentAsync(_agentFactory, agentContext, cancellationToken);
         var session = await workflowAgent.CreateSessionAsync(cancellationToken);
-        var response = await workflowAgent.RunAsync(originalInput, session, new AgentRunOptions(), cancellationToken);
-        var output = ExtractOutput(response);
+        var response = await workflowAgent.RunAsync(originalInput, session, CreateStructuredOutputOptions(), cancellationToken);
+        var structuredOutput = ExtractStructuredOutput(response);
+        var output = GetChatMessage(structuredOutput);
 
         return new ScriptAgentRunResult(
             workflow.Id,
             workflow.Name,
             originalInput,
             [new ScriptAgentStepResult(workflow.Id, workflow.Name, originalInput, output)],
-            output);
+            output,
+            structuredOutput);
     }
+
 }

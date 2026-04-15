@@ -1113,6 +1113,9 @@
   <data name="SettingsAiOllamaUrlLabel" xml:space="preserve">
     <value>Ollama Endpoint</value>
   </data>
+  <data name="SettingsAiActiveProvider" xml:space="preserve">
+    <value>Active provider</value>
+  </data>
   <data name="CommonModels" xml:space="preserve">
     <value>Models</value>
   </data>
@@ -2897,6 +2900,12 @@
   </data>
   <data name="AiSpotlightNoDocumentTextChanged" xml:space="preserve">
     <value>No document text was changed.</value>
+  </data>
+  <data name="AiSpotlightStructuredEditMissingExpectedText" xml:space="preserve">
+    <value>The agent did not include expected source text for the range edit.</value>
+  </data>
+  <data name="AiSpotlightStructuredEditRangeMismatch" xml:space="preserve">
+    <value>The range edit was skipped because the expected source text did not match the current document.</value>
   </data>
   <data name="LibraryLoadMessage" xml:space="preserve">
     <value>Unable to load the library right now.</value>

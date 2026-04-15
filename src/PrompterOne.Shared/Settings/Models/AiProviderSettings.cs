@@ -1,8 +1,12 @@
+using PrompterOne.Shared.Pages;
+
 namespace PrompterOne.Shared.Settings.Models;
 
 public sealed class AiProviderSettings
 {
     public const string StorageKey = "prompterone.ai-providers";
+
+    public string ActiveProviderId { get; set; } = string.Empty;
 
     public AnthropicAiProviderSettings ClaudeApi { get; set; } = new();
 
@@ -23,30 +27,46 @@ public sealed class AiProviderSettings
         LlamaSharp = (LlamaSharp ?? new LlamaSharpProviderSettings()).Normalize();
         OpenAi = (OpenAi ?? new OpenAiProviderSettings()).Normalize();
         Ollama = (Ollama ?? new OllamaAiProviderSettings()).Normalize();
+        ActiveProviderId = NormalizeActiveProviderId(ActiveProviderId);
         return this;
     }
 
     public bool HasConfiguredProvider() =>
-        ClaudeApi.IsConfigured() ||
-        AzureOpenAi.IsConfigured() ||
-        LlamaSharp.IsConfigured() ||
-        OpenAi.IsConfigured() ||
-        Ollama.IsConfigured();
-}
+        IsProviderConfigured(ActiveProviderId);
 
-public static class AiProviderClientTypes
-{
-    public const string Assistants = "assistants";
-    public const string ChatCompletions = "chat-completions";
-    public const string Responses = "responses";
+    public bool IsActiveProvider(string providerId) =>
+        string.Equals(ActiveProviderId, providerId, StringComparison.Ordinal);
 
-    public static string Normalize(string? value) =>
-        value switch
+    public bool IsProviderConfigured(string providerId) =>
+        providerId switch
         {
-            Assistants => Assistants,
-            Responses => Responses,
-            _ => ChatCompletions
+            SettingsAiProviderIds.ClaudeApi => ClaudeApi.IsConfigured(),
+            SettingsAiProviderIds.AzureOpenAi => AzureOpenAi.IsConfigured(),
+            SettingsAiProviderIds.LlamaSharp => LlamaSharp.IsConfigured(),
+            SettingsAiProviderIds.Ollama => Ollama.IsConfigured(),
+            SettingsAiProviderIds.OpenAi => OpenAi.IsConfigured(),
+            _ => false
         };
+
+    private string NormalizeActiveProviderId(string? providerId)
+    {
+        var normalized = SettingsAiProviderIds.Normalize(providerId);
+        if (!string.IsNullOrWhiteSpace(normalized) && IsProviderConfigured(normalized))
+        {
+            return normalized;
+        }
+
+        return EnumerateProviderIds().FirstOrDefault(IsProviderConfigured) ?? string.Empty;
+    }
+
+    private static IEnumerable<string> EnumerateProviderIds()
+    {
+        yield return SettingsAiProviderIds.ClaudeApi;
+        yield return SettingsAiProviderIds.OpenAi;
+        yield return SettingsAiProviderIds.AzureOpenAi;
+        yield return SettingsAiProviderIds.Ollama;
+        yield return SettingsAiProviderIds.LlamaSharp;
+    }
 }
 
 public sealed class AnthropicAiProviderSettings
@@ -55,9 +75,9 @@ public sealed class AnthropicAiProviderSettings
 
     public string BaseUrl { get; set; } = string.Empty;
 
-    public string Model { get; set; } = AiProviderModelCatalogDefaults.AnthropicPrimaryModel;
+    public string Model { get; set; } = string.Empty;
 
-    public List<AiProviderModelSettings> Models { get; set; } = AiProviderModelCatalogDefaults.CreateAnthropic();
+    public List<AiProviderModelSettings> Models { get; set; } = [];
 
     public bool IsConfigured() =>
         !string.IsNullOrWhiteSpace(ApiKey) &&
@@ -67,11 +87,8 @@ public sealed class AnthropicAiProviderSettings
     {
         ApiKey = ApiKey.Trim();
         BaseUrl = BaseUrl.Trim();
-        Models = AiProviderSettingsModelCatalog.Normalize(
-            Models,
-            AiProviderModelCatalogDefaults.CreateAnthropic(),
-            AiProviderModelSettings.Create(Model, AiProviderModelTypes.Text, AiProviderModelCatalogDefaults.AnthropicContextSize));
-        Model = AiProviderSettingsModelCatalog.GetPrimaryModelName(Models, AiProviderModelCatalogDefaults.AnthropicPrimaryModel);
+        Models = AiProviderSettingsModelCatalog.Normalize(Models, Model);
+        Model = AiProviderSettingsModelCatalog.GetPrimaryModelName(Models);
         return this;
     }
 }
@@ -82,11 +99,9 @@ public sealed class OpenAiProviderSettings
 
     public string BaseUrl { get; set; } = string.Empty;
 
-    public string ClientType { get; set; } = AiProviderClientTypes.ChatCompletions;
+    public string Model { get; set; } = string.Empty;
 
-    public string Model { get; set; } = AiProviderModelCatalogDefaults.OpenAiPrimaryModel;
-
-    public List<AiProviderModelSettings> Models { get; set; } = AiProviderModelCatalogDefaults.CreateOpenAi();
+    public List<AiProviderModelSettings> Models { get; set; } = [];
 
     public bool IsConfigured() =>
         !string.IsNullOrWhiteSpace(ApiKey) &&
@@ -96,12 +111,8 @@ public sealed class OpenAiProviderSettings
     {
         ApiKey = ApiKey.Trim();
         BaseUrl = BaseUrl.Trim();
-        ClientType = AiProviderClientTypes.Normalize(ClientType);
-        Models = AiProviderSettingsModelCatalog.Normalize(
-            Models,
-            AiProviderModelCatalogDefaults.CreateOpenAi(),
-            AiProviderModelSettings.Create(Model, AiProviderModelTypes.Text, AiProviderModelCatalogDefaults.CloudTextContextSize));
-        Model = AiProviderSettingsModelCatalog.GetPrimaryModelName(Models, AiProviderModelCatalogDefaults.OpenAiPrimaryModel);
+        Models = AiProviderSettingsModelCatalog.Normalize(Models, Model);
+        Model = AiProviderSettingsModelCatalog.GetPrimaryModelName(Models);
         return this;
     }
 }
@@ -112,17 +123,14 @@ public sealed class AzureOpenAiProviderSettings
 
     public string ApiVersion { get; set; } = string.Empty;
 
-    public string ClientType { get; set; } = AiProviderClientTypes.ChatCompletions;
-
-    public string Deployment { get; set; } = AiProviderModelCatalogDefaults.AzureOpenAiPrimaryDeployment;
+    public string Deployment { get; set; } = string.Empty;
 
     public string Endpoint { get; set; } = string.Empty;
 
-    public List<AiProviderModelSettings> Models { get; set; } = AiProviderModelCatalogDefaults.CreateAzureOpenAi();
+    public List<AiProviderModelSettings> Models { get; set; } = [];
 
     public bool IsConfigured() =>
         !string.IsNullOrWhiteSpace(ApiKey) &&
-        !string.IsNullOrWhiteSpace(ApiVersion) &&
         !string.IsNullOrWhiteSpace(Endpoint) &&
         Models.Any(static model => model.IsConfigured());
 
@@ -130,14 +138,10 @@ public sealed class AzureOpenAiProviderSettings
     {
         ApiKey = ApiKey.Trim();
         ApiVersion = ApiVersion.Trim();
-        ClientType = AiProviderClientTypes.Normalize(ClientType);
         Deployment = Deployment.Trim();
         Endpoint = Endpoint.Trim();
-        Models = AiProviderSettingsModelCatalog.Normalize(
-            Models,
-            AiProviderModelCatalogDefaults.CreateAzureOpenAi(),
-            AiProviderModelSettings.Create(Deployment, AiProviderModelTypes.Text, AiProviderModelCatalogDefaults.CloudTextContextSize));
-        Deployment = AiProviderSettingsModelCatalog.GetPrimaryModelName(Models, AiProviderModelCatalogDefaults.AzureOpenAiPrimaryDeployment);
+        Models = AiProviderSettingsModelCatalog.Normalize(Models, Deployment);
+        Deployment = AiProviderSettingsModelCatalog.GetPrimaryModelName(Models);
         return this;
     }
 }
@@ -146,9 +150,9 @@ public sealed class OllamaAiProviderSettings
 {
     public string Endpoint { get; set; } = string.Empty;
 
-    public string Model { get; set; } = AiProviderModelCatalogDefaults.OllamaPrimaryModel;
+    public string Model { get; set; } = string.Empty;
 
-    public List<AiProviderModelSettings> Models { get; set; } = AiProviderModelCatalogDefaults.CreateOllama();
+    public List<AiProviderModelSettings> Models { get; set; } = [];
 
     public bool IsConfigured() =>
         !string.IsNullOrWhiteSpace(Endpoint) &&
@@ -157,40 +161,25 @@ public sealed class OllamaAiProviderSettings
     public OllamaAiProviderSettings Normalize()
     {
         Endpoint = Endpoint.Trim();
-        Models = AiProviderSettingsModelCatalog.Normalize(
-            Models,
-            AiProviderModelCatalogDefaults.CreateOllama(),
-            AiProviderModelSettings.Create(Model, AiProviderModelTypes.Text, AiProviderModelSettings.DefaultContextSize));
-        Model = AiProviderSettingsModelCatalog.GetPrimaryModelName(Models, AiProviderModelCatalogDefaults.OllamaPrimaryModel);
+        Models = AiProviderSettingsModelCatalog.Normalize(Models, Model);
+        Model = AiProviderSettingsModelCatalog.GetPrimaryModelName(Models);
         return this;
     }
 }
 
 public sealed class LlamaSharpProviderSettings
 {
-    public int ContextSize { get; set; } = AiProviderModelSettings.DefaultContextSize;
-
-    public int GpuLayers { get; set; }
-
     public string ModelPath { get; set; } = string.Empty;
 
-    public List<AiProviderModelSettings> Models { get; set; } = AiProviderModelCatalogDefaults.CreateLlamaSharp();
+    public List<AiProviderModelSettings> Models { get; set; } = [];
 
     public bool IsConfigured() =>
         Models.Any(static model => model.IsConfiguredWithLocalPath());
 
     public LlamaSharpProviderSettings Normalize()
     {
-        GpuLayers = Math.Max(0, GpuLayers);
-        Models = AiProviderSettingsModelCatalog.Normalize(
-            Models,
-            AiProviderModelCatalogDefaults.CreateLlamaSharp(),
-            AiProviderModelSettings.Create(
-                string.Empty,
-                AiProviderModelTypes.Text,
-                ContextSize,
-                ModelPath));
-        ContextSize = AiProviderSettingsModelCatalog.GetPrimaryContextSize(Models, AiProviderModelSettings.DefaultContextSize);
+        ModelPath = ModelPath.Trim();
+        Models = AiProviderSettingsModelCatalog.Normalize(Models, modelPath: ModelPath);
         ModelPath = AiProviderSettingsModelCatalog.GetPrimaryModelPath(Models);
         return this;
     }
@@ -200,38 +189,26 @@ internal static class AiProviderSettingsModelCatalog
 {
     public static List<AiProviderModelSettings> Normalize(
         List<AiProviderModelSettings>? models,
-        List<AiProviderModelSettings> defaultModels,
-        params AiProviderModelSettings[] legacyModels)
+        string? legacyModelName = null,
+        string? modelPath = null)
     {
         var normalizedModels = (models ?? [])
             .Select(static model => (model ?? new AiProviderModelSettings()).Normalize())
             .Where(static model => model.HasAnyValue())
             .ToList();
 
-        foreach (var legacyModel in legacyModels)
+        var legacyModel = AiProviderModelSettings.Create(legacyModelName ?? string.Empty, modelPath ?? string.Empty);
+        if (legacyModel.HasAnyValue() && !ContainsModel(normalizedModels, legacyModel))
         {
-            var normalizedLegacyModel = (legacyModel ?? new AiProviderModelSettings()).Normalize();
-            if (!normalizedLegacyModel.HasAnyValue() || ContainsModel(normalizedModels, normalizedLegacyModel))
-            {
-                continue;
-            }
-
-            normalizedModels.Add(normalizedLegacyModel);
+            normalizedModels.Add(legacyModel);
         }
 
-        return normalizedModels.Count > 0
-            ? normalizedModels
-            : defaultModels.Select(static model => model.Normalize()).ToList();
+        return normalizedModels;
     }
 
-    public static int GetPrimaryContextSize(IReadOnlyList<AiProviderModelSettings> models, int fallback) =>
-        models.FirstOrDefault(static model => model.IsConfiguredWithLocalPath())?.ContextSize
-        ?? models.FirstOrDefault(static model => model.IsConfigured())?.ContextSize
-        ?? fallback;
-
-    public static string GetPrimaryModelName(IReadOnlyList<AiProviderModelSettings> models, string fallback) =>
+    public static string GetPrimaryModelName(IReadOnlyList<AiProviderModelSettings> models) =>
         models.FirstOrDefault(static model => model.IsConfigured())?.Name
-        ?? fallback;
+        ?? string.Empty;
 
     public static string GetPrimaryModelPath(IReadOnlyList<AiProviderModelSettings> models) =>
         models.FirstOrDefault(static model => model.IsConfiguredWithLocalPath())?.ModelPath

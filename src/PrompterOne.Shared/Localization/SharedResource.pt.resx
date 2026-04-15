@@ -963,6 +963,9 @@
   <data name="SettingsAiOllamaUrlLabel" xml:space="preserve">
     <value>Endpoint do Ollama</value>
   </data>
+  <data name="SettingsAiActiveProvider" xml:space="preserve">
+    <value>Provedor ativo</value>
+  </data>
   <data name="CommonModels" xml:space="preserve">
     <value>Modelos</value>
   </data>
@@ -2897,6 +2900,12 @@
   </data>
   <data name="AiSpotlightNoDocumentTextChanged" xml:space="preserve">
     <value>Nenhum texto do documento foi alterado.</value>
+  </data>
+  <data name="AiSpotlightStructuredEditMissingExpectedText" xml:space="preserve">
+    <value>O agente não incluiu o texto de origem esperado para a edição de intervalo.</value>
+  </data>
+  <data name="AiSpotlightStructuredEditRangeMismatch" xml:space="preserve">
+    <value>A edição de intervalo foi ignorada porque o texto de origem esperado não corresponde ao documento atual.</value>
   </data>
   <data name="LibraryLoadMessage" xml:space="preserve">
     <value>Não é possível carregar a biblioteca no momento.</value>

@@ -1185,6 +1185,9 @@
   <data name="SettingsAiOllamaUrlLabel" xml:space="preserve">
     <value>Point de terminaison Ollama</value>
   </data>
+  <data name="SettingsAiActiveProvider" xml:space="preserve">
+    <value>Fournisseur actif</value>
+  </data>
   <data name="CommonModels" xml:space="preserve">
     <value>Modèles</value>
   </data>
@@ -2897,6 +2900,12 @@
   </data>
   <data name="AiSpotlightNoDocumentTextChanged" xml:space="preserve">
     <value>Aucun texte de document n'a été modifié.</value>
+  </data>
+  <data name="AiSpotlightStructuredEditMissingExpectedText" xml:space="preserve">
+    <value>L'agent n'a pas inclus le texte source attendu pour la modification de plage.</value>
+  </data>
+  <data name="AiSpotlightStructuredEditRangeMismatch" xml:space="preserve">
+    <value>La modification de plage a été ignorée, car le texte source attendu ne correspond pas au document actuel.</value>
   </data>
   <data name="LibraryLoadMessage" xml:space="preserve">
     <value>Impossible de charger la bibliothèque pour le moment.</value>

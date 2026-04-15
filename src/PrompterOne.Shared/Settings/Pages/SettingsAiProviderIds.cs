@@ -10,4 +10,15 @@ public static class SettingsAiProviderIds
     public const string LlamaSharp = "llamasharp";
     public const string Ollama = "ollama";
     public const string OpenAi = "openai";
+
+    public static string Normalize(string? providerId) =>
+        providerId?.Trim().ToLowerInvariant() switch
+        {
+            AzureOpenAi => AzureOpenAi,
+            ClaudeApi => ClaudeApi,
+            LlamaSharp => LlamaSharp,
+            Ollama => Ollama,
+            OpenAi => OpenAi,
+            _ => string.Empty
+        };
 }

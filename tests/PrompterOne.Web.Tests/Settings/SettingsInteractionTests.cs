@@ -28,8 +28,7 @@ public sealed class SettingsInteractionTests : BunitContext
     private const string DropboxValidationMessage = "Dropbox requires an access token or a refresh token with app key.";
     private const string NotConnectedLabel = "Not connected";
     private const string ClaudeConfiguredModel = "claude-opus-4-6";
-    private const int CustomOpenAiModelContextSize = 64000;
-    private const string CustomOpenAiModelName = "whisper-large-v3";
+    private const string CustomOpenAiModelName = "custom-writing-model";
     private const string OllamaConfiguredAuthority = "ollama.local:11434";
     private const string OllamaConfiguredModel = "llama3.2";
     private const string OpenAiConfiguredModel = "o3-mini";
@@ -266,23 +265,16 @@ public sealed class SettingsInteractionTests : BunitContext
                 Model = string.Empty,
                 Models =
                 [
-                    AiProviderModelSettings.Create(
-                        ClaudeConfiguredModel,
-                        AiProviderModelTypes.Text,
-                        AiProviderModelCatalogDefaults.AnthropicContextSize)
+                    AiProviderModelSettings.Create(ClaudeConfiguredModel)
                 ]
             },
             OpenAi = new OpenAiProviderSettings
             {
                 ApiKey = "sk-openai-configured",
-                ClientType = AiProviderClientTypes.Responses,
                 Model = string.Empty,
                 Models =
                 [
-                    AiProviderModelSettings.Create(
-                        OpenAiConfiguredModel,
-                        AiProviderModelTypes.Text,
-                        AiProviderModelCatalogDefaults.CloudTextContextSize)
+                    AiProviderModelSettings.Create(OpenAiConfiguredModel)
                 ]
             },
             Ollama = new OllamaAiProviderSettings
@@ -291,10 +283,7 @@ public sealed class SettingsInteractionTests : BunitContext
                 Model = string.Empty,
                 Models =
                 [
-                    AiProviderModelSettings.Create(
-                        OllamaConfiguredModel,
-                        AiProviderModelTypes.Text,
-                        AiProviderModelSettings.DefaultContextSize)
+                    AiProviderModelSettings.Create(OllamaConfiguredModel)
                 ]
             }
         };
@@ -308,7 +297,7 @@ public sealed class SettingsInteractionTests : BunitContext
                 $"{Text(UiTextKey.SettingsAiClaudeTitle)} · {ClaudeConfiguredModel}",
                 cut.FindByTestId(UiTestIds.Settings.AiProviderSubtitle(SettingsAiProviderIds.ClaudeApi)).TextContent.Trim());
             Assert.Equal(
-                $"{Text(UiTextKey.SettingsAiOpenAiTitle)} · Responses · {OpenAiConfiguredModel}",
+                $"{Text(UiTextKey.SettingsAiOpenAiTitle)} · {OpenAiConfiguredModel}",
                 cut.FindByTestId(UiTestIds.Settings.AiProviderSubtitle(SettingsAiProviderIds.OpenAi)).TextContent.Trim());
             Assert.Equal(
                 $"Self-hosted · {OllamaConfiguredAuthority} · {OllamaConfiguredModel}",
@@ -327,10 +316,7 @@ public sealed class SettingsInteractionTests : BunitContext
                 Model = string.Empty,
                 Models =
                 [
-                    AiProviderModelSettings.Create(
-                        ClaudeConfiguredModel,
-                        AiProviderModelTypes.Text,
-                        AiProviderModelCatalogDefaults.AnthropicContextSize)
+                    AiProviderModelSettings.Create(ClaudeConfiguredModel)
                 ]
             }
         };
@@ -349,14 +335,11 @@ public sealed class SettingsInteractionTests : BunitContext
     }
 
     [Test]
-    public void AiSection_AddOpenAiModel_PersistsModelCatalogMetadata_WithoutBrowserE2e()
+    public void AiSection_AddAndEditOpenAiModel_PersistsMinimalModelCatalog_WithoutBrowserE2e()
     {
         var cut = Render<SettingsPage>();
-        var addedModelIndex = AiProviderModelCatalogDefaults.CreateOpenAi().Count;
-        var modelTypeTestId = UiTestIds.Settings.AiProviderModelField(
-            SettingsAiProviderIds.OpenAi,
-            addedModelIndex,
-            SettingsAiModelFieldIds.Type);
+        const int addedModelIndex = 0;
+        const string editedModelName = "custom-writing-model-v2";
 
         cut.WaitForAssertion(() => Assert.Contains(UiTestIds.Settings.AiPanel, cut.Markup, StringComparison.Ordinal));
 
@@ -376,16 +359,20 @@ public sealed class SettingsInteractionTests : BunitContext
 
         cut.FindByTestId(UiTestIds.Settings.AiProviderModelField(SettingsAiProviderIds.OpenAi, addedModelIndex, SettingsAiModelFieldIds.Name))
             .Change(CustomOpenAiModelName);
-        cut.SelectSettingsOption(modelTypeTestId, AiProviderModelTypes.AudioToText);
-        cut.FindByTestId(UiTestIds.Settings.AiProviderModelField(SettingsAiProviderIds.OpenAi, addedModelIndex, SettingsAiModelFieldIds.ContextSize))
-            .Change(CustomOpenAiModelContextSize);
+        cut.FindByTestId(UiTestIds.Settings.AiProviderModelSave(SettingsAiProviderIds.OpenAi, addedModelIndex)).Click();
+        cut.FindByTestId(UiTestIds.Settings.AiProviderModel(SettingsAiProviderIds.OpenAi, addedModelIndex)).Click();
+        cut.FindByTestId(UiTestIds.Settings.AiProviderModelField(SettingsAiProviderIds.OpenAi, addedModelIndex, SettingsAiModelFieldIds.Name))
+            .Change(editedModelName);
+        cut.FindByTestId(UiTestIds.Settings.AiProviderModelSave(SettingsAiProviderIds.OpenAi, addedModelIndex)).Click();
         cut.FindByTestId(UiTestIds.Settings.AiProviderSave(SettingsAiProviderIds.OpenAi)).Click();
 
         var savedSettings = _harness.JsRuntime.GetSavedValue<AiProviderSettings>(AiProviderSettings.StorageKey);
-        var customModel = Assert.Single(savedSettings.OpenAi.Models.Where(model => model.Name == CustomOpenAiModelName));
+        var customModel = Assert.Single(savedSettings.OpenAi.Models);
 
-        Assert.Equal(AiProviderModelTypes.AudioToText, customModel.Type);
-        Assert.Equal(CustomOpenAiModelContextSize, customModel.ContextSize);
+        Assert.Equal(editedModelName, customModel.Name);
+        Assert.Equal(SettingsAiProviderIds.OpenAi, savedSettings.ActiveProviderId);
+        Assert.DoesNotContain(Text(UiTextKey.CommonContextSize), cut.Markup, StringComparison.Ordinal);
+        Assert.DoesNotContain(Text(UiTextKey.CommonModelType), cut.Markup, StringComparison.Ordinal);
     }
 
     [Test]

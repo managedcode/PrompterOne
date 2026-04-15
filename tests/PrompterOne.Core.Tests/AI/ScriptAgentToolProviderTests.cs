@@ -38,6 +38,7 @@ public sealed class ScriptAgentToolProviderTests
         Assert.Contains(tools, static tool => tool.Name == ScriptAgentToolNames.GetContext);
         Assert.Contains(tools, static tool => tool.Name == ScriptAgentToolNames.ListAppTools);
         Assert.Contains(tools, static tool => tool.Name == ScriptAgentToolNames.RequestAppTool);
+        Assert.Contains(tools, static tool => tool.Name == ScriptAgentToolNames.FindScriptText);
         Assert.Contains(tools, static tool => tool.Name == ScriptAgentToolNames.ReadScriptRange);
         Assert.Contains(tools, static tool => tool.Name == ScriptAgentToolNames.ReadEditorSelection);
         Assert.Contains(tools, static tool => tool.Name == ScriptAgentToolNames.ProposeScriptReplacement);
@@ -51,6 +52,25 @@ public sealed class ScriptAgentToolProviderTests
         Assert.True(applyTool is AIFunction);
         Assert.False(applyTool is ApprovalRequiredAIFunction);
         Assert.True(tools.Single(static tool => tool.Name == ScriptAgentToolNames.ApplyApprovedScriptDeletion) is ApprovalRequiredAIFunction);
+    }
+
+    [Test]
+    public async Task FindScriptText_ReturnsExactSourceRangesFromEditorContext()
+    {
+        var findScriptText = GetFunction(CreateContext(), ScriptAgentToolNames.FindScriptText);
+
+        var result = ToResult<ScriptAgentRangeReadResult[]>(await findScriptText.InvokeAsync(new AIFunctionArguments(
+            new Dictionary<string, object?>
+            {
+                ["query"] = "Keep",
+                ["matchCase"] = true,
+                ["maxMatches"] = 2
+            })));
+
+        Assert.Equal(2, result.Length);
+        Assert.Equal("Keep", result[0].Text);
+        Assert.Equal(Script.IndexOf("Keep", StringComparison.Ordinal), result[0].Range.Start);
+        Assert.Equal(Script.LastIndexOf("Keep", StringComparison.Ordinal), result[1].Range.Start);
     }
 
     [Test]

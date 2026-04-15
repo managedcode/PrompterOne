@@ -50,6 +50,12 @@ internal static class BrowserRouteDriver
                 {
                     return;
                 }
+
+                if (attempt < RouteBootstrapAttemptCount)
+                {
+                    forceNavigation = true;
+                    continue;
+                }
             }
             catch (TimeoutException)
             {

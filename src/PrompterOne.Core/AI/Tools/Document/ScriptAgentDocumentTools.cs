@@ -11,6 +11,53 @@ internal sealed class ScriptAgentDocumentTools(
     ScriptDocumentEditService documentEditService)
 {
     [McpServerTool(
+        Name = ScriptAgentToolNames.FindScriptText,
+        Title = "Find script text",
+        ReadOnly = true,
+        Idempotent = true,
+        Destructive = false,
+        OpenWorld = false)]
+    [Description("Find exact text occurrences in the captured source document and return UTF-16 ranges.")]
+    public IReadOnlyList<ScriptAgentRangeReadResult> FindScriptText(
+        [Description("The exact source text to find.")]
+        string query,
+        [Description("Whether matching should be case-sensitive.")]
+        bool matchCase = true,
+        [Description("Maximum number of matches to return.")]
+        int maxMatches = 10)
+    {
+        var content = GetContent();
+        if (string.IsNullOrEmpty(query) || maxMatches <= 0)
+        {
+            return [];
+        }
+
+        var comparison = matchCase
+            ? StringComparison.Ordinal
+            : StringComparison.OrdinalIgnoreCase;
+        var matches = new List<ScriptAgentRangeReadResult>();
+        var startIndex = 0;
+        while (matches.Count < maxMatches)
+        {
+            var index = content.IndexOf(query, startIndex, comparison);
+            if (index < 0)
+            {
+                break;
+            }
+
+            var range = new ScriptDocumentRange(index, index + query.Length);
+            matches.Add(new ScriptAgentRangeReadResult(
+                range,
+                ScriptDocumentPosition.FromOffset(content, range.Start),
+                ScriptDocumentPosition.FromOffset(content, range.End),
+                query));
+            startIndex = range.End;
+        }
+
+        return matches;
+    }
+
+    [McpServerTool(
         Name = ScriptAgentToolNames.ReadScriptRange,
         Title = "Read script range",
         ReadOnly = true,

@@ -5,4 +5,5 @@ public sealed record ScriptAgentRunResult(
     string WorkflowName,
     string Input,
     IReadOnlyList<ScriptAgentStepResult> Steps,
-    string Output);
+    string Output,
+    ScriptAgentStructuredOutput? StructuredOutput = null);

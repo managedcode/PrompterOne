@@ -1185,6 +1185,9 @@
   <data name="SettingsAiOllamaUrlLabel" xml:space="preserve">
     <value>Ollama-Endpunkt</value>
   </data>
+  <data name="SettingsAiActiveProvider" xml:space="preserve">
+    <value>Aktiver Anbieter</value>
+  </data>
   <data name="CommonModels" xml:space="preserve">
     <value>Modelle</value>
   </data>
@@ -2897,6 +2900,12 @@
   </data>
   <data name="AiSpotlightNoDocumentTextChanged" xml:space="preserve">
     <value>Es wurde kein Dokumenttext geändert.</value>
+  </data>
+  <data name="AiSpotlightStructuredEditMissingExpectedText" xml:space="preserve">
+    <value>Der Agent hat keinen erwarteten Quelltext für die Bereichsänderung geliefert.</value>
+  </data>
+  <data name="AiSpotlightStructuredEditRangeMismatch" xml:space="preserve">
+    <value>Die Bereichsänderung wurde übersprungen, weil der erwartete Quelltext nicht zum aktuellen Dokument passt.</value>
   </data>
   <data name="LibraryLoadMessage" xml:space="preserve">
     <value>Die Bibliothek kann derzeit nicht geladen werden.</value>

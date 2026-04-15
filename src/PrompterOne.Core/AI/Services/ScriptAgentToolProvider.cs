@@ -20,6 +20,7 @@ public sealed class ScriptAgentToolProvider(
             ScriptAgentMcpToolFunctionFactory.Create(contextTools.GetActivePrompterContext),
             ScriptAgentMcpToolFunctionFactory.Create(contextTools.ListAvailablePrompterOneTools),
             ScriptAgentMcpToolFunctionFactory.Create(contextTools.RequestPrompterOneTool),
+            ScriptAgentMcpToolFunctionFactory.Create(documentTools.FindScriptText),
             ScriptAgentMcpToolFunctionFactory.Create(documentTools.ReadScriptRange),
             ScriptAgentMcpToolFunctionFactory.Create(documentTools.ReadEditorSelection),
             ScriptAgentMcpToolFunctionFactory.Create(documentTools.ProposeScriptReplacement),

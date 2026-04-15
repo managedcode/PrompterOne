@@ -1,5 +1,5 @@
-using System.Globalization;
 using Microsoft.Extensions.Configuration;
+using PrompterOne.Shared.Pages;
 using PrompterOne.Shared.Settings.Models;
 
 namespace PrompterOne.Shared.Settings.Services;
@@ -9,18 +9,15 @@ internal static class AiProviderAppSettingsFactory
     private const string AiProviderSectionName = "AiProvider";
     private const string AlternateAiProviderSectionName = "AI";
     private const string ApiKeyKey = "ApiKey";
-    private const string ApiVersionKey = "ApiVersion";
     private const string AzureOpenAiSectionName = "AzureOpenAi";
-    private const string AzureOpenAiTypeName = "AzureOpenAI";
-    private const string AzureOpenAiTypeNameWithSpace = "Azure OpenAI";
-    private const string ContextWindowTokensKey = "ContextWindowTokens";
-    private const string DefaultAzureApiVersion = "2025-04-01-preview";
-    private const string DefaultEndpointKey = "DefaultEndpoint";
+    private const string BaseUrlKey = "BaseUrl";
+    private const string DeploymentKey = "Deployment";
     private const string DeploymentIdKey = "DeploymentId";
+    private const string DeploymentsSectionName = "Deployments";
     private const string EndpointKey = "Endpoint";
     private const string EndpointsSectionName = "Endpoints";
+    private const string ModelKey = "Model";
     private const string ModelsSectionName = "Models";
-    private const string NameKey = "Name";
     private const string TypeKey = "Type";
 
     public static AiProviderSettings? Create(IConfiguration configuration)
@@ -28,54 +25,116 @@ internal static class AiProviderAppSettingsFactory
         ArgumentNullException.ThrowIfNull(configuration);
 
         var section = ResolveAiProviderSection(configuration);
-        if (section is null || !IsAzureOpenAiSection(section))
+        if (section is null)
         {
             return null;
         }
 
-        var azureOpenAi = CreateAzureOpenAiSettings(section);
-        return azureOpenAi.IsConfigured()
-            ? new AiProviderSettings { AzureOpenAi = azureOpenAi }.Normalize()
-            : null;
+        var settings = new AiProviderSettings();
+        var providerId = ResolveProviderId(section);
+        switch (providerId)
+        {
+            case SettingsAiProviderIds.AzureOpenAi:
+                settings.AzureOpenAi = CreateAzureOpenAiSettings(section);
+                break;
+            case SettingsAiProviderIds.ClaudeApi:
+                settings.ClaudeApi = CreateAnthropicSettings(section);
+                break;
+            case SettingsAiProviderIds.Ollama:
+                settings.Ollama = CreateOllamaSettings(section);
+                break;
+            case SettingsAiProviderIds.OpenAi:
+                settings.OpenAi = CreateOpenAiSettings(section);
+                break;
+            default:
+                return null;
+        }
+
+        settings.ActiveProviderId = providerId;
+        settings.Normalize();
+        return settings.HasConfiguredProvider() ? settings : null;
     }
+
+    private static AnthropicAiProviderSettings CreateAnthropicSettings(IConfigurationSection section) =>
+        new()
+        {
+            ApiKey = section[ApiKeyKey] ?? string.Empty,
+            BaseUrl = section[BaseUrlKey] ?? section[EndpointKey] ?? string.Empty,
+            Models = CreateModels(section, ModelKey)
+        };
 
     private static AzureOpenAiProviderSettings CreateAzureOpenAiSettings(IConfigurationSection section)
     {
         var endpointSection = ResolveEndpointSection(section);
-        var models = CreateModels(section.GetSection(ModelsSectionName));
-        var primaryModel = models.FirstOrDefault(static model => model.Type == AiProviderModelTypes.Text && model.IsConfigured())
-            ?? models.FirstOrDefault(static model => model.IsConfigured());
-        var deployment = section[DeploymentIdKey] ?? primaryModel?.Name ?? AiProviderModelCatalogDefaults.AzureOpenAiPrimaryDeployment;
-
         return new AzureOpenAiProviderSettings
         {
             ApiKey = endpointSection?[ApiKeyKey] ?? section[ApiKeyKey] ?? string.Empty,
-            ApiVersion = section[ApiVersionKey] ?? DefaultAzureApiVersion,
-            ClientType = AiProviderClientTypes.ChatCompletions,
-            Deployment = deployment,
+            Deployment = section[DeploymentKey] ?? section[DeploymentIdKey] ?? section[ModelKey] ?? string.Empty,
             Endpoint = endpointSection?[EndpointKey] ?? section[EndpointKey] ?? string.Empty,
-            Models = models.Count > 0 ? models : AiProviderModelCatalogDefaults.CreateAzureOpenAi()
-        }.Normalize();
+            Models = CreateModels(section, DeploymentKey, DeploymentIdKey, ModelKey, DeploymentsSectionName)
+        };
     }
 
-    private static List<AiProviderModelSettings> CreateModels(IConfigurationSection modelsSection)
+    private static OllamaAiProviderSettings CreateOllamaSettings(IConfigurationSection section) =>
+        new()
+        {
+            Endpoint = section[EndpointKey] ?? section[BaseUrlKey] ?? string.Empty,
+            Models = CreateModels(section, ModelKey)
+        };
+
+    private static OpenAiProviderSettings CreateOpenAiSettings(IConfigurationSection section) =>
+        new()
+        {
+            ApiKey = section[ApiKeyKey] ?? string.Empty,
+            BaseUrl = section[BaseUrlKey] ?? section[EndpointKey] ?? string.Empty,
+            Models = CreateModels(section, ModelKey)
+        };
+
+    private static List<AiProviderModelSettings> CreateModels(
+        IConfigurationSection section,
+        params string[] singularModelKeys)
     {
         var models = new List<AiProviderModelSettings>();
-        foreach (var modelSection in modelsSection.GetChildren())
+        foreach (var key in singularModelKeys)
         {
-            var name = modelSection[DeploymentIdKey] ?? modelSection[NameKey] ?? modelSection.Key;
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                continue;
-            }
-
-            models.Add(AiProviderModelSettings.Create(
-                name,
-                NormalizeModelType(modelSection[TypeKey]),
-                ReadPositiveInt(modelSection[ContextWindowTokensKey]) ?? AiProviderModelCatalogDefaults.CloudTextContextSize));
+            AddModel(models, section[key]);
         }
 
+        AddModelsFromSection(models, section.GetSection(ModelsSectionName));
+        AddModelsFromSection(models, section.GetSection(DeploymentsSectionName));
         return models;
+    }
+
+    private static void AddModelsFromSection(List<AiProviderModelSettings> models, IConfigurationSection section)
+    {
+        if (!section.Exists())
+        {
+            return;
+        }
+
+        foreach (var modelSection in section.GetChildren())
+        {
+            AddModel(
+                models,
+                modelSection.Value ??
+                modelSection[DeploymentKey] ??
+                modelSection[DeploymentIdKey] ??
+                modelSection[ModelKey] ??
+                modelSection["Name"] ??
+                modelSection.Key);
+        }
+    }
+
+    private static void AddModel(List<AiProviderModelSettings> models, string? name)
+    {
+        var model = AiProviderModelSettings.Create(name ?? string.Empty);
+        if (!model.IsConfigured() ||
+            models.Any(existing => string.Equals(existing.Name, model.Name, StringComparison.OrdinalIgnoreCase)))
+        {
+            return;
+        }
+
+        models.Add(model);
     }
 
     private static IConfigurationSection? ResolveAiProviderSection(IConfiguration configuration)
@@ -104,42 +163,21 @@ internal static class AiProviderAppSettingsFactory
             return null;
         }
 
-        var defaultEndpoint = section[DefaultEndpointKey];
-        if (!string.IsNullOrWhiteSpace(defaultEndpoint))
-        {
-            var defaultSection = endpoints.GetSection(defaultEndpoint);
-            if (defaultSection.Exists())
-            {
-                return defaultSection;
-            }
-        }
-
         return endpoints.GetChildren().FirstOrDefault();
     }
 
-    private static bool IsAzureOpenAiSection(IConfigurationSection section)
+    private static string ResolveProviderId(IConfigurationSection section)
     {
-        var providerType = section[TypeKey];
-        if (string.IsNullOrWhiteSpace(providerType))
+        var type = section[TypeKey] ?? section.Key;
+        return type.Trim().ToLowerInvariant().Replace(" ", string.Empty, StringComparison.Ordinal) switch
         {
-            return string.Equals(section.Key, AzureOpenAiSectionName, StringComparison.OrdinalIgnoreCase);
-        }
-
-        return string.Equals(providerType, AzureOpenAiTypeName, StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(providerType, AzureOpenAiTypeNameWithSpace, StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static string NormalizeModelType(string? type) =>
-        type?.Trim().ToLowerInvariant() switch
-        {
-            "audio-to-text" or "audio_to_text" or "transcribe" or "transcription" => AiProviderModelTypes.AudioToText,
-            "embedding" or "embeddings" => AiProviderModelTypes.Embeddings,
-            "text-to-audio" or "text_to_audio" or "tts" => AiProviderModelTypes.TextToAudio,
-            _ => AiProviderModelTypes.Text
+            "anthropic" or "claude" or "claudeapi" => SettingsAiProviderIds.ClaudeApi,
+            "azureopenai" => SettingsAiProviderIds.AzureOpenAi,
+            "ollama" => SettingsAiProviderIds.Ollama,
+            "openai" => SettingsAiProviderIds.OpenAi,
+            _ => string.Equals(section.Key, AzureOpenAiSectionName, StringComparison.OrdinalIgnoreCase)
+                ? SettingsAiProviderIds.AzureOpenAi
+                : string.Empty
         };
-
-    private static int? ReadPositiveInt(string? value) =>
-        int.TryParse(value, CultureInfo.InvariantCulture, out var result) && result > 0
-            ? result
-            : null;
+    }
 }

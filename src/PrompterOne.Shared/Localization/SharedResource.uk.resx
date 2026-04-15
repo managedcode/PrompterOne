@@ -264,6 +264,9 @@
   <data name="SettingsAiOllamaUrlLabel" xml:space="preserve">
     <value>Адреса Ollama</value>
   </data>
+  <data name="SettingsAiActiveProvider" xml:space="preserve">
+    <value>Активний провайдер</value>
+  </data>
   <data name="SettingsRecordingSectionTitle" xml:space="preserve">
     <value>Запис</value>
   </data>
@@ -2897,6 +2900,12 @@
   </data>
   <data name="AiSpotlightNoDocumentTextChanged" xml:space="preserve">
     <value>Текст документа не змінено.</value>
+  </data>
+  <data name="AiSpotlightStructuredEditMissingExpectedText" xml:space="preserve">
+    <value>Агент не вказав очікуваний вихідний текст для редагування діапазону.</value>
+  </data>
+  <data name="AiSpotlightStructuredEditRangeMismatch" xml:space="preserve">
+    <value>Редагування діапазону пропущено, бо очікуваний вихідний текст не збігається з поточним документом.</value>
   </data>
   <data name="LibraryLoadMessage" xml:space="preserve">
     <value>Зараз неможливо завантажити бібліотеку.</value>
